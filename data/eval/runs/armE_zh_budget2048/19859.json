@@ -1,0 +1,1032 @@
+{
+  "sense_id": 19859,
+  "language_id": 1,
+  "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+  "started_at": "2026-10-08T11:05:45.789546+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] flagged (rating 3): 义项正确，但句子冗余不自然",
+    "P1 sentence[1] flagged (rating 3): 义项正确，但句子冗余不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.2880711555480957,
+    "p1_generate": 48.222572326660156,
+    "tier_gate": 0.0,
+    "p1_judge": 91.99048256874084,
+    "collocate_grounding": 0.0,
+    "fan_out": 48.55083966255188
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] flagged (rating 3): 义项正确，但句子冗余不自然",
+        "P1 sentence[1] flagged (rating 3): 义项正确，但句子冗余不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[jɑʊ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "想要",
+            "label": "复合"
+          },
+          {
+            "form": "需要",
+            "label": "复合"
+          },
+          {
+            "form": "要求",
+            "label": "复合"
+          },
+          {
+            "form": "重要",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "yào",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            19859
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "28f4c401-654a-4435-9ab5-0c5a1acabc60",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "要",
+        "pronunciation": "yào",
+        "ipa": "[jɑʊ˥˩]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "摇",
+          "腰",
+          "咬",
+          "要"
+        ],
+        "correct_answer": "要",
+        "explanation": "正确。发音为第四声（yào），表示希望、需要或请求。",
+        "distractor_explanations": {
+          "腰": "声调混淆：“腰”读第一声（yāo），指身体的一部分；而目标词“要”读第四声（yào）。",
+          "摇": "声调混淆：“摇”读第二声（yáo），表示摆动；而目标词“要”读第四声（yào）。",
+          "咬": "声调混淆：“咬”读第三声（yǎo），表示用牙齿夹住或切断；而目标词“要”读第四声（yào）。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "要",
+          "pronunciation": "yào",
+          "ipa": "[jɑʊ˥˩]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "搖",
+            "腰",
+            "咬",
+            "要"
+          ],
+          "correct_answer": "要",
+          "explanation": "正確。發音為第四聲（yào），表示希望、需要或請求。",
+          "distractor_explanations": {
+            "腰": "聲調混淆：“腰”讀第一聲（yāo），指身體的一部分；而目標詞“要”讀第四聲（yào）。",
+            "摇": "聲調混淆：“搖”讀第二聲（yáo），表示擺動；而目標詞“要”讀第四聲（yào）。",
+            "咬": "聲調混淆：“咬”讀第三聲（yǎo），表示用牙齒夾住或切斷；而目標詞“要”讀第四聲（yào）。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "65de3054-884f-49b9-a103-f95e08677541",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "要",
+        "pronunciation": "yào",
+        "correct_definition": "表示希望、需要或请求得到某物，或做某事。",
+        "options": [
+          "表示希望、需要或请求得到某物，或做某事。",
+          "一种经济制度，生产资料归私人所有，通过市场获取利润。",
+          "颗粒物是指空气中非常细小的固体或液体微粒，比如灰尘、烟尘等。",
+          "指对自己的思想、情感、行为进行观察和反思。"
+        ],
+        "hant": {
+          "word": "要",
+          "pronunciation": "yào",
+          "correct_definition": "表示希望、需要或請求得到某物，或做某事。",
+          "options": [
+            "表示希望、需要或請求得到某物，或做某事。",
+            "一種經濟制度，生產資料歸私人所有，通過市場獲取利潤。",
+            "顆粒物是指空氣中非常細小的固體或液體微粒，比如灰塵、煙塵等。",
+            "指對自己的思想、情感、行為進行觀察和反思。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "83cfd148-8bdf-4ce3-8caa-7e721c014454",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我要把这本故事书送给小明。",
+            "is_correct": true
+          },
+          {
+            "text": "我要把这本故事书送起给小明。",
+            "is_correct": false
+          },
+          {
+            "text": "我要把这本故事书送了给小明。",
+            "is_correct": false
+          },
+          {
+            "text": "我把这本故事书要送给小明。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语序错误：情态动词“要”必须放在“把”字短语之前，正确语序应为“我要把这本故事书送给小明”。 体标位置错误：在“把”字句中，动态助词“了”应放在动补结构“送给”之后，即“送给了小明”，不能插入动词和补语之间。 方向/结果补语误用：“起”不能作“送”的补语来表示给予对象的方向，此处应使用“给”或“出去”等合适的补语。",
+        "target_word": "要",
+        "hant": {
+          "sentences": [
+            {
+              "text": "我要把這本故事書送給小明。",
+              "is_correct": true
+            },
+            {
+              "text": "我要把這本故事書送起給小明。",
+              "is_correct": false
+            },
+            {
+              "text": "我要把這本故事書送了給小明。",
+              "is_correct": false
+            },
+            {
+              "text": "我把這本故事書要送給小明。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語序錯誤：情態動詞“要”必須放在“把”字短語之前，正確語序應為“我要把這本故事書送給小明”。 體標位置錯誤：在“把”字句中，動態助詞“了”應放在動補結構“送給”之後，即“送給了小明”，不能插入動詞和補語之間。 方向/結果補語誤用：“起”不能作“送”的補語來表示給予物件的方向，此處應使用“給”或“出去”等合適的補語。",
+          "target_word": "要"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "92f311b4-792e-45c1-84d4-8ae4cd276fc2",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我把这本故事书要送给小明。",
+            "is_correct": false,
+            "error_description": "在把字句中，情态动词要应该放在把字之前，而不是之后。"
+          },
+          {
+            "text": "请把你要说的话大声讲出来。",
+            "is_correct": true
+          },
+          {
+            "text": "我明天需要去图书馆，所以我要去。",
+            "is_correct": true
+          },
+          {
+            "text": "她明天需要买礼物，所以她要买。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "我把這本故事書要送給小明。",
+              "is_correct": false,
+              "error_description": "在把字句中，情態動詞要應該放在把字之前，而不是之後。"
+            },
+            {
+              "text": "請把你要說的話大聲講出來。",
+              "is_correct": true
+            },
+            {
+              "text": "我明天需要去圖書館，所以我要去。",
+              "is_correct": true
+            },
+            {
+              "text": "她明天需要買禮物，所以她要買。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "8ce8fb4f-1f38-455c-a657-408d8462f0a6",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "要",
+        "pronunciation": "yào",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "表示希望、需要或请求得到某物，或做某事。",
+              "指所有年纪不大的人。",
+              "sturdy",
+              "昔；ずっと前 —— 物語の始まりによく使われる"
+            ],
+            "correct_answer": "表示希望、需要或请求得到某物，或做某事。"
+          }
+        },
+        "hant": {
+          "word": "要",
+          "pronunciation": "yào",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "表示希望、需要或請求得到某物，或做某事。",
+                "指所有年紀不大的人。",
+                "sturdy",
+                "昔；ずっと前 —— 物語の始まりによく使われる"
+              ],
+              "correct_answer": "表示希望、需要或請求得到某物，或做某事。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "a5ec7508-0074-4dec-8849-67900bd90d3e",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "要",
+        "options": [
+          "yǎo",
+          "yāo",
+          "yáo",
+          "yào"
+        ],
+        "correct_answer": "yào",
+        "word": "要",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "要",
+          "options": [
+            "yǎo",
+            "yāo",
+            "yáo",
+            "yào"
+          ],
+          "correct_answer": "yào",
+          "word": "要",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9200db94-2905-4ec8-a988-f94dd7b960ea",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "yào",
+        "options": [
+          "数",
+          "如",
+          "要",
+          "晒"
+        ],
+        "correct_answer": "要",
+        "word": "要",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "如": "component",
+          "数": "component",
+          "晒": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "yào",
+          "options": [
+            "數",
+            "如",
+            "要",
+            "曬"
+          ],
+          "correct_answer": "要",
+          "word": "要",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "如": "component",
+            "数": "component",
+            "晒": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "39472864-9b15-46e0-b9b0-6c382bd8727e",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "要",
+        "toneless_pinyin": "yao",
+        "full_pinyin": "yào",
+        "options": [
+          "4",
+          "2",
+          "3",
+          "1"
+        ],
+        "correct_answer": "4",
+        "option_labels": {
+          "4": "falling (4)",
+          "2": "rising (2)",
+          "3": "dipping (3)",
+          "1": "high level (1)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "要",
+          "toneless_pinyin": "yao",
+          "full_pinyin": "yào",
+          "options": [
+            "4",
+            "2",
+            "3",
+            "1"
+          ],
+          "correct_answer": "4",
+          "option_labels": {
+            "4": "falling (4)",
+            "2": "rising (2)",
+            "3": "dipping (3)",
+            "1": "high level (1)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b2de0613-56b3-4d4f-95fb-22d58f7125a9",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "你要不要试着把这道题解开了？",
+            "is_correct": false
+          },
+          {
+            "text": "要不要你试着把这道题解开？",
+            "is_correct": false
+          },
+          {
+            "text": "你要不要试着把这道题解开？",
+            "is_correct": true
+          },
+          {
+            "text": "你要不要试着把这只题解开？",
+            "is_correct": false
+          }
+        ],
+        "explanation": "量词使用错误：“题”的量词应为“道”，不能使用修饰动物或某些成对物品的“只”。 体标选用错误：句末的“了”表示动作完成，但“试着”表示尝试，两者在语义和体貌上冲突，应去掉“了”。 语序错误：情态动词“要”的主语“你”被错放在了“要不要”之后，破坏了正常的“主语+情态动词”语序。",
+        "target_word": "要",
+        "hant": {
+          "sentences": [
+            {
+              "text": "你要不要試著把這道題解開了？",
+              "is_correct": false
+            },
+            {
+              "text": "要不要你試著把這道題解開？",
+              "is_correct": false
+            },
+            {
+              "text": "你要不要試著把這道題解開？",
+              "is_correct": true
+            },
+            {
+              "text": "你要不要試著把這隻題解開？",
+              "is_correct": false
+            }
+          ],
+          "explanation": "量詞使用錯誤：“題”的量詞應為“道”，不能使用修飾動物或某些成對物品的“只”。 體標選用錯誤：句末的“了”表示動作完成，但“試著”表示嘗試，兩者在語義和體貌上衝突，應去掉“了”。 語序錯誤：情態動詞“要”的主語“你”被錯放在了“要不要”之後，破壞了正常的“主語+情態動詞”語序。",
+          "target_word": "要"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19859,
+      "word_asset_id": "shadow-19859-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00426592,
+      "prompt_tokens": 2415,
+      "completion_tokens": 2729,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47724
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00308576,
+      "prompt_tokens": 643,
+      "completion_tokens": 2250,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 39628
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0027488,
+      "prompt_tokens": 238,
+      "completion_tokens": 2088,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "repair",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 36870
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00119296,
+      "prompt_tokens": 556,
+      "completion_tokens": 793,
+      "cached_tokens": 0,
+      "reasoning_tokens": 721,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 14603
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00264608,
+      "prompt_tokens": 1465,
+      "completion_tokens": 1701,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1606,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 30232
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00320928,
+      "prompt_tokens": 1465,
+      "completion_tokens": 2141,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37378
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00398688,
+      "prompt_tokens": 1655,
+      "completion_tokens": 2701,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47883
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00404064,
+      "prompt_tokens": 1655,
+      "completion_tokens": 2743,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48284
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00142272,
+      "prompt_tokens": 418,
+      "completion_tokens": 1007,
+      "cached_tokens": 0,
+      "reasoning_tokens": 896,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 18491
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001669959,
+      "prompt_tokens": 397,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2511
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00142048,
+      "prompt_tokens": 563,
+      "completion_tokens": 969,
+      "cached_tokens": 0,
+      "reasoning_tokens": 901,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 17446
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00054272,
+      "prompt_tokens": 416,
+      "completion_tokens": 320,
+      "cached_tokens": 0,
+      "reasoning_tokens": 296,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 6446
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00142272,
+      "prompt_tokens": 418,
+      "completion_tokens": 1007,
+      "cached_tokens": 0,
+      "reasoning_tokens": 896,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 18153
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001621089,
+      "prompt_tokens": 394,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 3242
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00142592,
+      "prompt_tokens": 544,
+      "completion_tokens": 978,
+      "cached_tokens": 0,
+      "reasoning_tokens": 877,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 18535
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00078848,
+      "prompt_tokens": 428,
+      "completion_tokens": 509,
+      "cached_tokens": 0,
+      "reasoning_tokens": 484,
+      "call_role": "primary",
+      "sense_id": 19859,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 9896
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.03252846479999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 286.60899999999674,
+  "finished_at": "2026-10-08T11:10:32.394976+00:00"
+}

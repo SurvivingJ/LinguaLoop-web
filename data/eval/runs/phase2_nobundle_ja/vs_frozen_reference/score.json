@@ -1,0 +1,1184 @@
+{
+  "lang": "ja",
+  "candidate": "data/eval/runs/phase2_nobundle_ja",
+  "reference": "data/eval/exercise_gen_reference_set_2026-09.json",
+  "reference_meta": {
+    "kind": "frozen_reference_json",
+    "path": "data/eval/exercise_gen_reference_set_2026-09.json",
+    "reference_set_count": 50,
+    "top_up_candidates_count": 0
+  },
+  "coverage": {
+    "senses_compared": 30,
+    "senses_missing_from_candidate": [
+      "35059",
+      "35065",
+      "35069",
+      "35125",
+      "35143",
+      "35189",
+      "35215",
+      "35241",
+      "35351",
+      "35371",
+      "35397",
+      "35403",
+      "35443",
+      "35681",
+      "35739",
+      "36279",
+      "36309",
+      "36521",
+      "36861",
+      "51788"
+    ],
+    "reference_level_type_pairs": 12,
+    "expected_pairs_total": 249,
+    "present_pairs_total": 28,
+    "coverage_pct": 11.244979919678714,
+    "missing_levels_count": 7,
+    "missing_levels": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      9
+    ],
+    "per_sense_missing": {
+      "34999": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35001": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35009": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ]
+      ],
+      "35011": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35017": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          4,
+          "particle_selection"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          6,
+          "synonym_antonym_match"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35033": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35039": [
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35055": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "particle_selection"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35093": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35111": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35127": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35147": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35157": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35201": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          4,
+          "particle_selection"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35211": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35227": [
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "particle_selection"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          6,
+          "synonym_antonym_match"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35293": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ]
+      ],
+      "35331": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ]
+      ],
+      "35341": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "35419": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ]
+      ],
+      "35525": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ]
+      ],
+      "35615": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          6,
+          "synonym_antonym_match"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "36181": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "36191": [
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          4,
+          "particle_selection"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "38099": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "39187": [
+        [
+          1,
+          "phonetic_recognition"
+        ]
+      ],
+      "39661": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ],
+      "53352": [
+        [
+          1,
+          "kanji_to_reading"
+        ],
+        [
+          1,
+          "phonetic_recognition"
+        ],
+        [
+          1,
+          "reading_to_kanji"
+        ],
+        [
+          2,
+          "definition_match"
+        ],
+        [
+          3,
+          "cloze_completion"
+        ],
+        [
+          4,
+          "cloze_typed"
+        ],
+        [
+          4,
+          "morphology_slot"
+        ],
+        [
+          4,
+          "particle_selection"
+        ],
+        [
+          6,
+          "semantic_discrimination"
+        ],
+        [
+          6,
+          "synonym_antonym_match"
+        ],
+        [
+          7,
+          "spot_incorrect_sentence"
+        ],
+        [
+          9,
+          "jumbled_sentence"
+        ]
+      ]
+    }
+  },
+  "candidate_metrics": {
+    "invalid_asset_rate": {
+      "total_assets": 10,
+      "invalid_assets": 0,
+      "invalid_rate_pct": 0.0,
+      "by_asset_type": {
+        "prompt1_core": {
+          "total": 3,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "llm_types_A": {
+          "total": 3,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "llm_types_B": {
+          "total": 3,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt2_exercises_B": {
+          "total": 1,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        }
+      }
+    },
+    "judge_reject_rates": {
+      "l1_distractor": {
+        "total": 20,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      },
+      "sentence_validity": {
+        "total": 21,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      },
+      "relation": {
+        "total": 12,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      },
+      "particle": {
+        "total": 3,
+        "rejected": 0,
+        "reject_rate_pct": 0.0
+      }
+    },
+    "l1_drop_rate": {
+      "l1_variants": 2,
+      "dropped": 0,
+      "drop_rate_pct": 0.0,
+      "min_surviving_distractors": 3
+    },
+    "cost": {
+      "senses_with_calls": 3,
+      "total_calls": 23,
+      "priced_calls": 23,
+      "total_cost_usd": 0.015683,
+      "cost_per_sense_mean": 0.005228,
+      "cost_per_sense_p50": 0.004856,
+      "cost_per_sense_p90": 0.006683,
+      "retries_per_sense_mean": 1.0,
+      "per_stage_cost_share_pct": {
+        "vocab_prompt1_core": 36.4,
+        "ladder_particle_selection_generation": 5.59,
+        "ladder_syn_ant_generation": 10.88,
+        "judge_ladder_sentence_validity": 7.69,
+        "judge_ladder_relation": 1.77,
+        "vocab_prompt1_core_repair": 12.34,
+        "ladder_l4_morphology_generation": 5.65,
+        "judge_ladder_l1_distractor": 10.19,
+        "vocab_prompt1_core_sentence_repair": 0.48,
+        "vocab_prompt2_exercises": 9.01
+      }
+    },
+    "wall_clock": {
+      "senses_with_timings": 30,
+      "wall_clock_per_sense_mean_s": 8.53,
+      "wall_clock_per_sense_p50_s": 1.23,
+      "wall_clock_per_sense_p90_s": 2.14
+    }
+  },
+  "reference_metrics": {
+    "invalid_asset_rate": {
+      "total_assets": 274,
+      "invalid_assets": 0,
+      "invalid_rate_pct": 0.0,
+      "by_asset_type": {
+        "prompt1_core": {
+          "total": 50,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt2_exercises_A": {
+          "total": 50,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt2_exercises_B": {
+          "total": 50,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt3_transforms_A": {
+          "total": 50,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "prompt3_transforms_B": {
+          "total": 50,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "llm_types_A": {
+          "total": 12,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        },
+        "llm_types_B": {
+          "total": 12,
+          "invalid": 0,
+          "invalid_rate_pct": 0.0
+        }
+      }
+    },
+    "judge_reject_rates": {},
+    "l1_drop_rate": {
+      "l1_variants": 43,
+      "dropped": 0,
+      "drop_rate_pct": 0.0,
+      "min_surviving_distractors": 3
+    },
+    "cost": {
+      "senses_with_calls": 0,
+      "total_calls": 0,
+      "priced_calls": 0,
+      "total_cost_usd": null,
+      "cost_per_sense_mean": null,
+      "cost_per_sense_p50": null,
+      "cost_per_sense_p90": null,
+      "retries_per_sense_mean": null,
+      "per_stage_cost_share_pct": {}
+    },
+    "wall_clock": {
+      "senses_with_timings": 0,
+      "wall_clock_per_sense_mean_s": null,
+      "wall_clock_per_sense_p50_s": null,
+      "wall_clock_per_sense_p90_s": null
+    }
+  },
+  "pairwise_summary": null,
+  "thresholds": {
+    "major_defect_margin_pp": 2.0,
+    "pairwise_loss_margin_pp": 10.0,
+    "coverage_min_pct": 95.0,
+    "invalid_asset_margin_pp": 3.0
+  },
+  "decision": {
+    "overall": "FAIL",
+    "failed_criteria": [
+      "c_coverage"
+    ],
+    "skipped_criteria": [
+      "a_major_defect_rate",
+      "b_pairwise_loss_minus_win"
+    ],
+    "criteria": {
+      "a_major_defect_rate": {
+        "status": "SKIPPED",
+        "reason": "insufficient data (no judge verdicts and no pairwise results)",
+        "source": "judge_reject_rate_fallback"
+      },
+      "b_pairwise_loss_minus_win": {
+        "status": "SKIPPED",
+        "reason": "no --pairwise-results provided; run scripts/merge_pairwise_verdicts.py first"
+      },
+      "c_coverage": {
+        "status": "FAIL",
+        "coverage_pct": 11.24,
+        "min_pct": 95.0
+      },
+      "d_invalid_asset_rate": {
+        "status": "PASS",
+        "candidate_pct": 0.0,
+        "reference_pct": 0.0,
+        "margin_pp": 3.0
+      }
+    }
+  }
+}

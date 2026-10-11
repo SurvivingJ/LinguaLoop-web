@@ -151,11 +151,18 @@ export function mount(container, ctx) {
     const ex = state.items[state.currentIndex];
     state.renderedAt = now();
 
+    // Surfaced on every render (including the error fallback below) so a
+    // broken exercise can be reported by ID instead of by vague description.
+    const idBadge = ex.exercise_id
+      ? `<div class="exercise-id-badge">${escHtml(ex.exercise_id)}</div>`
+      : '';
+
     try {
-      ER.dispatch(ex.exercise_type, ex, ex.content || {}, '');
+      ER.dispatch(ex.exercise_type, ex, ex.content || {}, idBadge);
     } catch (e) {
-      console.error('Render error for', ex.exercise_type, e);
+      console.error('Render error for', ex.exercise_type, ex.exercise_id, e);
       q('exerciseCard').innerHTML =
+        idBadge +
         `<p style="color:var(--danger)">Error rendering exercise: ${escHtml(ex.exercise_type)}</p>`;
       return;
     }
@@ -349,6 +356,7 @@ const MARKUP = `
     .speed-timer-fill.urgent { background: linear-gradient(90deg, var(--danger, #dc2626), #f97316); }
     .speed-timer-text { font-size: 14px; font-weight: 700; color: var(--text-secondary); min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
     .exercise-card-area { max-width: 680px; margin: 16px auto; background: var(--bg-surface); border-radius: 16px; box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08)); padding: 28px; min-height: 300px; }
+    .exercise-id-badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--text-secondary); opacity: .55; margin-bottom: 6px; user-select: all; cursor: text; }
     .exercise-type-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
     .exercise-instruction { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
     .exercise-prompt { font-size: 18px; line-height: 1.6; color: var(--text-primary); margin-bottom: 20px; }

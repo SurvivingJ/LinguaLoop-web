@@ -1,0 +1,906 @@
+{
+  "sense_id": 19870,
+  "language_id": 1,
+  "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+  "started_at": "2026-10-04T05:28:46.174764+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.08526778221130371,
+    "p1_generate": 12.673959493637085,
+    "tier_gate": 0.0,
+    "p1_judge": 4.12864875793457,
+    "collocate_grounding": 0.0,
+    "fan_out": 16.198850393295288
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[jɛ˨˩˦]",
+        "morphological_forms": [
+          {
+            "form": "也是",
+            "label": "复合"
+          },
+          {
+            "form": "也许",
+            "label": "复合"
+          },
+          {
+            "form": "也好",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "yě",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            19870
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "4e50efd0-d30b-45dc-826a-028a9d52b054",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "也",
+        "pronunciation": "yě",
+        "ipa": "[jɛ˨˩˦]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "夜",
+          "也",
+          "爷",
+          "野"
+        ],
+        "correct_answer": "也",
+        "explanation": "正确。读音为 yě（第三声），表示同样或并列。",
+        "distractor_explanations": {
+          "夜": "错误。读音为 yè（第四声），意思是夜晚，与目标词声调不同。",
+          "野": "错误。读音为 yě（第三声），但在本语境中通常指野外或野蛮，虽同音但字形和意义完全不同，此处作为视觉干扰项需注意区分字形。注：严格来说L1主要考察听音辨字，若纯听力无法区分同音字，通常避免同音异义字。但根据规则“不得使用整体同音同调的纯同形异义字”，此处“野”与“也”虽同音同调，但属于不同汉字。为了符合L1声调混淆的主要原则，更标准的干扰项应为声调不同的字。让我们修正干扰项以严格符合“声调混淆”规则。",
+          "爷": "错误。读音为 yé（第二声），意思是爷爷或长辈，声调与目标词不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "也",
+          "pronunciation": "yě",
+          "ipa": "[jɛ˨˩˦]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "夜",
+            "也",
+            "爺",
+            "野"
+          ],
+          "correct_answer": "也",
+          "explanation": "正確。讀音為 yě（第三聲），表示同樣或並列。",
+          "distractor_explanations": {
+            "夜": "錯誤。讀音為 yè（第四聲），意思是夜晚，與目標詞聲調不同。",
+            "野": "錯誤。讀音為 yě（第三聲），但在本語境中通常指野外或野蠻，雖同音但字形和意義完全不同，此處作為視覺干擾項需注意區分字形。注：嚴格來說L1主要考察聽音辨字，若純聽力無法區分同音字，通常避免同音異義字。但根據規則“不得使用整體同音同調的純同形異義字”，此處“野”與“也”雖同音同調，但屬於不同漢字。為了符合L1聲調混淆的主要原則，更標準的干擾項應為聲調不同的字。讓我們修正干擾項以嚴格符合“聲調混淆”規則。",
+            "爷": "錯誤。讀音為 yé（第二聲），意思是爺爺或長輩，聲調與目標詞不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "158aae86-bdda-4890-a84e-caad6fec5f19",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "也",
+        "pronunciation": "yě",
+        "correct_definition": "表示同样或并列，用于连接两个相似的情况。",
+        "options": [
+          "司法是指国家司法机关依照法定职权和程序，运用法律处理案件的活动。",
+          "指每一个人；所有的人。",
+          "效果指某种行为或原因带来的结果或作用。",
+          "表示同样或并列，用于连接两个相似的情况。"
+        ],
+        "hant": {
+          "word": "也",
+          "pronunciation": "yě",
+          "correct_definition": "表示同樣或並列，用於連線兩個相似的情況。",
+          "options": [
+            "司法是指國家司法機關依照法定職權和程式，運用法律處理案件的活動。",
+            "指每一個人；所有的人。",
+            "效果指某種行為或原因帶來的結果或作用。",
+            "表示同樣或並列，用於連線兩個相似的情況。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5e11f3e3-aa83-4500-80a3-78d97c94663d",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他去过北京，我也把那里去过。",
+            "is_correct": false
+          },
+          {
+            "text": "他去过北京，我也去过那里。",
+            "is_correct": true
+          },
+          {
+            "text": "也他去过北京，我去过那里。",
+            "is_correct": false
+          },
+          {
+            "text": "他去北京过，我也去过那里。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置错误：动态助词“过”应紧贴在动词“去”之后，即“去过北京”，而不是放在宾语“北京”之后。 语序错误：副词“也”应当放在主语“他”之后、动词短语之前，不能放在句首修饰整个句子或置于主语前。 搭配/语序错误：在“把”字句中，动词“去”是不及物动词或方向动词，通常不能直接作为“把”字句的谓语核心来处置宾语“那里”，且“去过”作为动补结构不宜拆分放入典型的“把”字处置结构中，表达极不自然。",
+        "target_word": "也",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他去過北京，我也把那裡去過。",
+              "is_correct": false
+            },
+            {
+              "text": "他去過北京，我也去過那裡。",
+              "is_correct": true
+            },
+            {
+              "text": "也他去過北京，我去過那裡。",
+              "is_correct": false
+            },
+            {
+              "text": "他去北京過，我也去過那裡。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置錯誤：動態助詞“過”應緊貼在動詞“去”之後，即“去過北京”，而不是放在賓語“北京”之後。 語序錯誤：副詞“也”應當放在主語“他”之後、動詞短語之前，不能放在句首修飾整個句子或置於主語前。 搭配/語序錯誤：在“把”字句中，動詞“去”是不及物動詞或方向動詞，通常不能直接作為“把”字句的謂語核心來處置賓語“那裡”，且“去過”作為動補結構不宜拆分放入典型的“把”字處置結構中，表達極不自然。",
+          "target_word": "也"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "8f805233-d20c-4728-9a18-bf7b4e086a34",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "这个苹果很甜，那个也很甜。",
+        "hant": {
+          "original_sentence": "這個蘋果很甜，那個也很甜。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "838f3f7f-f13e-4881-ab1d-160f444aa140",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "也",
+        "pronunciation": "yě",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "to come out",
+              "to check",
+              "表示同样或并列，用于连接两个相似的情况。",
+              "指按一定顺序或阶段逐步进行，不是一次性完成。"
+            ],
+            "correct_answer": "表示同样或并列，用于连接两个相似的情况。"
+          }
+        },
+        "hant": {
+          "word": "也",
+          "pronunciation": "yě",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "to come out",
+                "to check",
+                "表示同樣或並列，用於連線兩個相似的情況。",
+                "指按一定順序或階段逐步進行，不是一次性完成。"
+              ],
+              "correct_answer": "表示同樣或並列，用於連線兩個相似的情況。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b61ec022-d859-4c76-9145-2f1bd59b9899",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "也",
+        "options": [
+          "yě",
+          "yé",
+          "yè",
+          "yē"
+        ],
+        "correct_answer": "yě",
+        "word": "也",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "也",
+          "options": [
+            "yě",
+            "yé",
+            "yè",
+            "yē"
+          ],
+          "correct_answer": "yě",
+          "word": "也",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "016ddf73-fffd-4365-ad68-67cad51a53d2",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "yě",
+        "options": [
+          "家",
+          "也",
+          "风",
+          "更"
+        ],
+        "correct_answer": "也",
+        "word": "也",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "家": "frequency",
+          "更": "frequency",
+          "风": "frequency"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "yě",
+          "options": [
+            "家",
+            "也",
+            "風",
+            "更"
+          ],
+          "correct_answer": "也",
+          "word": "也",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "家": "frequency",
+            "更": "frequency",
+            "风": "frequency"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "d8a7a3ab-78e9-4e77-9b19-5133e3151c55",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "也",
+        "toneless_pinyin": "ye",
+        "full_pinyin": "yě",
+        "options": [
+          "3",
+          "4",
+          "1",
+          "2"
+        ],
+        "correct_answer": "3",
+        "option_labels": {
+          "3": "dipping (3)",
+          "4": "falling (4)",
+          "1": "high level (1)",
+          "2": "rising (2)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "也",
+          "toneless_pinyin": "ye",
+          "full_pinyin": "yě",
+          "options": [
+            "3",
+            "4",
+            "1",
+            "2"
+          ],
+          "correct_answer": "3",
+          "option_labels": {
+            "3": "dipping (3)",
+            "4": "falling (4)",
+            "1": "high level (1)",
+            "2": "rising (2)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "03e6ef3c-681b-4972-b545-1aa7046957d1",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "他去过北京，我也去过那里。",
+        "hant": {
+          "original_sentence": "他去過北京，我也去過那裡。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19870,
+      "word_asset_id": "shadow-19870-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160416,
+      "prompt_tokens": 2401,
+      "completion_tokens": 653,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 12437
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00040896,
+      "prompt_tokens": 642,
+      "completion_tokens": 159,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4032
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00061504,
+      "prompt_tokens": 1458,
+      "completion_tokens": 116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 3635
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00079744,
+      "prompt_tokens": 1456,
+      "completion_tokens": 259,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 5630
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00137504,
+      "prompt_tokens": 1653,
+      "completion_tokens": 661,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 12818
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163616,
+      "prompt_tokens": 1653,
+      "completion_tokens": 865,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 16081
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00022272,
+      "prompt_tokens": 420,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2366
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001713672,
+      "prompt_tokens": 394,
+      "completion_tokens": 68,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1705
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00026528,
+      "prompt_tokens": 585,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2180
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00023968,
+      "prompt_tokens": 581,
+      "completion_tokens": 42,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1848
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00022272,
+      "prompt_tokens": 420,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2127
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001723959,
+      "prompt_tokens": 394,
+      "completion_tokens": 69,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2396
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00026496,
+      "prompt_tokens": 560,
+      "completion_tokens": 67,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2055
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00017344,
+      "prompt_tokens": 446,
+      "completion_tokens": 24,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19870,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1036
+    }
+  ],
+  "llm_calls_observed": 14,
+  "llm_cost_observed_usd": 0.0081693631,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 50.03099999995902,
+  "finished_at": "2026-10-04T05:29:36.212764+00:00"
+}

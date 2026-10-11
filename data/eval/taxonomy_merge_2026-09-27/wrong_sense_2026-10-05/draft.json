@@ -1,0 +1,72 @@
+[
+  {
+    "id": "en_v6_ws_01",
+    "kind": "single",
+    "source_passage_id": 14,
+    "note": "wrong_sense probe: pick up->pick. Lemma 'pick' (dim_vocabulary 14559; 2 senses: select/choose, harvest). The arm is meant to lift; bare 'pick' selects the choose sense.",
+    "reference": "The coding is important. You write instructions for the Arduino. You can make the arm pick up small things. You can move them to a new spot.",
+    "reproduction": "The coding is important. You write instructions for the Arduino. You can make the arm pick small things. You can move them to a new spot.",
+    "expected_errors": [
+      {
+        "span_repro": [
+          86,
+          90
+        ],
+        "span_ref": [
+          86,
+          93
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v2": "minor",
+        "learner_form": "pick",
+        "corrected_form": "pick up",
+        "subtype_v6_target": "word_choice",
+        "explanation_variant": "wrong_sense"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "lang": "en"
+  },
+  {
+    "id": "en_v6_ws_02",
+    "kind": "single",
+    "source_passage_id": 13,
+    "note": "wrong_sense probe: 'is like' (prep, similar to) -> 'likes' (verb, enjoy). Lemma 'like' (dim_vocabulary 15338; 4 senses incl. enjoy and similar-to).",
+    "reference": "One motor can make the arm go up and down. Another motor can make it move left and right. A third motor can open and close a gripper. This is like a hand.",
+    "reproduction": "One motor can make the arm go up and down. Another motor can make it move left and right. A third motor can open and close a gripper. This likes a hand.",
+    "expected_errors": [
+      {
+        "span_repro": [
+          139,
+          144
+        ],
+        "span_ref": [
+          139,
+          146
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v2": "minor",
+        "learner_form": "likes",
+        "corrected_form": "is like",
+        "subtype_v6_target": "word_choice",
+        "explanation_variant": "wrong_sense"
+      }
+    ],
+    "expected_bands": {
+      "accuracy": 4,
+      "understandability": 4,
+      "fidelity": 4,
+      "range": 4,
+      "naturalness": 4
+    },
+    "lang": "en"
+  }
+]

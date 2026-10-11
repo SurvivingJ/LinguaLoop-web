@@ -67,7 +67,7 @@ def build_hanzi_to_pinyin(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
             type_code, f'only {len(distractors)} pinyin confusions available'))
         return []
 
-    return [_mcq(ctx, type_code, prompt=ctx.lemma,
+    return [_mcq(ctx, type_code, prompt=_headword(ctx),
                  key=format_pinyin(syllables), distractors=distractors)]
 
 
@@ -79,7 +79,8 @@ def build_kanji_to_reading(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
     if not reading or not is_kana(reading):
         skips.append(Skip(type_code, 'pronunciation missing or not kana'))
         return []
-    if not has_kanji(ctx.lemma):
+    word = _headword(ctx)
+    if not has_kanji(word):
         # A word already written in kana has nothing to read off. Not a
         # failure — most function words land here.
         skips.append(Skip(type_code, 'lemma contains no kanji — reading is trivial'))
@@ -91,7 +92,7 @@ def build_kanji_to_reading(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
             type_code, f'only {len(distractors)} kana confusions available'))
         return []
 
-    return [_mcq(ctx, type_code, prompt=ctx.lemma,
+    return [_mcq(ctx, type_code, prompt=word,
                  key=reading, distractors=distractors)]
 
 
@@ -118,7 +119,7 @@ def build_reading_to_kanji(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
     if not reading or not is_kana(reading):
         skips.append(Skip(type_code, 'pronunciation missing or not kana'))
         return []
-    if not has_kanji(ctx.lemma):
+    if not has_kanji(_headword(ctx)):
         skips.append(Skip(type_code, 'lemma contains no kanji — nothing to choose'))
         return []
     return _reverse(ctx, skips, type_code, prompt=reading)
@@ -134,7 +135,11 @@ def _reverse(
             type_code, 'lexicon unavailable — cannot source real-word foils'))
         return []
 
-    key = ctx.lemma
+    # `_headword(ctx)` for both callers: zh nouns don't inflect, so this is a
+    # no-op for `pinyin_to_hanzi`; ja's `reading_to_kanji` is the case that
+    # needs the dictionary form rather than whatever inflected surface the
+    # first P1 sentence happened to use (see the `headword` field docstring).
+    key = _headword(ctx)
     # The key itself must never appear as a foil: for a polyphone the corpus
     # holds the same lemma under two reading keys, and offering it as a wrong
     # answer would make the item unanswerable.
@@ -183,6 +188,17 @@ def _pronunciation(ctx: SenseContext) -> str:
     return (ctx.pronunciation or (ctx.core or {}).get('pronunciation') or '').strip()
 
 
+def _headword(ctx: SenseContext) -> str:
+    """The dictionary form of this sense's word, falling back to `.lemma`.
+
+    See the `SenseContext.headword` field docstring — this module is
+    entirely about the written form/reading pair, so the dictionary headword
+    is always the right concept here, unlike builders that need the exact
+    inflected surface form a particular sentence uses.
+    """
+    return ctx.headword or ctx.lemma
+
+
 def _mcq(
     ctx: SenseContext, type_code: str, prompt: str, key: str, distractors: list[str],
 ) -> dict:
@@ -202,12 +218,12 @@ def _mcq(
         'prompt': prompt,
         'options': options,
         'correct_answer': key,
-        'word': ctx.lemma,
+        'word': _headword(ctx),
         'direction': type_code,
     }
 
     lexicon = get_lexicon(ctx.db, ctx.language_id)
-    if lexicon.is_polyphonic(ctx.lemma):
+    if lexicon.is_polyphonic(_headword(ctx)):
         sentence = ctx.sentence_for_level(1, default=0) or {}
         text = (sentence.get('text') or '').strip()
         if text:

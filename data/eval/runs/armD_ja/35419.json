@@ -1,0 +1,819 @@
+{
+  "sense_id": 35419,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T19:39:13.969084+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[1] flagged (rating 3): 用法やや不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.685877799987793,
+    "p1_generate": 37.282745599746704,
+    "tier_gate": 0.005460977554321289,
+    "p1_judge": 23.56910753250122,
+    "collocate_grounding": 0.0,
+    "fan_out": 33.89335632324219
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] flagged (rating 3): 用法やや不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/jaɡate/",
+        "pronunciation": "やがて",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35419
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "120c8eb5-f1c7-47fd-aa77-3885f603d645",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "軈て",
+        "pronunciation": "やがて",
+        "ipa": "/jaɡate/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "矢がら",
+          "やり手",
+          "夜学",
+          "軈て"
+        ],
+        "correct_answer": "軈て",
+        "explanation": "正解です。「軈て」は「「軈て」は、時間が経過した後に何かが起こることを表す副詞で、「やがて」の異表記です。現代ではあまり使われず、文語的な表現です。」という意味です。",
+        "distractor_explanations": {
+          "矢がら": "「矢がら」は「軈て」と一モーラだけ異なる実在語です（3モーラ目: 「て」→「ら」、一部の音の違い）。",
+          "やり手": "「やり手」は「軈て」と一モーラだけ異なる実在語です（2モーラ目: 「が」→「り」、一部の音の違い）。",
+          "夜学": "「夜学」は「軈て」と一モーラだけ異なる実在語です（3モーラ目: 「て」→「く」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "l1_distractor_judge": {
+          "rejected": 2,
+          "kept": 8,
+          "rejected_items": [
+            "約手",
+            "苦手"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7eb9521f-45c2-4ce9-8b71-7827e8cbfea0",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "やがて",
+        "pronunciation": "やがて",
+        "correct_definition": "「軈て」は、時間が経過した後に何かが起こることを表す副詞で、「やがて」の異表記です。現代ではあまり使われず、文語的な表現です。",
+        "options": [
+          "「軈て」は、時間が経過した後に何かが起こることを表す副詞で、「やがて」の異表記です。現代ではあまり使われず、文語的な表現です。",
+          "全体を大きく捉える視点や規模のこと。ミクロの対義語。経済学やシステム論などで、個別の要素ではなく全体の振る舞いに注目する際に用いる。",
+          "物が汚れていない状態を表す形容動詞。",
+          "物事を正しく理解したり、判断したりする心のはたらき。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "261d3579-9b55-4c86-9d03-06748f621e5a",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "水は瞬く間に闇色の大地へと吸い込まれ、___目に見えぬ根の網目へと伝わっていくだろう。",
+        "original_sentence": "水は瞬く間に闇色の大地へと吸い込まれ、やがて目に見えぬ根の網目へと伝わっていくだろう。",
+        "correct_answer": "やがて",
+        "options": [
+          "やがて",
+          "わざと",
+          "すでに",
+          "決して"
+        ],
+        "explanation": "正解です。水が大地に吸い込まれ、時間が経過した後に根の網目に伝わっていくという自然な時間の経過を表しています。",
+        "distractor_tags": {},
+        "word_definition": "「軈て」は、時間が経過した後に何かが起こることを表す副詞で、「やがて」の異表記です。現代ではあまり使われず、文語的な表現です。",
+        "target_word": "やがて"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "0b76b5df-cf93-47f3-ad08-f09c686f3794",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "やがて成長の過程において、植物は時折厳しい気候に晒されながらも、力強く茎を伸ばしていく。",
+            "is_correct": true
+          },
+          {
+            "text": "この憧れの感情は、やがてグローバルな大衆向けブランドによって巧妙に咀嚼され、誰もが手が届く価格帯へと昇華されるのだ。",
+            "is_correct": true
+          },
+          {
+            "text": "水は瞬く間に闇色の大地へと吸い込まれ、やがて目に見えぬ根の網目へと伝わっていくだろう。",
+            "is_correct": true
+          },
+          {
+            "text": "やがてに、その答えが分かる時が来る。",
+            "is_correct": false,
+            "error_description": "「やがて」は副詞であるため、格助詞「に」を直接結びつけて「やがてに」とすることはできません。副詞は単独で用言や文全体を修飾します。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "0a2e5d4d-f8bf-46f9-adbf-057ce271672f",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "やがて",
+        "pronunciation": "やがて",
+        "tier": "T4",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "住宅",
+              "「軈て」は、時間が経過した後に何かが起こることを表す副詞で、「やがて」の異表記です。現代ではあまり使われず、文語的な表現です。",
+              "视为 —— 判断某事就是那样，把某种情况当作具有特定意义来对待",
+              "威胁 —— 给人或事物带来危险或不安"
+            ],
+            "correct_answer": "「軈て」は、時間が経過した後に何かが起こることを表す副詞で、「やがて」の異表記です。現代ではあまり使われず、文語的な表現です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "36c8099e-44a0-4eb5-b81d-a8d6312aa139",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "軈て",
+        "options": [
+          "やがて",
+          "やがで",
+          "やかて",
+          "やあがて"
+        ],
+        "correct_answer": "やがて",
+        "word": "軈て",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "5892f222-55ce-438c-ae8c-5585c6b6b9f5",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "やがて",
+        "options": [
+          "意思",
+          "思想",
+          "軈て",
+          "意志"
+        ],
+        "correct_answer": "軈て",
+        "word": "軈て",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "思想": "component",
+          "意思": "component",
+          "意志": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "1d50cce4-ebf0-4d28-8a78-d02a110ee810",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___彼は自分の道を見つける。",
+        "original_sentence": "軈て彼は自分の道を見つける。",
+        "correct_answer": "やがて",
+        "options": [
+          "すぐに",
+          "すでに",
+          "やがて",
+          "決して"
+        ],
+        "explanation": "文脈に最も適しています。「やがて」は時間の経過を経て結果が生じることを自然に表現します。",
+        "distractor_tags": {},
+        "word_definition": "「軈て」は、時間が経過した後に何かが起こることを表す副詞で、「やがて」の異表記です。現代ではあまり使われず、文語的な表現です。",
+        "target_word": "軈て"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "6d735cb6-4c42-446d-9625-ccb9a6c80da4",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "軈てすべては良い方向へ向かう。",
+            "is_correct": true
+          },
+          {
+            "text": "軈て彼は自分の道に見つける。",
+            "is_correct": false,
+            "error_description": "「見つける」は他動詞であり、目的語を示す助詞「を」を使う必要があります。「に」は方向や存在場所を表すため、この文脈では不適切です。"
+          },
+          {
+            "text": "軈て真実が明らかになるだろう。",
+            "is_correct": true
+          },
+          {
+            "text": "軈て彼は自分の道を見つける。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35419,
+      "word_asset_id": "shadow-35419-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 2,
+      "kept": 8
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 2
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00360896,
+      "prompt_tokens": 2862,
+      "completion_tokens": 2104,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 37009
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181408,
+      "prompt_tokens": 833,
+      "completion_tokens": 1209,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23382
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0020016,
+      "prompt_tokens": 1691,
+      "completion_tokens": 1141,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20343
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0020176,
+      "prompt_tokens": 1693,
+      "completion_tokens": 1153,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21505
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00321312,
+      "prompt_tokens": 2781,
+      "completion_tokens": 1815,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 32050
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00314912,
+      "prompt_tokens": 2781,
+      "completion_tokens": 1765,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 33611
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186944,
+      "prompt_tokens": 826,
+      "completion_tokens": 1254,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 25350
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017188,
+      "prompt_tokens": 393,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 11840
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00161504,
+      "prompt_tokens": 667,
+      "completion_tokens": 1095,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20988
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00124864,
+      "prompt_tokens": 534,
+      "completion_tokens": 842,
+      "cached_tokens": 0,
+      "reasoning_tokens": 813,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 15628
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00189536,
+      "prompt_tokens": 827,
+      "completion_tokens": 1274,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24025
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00015972,
+      "prompt_tokens": 367,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 8034
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016176,
+      "prompt_tokens": 663,
+      "completion_tokens": 1098,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20589
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00151456,
+      "prompt_tokens": 525,
+      "completion_tokens": 1052,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35419,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21633
+    }
+  ],
+  "llm_calls_observed": 14,
+  "llm_cost_observed_usd": 0.02589672,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 249.82800000009593,
+  "finished_at": "2026-10-05T19:43:23.794277+00:00"
+}

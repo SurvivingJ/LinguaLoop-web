@@ -1,0 +1,1405 @@
+{
+  "sense_id": 11531,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T15:03:18.341018+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.1659708023071289,
+    "p1_generate": 30.499674797058105,
+    "tier_gate": 0.001954317092895508,
+    "p1_judge": 22.170655965805054,
+    "collocate_grounding": 0.0,
+    "fan_out": 31.923528909683228
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ɕi˥˩ sueɪ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "細碎",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "xì suì",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11531
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "b77c99ca-bcac-4302-84f4-e35f14b77169",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "细碎",
+        "pronunciation": "xì suì",
+        "ipa": "[ɕi˥˩ sueɪ˥˩]",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "细碎",
+          "细穗",
+          "洗髓",
+          "戏水"
+        ],
+        "correct_answer": "细碎",
+        "explanation": "正确。'细碎'读作 xì suì，意思是细小而零碎。",
+        "distractor_explanations": {
+          "洗髓": "错误。'洗髓'读作 xǐ suǐ，声调与'细碎'不同，且意思是指清洗骨髓，与目标词无关。",
+          "细穗": "错误。'细穗'读作 xì suì，虽然读音与'细碎'完全相同，但字形和意思（细小的穗子）不同，听力中需根据语境区分。",
+          "戏水": "错误。'戏水'读作 xì shuǐ，第二个字的声母和声调均与'碎'不同，意思是在水中嬉戏。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "細碎",
+          "pronunciation": "xì suì",
+          "ipa": "[ɕi˥˩ sueɪ˥˩]",
+          "syllable_count": 2,
+          "audio_url": null,
+          "options": [
+            "細碎",
+            "細穗",
+            "洗髓",
+            "戲水"
+          ],
+          "correct_answer": "細碎",
+          "explanation": "正確。'細碎'讀作 xì suì，意思是細小而零碎。",
+          "distractor_explanations": {
+            "洗髓": "錯誤。'洗髓'讀作 xǐ suǐ，聲調與'細碎'不同，且意思是指清洗骨髓，與目標詞無關。",
+            "细穗": "錯誤。'細穗'讀作 xì suì，雖然讀音與'細碎'完全相同，但字形和意思（細小的穗子）不同，聽力中需根據語境區分。",
+            "戏水": "錯誤。'戲水'讀作 xì shuǐ，第二個字的聲母和聲調均與'碎'不同，意思是在水中嬉戲。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "4b14588b-3569-4191-af1f-f87cc31871c9",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "细碎",
+        "pronunciation": "xì suì",
+        "correct_definition": "细小而零碎。",
+        "options": [
+          "田地里生长的农作物，如粮食、蔬菜等。",
+          "指有血缘关系或婚姻关系的一群人，通常包括父母、子女和其他亲属。",
+          "细小而零碎。",
+          "指事物之间具有共同点或相似之处。"
+        ],
+        "hant": {
+          "word": "細碎",
+          "pronunciation": "xì suì",
+          "correct_definition": "細小而零碎。",
+          "options": [
+            "田地裡生長的農作物，如糧食、蔬菜等。",
+            "指有血緣關係或婚姻關係的一群人，通常包括父母、子女和其他親屬。",
+            "細小而零碎。",
+            "指事物之間具有共同點或相似之處。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "d6529e83-77a1-41ea-bec9-57b9c10bcf6e",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "城市公寓可采用密闭式蠕虫堆肥箱（vermicomposter），利用红蚯蚓（Eisenia fetida）的肠道微生物高效降解___厨余，产出富含植物生长激素的“黑色金子”——腐殖质浓缩液。",
+        "original_sentence": "城市公寓可采用密闭式蠕虫堆肥箱（vermicomposter），利用红蚯蚓（Eisenia fetida）的肠道微生物高效降解细碎厨余，产出富含植物生长激素的“黑色金子”——腐殖质浓缩液。",
+        "correct_answer": "细碎",
+        "options": [
+          "昂贵",
+          "完整",
+          "细碎",
+          "庞大"
+        ],
+        "explanation": "正确。'细碎'形容厨余垃圾细小而零碎，符合语境。",
+        "distractor_tags": {},
+        "word_definition": "细小而零碎。",
+        "target_word": "细碎",
+        "hant": {
+          "sentence_with_blank": "城市公寓可採用密閉式蠕蟲堆肥箱（vermicomposter），利用紅蚯蚓（Eisenia fetida）的腸道微生物高效降解___廚餘，產出富含植物生長激素的“黑色金子”——腐殖質濃縮液。",
+          "original_sentence": "城市公寓可採用密閉式蠕蟲堆肥箱（vermicomposter），利用紅蚯蚓（Eisenia fetida）的腸道微生物高效降解細碎廚餘，產出富含植物生長激素的“黑色金子”——腐殖質濃縮液。",
+          "correct_answer": "細碎",
+          "options": [
+            "昂貴",
+            "完整",
+            "細碎",
+            "龐大"
+          ],
+          "explanation": "正確。'細碎'形容廚餘垃圾細小而零碎，符合語境。",
+          "distractor_tags": {},
+          "word_definition": "細小而零碎。",
+          "target_word": "細碎"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "cefe3586-c2ac-427d-9c51-0128d92c3c3e",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他把细碎进簸箕里的石头扫了。",
+            "is_correct": false
+          },
+          {
+            "text": "石头细碎了他扫进簸箕里。",
+            "is_correct": false
+          },
+          {
+            "text": "他把细碎的石头扫进了簸箕里。",
+            "is_correct": true
+          },
+          {
+            "text": "他把很细碎石头扫进了簸箕里。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语法错误：'细碎'是双音节形容词，修饰名词时不能直接加程度副词'很'而不加'的'，应改为'很细碎的石头'或'细碎的石头'。 语序错误：'细碎'是形容词，不能像动词那样带动态助词'了'并放在主语后作谓语，导致句子结构混乱，应改为'他把细碎的石头扫进了簸箕里'。 搭配与句法错误：'细碎'是形容词，不能带趋向补语'进'，也不能直接修饰动词短语，此处误将其当作动词使用。",
+        "target_word": "细碎",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他把細碎進簸箕裡的石頭掃了。",
+              "is_correct": false
+            },
+            {
+              "text": "石頭細碎了他掃進簸箕裡。",
+              "is_correct": false
+            },
+            {
+              "text": "他把細碎的石頭掃進了簸箕裡。",
+              "is_correct": true
+            },
+            {
+              "text": "他把很細碎石頭掃進了簸箕裡。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語法錯誤：'細碎'是雙音節形容詞，修飾名詞時不能直接加程度副詞'很'而不加'的'，應改為'很細碎的石頭'或'細碎的石頭'。 語序錯誤：'細碎'是形容詞，不能像動詞那樣帶動態助詞'了'並放在主語後作謂語，導致句子結構混亂，應改為'他把細碎的石頭掃進了簸箕裡'。 搭配與句法錯誤：'細碎'是形容詞，不能帶趨向補語'進'，也不能直接修飾動詞短語，此處誤將其當作動詞使用。",
+          "target_word": "細碎"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d6b7a0ca-45e2-477f-9408-fd11f4fd8f9e",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "阳光透过树叶，洒下了光斑细碎。",
+            "is_correct": false,
+            "error_description": "语序错误。形容词“细碎”作定语修饰名词“光斑”时，应放在名词前面，即“细碎的光斑”，不能放在名词后面。"
+          },
+          {
+            "text": "阳光透过树叶，洒下细碎的光斑。",
+            "is_correct": true
+          },
+          {
+            "text": "她听着细碎的脚步声，心里有些害怕。",
+            "is_correct": true
+          },
+          {
+            "text": "城市公寓可采用密闭式蠕虫堆肥箱（vermicomposter），利用红蚯蚓（Eisenia fetida）的肠道微生物高效降解细碎厨余，产出富含植物生长激素的“黑色金子”——腐殖质浓缩液。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "陽光透過樹葉，灑下了光斑細碎。",
+              "is_correct": false,
+              "error_description": "語序錯誤。形容詞“細碎”作定語修飾名詞“光斑”時，應放在名詞前面，即“細碎的光斑”，不能放在名詞後面。"
+            },
+            {
+              "text": "陽光透過樹葉，灑下細碎的光斑。",
+              "is_correct": true
+            },
+            {
+              "text": "她聽著細碎的腳步聲，心裡有些害怕。",
+              "is_correct": true
+            },
+            {
+              "text": "城市公寓可採用密閉式蠕蟲堆肥箱（vermicomposter），利用紅蚯蚓（Eisenia fetida）的腸道微生物高效降解細碎廚餘，產出富含植物生長激素的“黑色金子”——腐殖質濃縮液。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "c1e085cf-3a0a-44df-ad67-d4183f07ebbf",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "细碎",
+        "pronunciation": "xì suì",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "fingering",
+              "用嘴说的，不是写下来的。",
+              "细小而零碎。",
+              "to strengthen"
+            ],
+            "correct_answer": "细小而零碎。"
+          }
+        },
+        "hant": {
+          "word": "細碎",
+          "pronunciation": "xì suì",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "fingering",
+                "用嘴說的，不是寫下來的。",
+                "細小而零碎。",
+                "to strengthen"
+              ],
+              "correct_answer": "細小而零碎。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "df180d16-5685-4d44-807b-baeaab347b51",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "阳光透过树叶，洒下___的光斑。",
+        "original_sentence": "阳光透过树叶，洒下细碎的光斑。",
+        "target_word": "细碎",
+        "word": "细碎",
+        "answer": {
+          "accepted": [
+            "细碎"
+          ],
+          "accepted_normalized": [
+            "细碎"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "陽光透過樹葉，灑下___的光斑。",
+          "original_sentence": "陽光透過樹葉，灑下細碎的光斑。",
+          "target_word": "細碎",
+          "word": "細碎",
+          "answer": {
+            "accepted": [
+              "細碎"
+            ],
+            "accepted_normalized": [
+              "細碎"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f6a6a980-0440-45a5-9b6d-162c26c3d1dc",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "细碎",
+        "options": [
+          "xī suì",
+          "xì suì",
+          "xì suī",
+          "xì suí"
+        ],
+        "correct_answer": "xì suì",
+        "word": "细碎",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "細碎",
+          "options": [
+            "xī suì",
+            "xì suì",
+            "xì suī",
+            "xì suí"
+          ],
+          "correct_answer": "xì suì",
+          "word": "細碎",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "8030dae9-10f8-4bc9-af89-00d58435a9b4",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "xì suì",
+        "options": [
+          "破碎",
+          "碎片",
+          "纯粹",
+          "细碎"
+        ],
+        "correct_answer": "细碎",
+        "word": "细碎",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "破碎": "component",
+          "纯粹": "component",
+          "碎片": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "xì suì",
+          "options": [
+            "破碎",
+            "碎片",
+            "純粹",
+            "細碎"
+          ],
+          "correct_answer": "細碎",
+          "word": "細碎",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "破碎": "component",
+            "纯粹": "component",
+            "碎片": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "c9ff93c0-8377-4e3a-90ac-dfe299453a45",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "细碎",
+        "toneless_pinyin": "xi sui",
+        "full_pinyin": "xì suì",
+        "options": [
+          "42",
+          "43",
+          "41",
+          "44"
+        ],
+        "correct_answer": "44",
+        "option_labels": {
+          "42": "falling (4) + rising (2)",
+          "43": "falling (4) + dipping (3)",
+          "41": "falling (4) + high level (1)",
+          "44": "falling (4) + falling (4)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "細碎",
+          "toneless_pinyin": "xi sui",
+          "full_pinyin": "xì suì",
+          "options": [
+            "42",
+            "43",
+            "41",
+            "44"
+          ],
+          "correct_answer": "44",
+          "option_labels": {
+            "42": "falling (4) + rising (2)",
+            "43": "falling (4) + dipping (3)",
+            "41": "falling (4) + high level (1)",
+            "44": "falling (4) + falling (4)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f3b4f691-0e19-492c-b423-04743603a606",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "细碎",
+        "relation": "antonym",
+        "options": [
+          "零散",
+          "粗糙",
+          "完整",
+          "光滑"
+        ],
+        "correct_answer": "完整",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "细小而零碎。",
+            "explanation": "反义：细碎指细小零碎，完整指整体无缺，构成反义"
+          }
+        },
+        "hant": {
+          "word": "細碎",
+          "relation": "antonym",
+          "options": [
+            "零散",
+            "粗糙",
+            "完整",
+            "光滑"
+          ],
+          "correct_answer": "完整",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "細小而零碎。",
+              "explanation": "反義：細碎指細小零碎，完整指整體無缺，構成反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "光滑": 0.471813
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "7b45c9d8-cdcf-4cf3-bd61-666d78805417",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "我喜欢收集那些___的小物件。",
+        "original_sentence": "我喜欢收集那些细碎的小物件。",
+        "correct_answer": "细碎",
+        "options": [
+          "昂贵",
+          "庞大",
+          "光滑",
+          "细碎"
+        ],
+        "explanation": "正确。“细碎”形容小物件细小而零散，符合收集小物件的语境。",
+        "distractor_tags": {},
+        "word_definition": "细小而零碎。",
+        "target_word": "细碎",
+        "hant": {
+          "sentence_with_blank": "我喜歡收集那些___的小物件。",
+          "original_sentence": "我喜歡收集那些細碎的小物件。",
+          "correct_answer": "細碎",
+          "options": [
+            "昂貴",
+            "龐大",
+            "光滑",
+            "細碎"
+          ],
+          "explanation": "正確。“細碎”形容小物件細小而零散，符合收集小物件的語境。",
+          "distractor_tags": {},
+          "word_definition": "細小而零碎。",
+          "target_word": "細碎"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "7ab3ab85-ef74-4346-b62c-fceb0b86b673",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "那些细碎了的往事，我都记得。",
+            "is_correct": false
+          },
+          {
+            "text": "往事那些细碎的，我都记得。",
+            "is_correct": false
+          },
+          {
+            "text": "那些件细碎的往事，我都记得。",
+            "is_correct": false
+          },
+          {
+            "text": "那些细碎的往事，我都记得。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标错误：“细碎”是状态形容词，不能加动态助词“了”来表示动作的完成或状态的改变。 语序错误：定语“细碎的”必须放在中心语“往事”之前，不能后置，破坏了正常的偏正结构。 量词错误：“往事”是抽象名词，不能用用于具体物品的个体量词“件”来修饰，属于量词搭配不当。",
+        "target_word": "细碎",
+        "hant": {
+          "sentences": [
+            {
+              "text": "那些細碎了的往事，我都記得。",
+              "is_correct": false
+            },
+            {
+              "text": "往事那些細碎的，我都記得。",
+              "is_correct": false
+            },
+            {
+              "text": "那些件細碎的往事，我都記得。",
+              "is_correct": false
+            },
+            {
+              "text": "那些細碎的往事，我都記得。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標錯誤：“細碎”是狀態形容詞，不能加動態助詞“了”來表示動作的完成或狀態的改變。 語序錯誤：定語“細碎的”必須放在中心語“往事”之前，不能後置，破壞了正常的偏正結構。 量詞錯誤：“往事”是抽象名詞，不能用用於具體物品的個體量詞“件”來修飾，屬於量詞搭配不當。",
+          "target_word": "細碎"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2fae5827-ccc3-4b1f-b396-16369cb2708e",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "她听着细碎的脚步声，心里有些害怕了。",
+            "is_correct": false,
+            "error_description": "体标位置/选用错误。形容词“害怕”表示心理状态，在此处不需要加动态助词“了”来表示动作完成或状态改变，直接说“有些害怕”即可。"
+          },
+          {
+            "text": "这些声音听起来很细碎。",
+            "is_correct": true
+          },
+          {
+            "text": "我喜欢收集那些细碎的小物件。",
+            "is_correct": true
+          },
+          {
+            "text": "那些细碎的往事，我都记得。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "她聽著細碎的腳步聲，心裡有些害怕了。",
+              "is_correct": false,
+              "error_description": "體標位置/選用錯誤。形容詞“害怕”表示心理狀態，在此處不需要加動態助詞“了”來表示動作完成或狀態改變，直接說“有些害怕”即可。"
+            },
+            {
+              "text": "這些聲音聽起來很細碎。",
+              "is_correct": true
+            },
+            {
+              "text": "我喜歡收集那些細碎的小物件。",
+              "is_correct": true
+            },
+            {
+              "text": "那些細碎的往事，我都記得。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "93905dd9-fb15-47f9-ad2d-4d0d2dfbc03f",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这些声音听起来很___。",
+        "original_sentence": "这些声音听起来很细碎。",
+        "target_word": "细碎",
+        "word": "细碎",
+        "answer": {
+          "accepted": [
+            "细碎"
+          ],
+          "accepted_normalized": [
+            "细碎"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這些聲音聽起來很___。",
+          "original_sentence": "這些聲音聽起來很細碎。",
+          "target_word": "細碎",
+          "word": "細碎",
+          "answer": {
+            "accepted": [
+              "細碎"
+            ],
+            "accepted_normalized": [
+              "細碎"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11531,
+      "word_asset_id": "shadow-11531-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '细碎' is fused into a neighbouring chunk — chunks=['时间', '被分割成', '细碎的片段']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '细碎' is fused into a neighbouring chunk — chunks=['他', '把细碎的石头', '扫进了簸箕里']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00295392,
+      "prompt_tokens": 2443,
+      "completion_tokens": 1697,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30120
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176928,
+      "prompt_tokens": 685,
+      "completion_tokens": 1211,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 21891
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00194624,
+      "prompt_tokens": 1498,
+      "completion_tokens": 1146,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20476
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00193952,
+      "prompt_tokens": 1497,
+      "completion_tokens": 1141,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20576
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016944,
+      "prompt_tokens": 631,
+      "completion_tokens": 1166,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 21025
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00178464,
+      "prompt_tokens": 629,
+      "completion_tokens": 1237,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 21863
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00270048,
+      "prompt_tokens": 1707,
+      "completion_tokens": 1683,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30146
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00280288,
+      "prompt_tokens": 1707,
+      "completion_tokens": 1763,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 31704
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.000173178,
+      "prompt_tokens": 441,
+      "completion_tokens": 58,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2610
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001610802,
+      "prompt_tokens": 394,
+      "completion_tokens": 58,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11531,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2507
+    }
+  ],
+  "llm_calls_observed": 10,
+  "llm_cost_observed_usd": 0.0179256182,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T5",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 92.70300000009593,
+  "finished_at": "2026-10-05T15:04:51.048246+00:00"
+}

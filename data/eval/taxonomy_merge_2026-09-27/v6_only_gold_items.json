@@ -1,0 +1,42 @@
+{
+  "description": "v6-only gold items (no v5 counterpart), appended to tests/fixtures/dt_gold_v6/{lang}.json by scripts/build_dt_gold_v6.py. Each spec is built with dt_gold_seed_helper.build_item; expected_bands come from derive_bands(offline=True, taxonomy_version=6) using `judged` for range/naturalness. Labels are native v6 (no overlay entry).",
+  "task": "TASK-848",
+  "date": "2026-10-06",
+  "items": {
+    "en": [
+      {
+        "id": "en_v6_ws_02",
+        "kind": "single",
+        "source_passage_id": 13,
+        "note": "word_choice/wrong_sense (TASK-848): 'This is like a hand' -> 'This likes a hand'. The learner uses the reference's own lemma 'like' in its verb sense ('enjoy') where its preposition sense ('similar to') is needed; dim_vocabulary 15338 'like' carries both (4 distinct sense_ranks incl. 'find pleasant' and 'similar to'), so TASK-845's same-lemma check can fire. Major: the simile becomes a different, absurd claim. Caveat: cross-POS homograph under one headword, not same-POS polysemy (e.g. 意思) — not sufficient as the only wrong_sense coverage. Author/blind-reviewer agreed (severity: author conceded minor->major). Gold status: AI author+reviewer, approved for gold by the developer 2026-10-07.",
+        "label_source": "AI author+reviewer, approved for gold by the developer 2026-10-07",
+        "adjudication": "AI author+reviewer, approved for gold by the developer 2026-10-07 (user decision: the item stays in v6 GOLD). Reviewer's caveat stands: 'like' (verb 'enjoy') vs 'like' (preposition 'similar to') is a cross-POS homograph under one headword, not same-POS polysemy, so it is not sufficient as the only wrong_sense coverage.",
+        "reference": "One motor can make the arm go up and down. Another motor can make it move left and right. A third motor can open and close a gripper. This is like a hand.",
+        "edits": [
+          {
+            "find": "is like",
+            "replace": "likes",
+            "subtype": "word_choice",
+            "subtype_v5_target": "word_choice",
+            "severity_v2": "major",
+            "explanation_variant": "wrong_sense"
+          }
+        ],
+        "judged": {"range": 4, "naturalness": 4},
+        "review": {
+          "author": "word_choice / wrong_sense / minor",
+          "reviewer_blind": "word_choice / wrong_sense / major (contested: semantic_anomaly by effect; wrong_word on a strict same-POS lexeme reading)",
+          "resolution": "author_conceded severity -> major; reviewer downgraded 'contested' to a note after one exchange (cause is a same-headword substitution; semantic_anomaly only names the effect; both fidelity/major, so the score is unaffected)",
+          "record": "data/eval/taxonomy_merge_2026-09-27/wrong_sense_2026-10-05/"
+        }
+      }
+    ],
+    "zh": [],
+    "ja": []
+  },
+  "not_added": {
+    "en_v6_ws_01": "pick up -> pick: reviewer labelled phrasal_verb (dropped particle; 'lift' is not one of pick's dictionary senses); fragile anyway (robotics 'pick-and-place'). Author conceded; dropped.",
+    "zh": "No natural item. zh has no inflection, so a same-lemma diff is necessarily a function-word or complement change (aspect_negation / de_particle / complement / addition claim it). The one probe (工作, 能够正常工作 -> 能够有正常工作: the 'machine operates' sense flipped to 'job') is a one-character insertion that Tier 0 swallows (verify_item: fuzzy-identical). wrong_sense stays grader judgement only for zh.",
+    "ja": "No item possible against the AC: only 20 of 3,439 ja lemmas in dim_vocabulary have >=2 distinct sense_ranks, and none occurs in the ja silver/gold passages (dt_passage 20-28). Same-lemma sense shifts via particles/kanji are claimed by particle types and kanji_choice. wrong_sense stays grader judgement only for ja."
+  }
+}

@@ -357,13 +357,18 @@ def test_the_rest_of_the_zh_ladder_still_renders(monkeypatch):
 
 
 def test_english_morphology_still_renders(monkeypatch):
+    # `correct_form` must match the sentence's own target_word ('run', for
+    # every sentence in EN_ACTION_CORE) -- the renderer now checks that a
+    # blank cut at `target` is actually filled by `correct_form` (TASK
+    # follow-up bug #3: a mismatch there is exactly how '複雑すぎ' got
+    # blanked while '複雑' was offered as the "correct" answer).
     en_p3 = {
         'level_4': {
-            'options': [{'text': 'ran', 'is_correct': True},
+            'options': [{'text': 'run', 'is_correct': True},
                         {'text': 'runs', 'is_correct': False},
                         {'text': 'running', 'is_correct': False},
                         {'text': 'runned', 'is_correct': False}],
-            'correct_form': 'ran', 'base_form': 'run', 'form_label': 'past',
+            'correct_form': 'run', 'base_form': 'run', 'form_label': 'base',
             'sentence_index': 1, 'explanations': {},
         },
     }

@@ -1184,6 +1184,56 @@ def get_sentence_target(sentence: dict) -> str:
         return ''
     return sentence.get('target_word') or sentence.get('target_substring', '') or ''
 
+
+def blank_target(text: str, target: str, language_id: int | None = None) -> str | None:
+    """Replace the one clean occurrence of ``target`` in ``text`` with ``'___'``.
+
+    Returns ``None`` if no clean occurrence exists, so the caller can skip the
+    item instead of emitting a malformed template.
+
+    ``str.replace(target, '___', 1)`` — the pattern every per-level renderer
+    used before this (TASK follow-up bug #3) — is a raw substring replace. Two
+    failure modes followed from that:
+
+    * ``target`` is only a *prefix* of the word actually in the sentence (the
+      model reports the lemma ``'work'`` while the sentence has ``'works'``):
+      the replace blanks the prefix and leaves the remainder glued to the
+      marker (``'Marcus ___s'``), which renders as ``'workss'`` once the
+      correct answer is spliced back in.
+    * ``target`` carries incidental leading/trailing whitespace the model
+      included (``'small '``): the same raw replace eats the word-boundary
+      space along with it, producing ``'___child'`` instead of ``'___ child'``.
+
+    For a Latin-script ``target`` this requires a clean word-boundary match
+    (``target`` bounded by non-word characters or string edges) — stripping
+    ``target`` first so an incidental surrounding space can't be consumed as
+    part of the match. CJK has no whitespace to anchor a boundary on, and its
+    own word-segmentation is too coarse to use as one here (jieba merges a
+    verb with its object into a single token — ``喝咖啡``, "drink coffee" —
+    so requiring ``target`` to land on a *tokenizer* boundary would reject
+    ``咖啡`` inside perfectly ordinary sentences, not just the fused-number
+    case bug #1 is actually about). For CJK this falls back to the same plain
+    substring search the renderers always used; the jumbled_sentence builder
+    (``deterministic/jumbled.py``) is where target/neighbour fusion is
+    actually guarded, by checking the *chunk* boundaries it itself produced
+    rather than guessing at word boundaries in free text.
+    """
+    target = (target or '').strip()
+    if not text or not target:
+        return None
+    if target.isascii():
+        import re
+        match = re.search(r'(?<!\w)' + re.escape(target) + r'(?!\w)', text)
+        if not match:
+            return None
+        return text[:match.start()] + '___' + text[match.end():]
+
+    idx = text.find(target)
+    if idx == -1:
+        return None
+    return text[:idx] + '___' + text[idx + len(target):]
+
+
 MORPH_FORM_KEY_MAP: dict[str, str] = {
     '1': 'form',
     '2': 'label',

@@ -363,6 +363,96 @@ def test_build_pairwise_packs_and_merge_round_trip(tmp_path):
     assert result2 == result
 
 
+# --------------------------------------------------------------------------
+# Pairwise packs: --llm-only / --exclude-types filtering (TASK-856 arm B)
+# --------------------------------------------------------------------------
+
+
+def test_filter_exercise_types_drops_only_named_types_and_leaves_input_untouched():
+    senses = [
+        score_mod.normalize_run_entry(
+            make_run_entry(
+                "1",
+                [
+                    (1, "cloze_typed", []),
+                    (1, "l1_distractor", ["a", "b"]),
+                    (2, "jumbled_sentence", []),
+                ],
+            ),
+            source="t",
+        )
+    ]
+    filtered = score_mod.filter_exercise_types(senses, exclude_types={"cloze_typed", "jumbled_sentence"})
+
+    # Original list is untouched (a fresh list of copies is returned).
+    assert {e.exercise_type for e in senses[0].exercises} == {"cloze_typed", "l1_distractor", "jumbled_sentence"}
+    assert {e.exercise_type for e in filtered[0].exercises} == {"l1_distractor"}
+
+    # Empty exclude set is a no-op that returns the same objects (identity),
+    # which main()'s unconditional call relies on to avoid needless copying.
+    assert score_mod.filter_exercise_types(senses, exclude_types=set()) is senses
+
+
+def test_deterministic_exercise_types_matches_known_registry():
+    # Pinned against services/vocabulary_ladder/deterministic/*.py's
+    # @register(...) call sites -- see that package's __init__.py docstring.
+    # If a new deterministic builder is added, this constant (and this test)
+    # must be updated too, or --llm-only silently stops excluding it.
+    assert score_mod.DETERMINISTIC_EXERCISE_TYPES == {
+        "cloze_typed",
+        "jumbled_sentence",
+        "tone_id_word",
+        "definition_match",
+        "classifier_match",
+        "hanzi_to_pinyin",
+        "kanji_to_reading",
+        "pinyin_to_hanzi",
+        "reading_to_kanji",
+        "counter_match",
+    }
+
+
+def test_build_pairwise_packs_llm_only_excludes_deterministic_types(tmp_path):
+    # Candidate and reference agree on level 1 (one LLM type, one deterministic
+    # type) but diverge on level 2, which is deterministic-only on both sides.
+    ref = [
+        score_mod.normalize_reference_entry(
+            make_reference_entry(
+                "1",
+                [(1, "l1_distractor", ["a", "b"]), (1, "cloze_typed", []), (2, "cloze_typed", [])],
+            )
+        )
+    ]
+    cand = [
+        score_mod.normalize_run_entry(
+            make_run_entry(
+                "1",
+                [(1, "l1_distractor", ["a", "b"]), (1, "cloze_typed", []), (2, "cloze_typed", [])],
+            ),
+            source="t",
+        )
+    ]
+
+    out_dir = str(tmp_path / "run")
+    key_doc = score_mod.build_pairwise_packs(
+        cand, ref, out_dir, pack_size=10, seed=1, exclude_types=score_mod.DETERMINISTIC_EXERCISE_TYPES
+    )
+
+    # Only (sense 1, level 1) survives: level 2 had nothing left once
+    # cloze_typed was excluded, so it must not appear as an empty entry.
+    assert [(e["sense_id"], e["level"]) for e in key_doc["entries"]] == [("1", 1)]
+    assert key_doc["excluded_types"] == sorted(score_mod.DETERMINISTIC_EXERCISE_TYPES)
+
+    pack_text = (tmp_path / "run" / "pairwise_packs" / "pack_01.md").read_text(encoding="utf-8")
+    assert "l1_distractor" in pack_text
+    assert "cloze_typed" not in pack_text
+
+    # Passing no exclusions at all keeps both levels (sanity check that the
+    # restriction above is actually doing the excluding, not some other gate).
+    key_doc_unfiltered = score_mod.build_pairwise_packs(cand, ref, str(tmp_path / "run2"), pack_size=10, seed=1)
+    assert [(e["sense_id"], e["level"]) for e in key_doc_unfiltered["entries"]] == [("1", 1), ("1", 2)]
+
+
 def test_merge_pairwise_verdicts_flags_unmatched_and_missing():
     key = {
         "entries": [

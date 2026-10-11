@@ -1,0 +1,1273 @@
+{
+  "sense_id": 35011,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T17:57:25.654788+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] Level 7: incorrect_sentence and corrected_sentence are identical",
+    "[B] Level 7: incorrect_sentence and corrected_sentence are identical"
+  ],
+  "warnings": [
+    "P1 sentence[5] flagged (rating 3): 義項：行為か事物か曖昧"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.24363398551940918,
+    "p1_generate": 33.89421820640564,
+    "tier_gate": 0.00794219970703125,
+    "p1_judge": 23.49005937576294,
+    "collocate_grounding": 0.0,
+    "fan_out": 45.30647420883179
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[5] flagged (rating 3): 義項：行為か事物か曖昧"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/hatsumei/",
+        "morphological_forms": [
+          {
+            "form": "件",
+            "label": "助数詞"
+          },
+          {
+            "form": "発明品",
+            "label": "派生"
+          },
+          {
+            "form": "発明家",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "はつめい",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35011
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a9ced9c5-779e-45ea-b871-15d7b6dd21a5",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "発明",
+        "pronunciation": "はつめい",
+        "ipa": "/hatsumei/",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "発明",
+          "判明",
+          "別名",
+          "発売"
+        ],
+        "correct_answer": "発明",
+        "explanation": "正解です。「発明」は「新しいものや方法を考え出して、実際に作ること。」という意味です。",
+        "distractor_explanations": {
+          "別名": "「別名」は「発明」と一モーラだけ異なる実在語です（1モーラ目: 「は」→「べ」、一部の音の違い）。",
+          "発売": "「発売」は「発明」と一モーラだけ異なる実在語です（3モーラ目: 「め」→「ば」、一部の音の違い）。",
+          "判明": "「判明」は「発明」と一モーラだけ異なる実在語です（2モーラ目: 「つ」→「ん」、撥音「ん」の有無）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 3,
+          "kept": 7,
+          "rejected_items": [
+            "俳名",
+            "節名",
+            "発来"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "051f1eb4-d8fb-44ad-8884-68fccd16c0b2",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "発明",
+        "pronunciation": "はつめい",
+        "correct_definition": "新しいものや方法を考え出して、実際に作ること。",
+        "options": [
+          "同じことが短い間に何度も起こること。",
+          "新しいものや方法を考え出して、実際に作ること。",
+          "スタートアップが成長した後、投資家や創業者が投資した資金を回収するために行う、株式公開（IPO）や買収などの出口戦略のこと。",
+          "自分が誰であるかを示す、名前や住所などの情報。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b7dbe6e1-fbe5-43aa-9fc5-400782607604",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "私は新しい___をしたいです。",
+        "original_sentence": "私は新しい発明をしたいです。",
+        "correct_answer": "発明",
+        "options": [
+          "発想",
+          "発明",
+          "発案",
+          "発見"
+        ],
+        "explanation": "正解です。「新しいものを考え出して作る」という意味で、文脈にぴったり合います。",
+        "distractor_tags": {},
+        "word_definition": "新しいものや方法を考え出して、実際に作ること。",
+        "target_word": "発明"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "167d904e-0e82-47da-ad6e-e14d0c977996",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "この発明は多くの人に役立っている。",
+            "is_correct": true
+          },
+          {
+            "text": "私は新しい発明をしたいです。",
+            "is_correct": true
+          },
+          {
+            "text": "彼女はすばらしい発明がした。",
+            "is_correct": false,
+            "error_description": "動詞「する」の対象を表す「を」を使うべきところを「が」にしている誤り。"
+          },
+          {
+            "text": "彼の発明は世界を変えました。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "7ecd9a37-c902-47d4-ba10-6df34079937c",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "発明",
+        "pronunciation": "はつめい",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "礼貌形式 —— 加在动词连用形后表示对听话人尊敬或郑重态度的助动词「ます」",
+              "新しいものや方法を考え出して、実際に作ること。",
+              "桌子；书桌；办公桌",
+              "きゅうり。うり科の一年草、またはその果実。淡緑色で細長く、多くは表面に小さなとげがある。生で食べることが多い。"
+            ],
+            "correct_answer": "新しいものや方法を考え出して、実際に作ること。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "ca254503-51a8-4d8f-a5d1-e2a91220616e",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この___は多くの人に役立っている。",
+        "original_sentence": "この発明は多くの人に役立っている。",
+        "target_word": "発明",
+        "word": "発明",
+        "answer": {
+          "accepted": [
+            "発明"
+          ],
+          "accepted_normalized": [
+            "発明"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "7074d440-42c5-4911-af8a-89453c1d7aea",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "発明",
+        "options": [
+          "ばつめい",
+          "ぱつめい",
+          "はづめい",
+          "はつめい"
+        ],
+        "correct_answer": "はつめい",
+        "word": "発明",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "fdd94a6f-1661-4a47-a566-b928040975e7",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "はつめい",
+        "options": [
+          "発見",
+          "発明",
+          "発生",
+          "開発"
+        ],
+        "correct_answer": "発明",
+        "word": "発明",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "開発": "component",
+          "発見": "component",
+          "発生": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "de78f262-dc70-4310-bf69-10cc7112f30d",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この発明は多くの人___役立っている。",
+        "original_sentence": "この発明は多くの人に役立っている。",
+        "options": [
+          "に",
+          "が",
+          "を",
+          "で"
+        ],
+        "correct_answer": "に",
+        "target_word": "発明",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "を": "object_marking",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "自動詞「役立つ」の対象（帰着点）を標示する"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "daf318ba-2ed5-4a42-bd69-82c247feeae4",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "発明",
+        "relation": "antonym",
+        "options": [
+          "発見",
+          "開発",
+          "創造",
+          "研究"
+        ],
+        "correct_answer": "発見",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "新しいものや方法を考え出して、実際に作ること。",
+            "explanation": "すでに存在するものや法則を明らかにすることであり、新しいものを作り出す発明の対義語となる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "創造": 0.749316,
+            "開発": 0.784821,
+            "研究": 0.601058
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "7ca54059-6fbb-464b-8f08-56cdc4965351",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "私は毎日___について考えています。",
+        "original_sentence": "私は毎日発明について考えています。",
+        "correct_answer": "発明",
+        "options": [
+          "発明",
+          "発見",
+          "発想",
+          "発案"
+        ],
+        "explanation": "正解です。文脈に最も適しています。",
+        "distractor_tags": {},
+        "word_definition": "新しいものや方法を考え出して、実際に作ること。",
+        "target_word": "発明"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "e877515c-1727-43d1-adf3-dff7bca7492b",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "私は毎日発明について考えています。",
+            "is_correct": true
+          },
+          {
+            "text": "この発明は生活を変えてくれるでしょう。",
+            "is_correct": true
+          },
+          {
+            "text": "素晴らしい発明がここから生まれる。",
+            "is_correct": true
+          },
+          {
+            "text": "彼は新しい機械が発明した。",
+            "is_correct": false,
+            "error_description": "「機械を発明する」の「を」を「が」に誤って変えている（意味が「機械が発明する」に変わってしまう）。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "6479f479-4f87-4864-96bf-1a5941143dd7",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "素晴らしい___がここから生まれる。",
+        "original_sentence": "素晴らしい発明がここから生まれる。",
+        "target_word": "発明",
+        "word": "発明",
+        "answer": {
+          "accepted": [
+            "発明"
+          ],
+          "accepted_normalized": [
+            "発明"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "5f5ff9b5-b925-4ebc-a394-14901d081ad8",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "発明",
+        "relation": "antonym",
+        "options": [
+          "創造",
+          "発見",
+          "開発",
+          "改良"
+        ],
+        "correct_answer": "発見",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "新しいものや方法を考え出して、実際に作ること。",
+            "explanation": "すでに存在するものを見つけることで、新しいものを作り出す「発明」と対義の関係にある。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "創造": 0.749316,
+            "開発": 0.784821,
+            "改良": 0.425969
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35011,
+      "word_asset_id": "shadow-35011-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 3,
+      "kept": 7
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 2
+    },
+    "particle": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '発明' is fused into a neighbouring chunk — chunks=['この発明は', '簡単にできると', '思います']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '発明' is fused into a neighbouring chunk — chunks=['私たちは', '協力して', '発明を', 'して', 'います']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00323296,
+      "prompt_tokens": 2567,
+      "completion_tokens": 1884,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 33363
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00189664,
+      "prompt_tokens": 711,
+      "completion_tokens": 1304,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23250
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00198528,
+      "prompt_tokens": 1632,
+      "completion_tokens": 1143,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20454
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185824,
+      "prompt_tokens": 1003,
+      "completion_tokens": 1201,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23020
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00194304,
+      "prompt_tokens": 1028,
+      "completion_tokens": 1261,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23037
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002620288,
+      "prompt_tokens": 2650,
+      "completion_tokens": 1615,
+      "cached_tokens": 1152,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 29569
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00267808,
+      "prompt_tokens": 1633,
+      "completion_tokens": 1684,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 30226
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0031648,
+      "prompt_tokens": 2650,
+      "completion_tokens": 1810,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 32009
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174176,
+      "prompt_tokens": 747,
+      "completion_tokens": 1174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21531
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182528,
+      "prompt_tokens": 744,
+      "completion_tokens": 1240,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21806
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196192,
+      "prompt_tokens": 1131,
+      "completion_tokens": 1250,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "json_repair",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22645
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016652,
+      "prompt_tokens": 367,
+      "completion_tokens": 86,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 8019
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00162944,
+      "prompt_tokens": 720,
+      "completion_tokens": 1093,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20137
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00102368,
+      "prompt_tokens": 507,
+      "completion_tokens": 673,
+      "cached_tokens": 0,
+      "reasoning_tokens": 643,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 12309
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163552,
+      "prompt_tokens": 591,
+      "completion_tokens": 1130,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22549
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163712,
+      "prompt_tokens": 620,
+      "completion_tokens": 1124,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20015
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00199584,
+      "prompt_tokens": 1133,
+      "completion_tokens": 1276,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "json_repair",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22815
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016404,
+      "prompt_tokens": 369,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 10382
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016448,
+      "prompt_tokens": 696,
+      "completion_tokens": 1111,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21794
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00134048,
+      "prompt_tokens": 513,
+      "completion_tokens": 919,
+      "cached_tokens": 0,
+      "reasoning_tokens": 892,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 16448
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00164032,
+      "prompt_tokens": 590,
+      "completion_tokens": 1134,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22278
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00161664,
+      "prompt_tokens": 620,
+      "completion_tokens": 1108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35011,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21413
+    }
+  ],
+  "llm_calls_observed": 22,
+  "llm_cost_observed_usd": 0.03940268799999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 374.1570000000065,
+  "finished_at": "2026-10-05T18:03:39.806406+00:00"
+}

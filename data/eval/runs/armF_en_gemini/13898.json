@@ -1,0 +1,53 @@
+{
+  "sense_id": 13898,
+  "language_id": 2,
+  "generation_batch_id": "98a37369-bcc3-42a1-a839-bcf7694783ea",
+  "started_at": "2026-10-08T11:28:46.223795+00:00",
+  "status": "judge_unavailable",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {},
+  "assets": [],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0022989,
+      "prompt_tokens": 1963,
+      "completion_tokens": 684,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "98a37369-bcc3-42a1-a839-bcf7694783ea",
+      "language_code": "en",
+      "latency_ms": 3530
+    }
+  ],
+  "llm_calls_observed": 1,
+  "llm_cost_observed_usd": 0.0022989,
+  "render_skipped_cost_cap": false,
+  "exceptions": [
+    {
+      "stage": "generate_judge_unavailable",
+      "error": "JudgeUnavailable(\"judge could not run during a generation batch (llm call error: Error code: 402 - {'error': {'message': 'This request requires more credits, or fewer max_tokens. You requested up to 65536 tokens, but can only afford 40923. To increase, visit https://openrouter.ai/settings/credits and add more credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.', 'provider_name': None, 'previous_errors': [{'code': 402, 'message': 'This request requires more credits, or fewer max_tokens. You requested up to 65536 tokens, but can only afford 40923. To increase, visit https://openrouter.ai/settings/credits and add more credits'}]}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}). Batch aborted rather than shipping unjudged content — check prompt_templates for an active row with a live model slug (see services/model_health.py).\")",
+      "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\exercise_generation\\judges\\p1_sentences.py\", line 94, in judge_p1_sentences\n    result = call_llm(\n             ^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\venv\\Lib\\site-packages\\tenacity\\__init__.py\", line 289, in wrapped_f\n    return self(f, *args, **kw)\n           ^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\venv\\Lib\\site-packages\\tenacity\\__init__.py\", line 379, in __call__\n    do = self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\venv\\Lib\\site-packages\\tenacity\\__init__.py\", line 314, in iter\n    return fut.result()\n           ^^^^^^^^^^^^\n  File \"C:\\Users\\James\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\concurrent\\futures\\_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\concurrent\\futures\\_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\venv\\Lib\\site-packages\\tenacity\\__init__.py\", line 382, in __call__\n    result = fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\llm_service.py\", line 1023, in call_llm\n    call_result = _make_one_call(\n                  ^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\llm_service.py\", line 1397, in _make_one_call\n    response = client.chat.completions.create(**payload)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\venv\\Lib\\site-packages\\openai\\_utils\\_utils.py\", line 287, in wrapper\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\venv\\Lib\\site-packages\\openai\\resources\\chat\\completions\\completions.py\", line 1150, in create\n    return self._post(\n           ^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\venv\\Lib\\site-packages\\openai\\_base_client.py\", line 1259, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\venv\\Lib\\site-packages\\openai\\_base_client.py\", line 1047, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.APIStatusError: Error code: 402 - {'error': {'message': 'This request requires more credits, or fewer max_tokens. You requested up to 65536 tokens, but can only afford 40923. To increase, visit https://openrouter.ai/settings/credits and add more credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.', 'provider_name': None, 'previous_errors': [{'code': 402, 'message': 'This request requires more credits, or fewer max_tokens. You requested up to 65536 tokens, but can only afford 40923. To increase, visit https://openrouter.ai/settings/credits and add more credits'}]}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\scripts\\run_exercise_gen_eval.py\", line 845, in process_one_sense\n    gen_result = pipeline._generate_for_sense_impl(\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\vocabulary_ladder\\asset_pipeline.py\", line 267, in _generate_for_sense_impl\n    judge_warnings, p1_blocked = self._judge_p1_sentences(\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\vocabulary_ladder\\asset_pipeline.py\", line 821, in _judge_p1_sentences\n    outcomes = _run([s.get('text', '') for s in sentences])\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\vocabulary_ladder\\asset_pipeline.py\", line 815, in _run\n    return judge_p1_sentences(\n           ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\exercise_generation\\judges\\p1_sentences.py\", line 110, in judge_p1_sentences\n    return [safe_accept(f'llm call error: {exc}') for _ in sentences]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\exercise_generation\\judges\\p1_sentences.py\", line 110, in <listcomp>\n    return [safe_accept(f'llm call error: {exc}') for _ in sentences]\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\exercise_generation\\judges\\base.py\", line 304, in safe_accept\n    guard_fail_open('judge', reason)\n  File \"C:\\Users\\James\\Documents\\Coding\\LinguaLoop\\WebApp\\services\\exercise_generation\\judges\\base.py\", line 279, in guard_fail_open\n    raise JudgeUnavailable(\nservices.exercise_generation.judges.base.JudgeUnavailable: judge could not run during a generation batch (llm call error: Error code: 402 - {'error': {'message': 'This request requires more credits, or fewer max_tokens. You requested up to 65536 tokens, but can only afford 40923. To increase, visit https://openrouter.ai/settings/credits and add more credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balance.', 'provider_name': None, 'previous_errors': [{'code': 402, 'message': 'This request requires more credits, or fewer max_tokens. You requested up to 65536 tokens, but can only afford 40923. To increase, visit https://openrouter.ai/settings/credits and add more credits'}]}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}). Batch aborted rather than shipping unjudged content — check prompt_templates for an active row with a live model slug (see services/model_health.py).\n"
+    }
+  ],
+  "judge_failures": [
+    {
+      "judge": "p1_sentence_judge",
+      "error_class": "other",
+      "message": "p1_sentence_judge: LLM call failed for lang=2, safe-accept all: Error code: 402 - {'error': {'message': 'This request requires more credits, or fewer max_tokens. You requested up to 65536 tokens, but can only afford 40923. To increase, visit https://openrouter.ai/settings/credits and add more credits', 'code': 402, 'metadata': {'limit_source': 'openrouter_credits', 'remedy_hint': 'Add credits at https://openrouter.ai/settings/credits, or lower max_tokens / prompt size to fit your remaining balan",
+      "logger": "services.exercise_generation.judges.p1_sentences",
+      "stage": "generate"
+    }
+  ],
+  "wall_clock_s": 5.98399999999674,
+  "finished_at": "2026-10-08T11:28:52.216556+00:00"
+}

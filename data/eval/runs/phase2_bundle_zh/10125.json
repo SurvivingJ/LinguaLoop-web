@@ -1,0 +1,917 @@
+{
+  "sense_id": 10125,
+  "language_id": 1,
+  "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+  "started_at": "2026-10-03T01:45:49.949775+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "[A] Missing level_7",
+    "[B] Missing level_7"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.17207598686218262,
+    "p1_generate": 13.189372301101685,
+    "tier_gate": 0.0,
+    "p1_judge": 0.2928807735443115,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_7"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_7"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ʈʂən˥ ʈʂəŋ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "真正地",
+            "label": "复合"
+          },
+          {
+            "form": "真假",
+            "label": "复合"
+          },
+          {
+            "form": "真诚",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "zhēn zhèng",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10125
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "fc8218f6-11b4-4820-b0bd-502726f9621e",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "真正",
+        "pronunciation": "zhēn zhèng",
+        "correct_definition": "真实地；确实（强调事实）",
+        "options": [
+          "支点是指杠杆上起支撑作用并让杠杆能绕其转动的固定点，也可以比喻为事情发展的关键或基础。",
+          "算法是解决问题或完成计算的一系列明确步骤，常用于数学和计算机编程。",
+          "双方激烈地互相攻击、拼杀，常指战斗或竞争中的激烈对抗。",
+          "真实地；确实（强调事实）"
+        ],
+        "hant": {
+          "word": "真正",
+          "pronunciation": "zhēn zhèng",
+          "correct_definition": "真實地；確實（強調事實）",
+          "options": [
+            "支點是指槓桿上起支撐作用並讓槓桿能繞其轉動的固定點，也可以比喻為事情發展的關鍵或基礎。",
+            "演算法是解決問題或完成計算的一系列明確步驟，常用於數學和計算機程式設計。",
+            "雙方激烈地互相攻擊、拼殺，常指戰鬥或競爭中的激烈對抗。",
+            "真實地；確實（強調事實）"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7520133b-247a-42bd-a3c9-e2434b26a143",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "真正天气冷起来了。",
+            "is_correct": false
+          },
+          {
+            "text": "天气真正冷过起来了。",
+            "is_correct": false
+          },
+          {
+            "text": "天气真正冷得下去了。",
+            "is_correct": false
+          },
+          {
+            "text": "天气真正冷起来了。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标位置错误：'过'表示经历，'起来'表示开始并持续，两者连用造成体貌冲突，且'真正'应直接修饰形容词或动词短语核心，此处结构混乱。 语序错误：'真正'作为副词，通常紧贴其所修饰的谓语部分（冷起来），放在主语'天气'之前会改变句子焦点，使句子听起来像是在对比'真正的天气'和'假的天气'，不符合原意。 方向补语误用：'冷起来'表示状态开始并增强，'冷下去'通常表示状态减弱或结束。这里语境是变冷，应用'起来'，用'下去'语义相反。",
+        "target_word": "真正",
+        "hant": {
+          "sentences": [
+            {
+              "text": "真正天氣冷起來了。",
+              "is_correct": false
+            },
+            {
+              "text": "天氣真正冷過起來了。",
+              "is_correct": false
+            },
+            {
+              "text": "天氣真正冷得下去了。",
+              "is_correct": false
+            },
+            {
+              "text": "天氣真正冷起來了。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標位置錯誤：'過'表示經歷，'起來'表示開始並持續，兩者連用造成體貌衝突，且'真正'應直接修飾形容詞或動詞短語核心，此處結構混亂。 語序錯誤：'真正'作為副詞，通常緊貼其所修飾的謂語部分（冷起來），放在主語'天氣'之前會改變句子焦點，使句子聽起來像是在對比'真正的天氣'和'假的天氣'，不符合原意。 方向補語誤用：'冷起來'表示狀態開始並增強，'冷下去'通常表示狀態減弱或結束。這裡語境是變冷，應用'起來'，用'下去'語義相反。",
+          "target_word": "真正"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5d2d824a-14ce-4380-bc2e-3118e42df51c",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "他真正喜欢的是画画，不是唱歌。",
+        "hant": {
+          "original_sentence": "他真正喜歡的是畫畫，不是唱歌。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "a8c516dc-003a-489c-aad7-2bbac60df4c7",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "真正",
+        "pronunciation": "zhēn zhèng",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "指在学校里学习并遵循正式规则和方法的群体。",
+              "表示某事正在发生或逐渐发展",
+              "積み重ねる",
+              "真实地；确实（强调事实）"
+            ],
+            "correct_answer": "真实地；确实（强调事实）"
+          }
+        },
+        "hant": {
+          "word": "真正",
+          "pronunciation": "zhēn zhèng",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "指在學校裡學習並遵循正式規則和方法的群體。",
+                "表示某事正在發生或逐漸發展",
+                "積み重ねる",
+                "真實地；確實（強調事實）"
+              ],
+              "correct_answer": "真實地；確實（強調事實）"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "82e31798-a427-4b42-97ae-c4395999d5da",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "你___明白我的意思吗？",
+        "original_sentence": "你真正明白我的意思吗？",
+        "target_word": "真正",
+        "word": "真正",
+        "answer": {
+          "accepted": [
+            "真正",
+            "真正地",
+            "真假",
+            "真诚"
+          ],
+          "accepted_normalized": [
+            "真正",
+            "真正地",
+            "真假",
+            "真诚"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "你___明白我的意思嗎？",
+          "original_sentence": "你真正明白我的意思嗎？",
+          "target_word": "真正",
+          "word": "真正",
+          "answer": {
+            "accepted": [
+              "真正",
+              "真正地",
+              "真假",
+              "真誠"
+            ],
+            "accepted_normalized": [
+              "真正",
+              "真正地",
+              "真假",
+              "真誠"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "edbe68fb-3449-483a-a22f-5afd4edc4417",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "他真正喜欢的是画画，不是唱歌。",
+        "chunks": [
+          "他",
+          "真正喜欢的是画画",
+          "不是唱歌"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "真正喜欢的是画画",
+          "不是唱歌",
+          "他"
+        ],
+        "target_word": "真正",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "他真正喜歡的是畫畫，不是唱歌。",
+          "chunks": [
+            "他",
+            "真正喜歡的是畫畫",
+            "不是唱歌"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "真正喜歡的是畫畫",
+            "不是唱歌",
+            "他"
+          ],
+          "target_word": "真正",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "54937eff-5ff6-4f02-b576-ca14a62a0519",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "真正",
+        "options": [
+          "zhén zhèng",
+          "zhēn zhèng",
+          "zhēn zhéng",
+          "zhēn zhēng"
+        ],
+        "correct_answer": "zhēn zhèng",
+        "word": "真正",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "真正",
+          "options": [
+            "zhén zhèng",
+            "zhēn zhèng",
+            "zhēn zhéng",
+            "zhēn zhēng"
+          ],
+          "correct_answer": "zhēn zhèng",
+          "word": "真正",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ea9301b2-7e16-42dd-b9ee-d7b4af128644",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "zhēn zhèng",
+        "options": [
+          "正是",
+          "肯定",
+          "跟着",
+          "真正"
+        ],
+        "correct_answer": "真正",
+        "word": "真正",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "肯定": "component",
+          "正是": "component",
+          "跟着": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "zhēn zhèng",
+          "options": [
+            "正是",
+            "肯定",
+            "跟著",
+            "真正"
+          ],
+          "correct_answer": "真正",
+          "word": "真正",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "肯定": "component",
+            "正是": "component",
+            "跟着": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f42f9049-1628-45fd-8226-cdd921b82f76",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "真正",
+        "toneless_pinyin": "zhen zheng",
+        "full_pinyin": "zhēn zhèng",
+        "options": [
+          "12",
+          "14",
+          "13",
+          "11"
+        ],
+        "correct_answer": "14",
+        "option_labels": {
+          "12": "high level (1) + rising (2)",
+          "14": "high level (1) + falling (4)",
+          "13": "high level (1) + dipping (3)",
+          "11": "high level (1) + high level (1)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "真正",
+          "toneless_pinyin": "zhen zheng",
+          "full_pinyin": "zhēn zhèng",
+          "options": [
+            "12",
+            "14",
+            "13",
+            "11"
+          ],
+          "correct_answer": "14",
+          "option_labels": {
+            "12": "high level (1) + rising (2)",
+            "14": "high level (1) + falling (4)",
+            "13": "high level (1) + dipping (3)",
+            "11": "high level (1) + high level (1)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7bf35d21-8a8d-463c-b281-435f6e6d056b",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "真正",
+        "relation": "antonym",
+        "options": [
+          "非常",
+          "虚假",
+          "大概",
+          "确实"
+        ],
+        "correct_answer": "虚假",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "真实地；确实（强调事实）",
+            "explanation": "反义关系：'真正'强调事实的真实存在，'虚假'指与事实不符，二者在'真实性'维度上构成反义。"
+          }
+        },
+        "hant": {
+          "word": "真正",
+          "relation": "antonym",
+          "options": [
+            "非常",
+            "虛假",
+            "大概",
+            "確實"
+          ],
+          "correct_answer": "虛假",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "真實地；確實（強調事實）",
+              "explanation": "反義關係：'真正'強調事實的真實存在，'虛假'指與事實不符，二者在'真實性'維度上構成反義。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "大概": 0.461245,
+            "非常": 0.524598
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00166304,
+      "prompt_tokens": 2493,
+      "completion_tokens": 676,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 13031
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00049152,
+      "prompt_tokens": 636,
+      "completion_tokens": 225,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 5218
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00150816,
+      "prompt_tokens": 1661,
+      "completion_tokens": 763,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 14502
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00047872,
+      "prompt_tokens": 632,
+      "completion_tokens": 216,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 4923
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_bundle_judge",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00101664,
+      "prompt_tokens": 985,
+      "completion_tokens": 548,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 10597
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00024864,
+      "prompt_tokens": 541,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 2116
+    }
+  ],
+  "llm_calls_observed": 6,
+  "llm_cost_observed_usd": 0.005406719999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 54.57799999997951,
+  "finished_at": "2026-10-03T01:46:44.520386+00:00"
+}

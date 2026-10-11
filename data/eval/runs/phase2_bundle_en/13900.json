@@ -1,0 +1,1352 @@
+{
+  "sense_id": 13900,
+  "language_id": 2,
+  "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+  "started_at": "2026-10-03T01:30:17.739273+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.17087602615356445,
+    "p1_generate": 2.6834628582000732,
+    "tier_gate": 0.0,
+    "p1_judge": 1.6352696418762207,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/pɪk/",
+        "morphological_forms": [
+          {
+            "form": "pick",
+            "label": "base form"
+          },
+          {
+            "form": "picks",
+            "label": "third-person singular present"
+          },
+          {
+            "form": "picked",
+            "label": "past tense"
+          },
+          {
+            "form": "picked",
+            "label": "past participle"
+          },
+          {
+            "form": "picking",
+            "label": "present participle"
+          }
+        ],
+        "pronunciation": "pik",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13900
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "88ff90a5-2129-4384-81b1-11b8c6a2fcff",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "pick",
+        "pronunciation": "pik",
+        "correct_definition": "To select or choose something from a group.",
+        "options": [
+          "A person or thing that is preferred above others.",
+          "To select or choose something from a group.",
+          "To begin sleeping; to enter a state of sleep.",
+          "The act of deliberately staying away from something or preventing something from happening."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "01c969c8-75ef-47ab-8109-3d11b5f613e7",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "When doctors use this information, they can ___ a safer drug therapy that works just right for one specific person, stopping bad side effects before they even start.",
+        "original_sentence": "When doctors use this information, they can pick a safer drug therapy that works just right for one specific person, stopping bad side effects before they even start.",
+        "correct_answer": "pick",
+        "options": [
+          "pick",
+          "invent",
+          "consume",
+          "ignore"
+        ],
+        "explanation": "Correct: fits the context of selecting a specific drug therapy from options.",
+        "distractor_tags": {},
+        "word_definition": "To select or choose something from a group.",
+        "target_word": "pick"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "9ab76b0a-ba09-4ef2-96f9-faaba6e04b32",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "People ___ the beans.",
+        "original_sentence": "People pick the beans.",
+        "correct_answer": "pick",
+        "base_form": "pick",
+        "form_label": "base form",
+        "options": [
+          "picked",
+          "pick",
+          "picking",
+          "picks"
+        ],
+        "explanation": "Correct. The subject 'People' is plural, so the base form is used in the present simple tense.",
+        "word_definition": "To select or choose something from a group.",
+        "target_word": "pick"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "68919c26-fb49-435b-845c-baece454d0e4",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Students can pick any topic they want for their history presentation this Friday.",
+            "is_correct": true
+          },
+          {
+            "text": "People pick the beans.",
+            "is_correct": true
+          },
+          {
+            "text": "She want to pick a new dress for the party.",
+            "is_correct": false,
+            "error_description": "Subject-verb agreement error: The third-person singular subject 'She' requires the verb form 'wants', not 'want'."
+          },
+          {
+            "text": "When doctors use this information, they can pick a safer drug therapy that works just right for one specific person, stopping bad side effects before they even start.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "74c65ffd-f035-4cff-95fa-8e346882ad66",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Many teenagers find it difficult to pick a career path while they are still in school."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "bb968b4b-5e6a-4d58-a20f-f10587ba644b",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "pick",
+        "pronunciation": "pik",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "Dust is fine particles of matter, such as dirt or pollen, that settle on surfaces.",
+              "To select or choose something from a group.",
+              "The front part of your body between your neck and your belly.",
+              "to move or flow at a higher speed."
+            ],
+            "correct_answer": "To select or choose something from a group."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "a913d399-231d-4061-9e73-f6c5bdc3c074",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "People ___ the beans.",
+        "original_sentence": "People pick the beans.",
+        "target_word": "pick",
+        "word": "pick",
+        "answer": {
+          "accepted": [
+            "pick",
+            "picks",
+            "picked",
+            "picking"
+          ],
+          "accepted_normalized": [
+            "pick",
+            "picks",
+            "picked",
+            "picking"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "9ab54de5-de45-4c9a-97b3-abbed23e5ba1",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Many teenagers find it difficult to pick a career path while they are still in school.",
+        "chunks": [
+          "Many teenagers",
+          "find",
+          "it difficult to pick a career path while they are still in school"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "it difficult to pick a career path while they are still in school",
+          "find",
+          "Many teenagers"
+        ],
+        "target_word": "pick",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "69d3de35-1764-4c6c-997c-f31530720303",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "pick",
+        "relation": "synonym",
+        "options": [
+          "drop",
+          "choose",
+          "ignore",
+          "reject"
+        ],
+        "correct_answer": "choose",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "To select or choose something from a group.",
+            "explanation": "Correct. 'Choose' is a direct synonym for 'pick' in the sense of selecting."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "drop": 0.376192
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d26e710a-772f-45b0-9067-9e4a2548c0b0",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "pick",
+        "sentence_with_blank": "People ___ the beans.",
+        "original_sentence": "People pick the beans.",
+        "required_pos": "noun",
+        "options": [
+          "pickment",
+          "pickly",
+          "picker",
+          "pickful"
+        ],
+        "correct_answer": "picker",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "Correct. 'Picker' is a real noun derived from 'pick' (one who picks)."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ea0f0270-e5e3-4fbf-997b-5d8369fa8c1c",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "He always takes a long time to ___ what he wants to eat at a restaurant.",
+        "original_sentence": "He always takes a long time to pick what he wants to eat at a restaurant.",
+        "correct_answer": "pick",
+        "base_form": "pick",
+        "form_label": "base form",
+        "options": [
+          "picks",
+          "picked",
+          "picking",
+          "pick"
+        ],
+        "explanation": "Correct. The subject 'He' is third-person singular, but the sentence uses 'takes time to [verb]', so the infinitive/base form 'pick' is required after 'to'.",
+        "word_definition": "To select or choose something from a group.",
+        "target_word": "pick"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "163f89f5-8fb2-489d-b2ac-3c099ab19c4b",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The heavy rain began to pick on the roof tiles throughout the night.",
+            "is_correct": false
+          },
+          {
+            "text": "They were asked to pick three options from the list of available activities.",
+            "is_correct": true
+          },
+          {
+            "text": "He tried to pick the heavy sofa across the living room floor.",
+            "is_correct": false
+          },
+          {
+            "text": "She will pick her teeth with a fork during the formal dinner.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Incorrect usage: 'Pick' does not mean to strike or hit repeatedly; this confuses it with 'pelt' or 'beat'. Incorrect usage: 'Pick' implies selection, not physical lifting or moving; this confuses it with 'lift' or 'drag'. Incorrect usage: While 'pick at' exists, using a fork to 'pick teeth' is pragmatically inappropriate and semantically confused with 'clean'.",
+        "target_word": "pick"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "135e2d08-5cbf-4f1a-ab1e-01a35465aae1",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She picked up the phone and pick it to her ear.",
+            "is_correct": false,
+            "error_description": "The verb 'pick' is incorrectly used to mean 'place' or 'move'. Additionally, there is a tense inconsistency between 'picked' (past) and 'pick' (present). The correct action for moving an object to one's ear is 'put' or 'held', not 'pick'."
+          },
+          {
+            "text": "We need to pick a leader for our group project before the class ends today.",
+            "is_correct": true
+          },
+          {
+            "text": "They were asked to pick three options from the list of available activities.",
+            "is_correct": true
+          },
+          {
+            "text": "He always takes a long time to pick what he wants to eat at a restaurant.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "0aa63b2e-6fce-40d1-bca0-e09f98d72932",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "If you had to pick a favorite movie from last year, which one would it be?"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ac63094f-1bf8-429c-afbe-5376a2ceb992",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "He always takes a long time to ___ what he wants to eat at a restaurant.",
+        "original_sentence": "He always takes a long time to pick what he wants to eat at a restaurant.",
+        "target_word": "pick",
+        "word": "pick",
+        "answer": {
+          "accepted": [
+            "pick",
+            "picks",
+            "picked",
+            "picking"
+          ],
+          "accepted_normalized": [
+            "pick",
+            "picks",
+            "picked",
+            "picking"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a7d8244d-d923-46a4-9d9d-f86ec91ccd64",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "If you had to pick a favorite movie from last year, which one would it be?",
+        "chunks": [
+          "If you had to pick a favorite movie from last year",
+          "which one",
+          "would be",
+          "it"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "would be",
+          "If you had to pick a favorite movie from last year",
+          "which one",
+          "it"
+        ],
+        "target_word": "pick",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "3ca7d0eb-fd6a-45e7-8f83-c70940033487",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "pick",
+        "sentence_with_blank": "He always takes a long time to ___ what he wants to eat at a restaurant.",
+        "original_sentence": "He always takes a long time to pick what he wants to eat at a restaurant.",
+        "required_pos": "adjective",
+        "options": [
+          "pickation",
+          "pickive",
+          "picky",
+          "pickness"
+        ],
+        "correct_answer": "picky",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "Correct. 'Picky' is a real adjective meaning hard to please."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13900,
+      "word_asset_id": "shadow-13900-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0019199,
+      "prompt_tokens": 1958,
+      "completion_tokens": 533,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 2513
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006387,
+      "prompt_tokens": 679,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1509
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00551136,
+      "prompt_tokens": 2295,
+      "completion_tokens": 3732,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 65063
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00127488,
+      "prompt_tokens": 1612,
+      "completion_tokens": 593,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 11338
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00051584,
+      "prompt_tokens": 1204,
+      "completion_tokens": 102,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 3239
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00127616,
+      "prompt_tokens": 1612,
+      "completion_tokens": 594,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 11796
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0005632,
+      "prompt_tokens": 1204,
+      "completion_tokens": 139,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 3694
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003642,
+      "prompt_tokens": 489,
+      "completion_tokens": 87,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1253
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001856,
+      "prompt_tokens": 377,
+      "completion_tokens": 29,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1031
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004745,
+      "prompt_tokens": 490,
+      "completion_tokens": 131,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1410
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001864,
+      "prompt_tokens": 413,
+      "completion_tokens": 25,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1007
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003321,
+      "prompt_tokens": 407,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1271
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003876,
+      "prompt_tokens": 392,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1296
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004083,
+      "prompt_tokens": 411,
+      "completion_tokens": 114,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1289
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004233,
+      "prompt_tokens": 411,
+      "completion_tokens": 120,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1312
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003373,
+      "prompt_tokens": 516,
+      "completion_tokens": 73,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1232
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004225,
+      "prompt_tokens": 500,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1280
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002549,
+      "prompt_tokens": 508,
+      "completion_tokens": 41,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1068
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004375,
+      "prompt_tokens": 500,
+      "completion_tokens": 115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13900,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1418
+    }
+  ],
+  "llm_calls_observed": 19,
+  "llm_cost_observed_usd": 0.01591424,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 119.17199999990407,
+  "finished_at": "2026-10-03T01:32:16.906938+00:00"
+}

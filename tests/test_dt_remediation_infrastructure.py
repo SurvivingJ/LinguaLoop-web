@@ -21,6 +21,7 @@ non-overlap rather than merely that some job exists.
 """
 
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -287,6 +288,176 @@ class TestSynthesisAdvisoryLock:
 
         summary = mod.run_nightly_synthesis()
         assert summary['skipped'] is False
+
+
+# ===========================================================================
+# TASK-851: profile-row taxonomy_version stamping + legacy-slug guard
+# (gated on Config.DT_TAXONOMY_COLUMNS; flag OFF must be byte-identical)
+# ===========================================================================
+
+_V6_TAXONOMY = {'pairs': {
+    'en-zh': {'subtypes': ['word_choice', 'measure_word']},
+    'ja': {'subtypes': ['particle_choice', 'word_choice']},
+}}
+
+
+def _synthesis_tables(*subtypes):
+    return {
+        'dt_error_instance': [
+            {'submission_id': 1, 'subtype': s, 'severity': 'major',
+             'is_mistake': False, 'created_at': '2026-10-03T12:00:00+00:00'}
+            for s in subtypes
+        ],
+        'dt_submission': [{'id': 1, 'user_id': 'u1', 'l1_language_id': 2, 'passage_id': 9}],
+        'dt_passage': [{'id': 9, 'l2_language_id': 1}],
+    }
+
+
+def _profile_row(subtype='word_choice'):
+    return {'user_id': 'u1', 'l1_language_id': 2, 'l2_language_id': 1,
+            'subtype': subtype, 'count': 3, 'severity_rank': 6.0,
+            'trend': [], 'remediation_status': 'queued'}
+
+
+_SINCE = datetime(2026, 9, 1, tzinfo=timezone.utc)
+
+
+class TestTaxonomyVersionStampAndLegacyGuard:
+
+    @staticmethod
+    def _forbid_taxonomy_reads(monkeypatch):
+        from services.dual_translation import grader_cascade
+
+        def _boom(db):
+            raise AssertionError('taxonomy must not be read with the flag off')
+
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy', _boom)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', _boom)
+
+    def test_flag_off_upsert_is_unchanged(self, monkeypatch):
+        from scripts import dt_nightly_synthesis as mod
+
+        monkeypatch.setattr(mod.Config, 'DT_TAXONOMY_COLUMNS', False)
+        self._forbid_taxonomy_reads(monkeypatch)
+        db = _FakeDB({})
+        rows = [_profile_row()]
+
+        mod.upsert_profile_rows(db, rows)
+
+        assert db.calls == [('upsert', 'dt_error_profile_entry', [_profile_row()])]
+        assert rows == [_profile_row()]
+
+    def test_flag_off_records_unchanged_and_no_guard(self, monkeypatch, caplog):
+        from scripts import dt_nightly_synthesis as mod
+
+        monkeypatch.setattr(mod.Config, 'DT_TAXONOMY_COLUMNS', False)
+        self._forbid_taxonomy_reads(monkeypatch)
+        db = _FakeDB(_synthesis_tables('word_choice', 'particle_wa_ga'))
+
+        with caplog.at_level('WARNING', logger='dt_nightly_synthesis'):
+            records = mod.fetch_error_records(db, since=_SINCE)
+
+        assert [r['subtype'] for r in records] == ['word_choice', 'particle_wa_ga']
+        assert caplog.records == []
+
+    def test_flag_on_stamps_every_upserted_row_without_mutating_input(self, monkeypatch):
+        from scripts import dt_nightly_synthesis as mod
+        from services.dual_translation import grader_cascade
+
+        monkeypatch.setattr(mod.Config, 'DT_TAXONOMY_COLUMNS', True)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', lambda db: 6)
+        db = _FakeDB({})
+        rows = [_profile_row('word_choice'), _profile_row('measure_word')]
+
+        mod.upsert_profile_rows(db, rows)
+
+        (_, _, payload), = db.calls
+        assert [r['taxonomy_version'] for r in payload] == [6, 6]
+        assert all('taxonomy_version' not in r for r in rows)
+
+    def test_flag_on_v5_active_stamps_5(self, monkeypatch):
+        """Under v5 active the only change is the stamp."""
+        from scripts import dt_nightly_synthesis as mod
+        from services.dual_translation import grader_cascade
+
+        monkeypatch.setattr(mod.Config, 'DT_TAXONOMY_COLUMNS', True)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', lambda db: 5)
+        db = _FakeDB({})
+
+        mod.upsert_profile_rows(db, [_profile_row()])
+
+        (_, _, payload), = db.calls
+        assert payload == [{**_profile_row(), 'taxonomy_version': 5}]
+
+    def test_flag_on_unreadable_version_writes_unstamped(self, monkeypatch):
+        """Never overwrite a stamped row with NULL on a transient read failure."""
+        from scripts import dt_nightly_synthesis as mod
+        from services.dual_translation import grader_cascade
+
+        monkeypatch.setattr(mod.Config, 'DT_TAXONOMY_COLUMNS', True)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', lambda db: None)
+        db = _FakeDB({})
+
+        mod.upsert_profile_rows(db, [_profile_row()])
+
+        assert db.calls == [('upsert', 'dt_error_profile_entry', [_profile_row()])]
+
+    def test_flag_on_legacy_slug_warns_once_and_still_clusters(self, monkeypatch, caplog):
+        from scripts import dt_nightly_synthesis as mod
+        from services.dual_translation import grader_cascade
+
+        monkeypatch.setattr(mod.Config, 'DT_TAXONOMY_COLUMNS', True)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy', lambda db: _V6_TAXONOMY)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', lambda db: 6)
+        db = _FakeDB(_synthesis_tables(
+            'word_choice', 'particle_wa_ga', 'particle_wa_ga', 'script_choice',
+        ))
+
+        with caplog.at_level('WARNING', logger='dt_nightly_synthesis'):
+            records = mod.fetch_error_records(db, since=_SINCE)
+
+        # No silent drop: every row is still a synthesis record.
+        assert [r['subtype'] for r in records] == [
+            'word_choice', 'particle_wa_ga', 'particle_wa_ga', 'script_choice',
+        ]
+        warnings = [r for r in caplog.records if r.levelname == 'WARNING']
+        assert len(warnings) == 1
+        msg = warnings[0].getMessage()
+        assert '3 error rows' in msg
+        assert 'particle_wa_ga=2' in msg and 'script_choice=1' in msg
+        assert 'word_choice' not in msg.split('slugs=')[1]
+
+    def test_flag_on_all_active_slugs_is_silent(self, monkeypatch, caplog):
+        """Negative case: in-vocabulary rows (from per-pair AND baseline lists) never warn."""
+        from scripts import dt_nightly_synthesis as mod
+        from services.dual_translation import grader_cascade
+
+        monkeypatch.setattr(mod.Config, 'DT_TAXONOMY_COLUMNS', True)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy', lambda db: _V6_TAXONOMY)
+        db = _FakeDB(_synthesis_tables('word_choice', 'measure_word', 'particle_choice'))
+
+        with caplog.at_level('WARNING', logger='dt_nightly_synthesis'):
+            records = mod.fetch_error_records(db, since=_SINCE)
+
+        assert len(records) == 3
+        assert caplog.records == []
+
+    def test_flag_on_unreadable_taxonomy_skips_guard_without_failing(self, monkeypatch, caplog):
+        from scripts import dt_nightly_synthesis as mod
+        from services.dual_translation import grader_cascade
+
+        def _missing(db):
+            raise RuntimeError('No active dt_taxonomy_version row')
+
+        monkeypatch.setattr(mod.Config, 'DT_TAXONOMY_COLUMNS', True)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy', _missing)
+        db = _FakeDB(_synthesis_tables('particle_wa_ga'))
+
+        with caplog.at_level('WARNING', logger='dt_nightly_synthesis'):
+            records = mod.fetch_error_records(db, since=_SINCE)
+
+        assert len(records) == 1
+        assert any('legacy-slug check skipped' in r.getMessage() for r in caplog.records)
 
 
 class TestAdvisoryLockKey:

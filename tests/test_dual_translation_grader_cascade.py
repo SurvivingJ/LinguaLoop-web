@@ -948,6 +948,265 @@ def test_v2_happy_path_detector_verifier_derived_scoring(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+# TASK-842: taxonomy_version stamping (gated on Config.DT_TAXONOMY_COLUMNS)
+# ---------------------------------------------------------------------------
+
+def test_v2_no_taxonomy_version_stamp_when_columns_flag_off(monkeypatch):
+    """Default OFF: the error dicts are exactly as before the migration existed,
+    so nothing names a column the live DB may not have yet."""
+    monkeypatch.setattr(grader_cascade.Config, 'DT_TAXONOMY_COLUMNS', False)
+    result = _run_v2(monkeypatch, {'tier1-slug': DETECTOR_OK, 'tier2-slug': VERIFIER_OK})
+
+    assert result['errors']
+    assert all('taxonomy_version' not in e for e in result['errors'])
+    assert result['grader_trace']['prompt_version']['taxonomy'] == 5
+
+
+def test_v2_stamps_taxonomy_version_on_every_final_error_when_flag_on(monkeypatch):
+    monkeypatch.setattr(grader_cascade.Config, 'DT_TAXONOMY_COLUMNS', True)
+    _v2_setup(monkeypatch, {'tier1-slug': DETECTOR_OK, 'tier2-slug': VERIFIER_OK})
+    monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', lambda db: 6)
+    result = grader_cascade.grade_submission(
+        db=None, passage_id=99, gold_l2=_ten_word_gold(),
+        reproduction=_ten_word_repro_one_wrong(),
+        l2_language_id=2, l1_language_id=1, age_tier=3, framework_v2=True,
+    )
+
+    assert result['errors']
+    assert [e['taxonomy_version'] for e in result['errors']] == [6] * len(result['errors'])
+    # Same value the trace reports — one source of truth per grade.
+    assert result['grader_trace']['prompt_version']['taxonomy'] == 6
+
+
+# ---------------------------------------------------------------------------
+# TASK-845: word_choice explanation_variant (v6-gated)
+# ---------------------------------------------------------------------------
+
+# v6 marker = meaning_inversion in the resolved list (same gate as TASK-843).
+TAXONOMY_CFG_V6 = {
+    **TAXONOMY_CFG_V5,
+    'pairs': {'en': {'subtypes': ['word_choice', 'tense_aspect', 'meaning_inversion']}},
+    'subtype_meta': {**TAXONOMY_CFG_V5['subtype_meta'], 'meaning_inversion': {'dimension': 'fidelity'}},
+}
+
+
+def _run_v6(monkeypatch, responses, *, resolver=None, explainer_seen=None):
+    _v2_setup(monkeypatch, responses)
+    monkeypatch.setattr(grader_cascade, 'get_active_taxonomy', lambda db: TAXONOMY_CFG_V6)
+    if resolver is not None:
+        monkeypatch.setattr(grader_cascade.word_choice_variant, 'resolve_variants', resolver)
+    if explainer_seen is not None:
+        def _fake_explainer(db, *, errors, **kw):
+            explainer_seen.extend(dict(e) for e in errors)
+            return errors, 0, 0, None
+        monkeypatch.setattr(grader_cascade.explainer, 'attach_explanations', _fake_explainer)
+    return grader_cascade.grade_submission(
+        db=None, passage_id=99, gold_l2=_ten_word_gold(),
+        reproduction=_ten_word_repro_one_wrong(),
+        l2_language_id=2, l1_language_id=1, age_tier=3, framework_v2=True,
+    )
+
+
+def test_v5_has_no_variant_key_trace_or_resolver_call(monkeypatch):
+    def _boom(*a, **k):
+        raise AssertionError('resolver must not run under v5')
+    monkeypatch.setattr(grader_cascade.word_choice_variant, 'resolve_variants', _boom)
+    result = _run_v2(monkeypatch, {'tier1-slug': DETECTOR_OK, 'tier2-slug': VERIFIER_OK})
+
+    assert result['errors']
+    assert all('explanation_variant' not in e for e in result['errors'])
+    assert 'variant_basis' not in result['grader_trace']
+
+
+def test_v6_decodes_model_variant_and_resolves_before_explainer(monkeypatch):
+    calls, seen = [], []
+
+    def _resolver(db, errors, *, l2_code, l2_language_id, l1_language_id):
+        calls.append(([e.get('explanation_variant') for e in errors], l2_code, l2_language_id, l1_language_id))
+        for e in errors:
+            e['explanation_variant'] = 'false_synonym' if e['subtype'] == 'word_choice' else None
+        return {'same_lemma': 0, 'shared_gloss': 1, 'model': 0, 'default': 0}
+
+    detector = {**DETECTOR_OK, 'errors': [{**DETECTOR_OK['errors'][0], 'explanation_variant': 2}]}
+    result = _run_v6(monkeypatch, {'tier1-slug': detector, 'tier2-slug': VERIFIER_OK},
+                     resolver=_resolver, explainer_seen=seen)
+
+    # Model's index 2 decoded to its slug and handed to the resolver as the model call.
+    assert calls == [(['false_synonym'], 'en', 2, 1)]
+    # The explainer already sees the resolved variant (post-pass runs before it).
+    assert [e['explanation_variant'] for e in seen] == ['false_synonym']
+    assert result['errors'][0]['explanation_variant'] == 'false_synonym'
+    assert result['grader_trace']['variant_basis'] == {
+        'same_lemma': 0, 'shared_gloss': 1, 'model': 0, 'default': 0}
+
+
+@pytest.mark.parametrize('raw_variant', [7, -1, 'false_synonym', None])
+def test_v6_invalid_model_variant_is_none_and_never_drops_the_error(monkeypatch, raw_variant):
+    calls = []
+
+    def _resolver(db, errors, **kw):
+        calls.append([e.get('explanation_variant') for e in errors])
+        return {'same_lemma': 0, 'shared_gloss': 0, 'model': 0, 'default': len(errors)}
+
+    err = {**DETECTOR_OK['errors'][0], 'explanation_variant': raw_variant}
+    if raw_variant is None:
+        err.pop('explanation_variant')
+    result = _run_v6(monkeypatch, {'tier1-slug': {**DETECTOR_OK, 'errors': [err]}, 'tier2-slug': VERIFIER_OK},
+                     resolver=_resolver)
+
+    assert len(result['errors']) == 1
+    assert calls == [[None]]
+
+
+def test_v6_real_resolver_db_failure_degrades_to_default(monkeypatch):
+    """db=None: the dictionary read fails → wrong_word / basis default; grade completes."""
+    result = _run_v6(monkeypatch, {'tier1-slug': DETECTOR_OK, 'tier2-slug': VERIFIER_OK})
+
+    assert result['overall_band'] is not None
+    assert result['errors'][0]['explanation_variant'] == 'wrong_word'
+    assert result['grader_trace']['variant_basis'] == {
+        'same_lemma': 0, 'shared_gloss': 0, 'model': 0, 'default': 1}
+
+
+def test_v6_verifier_retype_clears_the_variant(monkeypatch):
+    """A word_choice error the Verifier re-types to tense_aspect must not keep a
+    variant (dt_error_instance CHECK ties the variant to word_choice)."""
+    detector = {**DETECTOR_OK, 'errors': [{**DETECTOR_OK['errors'][0], 'explanation_variant': 1}]}
+    verifier = {**VERIFIER_OK, 'verdicts': [{'error_index': 0, 'verdict': 2, 'subtype': 1}]}
+    result = _run_v6(monkeypatch, {'tier1-slug': detector, 'tier2-slug': verifier})
+
+    assert result['errors'][0]['subtype'] == 'tense_aspect'
+    assert result['errors'][0]['explanation_variant'] is None
+    assert sum(result['grader_trace']['variant_basis'].values()) == 0
+
+
+# ---------------------------------------------------------------------------
+# TASK-846: variant-aware Rule templates
+# ---------------------------------------------------------------------------
+
+_VARIANTS = ('wrong_word', 'wrong_sense', 'false_synonym')
+
+
+@pytest.fixture(scope='module')
+def v6_seed_taxonomy():
+    """The v6 taxonomy exactly as the offline eval harness loads it (TASK-849:
+    the `$taxonomy$` literal of the unapplied seed SQL) — proves the variant
+    templates are reachable through the same dict the live row will serve."""
+    import re
+    from pathlib import Path
+    seed = Path(__file__).resolve().parents[1] / 'migrations' / 'dt_taxonomy_v6_seed.sql'
+    m = re.search(r'\$taxonomy\$(.*?)\$taxonomy\$', seed.read_text(encoding='utf-8'), re.DOTALL)
+    return json.loads(m.group(1))
+
+
+@pytest.mark.parametrize('l1_code', ['en', 'zh', 'ja'])
+@pytest.mark.parametrize('variant', _VARIANTS)
+def test_render_explanation_uses_variant_template(v6_seed_taxonomy, variant, l1_code):
+    tmpl = v6_seed_taxonomy['variant_templates']['word_choice'][variant][l1_code]
+    text, used_fallback = grader_cascade.render_explanation(
+        v6_seed_taxonomy, 'word_choice', l1_code, 'LF', 'CF', variant=variant)
+
+    assert used_fallback is False
+    assert text == tmpl.format(learner_form='LF', corrected_form='CF')
+    generic, _ = grader_cascade.render_explanation(v6_seed_taxonomy, 'word_choice', l1_code, 'LF', 'CF')
+    assert text != generic  # each variant has its own text, not the generic word_choice one
+
+
+@pytest.mark.parametrize('cfg_patch', [
+    lambda c: c.pop('variant_templates'),                                       # no table at all
+    lambda c: c['variant_templates']['word_choice'].pop('false_synonym'),       # variant missing
+    lambda c: c['variant_templates']['word_choice']['false_synonym'].pop('zh'),  # L1 missing
+    lambda c: c['variant_templates']['word_choice']['false_synonym'].__setitem__('zh', '{nope}'),  # bad placeholder
+])
+def test_render_explanation_missing_variant_template_falls_back_to_word_choice(cfg_patch):
+    cfg = {
+        **TAXONOMY_CFG_V5,
+        'variant_templates': {'word_choice': {'false_synonym': {'zh': '近义：{learner_form}/{corrected_form}'}}},
+    }
+    cfg_patch(cfg)
+    text, used_fallback = grader_cascade.render_explanation(
+        cfg, 'word_choice', 'zh', 'a', 'b', variant='false_synonym')
+
+    assert (text, used_fallback) == ('用词：a → b。', False)
+
+
+def test_render_explanation_variant_quoting_absent_correction_falls_through():
+    cfg = {**TAXONOMY_CFG_V5,
+           'variant_templates': {'word_choice': {'wrong_word': {'zh': 'X {corrected_form}'}}}}
+    with_variant = grader_cascade.render_explanation(cfg, 'word_choice', 'zh', 'a', '', variant='wrong_word')
+    assert with_variant == grader_cascade.render_explanation(cfg, 'word_choice', 'zh', 'a', '')
+
+
+def test_render_explanation_variant_none_is_unchanged():
+    cfg = {**TAXONOMY_CFG_V5,
+           'variant_templates': {'word_choice': {'wrong_word': {'zh': 'VARIANT {learner_form}'}}}}
+    assert grader_cascade.render_explanation(cfg, 'word_choice', 'zh', 'a', 'b') == ('用词：a → b。', False)
+
+
+def test_rerender_variant_explanations_updates_rule_and_keeps_application():
+    cfg = {**TAXONOMY_CFG_V5,
+           'variant_templates': {'word_choice': {'wrong_sense': {'zh': '词义：{learner_form}'}}}}
+    errors = [
+        {'subtype': 'word_choice', 'learner_form': 'a', 'corrected_form': 'b',
+         'explanation': 'old\napp', 'explanation_variant': 'wrong_sense',
+         'explanation_parts': {'rule': 'old', 'application': 'app'}},
+        {'subtype': 'tense_aspect', 'learner_form': 'c', 'corrected_form': 'd',
+         'explanation': 'keep', 'explanation_variant': None},
+        {'subtype': 'tense_aspect', 'learner_form': 'e', 'corrected_form': 'f', 'explanation': 'keep v5'},
+    ]
+    assert grader_cascade.rerender_variant_explanations(errors, cfg, 'zh') == 1
+    assert errors[0]['explanation_parts']['rule'] == '词义：a'
+    assert errors[0]['explanation'] == '词义：a\napp'
+    assert errors[1]['explanation'] == 'keep' and errors[2]['explanation'] == 'keep v5'
+
+
+def test_v6_grade_renders_variant_template_before_explainer(monkeypatch):
+    """End to end: the resolved variant re-renders the Rule layer, and the explainer
+    is handed that text (it scaffolds explanation_parts.rule from it)."""
+    cfg = {**TAXONOMY_CFG_V6, 'variant_templates': {'word_choice': {
+        'false_synonym': {'zh': '近义：{learner_form} ≠ {corrected_form}。'}}}}
+    seen = []
+
+    def _resolver(db, errors, **kw):
+        for e in errors:
+            e['explanation_variant'] = 'false_synonym' if e['subtype'] == 'word_choice' else None
+        return {'same_lemma': 0, 'shared_gloss': 1, 'model': 0, 'default': 0}
+
+    _v2_setup(monkeypatch, {'tier1-slug': DETECTOR_OK, 'tier2-slug': VERIFIER_OK})
+    monkeypatch.setattr(grader_cascade, 'get_active_taxonomy', lambda db: cfg)
+    monkeypatch.setattr(grader_cascade.word_choice_variant, 'resolve_variants', _resolver)
+
+    def _fake_explainer(db, *, errors, **kw):
+        seen.extend(dict(e) for e in errors)
+        for e in errors:
+            e['explanation_parts'] = {'rule': e['explanation'], 'application': None}
+        return errors, 0, 0, None
+    monkeypatch.setattr(grader_cascade.explainer, 'attach_explanations', _fake_explainer)
+
+    result = grader_cascade.grade_submission(
+        db=None, passage_id=99, gold_l2=_ten_word_gold(), reproduction=_ten_word_repro_one_wrong(),
+        l2_language_id=2, l1_language_id=1, age_tier=3, framework_v2=True,
+    )
+    assert seen[0]['explanation'] == '近义：totallydifferent ≠ word9。'
+    assert result['errors'][0]['explanation'] == '近义：totallydifferent ≠ word9。'
+    assert result['errors'][0]['explanation_parts']['rule'] == '近义：totallydifferent ≠ word9。'
+
+
+def test_v5_grade_ignores_variant_templates(monkeypatch):
+    """A v5 taxonomy row that somehow carries variant_templates still renders the
+    plain word_choice template — no variant is ever set under v5."""
+    _v2_setup(monkeypatch, {'tier1-slug': DETECTOR_OK, 'tier2-slug': VERIFIER_OK})
+    cfg = {**TAXONOMY_CFG_V5, 'variant_templates': {'word_choice': {
+        'wrong_word': {'zh': 'VARIANT'}}}}
+    monkeypatch.setattr(grader_cascade, 'get_active_taxonomy', lambda db: cfg)
+    result = grader_cascade.grade_submission(
+        db=None, passage_id=99, gold_l2=_ten_word_gold(), reproduction=_ten_word_repro_one_wrong(),
+        l2_language_id=2, l1_language_id=1, age_tier=3, framework_v2=True,
+    )
+    assert result['errors'][0]['explanation'].startswith('用词：totallydifferent → word9。')
+
+
+# ---------------------------------------------------------------------------
 # Verdict merge rules
 # ---------------------------------------------------------------------------
 

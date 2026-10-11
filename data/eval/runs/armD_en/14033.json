@@ -1,0 +1,1097 @@
+{
+  "sense_id": 14033,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T22:55:24.578291+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[4] flagged (rating 3): slightly vague out of context"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.36771464347839355,
+    "p1_generate": 2.421210765838623,
+    "tier_gate": 0.0,
+    "p1_judge": 3.126582145690918,
+    "collocate_grounding": 0.0,
+    "fan_out": 89.63598346710205
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[4] flagged (rating 3): slightly vague out of context"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/smɔːl/",
+        "morphological_forms": [
+          {
+            "form": "small",
+            "label": "base"
+          },
+          {
+            "form": "smaller",
+            "label": "comparative"
+          },
+          {
+            "form": "smallest",
+            "label": "superlative"
+          }
+        ],
+        "pronunciation": "smawl",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14033
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "603368f0-084d-4344-941f-6797d093772a",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "small",
+        "pronunciation": "smawl",
+        "correct_definition": "Of a size that is less than average.",
+        "options": [
+          "Of a size that is less than average.",
+          "If something is understandable, it is possible to understand or accept in a given situation.",
+          "Having a fine edge or point; able to cut or pierce.",
+          "to carry out an action or task."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b9310f0a-1412-4173-ac6b-73cd74f12d54",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Every night, the ___ child goes to bed early.",
+        "original_sentence": "Every night, the small child goes to bed early.",
+        "correct_answer": "small",
+        "options": [
+          "final",
+          "small",
+          "ancient",
+          "wooden"
+        ],
+        "explanation": "Correct: fits the context of describing a young child's physical size.",
+        "distractor_tags": {},
+        "word_definition": "Of a size that is less than average.",
+        "target_word": "small"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "a380382d-19ef-4265-a7c8-f1a5695d3112",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The parent turns on a ___ yellow lamp.",
+        "original_sentence": "The parent turns on a small yellow lamp.",
+        "correct_answer": "small",
+        "base_form": "small",
+        "form_label": "positive degree",
+        "options": [
+          "smallest",
+          "small",
+          "smaller",
+          "smalls"
+        ],
+        "explanation": "positive degree is required for a simple attributive adjective without comparison",
+        "word_definition": "Of a size that is less than average.",
+        "target_word": "small"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "99d62801-44f2-4d77-9296-acb267af300a",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Small plastic things go in the water.",
+            "is_correct": true
+          },
+          {
+            "text": "Every night, the small child goes to bed early.",
+            "is_correct": true
+          },
+          {
+            "text": "This box is more small than that one.",
+            "is_correct": false,
+            "error_description": "The adjective 'small' is a one-syllable word that forms its comparative by adding '-er' (smaller), not by using 'more' before the base form."
+          },
+          {
+            "text": "The parent turns on a small yellow lamp.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "31538827-1c12-424a-a816-5c68ebfd28d3",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "small",
+        "pronunciation": "smawl",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A small waterfall.",
+              "To be firmly fixed in a particular place or position, as if by roots.",
+              "When something is formed, it is made or created.",
+              "Of a size that is less than average."
+            ],
+            "correct_answer": "Of a size that is less than average."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1ddd8d91-9f83-47a7-a71e-db517bbc1179",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The parent turns on a ___ yellow lamp.",
+        "original_sentence": "The parent turns on a small yellow lamp.",
+        "target_word": "small",
+        "word": "small",
+        "answer": {
+          "accepted": [
+            "small",
+            "smaller",
+            "smallest"
+          ],
+          "accepted_normalized": [
+            "small",
+            "smaller",
+            "smallest"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b9591ba3-461e-460f-bee7-473115302cfc",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "It is made of small parts.",
+        "chunks": [
+          "It",
+          "is made",
+          "of small parts"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "of small parts",
+          "is made",
+          "It"
+        ],
+        "target_word": "Small",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "fc8f5fff-ff52-4610-a97f-f993fe8653c4",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "small",
+        "sentence_with_blank": "The parent turns on a ___ yellow lamp.",
+        "original_sentence": "The parent turns on a small yellow lamp.",
+        "required_pos": "adjective",
+        "options": [
+          "smallish",
+          "smallation",
+          "smallment",
+          "smallity"
+        ],
+        "correct_answer": "smallish",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established diminutive adjective formed with -ish"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "fbd0d206-54ec-4e9e-a089-79863be9575c",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "He had a ___ wooden toy horse.",
+        "original_sentence": "He had a small wooden toy horse.",
+        "correct_answer": "small",
+        "options": [
+          "small",
+          "rapid",
+          "fragile",
+          "heavy"
+        ],
+        "explanation": "Correct: fits the context of describing the physical dimensions of a child's toy.",
+        "distractor_tags": {},
+        "word_definition": "Of a size that is less than average.",
+        "target_word": "small"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b0cc12b8-0369-4ede-87da-2659cd915420",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "They built small walls.",
+            "is_correct": true
+          },
+          {
+            "text": "He felt very small because he was extremely arrogant.",
+            "is_correct": false
+          },
+          {
+            "text": "The small galaxy contained trillions of stars.",
+            "is_correct": false
+          },
+          {
+            "text": "The small ocean covered the entire planet.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: oceans are inherently massive bodies of water and cannot logically be described as small. Semantically inappropriate: arrogance typically correlates with feeling large or superior, not small; 'small' in this context usually implies humility or shame. Pragmatically inappropriate: galaxies are astronomically vast structures, making the adjective 'small' contextually and pragmatically jarring.",
+        "target_word": "small"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14033,
+      "word_asset_id": "shadow-14033-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 4
+    },
+    "word_family": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'smaller' has no clean word-boundary occurrence in its own sentence"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "chunker returned empty or blank chunks"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0019988,
+      "prompt_tokens": 2096,
+      "completion_tokens": 548,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2266
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000659,
+      "prompt_tokens": 605,
+      "completion_tokens": 191,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1232
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001342,
+      "prompt_tokens": 189,
+      "completion_tokens": 31,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 856
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001896,
+      "prompt_tokens": 507,
+      "completion_tokens": 15,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 787
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00165952,
+      "prompt_tokens": 1098,
+      "completion_tokens": 1022,
+      "cached_tokens": 0,
+      "reasoning_tokens": 930,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18504
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169824,
+      "prompt_tokens": 643,
+      "completion_tokens": 1166,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20615
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175968,
+      "prompt_tokens": 643,
+      "completion_tokens": 1214,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21431
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182976,
+      "prompt_tokens": 826,
+      "completion_tokens": 1223,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21823
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018336,
+      "prompt_tokens": 834,
+      "completion_tokens": 1224,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22074
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00257792,
+      "prompt_tokens": 1536,
+      "completion_tokens": 1630,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 29057
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001656128,
+      "prompt_tokens": 1089,
+      "completion_tokens": 1124,
+      "cached_tokens": 512,
+      "reasoning_tokens": 1024,
+      "call_role": "retry",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 19847
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00157888,
+      "prompt_tokens": 798,
+      "completion_tokens": 1034,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18264
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182976,
+      "prompt_tokens": 790,
+      "completion_tokens": 1232,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21812
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00493696,
+      "prompt_tokens": 1536,
+      "completion_tokens": 3473,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 60616
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002249728,
+      "prompt_tokens": 1536,
+      "completion_tokens": 1604,
+      "cached_tokens": 1152,
+      "reasoning_tokens": 1024,
+      "call_role": "retry",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 28667
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003858,
+      "prompt_tokens": 411,
+      "completion_tokens": 105,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1065
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003636,
+      "prompt_tokens": 387,
+      "completion_tokens": 99,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1100
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004311,
+      "prompt_tokens": 462,
+      "completion_tokens": 117,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1038
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001827,
+      "prompt_tokens": 384,
+      "completion_tokens": 27,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 811
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003157,
+      "prompt_tokens": 519,
+      "completion_tokens": 64,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 806
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004203,
+      "prompt_tokens": 501,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1100
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004133,
+      "prompt_tokens": 411,
+      "completion_tokens": 116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1073
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003777,
+      "prompt_tokens": 384,
+      "completion_tokens": 105,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1114
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004142,
+      "prompt_tokens": 464,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1073
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002063,
+      "prompt_tokens": 371,
+      "completion_tokens": 38,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 828
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002857,
+      "prompt_tokens": 519,
+      "completion_tokens": 52,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14033,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1064
+    }
+  ],
+  "llm_calls_observed": 26,
+  "llm_cost_observed_usd": 0.030388175999999996,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 110.57799999997951,
+  "finished_at": "2026-10-05T22:57:15.161224+00:00"
+}

@@ -1,0 +1,1375 @@
+{
+  "sense_id": 10113,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T14:19:35.445008+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[2] flagged (rating 3): “新先河”搭配不当且语域偏口语",
+    "P1 sentence[3] flagged (rating 3): 语域偏口语，不够正式书面",
+    "P1 sentence[5] flagged (rating 3): 语域偏口语，不够正式书面",
+    "P1 sentence[6] flagged (rating 3): 语域偏口语，不够正式书面",
+    "P1 sentence[7] flagged (rating 3): 语域偏口语，不够正式书面",
+    "P1 sentence[9] flagged (rating 3): “新先河”搭配不当且语域偏口语"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.4297611713409424,
+    "p1_generate": 32.68805527687073,
+    "tier_gate": 0.0019729137420654297,
+    "p1_judge": 59.049635887145996,
+    "collocate_grounding": 0.0,
+    "fan_out": 37.63904619216919
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[2] flagged (rating 3): “新先河”搭配不当且语域偏口语",
+        "P1 sentence[3] flagged (rating 3): 语域偏口语，不够正式书面",
+        "P1 sentence[5] flagged (rating 3): 语域偏口语，不够正式书面",
+        "P1 sentence[6] flagged (rating 3): 语域偏口语，不够正式书面",
+        "P1 sentence[7] flagged (rating 3): 语域偏口语，不够正式书面",
+        "P1 sentence[9] flagged (rating 3): “新先河”搭配不当且语域偏口语"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ɕiɛn˥ xɤ˧˥]",
+        "pronunciation": "xiān hé",
+        "register": "正式（书面）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10113
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a2fad54d-ebfe-40b9-b59b-90a5ff6535e8",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "先河",
+        "pronunciation": "xiān hé",
+        "ipa": "[ɕiɛn˥ xɤ˧˥]",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "仙鹤",
+          "鲜荷",
+          "先河",
+          "险河"
+        ],
+        "correct_answer": "先河",
+        "explanation": "正确写法。'先河'读作 xiān hé，比喻开创者或最早的做法。",
+        "distractor_explanations": {
+          "仙鹤": "声调错误。'仙鹤'读作 xiān hè，'鹤'是第四声，而'河'是第二声。",
+          "险河": "声调错误。'险河'读作 xiǎn hé，'险'是第三声，而'先'是第一声。",
+          "鲜荷": "声调错误。'鲜荷'读作 xiān hé，虽然读音相近，但'荷'在此处指荷花，与表示河流的'河'字义和声调不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "先河",
+          "pronunciation": "xiān hé",
+          "ipa": "[ɕiɛn˥ xɤ˧˥]",
+          "syllable_count": 2,
+          "audio_url": null,
+          "options": [
+            "仙鶴",
+            "鮮荷",
+            "先河",
+            "險河"
+          ],
+          "correct_answer": "先河",
+          "explanation": "正確寫法。'先河'讀作 xiān hé，比喻開創者或最早的做法。",
+          "distractor_explanations": {
+            "仙鹤": "聲調錯誤。'仙鶴'讀作 xiān hè，'鶴'是第四聲，而'河'是第二聲。",
+            "险河": "聲調錯誤。'險河'讀作 xiǎn hé，'險'是第三聲，而'先'是第一聲。",
+            "鲜荷": "聲調錯誤。'鮮荷'讀作 xiān hé，雖然讀音相近，但'荷'在此處指荷花，與表示河流的'河'字義和聲調不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "e41e813f-d84b-49c8-a64b-89521043e85a",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "先河",
+        "pronunciation": "xiān hé",
+        "correct_definition": "比喻某一事业或行动的开创者或最早的做法。",
+        "options": [
+          "地球日是一个全球性的环保活动日，旨在唤起人们保护地球、改善环境的意识，通常定在每年的4月22日。",
+          "采取行动减少污染、节约资源，维护自然生态的健康与平衡。",
+          "比喻某一事业或行动的开创者或最早的做法。",
+          "制造，指用人力或机器把原材料变成产品。"
+        ],
+        "hant": {
+          "word": "先河",
+          "pronunciation": "xiān hé",
+          "correct_definition": "比喻某一事業或行動的開創者或最早的做法。",
+          "options": [
+            "地球日是一個全球性的環保活動日，旨在喚起人們保護地球、改善環境的意識，通常定在每年的4月22日。",
+            "採取行動減少汙染、節約資源，維護自然生態的健康與平衡。",
+            "比喻某一事業或行動的開創者或最早的做法。",
+            "製造，指用人力或機器把原材料變成產品。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "12e2a4d1-0949-4bf6-b1a6-b019b9f381f4",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "把这种游戏老师引入了课堂，开了先河。",
+            "is_correct": false
+          },
+          {
+            "text": "老师把这种游戏引入了课堂，开着了先河。",
+            "is_correct": false
+          },
+          {
+            "text": "老师把这种游戏引入了课堂，开了先河。",
+            "is_correct": true
+          },
+          {
+            "text": "老师把这种游戏引入了课堂，开了一个先河。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "量词使用错误。'先河'是抽象名词，比喻开创的做法，不能用个体量词'一个'来修饰，通常搭配'开……先河'或'首开先河'。 体标位置错误。'开先河'是一个动宾结构的固定搭配，表示完成某种开创，动态助词'了'应放在动词'开'之后、宾语'先河'之前，不能放在'开'和'着'之后。 语序错误。'把'字句中，主语'老师'必须放在'把'字之前，原句将主语放在了'把'字和宾语之后，破坏了基本的句法结构。",
+        "target_word": "先河",
+        "hant": {
+          "sentences": [
+            {
+              "text": "把這種遊戲老師引入了課堂，開了先河。",
+              "is_correct": false
+            },
+            {
+              "text": "老師把這種遊戲引入了課堂，開著了先河。",
+              "is_correct": false
+            },
+            {
+              "text": "老師把這種遊戲引入了課堂，開了先河。",
+              "is_correct": true
+            },
+            {
+              "text": "老師把這種遊戲引入了課堂，開了一個先河。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "量詞使用錯誤。'先河'是抽象名詞，比喻開創的做法，不能用個體量詞'一個'來修飾，通常搭配'開……先河'或'首開先河'。 體標位置錯誤。'開先河'是一個動賓結構的固定搭配，表示完成某種開創，動態助詞'了'應放在動詞'開'之後、賓語'先河'之前，不能放在'開'和'著'之後。 語序錯誤。'把'字句中，主語'老師'必須放在'把'字之前，原句將主語放在了'把'字和賓語之後，破壞了基本的句法結構。",
+          "target_word": "先河"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f64bf035-f531-42ad-a2c3-a4481056638d",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这次比赛开创了学校社交的新先河。",
+            "is_correct": true
+          },
+          {
+            "text": "他的新想法开创了班级活动的先河。",
+            "is_correct": true
+          },
+          {
+            "text": "他的新想法开创先河了班级活动。",
+            "is_correct": false,
+            "error_description": "语序错误。动态助词“了”应放在动词“开创”之后，宾语“班级活动的先河”之前，不能放在动宾短语的中间。"
+          },
+          {
+            "text": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這次比賽開創了學校社交的新先河。",
+              "is_correct": true
+            },
+            {
+              "text": "他的新想法開創了班級活動的先河。",
+              "is_correct": true
+            },
+            {
+              "text": "他的新想法開創先河了班級活動。",
+              "is_correct": false,
+              "error_description": "語序錯誤。動態助詞“了”應放在動詞“開創”之後，賓語“班級活動的先河”之前，不能放在動賓短語的中間。"
+            },
+            {
+              "text": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "c1ad2ebc-99ec-48f7-86e9-3b75791c7ac8",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "先河",
+        "pronunciation": "xiān hé",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "比喻某一事业或行动的开创者或最早的做法。",
+              "necessary condition",
+              "覇権",
+              "指事物运行或行为必须遵循的规律、规则或原理。"
+            ],
+            "correct_answer": "比喻某一事业或行动的开创者或最早的做法。"
+          }
+        },
+        "hant": {
+          "word": "先河",
+          "pronunciation": "xiān hé",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "比喻某一事業或行動的開創者或最早的做法。",
+                "necessary condition",
+                "覇権",
+                "指事物執行或行為必須遵循的規律、規則或原理。"
+              ],
+              "correct_answer": "比喻某一事業或行動的開創者或最早的做法。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "0ac99f57-dac2-4612-84f7-552f6eae68c6",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他的新想法开创了班级活动的___。",
+        "original_sentence": "他的新想法开创了班级活动的先河。",
+        "target_word": "先河",
+        "word": "先河",
+        "answer": {
+          "accepted": [
+            "先河"
+          ],
+          "accepted_normalized": [
+            "先河"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他的新想法開創了班級活動的___。",
+          "original_sentence": "他的新想法開創了班級活動的先河。",
+          "target_word": "先河",
+          "word": "先河",
+          "answer": {
+            "accepted": [
+              "先河"
+            ],
+            "accepted_normalized": [
+              "先河"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "0ca7de85-f9d8-43f7-be1c-caea34bc5e0a",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "先河",
+        "options": [
+          "xiān hé",
+          "xiān hě",
+          "xiān hē",
+          "xián hé"
+        ],
+        "correct_answer": "xiān hé",
+        "word": "先河",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "先河",
+          "options": [
+            "xiān hé",
+            "xiān hě",
+            "xiān hē",
+            "xián hé"
+          ],
+          "correct_answer": "xiān hé",
+          "word": "先河",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "74b26133-6d4b-47f8-8459-2840448d1a23",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "xiān hé",
+        "options": [
+          "先河",
+          "河流",
+          "选择",
+          "制造"
+        ],
+        "correct_answer": "先河",
+        "word": "先河",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "河流": "component",
+          "选择": "component",
+          "制造": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "xiān hé",
+          "options": [
+            "先河",
+            "河流",
+            "選擇",
+            "製造"
+          ],
+          "correct_answer": "先河",
+          "word": "先河",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "河流": "component",
+            "选择": "component",
+            "制造": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "82ad92e2-ac52-443b-9c10-6fd684d44dbf",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "先河",
+        "toneless_pinyin": "xian he",
+        "full_pinyin": "xiān hé",
+        "options": [
+          "11",
+          "13",
+          "14",
+          "12"
+        ],
+        "correct_answer": "12",
+        "option_labels": {
+          "11": "high level (1) + high level (1)",
+          "13": "high level (1) + dipping (3)",
+          "14": "high level (1) + falling (4)",
+          "12": "high level (1) + rising (2)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "先河",
+          "toneless_pinyin": "xian he",
+          "full_pinyin": "xiān hé",
+          "options": [
+            "11",
+            "13",
+            "14",
+            "12"
+          ],
+          "correct_answer": "12",
+          "option_labels": {
+            "11": "high level (1) + high level (1)",
+            "13": "high level (1) + dipping (3)",
+            "14": "high level (1) + falling (4)",
+            "12": "high level (1) + rising (2)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "a5eeb2b1-5a99-4e09-9e5a-92b6a91c2395",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "先河",
+        "relation": "antonym",
+        "options": [
+          "尾声",
+          "开端",
+          "陈规",
+          "末节"
+        ],
+        "correct_answer": "尾声",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "比喻某一事业或行动的开创者或最早的做法。",
+            "explanation": "反义关系：指事情结束的阶段，与表开端的‘先河’构成始与终的反义"
+          }
+        },
+        "hant": {
+          "word": "先河",
+          "relation": "antonym",
+          "options": [
+            "尾聲",
+            "開端",
+            "陳規",
+            "末節"
+          ],
+          "correct_answer": "尾聲",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "比喻某一事業或行動的開創者或最早的做法。",
+              "explanation": "反義關係：指事情結束的階段，與表開端的‘先河’構成始與終的反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c8720543-3f38-49de-bb94-94946295f53a",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这个活动开创了着交友的先河。",
+            "is_correct": false
+          },
+          {
+            "text": "这个活动开创了一个交友的先河。",
+            "is_correct": false
+          },
+          {
+            "text": "交友的先河被这个活动开创了。",
+            "is_correct": false
+          },
+          {
+            "text": "这个活动开创了交友的新先河。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "量词使用错误：'先河'作为抽象名词，通常不与个体量词'一个'搭配，应直接说'开创了交友的先河'。 体标位置错误：'开创'是瞬间完成动词，不能加表示持续的体标记'着'，应使用'了'或直接使用动词。 语序错误：'先河'作为受事宾语，在主动句中应置于动词后，使用被动句破坏了自然的'主题—评论'结构。",
+        "target_word": "先河",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這個活動開創了著交友的先河。",
+              "is_correct": false
+            },
+            {
+              "text": "這個活動開創了一個交友的先河。",
+              "is_correct": false
+            },
+            {
+              "text": "交友的先河被這個活動開創了。",
+              "is_correct": false
+            },
+            {
+              "text": "這個活動開創了交友的新先河。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "量詞使用錯誤：'先河'作為抽象名詞，通常不與個體量詞'一個'搭配，應直接說'開創了交友的先河'。 體標位置錯誤：'開創'是瞬間完成動詞，不能加表示持續的體標記'著'，應使用'了'或直接使用動詞。 語序錯誤：'先河'作為受事賓語，在主動句中應置於動詞後，使用被動句破壞了自然的'主題—評論'結構。",
+          "target_word": "先河"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "抽象名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "487cb8b1-807d-4411-b85b-3b385c9a36c6",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他开创了环保社团的先河。",
+            "is_correct": true
+          },
+          {
+            "text": "他开创了先河在环保社团方面。",
+            "is_correct": false,
+            "error_description": "语序错误。表示范围或方面的介词短语（如“在……方面”）通常应放在动词之前作状语，不能放在宾语之后。"
+          },
+          {
+            "text": "她的演讲开创了表达观点的先河。",
+            "is_correct": true
+          },
+          {
+            "text": "这个活动开创了交友的新先河。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他開創了環保社團的先河。",
+              "is_correct": true
+            },
+            {
+              "text": "他開創了先河在環保社團方面。",
+              "is_correct": false,
+              "error_description": "語序錯誤。表示範圍或方面的介詞短語（如“在……方面”）通常應放在動詞之前作狀語，不能放在賓語之後。"
+            },
+            {
+              "text": "她的演講開創了表達觀點的先河。",
+              "is_correct": true
+            },
+            {
+              "text": "這個活動開創了交友的新先河。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "抽象名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "49696eb9-943f-4857-990d-972ae77b0283",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "她的演讲开创了表达观点的___。",
+        "original_sentence": "她的演讲开创了表达观点的先河。",
+        "target_word": "先河",
+        "word": "先河",
+        "answer": {
+          "accepted": [
+            "先河"
+          ],
+          "accepted_normalized": [
+            "先河"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "她的演講開創了表達觀點的___。",
+          "original_sentence": "她的演講開創了表達觀點的先河。",
+          "target_word": "先河",
+          "word": "先河",
+          "answer": {
+            "accepted": [
+              "先河"
+            ],
+            "accepted_normalized": [
+              "先河"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "抽象名词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "5781bb1d-9b55-4390-9a81-951af2fb97c2",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "先河",
+        "relation": "antonym",
+        "options": [
+          "惯例",
+          "滥觞",
+          "末流",
+          "创举"
+        ],
+        "correct_answer": "末流",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "比喻某一事业或行动的开创者或最早的做法。",
+            "explanation": "反义：先河指事物的开创与起源，末流指事物发展到后期的衰变形态，二者构成起源与末端的反义关系"
+          }
+        },
+        "hant": {
+          "word": "先河",
+          "relation": "antonym",
+          "options": [
+            "慣例",
+            "濫觴",
+            "末流",
+            "創舉"
+          ],
+          "correct_answer": "末流",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "比喻某一事業或行動的開創者或最早的做法。",
+              "explanation": "反義：先河指事物的開創與起源，末流指事物發展到後期的衰變形態，二者構成起源與末端的反義關係"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "抽象名词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10113,
+      "word_asset_id": "shadow-10113-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '先河' is fused into a neighbouring chunk — chunks=['这种', '学习方法', '开创了先河']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '先河' is fused into a neighbouring chunk — chunks=['老师', '把这种游戏', '引入了课堂', '开了先河']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0029008,
+      "prompt_tokens": 2449,
+      "completion_tokens": 1654,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 32280
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00194624,
+      "prompt_tokens": 666,
+      "completion_tokens": 1354,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 25837
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001136,
+      "prompt_tokens": 222,
+      "completion_tokens": 832,
+      "cached_tokens": 0,
+      "reasoning_tokens": 782,
+      "call_role": "repair",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 17013
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00120576,
+      "prompt_tokens": 560,
+      "completion_tokens": 802,
+      "cached_tokens": 0,
+      "reasoning_tokens": 731,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 15055
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00192224,
+      "prompt_tokens": 1475,
+      "completion_tokens": 1133,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 21001
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00192736,
+      "prompt_tokens": 1471,
+      "completion_tokens": 1138,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 23160
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181664,
+      "prompt_tokens": 641,
+      "completion_tokens": 1259,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 25823
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00172288,
+      "prompt_tokens": 644,
+      "completion_tokens": 1185,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 25940
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00271744,
+      "prompt_tokens": 1696,
+      "completion_tokens": 1699,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 35710
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0028416,
+      "prompt_tokens": 1696,
+      "completion_tokens": 1796,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 37083
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001762578,
+      "prompt_tokens": 413,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2026
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001639098,
+      "prompt_tokens": 397,
+      "completion_tokens": 60,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10113,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2332
+    }
+  ],
+  "llm_calls_observed": 12,
+  "llm_cost_observed_usd": 0.020477127599999995,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 138.2970000000205,
+  "finished_at": "2026-10-05T14:21:53.740683+00:00"
+}

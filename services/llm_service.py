@@ -43,7 +43,7 @@ from datetime import datetime, timezone
 from typing import Callable, Iterator, Optional
 
 import httpx
-from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError
+from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError, NotFoundError
 from pydantic import BaseModel, ValidationError
 from tenacity import (
     retry,
@@ -107,11 +107,24 @@ _clients: dict[tuple[str, str], object] = {}
 
 
 def _resolve_provider(provider: str | None) -> tuple[str, str]:
-    """Map a provider name to (base_url, api_key)."""
+    """Map a provider name to (base_url, api_key).
+
+    The API key is re-read from the environment on every call rather than
+    only once at import time. A script that imports this module (directly or
+    transitively) before its own ``load_dotenv()`` call would otherwise
+    permanently freeze ``OPENROUTER_API_KEY`` as the empty string baked into
+    the module-level constant below — every subsequent call then sends a
+    blank bearer token and gets a 401, no matter how many times the script
+    reloads its env afterwards. Falling back to the module constant (set
+    only if the key happened to already be in the environment at import
+    time) preserves the cheap common case of "env was already loaded" while
+    fixing the case where it was loaded late.
+    """
     provider = provider or LLM_DEFAULT_PROVIDER
 
     if provider == 'openrouter':
-        return (OPENROUTER_BASE_URL, OPENROUTER_API_KEY)
+        api_key = os.getenv('OPENROUTER_API_KEY') or OPENROUTER_API_KEY
+        return (OPENROUTER_BASE_URL, api_key)
     elif provider == 'ollama':
         return (OLLAMA_BASE_URL, 'ollama')
     elif provider == 'claude_cli':
@@ -314,6 +327,10 @@ _REASONING_ONLY_MODEL_PATTERNS: tuple[re.Pattern, ...] = (
 # blanket policy this change should impose on every pipeline in one step.
 _PRICE_ROUTED_PIPELINES: frozenset[str] = frozenset({'vocab_ladder'})
 
+# Pipelines that get ANY `reasoning` payload (and the LADDER_QWEN_REASONING
+# modes, default `budget`). All others send no `reasoning` key (pre-ADR-028).
+_LADDER_REASONING_PIPELINES: frozenset[str] = frozenset({'vocab_ladder'})
+
 
 def _is_reasoning_only_model(model: str | None) -> bool:
     """True for a model that must never have reasoning mode disabled.
@@ -392,6 +409,116 @@ def _use_enabled_false_reasoning_param(model: str | None) -> bool:
     if not model:
         return False
     return any(p.search(model) for p in _ENABLED_FALSE_REASONING_MODEL_PATTERNS)
+
+
+# ADR-028 Phase-2 attribution flag (2026-10-03): Phase 2's blind pairwise
+# quality review (bundle mode vs. phase1) failed non-inferiority in every
+# language, but Phase 2 changed TWO things vs. Phase 1 at once -- bundle mode
+# AND qwen reasoning being genuinely off (`_use_enabled_false_reasoning_param`
+# above, landed 2026-09-28, AFTER Phase 1's own eval was measured) -- so the
+# regression cannot yet be attributed to either axis alone. This flag lets a
+# clean attribution eval hold qwen's reasoning state at its Phase-1-measured
+# value while bundle mode is varied independently (see
+# `VOCAB_LADDER_BUNDLE_MODE`, a separate flag).
+#
+# `on` (the default): restores the qwen behaviour Phase 1's published numbers
+# were actually measured under. Per wiki/evaluations/exercise-gen-phase1-2026-09.md
+# ("reasoning could not be disabled for qwen without breaking it", 85-90% of
+# completion tokens were reasoning_tokens on every qwen vocab_ladder task),
+# that state is NOT `reasoning: {'exclude': True}` -- the 2026-09-27 finding
+# in `_unsafe_to_disable_reasoning_when_price_routed`'s docstring is that
+# `exclude: True` combined with price routing reproducibly returns EMPTY
+# completions from the cheapest qwen provider, so a price-routed qwen call
+# never actually ran with `exclude: True` live. The real Phase-1 state was a
+# full skip: no `reasoning` key sent at all. `on` reproduces that skip (see
+# `_make_one_call` below) and pairs it with reasoning-safe (pre-2026-10-03)
+# `max_tokens` caps in the vocab_ladder generator/judge modules that call
+# `ladder_qwen_reasoning_mode()` -- reasoning tokens count toward
+# `max_tokens`, so the right-sized caps from the ADR-028 cost work would
+# truncate a call that's genuinely reasoning.
+#
+# `off`: the current (2026-10-03) cost-fix behaviour -- `enabled: False` +
+# `provider.require_parameters` when price-routed (validated live, 0%
+# reasoning-token share, see the ADR-028-continuation comments above) -- plus
+# the right-sized caps. This is the state Phase 2 actually ran under.
+#
+# Scoped to qwen only (via `_use_enabled_false_reasoning_param`'s own
+# pattern) and to this one mechanism; it does not touch
+# `VOCAB_LADDER_BUNDLE_MODE` or any other pipeline's reasoning handling.
+_LADDER_QWEN_REASONING_ENV = 'LADDER_QWEN_REASONING'
+
+# ADR-028 bounded-reasoning middle setting (2026-10-05): `on` (85-92%
+# reasoning_tokens, $0.03-0.07/sense) and `off` (`enabled: False`, fully
+# disabled reasoning) turned out to be the only two points measured, and
+# `off` FAILED blind quality review (zh major-defect rate 31.6% vs 7.0% for
+# `on`; en 15.5% vs 7.1%; ja 22.2% vs 19.8% -- ja was already weak on `on`).
+# Two intermediate modes bound reasoning instead of fully removing it:
+#
+#   * `low`: `reasoning: {'effort': 'low'}`. Per OpenRouter's reasoning-
+#     tokens docs, `effort` is natively supported by OpenAI/Grok reasoning
+#     models; for every other family (including Qwen's hybrid-thinking
+#     models, which only take a native `thinking_budget`) OpenRouter itself
+#     converts effort to a `max_tokens` percentage before forwarding it --
+#     'low' -> ~20% of the call's `max_tokens`. So this still ends up as a
+#     token-budget cap for qwen, just expressed relative to the (large,
+#     reasoning-safe) cap already in play at each call site.
+#   * `budget`: `reasoning: {'max_tokens': N}` with N from
+#     `LADDER_QWEN_REASONING_BUDGET` (default 1024) -- OpenRouter maps this
+#     directly to Qwen's native `thinking_budget` for the thinking-capable
+#     Qwen models (per the same docs), giving direct, model-native control
+#     over the reasoning-token ceiling instead of an effort-level proxy.
+#
+# Both are scoped to the same `_use_enabled_false_reasoning_param` qwen
+# pattern as `off` (no other family validated), and both need
+# `provider.require_parameters: True` when price-routed for the same reason
+# `off` does: the reasoning override must actually be honoured by whichever
+# provider OpenRouter routes to, or the call risks the same
+# strict-filtering/empty-content failure modes `off`'s rollout hit.
+_LADDER_QWEN_REASONING_BUDGET_ENV = 'LADDER_QWEN_REASONING_BUDGET'
+_LADDER_QWEN_REASONING_BUDGET_DEFAULT = 1024
+# TASK-857 (2026-10-09, user-approved): per-language production defaults, used
+# when no LADDER_QWEN_REASONING_BUDGET[_<LANG>] env override is set.
+_LADDER_QWEN_REASONING_BUDGET_BY_LANG = {'ja': 1024, 'en': 1024, 'zh': 2048}
+# Production default mode (ADR-028 outcome). Rollback: LADDER_QWEN_REASONING=on.
+_LADDER_QWEN_REASONING_DEFAULT = 'budget'
+_LADDER_QWEN_REASONING_MODES = frozenset({'on', 'off', 'low', 'budget'})
+
+
+def ladder_qwen_reasoning_mode() -> str:
+    """'budget' (default since TASK-857, 2026-10-09), 'on', 'off', or 'low',
+    read from `LADDER_QWEN_REASONING` at call time (not cached -- cheap
+    enough to re-read per call, and lets a test or a long-lived process
+    toggle it without a restart). 'on' = unbounded provider-default
+    reasoning (the pre-TASK-857 default; the rollback value). An unset,
+    empty, or unrecognised value yields the default ('budget')."""
+    raw = os.environ.get(_LADDER_QWEN_REASONING_ENV, '').strip().lower()
+    return raw if raw in _LADDER_QWEN_REASONING_MODES else _LADDER_QWEN_REASONING_DEFAULT
+
+
+def ladder_qwen_reasoning_budget_tokens(language_code: str | None = None) -> int:
+    """Reasoning token budget for `LADDER_QWEN_REASONING=budget` mode, read at
+    call time. Resolution order (ADR-028 Outcome 2026-10-08):
+    `LADDER_QWEN_REASONING_BUDGET_<LANG>` (ZH/JA/EN, from `language_code`),
+    then `LADDER_QWEN_REASONING_BUDGET`, then the per-language default
+    (ja 1024, en 1024, zh 2048), then 1024. A missing, non-numeric, or
+    non-positive value at any level falls through to the next -- same "safer
+    default wins on a typo" posture as the mode flag itself."""
+    names = []
+    if language_code:
+        names.append(f'{_LADDER_QWEN_REASONING_BUDGET_ENV}_{language_code.strip().upper()}')
+    names.append(_LADDER_QWEN_REASONING_BUDGET_ENV)
+    for name in names:
+        try:
+            value = int(os.environ.get(name, '').strip())
+        except (ValueError, AttributeError):
+            continue
+        if value > 0:
+            return value
+    if language_code:
+        return _LADDER_QWEN_REASONING_BUDGET_BY_LANG.get(
+            language_code.strip().lower(), _LADDER_QWEN_REASONING_BUDGET_DEFAULT)
+    return _LADDER_QWEN_REASONING_BUDGET_DEFAULT
+
 
 # CSV sink: a plain, greppable, always-available record of every call this
 # process makes — independent of Supabase, and (unlike llm_calls.cost_usd)
@@ -925,6 +1052,8 @@ def call_llm(
             timeout=timeout,
             provider_routing=effective_provider_routing,
             disable_reasoning=effective_disable_reasoning,
+            language_code=language_code,
+            pipeline=log_pipeline,
         )
     except (json.JSONDecodeError, RuntimeError) as exc:
         # Malformed JSON or empty/missing content. The schema repair below only
@@ -1093,6 +1222,50 @@ class _CallResult:
     actual_model: str | None
 
 
+# 2026-10-04 (armB_ja eval, cloze_distractor_judge): `provider.require_parameters`
+# paired with `reasoning: {'enabled': False}` is only validated for the one
+# qwen3.7-plus family `_use_enabled_false_reasoning_param` targets — but the
+# pattern match is `^qwen/`, which also catches any other `qwen/...` slug a
+# stale prompt_templates row happens to point at (here: a leftover
+# `qwen/qwen-2.5-72b-instruct` row for `cloze_distractor_judge`/ja that was
+# never migrated to qwen3.7-plus like its sibling judges). That older,
+# non-reasoning model has only 2 OpenRouter endpoints, and strict parameter
+# filtering eliminated both of them every time ("No endpoints found that can
+# handle the requested parameters" / failed_routing_step: "Filter by
+# Parameters") -- a config/data problem (wrong model pinned), not something
+# `_use_enabled_false_reasoning_param`'s regex can rule out in general, since
+# the next stale qwen slug will not necessarily look any different. Treated
+# as a transport-layer safety net instead: on exactly this 404, retry once
+# with the reasoning/provider-routing overrides stripped so a model that
+# cannot honor them still gets served, rather than permanently failing (and,
+# pre-fix, failing OPEN for judges/cloze.py and judges/l1_distractor.py,
+# which were never wired into the batch_mode() fail-closed contract -- see
+# their `guard_fail_open` calls, added alongside this).
+def _is_no_endpoints_for_parameters(exc: Exception) -> bool:
+    """True for OpenRouter's "no endpoints found" 404 caused by strict
+    parameter filtering (``provider.require_parameters``) eliminating every
+    provider for the model -- as opposed to an unrelated 404 (e.g. a genuinely
+    delisted/unknown model slug), which stripping routing overrides and
+    retrying would not fix either."""
+    return 'no endpoints found' in str(exc).lower()
+
+
+def _strip_param_routing(extra_body: dict) -> dict:
+    """Drop the OpenRouter ``reasoning`` and ``provider`` routing overrides
+    from an ``extra_body`` dict, keeping everything else (e.g. ``usage``).
+
+    Used for the one-shot fallback retry in ``_make_one_call``: if the
+    original request's parameter overrides got every provider filtered out,
+    dropping them (including price-sort, since ``provider`` is removed
+    wholesale) and letting OpenRouter route normally is strictly more likely
+    to succeed than repeating the identical request.
+    """
+    stripped = dict(extra_body)
+    stripped.pop('reasoning', None)
+    stripped.pop('provider', None)
+    return stripped
+
+
 def _make_one_call(
     *,
     client: OpenAI,
@@ -1105,6 +1278,8 @@ def _make_one_call(
     timeout: int,
     provider_routing: dict | None = None,
     disable_reasoning: bool = False,
+    language_code: str | None = None,
+    pipeline: str | None = None,
 ) -> _CallResult:
     """Execute a single API round-trip.
 
@@ -1144,47 +1319,131 @@ def _make_one_call(
             # be a literal the caller (or call_llm's pipeline-scoped
             # default) reuses across calls for different models.
             extra_body['provider'] = dict(provider_routing)
+        # SCOPE (TASK-857 follow-up, 2026-10-09): the whole `reasoning`
+        # payload (enabled:False, exclude:True, effort, budget) is an ADR-028
+        # change validated only for vocab_ladder. The real pre-ADR-028
+        # baseline (commit ffb0afe7) sent NO `reasoning` key at all, and no
+        # price routing, for every other pipeline (test_gen, sense gen, DT,
+        # curation, ...). Those keep exactly that. Deliberately GLOBAL (not
+        # gated): lazy API-key resolution, the max_tokens bump (inert unless a
+        # reasoning budget is present) and the 404 strip-routing retry.
         send_reasoning_exclude = (
             disable_reasoning
+            and pipeline in _LADDER_REASONING_PIPELINES
             and not _is_reasoning_only_model(model)
         )
         if send_reasoning_exclude:
             if _use_enabled_false_reasoning_param(model):
-                # ADR-028 continuation (2026-09-28 live A/B, 2 zh + 2 ja
-                # senses, full generate-for-sense pipeline): `reasoning:
-                # {'exclude': True}` only HIDES reasoning from the response
-                # -- OpenRouter still generates and bills the tokens (see
-                # OpenRouter's reasoning-tokens docs). Phase 1 measured
-                # 85-90% of qwen/qwen3.7-plus completion tokens as
-                # reasoning_tokens on every vocab_ladder task in every
-                # language -- that silent cost. `reasoning: {'enabled':
-                # False}` is the parameter that actually stops generation;
-                # confirmed live at 0 reasoning_tokens (down from ~85-90%),
-                # 0% invalid-asset rate, full success, and roughly 5x lower
-                # $/sense than the `exclude: True` baseline on the same
-                # senses. When the call is also price-routed, pairing it
-                # with `provider.require_parameters: True` is what actually
-                # fixes the "cheapest provider returns empty content"
-                # failure this file previously worked around by leaving
-                # reasoning ON for a price-routed qwen call (see
-                # `_unsafe_to_disable_reasoning_when_price_routed`) --
-                # require_parameters makes OpenRouter skip providers that
-                # don't support the reasoning param instead of silently
-                # mishandling it. Scoped to the qwen pattern, not a global
-                # default: this exact combination has not been validated
-                # for other model families, and sending both unconditionally
-                # to an unrelated (non-qwen) judge call during this A/B
-                # produced a live 404 "no endpoints found" (require_parameters
-                # filtered every provider for that model).
-                extra_body['reasoning'] = {'enabled': False}
-                if 'provider' in extra_body:
-                    extra_body['provider']['require_parameters'] = True
+                qwen_mode = ladder_qwen_reasoning_mode()
+                if qwen_mode == 'on':
+                    # LADDER_QWEN_REASONING=on (the rollback value -- see the flag's
+                    # docstring above): restore the exact Phase-1-measured
+                    # state for this qwen call by sending no `reasoning` key
+                    # at all. Must NOT fall through to the `exclude: True`
+                    # branch below -- combined with price routing that is
+                    # exactly the empty-completion failure
+                    # `_unsafe_to_disable_reasoning_when_price_routed`
+                    # documents, and was never actually the live Phase-1
+                    # state for a price-routed qwen call.
+                    pass
+                elif qwen_mode == 'low':
+                    # Bounded-reasoning middle setting (2026-10-05): `off`'s
+                    # fully-disabled reasoning failed blind quality review
+                    # (see the flag's docstring). `effort: 'low'` keeps
+                    # reasoning on but bounded -- OpenRouter converts it to
+                    # ~20% of this call's `max_tokens` for qwen's
+                    # thinking_budget-style models rather than sending
+                    # `effort` through natively (that's OpenAI/Grok only).
+                    extra_body['reasoning'] = {'effort': 'low'}
+                    if 'provider' in extra_body:
+                        extra_body['provider']['require_parameters'] = True
+                elif qwen_mode == 'budget':
+                    # Direct, model-native control: OpenRouter maps
+                    # `reasoning.max_tokens` to Qwen's own `thinking_budget`
+                    # for thinking-capable Qwen models, rather than going
+                    # through the `effort` percentage proxy `low` uses.
+                    extra_body['reasoning'] = {
+                        'max_tokens': ladder_qwen_reasoning_budget_tokens(language_code),
+                    }
+                    if 'provider' in extra_body:
+                        extra_body['provider']['require_parameters'] = True
+                else:
+                    # ADR-028 continuation (2026-09-28 live A/B, 2 zh + 2 ja
+                    # senses, full generate-for-sense pipeline): `reasoning:
+                    # {'exclude': True}` only HIDES reasoning from the response
+                    # -- OpenRouter still generates and bills the tokens (see
+                    # OpenRouter's reasoning-tokens docs). Phase 1 measured
+                    # 85-90% of qwen/qwen3.7-plus completion tokens as
+                    # reasoning_tokens on every vocab_ladder task in every
+                    # language -- that silent cost. `reasoning: {'enabled':
+                    # False}` is the parameter that actually stops generation;
+                    # confirmed live at 0 reasoning_tokens (down from ~85-90%),
+                    # 0% invalid-asset rate, full success, and roughly 5x lower
+                    # $/sense than the `exclude: True` baseline on the same
+                    # senses -- but this mode (`off`) then FAILED blind quality
+                    # review (see the flag's docstring above), so it is no
+                    # longer the only cost-reducing option; `low`/`budget`
+                    # above are the bounded-reasoning alternatives. When the
+                    # call is also price-routed, pairing it with
+                    # `provider.require_parameters: True` is what actually
+                    # fixes the "cheapest provider returns empty content"
+                    # failure this file previously worked around by leaving
+                    # reasoning ON for a price-routed qwen call (see
+                    # `_unsafe_to_disable_reasoning_when_price_routed`) --
+                    # require_parameters makes OpenRouter skip providers that
+                    # don't support the reasoning param instead of silently
+                    # mishandling it. Scoped to the qwen pattern, not a global
+                    # default: this exact combination has not been validated
+                    # for other model families, and sending both unconditionally
+                    # to an unrelated (non-qwen) judge call during this A/B
+                    # produced a live 404 "no endpoints found" (require_parameters
+                    # filtered every provider for that model).
+                    extra_body['reasoning'] = {'enabled': False}
+                    if 'provider' in extra_body:
+                        extra_body['provider']['require_parameters'] = True
             else:
                 extra_body['reasoning'] = {'exclude': True}
+
+        # armD incident (2026-10-05, 160x ja + 226x zh): `payload['max_tokens']`
+        # above is the CALLER's OUTPUT cap (e.g. 250-300 for a right-sized
+        # judge call) -- it has no relationship to a reasoning token budget.
+        # `LADDER_QWEN_REASONING=budget` sends `reasoning.max_tokens` (mapped
+        # by OpenRouter to Qwen's native `thinking_budget`), and the provider
+        # rejects the whole request with a 400 ("max_completion_tokens must be
+        # greater than thinking_budget") whenever that budget is >= the
+        # request's max_tokens -- confirmed live on
+        # ladder_l1_distractor_judge/ladder_sentence_validity_judge/
+        # ladder_relation_judge, whose right-sized 250-300 caps are smaller
+        # than the default 1024-token budget. Bumping the request cap to
+        # cover both the visible output and the reasoning tokens makes that
+        # inequality impossible to violate, for any caller/budget
+        # combination -- not just the three judges the incident happened to
+        # hit. A caller that sent no max_tokens at all (no output cap to
+        # collide with) is left alone.
+        reasoning_budget = (extra_body.get('reasoning') or {}).get('max_tokens')
+        if reasoning_budget and payload.get('max_tokens'):
+            payload['max_tokens'] = payload['max_tokens'] + reasoning_budget
+
         payload['extra_body'] = extra_body
 
     start = time.perf_counter()
-    response = client.chat.completions.create(**payload)
+    try:
+        response = client.chat.completions.create(**payload)
+    except NotFoundError as exc:
+        extra_body = payload.get('extra_body')
+        if not extra_body or not _is_no_endpoints_for_parameters(exc):
+            raise
+        fallback_extra_body = _strip_param_routing(extra_body)
+        if fallback_extra_body == extra_body:
+            raise  # nothing to drop — same request would just 404 again
+        logger.warning(
+            "LLM call to %s got a 404 'no endpoints found' with strict "
+            "parameter routing (reasoning=%r, provider=%r) -- retrying once "
+            "without those overrides.",
+            model, extra_body.get('reasoning'), extra_body.get('provider'),
+        )
+        payload = {**payload, 'extra_body': fallback_extra_body}
+        response = client.chat.completions.create(**payload)
     latency_ms = int((time.perf_counter() - start) * 1000)
 
     cost_usd = _extract_cost(response)
@@ -1353,6 +1612,8 @@ def _repair_and_retry(
         timeout=timeout,
         provider_routing=provider_routing,
         disable_reasoning=disable_reasoning,
+        language_code=language_code,
+        pipeline=log_pipeline,
     )
 
     try:
@@ -1445,6 +1706,8 @@ def _repair_malformed_json(
             timeout=timeout,
             provider_routing=provider_routing,
             disable_reasoning=disable_reasoning,
+            language_code=language_code,
+            pipeline=log_pipeline,
         )
     except (json.JSONDecodeError, RuntimeError) as exc:
         # Repair turn ALSO failed to produce parseable JSON. Surface the

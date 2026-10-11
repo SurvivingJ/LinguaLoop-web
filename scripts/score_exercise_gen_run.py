@@ -82,7 +82,7 @@ import os
 import random
 import sys
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Iterable
 
 # --------------------------------------------------------------------------
@@ -95,6 +95,34 @@ from typing import Any, Iterable
 # in that script. Mirrored here (rather than imported) to keep this scorer
 # importable/runnable standalone with no DB/pipeline dependency.
 _LANG_ID_TO_CODE: dict[int, str] = {1: "zh", 2: "en", 3: "ja"}
+
+# Exercise types produced by services/vocabulary_ladder/deterministic/*.py --
+# pure string/dictionary manipulation, no LLM call. Mirrored here (rather than
+# imported, to keep this scorer importable/runnable standalone with no
+# DB/pipeline dependency) from that package's `@register(...)` call sites:
+#   cloze_typed.py -> 'cloze_typed'            jumbled.py -> 'jumbled_sentence'
+#   tone.py -> 'tone_id_word'                  definition_match.py -> 'definition_match'
+#   classifier_match.py -> 'classifier_match'  counter_match.py -> 'counter_match'
+#   readings.py -> 'hanzi_to_pinyin', 'kanji_to_reading', 'pinyin_to_hanzi', 'reading_to_kanji'
+# Used by `--llm-only` to restrict blind pairwise packs to LLM-generated
+# exercise types (ADR-028/TASK-856 arm B: deterministic generators were
+# bug-fixed between the compared runs for reasons unrelated to the LLM config
+# under test, so including them in a pairwise comparison would score the wrong
+# thing). Update this set if a new deterministic builder is registered.
+DETERMINISTIC_EXERCISE_TYPES: frozenset[str] = frozenset(
+    {
+        "cloze_typed",
+        "jumbled_sentence",
+        "tone_id_word",
+        "definition_match",
+        "classifier_match",
+        "hanzi_to_pinyin",
+        "kanji_to_reading",
+        "pinyin_to_hanzi",
+        "reading_to_kanji",
+        "counter_match",
+    }
+)
 
 
 class RunShapeError(ValueError):
@@ -710,6 +738,26 @@ def compute_all_metrics(senses: list[NormalizedSense], *, cost_rows: list[dict] 
 # Blind pairwise packs
 # --------------------------------------------------------------------------
 
+
+def filter_exercise_types(
+    senses: list[NormalizedSense], *, exclude_types: Iterable[str]
+) -> list[NormalizedSense]:
+    """Returns copies of `senses` with `.exercises` entries of any type in
+    `exclude_types` dropped. Every other field (assets, judge_verdicts, cost,
+    timings, ...) is untouched, so this is only meant for narrowing what
+    `build_pairwise_packs` draws exercises from -- it does not affect
+    `compute_all_metrics`/`compute_coverage`, which run on the unfiltered
+    senses passed to them separately.
+    """
+    exclude = set(exclude_types)
+    if not exclude:
+        return senses
+    return [
+        replace(s, exercises=[e for e in s.exercises if e.exercise_type not in exclude])
+        for s in senses
+    ]
+
+
 RUBRIC_MD = """\
 ## Rubric
 
@@ -761,13 +809,24 @@ def build_pairwise_packs(
     *,
     pack_size: int = 10,
     seed: int = 0,
+    exclude_types: Iterable[str] | None = None,
 ) -> dict:
     """Emits `<out_dir>/pairwise_packs/pack_NN.md` (blind, randomized A/B order
     per sense+level) and `<out_dir>/pairwise_key.json` (the unblinding key).
 
+    `exclude_types` (e.g. `DETERMINISTIC_EXERCISE_TYPES` via `--llm-only`)
+    drops matching exercises from both sides via `filter_exercise_types`
+    before pairing -- a (sense, level) whose exercises are entirely excluded
+    simply does not produce an entry, rather than an empty comparison.
+
     Returns the key dict `{entries: [{key_id, sense_id, level, language,
     candidate_side: "A"|"B"}]}` (also what gets written to pairwise_key.json).
     """
+    exclude_set = set(exclude_types or ())
+    if exclude_set:
+        candidate = filter_exercise_types(candidate, exclude_types=exclude_set)
+        reference = filter_exercise_types(reference, exclude_types=exclude_set)
+
     ref_by_id = {s.sense_id: s for s in reference}
     cand_by_id = {s.sense_id: s for s in candidate}
     common_ids = sorted(set(ref_by_id) & set(cand_by_id))
@@ -791,7 +850,12 @@ def build_pairwise_packs(
 
     key_path = os.path.join(out_dir, "pairwise_key.json")
     os.makedirs(out_dir, exist_ok=True)
-    key_doc = {"seed": seed, "pack_size": pack_size, "entries": entries}
+    key_doc = {
+        "seed": seed,
+        "pack_size": pack_size,
+        "excluded_types": sorted(exclude_set),
+        "entries": entries,
+    }
     with open(key_path, "w", encoding="utf-8") as f:
         json.dump(key_doc, f, ensure_ascii=False, indent=2)
 
@@ -1051,6 +1115,26 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--skip-pairwise-packs", action="store_true")
     p.add_argument("--pack-size", type=int, default=10)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument(
+        "--llm-only",
+        action="store_true",
+        help=(
+            "Restrict blind pairwise packs to LLM-generated exercise types only, dropping "
+            "every type in DETERMINISTIC_EXERCISE_TYPES (services/vocabulary_ladder/deterministic/*: "
+            "cloze_typed, jumbled_sentence, tone_id_word, definition_match, classifier_match, "
+            "hanzi_to_pinyin, kanji_to_reading, pinyin_to_hanzi, reading_to_kanji, counter_match). "
+            "Only affects pairwise packs, not the automatic metrics in score.json. "
+            "Combines with --exclude-types."
+        ),
+    )
+    p.add_argument(
+        "--exclude-types",
+        default=None,
+        help=(
+            "Comma-separated exercise_type values to additionally drop from pairwise packs only "
+            "(not from metrics), e.g. --exclude-types cloze_typed,tone_id_word. Combines with --llm-only."
+        ),
+    )
     p.add_argument("--major-defect-margin-pp", type=float, default=Thresholds.major_defect_margin_pp)
     p.add_argument("--pairwise-loss-margin-pp", type=float, default=Thresholds.pairwise_loss_margin_pp)
     p.add_argument("--coverage-min-pct", type=float, default=Thresholds.coverage_min_pct)
@@ -1079,9 +1163,20 @@ def main(argv: list[str] | None = None) -> int:
         with open(pairwise_path, "r", encoding="utf-8") as f:
             pairwise_summary = json.load(f)
 
+    exclude_types: set[str] = set()
+    if args.llm_only:
+        exclude_types |= DETERMINISTIC_EXERCISE_TYPES
+    if args.exclude_types:
+        exclude_types |= {t.strip() for t in args.exclude_types.split(",") if t.strip()}
+
     if not args.skip_pairwise_packs:
         build_pairwise_packs(
-            candidate_senses, reference_senses, out_dir, pack_size=args.pack_size, seed=args.seed
+            candidate_senses,
+            reference_senses,
+            out_dir,
+            pack_size=args.pack_size,
+            seed=args.seed,
+            exclude_types=exclude_types,
         )
 
     thresholds = Thresholds(

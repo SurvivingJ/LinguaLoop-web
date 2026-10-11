@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
@@ -48,7 +49,7 @@ from services.dictation.tokenizer import normalize as _dictation_normalize
 from services.dimension_service import DimensionService
 from services.llm_output_cleaner import clean_json_response
 from services.model_arena.llm_runner import call_model_with_usage
-from services.dual_translation import prompts, scoring, explainer
+from services.dual_translation import prompts, scoring, explainer, word_choice_variant
 from services.dual_translation.router import resolve_tier, TIER_ORDER
 from services.dual_translation.tier0 import MAX_BAND, RUBRIC_DIMENSIONS, grade_tier0, _normalize_l2
 
@@ -141,6 +142,9 @@ def grade_submission(
     taxonomy_cfg = get_active_taxonomy(db)
     subtypes = _resolve_subtypes(taxonomy_cfg, l1_code, l2_code)
     subtype_labels = _resolve_subtype_labels(taxonomy_cfg, subtypes, l2_code)
+    # TASK-841: v5-slugged rubric exemplars → v6 slugs (no-op unless the loaded
+    # taxonomy carries legacy_aliases, i.e. v6). Feeds v1, v2 and the arbiter alike.
+    rubric_cfg = alias_rubric_exemplars(rubric_cfg, taxonomy_cfg, subtypes)
 
     # TASK-624: the tier-0 diff's non-equal opcodes become candidate regions the
     # model must account for (§7b). Tier 0 already computed the diff; we never
@@ -175,6 +179,7 @@ def grade_submission(
             l2_language_id=l2_language_id,
             age_tier=age_tier,
             max_tier=max_tier,
+            l1_language_id=l1_language_id,
         )
 
     scores: dict[str, int] = {}
@@ -343,13 +348,43 @@ def get_active_rubric(db) -> dict:
     return _cfg_cache["rubric"]
 
 
+def taxonomy_version_pin() -> Optional[int]:
+    """TASK-841: the `DT_TAXONOMY_VERSION` env pin, read at call time (so an eval
+    harness / staging / rollback drill can grade under a chosen version without
+    touching the DB active flag). Unset or blank → None → today's behaviour
+    (highest active row). A non-integer value is a misconfiguration and raises."""
+    raw = os.environ.get("DT_TAXONOMY_VERSION", "").strip()
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except ValueError as exc:
+        raise RuntimeError(f"DT_TAXONOMY_VERSION={raw!r} is not an integer version") from exc
+
+
 def get_active_taxonomy(db) -> dict:
     """Load the active dt_taxonomy_version row's taxonomy. No silent fallback —
     an operator must seed + activate a row (at minimum a baseline; full
     per-pair localisation is TASK-616).
 
+    TASK-841: when `DT_TAXONOMY_VERSION` is set, load exactly that version's row
+    regardless of `is_active` (cached under its own key, so flipping the pin never
+    serves the other version's cached config).
+
     Cached process-wide after the first successful read; call `clear_caches()`
     to pick up a newly activated version."""
+    pin = taxonomy_version_pin()
+    if pin is not None:
+        key = f"taxonomy@{pin}"
+        if key not in _cfg_cache:
+            _cfg_cache[key] = _fetch_version_config(
+                db,
+                table="dt_taxonomy_version",
+                column="taxonomy",
+                version=pin,
+                missing_msg=f"No dt_taxonomy_version row with version={pin} (DT_TAXONOMY_VERSION pin).",
+            )
+        return _cfg_cache[key]
     if "taxonomy" not in _cfg_cache:
         _cfg_cache["taxonomy"] = _fetch_active_config(
             db,
@@ -377,7 +412,82 @@ def _fetch_active_config(db, *, table: str, column: str, missing_msg: str) -> di
     return resp.data[0][column]
 
 
-def render_explanation(taxonomy_cfg: dict, subtype: str, l1_code: str, learner_form: str, corrected_form: str) -> tuple[str, bool]:
+def _fetch_version_config(db, *, table: str, column: str, version: int, missing_msg: str) -> dict:
+    """Read one specific version's JSONB from `table`, active or not (TASK-841 pin).
+    Raises like `_fetch_active_config` when the row is missing."""
+    resp = (
+        db.table(table)
+        .select(column)
+        .eq("version", version)
+        .limit(1)
+        .execute()
+    )
+    if not resp.data:
+        raise RuntimeError(missing_msg)
+    return resp.data[0][column]
+
+
+def alias_rubric_exemplars(rubric_cfg: dict, taxonomy_cfg: dict, subtypes: list[str]) -> dict:
+    """TASK-841: keep the rubric's v5-slugged worked exemplars under a v6 taxonomy.
+
+    The live rubric's exemplars name their error by `subtype_slug`; v6 renamed or
+    merged some of those slugs, so `prompts._slug_index` misses and the exemplar is
+    silently dropped (ADR-020). When the loaded taxonomy carries `legacy_aliases`
+    (v6 does; v5 does not), an exemplar slug that is NOT in this call's `subtypes`
+    is rewritten to its alias target — only for kind `1:1`/`merge` and only if the
+    target is in `subtypes`. `split`/`dropped` slugs are left as-is, so prompts.py
+    drops them with its existing warning (ja `particle_wa_ga` → needs a relabelled
+    exemplar, rubric v7 follow-up).
+
+    Returns `rubric_cfg` itself (same object) when nothing is rewritten — v5
+    prompts are therefore byte-identical. Otherwise a copy; the cached rubric is
+    never mutated. Covers `exemplars[l2]` (v4 shape) and `exemplars.detector[l2]`;
+    verifier exemplars carry indices, not slugs."""
+    aliases = (taxonomy_cfg or {}).get("legacy_aliases")
+    exemplars = (rubric_cfg or {}).get("exemplars")
+    if not isinstance(aliases, dict) or not aliases or not isinstance(exemplars, dict):
+        return rubric_cfg
+
+    def _target(slug):
+        if slug is None or slug in subtypes:
+            return None
+        alias = aliases.get(slug)
+        if not isinstance(alias, dict) or alias.get("kind") not in ("1:1", "merge"):
+            return None
+        to = alias.get("to")
+        return to if to in subtypes else None
+
+    def _rewrite(entry):
+        error = entry.get("error") if isinstance(entry, dict) else None
+        to = _target(error.get("subtype_slug")) if isinstance(error, dict) else None
+        if to is None:
+            return entry
+        return {**entry, "error": {**error, "subtype_slug": to}}
+
+    new_exemplars = dict(exemplars)
+    changed = False
+    for key, entry in exemplars.items():
+        if key == "verifier":
+            continue
+        if key == "detector" and isinstance(entry, dict):
+            new_map = {l2: _rewrite(e) for l2, e in entry.items()}
+            if any(new_map[l2] is not entry[l2] for l2 in entry):
+                new_exemplars[key] = new_map
+                changed = True
+            continue
+        rewritten = _rewrite(entry)
+        if rewritten is not entry:
+            new_exemplars[key] = rewritten
+            changed = True
+    if not changed:
+        return rubric_cfg
+    return {**rubric_cfg, "exemplars": new_exemplars}
+
+
+def render_explanation(
+    taxonomy_cfg: dict, subtype: str, l1_code: str, learner_form: str, corrected_form: str,
+    variant: Optional[str] = None,
+) -> tuple[str, bool]:
     """Render an error's `explanation` from the (subtype, L1) template table.
 
     Returns (text, used_fallback). `used_fallback=True` means no template
@@ -385,11 +495,25 @@ def render_explanation(taxonomy_cfg: dict, subtype: str, l1_code: str, learner_f
     generic fallback rather than an empty explanation; the caller logs this
     for the authoring queue (never persisted as a field — dt_error_instance
     has no such column).
+
+    TASK-846: with a `variant` (v6 word_choice `explanation_variant`), the
+    `variant_templates[subtype][variant][l1]` template wins when it exists and
+    renders; otherwise — missing, bad placeholders, or quoting an empty
+    correction — this falls through to the plain (subtype, L1) template exactly
+    as if no variant were given (so `used_fallback` stays False there).
+    `variant=None` (every v5 grade) is the pre-TASK-846 code path, unchanged.
     """
     def _generic() -> str:
         if not corrected_form:
             return _GENERIC_ADDITION_EXPLANATION_TEMPLATE.format(learner_form=learner_form)
         return _GENERIC_EXPLANATION_TEMPLATE.format(corrected_form=corrected_form)
+
+    if variant:
+        rendered_variant = _render_variant_template(
+            taxonomy_cfg, subtype, variant, l1_code, learner_form, corrected_form,
+        )
+        if rendered_variant is not None:
+            return rendered_variant, False
 
     templates = (taxonomy_cfg or {}).get("templates", {})
     template = templates.get(subtype, {}).get(l1_code)
@@ -400,11 +524,82 @@ def render_explanation(taxonomy_cfg: dict, subtype: str, l1_code: str, learner_f
     except (KeyError, IndexError):
         logger.warning("dual_translation.grader_cascade: template for subtype=%r l1=%r has bad placeholders", subtype, l1_code)
         return _generic(), True
+    quotes_empty = ((not corrected_form and "{corrected_form}" in template)
+                    or (not learner_form and "{learner_form}" in template))
+    if quotes_empty and _is_v6_taxonomy(taxonomy_cfg):
+        # String review 2026-10-07 (v6 only): a template quoting an empty form
+        # (a dropped "not" leaves learner_form empty) renders as L1 fallback
+        # phrasing that quotes only the form that exists — never “” / 「」.
+        phrased = explainer.empty_form_explanation(
+            taxonomy_cfg, subtype, l1_code, learner_form, corrected_form,
+        )
+        if phrased is not None:
+            return phrased, False
     if not corrected_form and "{corrected_form}" in template:
         # Template quotes a correction the model never produced; fall back rather
         # than show the learner an empty quotation.
         return _generic(), True
     return rendered, False
+
+
+def _is_v6_taxonomy(taxonomy_cfg: dict) -> bool:
+    """True for a v6+ taxonomy row — same `meaning_inversion` marker as the
+    prompts' TASK-843 gate (v5 has no such slug), so v5 rendering is unchanged."""
+    meta = (taxonomy_cfg or {}).get("subtype_meta")
+    return isinstance(meta, dict) and "meaning_inversion" in meta
+
+
+def _render_variant_template(
+    taxonomy_cfg: dict, subtype: str, variant: str, l1_code: str,
+    learner_form: str, corrected_form: str,
+) -> Optional[str]:
+    """The TASK-846 variant template rendered, or None when there is none to use
+    (absent at any level, bad placeholders, or it quotes a correction the model
+    never produced) — the caller then falls through to the subtype template."""
+    variant_templates = (taxonomy_cfg or {}).get("variant_templates")
+    per_subtype = variant_templates.get(subtype) if isinstance(variant_templates, dict) else None
+    per_variant = per_subtype.get(variant) if isinstance(per_subtype, dict) else None
+    template = per_variant.get(l1_code) if isinstance(per_variant, dict) else None
+    if not template or not isinstance(template, str):
+        return None
+    if not corrected_form and "{corrected_form}" in template:
+        return None
+    if not learner_form and "{learner_form}" in template:  # never quote an empty form
+        return None
+    try:
+        return template.format(learner_form=learner_form, corrected_form=corrected_form)
+    except (KeyError, IndexError, ValueError):
+        logger.warning(
+            "dual_translation.grader_cascade: variant template for subtype=%r variant=%r l1=%r "
+            "has bad placeholders — using the subtype template", subtype, variant, l1_code,
+        )
+        return None
+
+
+def rerender_variant_explanations(errors: list[dict], taxonomy_cfg: dict, l1_code: str) -> int:
+    """TASK-846 post-pass: once `word_choice_variant.resolve_variants` has fixed
+    each error's `explanation_variant`, re-render the Rule-layer `explanation`
+    (and `explanation_parts.rule`, if already attached) of every error that
+    carries one. Errors without a variant are untouched. Returns how many were
+    re-rendered. Runs before the explainer, so the explainer scaffolds its parts
+    from the variant text."""
+    count = 0
+    for err in errors:
+        variant = err.get("explanation_variant")
+        if not variant:
+            continue
+        text, _used_fallback = render_explanation(
+            taxonomy_cfg, err.get("subtype"), l1_code,
+            err.get("learner_form", ""), err.get("corrected_form", ""), variant=variant,
+        )
+        err["explanation"] = text
+        parts = err.get("explanation_parts")
+        if isinstance(parts, dict):
+            parts["rule"] = text
+            if parts.get("application"):  # keep the explainer's concatenation contract
+                err["explanation"] = f"{text}\n{parts['application']}"
+        count += 1
+    return count
 
 
 # ---------------------------------------------------------------------------
@@ -656,7 +851,11 @@ def _decode_error(
     ``corrected_form``/``span_ref``) disagree is reconciled by locating the form
     in the text before dropping — an off-by-one span is repaired, not discarded
     (the baseline lost a real error this way). An omission/addition point (empty
-    form at a valid zero-width span) is also kept, not dropped."""
+    form at a valid zero-width span) is also kept, not dropped.
+
+    TASK-862 category repair: an unusable ``category`` (e.g. the subtype index
+    copied into it) is derived from the subtype via ``_derive_category`` and
+    logged; the error is dropped only when subtype/source/severity are invalid."""
     if not prompts.error_has_required_keys(raw):
         logger.warning("dual_translation.grader_cascade: dropping error with missing keys: %r", raw)
         return None
@@ -667,19 +866,28 @@ def _decode_error(
         logger.warning("dual_translation.grader_cascade: dropping error with invalid spans/forms: %r", raw)
         return None
 
-    category = _enum_lookup(prompts.CATEGORY_ENUM, raw.get("category"))
     source = _enum_lookup(prompts.SOURCE_ENUM, raw.get("source"))
     severity = _enum_lookup(prompts.SEVERITY_ENUM, raw.get("severity"))
     subtype = _enum_lookup(subtypes, raw.get("subtype"))
-    if category is None or source is None or severity is None or subtype is None:
+    if source is None or severity is None or subtype is None:
         logger.warning("dual_translation.grader_cascade: dropping error with out-of-range enum index: %r", raw)
         return None
+    category = _enum_lookup(prompts.CATEGORY_ENUM, raw.get("category"))
+    if category is None:
+        # TASK-862: qwen (zh/ja) sometimes copies the subtype index into
+        # `category` (`category: 8, subtype: 8`). Category follows from the
+        # subtype, so derive it rather than discarding a real detection.
+        category = _derive_category(taxonomy_cfg, subtype)
+        logger.warning(
+            "dual_translation.grader_cascade: repaired invalid category %r -> %r (derived from subtype=%r): %r",
+            raw.get("category"), category, subtype, raw,
+        )
 
     explanation, used_fallback = render_explanation(taxonomy_cfg, subtype, l1_code, learner_form, corrected_form)
     if used_fallback:
         logger.info("dual_translation.grader_cascade: no explanation template for subtype=%r l1=%r — flagged for authoring", subtype, l1_code)
 
-    return {
+    decoded = {
         "span_reproduction": span_repro,
         "span_reference": span_ref,
         "category": category,
@@ -692,6 +900,53 @@ def _decode_error(
         "confidence": _safe_float(raw.get("confidence"), default=0.5),
         "is_mistake": bool(raw.get("is_mistake", False)),
     }
+    # TASK-845: v6 only — the model's word_choice explanation_variant (an index
+    # into prompts.VARIANT_ENUM). Invalid/missing → None, never a dropped error;
+    # word_choice_variant.resolve_variants makes the final call after the merge.
+    if prompts.variants_enabled(subtypes):
+        decoded["explanation_variant"] = (
+            _enum_lookup(prompts.VARIANT_ENUM, raw.get("explanation_variant"))
+            if subtype == "word_choice" else None
+        )
+    return decoded
+
+
+# TASK-862: category recovery for an error whose `category` index is unusable.
+# Neither taxonomy row stores a category, so it is derived from subtype_meta:
+# an explicit `category` (none today) → the v6 `class` letter (ADR-031: G/S/R/D/F)
+# → a slug override for v5 slugs whose dimension alone mis-derives → `dimension`.
+_CATEGORY_BY_CLASS: dict[str, str] = {
+    "G": "grammatical", "S": "lexical", "F": "lexical",
+    "R": "pragmatic_expressional", "D": "pragmatic_expressional",
+}
+_CATEGORY_BY_SLUG: dict[str, str] = {
+    "register": "pragmatic_expressional",        # v5 dimension = fidelity
+    "keigo_register": "pragmatic_expressional",  # v5 dimension = fidelity
+    "collocation": "lexical",                    # v5 dimension = naturalness
+}
+_CATEGORY_BY_DIMENSION: dict[str, str] = {
+    "accuracy": "grammatical", "fidelity": "lexical", "naturalness": "pragmatic_expressional",
+}
+_CATEGORY_DEFAULT = "grammatical"
+
+
+def _derive_category(taxonomy_cfg: dict, subtype: str) -> str:
+    """A CATEGORY_ENUM value for a decoded subtype (TASK-862). Always returns a
+    valid value — the subtype is what matters downstream, so an unknown/meta-less
+    subtype gets the default rather than costing the error."""
+    meta = ((taxonomy_cfg or {}).get("subtype_meta") or {}).get(subtype)
+    meta = meta if isinstance(meta, dict) else {}
+    explicit = meta.get("category")
+    if explicit in prompts.CATEGORY_ENUM:
+        return explicit
+    cls, dimension = meta.get("class"), meta.get("dimension")
+    if isinstance(cls, str) and cls in _CATEGORY_BY_CLASS:
+        return _CATEGORY_BY_CLASS[cls]
+    if subtype in _CATEGORY_BY_SLUG:
+        return _CATEGORY_BY_SLUG[subtype]
+    if isinstance(dimension, str) and dimension in _CATEGORY_BY_DIMENSION:
+        return _CATEGORY_BY_DIMENSION[dimension]
+    return _CATEGORY_DEFAULT
 
 
 def _reconcile_span_form(text: str, span, form, language_code: str = "") -> tuple[Optional[list[int]], str]:
@@ -907,9 +1162,13 @@ def _grade_v2(
     l2_language_id: int,
     age_tier: int,
     max_tier: str,
+    l1_language_id: Optional[int] = None,
 ) -> dict:
     """The v2 Detector/Verifier grading flow (TASK-628). Pure w.r.t. persistence —
-    returns the contract dict; the route decides whether to persist it."""
+    returns the contract dict; the route decides whether to persist it.
+
+    `l1_language_id` feeds only the TASK-845 word_choice variant resolver (the
+    learner-L1 gloss lookup); it is unused under a pre-v6 taxonomy."""
     diff = tier0_result.diff
     slugs_trace: list[dict] = []
     fail_reasons: list[str] = []
@@ -921,7 +1180,7 @@ def _grade_v2(
     highlights: list[dict] = []
     detector_ok = False
     det_sys = prompts.build_detector_system_prompt(
-        l2_code, rubric_cfg, subtypes, subtype_labels=subtype_labels,
+        l2_code, rubric_cfg, subtypes, subtype_labels=subtype_labels, l1_code=l1_code,
     )
     det_usr = prompts.build_user_prompt(l2_code, gold_l2, reproduction, regions=regions)
     payload, t_in, t_out, reason, tier = _run_role(
@@ -949,7 +1208,7 @@ def _grade_v2(
     verifier_payload: Optional[dict] = None
     verifier_confidence = 0.0
     ver_sys = prompts.build_verifier_system_prompt(
-        l2_code, rubric_cfg, age_tier, subtypes, subtype_labels=subtype_labels,
+        l2_code, rubric_cfg, age_tier, subtypes, subtype_labels=subtype_labels, l1_code=l1_code,
     )
     ver_usr = prompts.build_verifier_user_prompt(l2_code, gold_l2, reproduction, proposed)
     payload, t_in, t_out, reason, tier = _run_role(
@@ -1016,6 +1275,25 @@ def _grade_v2(
 
     provisional = not (detector_ok and verifier_ok)
 
+    # ── WORD_CHOICE VARIANT (TASK-845, v6 only) ─────────────────────────
+    # After every merge (verdicts + optional arbiter) and before the explainer:
+    # fixes each word_choice error's explanation_variant from the sense
+    # dictionary (same lemma → wrong_sense; shared L1 gloss → false_synonym),
+    # falling back to the model's call; nulls it on every other subtype (a
+    # re-typed error must not trip the dt_error_instance CHECK). ≤2 DB round
+    # trips per submission; DB failure → basis `default`, grading continues.
+    variant_basis = None
+    if prompts.variants_enabled(subtypes):
+        variant_basis = word_choice_variant.resolve_variants(
+            db, final_errors,
+            l2_code=l2_code, l2_language_id=l2_language_id, l1_language_id=l1_language_id,
+        )
+        # TASK-846: the variant is now fixed — re-render each word_choice Rule
+        # layer from its variant template (falls back to templates["word_choice"]
+        # when the taxonomy row carries no variant template for it). ADR-015:
+        # every error still carries a rendered explanation before it is written.
+        rerender_variant_explanations(final_errors, taxonomy_cfg, l1_code)
+
     # ── EXPLAINER (cheap slug, L1 prose; error-bearing submissions only) ─
     # TASK-630 §6c/§7e: one batched L1 call adds a per-error instance-specific
     # Application layer atop the Rule template, and attaches explanation_parts
@@ -1036,6 +1314,15 @@ def _grade_v2(
         )
         tokens_in += exp_in
         tokens_out += exp_out
+
+    # TASK-842: stamp each final error with the taxonomy version whose slug
+    # vocabulary its subtype is in — the version this grade ran under (same value
+    # as grader_trace.prompt_version.taxonomy). Gated: the column exists only once
+    # migrations/dt_taxonomy_v6_columns.sql is applied (Config.DT_TAXONOMY_COLUMNS).
+    taxonomy_version = get_active_taxonomy_version(db)
+    if Config.DT_TAXONOMY_COLUMNS:
+        for err in final_errors:
+            err["taxonomy_version"] = taxonomy_version
 
     # ── DERIVED SCORING ─────────────────────────────────────────────────
     subtype_meta = (taxonomy_cfg or {}).get("subtype_meta", {})
@@ -1069,13 +1356,15 @@ def _grade_v2(
         "rejected_count": rejected_count,
         "prompt_version": {
             "rubric": get_active_rubric_version(db),
-            "taxonomy": get_active_taxonomy_version(db),
+            "taxonomy": taxonomy_version,
         },
         "fell_open": provisional,
         "reason": "; ".join(fail_reasons) or None,
     }
     if arbiter_trace is not None:
         grader_trace["arbiter"] = arbiter_trace
+    if variant_basis is not None:
+        grader_trace["variant_basis"] = variant_basis
 
     return {
         "scores": scores_out,
@@ -1098,7 +1387,12 @@ def get_active_rubric_version(db) -> Optional[int]:
 
 
 def get_active_taxonomy_version(db) -> Optional[int]:
-    """The active dt_taxonomy_version.version, for grader_trace.prompt_version."""
+    """The active dt_taxonomy_version.version, for grader_trace.prompt_version.
+    TASK-841: under a `DT_TAXONOMY_VERSION` pin, the pinned version (the one
+    `get_active_taxonomy` actually loaded, or raised on)."""
+    pin = taxonomy_version_pin()
+    if pin is not None:
+        return pin
     if "taxonomy_version" not in _cfg_cache:
         _cfg_cache["taxonomy_version"] = _fetch_active_scalar(db, table="dt_taxonomy_version", column="version")
     return _cfg_cache["taxonomy_version"]
@@ -1394,7 +1688,7 @@ def _maybe_arbitrate(
         return kept + added, rejected_count, judgments, None, 0, 0, trace
 
     sys_prompt = prompts.build_verifier_system_prompt(
-        l2_code, rubric_cfg, age_tier, subtypes, subtype_labels=subtype_labels,
+        l2_code, rubric_cfg, age_tier, subtypes, subtype_labels=subtype_labels, l1_code=l1_code,
     )
     usr_prompt = prompts.build_verifier_user_prompt(l2_code, gold_l2, reproduction, proposed)
     payload, t_in, t_out, _reason = _invoke_model(

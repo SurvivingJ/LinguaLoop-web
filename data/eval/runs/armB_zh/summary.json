@@ -1,0 +1,1140 @@
+{
+  "batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+  "requested_senses": 30,
+  "attempted_senses": 30,
+  "status_counts": {
+    "success": 22,
+    "partial": 7,
+    "failed": 1
+  },
+  "run_wall_clock_s": 1659.890999999945,
+  "per_sense_wall_clock_s": {
+    "10103": 79.29599999997299,
+    "10104": 66.17200000002049,
+    "10105": 58.79599999997299,
+    "10106": 52.14099999994505,
+    "10107": 55.98499999998603,
+    "10110": 52.796999999904074,
+    "10111": 57.18799999996554,
+    "10112": 56.48399999993853,
+    "10113": 58.421999999904074,
+    "10117": 52.84399999992456,
+    "10119": 60.68799999996554,
+    "10125": 57.46900000004098,
+    "10131": 50.35999999998603,
+    "10137": 55.375,
+    "10156": 54.93700000003446,
+    "10300": 54.625,
+    "10353": 50.34299999999348,
+    "10382": 51.42200000002049,
+    "10525": 54.48499999998603,
+    "10553": 58.53099999995902,
+    "10803": 31.31299999996554,
+    "11315": 57.14099999994505,
+    "11319": 54.65700000000652,
+    "11531": 58.82799999997951,
+    "12012": 56.51500000001397,
+    "19859": 59.89000000001397,
+    "19860": 56.68700000003446,
+    "19867": 50.625,
+    "19870": 50.03099999995902,
+    "19882": 40.14000000001397
+  },
+  "assets_per_sense": {
+    "10103": 7,
+    "10104": 7,
+    "10105": 7,
+    "10106": 7,
+    "10107": 7,
+    "10110": 7,
+    "10111": 7,
+    "10112": 7,
+    "10113": 7,
+    "10117": 7,
+    "10119": 7,
+    "10125": 7,
+    "10131": 7,
+    "10137": 7,
+    "10156": 7,
+    "10300": 7,
+    "10353": 7,
+    "10382": 7,
+    "10525": 7,
+    "10553": 7,
+    "10803": 1,
+    "11315": 7,
+    "11319": 7,
+    "11531": 7,
+    "12012": 7,
+    "19859": 7,
+    "19860": 7,
+    "19867": 7,
+    "19870": 7,
+    "19882": 5
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 29,
+      "invalid": 1,
+      "invalid_rate": 0.03333333333333333
+    },
+    "prompt2_exercises_A": {
+      "valid": 27,
+      "invalid": 1,
+      "invalid_rate": 0.03571428571428571
+    },
+    "prompt3_transforms_A": {
+      "valid": 26,
+      "invalid": 2,
+      "invalid_rate": 0.07142857142857142
+    },
+    "llm_types_A": {
+      "valid": 29,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 28,
+      "invalid": 1,
+      "invalid_rate": 0.034482758620689655
+    },
+    "prompt3_transforms_B": {
+      "valid": 26,
+      "invalid": 3,
+      "invalid_rate": 0.10344827586206896
+    },
+    "llm_types_B": {
+      "valid": 29,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "10103": {
+      "total": 11,
+      "by_type": {
+        "definition_match": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "phonetic_recognition": 1,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "2": 2,
+        "9": 2,
+        "4": 2,
+        "1": 4,
+        "6": 1
+      }
+    },
+    "10104": {
+      "total": 15,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "3": 2,
+        "9": 2,
+        "4": 2,
+        "6": 3
+      }
+    },
+    "10105": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "2": 2,
+        "6": 4,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10106": {
+      "total": 10,
+      "by_type": {
+        "definition_match": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1
+      },
+      "by_level": {
+        "2": 2,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10107": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 1,
+        "6": 3,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10110": {
+      "total": 11,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "jumbled_sentence": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "spot_incorrect_sentence": 1
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "3": 2,
+        "9": 2,
+        "7": 1
+      }
+    },
+    "10111": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2,
+        "cloze_completion": 1,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "2": 2,
+        "9": 2,
+        "4": 2,
+        "1": 3,
+        "6": 3,
+        "3": 1
+      }
+    },
+    "10112": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2,
+        "spot_incorrect_sentence": 1
+      },
+      "by_level": {
+        "2": 2,
+        "6": 3,
+        "9": 2,
+        "4": 2,
+        "1": 3,
+        "7": 1
+      }
+    },
+    "10113": {
+      "total": 12,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 1,
+        "6": 2,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10117": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "2": 2,
+        "6": 4,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10119": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 3,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2,
+        "cloze_completion": 1
+      },
+      "by_level": {
+        "2": 2,
+        "6": 3,
+        "9": 3,
+        "4": 2,
+        "1": 3,
+        "3": 1
+      }
+    },
+    "10125": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 3,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10131": {
+      "total": 11,
+      "by_type": {
+        "definition_match": 2,
+        "semantic_discrimination": 1,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1
+      },
+      "by_level": {
+        "2": 2,
+        "6": 1,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10137": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "2": 2,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "1": 3,
+        "6": 3
+      }
+    },
+    "10156": {
+      "total": 12,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 1,
+        "7": 2,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10300": {
+      "total": 13,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "3": 1,
+        "6": 2,
+        "9": 2,
+        "4": 2
+      }
+    },
+    "10353": {
+      "total": 16,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "3": 2,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "6": 3
+      }
+    },
+    "10382": {
+      "total": 11,
+      "by_type": {
+        "definition_match": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "2": 2,
+        "6": 2,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10525": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 3,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "10553": {
+      "total": 15,
+      "by_type": {
+        "definition_match": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "cloze_completion": 1
+      },
+      "by_level": {
+        "2": 2,
+        "6": 2,
+        "7": 1,
+        "9": 4,
+        "4": 2,
+        "1": 3,
+        "3": 1
+      }
+    },
+    "10803": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "11315": {
+      "total": 15,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 3,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 3,
+        "9": 3,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "11319": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 1,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "11531": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "9": 2,
+        "4": 2,
+        "1": 3,
+        "6": 2
+      }
+    },
+    "12012": {
+      "total": 15,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1,
+        "cloze_completion": 1
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "6": 3,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "3": 1
+      }
+    },
+    "19859": {
+      "total": 8,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "jumbled_sentence": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "9": 2
+      }
+    },
+    "19860": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 1,
+        "6": 3,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "19867": {
+      "total": 12,
+      "by_type": {
+        "definition_match": 2,
+        "semantic_discrimination": 1,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "2": 2,
+        "6": 2,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "19870": {
+      "total": 9,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "6": 1,
+        "9": 2
+      }
+    },
+    "19882": {
+      "total": 9,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 1,
+        "cloze_typed": 1,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 1,
+        "7": 1,
+        "9": 1,
+        "4": 1,
+        "1": 3
+      }
+    }
+  },
+  "judge_reject_counts": {
+    "l1_distractor": {
+      "ran": 8,
+      "rejected": 0,
+      "kept": 24
+    },
+    "sentence_validity": {
+      "ran": 46,
+      "rejected": 0,
+      "kept": 108
+    },
+    "cloze": {
+      "ran": 26,
+      "rejected": 0,
+      "kept": 0
+    },
+    "relation": {
+      "ran": 30,
+      "rejected": 0,
+      "kept": 90
+    }
+  },
+  "cost_usd_total_observed": 0.27630800000000005,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 525,
+  "llm_calls_cost_breakdown": [
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 57,
+      "total_cost_usd": 0.0837968,
+      "avg_cost_usd": 0.0014701192982456142
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 30,
+      "total_cost_usd": 0.050783999999999996,
+      "avg_cost_usd": 0.0016928
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 57,
+      "total_cost_usd": 0.04177663999999999,
+      "avg_cost_usd": 0.0007329235087719297
+    },
+    {
+      "task_name": "judge_ladder_sentence_validity",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 107,
+      "total_cost_usd": 0.02450912000000001,
+      "avg_cost_usd": 0.00022905719626168232
+    },
+    {
+      "task_name": "ladder_syn_ant_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 50,
+      "total_cost_usd": 0.021789439999999997,
+      "avg_cost_usd": 0.00043578879999999994
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 46,
+      "total_cost_usd": 0.017352,
+      "avg_cost_usd": 0.0003772173913043478
+    },
+    {
+      "task_name": "judge_ladder_l1_distractor",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 55,
+      "total_cost_usd": 0.012183039999999996,
+      "avg_cost_usd": 0.0002215098181818181
+    },
+    {
+      "task_name": "judge_ladder_relation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 49,
+      "total_cost_usd": 0.012132800000000003,
+      "avg_cost_usd": 0.0002476081632653062
+    },
+    {
+      "task_name": "cloze_distractor_judge",
+      "call_role": "primary",
+      "model": "deepseek/deepseek-chat",
+      "calls": 55,
+      "total_cost_usd": 0.0092920788,
+      "avg_cost_usd": 0.00016894688727272727
+    },
+    {
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "call_role": "repair",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 19,
+      "total_cost_usd": 0.00269408,
+      "avg_cost_usd": 0.00014179368421052632
+    }
+  ],
+  "unattributed_writes_count": 29,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11046
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11047
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11048
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11049
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11050
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11053
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11054
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11055
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11056
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11060
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11062
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11068
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11074
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11080
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11099
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11243
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11292
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11321
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11462
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11490
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = 'b539e97f-c633-4192-ad1c-ec2123b964da'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n",
+  "model_overrides_applied": [],
+  "prompt_overrides_applied": [],
+  "prompt_override_file": null,
+  "senses_from": "data/eval/runs/phase1_zh",
+  "ladder_qwen_reasoning": "off"
+}

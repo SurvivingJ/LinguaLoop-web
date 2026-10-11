@@ -27,6 +27,14 @@ Usage:
     python scripts/run_dt_grading_eval.py --l2 ja --out report.md --live
     python scripts/run_dt_grading_eval.py --l2 en --out report.md            # dry plan, no calls
     python scripts/run_dt_grading_eval.py --l2 zh --out report.md --live --limit 2   # cheap smoke
+
+Taxonomy candidate (TASK-849, evaluate-before-activate, mirrors --rubric-file):
+    python scripts/run_dt_grading_eval.py --l2 en --out r.md --framework-v2 \\
+        --taxonomy-file migrations/dt_taxonomy_v6_seed.sql --fixture-set v6      # dry plan
+  `--taxonomy-file` parses the seed's $taxonomy$ literal OFFLINE and pre-seeds
+  grader_cascade._cfg_cache (taxonomy + taxonomy_version), so grading uses it without
+  the version existing in the DB. `--fixture-set {v5,v6,v6_silver}` picks
+  tests/fixtures/{dt_gold,dt_gold_v6,dt_silver_v6} (default v5 = unchanged behaviour).
 """
 
 import argparse
@@ -70,7 +78,17 @@ from services.model_arena import pricing as arena_pricing
 logging.basicConfig(level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("run_dt_grading_eval")
 
-FIXTURE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "fixtures", "dt_gold")
+_FIXTURES_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "fixtures")
+FIXTURE_DIR = os.path.join(_FIXTURES_ROOT, "dt_gold")
+# TASK-849: --fixture-set -> fixture dir. v5 (default) is the frozen v5 gold set.
+FIXTURE_DIRS = {
+    "v5": FIXTURE_DIR,
+    "v6": os.path.join(_FIXTURES_ROOT, "dt_gold_v6"),
+    "v6_silver": os.path.join(_FIXTURES_ROOT, "dt_silver_v6"),
+}
+# Log lines counted per run (TASK-849/850 gate: both must be 0 for en/zh under v6).
+_EXEMPLAR_DROP_LOGGER = "services.dual_translation.prompts"
+_NO_TEMPLATE_LOGGER = "services.dual_translation.grader_cascade"
 
 # Fallback age tier per L2 if a passage row can't be read (README: en/ja tier 3, zh tier 6).
 _DEFAULT_AGE_TIER = {"en": 3, "zh": 6, "ja": 3}
@@ -262,20 +280,22 @@ def _migrate_checkpoint_to_jsonl(path: str, data: dict) -> None:
 # Fixture -> eval record normalization
 # ---------------------------------------------------------------------------
 
-def _load_fixture(l2: str) -> list[dict]:
-    path = os.path.join(FIXTURE_DIR, f"{l2}.json")
+def _load_fixture(l2: str, fixture_set: str = "v5") -> list[dict]:
+    path = os.path.join(FIXTURE_DIRS[fixture_set], f"{l2}.json")
     with open(path, encoding="utf-8") as fh:
         return json.load(fh)
 
 
 def _pred_errors(contract: dict) -> list[dict]:
-    """Normalize the v1 grading contract's errors[] into the eval record shape."""
+    """Normalize the v1 grading contract's errors[] into the eval record shape.
+    `explanation_variant` is None until the grader emits it (TASK-845)."""
     out = []
     for e in contract.get("errors", []):
         out.append({
             "span": e["span_reproduction"],
             "subtype": e.get("subtype"),
             "severity": e.get("severity"),
+            "explanation_variant": e.get("explanation_variant"),
         })
     return out
 
@@ -294,8 +314,27 @@ def _exp_errors(item: dict) -> list[dict]:
             "span": e["span_repro"],
             "subtype": e.get("subtype"),
             "severity": e.get("severity_v2"),
+            # v6 fixtures only (TASK-847); absent on the v5 set -> None.
+            "explanation_variant": e.get("explanation_variant"),
         })
     return out
+
+
+def _build_record(it: dict, contract: dict, rubric_cfg: dict, l2: str) -> dict:
+    """One graded item -> the neutral eval record (eval_metrics module docstring)."""
+    exp_bands = it["expected_bands"]
+    return {
+        "id": it["id"],
+        "kind": it["kind"],
+        "pred_errors": _pred_errors(contract),
+        "exp_errors": _exp_errors(it),
+        "pred_bands": contract["scores"],
+        "exp_bands": exp_bands,
+        "pred_overall": contract["overall_band"],
+        "exp_overall": gc.compute_overall_band(exp_bands, rubric_cfg, l2),
+        # TASK-845 grader_trace.variant_basis ({basis: n}); {} until it ships.
+        "pred_variant_basis": (contract.get("grader_trace") or {}).get("variant_basis") or {},
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -366,6 +405,85 @@ def _load_candidate_rubric(path: str) -> tuple[int, dict]:
     return version, config
 
 
+def _load_candidate_taxonomy(path: str) -> tuple[int, dict]:
+    """Parse a dt_taxonomy_v*_seed.sql migration into (version, taxonomy) — the
+    $taxonomy$...$taxonomy$ literal is the JSONB, the version the first INSERT VALUES
+    integer (same extraction the taxonomy seed tests use). Offline: no DB read, so a
+    seed that is written but not applied (v6 before TASK-853) can be evaluated."""
+    import re as _re
+    text = open(path, encoding="utf-8").read()
+    m = _re.search(r"\$taxonomy\$(.*?)\$taxonomy\$", text, _re.DOTALL)
+    if not m:
+        raise SystemExit(f"[error] no $taxonomy$...$taxonomy$ literal in {path}")
+    taxonomy = json.loads(m.group(1))
+    vm = _re.search(r"VALUES\s*\(\s*(\d+)\s*,", text)
+    if not vm:
+        raise SystemExit(f"[error] no INSERT ... VALUES (<version>, ...) in {path}")
+    return int(vm.group(1)), taxonomy
+
+
+def _preseed_candidate_taxonomy(version: int, taxonomy: dict) -> None:
+    """Pre-seed grader_cascade's process-wide config cache so get_active_taxonomy()
+    and get_active_taxonomy_version() serve the candidate for the whole run. Nothing
+    is written to the DB. Seeds both the unpinned keys and the `taxonomy@<v>` key the
+    DT_TAXONOMY_VERSION pin reads; a pin naming a DIFFERENT version is a conflicting
+    instruction and aborts rather than silently grading under the wrong taxonomy."""
+    pin = gc.taxonomy_version_pin()
+    if pin is not None and pin != version:
+        raise SystemExit(f"[error] DT_TAXONOMY_VERSION={pin} conflicts with --taxonomy-file "
+                         f"version {version}; unset the env var or pick the matching file.")
+    gc._cfg_cache["taxonomy"] = taxonomy
+    gc._cfg_cache[f"taxonomy@{version}"] = taxonomy
+    gc._cfg_cache["taxonomy_version"] = version
+
+
+def _taxonomy_summary(taxonomy: dict) -> str:
+    """One-line plan summary: per-L2 baseline subtype counts."""
+    pairs = taxonomy.get("pairs") or {}
+    counts = [f"{k}={len((v or {}).get('subtypes') or [])}" for k, v in sorted(pairs.items())
+              if k in ("en", "zh", "ja") and isinstance(v, dict)]
+    return f"{len(pairs)} pair keys; baseline subtypes {' '.join(counts) or '—'}"
+
+
+class _LogCounter(logging.Filter):
+    """Counts grader log lines the v6 gate cares about, for the run's report:
+      * exemplar_drop — prompts.py "dropping the ... exemplar" WARNINGs (rubric
+        exemplar slug did not resolve against the taxonomy; must be 0 for en/zh);
+      * no_explanation_template — grader_cascade's INFO "no explanation template".
+    Installed as a logger-level filter: grader_cascade's level is dropped to INFO so
+    the INFO line reaches the filter, and sub-WARNING records are then suppressed
+    (returns False) so console output is unchanged. Restored on exit."""
+
+    def __init__(self):
+        super().__init__()
+        self.counts = {"exemplar_drop": 0, "no_explanation_template": 0}
+        self._loggers: list[tuple[logging.Logger, int]] = []
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        if record.name == _EXEMPLAR_DROP_LOGGER and "exemplar" in msg and "dropping" in msg:
+            self.counts["exemplar_drop"] += 1
+        elif record.name == _NO_TEMPLATE_LOGGER and "no explanation template" in msg:
+            self.counts["no_explanation_template"] += 1
+        return record.levelno >= logging.WARNING
+
+    def __enter__(self):
+        for name in (_EXEMPLAR_DROP_LOGGER, _NO_TEMPLATE_LOGGER):
+            lg = logging.getLogger(name)
+            self._loggers.append((lg, lg.level))
+            if name == _NO_TEMPLATE_LOGGER:
+                lg.setLevel(logging.INFO)
+            lg.addFilter(self)
+        return self
+
+    def __exit__(self, *exc):
+        for lg, level in self._loggers:
+            lg.removeFilter(self)
+            lg.setLevel(level)
+        self._loggers.clear()
+        return False
+
+
 # ---------------------------------------------------------------------------
 # Report rendering
 # ---------------------------------------------------------------------------
@@ -378,6 +496,34 @@ def _fmt(x, nd=3) -> str:
     if isinstance(x, float):
         return f"{x:.{nd}f}"
     return str(x)
+
+
+def _render_v6_section(v6: dict, log_counts: dict) -> list[str]:
+    """TASK-849 report block (taxonomy v6 metrics + gate log counts)."""
+    lines = ["## Taxonomy v6 metrics", ""]
+    mi = v6["meaning_inversion"]
+    lines.append("| metric | value |")
+    lines.append("|---|---|")
+    lines.append(f"| meaning_inversion recall | {_fmt(mi['recall'])} ({mi['tp']}/{mi['n_expected']}) |")
+    lines.append(f"| meaning_inversion precision | {_fmt(mi['precision'])} ({mi['tp']}/{mi['n_predicted']}) |")
+    ev = v6["explanation_variant"]
+    lines.append(f"| explanation_variant accuracy (word_choice TPs) | {_fmt(ev['accuracy'])} "
+                 f"({ev['correct']}/{ev['total']}; {ev['pred_missing']} with no predicted variant) |")
+    basis = ", ".join(f"{k}={v}" for k, v in ev["variant_basis"].items()) or "— (not emitted)"
+    lines.append(f"| variant_basis distribution | {basis} |")
+    lines.append(f"| exemplar-drop warnings (must be 0 for en/zh) | {log_counts.get('exemplar_drop', 0)} |")
+    lines.append(f"| \"no explanation template\" lines | {log_counts.get('no_explanation_template', 0)} |")
+    lines.append("")
+    conf = v6["mi_confusion"]
+    labels = conf["labels"]
+    lines.append("### meaning_inversion confusion (span-matched pairs; rows = expected, cols = predicted)")
+    lines.append("")
+    lines.append("| expected \\ predicted | " + " | ".join(labels) + " |")
+    lines.append("|---|" + "---|" * len(labels))
+    for e in labels:
+        lines.append(f"| {e} | " + " | ".join(str(conf["matrix"][e][p]) for p in labels) + " |")
+    lines.append("")
+    return lines
 
 
 def _render_report(l2: str, metrics: dict, meta: dict) -> str:
@@ -398,6 +544,13 @@ def _render_report(l2: str, metrics: dict, meta: dict) -> str:
     if meta.get("rubric_file"):
         lines.append(f"- **Rubric:** CANDIDATE config from `{meta['rubric_file']}` "
                      f"(pre-seeded into the config cache; live DB rubric not modified)")
+    lines.append(f"- **Fixture set:** {meta.get('fixture_set', 'v5')}")
+    if meta.get("taxonomy_file"):
+        lines.append(f"- **Taxonomy:** CANDIDATE v{meta.get('taxonomy_version')} from "
+                     f"`{meta['taxonomy_file']}` (pre-seeded into the config cache; live DB "
+                     f"taxonomy not modified)")
+    else:
+        lines.append("- **Taxonomy:** live (active DB row, or the DT_TAXONOMY_VERSION pin)")
     lines.append(f"- **Tokens:** {meta['tokens_in']:,} in / {meta['tokens_out']:,} out — "
                  f"model calls: {meta['n_calls']}")
     lines.append(f"- **Est. cost:** ${meta['cost']:.4f} USD (model-arena pricing)")
@@ -437,6 +590,10 @@ def _render_report(l2: str, metrics: dict, meta: dict) -> str:
     lines.append(f"| **overall_band** | {_fmt(ov['qwk'])} | {_fmt(ov['exact'])} | {_fmt(ov['adjacent'])} | {ov['n']} |")
     lines.append("")
 
+    v6 = metrics.get("v6")
+    if v6:
+        lines.extend(_render_v6_section(v6, meta.get("log_counts") or {}))
+
     lines.append("## Raw metrics (JSON)")
     lines.append("")
     lines.append("```json")
@@ -471,19 +628,41 @@ def main() -> int:
                          "parsed and pre-seeded into grader_cascade's config cache, so every "
                          "grade in this run uses it while the live DB rubric is untouched. "
                          "Evaluate-before-activate (TASK-632).")
+    ap.add_argument("--taxonomy-file", default=None,
+                    help="Evaluate a CANDIDATE taxonomy without it being applied/active: path to "
+                         "a dt_taxonomy_v*_seed.sql; its $taxonomy$...$taxonomy$ literal is parsed "
+                         "offline and pre-seeded (taxonomy + version) into grader_cascade's config "
+                         "cache; live DB untouched (TASK-849).")
+    ap.add_argument("--fixture-set", default="v5", choices=sorted(FIXTURE_DIRS),
+                    help="Gold set: v5 = tests/fixtures/dt_gold (default), v6 = dt_gold_v6, "
+                         "v6_silver = dt_silver_v6 (TASK-847).")
     args = ap.parse_args()
 
     l2 = args.l2
     l1 = args.l1 or _DEFAULT_L1[l2]
-    items = _load_fixture(l2)
+    items = _load_fixture(l2, args.fixture_set)
     if args.limit:
         items = items[: args.limit]
 
     kinds = {"clean": 0, "single": 0, "multi": 0}
     for it in items:
         kinds[it["kind"]] = kinds.get(it["kind"], 0) + 1
-    print(f"[plan] L2={l2} L1={l1} items={len(items)} "
-          f"(clean {kinds['clean']} / single {kinds['single']} / multi {kinds['multi']})")
+    print(f"[plan] L2={l2} L1={l1} fixture-set={args.fixture_set} items={len(items)} "
+          f"(clean {kinds['clean']} / single {kinds['single']} / multi {kinds['multi']}) "
+          f"framework={'v2' if args.framework_v2 else 'v1'}")
+
+    cand_tax = None
+    if args.taxonomy_file:
+        cand_tax = _load_candidate_taxonomy(args.taxonomy_file)  # offline parse, even on a dry run
+        print(f"[taxonomy] candidate v{cand_tax[0]} parsed from {args.taxonomy_file}: "
+              f"{_taxonomy_summary(cand_tax[1])}")
+        if (cand_tax[0] >= 6) != args.fixture_set.startswith("v6"):
+            print(f"[warn] taxonomy v{cand_tax[0]} with fixture-set {args.fixture_set}: "
+                  f"gold subtype labels are on the other taxonomy, so subtype metrics will mismatch.")
+    elif args.fixture_set != "v5":
+        print(f"[warn] fixture-set {args.fixture_set} without --taxonomy-file: grading uses the "
+              f"live taxonomy (v5 unless DT_TAXONOMY_VERSION pins another), so v6 subtype "
+              f"labels will mismatch.")
 
     if not args.live:
         print("[dry-run] no --live flag: refusing to make paid OpenRouter calls. "
@@ -525,6 +704,11 @@ def main() -> int:
         print(f"[rubric] candidate v{cand_version} loaded from {args.rubric_file} "
               f"(live DB rubric untouched)")
 
+    if cand_tax is not None:
+        _preseed_candidate_taxonomy(*cand_tax)
+        print(f"[taxonomy] candidate v{cand_tax[0]} pre-seeded into the config cache "
+              f"(live DB taxonomy untouched)")
+
     rubric_cfg = gc.get_active_rubric(db)
 
     # Resume: reuse already-graded records/skips (never re-paid), then grade the rest.
@@ -536,7 +720,7 @@ def main() -> int:
     if args.resume:
         print(f"[resume] loaded {resumed_count} graded + {len(skipped)} skipped from {args.resume}")
 
-    with _CallRecorder() as rec:
+    with _CallRecorder() as rec, _LogCounter() as log_counter:
         for idx, it in enumerate(items, 1):
             if it["id"] in done_ids:
                 print(f"[{idx}/{len(items)}] {it['id']} — reused from checkpoint")
@@ -565,18 +749,7 @@ def main() -> int:
                 print(f"[{idx}/{len(items)}] {it['id']} — SKIPPED (gave up): {err}")
                 continue
 
-            exp_bands = it["expected_bands"]
-            pred_bands = contract["scores"]
-            record = {
-                "id": it["id"],
-                "kind": it["kind"],
-                "pred_errors": _pred_errors(contract),
-                "exp_errors": _exp_errors(it),
-                "pred_bands": pred_bands,
-                "exp_bands": exp_bands,
-                "pred_overall": contract["overall_band"],
-                "exp_overall": gc.compute_overall_band(exp_bands, rubric_cfg, l2),
-            }
+            record = _build_record(it, contract, rubric_cfg, l2)
             records.append(record)
             _save_checkpoint(args.resume, record=record)
             gt = contract.get("grader_trace", {})
@@ -593,6 +766,7 @@ def main() -> int:
     # the 3-level scale, so within-one agreement carries real signal (on the old
     # 2-level scale every matched pair was trivially within one).
     metrics = em.aggregate_metrics(records, severity_order=em.SEVERITY_TRIAD_ORDER)
+    metrics["v6"] = em.taxonomy_v6_metrics(records)  # TASK-849; additive, QWK untouched
 
     # Cost from recorded per-call tokens x OpenRouter pricing.
     try:
@@ -614,6 +788,11 @@ def main() -> int:
         "skipped": [s["id"] for s in skipped],
         "framework_v2": args.framework_v2,
         "rubric_file": args.rubric_file,
+        "fixture_set": args.fixture_set,
+        "taxonomy_file": args.taxonomy_file,
+        "taxonomy_version": cand_tax[0] if cand_tax else None,
+        # Counted over this invocation's grading only (resumed items are not re-graded).
+        "log_counts": dict(log_counter.counts),
     }
 
     report = _render_report(l2, metrics, meta)
@@ -624,6 +803,9 @@ def main() -> int:
     print(f"  span F1={_fmt(metrics['span']['f1'])}  "
           f"clean FP rate={_fmt(metrics['clean_fp']['item_fp_rate'])}  "
           f"overall QWK={_fmt(metrics['overall']['qwk'])}  cost=${cost:.4f}")
+    print(f"  meaning_inversion recall={_fmt(metrics['v6']['meaning_inversion']['recall'])}  "
+          f"exemplar drops={log_counter.counts['exemplar_drop']}  "
+          f"no-template lines={log_counter.counts['no_explanation_template']}")
     return 0
 
 

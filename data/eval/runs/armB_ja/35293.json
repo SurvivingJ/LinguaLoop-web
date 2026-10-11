@@ -1,0 +1,667 @@
+{
+  "sense_id": 35293,
+  "language_id": 3,
+  "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+  "started_at": "2026-10-04T04:44:03.185387+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant B generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.7052600383758545,
+    "p1_generate": 21.929526805877686,
+    "tier_gate": 0.0030019283294677734,
+    "p1_judge": 8.689674615859985,
+    "collocate_grounding": 0.00033783912658691406,
+    "fan_out": 71.19362211227417
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "kiwamete",
+        "pronunciation": "きわめて",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35293
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "2b8f9785-0b2d-4e08-9506-863004a57697",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "極めて",
+        "pronunciation": "きわめて",
+        "correct_definition": "程度がはなはだしいことを表す。状態や動作の度合いが非常に高いことを示す。",
+        "options": [
+          "物事のはずれやまちがいがなく、ぴったりあっているさま。",
+          "程度がはなはだしいことを表す。状態や動作の度合いが非常に高いことを示す。",
+          "心配なく、落ち着いて生活できる場所に住むこと。",
+          "物事の意味や内容、理由などを正しく知ること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "565ed686-1ce0-459e-9c1c-40bac8718452",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "その社会的意義は___大きい。",
+        "original_sentence": "その社会的意義は極めて大きい。",
+        "correct_answer": "極めて",
+        "options": [
+          "わざわざ",
+          "極めて",
+          "ようやく",
+          "おそらく"
+        ],
+        "explanation": "正解です。文脈「社会的意義は～大きい」において、程度がはなはだしいことを強調する副詞として適切です。",
+        "distractor_tags": {},
+        "word_definition": "程度がはなはだしいことを表す。状態や動作の度合いが非常に高いことを示す。",
+        "target_word": "極めて"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "21e529cb-9f21-4c5f-974c-f00ff935adea",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "極めて",
+        "pronunciation": "きわめて",
+        "tier": "T4",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "過去に経験したことや学んだことを、頭の中にしまっておき、あとで思い出せるようにすること。",
+              "程度がはなはだしいことを表す。状態や動作の度合いが非常に高いことを示す。",
+              "calm (peaceful, of a scene)",
+              "recognition"
+            ],
+            "correct_answer": "程度がはなはだしいことを表す。状態や動作の度合いが非常に高いことを示す。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "ae401ff7-beed-48df-964c-abc1ad680966",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "極めて",
+        "options": [
+          "ぎわめて",
+          "きわめで",
+          "きいわめて",
+          "きわめて"
+        ],
+        "correct_answer": "きわめて",
+        "word": "極めて",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "bfdd958c-e99d-4ffd-a65c-f5fd9bc9eb7e",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "きわめて",
+        "options": [
+          "極めて",
+          "分厚い",
+          "大好き",
+          "認める"
+        ],
+        "correct_answer": "極めて",
+        "word": "極めて",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "大好き": "component",
+          "分厚い": "component",
+          "認める": "frequency"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9448bcc7-442d-46a4-b2b2-c5bf0a675d43",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この課題は___難解である。",
+        "original_sentence": "この課題は極めて難解である。",
+        "correct_answer": "極めて",
+        "options": [
+          "極めて",
+          "やや",
+          "かなり",
+          "とても"
+        ],
+        "explanation": "「極めて良い」は程度がはなはだしいことを表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "程度がはなはだしいことを表す。状態や動作の度合いが非常に高いことを示す。",
+        "target_word": "極めて"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "6c548edd-19a6-4e3a-9914-19980672b722",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼は極めて寡黙な人物だ。",
+            "is_correct": true
+          },
+          {
+            "text": "その課題は極めて難解であること。",
+            "is_correct": false,
+            "error_description": "誤り型：文末表現の冗長性・不自然さ。断定の文脈において「であること」と名詞化するのは不適切です。正しくは終止形の「である」で終わります。"
+          },
+          {
+            "text": "この課題は極めて難解である。",
+            "is_correct": true
+          },
+          {
+            "text": "当該措置は極めて重要である。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00245504,
+      "prompt_tokens": 2876,
+      "completion_tokens": 1199,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 21657
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004976,
+      "prompt_tokens": 855,
+      "completion_tokens": 175,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3784
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00015904,
+      "prompt_tokens": 265,
+      "completion_tokens": 58,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2063
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00028608,
+      "prompt_tokens": 654,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2081
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006944,
+      "prompt_tokens": 1702,
+      "completion_tokens": 117,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3637
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0008032,
+      "prompt_tokens": 1714,
+      "completion_tokens": 199,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4859
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001512576,
+      "prompt_tokens": 2782,
+      "completion_tokens": 947,
+      "cached_tokens": 2304,
+      "reasoning_tokens": 0,
+      "call_role": "retry",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 17145
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00032928,
+      "prompt_tokens": 781,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2344
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00029952,
+      "prompt_tokens": 672,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2187
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00021664,
+      "prompt_tokens": 593,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1292
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00033632,
+      "prompt_tokens": 783,
+      "completion_tokens": 67,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2348
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027488,
+      "prompt_tokens": 599,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2041
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00019616,
+      "prompt_tokens": 529,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1321
+    }
+  ],
+  "llm_calls_observed": 13,
+  "llm_cost_observed_usd": 0.008060736,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 115.32799999997951,
+  "finished_at": "2026-10-04T04:45:58.508393+00:00"
+}

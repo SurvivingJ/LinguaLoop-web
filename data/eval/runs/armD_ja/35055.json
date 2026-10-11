@@ -1,0 +1,1335 @@
+{
+  "sense_id": 35055,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T18:14:15.530967+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[2] rejected (rating 2): 全単語：世界中の断片",
+    "P1 sentence[3] flagged (rating 3): 語域：plain体で宣言と不一致",
+    "P1 sentence[4] flagged (rating 3): 語域：plain体で宣言と不一致",
+    "P1 sentence[5] flagged (rating 3): 語域：plain体で宣言と不一致",
+    "P1 sentence[7] flagged (rating 3): 語域：plain体で宣言と不一致",
+    "P1 sentence[8] flagged (rating 3): 語域：plain体で宣言と不一致",
+    "P1 sentence[9] flagged (rating 3): 語域：plain体で宣言と不一致"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.52060866355896,
+    "p1_generate": 35.61228942871094,
+    "tier_gate": 0.01056814193725586,
+    "p1_judge": 65.18903231620789,
+    "collocate_grounding": 0.0,
+    "fan_out": 47.93000102043152
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[2] rejected (rating 2): 全単語：世界中の断片",
+        "P1 sentence[3] flagged (rating 3): 語域：plain体で宣言と不一致",
+        "P1 sentence[4] flagged (rating 3): 語域：plain体で宣言と不一致",
+        "P1 sentence[5] flagged (rating 3): 語域：plain体で宣言と不一致",
+        "P1 sentence[7] flagged (rating 3): 語域：plain体で宣言と不一致",
+        "P1 sentence[8] flagged (rating 3): 語域：plain体で宣言と不一致",
+        "P1 sentence[9] flagged (rating 3): 語域：plain体で宣言と不一致"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[se̞ka̠i]",
+        "morphological_forms": [
+          {
+            "form": "世界一",
+            "label": "派生"
+          },
+          {
+            "form": "世界地図",
+            "label": "派生"
+          },
+          {
+            "form": "世界平和",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "せかい",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35055
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a86fca5e-0fd5-4c7d-b455-01f249e904e8",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "世界",
+        "pronunciation": "せかい",
+        "correct_definition": "地球全体。また、人間の活動の及ぶすべての範囲。社会全体。",
+        "options": [
+          "限りある資源やお金、時間などを、無駄なく効率的に使うこと。また、その考え方。",
+          "努力や仕事をして、お金や利益を得る。",
+          "物の温度を下げるための機能や作用。",
+          "地球全体。また、人間の活動の及ぶすべての範囲。社会全体。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "d1ba2deb-7bda-4dd4-b7cc-1ff0ddf7424b",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "私は___の国々を旅してみたいと思います。",
+        "original_sentence": "私は世界の国々を旅してみたいと思います。",
+        "correct_answer": "世界",
+        "options": [
+          "部屋",
+          "世界",
+          "地域",
+          "家庭"
+        ],
+        "explanation": "正解です。「世界の国々」は、地球上に存在するすべての国々を指す自然な表現です。",
+        "distractor_tags": {},
+        "word_definition": "地球全体。また、人間の活動の及ぶすべての範囲。社会全体。",
+        "target_word": "世界"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "2fea6f59-cf10-491e-8eb5-8648f56da0c8",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "私は世界の国々を旅してみたいと思います。",
+            "is_correct": true
+          },
+          {
+            "text": "この伝統的な工芸品は、世界中の多くの人々を愛されています。",
+            "is_correct": false,
+            "error_description": "受身形の動作主（〜される）を示す助詞には「に」や「から」を使います。「を」は目的語を示す助詞であるため、ここでは誤りです。"
+          },
+          {
+            "text": "この美しい自然は、世界の人々によって守られるべきものです。",
+            "is_correct": true
+          },
+          {
+            "text": "この伝統的な工芸品は、世界中の多くの人々から愛されています。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "0b33eb38-6f93-4be9-b261-2b79f5f03869",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "世界",
+        "pronunciation": "せかい",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "can be known",
+              "事实 —— 实际发生的事情或现象，被认为是真实的内容",
+              "公寓 —— 供人居住的集合住宅，每个房间是独立的居住空间",
+              "地球全体。また、人間の活動の及ぶすべての範囲。社会全体。"
+            ],
+            "correct_answer": "地球全体。また、人間の活動の及ぶすべての範囲。社会全体。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "93ac6bd1-7b70-427d-808f-c896ea401c09",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この美しい自然は、___の人々によって守られるべきものです。",
+        "original_sentence": "この美しい自然は、世界の人々によって守られるべきものです。",
+        "target_word": "世界",
+        "word": "世界",
+        "answer": {
+          "accepted": [
+            "世界"
+          ],
+          "accepted_normalized": [
+            "世界"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "eec10ab9-fa1e-490c-afe9-d5a950b9aebf",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "世界",
+        "options": [
+          "せいかい",
+          "せがい",
+          "せかい",
+          "ぜかい"
+        ],
+        "correct_answer": "せかい",
+        "word": "世界",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "2c6cb9d1-9ce3-405e-abae-2298d70d592e",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "せかい",
+        "options": [
+          "世界",
+          "限界",
+          "境界",
+          "大量"
+        ],
+        "correct_answer": "世界",
+        "word": "世界",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "限界": "component",
+          "境界": "component",
+          "大量": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "10893466-3c98-422f-8e18-4238fcf5ff88",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この美しい自然は、世界___人々によって守られるべきものです。",
+        "original_sentence": "この美しい自然は、世界の人々によって守られるべきものです。",
+        "options": [
+          "が",
+          "に",
+          "の",
+          "は"
+        ],
+        "correct_answer": "の",
+        "target_word": "世界",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "は": "topic_vs_subject",
+          "に": "location_vs_target"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "名詞「世界」が名詞「人々」を修飾し、所属や範囲を表す連体修飾節を作る。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "7a654750-0b33-4760-ae71-66cfc0b605c8",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "世界",
+        "pronunciation": "せかい",
+        "ipa": "[se̞ka̠i]",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "附会",
+          "世界",
+          "打開",
+          "器械"
+        ],
+        "correct_answer": "世界",
+        "explanation": "正解です。「世界」は「地球全体。また、人間の活動の及ぶすべての範囲。社会全体。」という意味です。",
+        "distractor_explanations": {
+          "器械": "「器械」は「世界」と一モーラだけ異なる実在語です（1モーラ目: 「せ」→「き」、一部の音の違い）。",
+          "附会": "「附会」は「世界」と一モーラだけ異なる実在語です（1モーラ目: 「せ」→「ふ」、一部の音の違い）。",
+          "打開": "「打開」は「世界」と一モーラだけ異なる実在語です（1モーラ目: 「せ」→「だ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 6,
+          "kept": 4,
+          "rejected_items": [
+            "死界",
+            "死海",
+            "初回",
+            "境い",
+            "う飼い",
+            "狭い"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "dab64794-ecf5-4239-a451-2a0816980fa1",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___には、まだ解決されていない多くの問題があります。",
+        "original_sentence": "世界には、まだ解決されていない多くの問題があります。",
+        "correct_answer": "世界",
+        "options": [
+          "家庭",
+          "部屋",
+          "世界",
+          "個人"
+        ],
+        "explanation": "正解です。文脈に合致する適切な名詞です。",
+        "distractor_tags": {},
+        "word_definition": "地球全体。また、人間の活動の及ぶすべての範囲。社会全体。",
+        "target_word": "世界"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "7aec8ff1-6a6d-480c-b4f3-5e0a629481b7",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "世界は一つ冊です。",
+            "is_correct": false
+          },
+          {
+            "text": "世界で平和が守る。",
+            "is_correct": false
+          },
+          {
+            "text": "世界は明日回った。",
+            "is_correct": false
+          },
+          {
+            "text": "私は世界の国々を旅してみたいと思います。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "助数詞の誤り：「世界」のような抽象的・広域的な概念には「冊」は使えず、通常は数えません。 項構造の誤り：「平和」は守られる対象であるため、自動詞の「守る」ではなく他動詞の受身形「守られる」を使う必要があります。 活用・アスペクトの誤り：地球が回転することは継続的な事実・習慣であるため、完了・過去の「回った」ではなく「回っている」が適切です。",
+        "target_word": "世界"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f770de43-1eaf-44b0-a1c6-bf7d8aa8ff91",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "世界がもっと良くなってほしい。",
+            "is_correct": true
+          },
+          {
+            "text": "世界をもっと良くなってほしい。",
+            "is_correct": false,
+            "error_description": "「良くなる」は自動詞なので、その主体を表す助詞は「が」を使います。「を」は他動詞の目的語に使う助詞です。"
+          },
+          {
+            "text": "世界は広い。",
+            "is_correct": true
+          },
+          {
+            "text": "世界には、まだ解決されていない多くの問題があります。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "87afffeb-f53d-42b2-88ca-aeb9764925dc",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___がもっと良くなってほしい。",
+        "original_sentence": "世界がもっと良くなってほしい。",
+        "target_word": "世界",
+        "word": "世界",
+        "answer": {
+          "accepted": [
+            "世界"
+          ],
+          "accepted_normalized": [
+            "世界"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "2e675dcf-cedf-4a15-8b3e-c89ca3dba72d",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "世界",
+        "relation": "antonym",
+        "options": [
+          "地球",
+          "国内",
+          "宇宙",
+          "社会"
+        ],
+        "correct_answer": "国内",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "地球全体。また、人間の活動の及ぶすべての範囲。社会全体。",
+            "explanation": "地球全体や社会全体を指す「世界」に対し、特定の国家の内部を指す「国内」は範囲の対義関係にある。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "社会": 0.555136,
+            "地球": 0.576876,
+            "宇宙": 0.588202
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35055,
+      "word_asset_id": "shadow-35055-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    },
+    "particle": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 6,
+      "kept": 4
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '世界' is fused into a neighbouring chunk — chunks=['世界に', 'は', '様々な文化が', 'ある']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '世界' is fused into a neighbouring chunk — chunks=['世界は', '広くて', '面白い']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00333536,
+      "prompt_tokens": 2667,
+      "completion_tokens": 1939,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 35277
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184672,
+      "prompt_tokens": 723,
+      "completion_tokens": 1262,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22154
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00151488,
+      "prompt_tokens": 298,
+      "completion_tokens": 1109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21430
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00166432,
+      "prompt_tokens": 657,
+      "completion_tokens": 1136,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20884
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196864,
+      "prompt_tokens": 1616,
+      "completion_tokens": 1134,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21199
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00199904,
+      "prompt_tokens": 1615,
+      "completion_tokens": 1158,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21517
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186016,
+      "prompt_tokens": 1001,
+      "completion_tokens": 1203,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22187
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00203552,
+      "prompt_tokens": 1021,
+      "completion_tokens": 1335,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 25988
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00312512,
+      "prompt_tokens": 2646,
+      "completion_tokens": 1780,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 31211
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00299072,
+      "prompt_tokens": 2646,
+      "completion_tokens": 1675,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 32250
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186688,
+      "prompt_tokens": 742,
+      "completion_tokens": 1273,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23209
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174976,
+      "prompt_tokens": 744,
+      "completion_tokens": 1181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21531
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016076,
+      "prompt_tokens": 371,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 5156
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00161792,
+      "prompt_tokens": 684,
+      "completion_tokens": 1093,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19624
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015168,
+      "prompt_tokens": 532,
+      "completion_tokens": 1052,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 18595
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00166752,
+      "prompt_tokens": 595,
+      "completion_tokens": 1154,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21108
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016,
+      "prompt_tokens": 624,
+      "completion_tokens": 1094,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19511
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001856,
+      "prompt_tokens": 820,
+      "completion_tokens": 1245,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21988
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.000162,
+      "prompt_tokens": 370,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 3941
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00166016,
+      "prompt_tokens": 632,
+      "completion_tokens": 1139,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20041
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00112032,
+      "prompt_tokens": 517,
+      "completion_tokens": 746,
+      "cached_tokens": 0,
+      "reasoning_tokens": 720,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 13551
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001656,
+      "prompt_tokens": 587,
+      "completion_tokens": 1147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20447
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00159872,
+      "prompt_tokens": 624,
+      "completion_tokens": 1093,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35055,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19406
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.040573319999999996,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [
+    {
+      "judge": "l1_distractor_judge",
+      "error_class": "parse_error",
+      "message": "l1_distractor_judge: LLM call failed, keep all: Expecting ',' delimiter: line 29 column 4 (char 462)",
+      "logger": "services.exercise_generation.judges.l1_distractor",
+      "stage": "render"
+    }
+  ],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 383.60999999998603,
+  "finished_at": "2026-10-05T18:20:39.130973+00:00"
+}

@@ -493,10 +493,7 @@ def _cached_grade(db, submission_id: int) -> Optional[dict]:
     grade = grade_resp.data[0]
     errors_resp = (
         db.table('dt_error_instance')
-        .select(
-            'span_reproduction, span_reference, category, subtype, source, '
-            'severity, learner_form, corrected_form, explanation, confidence, is_mistake'
-        )
+        .select(', '.join(_error_columns()))
         .eq('submission_id', submission_id)
         .execute()
     )
@@ -522,8 +519,31 @@ def _cached_grade(db, submission_id: int) -> Optional[dict]:
 _ERROR_INSERT_COLUMNS = (
     'span_reproduction', 'span_reference', 'category', 'subtype', 'source',
     'severity', 'learner_form', 'corrected_form', 'explanation', 'confidence',
-    'is_mistake',
+    'is_mistake', 'taxonomy_version', 'explanation_variant',
 )
+
+# TASK-842: columns added by migrations/dt_taxonomy_v6_columns.sql. Read and
+# written only while Config.DT_TAXONOMY_COLUMNS is on — before that migration is
+# applied, PostgREST rejects any insert/select naming them.
+_TAXONOMY_ERROR_COLUMNS = ('taxonomy_version', 'explanation_variant')
+
+
+def _error_columns() -> tuple:
+    """The dt_error_instance columns to insert and to read back right now."""
+    if Config.DT_TAXONOMY_COLUMNS:
+        return _ERROR_INSERT_COLUMNS
+    return tuple(c for c in _ERROR_INSERT_COLUMNS if c not in _TAXONOMY_ERROR_COLUMNS)
+
+
+def _error_row(error: dict, submission_id: int, columns: tuple) -> dict:
+    row = {k: error[k] for k in columns if k in error}
+    # dt_error_instance_explanation_variant_check ties the variant to
+    # word_choice. A variant left on a re-typed error would fail the whole
+    # insert (and, by design, leave the submission ungraded) — drop it instead.
+    if row.get('explanation_variant') is not None and row.get('subtype') != 'word_choice':
+        row['explanation_variant'] = None
+    row['submission_id'] = submission_id
+    return row
 
 
 def _persist_grade(
@@ -550,11 +570,8 @@ def _persist_grade(
     }).eq('id', submission_id).execute()
 
     if contract['errors']:
-        rows = [
-            {**{k: error[k] for k in _ERROR_INSERT_COLUMNS if k in error},
-             'submission_id': submission_id}
-            for error in contract['errors']
-        ]
+        columns = _error_columns()
+        rows = [_error_row(error, submission_id, columns) for error in contract['errors']]
         db.table('dt_error_instance').insert(rows).execute()
 
     db.table('dt_grade').insert({

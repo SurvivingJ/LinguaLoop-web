@@ -1,0 +1,1116 @@
+{
+  "sense_id": 35127,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T13:01:58.877434+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 1.5609791278839111,
+    "p1_generate": 39.96603441238403,
+    "p1_repair": 42.632768869400024,
+    "tier_gate": 0.0,
+    "p1_judge": 66.7822425365448,
+    "collocate_grounding": 0.0,
+    "fan_out": 31.91567373275757
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/nai/",
+        "morphological_forms": [
+          {
+            "form": "なくて",
+            "label": "活用"
+          },
+          {
+            "label": "活用"
+          },
+          {
+            "form": "なかった",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "ない",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35127
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "dacce753-dbc0-4e0c-b1ee-31903c2c5750",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "無い",
+        "pronunciation": "ない",
+        "ipa": "/nai/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "無い",
+          "鳴る",
+          "肢位",
+          "ヤイ"
+        ],
+        "correct_answer": "無い",
+        "explanation": "正解です。「無い」は「物やことが存在しない。そこにそれがない状態。」という意味です。",
+        "distractor_explanations": {
+          "肢位": "「肢位」は「無い」と一モーラだけ異なる実在語です（1モーラ目: 「な」→「し」、一部の音の違い）。",
+          "ヤイ": "「ヤイ」は「無い」と一モーラだけ異なる実在語です（1モーラ目: 「な」→「や」、一部の音の違い）。",
+          "鳴る": "「鳴る」は「無い」と一モーラだけ異なる実在語です（2モーラ目: 「い」→「る」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 10,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "a6c78a78-ae14-42d9-a4ad-4e18b48af53e",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なく",
+        "pronunciation": "ない",
+        "correct_definition": "物やことが存在しない。そこにそれがない状態。",
+        "options": [
+          "物やことが存在しない。そこにそれがない状態。",
+          "所有する、持つという意味の動詞。形式ばった表現で、物や性質、構造などを有していることを表す。",
+          "さまざまな種類や状態があること。",
+          "建物や部屋の内部で、最も高い位置にある水平な面。上のふたのような部分。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b6d70202-0b0f-4e65-9328-283fff101f8d",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この地域には総合病院が___、住民たちは毎回遠くまで通院しなければならない状況です。",
+        "original_sentence": "この地域には総合病院がなく、住民たちは毎回遠くまで通院しなければならない状況です。",
+        "correct_answer": "なく",
+        "options": [
+          "いそがしく",
+          "おおく",
+          "たのしく",
+          "なく"
+        ],
+        "explanation": "正解です。文脈に合致する「ない」の連用形です。",
+        "distractor_tags": {},
+        "word_definition": "物やことが存在しない。そこにそれがない状態。",
+        "target_word": "なく"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b9b6bf22-8248-4a79-8dfb-6e2cd711ff37",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "現在のプロジェクトには十分な資金が___、新たな投資家を探すのが急務となっています。",
+        "original_sentence": "現在のプロジェクトには十分な資金がなく、新たな投資家を探すのが急務となっています。",
+        "correct_answer": "なく",
+        "base_form": "ない",
+        "form_label": "連用形（中止法）",
+        "options": [
+          "なく",
+          "なければ",
+          "なかった",
+          "ない"
+        ],
+        "explanation": "形容詞の連用形「く」による中止法で、後続の文へ自然に接続します。",
+        "word_definition": "物やことが存在しない。そこにそれがない状態。",
+        "target_word": "なく"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "7d60722e-4a4c-43c1-8a0e-090b0b6c41cd",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "この町には大きなスーパーマーケットがなかく、買い物をするのに毎回車で移動しなければなりません。",
+            "is_correct": false
+          },
+          {
+            "text": "この町には大きなスーパーマーケットがなくて、買い物をするのに毎回車で移動しなければなりません。",
+            "is_correct": false
+          },
+          {
+            "text": "この町には大きなスーパーマーケットがなく、買い物をするのに毎回車で移動しなければなりません。",
+            "is_correct": false
+          },
+          {
+            "text": "この古い工場には最新の安全設備がなく、従業員たちの作業環境の改善が求められています。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "助詞の混同：「には～が」の対比構造において、存在の否定には「は」ではなく「が」を使うのが自然です。 活用・アスペクトの誤り：形容詞「ない」の連用形は「なく」であり、「なかく」という活用形は存在しません。 語順・係り受けの誤り：「なく」の直後に読点（、）を置くと、後続の文との係り受けが不自然になり、文のまとまりが損なわれます。",
+        "target_word": "なく"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "1aa28f68-08be-4608-b38b-b970d3ecc2cb",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "この地域には総合病院がなく、住民たちは毎回遠くまで通院しなければならない状況です。",
+            "is_correct": true
+          },
+          {
+            "text": "現在のプロジェクトには十分な資金がなく、新たな投資家を探すのが急務となっています。",
+            "is_correct": true
+          },
+          {
+            "text": "この地域には総合病院がなくなくて、住民たちは毎回遠くまで通院しなければならない状況です。",
+            "is_correct": false,
+            "error_description": "誤り型：活用・アスペクトの誤り。形容詞「ない」の連用形「なく」に、さらに口語的な接続助詞「なくて」を冗長に付加しており、文法的に誤っています。正しくは「なく」とします。"
+          },
+          {
+            "text": "この山奥の村には満足な医療施設がなく、住民たちはいざという時に大変な不安を抱えています。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "91d805ed-fb9d-45ac-af0d-e9424fc819ec",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なく",
+        "pronunciation": "ない",
+        "tier": "T4",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "厨房 —— 用来烹调食物、清洗餐具的房间",
+              "植物を植えたり育てたりして、地面を緑色で覆うこと。環境改善や景観向上のために行われる。",
+              "物やことが存在しない。そこにそれがない状態。",
+              "adult"
+            ],
+            "correct_answer": "物やことが存在しない。そこにそれがない状態。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "acc9a7a8-a399-4c15-9ab4-3ad409a2a3db",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "現在のプロジェクトには十分な資金が___、新たな投資家を探すのが急務となっています。",
+        "original_sentence": "現在のプロジェクトには十分な資金がなく、新たな投資家を探すのが急務となっています。",
+        "target_word": "なく",
+        "word": "なく",
+        "answer": {
+          "accepted": [
+            "なく",
+            "なくて",
+            "なかった"
+          ],
+          "accepted_normalized": [
+            "なく",
+            "なくて",
+            "なかった"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "66b90a37-b38f-4093-b076-4085539bd129",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "ない",
+        "options": [
+          "無駄",
+          "無視",
+          "無い",
+          "無数"
+        ],
+        "correct_answer": "無い",
+        "word": "無い",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "無駄": "component",
+          "無視": "component",
+          "無数": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "5c49ecf4-bd38-4e3a-b0a8-b6356062254a",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なく",
+        "relation": "antonym",
+        "options": [
+          "少ない",
+          "多い",
+          "ある",
+          "広い"
+        ],
+        "correct_answer": "ある",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物やことが存在しない。そこにそれがない状態。",
+            "explanation": "物やことが存在する状態を表し、目標語の対義語となる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "多い": 0.417832,
+            "少ない": 0.518595,
+            "広い": 0.432568
+          }
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a4492c89-f64a-4922-8b91-9b0829368cc4",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この部屋には収納するためのクローゼットが___、家具の配置にとても頭を悩ませています。",
+        "original_sentence": "この部屋には収納するためのクローゼットがなく、家具の配置にとても頭を悩ませています。",
+        "correct_answer": "なく",
+        "options": [
+          "余り",
+          "遠く",
+          "なく",
+          "高く"
+        ],
+        "explanation": "正解です。文脈から「存在しない」という意味が適切です。",
+        "distractor_tags": {},
+        "word_definition": "物やことが存在しない。そこにそれがない状態。",
+        "target_word": "なく"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "179ec5d6-938a-4a5f-9a59-1b0f5cbcf6af",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "大切な書類がなくことに気づいて、慌てて探した。",
+            "is_correct": false
+          },
+          {
+            "text": "大切な書類がないことに気づいて、慌てて探した。",
+            "is_correct": true
+          },
+          {
+            "text": "なく大切な書類に気づいて、慌てて探した。",
+            "is_correct": false
+          },
+          {
+            "text": "大切な書類がなくてに気づいて、慌てて探した。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「が」の後に「なくてに」と続けるのは文法的に誤りです。「ないことに」とするのが正しい形です。 活用・アスペクトの誤り：「なく」の後に直接「こと」を続けることはできません。「ないこと」と活用させる必要があります。 語順・係り受けの誤り：「なく」が修飾するべき「書類」から離れすぎており、文の構造が破綻しています。",
+        "target_word": "ない"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "da6621d9-b953-45e0-8ae7-8e525194d911",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼の説明には裏付けるための証拠がなく、周囲の人間を納得させることはできませんでした。",
+            "is_correct": true
+          },
+          {
+            "text": "この部屋には収納するためのクローゼットがなく、家具の配置にとても頭を悩ませています。",
+            "is_correct": true
+          },
+          {
+            "text": "大切な書類がないことに気づいて、慌てて探した。",
+            "is_correct": true
+          },
+          {
+            "text": "彼の説明には裏付けるための証拠がなくて、周囲の人間を納得させることはできませんでした。",
+            "is_correct": false,
+            "error_description": "誤り型：活用・接続の誤り。正しい形：「なく」。解説：「証拠がなくて」は文法的に間違いではありませんが、「証拠がなく、〜できない」という形式的な書き言葉の文脈では、中頓を表す連用形「なく」を用いるのが自然で適切です。「なくて」は口語的であり、原因・理由のニュアンスが強くなるため、この文の硬い表現には馴染みません。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 8,
+          "generated_count": 2
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35127,
+      "word_asset_id": "shadow-35127-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 10
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word 'なく' is fused into a neighbouring chunk — chunks=['この古い辞書に', 'は最新のIT用語が', 'なく現代の', 'ビジネスシーンで', '使うには', '不十分です']"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    },
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'ない' has no clean word-boundary occurrence in its own sentence"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word 'なく' is fused into a neighbouring chunk — chunks=['この古い工場に', 'は最新の', '安全設備がなく', '従業員たちの', '作業環境の改善が', '求められています']"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00380128,
+      "prompt_tokens": 2819,
+      "completion_tokens": 2265,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 39706
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00360672,
+      "prompt_tokens": 1543,
+      "completion_tokens": 2432,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 42531
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185312,
+      "prompt_tokens": 819,
+      "completion_tokens": 1243,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21894
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017856,
+      "prompt_tokens": 488,
+      "completion_tokens": 1273,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23039
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174144,
+      "prompt_tokens": 794,
+      "completion_tokens": 1162,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20480
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00156256,
+      "prompt_tokens": 747,
+      "completion_tokens": 1034,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 18905
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00205984,
+      "prompt_tokens": 1717,
+      "completion_tokens": 1180,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21304
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181536,
+      "prompt_tokens": 753,
+      "completion_tokens": 1230,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21605
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176576,
+      "prompt_tokens": 794,
+      "completion_tokens": 1181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21552
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00210528,
+      "prompt_tokens": 1715,
+      "completion_tokens": 1216,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21908
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00179712,
+      "prompt_tokens": 792,
+      "completion_tokens": 1206,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23830
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0031072,
+      "prompt_tokens": 2742,
+      "completion_tokens": 1742,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 31324
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0031392,
+      "prompt_tokens": 2742,
+      "completion_tokens": 1767,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 31443
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.0001692,
+      "prompt_tokens": 390,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 2177
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016656,
+      "prompt_tokens": 386,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35127,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 2244
+    }
+  ],
+  "llm_calls_observed": 15,
+  "llm_cost_observed_usd": 0.030476239999999998,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 191.10899999993853,
+  "finished_at": "2026-10-05T13:05:09.983136+00:00"
+}

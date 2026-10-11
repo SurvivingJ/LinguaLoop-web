@@ -1,0 +1,1313 @@
+{
+  "sense_id": 35311,
+  "language_id": 3,
+  "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+  "started_at": "2026-10-04T04:45:58.551242+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[1] rejected (rating 2): 全単語：複合語内"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.6505639553070068,
+    "p1_generate": 21.18940305709839,
+    "p1_repair": 24.026567697525024,
+    "tier_gate": 0.002996683120727539,
+    "p1_judge": 8.859812021255493,
+    "collocate_grounding": 0.0,
+    "fan_out": 28.85268259048462
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] rejected (rating 2): 全単語：複合語内"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "kanoː",
+        "morphological_forms": [
+          {
+            "form": "不可能",
+            "label": "派生"
+          },
+          {
+            "form": "可能性",
+            "label": "派生"
+          },
+          {
+            "form": "可能だ",
+            "label": "活用"
+          },
+          {
+            "form": "可能な",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "かのう",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35311
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "142e5802-d541-47a4-8cc0-603bd0cce3d3",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "pronunciation": "かのう",
+        "ipa": "kanoː",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "加重",
+          "過労",
+          "可能",
+          "下行"
+        ],
+        "correct_answer": "可能",
+        "explanation": "正解です。「可能」は「物事を行うことができる性質や状態。」という意味です。",
+        "distractor_explanations": {
+          "下行": "「下行」は「可能」と一モーラだけ異なる実在語です（2モーラ目: 「の」→「こ」、一部の音の違い）。",
+          "過労": "「過労」は「可能」と一モーラだけ異なる実在語です（2モーラ目: 「の」→「ろ」、一部の音の違い）。",
+          "加重": "「加重」は「可能」と一モーラだけ異なる実在語です（2モーラ目: 「の」→「じゅ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "l1_distractor_judge": {
+          "rejected": 7,
+          "kept": 3,
+          "rejected_items": [
+            "過称",
+            "帰納",
+            "佳什",
+            "知能",
+            "家宝",
+            "河道",
+            "叶う"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "49d916b4-33e3-4446-b9a4-1eda42ab50a7",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "pronunciation": "かのう",
+        "correct_definition": "物事を行うことができる性質や状態。",
+        "options": [
+          "一般の店で売られていること。また、その商品。",
+          "品質や状態が悪いこと。また、悪い状態であること。",
+          "D は、英語のアルファベットの第4番目の文字です。",
+          "物事を行うことができる性質や状態。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "68f93aba-67a8-4c37-8eaa-03a83959e92b",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "近年、精密農業の導入は小規模農家の経営において___となっています。",
+        "original_sentence": "近年、精密農業の導入は小規模農家の経営において可能となっています。",
+        "correct_answer": "可能",
+        "options": [
+          "容易",
+          "活発",
+          "可能",
+          "確実"
+        ],
+        "explanation": "正解です。文脈「小規模農家の経営において～となっています」に適合し、実現できる状態であることを示します。",
+        "distractor_tags": {},
+        "word_definition": "物事を行うことができる性質や状態。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "dfbfe037-1098-4301-949f-8ecbebd67628",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼らは驚くべきスピードで成長し、わずか数週間で出荷することが可能です。",
+            "is_correct": true
+          },
+          {
+            "text": "彼らは驚くべきスピードで成長し、わずか数週間で出荷することは不可能です。",
+            "is_correct": false
+          },
+          {
+            "text": "彼らは驚くべきスピードで成長し、わずか数週間で出荷することが可能だです。",
+            "is_correct": false
+          },
+          {
+            "text": "彼らは驚くべきスピードで成長し、可能がわずか数週間で出荷することです。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "意味矛盾：前半の「驚くべきスピードで成長し」という肯定的な文脈と、後半の「不可能」という否定的な結論が論理的に矛盾しています。 活用誤り：形状詞「可能」の断定表現は「可能です」または「可能だ」であり、「可能だです」という二重の丁寧表現は文法誤りです。 語順・係り受け誤り：主題と述語の関係が崩れており、「可能」が主語のように扱われているため、意味が通じません。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "彼らは驚くべきスピードで成長し、わずか数週間で出荷することが可能です。"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "e8d26bac-8467-49fa-855e-d2598160c495",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "この問題は一人で解決することが可能です。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "6e344d8f-af11-4a66-b59e-e72727794aa1",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "pronunciation": "かのう",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "物事を行うことができる性質や状態。",
+              "letterpress",
+              "商店 —— 销售商品的店铺",
+              "promotion; to facilitate — pushing something's progress or development, making it advance more easily"
+            ],
+            "correct_answer": "物事を行うことができる性質や状態。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5cbc0ea1-bd9e-48d5-b881-b835b29acb1d",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "再生___エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化することは不可能です。",
+        "original_sentence": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化することは不可能です。",
+        "target_word": "可能",
+        "word": "可能",
+        "answer": {
+          "accepted": [
+            "可能"
+          ],
+          "accepted_normalized": [
+            "可能"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "6dfb4d8c-d7fe-4e69-88eb-acb2a31d8332",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "可能",
+        "options": [
+          "かあのう",
+          "がのう",
+          "かのう",
+          "かの"
+        ],
+        "correct_answer": "かのう",
+        "word": "可能",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "751d1eba-a44e-49b9-9a95-b02fbb8f8f98",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "かのう",
+        "options": [
+          "可能",
+          "能力",
+          "知能",
+          "機能"
+        ],
+        "correct_answer": "可能",
+        "word": "可能",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "機能": "component",
+          "能力": "component",
+          "知能": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "78959dc9-3d37-41fb-9d8c-1bff85617bf3",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "relation": "antonym",
+        "options": [
+          "有効",
+          "確実",
+          "容易",
+          "不可能"
+        ],
+        "correct_answer": "不可能",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事を行うことができる性質や状態。",
+            "explanation": "物事を行うことができる状態の対義語である"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "確実": 0.392692,
+            "有効": 0.512842
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b6fdfc33-c18e-40b9-a02e-f5fb6bc3f175",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "天気が良ければ、明日の遠足は実施___です。",
+        "original_sentence": "天気が良ければ、明日の遠足は実施可能です。",
+        "correct_answer": "可能",
+        "options": [
+          "開始",
+          "容易",
+          "確実",
+          "可能"
+        ],
+        "explanation": "正解です。文脈「天気が良ければ、明日の遠足は実施＿＿です。」において、条件付きで実現できる状態を表す「可能」が最も適切です。",
+        "distractor_tags": {},
+        "word_definition": "物事を行うことができる性質や状態。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "390f2c49-5e84-41fa-944f-8e884c33ac8d",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "その計画は現実的ではありませんが、理論的には三つの可能です。",
+            "is_correct": false
+          },
+          {
+            "text": "その計画は現実的ではありませんが、理論的には可能です。",
+            "is_correct": true
+          },
+          {
+            "text": "その計画は現実的ではありませんが、理論的には可能をします。",
+            "is_correct": false
+          },
+          {
+            "text": "その計画は現実的ではありませんが、理論的には可能ですこと。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "活用・アスペクトの誤り：形状詞「可能」の後に「こと」を直接付けることはできません。「可能です」または「可能なことです」とする必要があります。 助詞の混同：「可能」は形状詞であり、他動詞のように「を」を取ることはありません。「可能です」または「可能になります」などが正しい形式です。 助数詞の誤り：「可能」は抽象的な状態や性質を表す形状詞であり、具体的な個数を数える「三つの」といった助数詞と一緒に使うことはできません。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "3322f26e-8993-468d-8408-36a673582d7c",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "彼らは驚くべきスピードで成長し、わずか数週間で出荷することが可能です。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "84ff5b1b-1d94-4f09-a98f-29c7d2cc86db",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "彼は努力すれば、合格は十分に___です。",
+        "original_sentence": "彼は努力すれば、合格は十分に可能です。",
+        "target_word": "可能",
+        "word": "可能",
+        "answer": {
+          "accepted": [
+            "可能"
+          ],
+          "accepted_normalized": [
+            "可能"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "36ea53b1-7e58-4558-ac52-09a013ca462f",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "relation": "antonym",
+        "options": [
+          "有効",
+          "容易",
+          "確実",
+          "不可能"
+        ],
+        "correct_answer": "不可能",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事を行うことができる性質や状態。",
+            "explanation": "物事を行うことができない状態であり、目標語の対義語です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "確実": 0.392692,
+            "有効": 0.512842
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 7,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 1,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '可能' is fused into a neighbouring chunk — chunks=['この問題は', '一人で', '解決することが', '可能です']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '可能' is fused into a neighbouring chunk — chunks=['彼らは', '驚くべきスピードで', '成長し', 'わずか数週間で', '出荷することが', '可能です']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00236928,
+      "prompt_tokens": 2744,
+      "completion_tokens": 1165,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 21002
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0021712,
+      "prompt_tokens": 1469,
+      "completion_tokens": 1329,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 23821
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00047232,
+      "prompt_tokens": 812,
+      "completion_tokens": 166,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3966
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00024832,
+      "prompt_tokens": 324,
+      "completion_tokens": 113,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2734
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00030592,
+      "prompt_tokens": 692,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1935
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00074688,
+      "prompt_tokens": 1710,
+      "completion_tokens": 156,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3988
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00062976,
+      "prompt_tokens": 1068,
+      "completion_tokens": 225,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 5000
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00090464,
+      "prompt_tokens": 1727,
+      "completion_tokens": 275,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 6029
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00065696,
+      "prompt_tokens": 1013,
+      "completion_tokens": 260,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 6097
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004064,
+      "prompt_tokens": 754,
+      "completion_tokens": 129,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3335
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004736,
+      "prompt_tokens": 748,
+      "completion_tokens": 183,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4162
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018736,
+      "prompt_tokens": 2719,
+      "completion_tokens": 784,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 14623
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00291936,
+      "prompt_tokens": 2719,
+      "completion_tokens": 1601,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 28667
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00052512,
+      "prompt_tokens": 821,
+      "completion_tokens": 205,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4445
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0003456,
+      "prompt_tokens": 728,
+      "completion_tokens": 88,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2424
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00022112,
+      "prompt_tokens": 615,
+      "completion_tokens": 19,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 990
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027488,
+      "prompt_tokens": 607,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2155
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027616,
+      "prompt_tokens": 619,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1831
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0005456,
+      "prompt_tokens": 825,
+      "completion_tokens": 220,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4712
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00029856,
+      "prompt_tokens": 661,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2134
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00020576,
+      "prompt_tokens": 567,
+      "completion_tokens": 19,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1249
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027008,
+      "prompt_tokens": 592,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2121
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027872,
+      "prompt_tokens": 619,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2248
+    }
+  ],
+  "llm_calls_observed": 23,
+  "llm_cost_observed_usd": 0.017419839999999995,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 109.45299999997951,
+  "finished_at": "2026-10-04T04:47:48.001902+00:00"
+}

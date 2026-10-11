@@ -1,0 +1,1253 @@
+{
+  "sense_id": 10131,
+  "language_id": 1,
+  "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+  "started_at": "2026-10-08T09:45:54.907236+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.3019237518310547,
+    "p1_generate": 48.14369487762451,
+    "tier_gate": 0.0,
+    "p1_judge": 17.43728470802307,
+    "collocate_grounding": 0.0,
+    "fan_out": 47.36547517776489
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ti˥˩ tɕʰy˥˥]",
+        "morphological_forms": [
+          {
+            "form": "个",
+            "label": "量词"
+          },
+          {
+            "form": "片",
+            "label": "量词"
+          },
+          {
+            "form": "地區",
+            "label": "繁体"
+          },
+          {
+            "form": "地区性",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "dì qū",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10131
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "b8045cc2-db62-42a0-9cd6-ed5422adc555",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "地区",
+        "pronunciation": "dì qū",
+        "correct_definition": "指地球表面上的某个范围或区域。",
+        "options": [
+          "水源指水流发源的地方，或水供应的来源。",
+          "社会结构中按经济、地位等划分的不同群体。",
+          "叫做，名称是。",
+          "指地球表面上的某个范围或区域。"
+        ],
+        "hant": {
+          "word": "地區",
+          "pronunciation": "dì qū",
+          "correct_definition": "指地球表面上的某個範圍或區域。",
+          "options": [
+            "水源指水流發源的地方，或水供應的來源。",
+            "社會結構中按經濟、地位等劃分的不同群體。",
+            "叫做，名稱是。",
+            "指地球表面上的某個範圍或區域。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "28d4f38f-9439-4f09-a958-33b428e9c3af",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "这种记谱法被很多作曲家使用，也传到了其他___。",
+        "original_sentence": "这种记谱法被很多作曲家使用，也传到了其他地区。",
+        "correct_answer": "地区",
+        "options": [
+          "阶层",
+          "领域",
+          "时空",
+          "地区"
+        ],
+        "explanation": "正确。'地区'指具体的地理范围，与'传到'搭配自然，符合语境。",
+        "distractor_tags": {},
+        "word_definition": "指地球表面上的某个范围或区域。",
+        "target_word": "地区",
+        "hant": {
+          "sentence_with_blank": "這種記譜法被很多作曲家使用，也傳到了其他___。",
+          "original_sentence": "這種記譜法被很多作曲家使用，也傳到了其他地區。",
+          "correct_answer": "地區",
+          "options": [
+            "階層",
+            "領域",
+            "時空",
+            "地區"
+          ],
+          "explanation": "正確。'地區'指具體的地理範圍，與'傳到'搭配自然，符合語境。",
+          "distractor_tags": {},
+          "word_definition": "指地球表面上的某個範圍或區域。",
+          "target_word": "地區"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "2c007195-6e94-4f19-aa96-9691837f5d7e",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这个地区了的人们都很热情好客。",
+            "is_correct": false
+          },
+          {
+            "text": "人们这个地区都很热情好客。",
+            "is_correct": false
+          },
+          {
+            "text": "这个地区的人们都很热情好客。",
+            "is_correct": true
+          },
+          {
+            "text": "一条地区的人们都很热情好客。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "量词使用错误：'地区'是表示广阔范围的名词，不能使用用于细长物体的量词'条'，应使用'个'。 语序错误：破坏了'主题—评论'结构，表示范围的'这个地区'应放在主语'人们'之前作为定语或主题。 体标选用错误：'地区'是具体名词，不能直接附加动态助词'了'来表示动作或状态的完成。",
+        "target_word": "地区",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這個地區了的人們都很熱情好客。",
+              "is_correct": false
+            },
+            {
+              "text": "人們這個地區都很熱情好客。",
+              "is_correct": false
+            },
+            {
+              "text": "這個地區的人們都很熱情好客。",
+              "is_correct": true
+            },
+            {
+              "text": "一條地區的人們都很熱情好客。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "量詞使用錯誤：'地區'是表示廣闊範圍的名詞，不能使用用於細長物體的量詞'條'，應使用'個'。 語序錯誤：破壞了'主題—評論'結構，表示範圍的'這個地區'應放在主語'人們'之前作為定語或主題。 體標選用錯誤：'地區'是具體名詞，不能直接附加動態助詞'了'來表示動作或狀態的完成。",
+          "target_word": "地區"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "49fa8d63-79c7-4396-86ea-cce54395a541",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我们探索过这个神秘的地区。",
+            "is_correct": true
+          },
+          {
+            "text": "这种记谱法被很多作曲家使用，也传到了其他地区。",
+            "is_correct": true
+          },
+          {
+            "text": "在一些干旱的地区，人们很早就学会了如何节约用水。",
+            "is_correct": true
+          },
+          {
+            "text": "我在这个地区生活着三年。",
+            "is_correct": false,
+            "error_description": "动态助词“着”表示动作或状态的持续，不能与表示时间段的“三年”连用。表示动作完成或过去的经历，应使用“了”或“过”。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "我們探索過這個神秘的地區。",
+              "is_correct": true
+            },
+            {
+              "text": "這種記譜法被很多作曲家使用，也傳到了其他地區。",
+              "is_correct": true
+            },
+            {
+              "text": "在一些乾旱的地區，人們很早就學會了如何節約用水。",
+              "is_correct": true
+            },
+            {
+              "text": "我在這個地區生活著三年。",
+              "is_correct": false,
+              "error_description": "動態助詞“著”表示動作或狀態的持續，不能與表示時間段的“三年”連用。表示動作完成或過去的經歷，應使用“了”或“過”。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "4a93fd1f-9246-4393-92fb-f596ce3f235c",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "地区",
+        "pronunciation": "dì qū",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "理解する",
+              "指地球表面上的某个范围或区域。",
+              "適応性；新しい環境にだんだん慣れていく能力",
+              "指没有节制地、过分地使用。"
+            ],
+            "correct_answer": "指地球表面上的某个范围或区域。"
+          }
+        },
+        "hant": {
+          "word": "地區",
+          "pronunciation": "dì qū",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "理解する",
+                "指地球表面上的某個範圍或區域。",
+                "適応性；新しい環境にだんだん慣れていく能力",
+                "指沒有節制地、過分地使用。"
+              ],
+              "correct_answer": "指地球表面上的某個範圍或區域。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "094eb2dc-a92b-46c3-b1ce-11fb709c7a63",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "在一些干旱的___，人们很早就学会了如何节约用水。",
+        "original_sentence": "在一些干旱的地区，人们很早就学会了如何节约用水。",
+        "target_word": "地区",
+        "word": "地区",
+        "answer": {
+          "accepted": [
+            "地区",
+            "个",
+            "片",
+            "地区性"
+          ],
+          "accepted_normalized": [
+            "地区",
+            "个",
+            "片",
+            "地区性"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "在一些乾旱的___，人們很早就學會了如何節約用水。",
+          "original_sentence": "在一些乾旱的地區，人們很早就學會了如何節約用水。",
+          "target_word": "地區",
+          "word": "地區",
+          "answer": {
+            "accepted": [
+              "地區",
+              "個",
+              "片",
+              "地區性"
+            ],
+            "accepted_normalized": [
+              "地區",
+              "個",
+              "片",
+              "地區性"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c5cee740-26d4-4039-bfba-46f8aeba1060",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "地区",
+        "options": [
+          "dí qū",
+          "dī qū",
+          "dì qú",
+          "dì qū"
+        ],
+        "correct_answer": "dì qū",
+        "word": "地区",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "地區",
+          "options": [
+            "dí qū",
+            "dī qū",
+            "dì qú",
+            "dì qū"
+          ],
+          "correct_answer": "dì qū",
+          "word": "地區",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "fe5d871c-df03-4a50-91c8-7058dfabbbc6",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "dì qū",
+        "options": [
+          "致使",
+          "爸爸",
+          "修改",
+          "地区"
+        ],
+        "correct_answer": "地区",
+        "word": "地区",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "修改": "component",
+          "爸爸": "component",
+          "致使": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "dì qū",
+          "options": [
+            "致使",
+            "爸爸",
+            "修改",
+            "地區"
+          ],
+          "correct_answer": "地區",
+          "word": "地區",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "修改": "component",
+            "爸爸": "component",
+            "致使": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "49a64ffb-74dc-4d9b-9212-3056e33f238f",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "地区",
+        "toneless_pinyin": "di qu",
+        "full_pinyin": "dì qū",
+        "options": [
+          "43",
+          "41",
+          "44",
+          "42"
+        ],
+        "correct_answer": "41",
+        "option_labels": {
+          "43": "falling (4) + dipping (3)",
+          "41": "falling (4) + high level (1)",
+          "44": "falling (4) + falling (4)",
+          "42": "falling (4) + rising (2)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "地區",
+          "toneless_pinyin": "di qu",
+          "full_pinyin": "dì qū",
+          "options": [
+            "43",
+            "41",
+            "44",
+            "42"
+          ],
+          "correct_answer": "41",
+          "option_labels": {
+            "43": "falling (4) + dipping (3)",
+            "41": "falling (4) + high level (1)",
+            "44": "falling (4) + falling (4)",
+            "42": "falling (4) + rising (2)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "dd18ea9e-cf44-40e4-9468-2f9638f49e20",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "他去过很多不同的___旅游。",
+        "original_sentence": "他去过很多不同的地区旅游。",
+        "correct_answer": "地区",
+        "options": [
+          "范畴",
+          "空间",
+          "地区",
+          "领域"
+        ],
+        "explanation": "正确。指地球表面的物理区域，与“去……旅游”搭配自然。",
+        "distractor_tags": {},
+        "word_definition": "指地球表面上的某个范围或区域。",
+        "target_word": "地区",
+        "hant": {
+          "sentence_with_blank": "他去過很多不同的___旅遊。",
+          "original_sentence": "他去過很多不同的地區旅遊。",
+          "correct_answer": "地區",
+          "options": [
+            "範疇",
+            "空間",
+            "地區",
+            "領域"
+          ],
+          "explanation": "正確。指地球表面的物理區域，與“去……旅遊”搭配自然。",
+          "distractor_tags": {},
+          "word_definition": "指地球表面上的某個範圍或區域。",
+          "target_word": "地區"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "393f290c-7554-471f-b518-231bdafac36c",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他旅游去过很多不同的地区。",
+            "is_correct": false,
+            "error_description": "在连动句中，表示目的的动词应放在主要动词及地点宾语之后，正确语序为“去+地点+旅游”。"
+          },
+          {
+            "text": "他去过很多不同的地区旅游。",
+            "is_correct": true
+          },
+          {
+            "text": "我们要保护好这个地区的生态环境。",
+            "is_correct": true
+          },
+          {
+            "text": "偏远地区的教育问题引起了关注。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他旅遊去過很多不同的地區。",
+              "is_correct": false,
+              "error_description": "在連動句中，表示目的的動詞應放在主要動詞及地點賓語之後，正確語序為“去+地點+旅遊”。"
+            },
+            {
+              "text": "他去過很多不同的地區旅遊。",
+              "is_correct": true
+            },
+            {
+              "text": "我們要保護好這個地區的生態環境。",
+              "is_correct": true
+            },
+            {
+              "text": "偏遠地區的教育問題引起了關注。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 4.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "970005a4-3663-4891-b3c2-0379cbe506e3",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "偏远___的教育问题引起了关注。",
+        "original_sentence": "偏远地区的教育问题引起了关注。",
+        "target_word": "地区",
+        "word": "地区",
+        "answer": {
+          "accepted": [
+            "地区",
+            "个",
+            "片",
+            "地区性"
+          ],
+          "accepted_normalized": [
+            "地区",
+            "个",
+            "片",
+            "地区性"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "偏遠___的教育問題引起了關注。",
+          "original_sentence": "偏遠地區的教育問題引起了關注。",
+          "target_word": "地區",
+          "word": "地區",
+          "answer": {
+            "accepted": [
+              "地區",
+              "個",
+              "片",
+              "地區性"
+            ],
+            "accepted_normalized": [
+              "地區",
+              "個",
+              "片",
+              "地區性"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "classifier_match",
+      "reason": "'地区' is not in the classifier dictionary"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '地区' is fused into a neighbouring chunk — chunks=['那个地区', '的传统', '文化非常', '吸引人']"
+    },
+    {
+      "type_code": "classifier_match",
+      "reason": "'地区' is not in the classifier dictionary"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '地区' is fused into a neighbouring chunk — chunks=['这个地区', '的人们', '都很热情好客']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.004296,
+      "prompt_tokens": 2489,
+      "completion_tokens": 2734,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47833
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00139648,
+      "prompt_tokens": 636,
+      "completion_tokens": 932,
+      "cached_tokens": 0,
+      "reasoning_tokens": 755,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 17244
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00305888,
+      "prompt_tokens": 1467,
+      "completion_tokens": 2023,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1931,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 35607
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00323392,
+      "prompt_tokens": 1466,
+      "completion_tokens": 2160,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37752
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0039408,
+      "prompt_tokens": 1647,
+      "completion_tokens": 2667,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 46487
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00400352,
+      "prompt_tokens": 1647,
+      "completion_tokens": 2716,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47131
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00205088,
+      "prompt_tokens": 421,
+      "completion_tokens": 1497,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1404,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 26557
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001741977,
+      "prompt_tokens": 401,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2552
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00080416,
+      "prompt_tokens": 537,
+      "completion_tokens": 494,
+      "cached_tokens": 0,
+      "reasoning_tokens": 426,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 9271
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00124288,
+      "prompt_tokens": 520,
+      "completion_tokens": 841,
+      "cached_tokens": 0,
+      "reasoning_tokens": 814,
+      "call_role": "json_repair",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 15014
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00123808,
+      "prompt_tokens": 421,
+      "completion_tokens": 862,
+      "cached_tokens": 0,
+      "reasoning_tokens": 763,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 15493
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001721385,
+      "prompt_tokens": 393,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2169
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0012496,
+      "prompt_tokens": 681,
+      "completion_tokens": 806,
+      "cached_tokens": 0,
+      "reasoning_tokens": 705,
+      "call_role": "json_repair",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 14705
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001256,
+      "prompt_tokens": 425,
+      "completion_tokens": 875,
+      "cached_tokens": 0,
+      "reasoning_tokens": 848,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 15664
+    }
+  ],
+  "llm_calls_observed": 14,
+  "llm_cost_observed_usd": 0.028117536199999998,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 241.25,
+  "finished_at": "2026-10-08T09:49:56.157595+00:00"
+}

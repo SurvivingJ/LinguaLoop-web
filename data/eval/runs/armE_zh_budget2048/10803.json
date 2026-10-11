@@ -1,0 +1,1049 @@
+{
+  "sense_id": 10803,
+  "language_id": 1,
+  "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+  "started_at": "2026-10-08T10:29:08.013396+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[3] flagged (rating 3): 义项：首'将'可用，次'将'为将来时",
+    "P1 sentence[5] flagged (rating 3): 义项偏弱：'推诿给'非纳入系统管理",
+    "P1 sentence[7] flagged (rating 3): 语域：日常口语，非正式书面",
+    "P1 sentence[8] flagged (rating 3): 语域：日常口语，非正式书面",
+    "P1 sentence[9] flagged (rating 3): 语域：日常口语，非正式书面"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.3879265785217285,
+    "p1_generate": 51.29800248146057,
+    "tier_gate": 0.0,
+    "p1_judge": 102.20677995681763,
+    "collocate_grounding": 0.0,
+    "fan_out": 49.31722164154053
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[3] flagged (rating 3): 义项：首'将'可用，次'将'为将来时",
+        "P1 sentence[5] flagged (rating 3): 义项偏弱：'推诿给'非纳入系统管理",
+        "P1 sentence[7] flagged (rating 3): 语域：日常口语，非正式书面",
+        "P1 sentence[8] flagged (rating 3): 语域：日常口语，非正式书面",
+        "P1 sentence[9] flagged (rating 3): 语域：日常口语，非正式书面"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[tɕiɑŋ˥˥]",
+        "morphological_forms": [
+          {
+            "form": "将会",
+            "label": "复合"
+          },
+          {
+            "label": "将来",
+            "form": "复合"
+          },
+          {
+            "form": "将要",
+            "label": "复合"
+          },
+          {
+            "form": "將",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "jiāng",
+        "register": "正式（书面）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10803
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "0bfc360c-10b0-46b3-a004-e2620d77f5a0",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "将",
+        "pronunciation": "jiāng",
+        "ipa": "[tɕiɑŋ˥˥]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "匠",
+          "酱",
+          "将",
+          "讲"
+        ],
+        "correct_answer": "将",
+        "explanation": "正确。读音为 jiāng（阴平），在此处作介词，相当于“把”。",
+        "distractor_explanations": {
+          "讲": "错误。读音为 jiǎng（上声），声调不同。意为说话、说明，如“讲话”。",
+          "酱": "错误。读音为 jiàng（去声），声调不同。指调味品或用酱腌制的食物，如“酱油”。",
+          "匠": "错误。读音为 jiàng（去声），声调不同。指有专门手艺的工人，如“工匠”。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "將",
+          "pronunciation": "jiāng",
+          "ipa": "[tɕiɑŋ˥˥]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "匠",
+            "醬",
+            "將",
+            "講"
+          ],
+          "correct_answer": "將",
+          "explanation": "正確。讀音為 jiāng（陰平），在此處作介詞，相當於“把”。",
+          "distractor_explanations": {
+            "讲": "錯誤。讀音為 jiǎng（上聲），聲調不同。意為說話、說明，如“講話”。",
+            "酱": "錯誤。讀音為 jiàng（去聲），聲調不同。指調味品或用醬醃製的食物，如“醬油”。",
+            "匠": "錯誤。讀音為 jiàng（去聲），聲調不同。指有專門手藝的工人，如“工匠”。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "70bb4309-a6a2-4330-a81c-ebafee0b27f2",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "将",
+        "pronunciation": "jiāng",
+        "correct_definition": "相当于“把”，用于把事物纳入某种规则或系统中进行管理或安排",
+        "options": [
+          "相当于“把”，用于把事物纳入某种规则或系统中进行管理或安排",
+          "指体积较大的船只，通常用于运输或航行。",
+          "动植物是动物和植物的总称，包括所有生物中的动物界和植物界。",
+          "困局指难以解脱的困难境地或僵局。"
+        ],
+        "hant": {
+          "word": "將",
+          "pronunciation": "jiāng",
+          "correct_definition": "相當於“把”，用於把事物納入某種規則或系統中進行管理或安排",
+          "options": [
+            "相當於“把”，用於把事物納入某種規則或系統中進行管理或安排",
+            "指體積較大的船隻，通常用於運輸或航行。",
+            "動植物是動物和植物的總稱，包括所有生物中的動物界和植物界。",
+            "困局指難以解脫的困難境地或僵局。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "73f6e6af-ad7f-4c83-bb97-271a4321327f",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "可以预见，未来立法将全生命周期管理纳入核心框架，涵盖从原料提取、产品设计到废弃物回收的各个环节，以形成闭环控制体系。",
+            "is_correct": true
+          },
+          {
+            "text": "班长将大家的意见没有收集起来。",
+            "is_correct": false,
+            "error_description": "语序错误。在“将”字句中，否定词（如“没有”“不”）必须放在介词“将”的前面，而不能放在“将”和动词之间。"
+          },
+          {
+            "text": "联合国环境规划署在1972年斯德哥尔摩人类环境会议后，将此类标准化符号纳入全球环境治理的技术建议之中。",
+            "is_correct": true
+          },
+          {
+            "text": "首先，训练数据的采集与使用需满足“知情—同意”框架的实质要求，这意味着企业不能仅依赖用户协议中的概括性条款，而应通过分层披露机制，清晰说明将数据纳入模型训练系统的具体场景、类别及潜在影响，尤其在涉及个人敏感信息或生成式内容时，须实现可验证的用户授权路径。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "可以預見，未來立法將全生命週期管理納入核心框架，涵蓋從原料提取、產品設計到廢棄物回收的各個環節，以形成閉環控制體系。",
+              "is_correct": true
+            },
+            {
+              "text": "班長將大家的意見沒有收集起來。",
+              "is_correct": false,
+              "error_description": "語序錯誤。在“將”字句中，否定詞（如“沒有”“不”）必須放在介詞“將”的前面，而不能放在“將”和動詞之間。"
+            },
+            {
+              "text": "聯合國環境規劃署在1972年斯德哥爾摩人類環境會議後，將此類標準化符號納入全球環境治理的技術建議之中。",
+              "is_correct": true
+            },
+            {
+              "text": "首先，訓練資料的採集與使用需滿足“知情—同意”框架的實質要求，這意味著企業不能僅依賴使用者協議中的概括性條款，而應通過分層披露機制，清晰說明將資料納入模型訓練系統的具體場景、類別及潛在影響，尤其在涉及個人敏感資訊或生成式內容時，須實現可驗證的使用者授權路徑。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "8ef0ca58-1eca-4104-a2a7-6a2a4ed09f64",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "将",
+        "pronunciation": "jiāng",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "話し合う；何人かで意見を出し合うこと",
+              "使位置、程度、数量、质量等方面比原来更高或更优。",
+              "作为标志的布制品，通常悬挂在杆上，用于象征国家、政党、组织、团体或某种主张。",
+              "相当于“把”，用于把事物纳入某种规则或系统中进行管理或安排"
+            ],
+            "correct_answer": "相当于“把”，用于把事物纳入某种规则或系统中进行管理或安排"
+          }
+        },
+        "hant": {
+          "word": "將",
+          "pronunciation": "jiāng",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "話し合う；何人かで意見を出し合うこと",
+                "使位置、程度、數量、質量等方面比原來更高或更優。",
+                "作為標誌的布製品，通常懸掛在杆上，用於象徵國家、政黨、組織、團體或某種主張。",
+                "相當於“把”，用於把事物納入某種規則或系統中進行管理或安排"
+              ],
+              "correct_answer": "相當於“把”，用於把事物納入某種規則或系統中進行管理或安排"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "4ab1f12a-76ff-42c3-bc5a-00911ad9e1d2",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "将",
+        "options": [
+          "jiǎng",
+          "jiàng",
+          "jiáng",
+          "jiāng"
+        ],
+        "correct_answer": "jiāng",
+        "word": "将",
+        "direction": "hanzi_to_pinyin",
+        "context_sentence": "可以预见，未来立法将全生命周期管理纳入核心框架，涵盖从原料提取、产品设计到废弃物回收的各个环节，以形成闭环控制体系。",
+        "context_target": "将",
+        "is_polyphonic": true,
+        "hant": {
+          "schema_version": 2,
+          "prompt": "將",
+          "options": [
+            "jiǎng",
+            "jiàng",
+            "jiáng",
+            "jiāng"
+          ],
+          "correct_answer": "jiāng",
+          "word": "將",
+          "direction": "hanzi_to_pinyin",
+          "context_sentence": "可以預見，未來立法將全生命週期管理納入核心框架，涵蓋從原料提取、產品設計到廢棄物回收的各個環節，以形成閉環控制體系。",
+          "context_target": "將",
+          "is_polyphonic": true
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "d75af5e9-d6f7-41cc-b1a6-091c2d6315b5",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "jiāng",
+        "options": [
+          "将",
+          "打",
+          "找",
+          "省"
+        ],
+        "correct_answer": "将",
+        "word": "将",
+        "direction": "pinyin_to_hanzi",
+        "context_sentence": "可以预见，未来立法将全生命周期管理纳入核心框架，涵盖从原料提取、产品设计到废弃物回收的各个环节，以形成闭环控制体系。",
+        "context_target": "将",
+        "is_polyphonic": true,
+        "distractor_sources": {
+          "打": "component",
+          "找": "component",
+          "省": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "jiāng",
+          "options": [
+            "將",
+            "打",
+            "找",
+            "省"
+          ],
+          "correct_answer": "將",
+          "word": "將",
+          "direction": "pinyin_to_hanzi",
+          "context_sentence": "可以預見，未來立法將全生命週期管理納入核心框架，涵蓋從原料提取、產品設計到廢棄物回收的各個環節，以形成閉環控制體系。",
+          "context_target": "將",
+          "is_polyphonic": true,
+          "distractor_sources": {
+            "打": "component",
+            "找": "component",
+            "省": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "36a3574b-5dcc-42de-9788-5aadba4a5d08",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "将",
+        "toneless_pinyin": "jiang",
+        "full_pinyin": "jiāng",
+        "options": [
+          "3",
+          "2",
+          "1",
+          "4"
+        ],
+        "correct_answer": "1",
+        "option_labels": {
+          "3": "dipping (3)",
+          "2": "rising (2)",
+          "1": "high level (1)",
+          "4": "falling (4)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "將",
+          "toneless_pinyin": "jiang",
+          "full_pinyin": "jiāng",
+          "options": [
+            "3",
+            "2",
+            "1",
+            "4"
+          ],
+          "correct_answer": "1",
+          "option_labels": {
+            "3": "dipping (3)",
+            "2": "rising (2)",
+            "1": "high level (1)",
+            "4": "falling (4)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "286cd267-d54c-48d8-b0c5-39584d96117d",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我们将这些旧书整理好送给山区的孩子。",
+            "is_correct": true
+          },
+          {
+            "text": "我们将这些旧书整理送给山区的孩子。",
+            "is_correct": false
+          },
+          {
+            "text": "我们将整理好这些旧书送给山区的孩子。",
+            "is_correct": false
+          },
+          {
+            "text": "我们将了这些旧书整理好送给山区的孩子。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置错误：动态助词'了'不能放在介词'将'之后，应放在主要动词后（如'整理好了'）或句末。 语序错误：'将'的宾语必须紧跟在介词之后，不能将宾语'这些旧书'错放到动词'整理好'之后。 体貌错误：在'将'字句中，主要动词不能是光杆动词，必须带有补语、动态助词或重叠等形式（如'整理好'）。",
+        "target_word": "将",
+        "hant": {
+          "sentences": [
+            {
+              "text": "我們將這些舊書整理好送給山區的孩子。",
+              "is_correct": true
+            },
+            {
+              "text": "我們將這些舊書整理送給山區的孩子。",
+              "is_correct": false
+            },
+            {
+              "text": "我們將整理好這些舊書送給山區的孩子。",
+              "is_correct": false
+            },
+            {
+              "text": "我們將了這些舊書整理好送給山區的孩子。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置錯誤：動態助詞'了'不能放在介詞'將'之後，應放在主要動詞後（如'整理好了'）或句末。 語序錯誤：'將'的賓語必須緊跟在介詞之後，不能將賓語'這些舊書'錯放到動詞'整理好'之後。 體貌錯誤：在'將'字句中，主要動詞不能是光桿動詞，必須帶有補語、動態助詞或重疊等形式（如'整理好'）。",
+          "target_word": "將"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "8aa18a81-27c8-44b8-9b99-ffd99d519d4e",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "然而，技术革新若无消费观念的同步转变，便难以将各项前沿成果纳入实际应用的轨道，最终只能举步维艰。",
+            "is_correct": true
+          },
+          {
+            "text": "我们将送给山区的孩子这些旧书整理好。",
+            "is_correct": false,
+            "error_description": "在“将”字句中，“将”的宾语必须紧跟在“将”字之后，不能将其他动词短语插在“将”和宾语之间。正确的语序应为“将+宾语+动词短语”。"
+          },
+          {
+            "text": "老师将同学们的座位重新安排了一下。",
+            "is_correct": true
+          },
+          {
+            "text": "我们将这些旧书整理好送给山区的孩子。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "然而，技術革新若無消費觀念的同步轉變，便難以將各項前沿成果納入實際應用的軌道，最終只能舉步維艱。",
+              "is_correct": true
+            },
+            {
+              "text": "我們將送給山區的孩子這些舊書整理好。",
+              "is_correct": false,
+              "error_description": "在“將”字句中，“將”的賓語必須緊跟在“將”字之後，不能將其他動詞短語插在“將”和賓語之間。正確的語序應為“將+賓語+動詞短語”。"
+            },
+            {
+              "text": "老師將同學們的座位重新安排了一下。",
+              "is_correct": true
+            },
+            {
+              "text": "我們將這些舊書整理好送給山區的孩子。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10803,
+      "word_asset_id": "shadow-10803-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00458848,
+      "prompt_tokens": 2699,
+      "completion_tokens": 2910,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 50971
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00324928,
+      "prompt_tokens": 814,
+      "completion_tokens": 2335,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 40957
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00301088,
+      "prompt_tokens": 413,
+      "completion_tokens": 2249,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "repair",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 39747
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00168704,
+      "prompt_tokens": 712,
+      "completion_tokens": 1140,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1034,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 20887
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0032832,
+      "prompt_tokens": 1656,
+      "completion_tokens": 2151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2027,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 38177
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00330848,
+      "prompt_tokens": 1683,
+      "completion_tokens": 2164,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 38213
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00411072,
+      "prompt_tokens": 1846,
+      "completion_tokens": 2750,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48734
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00418752,
+      "prompt_tokens": 1846,
+      "completion_tokens": 2810,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 49116
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00121792,
+      "prompt_tokens": 418,
+      "completion_tokens": 847,
+      "cached_tokens": 0,
+      "reasoning_tokens": 731,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 15747
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001703439,
+      "prompt_tokens": 418,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2101
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00293856,
+      "prompt_tokens": 691,
+      "completion_tokens": 2123,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "json_repair",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37225
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00053344,
+      "prompt_tokens": 439,
+      "completion_tokens": 307,
+      "cached_tokens": 0,
+      "reasoning_tokens": 283,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 6457
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00188096,
+      "prompt_tokens": 418,
+      "completion_tokens": 1365,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1285,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 24207
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001693143,
+      "prompt_tokens": 414,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2282
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00116096,
+      "prompt_tokens": 560,
+      "completion_tokens": 767,
+      "cached_tokens": 0,
+      "reasoning_tokens": 666,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 13994
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00078368,
+      "prompt_tokens": 445,
+      "completion_tokens": 501,
+      "cached_tokens": 0,
+      "reasoning_tokens": 477,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 9768
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.036280778200000016,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 373.2820000000065,
+  "finished_at": "2026-10-08T10:35:21.292938+00:00"
+}

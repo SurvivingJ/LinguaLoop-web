@@ -1,0 +1,1286 @@
+{
+  "sense_id": 10112,
+  "language_id": 1,
+  "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+  "started_at": "2026-10-03T01:42:03.378358+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.12292623519897461,
+    "p1_generate": 13.935113668441772,
+    "tier_gate": 0.0,
+    "p1_judge": 4.060687303543091,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[pʰaɪ˧˥ pan˨˩˦]",
+        "morphological_forms": [
+          {
+            "form": "排了版",
+            "label": "体标"
+          },
+          {
+            "form": "排着版",
+            "label": "体标"
+          },
+          {
+            "form": "排过版",
+            "label": "体标"
+          },
+          {
+            "form": "排版员",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "pái bǎn",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10112
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "d476aaf4-81c6-4f2b-a9aa-514cd6d48026",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "排版",
+        "pronunciation": "pái bǎn",
+        "correct_definition": "把文字或图片按规则排列好",
+        "options": [
+          "把文字或图片按规则排列好",
+          "表示程度或范围超出所提到的，不仅限于。",
+          "用手或工具使物体向自己前方或离开原位置移动。",
+          "对财务账目、报表等进行审查和核实，以确认其真实性和合规性。"
+        ],
+        "hant": {
+          "word": "排版",
+          "pronunciation": "pái bǎn",
+          "correct_definition": "把文字或圖片按規則排列好",
+          "options": [
+            "把文字或圖片按規則排列好",
+            "表示程度或範圍超出所提到的，不僅限於。",
+            "用手或工具使物體向自己前方或離開原位置移動。",
+            "對財務賬目、報表等進行審查和核實，以確認其真實性和合規性。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "e3184b5d-9eed-4765-a489-5ad83f4d9639",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复___的技术先河。",
+        "original_sentence": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+        "correct_answer": "排版",
+        "options": [
+          "打印",
+          "排版",
+          "阅读",
+          "书写"
+        ],
+        "explanation": "正确。语境为杂志的图文排列特色，符合“排版”语义。",
+        "distractor_tags": {},
+        "word_definition": "把文字或图片按规则排列好",
+        "target_word": "排版",
+        "hant": {
+          "sentence_with_blank": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複___的技術先河。",
+          "original_sentence": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+          "correct_answer": "排版",
+          "options": [
+            "列印",
+            "排版",
+            "閱讀",
+            "書寫"
+          ],
+          "explanation": "正確。語境為雜誌的圖文排列特色，符合“排版”語義。",
+          "distractor_tags": {},
+          "word_definition": "把文字或圖片按規則排列好",
+          "target_word": "排版"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "ef3f4fa3-074e-4b62-8120-2a5f02cf1f87",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这本书的一个排版看起来很舒服。",
+            "is_correct": false
+          },
+          {
+            "text": "这本书的排版看起来很舒服。",
+            "is_correct": true
+          },
+          {
+            "text": "这本书的排版看起来很舒服地。",
+            "is_correct": false
+          },
+          {
+            "text": "这本书的排版看起很舒服来。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语法错误。形容词“舒服”作谓语或补语时，不应加“地”，“地”通常用于状语修饰动词。 语序错误。趋向补语“起来”被错误拆分插入形容词中间，正确应为“看起来”。 量词/名词化错误。“排版”在此处作为抽象的设计效果，通常不加个体量词“一个”，或直接说“这种排版”。",
+        "target_word": "排版",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這本書的一個排版看起來很舒服。",
+              "is_correct": false
+            },
+            {
+              "text": "這本書的排版看起來很舒服。",
+              "is_correct": true
+            },
+            {
+              "text": "這本書的排版看起來很舒服地。",
+              "is_correct": false
+            },
+            {
+              "text": "這本書的排版看起很舒服來。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語法錯誤。形容詞“舒服”作謂語或補語時，不應加“地”，“地”通常用於狀語修飾動詞。 語序錯誤。趨向補語“起來”被錯誤拆分插入形容詞中間，正確應為“看起來”。 量詞/名詞化錯誤。“排版”在此處作為抽象的設計效果，通常不加個體量詞“一個”，或直接說“這種排版”。",
+          "target_word": "排版"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5bdf2e92-5196-4c7d-88e9-ed6588b2d16f",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "请把这张海报排版得漂亮些。",
+        "hant": {
+          "original_sentence": "請把這張海報排版得漂亮些。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "344476ec-103b-45af-b1c9-481951b78f52",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "排版",
+        "pronunciation": "pái bǎn",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "把文字或图片按规则排列好",
+              "把分开的东西合在一起。",
+              "觉得某件事是真的，在心里同意它。",
+              "to take off; for a plane to fly up from the ground into the sky"
+            ],
+            "correct_answer": "把文字或图片按规则排列好"
+          }
+        },
+        "hant": {
+          "word": "排版",
+          "pronunciation": "pái bǎn",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "把文字或圖片按規則排列好",
+                "把分開的東西合在一起。",
+                "覺得某件事是真的，在心裡同意它。",
+                "to take off; for a plane to fly up from the ground into the sky"
+              ],
+              "correct_answer": "把文字或圖片按規則排列好"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "14a6d80d-7d8f-4e3a-8791-7cffd0c56143",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "然而，受制于汉字数量庞大、___复杂以及社会结构的限制，这一技术未能引发大规模的知识普及浪潮。",
+        "original_sentence": "然而，受制于汉字数量庞大、排版复杂以及社会结构的限制，这一技术未能引发大规模的知识普及浪潮。",
+        "target_word": "排版",
+        "word": "排版",
+        "answer": {
+          "accepted": [
+            "排版",
+            "排了版",
+            "排着版",
+            "排过版",
+            "排版员"
+          ],
+          "accepted_normalized": [
+            "排版",
+            "排了版",
+            "排着版",
+            "排过版",
+            "排版员"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "然而，受制於漢字數量龐大、___複雜以及社會結構的限制，這一技術未能引發大規模的知識普及浪潮。",
+          "original_sentence": "然而，受制於漢字數量龐大、排版複雜以及社會結構的限制，這一技術未能引發大規模的知識普及浪潮。",
+          "target_word": "排版",
+          "word": "排版",
+          "answer": {
+            "accepted": [
+              "排版",
+              "排了版",
+              "排著版",
+              "排過版",
+              "排版員"
+            ],
+            "accepted_normalized": [
+              "排版",
+              "排了版",
+              "排著版",
+              "排過版",
+              "排版員"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ebcb31e7-b217-4d13-b940-41d944a155cd",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "请把这张海报排版得漂亮些。",
+        "chunks": [
+          "请",
+          "把这张海报",
+          "排版得漂亮些"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "把这张海报",
+          "请",
+          "排版得漂亮些"
+        ],
+        "target_word": "排版",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "請把這張海報排版得漂亮些。",
+          "chunks": [
+            "請",
+            "把這張海報",
+            "排版得漂亮些"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "把這張海報",
+            "請",
+            "排版得漂亮些"
+          ],
+          "target_word": "排版",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "7fae44c1-da9c-4024-9ba5-a2a0f9a7020a",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "排版",
+        "options": [
+          "pái bán",
+          "pái bān",
+          "pāi bǎn",
+          "pái bǎn"
+        ],
+        "correct_answer": "pái bǎn",
+        "word": "排版",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "排版",
+          "options": [
+            "pái bán",
+            "pái bān",
+            "pāi bǎn",
+            "pái bǎn"
+          ],
+          "correct_answer": "pái bǎn",
+          "word": "排版",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "bc24d958-0273-4c49-b96d-8a7cde9b93c0",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "pái bǎn",
+        "options": [
+          "排版",
+          "抽排",
+          "安排",
+          "雕版"
+        ],
+        "correct_answer": "排版",
+        "word": "排版",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "抽排": "component",
+          "雕版": "component",
+          "安排": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "pái bǎn",
+          "options": [
+            "排版",
+            "抽排",
+            "安排",
+            "雕版"
+          ],
+          "correct_answer": "排版",
+          "word": "排版",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "抽排": "component",
+            "雕版": "component",
+            "安排": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f3a5a674-977c-48c0-a6a7-94ea592f8df5",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "排版",
+        "toneless_pinyin": "pai ban",
+        "full_pinyin": "pái bǎn",
+        "options": [
+          "22",
+          "23",
+          "24",
+          "21"
+        ],
+        "correct_answer": "23",
+        "option_labels": {
+          "22": "rising (2) + rising (2)",
+          "23": "rising (2) + dipping (3)",
+          "24": "rising (2) + falling (4)",
+          "21": "rising (2) + high level (1)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "排版",
+          "toneless_pinyin": "pai ban",
+          "full_pinyin": "pái bǎn",
+          "options": [
+            "22",
+            "23",
+            "24",
+            "21"
+          ],
+          "correct_answer": "23",
+          "option_labels": {
+            "22": "rising (2) + rising (2)",
+            "23": "rising (2) + dipping (3)",
+            "24": "rising (2) + falling (4)",
+            "21": "rising (2) + high level (1)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "bfb1be7f-e6c8-4905-9cd9-639f0dd4e818",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "排版",
+        "relation": "synonym",
+        "options": [
+          "编排",
+          "混乱",
+          "删除",
+          "写作"
+        ],
+        "correct_answer": "编排",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "把文字或图片按规则排列好",
+            "explanation": "近义。“编排”也包含排列、组织的意思，在图文处理语境下与“排版”意义相近。"
+          }
+        },
+        "hant": {
+          "word": "排版",
+          "relation": "synonym",
+          "options": [
+            "編排",
+            "混亂",
+            "刪除",
+            "寫作"
+          ],
+          "correct_answer": "編排",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "把文字或圖片按規則排列好",
+              "explanation": "近義。“編排”也包含排列、組織的意思，在圖文處理語境下與“排版”意義相近。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "de312220-064a-453a-b560-7ede6882c48f",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "这本书的排版看起来很舒服。",
+        "hant": {
+          "original_sentence": "這本書的排版看起來很舒服。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "6b1d1157-759a-4acb-8e16-eee9456f109d",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "我学过怎么给文章___。",
+        "original_sentence": "我学过怎么给文章排版。",
+        "target_word": "排版",
+        "word": "排版",
+        "answer": {
+          "accepted": [
+            "排版",
+            "排了版",
+            "排着版",
+            "排过版",
+            "排版员"
+          ],
+          "accepted_normalized": [
+            "排版",
+            "排了版",
+            "排着版",
+            "排过版",
+            "排版员"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "我學過怎麼給文章___。",
+          "original_sentence": "我學過怎麼給文章排版。",
+          "target_word": "排版",
+          "word": "排版",
+          "answer": {
+            "accepted": [
+              "排版",
+              "排了版",
+              "排著版",
+              "排過版",
+              "排版員"
+            ],
+            "accepted_normalized": [
+              "排版",
+              "排了版",
+              "排著版",
+              "排過版",
+              "排版員"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "4554cdff-c420-40f0-bcd3-ec4ee7d60843",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "这本书的排版看起来很舒服。",
+        "chunks": [
+          "这本书",
+          "的排版",
+          "看起来很舒服"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "这本书",
+          "看起来很舒服",
+          "的排版"
+        ],
+        "target_word": "排版",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "這本書的排版看起來很舒服。",
+          "chunks": [
+            "這本書",
+            "的排版",
+            "看起來很舒服"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "這本書",
+            "看起來很舒服",
+            "的排版"
+          ],
+          "target_word": "排版",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "b87fd7ee-cf9d-40f6-93c4-632987146807",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "排版",
+        "relation": "synonym",
+        "options": [
+          "破坏",
+          "整理",
+          "编排",
+          "杂乱"
+        ],
+        "correct_answer": "编排",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "把文字或图片按规则排列好",
+            "explanation": "近义。“编排”也包含排列、组织的意思，在图文处理语境下与“排版”意义相近。"
+          }
+        },
+        "hant": {
+          "word": "排版",
+          "relation": "synonym",
+          "options": [
+            "破壞",
+            "整理",
+            "編排",
+            "雜亂"
+          ],
+          "correct_answer": "編排",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "把文字或圖片按規則排列好",
+              "explanation": "近義。“編排”也包含排列、組織的意思，在圖文處理語境下與“排版”意義相近。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "整理": 0.519117
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00172736,
+      "prompt_tokens": 2514,
+      "completion_tokens": 721,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 13744
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00040608,
+      "prompt_tokens": 665,
+      "completion_tokens": 151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 3961
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00458016,
+      "prompt_tokens": 2233,
+      "completion_tokens": 3020,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 52736
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_bundle_judge",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00313504,
+      "prompt_tokens": 1397,
+      "completion_tokens": 2100,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 37587
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.000248,
+      "prompt_tokens": 539,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 2312
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00025184,
+      "prompt_tokens": 539,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 2193
+    }
+  ],
+  "llm_calls_observed": 6,
+  "llm_cost_observed_usd": 0.01034848,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 114.20299999997951,
+  "finished_at": "2026-10-03T01:43:57.591119+00:00"
+}

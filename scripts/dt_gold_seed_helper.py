@@ -47,6 +47,7 @@ on any integrity or normalization violation.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -80,6 +81,41 @@ V5_DIMENSION = {
     "ba_construction": "accuracy", "bei_passive": "accuracy",
     "resultative_complement": "accuracy", "directional_complement": "accuracy",
     "adverbial_order": "accuracy",
+}
+
+# v6 merged-taxonomy subtype -> scored dimension (ADR-031, TASK-847). Read from the
+# merged_taxonomy.json that the v6 overlay was labelled against, so the v6 fixtures'
+# expected_bands can never be derived under a different mapping than the labels.
+# The file is per-language; a subtype shared across languages must map to the same
+# dimension everywhere, else a flat lookup would be ambiguous and we fail loudly.
+V6_TAXONOMY_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "data" / "eval" / "taxonomy_merge_2026-09-27" / "merged_taxonomy.json"
+)
+
+
+def _load_v6_dimension(path: Path = V6_TAXONOMY_PATH) -> dict[str, str]:
+    taxonomy = json.loads(path.read_text(encoding="utf-8"))
+    out: dict[str, str] = {}
+    for lang, subtypes in taxonomy.items():
+        for st in subtypes:
+            prev = out.setdefault(st["id"], st["dimension"])
+            if prev != st["dimension"]:
+                raise ValueError(
+                    f"merged_taxonomy.json: {st['id']!r} maps to {prev!r} in one language "
+                    f"and {st['dimension']!r} in {lang!r}"
+                )
+    return out
+
+
+V6_DIMENSION = _load_v6_dimension()
+
+# taxonomy_version -> (subtype field read off each expected_error, dimension-map name).
+# The map is looked up by module-global NAME at call time, so a caller that patches
+# V5_DIMENSION (data/eval/taxonomy_merge_2026-09-27/build_overlay.py does) still wins.
+_TAXONOMY = {
+    5: ("subtype_v5_target", "V5_DIMENSION"),
+    6: ("subtype_v6_target", "V6_DIMENSION"),
 }
 
 SEVERITIES = ("minor", "major", "critical")
@@ -179,8 +215,14 @@ def derive_bands(
     *,
     rubric_cfg: dict | None = None,
     offline: bool = False,
+    taxonomy_version: int = 5,
 ) -> dict:
     """Compute expected bands from seeded errors per tech spec §4.
+
+    `taxonomy_version` picks which label each error is scored under: 5 (default —
+    `subtype_v5_target` via V5_DIMENSION, what tests/fixtures/dt_gold/ was frozen
+    under) or 6 (`subtype_v6_target` via V6_DIMENSION, for tests/fixtures/dt_gold_v6/
+    and dt_silver_v6/).
 
     accuracy/fidelity/understandability are derived from severity-weighted penalties;
     naturalness and range are model-judged, so they are taken from `judged`
@@ -191,6 +233,10 @@ def derive_bands(
     `scoring_config`. Every error contributes to the understandability penalty,
     including naturalness-mapped ones, which do not feed accuracy/fidelity.
     """
+    if taxonomy_version not in _TAXONOMY:
+        raise ValueError(f"taxonomy_version must be one of {sorted(_TAXONOMY)}, got {taxonomy_version!r}")
+    subtype_key, dimension_name = _TAXONOMY[taxonomy_version]
+    dimension = globals()[dimension_name]
     cfg = scoring_config(rubric_cfg, offline=offline)
     judged = judged or {}
     pen = {"accuracy": 0, "fidelity": 0}
@@ -198,7 +244,7 @@ def derive_bands(
     und_w = _severity_weights_for(cfg, "understandability")
     for e in expected_errors:
         sev = e["severity_v2"]
-        dim = V5_DIMENSION[e["subtype_v5_target"]]
+        dim = dimension[e[subtype_key]]
         if dim in pen:
             pen[dim] += _severity_weights_for(cfg, dim)[sev]
         und += und_w[sev]

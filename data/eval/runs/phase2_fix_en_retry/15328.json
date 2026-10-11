@@ -1,0 +1,953 @@
+{
+  "sense_id": 15328,
+  "language_id": 2,
+  "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+  "started_at": "2026-10-03T01:23:16.436015+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "Expected at least 2 morphological_forms, got 1",
+    "P1 sentence[3] flagged (rating 3): whole-sense: part of phrasal verb 'throw away' rather than literal distance",
+    "P1 sentence[8] flagged (rating 3): whole-sense: part of phrasal verb 'fade away' meaning to disappear gradually"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.7339980602264404,
+    "p1_generate": 2.9014623165130615,
+    "tier_gate": 0.0,
+    "p1_judge": 4.5921735763549805,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Expected at least 2 morphological_forms, got 1",
+        "P1 sentence[3] flagged (rating 3): whole-sense: part of phrasal verb 'throw away' rather than literal distance",
+        "P1 sentence[8] flagged (rating 3): whole-sense: part of phrasal verb 'fade away' meaning to disappear gradually"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/əˈweɪ/",
+        "morphological_forms": [
+          {
+            "form": "away",
+            "label": "base form"
+          }
+        ],
+        "pronunciation": "uh-way",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            15328
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "7a21fd6d-b751-438d-b791-cf968c70e7d3",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "away",
+        "pronunciation": "uh-way",
+        "correct_definition": "Away means to or at a distance from a particular place or person.",
+        "options": [
+          "Away means to or at a distance from a particular place or person.",
+          "The quality of being exact and accurate, without any mistakes.",
+          "A flat, usually rectangular paper container used for enclosing a letter or document for mailing.",
+          "To cease moving or operating."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "4829fa42-9b74-476f-b736-92254b3d2aea",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "This big engineering work helped move water from far ___.",
+        "original_sentence": "This big engineering work helped move water from far away.",
+        "correct_answer": "This big engineering work helped move water from far away.",
+        "options": [
+          "This big engineering work helped move water from far near.",
+          "This big engineering work helped move water from far close.",
+          "This big engineering work helped move water from far away.",
+          "This big engineering work helped move water from far here."
+        ],
+        "explanation": "Correct. 'Away' indicates distance from the source.",
+        "distractor_tags": {},
+        "word_definition": "Away means to or at a distance from a particular place or person.",
+        "target_word": "away"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "84a754ca-4ffb-4610-8d98-658500e8a731",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Please keep your pets away from the active construction site."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "41e4b5e6-469e-441a-93c2-4011ddbf44bd",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The clothes come from far ___.",
+        "original_sentence": "The clothes come from far away.",
+        "target_word": "away",
+        "word": "away",
+        "answer": {
+          "accepted": [
+            "away"
+          ],
+          "accepted_normalized": [
+            "away"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f89e64ab-b3ea-47f7-95b7-0317113966b1",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Please keep your pets away from the active construction site.",
+        "chunks": [
+          "Please",
+          "keep",
+          "your pets",
+          "away from the active construction site"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "your pets",
+          "Please",
+          "away from the active construction site",
+          "keep"
+        ],
+        "target_word": "away",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "8eb2053a-72e4-4d79-888d-2376cf6d5faf",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "away",
+        "pronunciation": "uh-way",
+        "correct_definition": "Away means to or at a distance from a particular place or person.",
+        "options": [
+          "The act of reciting something from memory, especially a poem or speech.",
+          "A plan is a detailed proposal for doing or achieving something.",
+          "A surface, typically made of glass with a reflective coating, that reflects a clear image.",
+          "Away means to or at a distance from a particular place or person."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "bc968bf4-7207-4f62-a7e9-40092b8ca785",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The train is still miles ___ from the station.",
+        "original_sentence": "The train is still miles away from the station.",
+        "correct_answer": "The train is still miles away from the station.",
+        "options": [
+          "The train is still miles near from the station.",
+          "The train is still miles here from the station.",
+          "The train is still miles close from the station.",
+          "The train is still miles away from the station."
+        ],
+        "explanation": "Correct. 'Away' indicates the remaining distance to the destination.",
+        "distractor_tags": {},
+        "word_definition": "Away means to or at a distance from a particular place or person.",
+        "target_word": "away"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "6e1103eb-32c2-4ba5-9c5d-80792f1a4506",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "He put the trash away it.",
+            "is_correct": false,
+            "error_description": "The phrasal verb 'put away' is transitive and takes a direct object ('the trash'). Adding an extra pronoun 'it' after the particle creates a redundant and grammatically incorrect double object structure."
+          },
+          {
+            "text": "The train is still miles away from the station.",
+            "is_correct": true
+          },
+          {
+            "text": "Please move the loud speakers away from the open window.",
+            "is_correct": true
+          },
+          {
+            "text": "We are planning a trip to a cabin tucked far away in the mountains.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "f9f25cef-e36c-4b23-97fe-92a368899072",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "He threw the broken toy away."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "633b4d52-a81d-49fb-9236-81dec4c0b94e",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "We are planning a trip to a cabin tucked far ___ in the mountains.",
+        "original_sentence": "We are planning a trip to a cabin tucked far away in the mountains.",
+        "target_word": "away",
+        "word": "away",
+        "answer": {
+          "accepted": [
+            "away"
+          ],
+          "accepted_normalized": [
+            "away"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b2b0a7da-7fa5-42b7-b461-09ba9f8121b0",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "He threw the broken toy away.",
+        "chunks": [
+          "He threw",
+          "the broken toy",
+          "away"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "away",
+          "the broken toy",
+          "He threw"
+        ],
+        "target_word": "away",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15328,
+      "word_asset_id": "shadow-15328-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "definition_match",
+      "reason": "lexicon unavailable — cannot source distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "definition_match",
+      "reason": "lexicon unavailable — cannot source distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0020752,
+      "prompt_tokens": 1959,
+      "completion_tokens": 595,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 2725
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0007544,
+      "prompt_tokens": 623,
+      "completion_tokens": 227,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1840
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001088,
+      "prompt_tokens": 196,
+      "completion_tokens": 20,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1055
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001893,
+      "prompt_tokens": 506,
+      "completion_tokens": 15,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 998
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00538336,
+      "prompt_tokens": 2111,
+      "completion_tokens": 3678,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 64104
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0005168,
+      "prompt_tokens": 1079,
+      "completion_tokens": 134,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 3708
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004848,
+      "prompt_tokens": 1079,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 3283
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000352,
+      "prompt_tokens": 465,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1464
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001755,
+      "prompt_tokens": 410,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1065
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000359,
+      "prompt_tokens": 455,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1259
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001886,
+      "prompt_tokens": 387,
+      "completion_tokens": 29,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1058
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004456,
+      "prompt_tokens": 427,
+      "completion_tokens": 127,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1481
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004466,
+      "prompt_tokens": 422,
+      "completion_tokens": 128,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1330
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003842,
+      "prompt_tokens": 414,
+      "completion_tokens": 104,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1424
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003767,
+      "prompt_tokens": 414,
+      "completion_tokens": 101,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1378
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003329,
+      "prompt_tokens": 518,
+      "completion_tokens": 71,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1212
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003429,
+      "prompt_tokens": 518,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15328,
+      "generation_batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+      "language_code": "en",
+      "latency_ms": 1397
+    }
+  ],
+  "llm_calls_observed": 17,
+  "llm_cost_observed_usd": 0.012916660000000003,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 94.90700000000652,
+  "finished_at": "2026-10-03T01:24:51.330655+00:00"
+}

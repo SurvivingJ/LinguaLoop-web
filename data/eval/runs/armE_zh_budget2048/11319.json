@@ -1,0 +1,1408 @@
+{
+  "sense_id": 11319,
+  "language_id": 1,
+  "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+  "started_at": "2026-10-08T10:40:34.780330+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.23510074615478516,
+    "p1_generate": 48.383514404296875,
+    "tier_gate": 0.0,
+    "p1_judge": 114.42989206314087,
+    "collocate_grounding": 0.0,
+    "fan_out": 48.76364541053772
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[tɕʰjɑŋ˧˥ ɕjɑʊ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "强效药",
+            "label": "复合"
+          },
+          {
+            "label": "繁体",
+            "form": "強效"
+          }
+        ],
+        "pronunciation": "qiáng xiào",
+        "register": "专业（技术）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11319
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "0307b255-8d9a-4c5c-ab30-11157b51158a",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "强效",
+        "pronunciation": "qiáng xiào",
+        "correct_definition": "指药物或方法等具有非常强大的效力或作用。",
+        "options": [
+          "指药物或方法等具有非常强大的效力或作用。",
+          "政府为了提供公共服务（如教育、医疗、国防等）而进行收支活动的财政体系。",
+          "为了让人注意某事而用言语或动作向对方指出。",
+          "使物体从封闭的地方出来。"
+        ],
+        "hant": {
+          "word": "強效",
+          "pronunciation": "qiáng xiào",
+          "correct_definition": "指藥物或方法等具有非常強大的效力或作用。",
+          "options": [
+            "指藥物或方法等具有非常強大的效力或作用。",
+            "政府為了提供公共服務（如教育、醫療、國防等）而進行收支活動的財政體系。",
+            "為了讓人注意某事而用言語或動作向對方指出。",
+            "使物體從封閉的地方出來。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "03d340fd-601c-4364-afd3-faf10e528ed3",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "该靶向药物具有强效的抗肿瘤活性。",
+            "is_correct": true
+          },
+          {
+            "text": "该靶向药物具有强效得抗肿瘤活性。",
+            "is_correct": false
+          },
+          {
+            "text": "强效的该靶向药物具有抗肿瘤活性。",
+            "is_correct": false
+          },
+          {
+            "text": "该靶向药物具有强效着抗肿瘤活性。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置错误。'强效'是形容词，表示状态和属性，后面不能直接加动态助词'着'来表示动作的持续。 语序错误。定语'强效的'应紧跟在指示代词'该'之后，正确语序应为'该强效的靶向药物'。 结构助词误用。'强效'作为定语修饰名词'抗肿瘤活性'时，应使用'的'，而不能使用补语标记'得'。",
+        "target_word": "强效",
+        "hant": {
+          "sentences": [
+            {
+              "text": "該靶向藥物具有強效的抗腫瘤活性。",
+              "is_correct": true
+            },
+            {
+              "text": "該靶向藥物具有強效得抗腫瘤活性。",
+              "is_correct": false
+            },
+            {
+              "text": "強效的該靶向藥物具有抗腫瘤活性。",
+              "is_correct": false
+            },
+            {
+              "text": "該靶向藥物具有強效著抗腫瘤活性。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置錯誤。'強效'是形容詞，表示狀態和屬性，後面不能直接加動態助詞'著'來表示動作的持續。 語序錯誤。定語'強效的'應緊跟在指示代詞'該'之後，正確語序應為'該強效的靶向藥物'。 結構助詞誤用。'強效'作為定語修飾名詞'抗腫瘤活性'時，應使用'的'，而不能使用補語標記'得'。",
+          "target_word": "強效"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5844ca69-2e8f-4679-99e4-186e5917b515",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "更引人深思的是，某些强效抗精神病药物因影响多巴胺通路，常以“病理性哈欠”作为副作用，每日可达数十次之多，这反而为研究其神经机制提供了临床窗口。",
+            "is_correct": true
+          },
+          {
+            "text": "该复方制剂具有强效的解热镇痛作用。",
+            "is_correct": true
+          },
+          {
+            "text": "强效的这种感冒药效果很好。",
+            "is_correct": false,
+            "error_description": "语序错误。指示代词“这种”应放在形容词“强效的”之前，正确语序为“这种强效的感冒药”。"
+          },
+          {
+            "text": "该新型抗菌药物具有强效的抑菌作用。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "更引人深思的是，某些強效抗精神病藥物因影響多巴胺通路，常以“病理性哈欠”作為副作用，每日可達數十次之多，這反而為研究其神經機制提供了臨床視窗。",
+              "is_correct": true
+            },
+            {
+              "text": "該複方製劑具有強效的解熱鎮痛作用。",
+              "is_correct": true
+            },
+            {
+              "text": "強效的這種感冒藥效果很好。",
+              "is_correct": false,
+              "error_description": "語序錯誤。指示代詞“這種”應放在形容詞“強效的”之前，正確語序為“這種強效的感冒藥”。"
+            },
+            {
+              "text": "該新型抗菌藥物具有強效的抑菌作用。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "cc762e8e-0479-4130-a042-5410e3c344d4",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "强效",
+        "pronunciation": "qiáng xiào",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "ocean",
+              "指程度、数量等随着时间不断加深或增加。",
+              "大脳",
+              "指药物或方法等具有非常强大的效力或作用。"
+            ],
+            "correct_answer": "指药物或方法等具有非常强大的效力或作用。"
+          }
+        },
+        "hant": {
+          "word": "強效",
+          "pronunciation": "qiáng xiào",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "ocean",
+                "指程度、數量等隨著時間不斷加深或增加。",
+                "大脳",
+                "指藥物或方法等具有非常強大的效力或作用。"
+              ],
+              "correct_answer": "指藥物或方法等具有非常強大的效力或作用。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "94d897ea-6cdc-4792-b08c-ec2750bb2f61",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "该新型抗菌药物具有___的抑菌作用。",
+        "original_sentence": "该新型抗菌药物具有强效的抑菌作用。",
+        "target_word": "强效",
+        "word": "强效",
+        "answer": {
+          "accepted": [
+            "强效",
+            "强效药"
+          ],
+          "accepted_normalized": [
+            "强效",
+            "强效药"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "該新型抗菌藥物具有___的抑菌作用。",
+          "original_sentence": "該新型抗菌藥物具有強效的抑菌作用。",
+          "target_word": "強效",
+          "word": "強效",
+          "answer": {
+            "accepted": [
+              "強效",
+              "強效藥"
+            ],
+            "accepted_normalized": [
+              "強效",
+              "強效藥"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "0333d8d8-2ed8-43ea-9a25-1ae713513f14",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "强效",
+        "options": [
+          "qiáng xiāo",
+          "qiáng xiào",
+          "qiáng xiáo",
+          "qiāng xiào"
+        ],
+        "correct_answer": "qiáng xiào",
+        "word": "强效",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "強效",
+          "options": [
+            "qiáng xiāo",
+            "qiáng xiào",
+            "qiáng xiáo",
+            "qiāng xiào"
+          ],
+          "correct_answer": "qiáng xiào",
+          "word": "強效",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "82ebf670-ad06-4e1b-b3fb-de7c5b75a150",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "qiáng xiào",
+        "options": [
+          "强调",
+          "学校",
+          "加强",
+          "强效"
+        ],
+        "correct_answer": "强效",
+        "word": "强效",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "学校": "component",
+          "加强": "component",
+          "强调": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "qiáng xiào",
+          "options": [
+            "強調",
+            "學校",
+            "加強",
+            "強效"
+          ],
+          "correct_answer": "強效",
+          "word": "強效",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "学校": "component",
+            "加强": "component",
+            "强调": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "88a7194c-cbfe-4729-b8df-5002266c4be9",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "强效",
+        "toneless_pinyin": "qiang xiao",
+        "full_pinyin": "qiáng xiào",
+        "options": [
+          "24",
+          "23",
+          "22",
+          "21"
+        ],
+        "correct_answer": "24",
+        "option_labels": {
+          "24": "rising (2) + falling (4)",
+          "23": "rising (2) + dipping (3)",
+          "22": "rising (2) + rising (2)",
+          "21": "rising (2) + high level (1)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "強效",
+          "toneless_pinyin": "qiang xiao",
+          "full_pinyin": "qiáng xiào",
+          "options": [
+            "24",
+            "23",
+            "22",
+            "21"
+          ],
+          "correct_answer": "24",
+          "option_labels": {
+            "24": "rising (2) + falling (4)",
+            "23": "rising (2) + dipping (3)",
+            "22": "rising (2) + rising (2)",
+            "21": "rising (2) + high level (1)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6b0478e9-c563-42e8-9bed-088ccb48674f",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "强效",
+        "relation": "antonym",
+        "options": [
+          "高效",
+          "速效",
+          "弱效",
+          "长效"
+        ],
+        "correct_answer": "弱效",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指药物或方法等具有非常强大的效力或作用。",
+            "explanation": "反义项：指药物或方法效力微弱，与"
+          }
+        },
+        "hant": {
+          "word": "強效",
+          "relation": "antonym",
+          "options": [
+            "高效",
+            "速效",
+            "弱效",
+            "長效"
+          ],
+          "correct_answer": "弱效",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指藥物或方法等具有非常強大的效力或作用。",
+              "explanation": "反義項：指藥物或方法效力微弱，與"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "高效": 0.558989
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b82afe5b-3b25-4784-b47b-f51e4e656826",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "药理实验证实该提取物具有___的抗炎活性。",
+        "original_sentence": "药理实验证实该提取物具有强效的抗炎活性。",
+        "correct_answer": "强效",
+        "options": [
+          "微弱",
+          "昂贵",
+          "迅速",
+          "强效"
+        ],
+        "explanation": "正确。强效指具有非常强大的效力，与“抗炎活性”搭配恰当。",
+        "distractor_tags": {},
+        "word_definition": "指药物或方法等具有非常强大的效力或作用。",
+        "target_word": "强效",
+        "hant": {
+          "sentence_with_blank": "藥理實驗證實該提取物具有___的抗炎活性。",
+          "original_sentence": "藥理實驗證實該提取物具有強效的抗炎活性。",
+          "correct_answer": "強效",
+          "options": [
+            "微弱",
+            "昂貴",
+            "迅速",
+            "強效"
+          ],
+          "explanation": "正確。強效指具有非常強大的效力，與“抗炎活性”搭配恰當。",
+          "distractor_tags": {},
+          "word_definition": "指藥物或方法等具有非常強大的效力或作用。",
+          "target_word": "強效"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "ef3afad1-964c-441d-90da-57a40b65777f",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "医生给病人开了强效的一种新药。",
+            "is_correct": false,
+            "error_description": "数量短语“一种”应放在形容词“强效”之前，正确的语序为“一种强效的新药”。"
+          },
+          {
+            "text": "药理实验证实该提取物具有强效的抗炎活性。",
+            "is_correct": true
+          },
+          {
+            "text": "研发团队致力于开发具有强效靶向作用的创新药物。",
+            "is_correct": true
+          },
+          {
+            "text": "该新型抗真菌药物具有强效的抑菌作用。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "醫生給病人開了強效的一種新藥。",
+              "is_correct": false,
+              "error_description": "數量短語“一種”應放在形容詞“強效”之前，正確的語序為“一種強效的新藥”。"
+            },
+            {
+              "text": "藥理實驗證實該提取物具有強效的抗炎活性。",
+              "is_correct": true
+            },
+            {
+              "text": "研發團隊致力於開發具有強效靶向作用的創新藥物。",
+              "is_correct": true
+            },
+            {
+              "text": "該新型抗真菌藥物具有強效的抑菌作用。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "06209fb7-b088-4be6-b9c9-c6275fdca1da",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "该新型抗真菌药物具有___的抑菌作用。",
+        "original_sentence": "该新型抗真菌药物具有强效的抑菌作用。",
+        "target_word": "强效",
+        "word": "强效",
+        "answer": {
+          "accepted": [
+            "强效",
+            "强效药"
+          ],
+          "accepted_normalized": [
+            "强效",
+            "强效药"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "該新型抗真菌藥物具有___的抑菌作用。",
+          "original_sentence": "該新型抗真菌藥物具有強效的抑菌作用。",
+          "target_word": "強效",
+          "word": "強效",
+          "answer": {
+            "accepted": [
+              "強效",
+              "強效藥"
+            ],
+            "accepted_normalized": [
+              "強效",
+              "強效藥"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d0311f34-d479-41fd-9f02-c45462a813cf",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "强效",
+        "relation": "antonym",
+        "options": [
+          "缓效",
+          "长效",
+          "弱效",
+          "速效"
+        ],
+        "correct_answer": "弱效",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指药物或方法等具有非常强大的效力或作用。",
+            "explanation": "指药物或方法效力微弱，与目标词在效力强度上构成反义关系。"
+          }
+        },
+        "hant": {
+          "word": "強效",
+          "relation": "antonym",
+          "options": [
+            "緩效",
+            "長效",
+            "弱效",
+            "速效"
+          ],
+          "correct_answer": "弱效",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指藥物或方法等具有非常強大的效力或作用。",
+              "explanation": "指藥物或方法效力微弱，與目標詞在效力強度上構成反義關係。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11319,
+      "word_asset_id": "shadow-11319-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '强效' is fused into a neighbouring chunk — chunks=['临床数据', '表明该药物', '具有强效的降糖', '作用']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '强效' is fused into a neighbouring chunk — chunks=['该靶向', '药物具有', '强效的', '抗肿瘤活性']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00429792,
+      "prompt_tokens": 2463,
+      "completion_tokens": 2742,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47796
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00324608,
+      "prompt_tokens": 672,
+      "completion_tokens": 2368,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 41520
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00296416,
+      "prompt_tokens": 387,
+      "completion_tokens": 2219,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "repair",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 38693
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00263776,
+      "prompt_tokens": 659,
+      "completion_tokens": 1896,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1758,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 33694
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00234176,
+      "prompt_tokens": 642,
+      "completion_tokens": 1669,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1461,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 29902
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00313728,
+      "prompt_tokens": 1528,
+      "completion_tokens": 2069,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1975,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 36706
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0032368,
+      "prompt_tokens": 1527,
+      "completion_tokens": 2147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 38074
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00299936,
+      "prompt_tokens": 641,
+      "completion_tokens": 2183,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2037,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 38106
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00406784,
+      "prompt_tokens": 1728,
+      "completion_tokens": 2746,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48057
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0040768,
+      "prompt_tokens": 1728,
+      "completion_tokens": 2753,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48535
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00288576,
+      "prompt_tokens": 422,
+      "completion_tokens": 2149,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37820
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001762623,
+      "prompt_tokens": 433,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2780
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0009408,
+      "prompt_tokens": 556,
+      "completion_tokens": 596,
+      "cached_tokens": 0,
+      "reasoning_tokens": 527,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 11252
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00053216,
+      "prompt_tokens": 431,
+      "completion_tokens": 308,
+      "cached_tokens": 0,
+      "reasoning_tokens": 284,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 6321
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0011232,
+      "prompt_tokens": 546,
+      "completion_tokens": 741,
+      "cached_tokens": 0,
+      "reasoning_tokens": 645,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 13820
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00120736,
+      "prompt_tokens": 421,
+      "completion_tokens": 838,
+      "cached_tokens": 0,
+      "reasoning_tokens": 726,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 15456
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001644246,
+      "prompt_tokens": 399,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 3125
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0020304,
+      "prompt_tokens": 565,
+      "completion_tokens": 1445,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1371,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 26956
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00073888,
+      "prompt_tokens": 425,
+      "completion_tokens": 471,
+      "cached_tokens": 0,
+      "reasoning_tokens": 447,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 9100
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00084192,
+      "prompt_tokens": 547,
+      "completion_tokens": 521,
+      "cached_tokens": 0,
+      "reasoning_tokens": 458,
+      "call_role": "primary",
+      "sense_id": 11319,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 10034
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.043646926899999994,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T5",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 356.54700000000594,
+  "finished_at": "2026-10-08T10:46:31.317994+00:00"
+}

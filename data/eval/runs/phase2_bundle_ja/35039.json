@@ -1,0 +1,78 @@
+{
+  "sense_id": 35039,
+  "language_id": 3,
+  "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+  "started_at": "2026-10-03T01:39:55.302621+00:00",
+  "status": "failed",
+  "errors": [
+    "Sentence 6: target_word 'できる' is not a whole-word match in text (substring inside another word does not count)",
+    "Sentence 7: target_word 'でき' is not a whole-word match in text (substring inside another word does not count)"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.5920045375823975,
+    "p1_generate": 18.663178205490112,
+    "p1_sentence_repair": 1.9905238151550293,
+    "p1_repair": 21.36348271369934
+  },
+  "assets": [],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00216768,
+      "prompt_tokens": 2782,
+      "completion_tokens": 998,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35039,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 18487
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00012128,
+      "prompt_tokens": 247,
+      "completion_tokens": 33,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35039,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 1953
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00189504,
+      "prompt_tokens": 1262,
+      "completion_tokens": 1165,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35039,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 21267
+    }
+  ],
+  "llm_calls_observed": 3,
+  "llm_cost_observed_usd": 0.004184,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": null,
+  "collocate_grounding": null,
+  "wall_clock_s": 42.70400000002701,
+  "finished_at": "2026-10-03T01:40:38.004254+00:00"
+}

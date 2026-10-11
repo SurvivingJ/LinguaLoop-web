@@ -1,0 +1,1420 @@
+{
+  "sense_id": 13981,
+  "language_id": 2,
+  "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+  "started_at": "2026-10-05T15:21:14.673878+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.14374732971191406,
+    "p1_generate": 3.1991987228393555,
+    "tier_gate": 0.0,
+    "p1_judge": 1.2167267799377441,
+    "collocate_grounding": 0.0,
+    "fan_out": 42.11357069015503
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/dɪˈmændɪŋ/",
+        "morphological_forms": [
+          {
+            "form": "demand",
+            "label": "base"
+          },
+          {
+            "form": "demands",
+            "label": "third-person singular present"
+          },
+          {
+            "form": "demanded",
+            "label": "past tense / past participle"
+          },
+          {
+            "form": "demanding",
+            "label": "present participle / adjective"
+          }
+        ],
+        "pronunciation": "de-mand-ing",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13981
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "6224ca5f-8b9b-4c9c-89bf-092552d49e82",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "demanding",
+        "pronunciation": "de-mand-ing",
+        "ipa": "/dɪˈmændɪŋ/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "descending",
+          "expanding",
+          "demanding",
+          "defending"
+        ],
+        "correct_answer": "demanding",
+        "explanation": "Correct: This is the exact target word the learner hears.",
+        "distractor_explanations": {
+          "expanding": "Phonetic distractor: Rhymes with the target and shares the same stress and syllable count, but starts with a different consonant cluster (/ɪkˈsp/ vs /dɪˈm/).",
+          "defending": "Phonetic distractor: Near-rhyme that shares the same initial syllable /dɪ/ and final /ɪŋ/, but differs in the medial consonant and vowel (/fɛ/ vs /mæ/).",
+          "descending": "Phonetic distractor: Rhymes with the target and shares the same stress pattern, but features a different medial consonant (/s/ vs /m/)."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "4b4a5ca4-5eb0-4bbb-a28f-199c61abd136",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "demanding",
+        "pronunciation": "de-mand-ing",
+        "correct_definition": "Needing a lot of effort, skill, or attention; expecting a lot from other people.",
+        "options": [
+          "Needing a lot of effort, skill, or attention; expecting a lot from other people.",
+          "To extract the essential meaning or elements from something, often by reducing or concentrating it.",
+          "Pleasant-sounding or tuneful, like a beautiful song.",
+          "Done in a planned, organized way, following a set method or system."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5f2c78ee-c38b-4764-9b8a-8e474af11d60",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Farmers work hard, harvesting the coffee cherries by hand or with machines, a process that is physically ___ and crucial for the quality of the final product.",
+        "original_sentence": "Farmers work hard, harvesting the coffee cherries by hand or with machines, a process that is physically demanding and crucial for the quality of the final product.",
+        "correct_answer": "demanding",
+        "options": [
+          "fragile",
+          "demanding",
+          "tedious",
+          "spontaneous"
+        ],
+        "explanation": "Correct: 'Demanding' correctly describes a process that requires a significant amount of physical effort and hard work.",
+        "distractor_tags": {},
+        "word_definition": "Needing a lot of effort, skill, or attention; expecting a lot from other people.",
+        "target_word": "demanding"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "ed634f56-a844-4ec5-9ee1-0506d2e66a44",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The young pianist practiced for hours every single day because her new piece was extremely ___.",
+        "original_sentence": "The young pianist practiced for hours every single day because her new piece was extremely demanding.",
+        "correct_answer": "demanding",
+        "base_form": "demand",
+        "form_label": "adjective",
+        "options": [
+          "demanding",
+          "demand",
+          "demands",
+          "demanded"
+        ],
+        "explanation": "adjective form required after the linking verb and adverb to describe the piece",
+        "word_definition": "Needing a lot of effort, skill, or attention; expecting a lot from other people.",
+        "target_word": "demanding"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a81e3a24-7d5b-40e6-b1cf-73f78e4b7e94",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Our history teacher is always very demanding when we write our weekly essays.",
+            "is_correct": true
+          },
+          {
+            "text": "The history teacher is very demanding because she always lets us leave class five minutes early to beat the traffic.",
+            "is_correct": false
+          },
+          {
+            "text": "Our history teacher is extremely demanding, so she never assigns any homework and gives everyone an automatic A.",
+            "is_correct": false
+          },
+          {
+            "text": "The history teacher is quite demanding, often allowing us to submit our weekly essays a month late without any penalty.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: Letting students leave early is a lenient and accommodating action, which directly contradicts the meaning of 'demanding' (expecting a lot). Semantically inappropriate: Giving no homework and automatic A's represents low expectations, the exact opposite of a teacher who is 'demanding'. Pragmatically inappropriate: Allowing massive extensions without penalty shows a lack of strictness or high expectations, making 'demanding' the wrong adjective for this context.",
+        "target_word": "demanding"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c5ddc196-12c6-4d6b-8020-9d8b3ae98e6a",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Farmers work hard, harvesting the coffee cherries by hand or with machines, a process that is physically demanding and crucial for the quality of the final product.",
+            "is_correct": true
+          },
+          {
+            "text": "He felt exhausted after finishing such a demanding project for his science class.",
+            "is_correct": true
+          },
+          {
+            "text": "The new manager is very demanding to his employees to finish the reports by Friday.",
+            "is_correct": false,
+            "error_description": "The adjective 'demanding' requires the preposition 'of' when indicating the person who is expected to meet high standards, not 'to'."
+          },
+          {
+            "text": "The young pianist practiced for hours every single day because her new piece was extremely demanding.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "0d140ac6-0ad0-4535-b477-e1e3869499bc",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "demanding",
+        "pronunciation": "de-mand-ing",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "Needing a lot of effort, skill, or attention; expecting a lot from other people.",
+              "in a way that is not graceful or comfortable, often causing difficulty",
+              "To match means to be similar or to go together with something else.",
+              "Telling stories."
+            ],
+            "correct_answer": "Needing a lot of effort, skill, or attention; expecting a lot from other people."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "66e827f7-070b-4bdd-bcce-a0ad873e0027",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The young pianist practiced for hours every single day because her new piece was extremely ___.",
+        "original_sentence": "The young pianist practiced for hours every single day because her new piece was extremely demanding.",
+        "target_word": "demanding",
+        "word": "demanding",
+        "answer": {
+          "accepted": [
+            "demanding",
+            "demand",
+            "demands",
+            "demanded"
+          ],
+          "accepted_normalized": [
+            "demanding",
+            "demand",
+            "demands",
+            "demanded"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c9987bfa-9bfc-4f83-a2e8-2f3b6b52cf98",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "She has a demanding schedule this semester with three advanced classes.",
+        "chunks": [
+          "She has",
+          "a demanding schedule",
+          "this semester",
+          "with three advanced classes"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "this semester",
+          "with three advanced classes",
+          "a demanding schedule",
+          "She has"
+        ],
+        "target_word": "demanding",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "d11cb655-9708-468d-a676-bf829e7a1e97",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "demand",
+        "sentence_with_blank": "The young pianist practiced for hours every single day because her new piece was extremely ___.",
+        "original_sentence": "The young pianist practiced for hours every single day because her new piece was extremely demanding.",
+        "required_pos": "adjective",
+        "options": [
+          "demanding",
+          "demandation",
+          "demandment",
+          "demandful"
+        ],
+        "correct_answer": "demanding",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adjectival participle meaning requiring great effort or skill"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c7e990b6-1c2f-4a82-8d2b-132422e8d65a",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Learning a second language is a ___ task that requires daily practice.",
+        "original_sentence": "Learning a second language is a demanding task that requires daily practice.",
+        "correct_answer": "demanding",
+        "base_form": "demand",
+        "form_label": "present participle / adjective",
+        "options": [
+          "demanding",
+          "demanded",
+          "demand",
+          "demands"
+        ],
+        "explanation": "present participle functioning as an adjective to describe the task's difficulty",
+        "word_definition": "Needing a lot of effort, skill, or attention; expecting a lot from other people.",
+        "target_word": "demanding"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "4296c3fb-e86f-4182-8298-3f07be68f92c",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The demanding breeze gently cooled the runners down after their long marathon.",
+            "is_correct": false
+          },
+          {
+            "text": "The demanding pillow made it very easy for him to fall asleep the moment his head touched it.",
+            "is_correct": false
+          },
+          {
+            "text": "She found the math problem completely demanding because she solved it in just five seconds without any effort.",
+            "is_correct": false
+          },
+          {
+            "text": "Working on the school magazine has been challenging and demanding, but also very rewarding.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: Inanimate objects like pillows do not possess the agency to 'expect a lot' from people, and a comfortable pillow is the opposite of requiring effort. Semantically contradictory: The second clause describes a task requiring zero effort, which directly negates the definition of 'demanding'. Collocationally and semantically inappropriate: 'Demanding' is not used to describe weather phenomena, and a gentle cooling breeze does not require effort or attention.",
+        "target_word": "demanding"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "ee53d725-5873-4f19-90db-734bbfa71114",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The coach ran a demanding training session to prepare the team for the championship.",
+            "is_correct": true
+          },
+          {
+            "text": "Learning a second language is a demanding task that requires daily practice.",
+            "is_correct": true
+          },
+          {
+            "text": "The professor is very demanding to his students when they submit late assignments.",
+            "is_correct": false,
+            "error_description": "The adjective 'demanding' takes the preposition 'of' when referring to the people who are expected to meet high standards, not 'to'."
+          },
+          {
+            "text": "Working on the school magazine has been challenging and demanding, but also very rewarding.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 4.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "4f725b8d-9816-4e69-8b0a-01db6770d247",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Learning a second language is a ___ task that requires daily practice.",
+        "original_sentence": "Learning a second language is a demanding task that requires daily practice.",
+        "target_word": "demanding",
+        "word": "demanding",
+        "answer": {
+          "accepted": [
+            "demanding",
+            "demand",
+            "demands",
+            "demanded"
+          ],
+          "accepted_normalized": [
+            "demanding",
+            "demand",
+            "demands",
+            "demanded"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "aa594905-9258-4543-a4c4-d30834491c69",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Our history teacher is always very demanding when we write our weekly essays.",
+        "chunks": [
+          "Our history teacher",
+          "is",
+          "always",
+          "very demanding",
+          "when we write our weekly essays"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "is",
+          "very demanding",
+          "when we write our weekly essays",
+          "Our history teacher",
+          "always"
+        ],
+        "target_word": "demanding",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "37b8b970-89e7-49a3-a11b-546d1cb0691a",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "demand",
+        "sentence_with_blank": "Learning a second language is a ___ task that requires daily practice.",
+        "original_sentence": "Learning a second language is a demanding task that requires daily practice.",
+        "required_pos": "adjective",
+        "options": [
+          "demandation",
+          "demandment",
+          "demanding",
+          "demandful"
+        ],
+        "correct_answer": "demanding",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adjectival present participle"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13981,
+      "word_asset_id": "shadow-13981-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0023271,
+      "prompt_tokens": 1982,
+      "completion_tokens": 693,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 3047
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0005836,
+      "prompt_tokens": 687,
+      "completion_tokens": 151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1107
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184352,
+      "prompt_tokens": 1205,
+      "completion_tokens": 1139,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20485
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184704,
+      "prompt_tokens": 1204,
+      "completion_tokens": 1142,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20733
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017712,
+      "prompt_tokens": 863,
+      "completion_tokens": 1168,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20785
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00170496,
+      "prompt_tokens": 664,
+      "completion_tokens": 1166,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20841
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00171328,
+      "prompt_tokens": 666,
+      "completion_tokens": 1172,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20879
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184832,
+      "prompt_tokens": 868,
+      "completion_tokens": 1227,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21881
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00277216,
+      "prompt_tokens": 1627,
+      "completion_tokens": 1759,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 31012
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00273376,
+      "prompt_tokens": 1627,
+      "completion_tokens": 1729,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 30980
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174944,
+      "prompt_tokens": 827,
+      "completion_tokens": 1160,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20571
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176896,
+      "prompt_tokens": 832,
+      "completion_tokens": 1174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20906
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003033,
+      "prompt_tokens": 411,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1003
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003468,
+      "prompt_tokens": 406,
+      "completion_tokens": 90,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 870
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003885,
+      "prompt_tokens": 520,
+      "completion_tokens": 93,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1065
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001874,
+      "prompt_tokens": 383,
+      "completion_tokens": 29,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 795
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004555,
+      "prompt_tokens": 535,
+      "completion_tokens": 118,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1142
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004125,
+      "prompt_tokens": 500,
+      "completion_tokens": 105,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 918
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003358,
+      "prompt_tokens": 411,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 829
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003048,
+      "prompt_tokens": 391,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 919
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003927,
+      "prompt_tokens": 509,
+      "completion_tokens": 96,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 909
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001871,
+      "prompt_tokens": 382,
+      "completion_tokens": 29,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 718
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004449,
+      "prompt_tokens": 533,
+      "completion_tokens": 114,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1014
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.00043,
+      "prompt_tokens": 500,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13981,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1159
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.026852640000000004,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 61.48399999993853,
+  "finished_at": "2026-10-05T15:22:16.150050+00:00"
+}

@@ -1,0 +1,776 @@
+{
+  "sense_id": 35111,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T18:27:13.709608+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[3] rejected (rating 2): 義項：動作主・手段の別義",
+    "P1 sentence[4] flagged (rating 3): 語域：意味のねじれで不自然",
+    "P1 sentence[6] rejected (rating 2): 義項：動作主の別義",
+    "P1 sentence[7] rejected (rating 2): 義項：因果関係の論理破綻"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.8549439907073975,
+    "p1_generate": 48.888474464416504,
+    "tier_gate": 25.373915195465088,
+    "p1_judge": 68.01308250427246,
+    "collocate_grounding": 0.0,
+    "fan_out": 0.032819271087646484
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[3] rejected (rating 2): 義項：動作主・手段の別義",
+        "P1 sentence[4] flagged (rating 3): 語域：意味のねじれで不自然",
+        "P1 sentence[6] rejected (rating 2): 義項：動作主の別義",
+        "P1 sentence[7] rejected (rating 2): 義項：因果関係の論理破綻"
+      ]
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/joɾu/",
+        "morphological_forms": [
+          {
+            "form": "因る",
+            "label": "活用"
+          },
+          {
+            "label": "活用"
+          },
+          {
+            "form": "因り",
+            "label": "活用"
+          },
+          {
+            "form": "因れ",
+            "label": "活用"
+          },
+          {
+            "form": "因んで",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "よる",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35111
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "5e6c78f6-4d6a-4cd7-a791-bb2c69fe1a66",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よる",
+        "pronunciation": "よる",
+        "correct_definition": "物事の原因・理由を表す。「～に因る」の形で使われ、「～が原因である」「～によって生じる」という意味になる。",
+        "options": [
+          "程度が他と比べて一層進んでいることを示す副詞。形容詞や副詞の前に置いて比較級を作る。",
+          "人や物を運ぶための乗り物。特に、レールの上を走る電車や汽車を指すことが多い。",
+          "物事の原因・理由を表す。「～に因る」の形で使われ、「～が原因である」「～によって生じる」という意味になる。",
+          "学校の課程を修了して、その学校を出ること。また、ある段階を終えること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "6867e811-a1a6-49d4-8888-26dd5650d238",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "天然染料に___ところの多いこの染色は、単なる化学的操作の連鎖ではなく、素材と対話する儀礼にも等しい。",
+        "original_sentence": "天然染料によるところの多いこの染色は、単なる化学的操作の連鎖ではなく、素材と対話する儀礼にも等しい。",
+        "correct_answer": "よっ",
+        "options": [
+          "笑っ",
+          "走っ",
+          "よっ",
+          "行っ"
+        ],
+        "explanation": "「によって」は原因・手段を表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "物事の原因・理由を表す。「～に因る」の形で使われ、「～が原因である」「～によって生じる」という意味になる。",
+        "target_word": "よる"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "282702f8-69c3-4b7c-8991-e95214afe1db",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "間接照明に因れば陰影の演出などが効果的です。",
+            "is_correct": false
+          },
+          {
+            "text": "会社が成長して安定すると、創業者や投資家は自分たちの利益を得るために、他の会社によってもたらされる買収や株式の上場といった方法を選んで会社を売ることがある。",
+            "is_correct": true
+          },
+          {
+            "text": "効果的です陰影の演出などが、間接照明による組み合わせと家具の白壁無垢材。",
+            "is_correct": false
+          },
+          {
+            "text": "間接照明が陰影の演出などが効果的です。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：手段を表す「による」を省くと「が」が二重になり文が成立しない。 活用：仮定形「因れば」は条件の意味になり、手段を表す文脈に合わない。 語順：述語を文頭に置き、修飾関係が崩れている。",
+        "target_word": "よる"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "69e09486-0d9b-4efc-89b9-f61c13c1246f",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "天然染料によるところの多いこの染色は、単なる化学的操作の連鎖ではなく、素材と対話する儀礼にも等しい。",
+            "is_correct": true
+          },
+          {
+            "text": "まず、季節の移ろいと共に採取された植物から色素が抽出されるのは、熱と水によるところが大きい。",
+            "is_correct": true
+          },
+          {
+            "text": "計算された論理がよって、機能的な都市空間を創出することが目指されています。",
+            "is_correct": false,
+            "error_description": "助詞：原因・手段を表す「による」は「に」を伴う。「が」は誤り。"
+          },
+          {
+            "text": "自然の素材は時間とともに色や形が変わってしまうが、職人の技術による丁寧な作業によって、長く楽しめる美しい工芸品が作られるのである。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "7454bc4d-8596-4399-bec0-c26a9c36caf6",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よる",
+        "pronunciation": "よる",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "a vow (pledge)",
+              "management; to manage — controlling something according to a plan or method so it runs well",
+              "组",
+              "物事の原因・理由を表す。「～に因る」の形で使われ、「～が原因である」「～によって生じる」という意味になる。"
+            ],
+            "correct_answer": "物事の原因・理由を表す。「～に因る」の形で使われ、「～が原因である」「～によって生じる」という意味になる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "66d1fcc1-da36-48e9-97e1-67b6baa4f422",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "よる",
+        "options": [
+          "天候",
+          "夜",
+          "太谿",
+          "因る"
+        ],
+        "correct_answer": "因る",
+        "word": "因る",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "夜": "homophone",
+          "太谿": "component",
+          "天候": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b4d766bb-d927-4c28-a5ba-c4bc9e005815",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "収益性を向上させます、センサー等を用いた技術導入は収量の安定化により。",
+            "is_correct": false
+          },
+          {
+            "text": "こうした文脈下、人工知能アルゴリズムによるところの大きいリアルタイムの習熟度分析を通じて学習者の認知特性に最適化された教材提示を可能にするアダプティブラーニングプラットフォームの導入は、教育学の観点から極めて示唆に富む。",
+            "is_correct": true
+          },
+          {
+            "text": "センサー等を用いた技術導入は、収量の安定化に因ったら収益性を向上させます。",
+            "is_correct": false
+          },
+          {
+            "text": "センサー等を用いた技術導入は、収量の安定化がより収益性を向上させます。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：「により」の前に「が」を重ねるのは誤り。 活用：た系条件形「因ったら」は仮定の意味になり、原因を表す文脈に合わない。 語順：述語を文頭に置き、修飾関係が崩れている。",
+        "target_word": "よる"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "9db69a83-fb5a-4be0-bcac-a63fcc99144a",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "こうした文脈下、人工知能アルゴリズムによるところの大きいリアルタイムの習熟度分析を通じて学習者の認知特性に最適化された教材提示を可能にするアダプティブラーニングプラットフォームの導入は、教育学の観点から極めて示唆に富む。",
+            "is_correct": true
+          },
+          {
+            "text": "高温のオーブンへ投入された瞬間、生地は熱エネルギーがよって急激に膨張します。",
+            "is_correct": false,
+            "error_description": "助詞：原因・手段を表す「による」は「に」を伴う。「が」は誤り。"
+          },
+          {
+            "text": "結果として、建築は静的な物体ではなく、見る者によってもたらされる意味の更新によって絶えず再定義される開かれた場となるのです。",
+            "is_correct": true
+          },
+          {
+            "text": "センサー等を用いた技術導入は、収量の安定化によるところの大きい収益性の向上を実現します。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00458496,
+      "prompt_tokens": 3140,
+      "completion_tokens": 2797,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 48567
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00171712,
+      "prompt_tokens": 542,
+      "completion_tokens": 1206,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 25172
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00189312,
+      "prompt_tokens": 988,
+      "completion_tokens": 1232,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21943
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00193568,
+      "prompt_tokens": 581,
+      "completion_tokens": 1367,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24264
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00180864,
+      "prompt_tokens": 924,
+      "completion_tokens": 1182,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21268
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00187424,
+      "prompt_tokens": 821,
+      "completion_tokens": 1259,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 45176
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017016,
+      "prompt_tokens": 396,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 4054
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00165376,
+      "prompt_tokens": 620,
+      "completion_tokens": 1137,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21094
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00136448,
+      "prompt_tokens": 520,
+      "completion_tokens": 936,
+      "cached_tokens": 0,
+      "reasoning_tokens": 906,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20621
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016972,
+      "prompt_tokens": 397,
+      "completion_tokens": 67,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 4284
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160288,
+      "prompt_tokens": 625,
+      "completion_tokens": 1096,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22405
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00151648,
+      "prompt_tokens": 523,
+      "completion_tokens": 1054,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23434
+    }
+  ],
+  "llm_calls_observed": 13,
+  "llm_cost_observed_usd": 0.020291240000000006,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [
+    {
+      "judge": "l1_distractor_judge",
+      "error_class": "parse_error",
+      "message": "l1_distractor_judge: LLM call failed, keep all: Expecting ',' delimiter: line 1 column 489 (char 488)",
+      "logger": "services.exercise_generation.judges.l1_distractor",
+      "stage": "render"
+    }
+  ],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 4,
+    "repaired": 4,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 338.125,
+  "finished_at": "2026-10-05T18:32:51.834389+00:00"
+}

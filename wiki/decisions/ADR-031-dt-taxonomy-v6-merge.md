@@ -38,7 +38,7 @@ Merge the two taxonomies into a single **v6** per-language type list:
    `collocation`, `word_order`, `register`, `orthography`, `cohesion_connective`. `word_choice` also
    absorbs jev's `wrong_sense` (both describe "right word family, wrong sense/lexical item"); the
    explanation level splits it three ways via `explanation_variant` (`wrong_word` | `wrong_sense` |
-   `shared_translation` — see Consequences).
+   `false_synonym` — see Consequences).
 2. **Replace** v5's coarse per-language grammar subtypes with jev's finer grammar types, 1:1 where a
    clean correspondence exists (renames), **merging** where jev collapses several v5 types into one
    (zh `ba_construction`+`bei_passive` → `ba_bei`; zh `resultative_complement`+`directional_complement`
@@ -163,7 +163,9 @@ alias-split cost nothing in the current label sets — but future ja labelling p
   the 3 en `pronoun_reference` items retype to `word_choice`, and severity was itself a mid-exchange
   concession (reviewer conceded minor→major: a referent shift is a real propositional-content change, MQM
   major) — this also surfaces a gap the v5→v6 CSV had already flagged: v6 has no pronoun-antecedent-
-  agreement type, so these three would move again if one is added. **0 items remain escalated** (both
+  agreement type, so these three would move again if one is added. **Superseded 2026-10-09** (see
+  "Developer decisions 2026-10-09"): the en `pronoun` definition was widened to cover wrong antecedent /
+  wrong number, and the three items moved back to `pronoun`/major (no `explanation_variant`). **0 items remain escalated** (both
   were resolved by the user decision above). Full record:
   [[../../data/eval/taxonomy_merge_2026-09-27/relabel/reconciled.json|relabel/reconciled.json]] (pre-dates
   the user ruling on the 2 escalated items — see this ADR for the final call). This was a small, bounded
@@ -171,7 +173,15 @@ alias-split cost nothing in the current label sets — but future ja labelling p
 - **Profile history migration.** `dt_error_profile_entry` rows keyed on a v5 subtype must be re-keyed
   under v6 via the mapping table (1:1/merge rows rewrite deterministically; split rows need the same
   per-instance review as the gold set, or a one-time best-effort bulk remap with a flag for later
-  correction).
+  correction). **Settled 2026-10-04 (see "User decisions 2026-10-04"):** one-time rewrite of all
+  historical records, split rows bulk-remapped with a review flag.
+- **Rollback scope (added 2026-10-06).** `dt_restore_history_v5` restores **only the snapshot**. Rows graded
+  under v6 after the cutover keep their v6 names, and profile progress since the cutover on snapshotted
+  entries (`count` / `severity_rank` / `trend` / `remediation_status`) is reset to the snapshot (card FSRS
+  progress and new reviews survive). So a rollback is clean **only before new DT traffic**; once traffic has
+  resumed, the policy is **fix-forward**, and re-pinning v5 (`DT_TAXONOMY_VERSION=5` + restart) is an
+  emergency stop only. Restore refuses up front, changing nothing, when a v5 profile key
+  `(user, l1, l2, subtype)` is already held by a post-cutover row (TASK-853/854).
 - **Taxonomy version stamping.** `dt_taxonomy_version` gets a new active row (v6) exactly as v4→v5 did;
   `dt_error_instance`/profile rows must carry (or be joinable to) the taxonomy version they were graded
   under, since a v5 subtype slug is not always resolvable under v6 without the mapping table (this is
@@ -236,17 +246,17 @@ alias-split cost nothing in the current label sets — but future ja labelling p
   - `wrong_sense` (**narrow**) — the SAME word/lemma used in a different one of its own dictionary senses
     than the context needs (e.g. 意思 as "intention" where "meaning" is needed). A different lexeme never
     qualifies, however close.
-  - `shared_translation` — a DIFFERENT word that shares a translation/gloss in the learner's L1 with the
+  - `false_synonym` — a DIFFERENT word that shares a translation/gloss in the learner's L1 with the
     correct word (知道/认识 both "know"; 見る/会う both "see").
-  Precedence: same lemma → `wrong_sense`; shared L1 gloss → `shared_translation`; else `wrong_word`.
-  `shared_translation` is largely **deterministic**: if the learner's word and the correct word share an
-  L1 gloss in the sense dictionary, it is `shared_translation`. Caveat: en words currently have no zh/ja
+  Precedence: same lemma → `wrong_sense`; shared L1 gloss → `false_synonym`; else `wrong_word`.
+  `false_synonym` is largely **deterministic**: if the learner's word and the correct word share an
+  L1 gloss in the sense dictionary, it is `false_synonym`. Caveat: en words currently have no zh/ja
   glosses, so for en L2 this lookup is not yet available and the variant stays a grader judgement.
   Consequences: (1) `dt_error_instance` needs a new column or JSON detail field for the variant; (2) the
   grader needs a same-lemma check plus the gloss lookup (one jev yes/no question only for the residual
   `wrong_sense` vs `wrong_word` call); (3) `explainer.py` needs three rendered-explanation templates per
   language; (4) the per-user profile can aggregate `word_choice` by variant, `wrong_sense` instances can
-  link to the sense dictionary, and `shared_translation` instances can drive contrastive pair drills.
+  link to the sense dictionary, and `false_synonym` instances can drive contrastive pair drills.
 - **v6 label overlay — FINAL (2026-09-27), status of this ADR still proposed.**
   `data/eval/taxonomy_merge_2026-09-27/v6_label_overlay.json` (built by `build_overlay.py`) labels all 174
   gold+silver errors; every entry is `"final": true`, and the 61 entries that went through the blind
@@ -259,17 +269,116 @@ alias-split cost nothing in the current label sets — but future ja labelling p
   for inversion-grade effects); `zh_silver_37` → `ba_bei`/major (把心情变好: 把 with a non-disposal verb,
   a construction error, not word choice); `ja_silver_19` → `addition`/**minor** (the added ない sits
   inside a "check whether" clause, 掴めないか確認 — not an inversion); `en_silver_17` → `word_choice`/
-  **minor** (say/tell, meaning recoverable). Variant escalations all land on `shared_translation`
+  **minor** (say/tell, meaning recoverable). Variant escalations all land on `false_synonym`
   (the author was right that a shared gloss drives them, the reviewer was right that a different lexeme
   is not `wrong_sense`): `zh_seed_06` 轻松/放松, `zh_multi_02#1` 普通/简单, `ja_seed_08` 持つ/掴む,
   `en_multi_03#0` key/important, `en_silver_17` say/tell, `en_silver_28` engine/motor. Final counts:
   **`meaning_inversion` 21** (was 22; `ja_silver_19` left); **`word_choice` 28** (`zh_silver_37` left)
-  = **20 `wrong_word` / 0 `wrong_sense` / 8 `shared_translation`**, 3 flagged `variant_uncertain`
+  = **20 `wrong_word` / 0 `wrong_sense` / 8 `false_synonym`**, 3 flagged `variant_uncertain`
   (`zh_multi_02#1`, `ja_multi_04#1`, `en_multi_03#0` — see Open Questions). **Band changes vs
   `expected_bands`: 12 items** (was 8; the 4 new ones are exactly the Decision B items) —
   `overlay_band_changes.json`, recomputed with `scripts/dt_gold_seed_helper.derive_bands(offline=True)`
   under v6 dimensions via the same `V5_DIMENSION` swap shim. Gold fixtures and silver files are
   untouched; the overlay is the v6 label source until a v6 gold set is cut.
+
+## User decisions 2026-10-04
+Recorded at review of the implementation task list ([[../tasklist/dt-taxonomy-v6.tasks]], TASK-836–855).
+ADR status stays `proposed` until the cutover task (TASK-853) accepts it.
+1. **Variant rename — APPROVED with rename.** The third `word_choice` `explanation_variant` is
+   `false_synonym` (formerly `shared_translation`; renamed throughout this ADR): a different word that the
+   learner's L1 glosses the same way as the correct word but with a different meaning/usage (知道 vs 认识).
+   Detection stays an **exact match on normalised L1 gloss terms** from the sense dictionary (no gloss in the
+   learner's L1 for either word → grader judgement; always the case for en L2 today).
+2. **Split rows — APPROVED.** Historical rows on split v5 types (ja `particle_wa_ga`, ja `particle`, en
+   `pronoun_reference`) are bulk-remapped to the closest v6 type (`wa_ga`, `case_particle`, `pronoun`) with a
+   `split_needs_review` flag, not hand-triaged first.
+3. **History — CHANGED to a one-time rewrite.** Instead of keeping v5 slugs on historical rows and
+   translating on read, every historical record (`dt_error_instance.subtype`, `dt_error_profile_entry`
+   keys, `dt_card` subtype/profile references, and any other subtype-keyed column) is rewritten to v6 names
+   once, during cutover. A snapshot of the original values is taken first; rollback = restore from the
+   snapshot + revert the active taxonomy version (snapshot-only: clean only before new DT traffic, fix-forward after,
+   see Consequences → Rollback scope). Rows are stamped with `taxonomy_version`. Profile rows
+   that collapse onto one v6 key (merges) are aggregated: counts summed, `severity_rank` recomputed, `trend`
+   merged, `remediation_status` = the most advanced (drilling > queued > watching > resolved). The v5
+   `historical_alias` / `legacy_aliases` entries stay in the v6 taxonomy row only for the transition (rubric
+   exemplar slugs, restore safety).
+4. **ja `script_choice` — CHANGED to delete.** After the snapshot, `script_choice` profile entries, their
+   `dt_error_instance` rows and their `dt_card`s are deleted. Because `dt_card_review.card_id` (NOT NULL) →
+   `dt_card` and `dt_card.{profile_entry_id, origin_error_id}` are plain NO ACTION FKs (no cascade), the
+   affected `dt_card_review` rows (append-only log) must be deleted first; they are kept in the snapshot so a
+   rollback restores them. Past `dt_grade` bands are **not** recalculated.
+
+## String review notes 2026-10-07
+AI string reviews (Opus, at the developer's direction, **not** native-speaker reviews) of the en and zh v6
+strings: `data/eval/taxonomy_merge_2026-09-27/string_review_2026-10-07/{en,zh}_review.json`. The ja review
+followed on 2026-10-08 (TASK-840; see the next section).
+- **zh missing-得 boundary — reviewer-proposed, CONFIRMED by the developer 2026-10-08.** A *missing* obligatory 得 in
+  a degree/state complement (跑快 → 跑得快) is `de_particle` (minor), not `complement` (major). Before
+  this, `de_particle` claimed "an obligatory 得 missing" while `complement` covered the form of degree
+  complements, so the same error could be filed under either type at different severities. Now applied
+  consistently in the zh `de_particle` and `complement` glosses (`v6_strings.json`), in
+  `prompts._ZH_DE_RULE` (with the 跑快 → 跑得快 example) and in the `complement` definition in
+  `merged_taxonomy.json`. If the user rules the other way, revert those four places together.
+- **en developer decision (same date):** the AI-labelled `en_v6_ws_02` (`word_choice`/`wrong_sense`)
+  stays in v6 GOLD: AI author+reviewer, approved for gold by the developer 2026-10-07. The reviewer's caveat
+  stands: it is a cross-POS homograph, not same-POS polysemy.
+
+## String review notes 2026-10-08 (ja, TASK-840)
+AI review (Opus) at the developer's direction 2026-10-08, **not** a native-speaker review:
+`data/eval/taxonomy_merge_2026-09-27/string_review_2026-10-07/ja_review.json` (125 entries: 93 ok, 32 fix).
+No dimension or severity was changed. The ja type judgements (`transitivity_voice`, `modification`,
+`clause_linkage`, `kanji_choice`, narrowed `wa_ga`, `tam`, `semantic_anomaly`, `contradiction`,
+`meaning_inversion`) were all upheld, and the drop of `script_choice` is confirmed.
+- **ja `contradiction` has no connective limb.** Unlike en, a wrong ja connective (のに for ので) is
+  `clause_linkage`, so the ja precedence block scopes `{co}` to self-contradiction (time / relation /
+  cause-effect) only.
+- **The missing-得 boundary (2026-10-07 note) now lives in a fifth place:** the ja-L1 `complement` gloss.
+  Revert it with the other four if the user rules the other way.
+- **Rubric exemplar — proposal for the optional rubric v7 re-slug (TASK-841 notes); the SQL is not edited.**
+  The live ja exemplar (`部品はセットになっている。` for `部品がセットになっている。`, `particle_wa_ga`) is a
+  main-clause は/が choice. Under the narrowed v6 `wa_ga` that is **not an error**, so it must not be re-slugged
+  to `wa_ga`. Proposed replacement (rule 2, relative-clause subject): learner `これは弟は作ったカレーです。`,
+  reference `これは弟が作ったカレーです。`, `learner_form` 弟は → `corrected_form` 弟が, `span_ref` = `span_repro`
+  = [3, 5], `wa_ga`/major, category 0, source 1, scores as the live exemplar (accuracy 3, the rest 4). The
+  relative clause follows これは, so 弟は cannot be re-read as a main-clause topic. Alternate (rule 3):
+  `母は帰ってきたとき、私は寝ていました。` → `母が…`, span [0, 2]. Full JSON: `ja_review.json` → `exemplar_proposal`.
+
+## Developer decisions 2026-10-09
+Follow-up to the TASK-850 gate ([[../evaluations/dt-taxonomy-v6-gate-2026-10-08]], finding 1), which found three
+places where the v6 gold labels and the v6 glosses disagreed. The developer resolved all three; the strings changed
+are AI-drafted (`ai_draft`), not native-reviewed. v5 gold (`tests/fixtures/dt_gold/`) is untouched.
+1. **ja politeness level is `keigo`, not `register`.** Plain vs polite style (だ/です, る/ます) is `keigo`; `register`
+   covers word-level/stylistic register only (written vs spoken vocabulary, stiff vs casual words, slang). The
+   four gold/silver だ/です items stay `keigo` (`ja_seed_04#0`, `ja_multi_03#1`, `ja_silver_17#0`, `ja_silver_31#1`).
+   Two silver items with the same plain→polite pattern that were labelled `register` were retyped to `keigo`/major:
+   `ja_silver_30#0` (見つかるよ→見つかります) and `ja_silver_32#1` (養われるよ→養われます); both types are
+   fidelity, so bands do not move. Changed: the `keigo` gloss and template in all three L1s (they had said the
+   politeness level is register), the ja `register` gloss (was v5_verbatim, now ai_draft), and in
+   `merged_taxonomy.json` the ja `keigo` (`en_name` "Keigo and politeness level", `native_name` 敬語・丁寧さ) and
+   ja `register` definitions. **Known divergence:** jev `taxonomy.md` `ja.register` still lists "です/ます mixed
+   with だ in the main clause" and `ja.keigo` is direction-only. Not edited here.
+2. **zh 个 for a noun that needs a specific classifier is a `measure_word` error.** 个 is acceptable only where
+   native speakers would use it; swapping out the specific classifier a noun requires (一件T恤 → 一个T恤) is an error.
+   The four gold/silver 个 errors stay errors (`zh_seed_01`, `zh_multi_01`, `zh_multi_03#0`, `zh_silver_35`).
+   Changed: the `measure_word` gloss and template in all three L1s (they had said 个 is acceptable or "usually
+   fine"), and the `merged_taxonomy.json` zh `measure_word` definition. The ja `counter` strings had no such
+   clause and are unchanged. **Known divergence:** jev `taxonomy.md` §`zh.measure_word` accepts "个 as a general
+   classifier in ordinary speech, including nouns with a specific classifier (一个毛衣, 一个椅子)". DT is now stricter.
+   jev was not edited (its "never corrupt to 个" rule for generated items is unaffected).
+3. **en "it → them" (wrong antecedent / wrong number) is `pronoun`, not `word_choice`.** This reverses the
+   2026-09-27 reconciled.json relabel. `en_seed_10#0`, `en_multi_03#2` and `en_silver_13#0` are back to
+   `pronoun`/major, and their `explanation_variant` was dropped. The en `pronoun` definition, gloss and template now also
+   cover a pronoun that refers to the wrong thing or the wrong number of things. `pronoun` is accuracy, so the
+   three items derive the same bands as v5 `pronoun_reference`, and the v5→v6 band-change list shrinks from 11 to 8.
+   v6 word_choice drops from 29 to 26 (wrong_word 20 → 17). **Known divergence:** DT's en `pronoun` is now
+   broader than jev `taxonomy.md`'s `en.pronoun` (case / reflexive / which-for-person / resumptive only). Recorded
+   here, and `taxonomy.md` was not edited.
+
+Mechanics: `v6_label_overlay.json` was hand-edited (its `post_build_edits` field lists every entry).
+`build_overlay.py` is **not** re-runnable as-is: it already failed on the 2026-09-28 en_silver_24 repair, and the
+pronoun retype contradicts `overlay_reconciled.json`. Its docstring now says so. `overlay_band_changes.json` was
+hand-trimmed to match. The fixtures (`scripts/build_dt_gold_v6.py`) and the seed (`scripts/build_dt_taxonomy_v6.py`)
+were regenerated, and both pass `--check`. The gate must be re-run for all three L2s before it can count.
 
 ## Alternatives Considered
 1. **Keep v5 as-is, ignore jev.** Simplest, zero migration cost, but leaves DT scoring and jev's
@@ -345,14 +454,22 @@ alias-split cost nothing in the current label sets — but future ja labelling p
   escalated 6 variant calls because author and reviewer read `wrong_sense` differently (author: a
   different word sharing an L1 gloss; reviewer: polysemy of the same lemma). Resolution: the variant is
   **three-way** — `wrong_word` | `wrong_sense` (**narrow**: the same lemma in a different one of its own
-  senses) | `shared_translation` (a different word sharing an L1 gloss, detectable from the sense
+  senses) | `false_synonym` (a different word sharing an L1 gloss, detectable from the sense
   dictionary's L1 glosses; not yet for en L2, which has no zh/ja glosses). Scoring is unchanged.
-  `explainer.py` needs three templates per language. All 6 escalations resolve to `shared_translation`
+  `explainer.py` needs three templates per language. All 6 escalations resolve to `false_synonym`
   (see the v6 label overlay bullet under Consequences).
 - **OPEN:** no gold/silver `word_choice` error is narrow `wrong_sense` (0 of 28 — every pair in the set
   is two different lemmas), so the eval sets give that variant **no coverage**. A gold item with a
   genuine same-lemma sense error (e.g. 意思 intention/meaning) is needed before the variant's grader
-  question can be measured.
+  question can be measured. *Partly addressed:* the v6-only gold item `en_v6_ws_02` (like/likes) was
+  approved for gold by the developer on 2026-10-07. It is a cross-POS homograph, so same-POS polysemy is
+  still uncovered, and zh/ja have no such item.
+- **OPEN (zh string review 2026-10-07): `separable_verb` scope for duration/quantity phrases.** The
+  most frequent learner error with 离合词 is a duration or quantity phrase placed after the whole verb
+  (睡觉八个小时 → 睡了八个小时的觉). Neither the en nor the zh `separable_verb` definition covers it
+  today: they cover only an object or aspect marker placed after the verb. Decide whether
+  `separable_verb` should be widened to include this case or whether it belongs to another type (e.g.
+  `word_order`). The reviewer flagged it and did not widen the definition.
 - **OPEN:** 3 overlay variant calls are flagged `variant_uncertain` and should be re-checked by the
   deterministic L1-gloss lookup once it exists: `zh_multi_02#1` 普通/简单 ("plain" is not a core gloss
   of 普通 — may fall to `wrong_word`), `ja_multi_04#1` 仕事/役割 (JMdict shares no exact gloss — may fall

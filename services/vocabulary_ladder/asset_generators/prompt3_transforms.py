@@ -30,7 +30,7 @@ instead of paying for a speculative recovery call.
 import json
 import logging
 
-from services.llm_service import call_llm
+from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
     PROMPT3_MONOLITH_LEVELS, SENTENCE_ASSIGNMENTS_A, L7_CORRECT_INDICES_A,
@@ -44,8 +44,57 @@ logger = logging.getLogger(__name__)
 TASK_NAME = 'vocab_prompt3_transforms'
 _PIPELINE = 'vocab_ladder'
 
+# max_tokens cap (primary/retry AND the scoped repair call below share this
+# one constant). RE-DERIVED 2026-10-03 (ADR-028 cost work) from the old flat
+# 8192, using MEASURED completion_tokens. Source: data/eval/runs/
+# phase2_bundle_*/ + phase2_fix_*/ + phase2_smoke_ja_v3/ + phase2_smoke_zh_r/
+# *.json llm_calls for vocab_prompt3_transforms (reasoning OFF for qwen in
+# these runs):
+#   en n=27 p99=209 max=226
+#   zh n=7  p99=139 max=139  (thin, but smaller than ja -- not the governing
+#                              case, so not borrowed from elsewhere)
+#   ja n=16 p99=400 max=419  <- governs (worst language)
+# cap = max(ceil(p99*2), ceil(max*1.25)) = 801 on ja, rounded up to 1000. At
+# qwen3.7-plus's $1.28/M completion price (ja's model) this cuts the
+# worst-case reservation from ~$0.011/request to ~$0.002/request.
+_MAX_TOKENS_RIGHTSIZED = 1000
+
+# Pre-2026-10-03 (reasoning-safe) cap. This module runs on a qwen model (see
+# TASK-813); when `LADDER_QWEN_REASONING=on` (the default) restores Phase-1
+# reasoning-left-on behaviour, reasoning tokens count toward `max_tokens` and
+# the right-sized cap above (derived from reasoning-OFF measurements) would
+# truncate.
+_MAX_TOKENS_REASONING_SAFE = 8192
+
+
+def _max_tokens() -> int:
+    return (_MAX_TOKENS_REASONING_SAFE if ladder_qwen_reasoning_mode() != 'off'
+            else _MAX_TOKENS_RIGHTSIZED)
+
+
 # language_id → llm_calls.language_code — see prompt1_core.py.
 _LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
+
+def _coerce_index_list(values, default: list[int]) -> list[int]:
+    """Best-effort int coercion for an LLM-supplied list of sentence indices.
+
+    `correct_sentence_indices` has no schema guarantee its elements are JSON
+    numbers; a string surviving here is what produced en's bundle-mode
+    0-exercise renders (item 6: `TypeError` in
+    `exercise_renderer._gather_bundle_judge_requests`, no error/skip
+    recorded). Elements that can't be coerced are dropped rather than failing
+    the whole list.
+    """
+    if not isinstance(values, list):
+        return list(default)
+    out = []
+    for v in values:
+        try:
+            out.append(int(v))
+        except (TypeError, ValueError):
+            continue
+    return out or list(default)
 
 
 class TransformAssetGenerator:
@@ -134,7 +183,10 @@ class TransformAssetGenerator:
         )
         cfg = self._cfg
 
-        raw = self._call_with_retry(prompt_text, cfg, p3_active, sense_id)
+        raw = self._call_with_retry(
+            prompt_text, cfg, p3_active, sense_id,
+            core_asset, sentence_assignments, l7_correct_indices, used_distractors,
+        )
         if raw is None:
             return None
 
@@ -142,15 +194,24 @@ class TransformAssetGenerator:
 
     def _call_with_retry(
         self, prompt_text: str, cfg: dict, p3_active: list[int], sense_id: int,
+        core_asset: dict | None = None,
+        sentence_assignments: dict[int, int] | None = None,
+        l7_correct_indices: list[int] | None = None,
+        used_distractors: list[str] | None = None,
     ) -> dict | None:
         """Single LLM call, retry once if any active level is missing or call fails.
 
         TASK-810 removed the text-mode salvage call that used to run after a
         second strict-JSON failure (it was an unscoped, unbounded third real
-        call). A total failure now returns None, the same failure contract
-        every other generator in this pipeline uses — forcing a level loss
-        instead of guessing at malformed output.
+        call). A total call failure still returns None, the same failure
+        contract every other generator in this pipeline uses. A level that is
+        merely MISSING after both attempts gets one bounded, scoped repair
+        call instead (asking only for that level), rather than being lost
+        outright — the retry-cap regression this closes is distinct from the
+        unscoped salvage call TASK-810 removed: this repair is capped at one
+        call and asks only for the missing level(s), never a full re-ask.
         """
+        raw: dict | None = None
         for attempt in (1, 2):
             try:
                 raw = call_llm(
@@ -158,7 +219,7 @@ class TransformAssetGenerator:
                     model=cfg['model'],
                     provider=cfg['provider'],
                     temperature=0.4,
-                    max_tokens=8192,
+                    max_tokens=_max_tokens(),
                     response_format='json',
                     pipeline=_PIPELINE,
                     task_name=TASK_NAME,
@@ -179,6 +240,7 @@ class TransformAssetGenerator:
                         sense_id,
                     )
                     return None
+                raw = None
                 continue
 
             missing = [lv for lv in p3_active if str(lv) not in (raw or {})]
@@ -190,12 +252,72 @@ class TransformAssetGenerator:
                     missing, sense_id,
                 )
             else:
-                logger.error(
-                    "Prompt 3 still missing levels %s for sense %s after retry — accepting partial",
-                    missing, sense_id,
+                logger.warning(
+                    "Prompt 3 still missing levels %s for sense %s after retry "
+                    "— attempting one scoped repair call", missing, sense_id,
                 )
-                return raw
-        return None
+
+        if raw is None:
+            return None
+        missing = [lv for lv in p3_active if str(lv) not in raw]
+        if missing and core_asset is not None:
+            repaired = self._repair_missing_levels(
+                core_asset, missing,
+                sentence_assignments or {}, l7_correct_indices or [0, 1, 2],
+                used_distractors or [], sense_id, cfg,
+            )
+            if repaired:
+                for lv in missing:
+                    key = str(lv)
+                    if key in repaired:
+                        raw[key] = repaired[key]
+        return raw
+
+    def _repair_missing_levels(
+        self, core_asset: dict, missing_levels: list[int],
+        sentence_assignments: dict[int, int], l7_correct_indices: list[int],
+        used_distractors: list[str], sense_id: int, cfg: dict,
+    ) -> dict | None:
+        """ONE bounded, scoped repair call asking ONLY for `missing_levels`.
+
+        Mirrors `prompt2_exercises.ExerciseAssetGenerator._repair_missing_levels`
+        — reuses `_build_prompt` with `active_levels` narrowed to the missing
+        set, tagged `call_role='repair'` so it's auditable separately from the
+        primary/retry pair above.
+        """
+        prompt_text = self._build_prompt(
+            core_asset, missing_levels, sentence_assignments, l7_correct_indices,
+            used_distractors,
+        )
+        try:
+            raw = call_llm(
+                prompt_text,
+                model=cfg['model'],
+                provider=cfg['provider'],
+                temperature=0.4,
+                max_tokens=_max_tokens(),
+                response_format='json',
+                pipeline=_PIPELINE,
+                task_name=TASK_NAME,
+                template_version=cfg.get('version'),
+                language_code=_LANG_ID_TO_CODE.get(self.language_id),
+                call_role='repair',
+                sense_id=sense_id,
+                allow_internal_repair=False,
+            )
+        except Exception as e:
+            logger.warning(
+                "Prompt 3 scoped repair call failed for sense %s (levels %s): %s",
+                sense_id, missing_levels, e,
+            )
+            return None
+        still_missing = [lv for lv in missing_levels if str(lv) not in (raw or {})]
+        if still_missing:
+            logger.warning(
+                "Prompt 3 scoped repair still missing levels %s for sense %s",
+                still_missing, sense_id,
+            )
+        return raw
 
     def _build_prompt(
         self, core_asset: dict, active_levels: list[int],
@@ -274,7 +396,9 @@ class TransformAssetGenerator:
             'incorrect_sentence': data.get('1', ''),
             'corrected_sentence': data.get('2', ''),
             'error_description': data.get('3', ''),
-            'correct_sentence_indices': data.get('4', [0, 1, 2]),
+            'correct_sentence_indices': _coerce_index_list(
+                data.get('4', [0, 1, 2]), [0, 1, 2],
+            ),
         }
 
     def _extract_lemma(self, core_asset: dict) -> str:

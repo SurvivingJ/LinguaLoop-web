@@ -1,0 +1,1373 @@
+{
+  "sense_id": 19867,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T15:10:27.689916+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[4] rejected (rating 2): 义项歧义：'才'可解为'仅仅'，句意矛盾"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.10169363021850586,
+    "p1_generate": 29.11875581741333,
+    "tier_gate": 0.007018327713012695,
+    "p1_judge": 65.07061171531677,
+    "collocate_grounding": 0.0,
+    "fan_out": 31.133229732513428
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[4] rejected (rating 2): 义项歧义：'才'可解为'仅仅'，句意矛盾"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[t͡sʰaɪ˧˥]",
+        "pronunciation": "cái",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            19867
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "76074355-b2b2-45b5-9b2a-8ecb21778cd4",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "才",
+        "pronunciation": "cái",
+        "ipa": "[t͡sʰaɪ˧˥]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "才",
+          "采",
+          "猜",
+          "菜"
+        ],
+        "correct_answer": "才",
+        "explanation": "正确：“才”读第二声（cái），符合听到的语音。",
+        "distractor_explanations": {
+          "猜": "声调错误：“猜”读第一声（cāi），意为推测；而目标词“才”读第二声（cái）。",
+          "采": "声调错误：“采”读第三声（cǎi），意为摘取或收集；而目标词“才”读第二声（cái）。",
+          "菜": "声调错误：“菜”读第四声（cài），指蔬菜或菜肴；而目标词“才”读第二声（cái）。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "才",
+          "pronunciation": "cái",
+          "ipa": "[t͡sʰaɪ˧˥]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "才",
+            "採",
+            "猜",
+            "菜"
+          ],
+          "correct_answer": "才",
+          "explanation": "正確：“才”讀第二聲（cái），符合聽到的語音。",
+          "distractor_explanations": {
+            "猜": "聲調錯誤：“猜”讀第一聲（cāi），意為推測；而目標詞“才”讀第二聲（cái）。",
+            "采": "聲調錯誤：“採”讀第三聲（cǎi），意為摘取或收集；而目標詞“才”讀第二聲（cái）。",
+            "菜": "聲調錯誤：“菜”讀第四聲（cài），指蔬菜或菜餚；而目標詞“才”讀第二聲（cái）。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "2df697fc-3b25-4925-adc6-b5b5b34cf8d5",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "才",
+        "pronunciation": "cái",
+        "correct_definition": "副词，表示事情发生或结束得早，或强调事情刚刚发生。",
+        "options": [
+          "副词，表示事情发生或结束得早，或强调事情刚刚发生。",
+          "指人们在共同条件或共同目标下结成的集体。",
+          "形容人与人之间的关系亲近、和睦，乐于相处。",
+          "种植和养护花草树木、蔬菜水果等植物的活动或技术。"
+        ],
+        "hant": {
+          "word": "才",
+          "pronunciation": "cái",
+          "correct_definition": "副詞，表示事情發生或結束得早，或強調事情剛剛發生。",
+          "options": [
+            "副詞，表示事情發生或結束得早，或強調事情剛剛發生。",
+            "指人們在共同條件或共同目標下結成的集體。",
+            "形容人與人之間的關係親近、和睦，樂於相處。",
+            "種植和養護花草樹木、蔬菜水果等植物的活動或技術。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "3e6b229e-d55c-4f13-acf2-dec85453770f",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "天刚亮，他才起床去跑步。",
+            "is_correct": true
+          },
+          {
+            "text": "才他天刚亮起床去跑步。",
+            "is_correct": false
+          },
+          {
+            "text": "他才刚亮天起床去跑步。",
+            "is_correct": false
+          },
+          {
+            "text": "他才着起床去跑步。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语序错误：时间状语“天刚亮”被错误地拆分并放在了副词“才”和动词“起床”之间，破坏了正常的句法结构。 体标选用错误：动态助词“着”表示动作持续，不能用在表示瞬间动作的“起床”前，且与“才”强调刚发生的语义冲突。 语序错误：副词“才”被错误地放置在主语“他”之前，违反了汉语副词通常位于主语之后、谓语之前的语序规则。",
+        "target_word": "才",
+        "hant": {
+          "sentences": [
+            {
+              "text": "天剛亮，他才起床去跑步。",
+              "is_correct": true
+            },
+            {
+              "text": "才他天剛亮起床去跑步。",
+              "is_correct": false
+            },
+            {
+              "text": "他才剛亮天起床去跑步。",
+              "is_correct": false
+            },
+            {
+              "text": "他才著起床去跑步。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語序錯誤：時間狀語“天剛亮”被錯誤地拆分並放在了副詞“才”和動詞“起床”之間，破壞了正常的句法結構。 體標選用錯誤：動態助詞“著”表示動作持續，不能用在表示瞬間動作的“起床”前，且與“才”強調剛發生的語義衝突。 語序錯誤：副詞“才”被錯誤地放置在主語“他”之前，違反了漢語副詞通常位於主語之後、謂語之前的語序規則。",
+          "target_word": "才"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "190546f2-73fb-446b-af1c-843a9b98cb22",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他把房间才打扫完，还没弄完呢。",
+            "is_correct": false,
+            "error_description": "语序错误。副词“才”应该放在“把”字之前，即主语之后、“把”字句结构之前，不能放在“把”和宾语之后。"
+          },
+          {
+            "text": "我才吃过饭，现在还不饿。",
+            "is_correct": true
+          },
+          {
+            "text": "他才八岁，就已经学过钢琴了。",
+            "is_correct": true
+          },
+          {
+            "text": "他才把作业写完，正看着电视呢。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他把房間才打掃完，還沒弄完呢。",
+              "is_correct": false,
+              "error_description": "語序錯誤。副詞“才”應該放在“把”字之前，即主語之後、“把”字句結構之前，不能放在“把”和賓語之後。"
+            },
+            {
+              "text": "我才吃過飯，現在還不餓。",
+              "is_correct": true
+            },
+            {
+              "text": "他才八歲，就已經學過鋼琴了。",
+              "is_correct": true
+            },
+            {
+              "text": "他才把作業寫完，正看著電視呢。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "f7fa96ba-fdce-4912-9e3d-b6829ea89eef",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "才",
+        "pronunciation": "cái",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "副词，表示事情发生或结束得早，或强调事情刚刚发生。",
+              "分配する",
+              "all over the world; in every part of the globe",
+              "a few books"
+            ],
+            "correct_answer": "副词，表示事情发生或结束得早，或强调事情刚刚发生。"
+          }
+        },
+        "hant": {
+          "word": "才",
+          "pronunciation": "cái",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "副詞，表示事情發生或結束得早，或強調事情剛剛發生。",
+                "分配する",
+                "all over the world; in every part of the globe",
+                "a few books"
+              ],
+              "correct_answer": "副詞，表示事情發生或結束得早，或強調事情剛剛發生。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7f3e7534-f043-4f4b-8358-b25c03a845c1",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "我___吃过饭，现在还不饿。",
+        "original_sentence": "我才吃过饭，现在还不饿。",
+        "target_word": "才",
+        "word": "才",
+        "answer": {
+          "accepted": [
+            "才"
+          ],
+          "accepted_normalized": [
+            "才"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "我___吃過飯，現在還不餓。",
+          "original_sentence": "我才吃過飯，現在還不餓。",
+          "target_word": "才",
+          "word": "才",
+          "answer": {
+            "accepted": [
+              "才"
+            ],
+            "accepted_normalized": [
+              "才"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "7c4f8181-25b7-4bcd-b5e7-27511bc81ff8",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "才",
+        "options": [
+          "cái",
+          "cǎi",
+          "cāi",
+          "cài"
+        ],
+        "correct_answer": "cái",
+        "word": "才",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "才",
+          "options": [
+            "cái",
+            "cǎi",
+            "cāi",
+            "cài"
+          ],
+          "correct_answer": "cái",
+          "word": "才",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "0f590d7c-a72d-4ead-b973-ec51f8420223",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "cái",
+        "options": [
+          "权",
+          "才",
+          "叫",
+          "感"
+        ],
+        "correct_answer": "才",
+        "word": "才",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "权": "frequency",
+          "叫": "frequency",
+          "感": "frequency"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "cái",
+          "options": [
+            "權",
+            "才",
+            "叫",
+            "感"
+          ],
+          "correct_answer": "才",
+          "word": "才",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "权": "frequency",
+            "叫": "frequency",
+            "感": "frequency"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "fdeca3f0-722a-4745-bb2d-b00ba250d0d1",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "才",
+        "toneless_pinyin": "cai",
+        "full_pinyin": "cái",
+        "options": [
+          "2",
+          "4",
+          "3",
+          "1"
+        ],
+        "correct_answer": "2",
+        "option_labels": {
+          "2": "rising (2)",
+          "4": "falling (4)",
+          "3": "dipping (3)",
+          "1": "high level (1)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "才",
+          "toneless_pinyin": "cai",
+          "full_pinyin": "cái",
+          "options": [
+            "2",
+            "4",
+            "3",
+            "1"
+          ],
+          "correct_answer": "2",
+          "option_labels": {
+            "2": "rising (2)",
+            "4": "falling (4)",
+            "3": "dipping (3)",
+            "1": "high level (1)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "aa34929d-e3ee-48ab-8d4a-a6fd5ea797f9",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "才",
+        "relation": "antonym",
+        "options": [
+          "已",
+          "将",
+          "常",
+          "正"
+        ],
+        "correct_answer": "已",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "副词，表示事情发生或结束得早，或强调事情刚刚发生。",
+            "explanation": "反义项：表示动作已完成，与表刚刚发生的“才”相对"
+          }
+        },
+        "hant": {
+          "word": "才",
+          "relation": "antonym",
+          "options": [
+            "已",
+            "將",
+            "常",
+            "正"
+          ],
+          "correct_answer": "已",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "副詞，表示事情發生或結束得早，或強調事情剛剛發生。",
+              "explanation": "反義項：表示動作已完成，與表剛剛發生的“才”相對"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "正": 0.575762,
+            "将": 0.491545,
+            "常": 0.506553
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c18961ab-84a3-48e2-8953-175677a29e14",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他才五岁，就喜欢看着小动物。",
+            "is_correct": true
+          },
+          {
+            "text": "他才五岁，就喜欢看着小动物了过。",
+            "is_correct": false
+          },
+          {
+            "text": "才他五岁，就喜欢看着小动物。",
+            "is_correct": false
+          },
+          {
+            "text": "他才五岁，就喜欢看着只小动物。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "量词使用错误：“只”通常用于动物，但“小动物”是一个泛指名词短语，前面不应加个体量词“只”，应直接说“看着小动物”或“看着一只小动物”。 体标位置/选用错误：句末的“了过”是错误的体标记连用。表示过去的经历应使用“过”，且“喜欢”后接动作时不需要在句末加“了过”，应改为“就喜欢看小动物了”或直接去掉“了过”。 语序错误：副词“才”修饰数量词“五岁”时，必须放在主语“他”之后、数量词之前，不能放在主语前面，正确语序应为“他才五岁”。",
+        "target_word": "才",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他才五歲，就喜歡看著小動物。",
+              "is_correct": true
+            },
+            {
+              "text": "他才五歲，就喜歡看著小動物了過。",
+              "is_correct": false
+            },
+            {
+              "text": "才他五歲，就喜歡看著小動物。",
+              "is_correct": false
+            },
+            {
+              "text": "他才五歲，就喜歡看著只小動物。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "量詞使用錯誤：“只”通常用於動物，但“小動物”是一個泛指名詞短語，前面不應加個體量詞“只”，應直接說“看著小動物”或“看著一隻小動物”。 體標位置/選用錯誤：句末的“了過”是錯誤的體標記連用。表示過去的經歷應使用“過”，且“喜歡”後接動作時不需要在句末加“了過”，應改為“就喜歡看小動物了”或直接去掉“了過”。 語序錯誤：副詞“才”修飾數量詞“五歲”時，必須放在主語“他”之後、數量詞之前，不能放在主語前面，正確語序應為“他才五歲”。",
+          "target_word": "才"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "508f471f-6ff6-496e-949b-780a15564a29",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他才到，衣服上还淋着雨呢。",
+            "is_correct": true
+          },
+          {
+            "text": "他才五岁，就喜欢看着小动物。",
+            "is_correct": true
+          },
+          {
+            "text": "他才把房间打扫了完。",
+            "is_correct": false,
+            "error_description": "体标位置错误。在“把”字句中，结果补语“完”前面不能加动态助词“了”，“了”应放在句末或直接省略。"
+          },
+          {
+            "text": "他才十岁，就把这本书读过了。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他才到，衣服上還淋著雨呢。",
+              "is_correct": true
+            },
+            {
+              "text": "他才五歲，就喜歡看著小動物。",
+              "is_correct": true
+            },
+            {
+              "text": "他才把房間打掃了完。",
+              "is_correct": false,
+              "error_description": "體標位置錯誤。在“把”字句中，結果補語“完”前面不能加動態助詞“了”，“了”應放在句末或直接省略。"
+            },
+            {
+              "text": "他才十歲，就把這本書讀過了。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "70538f60-14b7-4fd7-bfef-a8935af15274",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他___到，衣服上还淋着雨呢。",
+        "original_sentence": "他才到，衣服上还淋着雨呢。",
+        "target_word": "才",
+        "word": "才",
+        "answer": {
+          "accepted": [
+            "才"
+          ],
+          "accepted_normalized": [
+            "才"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他___到，衣服上還淋著雨呢。",
+          "original_sentence": "他才到，衣服上還淋著雨呢。",
+          "target_word": "才",
+          "word": "才",
+          "answer": {
+            "accepted": [
+              "才"
+            ],
+            "accepted_normalized": [
+              "才"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "95a0c45c-a6da-4fdf-ab41-12524f858518",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "才",
+        "relation": "antonym",
+        "options": [
+          "再",
+          "已经",
+          "刚",
+          "还"
+        ],
+        "correct_answer": "已经",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "副词，表示事情发生或结束得早，或强调事情刚刚发生。",
+            "explanation": "反义：「才」表刚刚发生，「已经」表动作已完成，二者在时间早晚上相对"
+          }
+        },
+        "hant": {
+          "word": "才",
+          "relation": "antonym",
+          "options": [
+            "再",
+            "已經",
+            "剛",
+            "還"
+          ],
+          "correct_answer": "已經",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "副詞，表示事情發生或結束得早，或強調事情剛剛發生。",
+              "explanation": "反義：「才」表剛剛發生，「已經」表動作已完成，二者在時間早晚上相對"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "刚": 0.792583,
+            "还": 0.515105,
+            "再": 0.661454
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19867,
+      "word_asset_id": "shadow-19867-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '才' is fused into a neighbouring chunk — chunks=['我', '才见过他', '他', '正笑着呢']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '才' is fused into a neighbouring chunk — chunks=['天刚亮', '他', '才起床去跑步']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00286688,
+      "prompt_tokens": 2423,
+      "completion_tokens": 1634,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 28915
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175968,
+      "prompt_tokens": 659,
+      "completion_tokens": 1210,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 32863
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00095776,
+      "prompt_tokens": 201,
+      "completion_tokens": 698,
+      "cached_tokens": 0,
+      "reasoning_tokens": 674,
+      "call_role": "repair",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 12563
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00154464,
+      "prompt_tokens": 539,
+      "completion_tokens": 1072,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 19166
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00190912,
+      "prompt_tokens": 1434,
+      "completion_tokens": 1133,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20129
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00192064,
+      "prompt_tokens": 1434,
+      "completion_tokens": 1142,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20526
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00170528,
+      "prompt_tokens": 645,
+      "completion_tokens": 1171,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20928
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00171552,
+      "prompt_tokens": 645,
+      "completion_tokens": 1179,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 21066
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0027056,
+      "prompt_tokens": 1671,
+      "completion_tokens": 1696,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30128
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00277856,
+      "prompt_tokens": 1671,
+      "completion_tokens": 1753,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30937
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.00018279,
+      "prompt_tokens": 396,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 4985
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.00017891,
+      "prompt_tokens": 395,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19867,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 4016
+    }
+  ],
+  "llm_calls_observed": 12,
+  "llm_cost_observed_usd": 0.020225379999999998,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 138.670999999973,
+  "finished_at": "2026-10-05T15:12:46.355433+00:00"
+}

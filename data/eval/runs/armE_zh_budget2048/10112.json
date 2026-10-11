@@ -1,0 +1,1369 @@
+{
+  "sense_id": 10112,
+  "language_id": 1,
+  "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+  "started_at": "2026-10-08T09:17:34.317971+00:00",
+  "status": "partial",
+  "errors": [
+    "[B] Level 6 wrong_sentence 1: empty text"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.17161798477172852,
+    "p1_generate": 48.72793626785278,
+    "p1_sentence_repair": 9.462711334228516,
+    "tier_gate": 0.0,
+    "p1_judge": 37.96035408973694,
+    "collocate_grounding": 0.0,
+    "fan_out": 48.05954384803772
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Level 6 wrong_sentence 1: empty text"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[pʰaɪ˧˥ pan˨˩˦]",
+        "morphological_forms": [
+          {
+            "form": "排了版",
+            "label": "体标"
+          },
+          {
+            "form": "排过版",
+            "label": "体标"
+          },
+          {
+            "form": "排版工",
+            "label": "复合"
+          },
+          {
+            "form": "排版软件",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "pái bǎn",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10112
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "48c4b02d-70ba-431c-8af9-fb0806e7b42c",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "排版",
+        "pronunciation": "pái bǎn",
+        "correct_definition": "将文字、图片等素材按一定规则或格式进行排列、组合，以便于阅读或展示。",
+        "options": [
+          "将食物等放入口中，经咀嚼后吞咽下去。",
+          "英国数学家、物理学家乔治·斯托克斯的姓，常见于流体力学中的“纳维-斯托克斯方程”。",
+          "将文字、图片等素材按一定规则或格式进行排列、组合，以便于阅读或展示。",
+          "指事物或问题中最关键、最根本的部分，不表面。"
+        ],
+        "hant": {
+          "word": "排版",
+          "pronunciation": "pái bǎn",
+          "correct_definition": "將文字、圖片等素材按一定規則或格式進行排列、組合，以便於閱讀或展示。",
+          "options": [
+            "將食物等放入口中，經咀嚼後吞嚥下去。",
+            "英國數學家、物理學家喬治·斯托克斯的姓，常見於流體力學中的“納維-斯托克斯方程”。",
+            "將文字、圖片等素材按一定規則或格式進行排列、組合，以便於閱讀或展示。",
+            "指事物或問題中最關鍵、最根本的部分，不表面。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "78f27c98-b1d6-4088-ae38-efbe1cf155e9",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复___的技术先河。",
+        "original_sentence": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+        "correct_answer": "排版",
+        "options": [
+          "雕刻",
+          "装订",
+          "排版",
+          "抄写"
+        ],
+        "explanation": "正确选项。泥活字的核心创新在于可以重复排列组合文字，即“排版”。",
+        "distractor_tags": {},
+        "word_definition": "将文字、图片等素材按一定规则或格式进行排列、组合，以便于阅读或展示。",
+        "target_word": "排版",
+        "hant": {
+          "sentence_with_blank": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複___的技術先河。",
+          "original_sentence": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+          "correct_answer": "排版",
+          "options": [
+            "雕刻",
+            "裝訂",
+            "排版",
+            "抄寫"
+          ],
+          "explanation": "正確選項。泥活字的核心創新在於可以重複排列組合文字，即“排版”。",
+          "distractor_tags": {},
+          "word_definition": "將文字、圖片等素材按一定規則或格式進行排列、組合，以便於閱讀或展示。",
+          "target_word": "排版"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "43d63bb0-344b-46d2-9281-c1bccd379e29",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "排版",
+        "pronunciation": "pái bǎn",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "将文字、图片等素材按一定规则或格式进行排列、组合，以便于阅读或展示。",
+              "開放式",
+              "写出来的话或文章。",
+              "指在一定条件下产生出来的东西或结果。"
+            ],
+            "correct_answer": "将文字、图片等素材按一定规则或格式进行排列、组合，以便于阅读或展示。"
+          }
+        },
+        "hant": {
+          "word": "排版",
+          "pronunciation": "pái bǎn",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "將文字、圖片等素材按一定規則或格式進行排列、組合，以便於閱讀或展示。",
+                "開放式",
+                "寫出來的話或文章。",
+                "指在一定條件下產生出來的東西或結果。"
+              ],
+              "correct_answer": "將文字、圖片等素材按一定規則或格式進行排列、組合，以便於閱讀或展示。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b8d12172-4967-4a34-8bd3-5a4eafdd4653",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "然而，受制于汉字数量庞大、___复杂以及社会结构的限制，这一技术未能引发大规模的知识普及浪潮。",
+        "original_sentence": "然而，受制于汉字数量庞大、排版复杂以及社会结构的限制，这一技术未能引发大规模的知识普及浪潮。",
+        "target_word": "排版",
+        "word": "排版",
+        "answer": {
+          "accepted": [
+            "排版",
+            "排了版",
+            "排过版",
+            "排版工",
+            "排版软件"
+          ],
+          "accepted_normalized": [
+            "排版",
+            "排了版",
+            "排过版",
+            "排版工",
+            "排版软件"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "然而，受制於漢字數量龐大、___複雜以及社會結構的限制，這一技術未能引發大規模的知識普及浪潮。",
+          "original_sentence": "然而，受制於漢字數量龐大、排版複雜以及社會結構的限制，這一技術未能引發大規模的知識普及浪潮。",
+          "target_word": "排版",
+          "word": "排版",
+          "answer": {
+            "accepted": [
+              "排版",
+              "排了版",
+              "排過版",
+              "排版工",
+              "排版軟體"
+            ],
+            "accepted_normalized": [
+              "排版",
+              "排了版",
+              "排過版",
+              "排版工",
+              "排版軟體"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a604d4e8-6d77-46bd-8e68-a2ad9956d0b8",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "排版需要很多耐心。",
+        "chunks": [
+          "排版",
+          "需要",
+          "很多耐心"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "需要",
+          "排版",
+          "很多耐心"
+        ],
+        "target_word": "排版",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "排版需要很多耐心。",
+          "chunks": [
+            "排版",
+            "需要",
+            "很多耐心"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "需要",
+            "排版",
+            "很多耐心"
+          ],
+          "target_word": "排版",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "3e3404c0-6d79-4dcc-81e7-01cb8ababc4c",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "排版",
+        "options": [
+          "pái bán",
+          "pái bān",
+          "pāi bǎn",
+          "pái bǎn"
+        ],
+        "correct_answer": "pái bǎn",
+        "word": "排版",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "排版",
+          "options": [
+            "pái bán",
+            "pái bān",
+            "pāi bǎn",
+            "pái bǎn"
+          ],
+          "correct_answer": "pái bǎn",
+          "word": "排版",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "201f3c07-c805-4748-89ed-31dd51558780",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "pái bǎn",
+        "options": [
+          "排版",
+          "抽排",
+          "安排",
+          "雕版"
+        ],
+        "correct_answer": "排版",
+        "word": "排版",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "抽排": "component",
+          "雕版": "component",
+          "安排": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "pái bǎn",
+          "options": [
+            "排版",
+            "抽排",
+            "安排",
+            "雕版"
+          ],
+          "correct_answer": "排版",
+          "word": "排版",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "抽排": "component",
+            "雕版": "component",
+            "安排": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f590feb7-0780-430a-b54c-cb5a6915f127",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "排版",
+        "toneless_pinyin": "pai ban",
+        "full_pinyin": "pái bǎn",
+        "options": [
+          "22",
+          "23",
+          "24",
+          "21"
+        ],
+        "correct_answer": "23",
+        "option_labels": {
+          "22": "rising (2) + rising (2)",
+          "23": "rising (2) + dipping (3)",
+          "24": "rising (2) + falling (4)",
+          "21": "rising (2) + high level (1)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "排版",
+          "toneless_pinyin": "pai ban",
+          "full_pinyin": "pái bǎn",
+          "options": [
+            "22",
+            "23",
+            "24",
+            "21"
+          ],
+          "correct_answer": "23",
+          "option_labels": {
+            "22": "rising (2) + rising (2)",
+            "23": "rising (2) + dipping (3)",
+            "24": "rising (2) + falling (4)",
+            "21": "rising (2) + high level (1)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "99521234-5128-4e77-bdf2-fa8e5201b6a3",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "排版",
+        "relation": "antonym",
+        "options": [
+          "打乱",
+          "校对",
+          "编辑",
+          "打印"
+        ],
+        "correct_answer": "打乱",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "将文字、图片等素材按一定规则或格式进行排列、组合，以便于阅读或展示。",
+            "explanation": "反义：排版指按规则排列组合，打乱指破坏原有排列与秩序，二者构成动作反义。"
+          }
+        },
+        "hant": {
+          "word": "排版",
+          "relation": "antonym",
+          "options": [
+            "打亂",
+            "校對",
+            "編輯",
+            "列印"
+          ],
+          "correct_answer": "打亂",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "將文字、圖片等素材按一定規則或格式進行排列、組合，以便於閱讀或展示。",
+              "explanation": "反義：排版指按規則排列組合，打亂指破壞原有排列與秩序，二者構成動作反義。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "编辑": 0.604953
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a38e9ce8-e3d3-4d03-b331-1e6e1dde6b4f",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他排版了杂志在办公室。",
+            "is_correct": false,
+            "error_description": "地点状语“在办公室”应放在动词“排版”之前，不能放在句末。"
+          },
+          {
+            "text": "他学会了电脑排版。",
+            "is_correct": true
+          },
+          {
+            "text": "他排版印出了这本杂志。",
+            "is_correct": true
+          },
+          {
+            "text": "排版格式必须整齐。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他排版了雜誌在辦公室。",
+              "is_correct": false,
+              "error_description": "地點狀語“在辦公室”應放在動詞“排版”之前，不能放在句末。"
+            },
+            {
+              "text": "他學會了電腦排版。",
+              "is_correct": true
+            },
+            {
+              "text": "他排版印出了這本雜誌。",
+              "is_correct": true
+            },
+            {
+              "text": "排版格式必須整齊。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "90b35381-041c-456f-9f1e-8d6e3f1e9797",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___格式必须整齐。",
+        "original_sentence": "排版格式必须整齐。",
+        "target_word": "排版",
+        "word": "排版",
+        "answer": {
+          "accepted": [
+            "排版",
+            "排了版",
+            "排过版",
+            "排版工",
+            "排版软件"
+          ],
+          "accepted_normalized": [
+            "排版",
+            "排了版",
+            "排过版",
+            "排版工",
+            "排版软件"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "___格式必須整齊。",
+          "original_sentence": "排版格式必須整齊。",
+          "target_word": "排版",
+          "word": "排版",
+          "answer": {
+            "accepted": [
+              "排版",
+              "排了版",
+              "排過版",
+              "排版工",
+              "排版軟體"
+            ],
+            "accepted_normalized": [
+              "排版",
+              "排了版",
+              "排過版",
+              "排版工",
+              "排版軟體"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "46f47299-822b-4d27-a327-30ba305d1bf5",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "老师教我们如何排版。",
+        "chunks": [
+          "老师",
+          "教我们如何",
+          "排版"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "老师",
+          "排版",
+          "教我们如何"
+        ],
+        "target_word": "排版",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "老師教我們如何排版。",
+          "chunks": [
+            "老師",
+            "教我們如何",
+            "排版"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "老師",
+            "排版",
+            "教我們如何"
+          ],
+          "target_word": "排版",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1ffcc10d-b434-4788-a194-11d8cb398665",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "排版",
+        "relation": "antonym",
+        "options": [
+          "设计",
+          "印刷",
+          "编辑",
+          "打乱"
+        ],
+        "correct_answer": "打乱",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "将文字、图片等素材按一定规则或格式进行排列、组合，以便于阅读或展示。",
+            "explanation": "反义：排版指按规则排列组合素材，打乱指破坏已有的排列秩序，二者动作方向相反"
+          }
+        },
+        "hant": {
+          "word": "排版",
+          "relation": "antonym",
+          "options": [
+            "設計",
+            "印刷",
+            "編輯",
+            "打亂"
+          ],
+          "correct_answer": "打亂",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "將文字、圖片等素材按一定規則或格式進行排列、組合，以便於閱讀或展示。",
+              "explanation": "反義：排版指按規則排列組合素材，打亂指破壞已有的排列秩序，二者動作方向相反"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "印刷": 0.549586,
+            "编辑": 0.604953,
+            "设计": 0.520768
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10112,
+      "word_asset_id": "shadow-10112-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00435072,
+      "prompt_tokens": 2512,
+      "completion_tokens": 2771,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48463
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006912,
+      "prompt_tokens": 216,
+      "completion_tokens": 486,
+      "cached_tokens": 0,
+      "reasoning_tokens": 466,
+      "call_role": "repair",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 9347
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00296032,
+      "prompt_tokens": 663,
+      "completion_tokens": 2147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1878,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37729
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0022448,
+      "prompt_tokens": 643,
+      "completion_tokens": 1593,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1409,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 28204
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00280064,
+      "prompt_tokens": 644,
+      "completion_tokens": 2027,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1794,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 35681
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00321472,
+      "prompt_tokens": 1486,
+      "completion_tokens": 2140,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37513
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00323968,
+      "prompt_tokens": 1484,
+      "completion_tokens": 2160,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37802
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00398784,
+      "prompt_tokens": 1674,
+      "completion_tokens": 2697,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47304
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00404288,
+      "prompt_tokens": 1674,
+      "completion_tokens": 2740,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47843
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00289568,
+      "prompt_tokens": 421,
+      "completion_tokens": 2157,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37828
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001664856,
+      "prompt_tokens": 415,
+      "completion_tokens": 58,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2207
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002024,
+      "prompt_tokens": 729,
+      "completion_tokens": 1399,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1298,
+      "call_role": "json_repair",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 25123
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00091456,
+      "prompt_tokens": 434,
+      "completion_tokens": 606,
+      "cached_tokens": 0,
+      "reasoning_tokens": 581,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 11432
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00132128,
+      "prompt_tokens": 553,
+      "completion_tokens": 894,
+      "cached_tokens": 0,
+      "reasoning_tokens": 825,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 16113
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00065696,
+      "prompt_tokens": 417,
+      "completion_tokens": 409,
+      "cached_tokens": 0,
+      "reasoning_tokens": 383,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 8090
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00125856,
+      "prompt_tokens": 553,
+      "completion_tokens": 845,
+      "cached_tokens": 0,
+      "reasoning_tokens": 776,
+      "call_role": "primary",
+      "sense_id": 10112,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 17205
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.036770325599999994,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 287.3119999999908,
+  "finished_at": "2026-10-08T09:22:21.638977+00:00"
+}

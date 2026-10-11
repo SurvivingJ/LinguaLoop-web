@@ -1,0 +1,1484 @@
+{
+  "sense_id": 36191,
+  "language_id": 3,
+  "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+  "started_at": "2026-10-04T04:55:15.270702+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] rejected (rating 2): 対象語欠落"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.33393025398254395,
+    "p1_generate": 15.296118974685669,
+    "tier_gate": 0.0,
+    "p1_judge": 8.143019199371338,
+    "collocate_grounding": 0.0,
+    "fan_out": 18.191107034683228
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] rejected (rating 2): 対象語欠落"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "miɾu",
+        "morphological_forms": [
+          {
+            "form": "見た",
+            "label": "活用"
+          },
+          {
+            "form": "見て",
+            "label": "活用"
+          },
+          {
+            "form": "見ない",
+            "label": "活用"
+          },
+          {
+            "form": "見られる",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "みる",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            36191
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "f19cf1a6-c0f5-4a1e-b6bb-be213eae3f04",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "見る",
+        "pronunciation": "みる",
+        "ipa": "miɾu",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "刈る",
+          "ずる",
+          "見る",
+          "乗る"
+        ],
+        "correct_answer": "見る",
+        "explanation": "正解です。「見る」は「目で物の存在や様子を確かめる。」という意味です。",
+        "distractor_explanations": {
+          "刈る": "「刈る」は「見る」と一モーラだけ異なる実在語です（1モーラ目: 「み」→「か」、一部の音の違い）。",
+          "ずる": "「ずる」は「見る」と一モーラだけ異なる実在語です（1モーラ目: 「み」→「ず」、一部の音の違い）。",
+          "乗る": "「乗る」は「見る」と一モーラだけ異なる実在語です（1モーラ目: 「み」→「の」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "l1_distractor_judge": {
+          "rejected": 5,
+          "kept": 5,
+          "rejected_items": [
+            "皇女",
+            "申",
+            "鶴",
+            "皆",
+            "三つ"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3ac4c5c1-5a9c-4640-9d11-c0ad263c6cb8",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "見",
+        "pronunciation": "みる",
+        "correct_definition": "目で物の存在や様子を確かめる。",
+        "options": [
+          "目で物の存在や様子を確かめる。",
+          "ある目的のために、体や道具を使って物事を行うこと。特に、仕事や活動として取り組むこと。",
+          "食物を口に入れたときに感じる、硬さや柔らかさ、歯ごたえなどの触覚的な印象。",
+          "正午から夕方までの時間帯。午前の後の時間。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "63a7b46d-d6f7-4010-b204-e994b80c6dba",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "窓の外には、___慣れた商店街の景色が広がっていました。",
+        "original_sentence": "窓の外には、見慣れた商店街の景色が広がっていました。",
+        "correct_answer": "見",
+        "options": [
+          "聞き",
+          "走り",
+          "食べ",
+          "見"
+        ],
+        "explanation": "正解です。文脈「窓の外には、～景色が広がっていました」において、視覚的に確認する動作を表す動詞「見」が適切です。",
+        "distractor_tags": {},
+        "word_definition": "目で物の存在や様子を確かめる。",
+        "target_word": "見"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "6cd76393-2df0-40b4-ab29-a7d5874b2aee",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "一方で、農村の実際の様子を___と、労働需要の質が変化していることがわかります。",
+        "original_sentence": "一方で、農村の実際の様子を見ると、労働需要の質が変化していることがわかります。",
+        "correct_answer": "見る",
+        "base_form": "見",
+        "form_label": "辞書形",
+        "options": [
+          "見て",
+          "見た",
+          "見ない",
+          "見る"
+        ],
+        "explanation": "様態や条件を表す「と」に接続するため、辞書形（基本形）が適切です。",
+        "word_definition": "目で物の存在や様子を確かめる。",
+        "target_word": "見る"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "67f96665-35d0-483f-aca6-36f35aafff3d",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "私はあの映画を見ことできます。",
+            "is_correct": false
+          },
+          {
+            "text": "あの映画はもう見ますか。",
+            "is_correct": false
+          },
+          {
+            "text": "あの映画はもう見ましたか。",
+            "is_correct": true
+          },
+          {
+            "text": "あの映画は私に見ました。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "アスペクトの誤り：完了した事柄や経験の有無を問う場合、「もう～ましたか（過去形・完了）」とするのが自然です。「見ますか」では未来の意志や習慣を問うニュアンスになり、文脈「もう（already）」と整合しません。 活用の誤り：動詞の可能表現を作る際、一段動詞（見る）は「見ることができます」または「見られます」となります。「見ことできます」は活用規則に従っていない誤った形式です。 助詞の混同：動作の対象（映画）を示す助詞は「を」を用います。「に」は方向や相手、存在場所などを示すため、この文脈では不適切です。正しくは「あの映画を見ました」です。",
+        "target_word": "見"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "74045758-8162-4045-b15d-af6a617f734a",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "窓の外には、見慣れた商店街の景色が広がっていました。",
+            "is_correct": true
+          },
+          {
+            "text": "一方で、農村の実際の様子を見ると、労働需要の質が変化していることがわかります。",
+            "is_correct": true
+          },
+          {
+            "text": "私は公園で鳥を見います。",
+            "is_correct": false,
+            "error_description": "動詞「見る」のテ形は「見て」です。「見います」という活用形は存在しません。進行・状態を表す場合は「～ています」の形を使います。"
+          },
+          {
+            "text": "私は公園で鳥を見ています。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "3a708662-db5e-47b1-83b9-81c8090e94f8",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "写真を見て、思い出してください。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ad031b50-05cc-45e1-8c2d-a82280904b9b",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "見",
+        "pronunciation": "みる",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "目で物の存在や様子を確かめる。",
+              "集合",
+              "Asia — one of the world's continents, spanning the eastern and southern parts of Eurasia, home to many countries",
+              "hard"
+            ],
+            "correct_answer": "目で物の存在や様子を確かめる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "a18792e3-124d-40e1-8d80-b76bd46047ba",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "一方で、農村の実際の様子を___と、労働需要の質が変化していることがわかります。",
+        "original_sentence": "一方で、農村の実際の様子を見ると、労働需要の質が変化していることがわかります。",
+        "target_word": "見る",
+        "word": "見",
+        "answer": {
+          "accepted": [
+            "見る"
+          ],
+          "accepted_normalized": [
+            "見る"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d0da2f5d-4392-4ed3-954d-4ce75fa27219",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "写真を見て、思い出してください。",
+        "chunks": [
+          "写真を",
+          "見て",
+          "思い出して",
+          "ください"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "思い出して",
+          "写真を",
+          "ください",
+          "見て"
+        ],
+        "target_word": "見て",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "c308b1f7-e2dc-481a-af1c-8fc40ba497e2",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "みる",
+        "options": [
+          "販売",
+          "視覚",
+          "見る",
+          "現在"
+        ],
+        "correct_answer": "見る",
+        "word": "見る",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "視覚": "component",
+          "現在": "component",
+          "販売": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b8b91dd7-5893-4294-ad40-18f88d0c4dbe",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "一方で、農村の実際の様子___見ると、労働需要の質が変化していることがわかります。",
+        "original_sentence": "一方で、農村の実際の様子を見ると、労働需要の質が変化していることがわかります。",
+        "options": [
+          "で",
+          "に",
+          "が",
+          "を"
+        ],
+        "correct_answer": "を",
+        "target_word": "見る",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "に": "location_vs_target",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「見る」の直接目的語（対象）を示す格助詞です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "9dd461e6-8221-48ea-8aca-efffb4c28df5",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "彼は黒板を___ながら話を聞きました。",
+        "original_sentence": "彼は黒板を見ながら話を聞きました。",
+        "correct_answer": "見",
+        "options": [
+          "食べ",
+          "走り",
+          "聞き",
+          "見"
+        ],
+        "explanation": "正解です。文脈「黒板を＿＿ながら話を聞きました」では、視線を向けて確認する行為を表す「見」が適切です。",
+        "distractor_tags": {},
+        "word_definition": "目で物の存在や様子を確かめる。",
+        "target_word": "見"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "437c61dc-6744-411e-8cd3-e0602428a85b",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この絵本は色彩豊かで、子どもがよく___ています。",
+        "original_sentence": "この絵本は色彩豊かで、子どもがよく見ています。",
+        "correct_answer": "見",
+        "base_form": "見",
+        "form_label": "連用形",
+        "options": [
+          "見る",
+          "見ない",
+          "見",
+          "見て"
+        ],
+        "explanation": "文脈から連用形中止法（または名詞的用法）として機能し、文末でリズムを整える適切な形です。",
+        "word_definition": "目で物の存在や様子を確かめる。",
+        "target_word": "見"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c1628499-906b-4a86-af73-c9a567190714",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "テレビを見ています時間短くしましょう。",
+            "is_correct": false
+          },
+          {
+            "text": "テレビに見る時間は短くしましょう。",
+            "is_correct": false
+          },
+          {
+            "text": "テレビを見るは好きです。",
+            "is_correct": false
+          },
+          {
+            "text": "テレビを見る時間は短くしましょう。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "語順・係り受けの誤り：不正解です。動詞の辞書形「見る」を直接主語として扱うことはできません。「見ること」または「見るの」のように名詞化する必要があります。 助詞の混同：不正解です。「テレビを見る」は他動詞構文であり、対象物は助詞「を」で示します。「に」は方向や到着点を示すため、この文脈では誤りです。 活用・アスペクトの誤り：不正解です。「見ています」は進行形・状態の継続を表しますが、ここでの「見る時間」は習慣的な行為の量を指しており、辞書形または名詞修飾としての「見る」が適切です。また、文末との接続も不自然です。",
+        "target_word": "見る"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "テレビを見ることが好きです。"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "0018e3e2-c351-4293-9c9b-890f3556789c",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "あの映画はもう見ましたか。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "d59a5d21-de58-4490-8a24-2cb2e034e55b",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この絵本は色彩豊かで、子どもがよく___ています。",
+        "original_sentence": "この絵本は色彩豊かで、子どもがよく見ています。",
+        "target_word": "見",
+        "word": "見",
+        "answer": {
+          "accepted": [
+            "見"
+          ],
+          "accepted_normalized": [
+            "見"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c6d2670c-dae1-4161-92ac-c2b297ea5f55",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "見",
+        "relation": "antonym",
+        "options": [
+          "読む",
+          "隠す",
+          "聞く",
+          "探す"
+        ],
+        "correct_answer": "隠す",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "目で物の存在や様子を確かめる。",
+            "explanation": "対象を見えないようにする行為であり、見る行為の対義である。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "聞く": 0.436615,
+            "読む": 0.592212
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36191,
+      "word_asset_id": "shadow-36191-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 5,
+      "kept": 5
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 1,
+      "kept": 7
+    },
+    "particle": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "chunker returned empty or blank chunks"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183936,
+      "prompt_tokens": 2620,
+      "completion_tokens": 782,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 15112
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00044768,
+      "prompt_tokens": 727,
+      "completion_tokens": 168,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3781
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00016096,
+      "prompt_tokens": 259,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2073
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027616,
+      "prompt_tokens": 647,
+      "completion_tokens": 54,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2075
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00066368,
+      "prompt_tokens": 1638,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3155
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00067488,
+      "prompt_tokens": 1637,
+      "completion_tokens": 118,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3647
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00050528,
+      "prompt_tokens": 815,
+      "completion_tokens": 191,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4059
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00049984,
+      "prompt_tokens": 810,
+      "completion_tokens": 188,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4206
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00062528,
+      "prompt_tokens": 1098,
+      "completion_tokens": 214,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4643
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006224,
+      "prompt_tokens": 1017,
+      "completion_tokens": 232,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4943
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00041056,
+      "prompt_tokens": 743,
+      "completion_tokens": 135,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3813
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00046144,
+      "prompt_tokens": 742,
+      "completion_tokens": 175,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4454
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017856,
+      "prompt_tokens": 2652,
+      "completion_tokens": 732,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 13659
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00210816,
+      "prompt_tokens": 2652,
+      "completion_tokens": 984,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 18077
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00054592,
+      "prompt_tokens": 822,
+      "completion_tokens": 221,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4894
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0003104,
+      "prompt_tokens": 694,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2261
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0001952,
+      "prompt_tokens": 522,
+      "completion_tokens": 22,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1519
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002848,
+      "prompt_tokens": 602,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2237
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00025024,
+      "prompt_tokens": 614,
+      "completion_tokens": 42,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1881
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00053312,
+      "prompt_tokens": 822,
+      "completion_tokens": 211,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 5488
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00039808,
+      "prompt_tokens": 892,
+      "completion_tokens": 88,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3410
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00019328,
+      "prompt_tokens": 528,
+      "completion_tokens": 19,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1439
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027776,
+      "prompt_tokens": 620,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36191,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2073
+    }
+  ],
+  "llm_calls_observed": 23,
+  "llm_cost_observed_usd": 0.01407008,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 68.64099999994505,
+  "finished_at": "2026-10-04T04:56:23.912872+00:00"
+}

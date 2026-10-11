@@ -88,6 +88,21 @@ from typing import Callable, Iterable
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Must run before any services.* import: services.llm_service reads
+# OPENROUTER_API_KEY at import time, so if that import happens first this
+# load_dotenv() (previously only called deep inside main(), line ~1543)
+# arrives too late and every call sends a blank bearer token (401).
+from dotenv import load_dotenv  # noqa: E402
+load_dotenv()
+
+from services.llm_service import (  # noqa: E402
+    ladder_qwen_reasoning_budget_tokens,
+    ladder_qwen_reasoning_mode,
+)
+from services.exercise_generation.judges.base import (  # noqa: E402
+    JudgeUnavailable, batch_mode,
+)
+
 logger = logging.getLogger('exercise_gen_eval')
 
 LANG_CODE_TO_ID: dict[str, int] = {'zh': 1, 'en': 2, 'ja': 3}
@@ -667,6 +682,96 @@ def _skip_to_dict(skip) -> dict:
     return {'type_code': getattr(skip, 'type_code', None), 'reason': getattr(skip, 'reason', None)}
 
 
+# ---------------------------------------------------------------------------
+# Fail-closed judging (armD incident, 2026-10-05) -- per-sense judge-failure
+# capture
+# ---------------------------------------------------------------------------
+#
+# This harness previously ran generation/render OUTSIDE batch_mode(), so every
+# judge in services/exercise_generation/judges/ took its fail-OPEN path
+# (safe_accept / guard_fail_open as a no-op) on any error -- a 400/404/429, a
+# malformed response, a missing template all silently became "keep
+# everything" instead of a recorded failure, which is the opposite of
+# production's own policy (scripts/run_generation_batch.py runs every sense
+# inside batch_mode()). The armD run never surfaced its own 160x ja + 226x zh
+# judge 400s anywhere in summary.json because of exactly this gap.
+#
+# Two things change below:
+#   1. process_one_sense now runs generation + render inside batch_mode(), so
+#      a judge that cannot run raises JudgeUnavailable instead of rubber-
+#      stamping -- matching scripts/run_generation_batch.py's own contract.
+#   2. A logging.Handler scoped to the judges' own logger namespace captures
+#      every WARNING a judge emits on its way to failing (open or closed) --
+#      this is the only place the underlying error (400 vs. 404 vs. 429 vs.
+#      a parse failure) is visible as text, since JudgeUnavailable's own
+#      message only carries the judge name + model/version, not the error
+#      that caused it.
+_JUDGE_LOGGER_PREFIX = 'services.exercise_generation.judges'
+
+_ERROR_CLASS_PATTERNS: tuple[tuple[str, re.Pattern], ...] = tuple(
+    (label, re.compile(pattern, re.IGNORECASE))
+    for label, pattern in (
+        ('thinking_budget_400', r'max_completion_tokens.*greater than.*thinking_budget'),
+        ('400', r"error code:\s*400|'code':\s*400|\b400\b"),
+        ('404', r"error code:\s*404|'code':\s*404|no endpoints found|\b404\b"),
+        ('429', r"error code:\s*429|'code':\s*429|rate.?limit|\b429\b"),
+        ('timeout', r'timeout|timed out'),
+        ('empty_content', r'empty content|no choices'),
+        ('parse_error',
+         r'jsondecodeerror|non-dict|malformed|unparseable|'
+         r"expecting ('|,|value|property name)|extra data"),
+        ('template_missing', r'template (load|missing|not found)'),
+        ('validation_error', r'validationerror|schema'),
+    )
+)
+
+
+def _classify_judge_error(message: str) -> str:
+    """Best-effort error-class label parsed out of a judge's own warning
+    text (see `_ERROR_CLASS_PATTERNS`). 'other' when nothing matches -- this
+    is a diagnostic aid for summary.json, not a contract any code branches
+    on."""
+    for label, pattern in _ERROR_CLASS_PATTERNS:
+        if pattern.search(message):
+            return label
+    return 'other'
+
+
+class _JudgeFailureCapture(logging.Handler):
+    """Collects every WARNING/ERROR a judge module logs while attached.
+
+    Scoped to the `services.exercise_generation.judges` logger namespace so
+    it never captures unrelated harness/pipeline log noise. Attach/detach
+    around one sense's generate+render so each judge failure can be
+    attributed to the sense that produced it.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(level=logging.WARNING)
+        self.records: list[dict] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            message = record.getMessage()
+        except Exception:
+            message = record.msg if isinstance(record.msg, str) else repr(record.msg)
+        judge_match = re.match(r'^([\w.]+):', message)
+        judge = judge_match.group(1) if judge_match else record.name.rsplit('.', 1)[-1]
+        self.records.append({
+            'judge': judge,
+            'error_class': _classify_judge_error(message),
+            'message': message[:500],
+            'logger': record.name,
+        })
+
+
+def _attach_judge_failure_capture() -> tuple[_JudgeFailureCapture, 'logging.Logger']:
+    judges_logger = logging.getLogger(_JUDGE_LOGGER_PREFIX)
+    handler = _JudgeFailureCapture()
+    judges_logger.addHandler(handler)
+    return handler, judges_logger
+
+
 def process_one_sense(
     pipeline,
     renderer,
@@ -700,6 +805,15 @@ def process_one_sense(
     spending more money on output that was, per the task brief, waste anyway
     (nothing renders without a valid prompt1_core, and the harness's whole
     point is bounding spend).
+
+    Both stages run inside `batch_mode()` (armD incident, 2026-10-05) so a
+    judge that cannot run raises `JudgeUnavailable` instead of silently
+    rubber-stamping -- matching `scripts/run_generation_batch.py`'s own
+    production policy. A `_JudgeFailureCapture` log handler, scoped to the
+    judges' own logger namespace, records every judge WARNING (fail-open or
+    fail-closed) into `capture['judge_failures']` so a run's summary.json can
+    report per-judge/per-error-class counts even when the judge in question
+    failed open rather than aborting the sense.
     """
     from services.llm_service import generation_context
 
@@ -724,10 +838,13 @@ def process_one_sense(
         'llm_cost_observed_usd': 0.0,
         'render_skipped_cost_cap': False,
         'exceptions': [],
+        'judge_failures': [],
     }
 
+    gen_handler, judges_logger = _attach_judge_failure_capture()
     try:
-        with generation_context(sense_id=sense_id, generation_batch_id=batch_id):
+        with generation_context(sense_id=sense_id, generation_batch_id=batch_id), \
+             batch_mode():
             gen_result = pipeline._generate_for_sense_impl(
                 sense_id, language_id, force, batch_id,
             )
@@ -737,10 +854,21 @@ def process_one_sense(
         capture['stage_seconds'] = gen_result.get('stage_seconds', {})
         capture['tier_gate'] = gen_result.get('tier_gate')
         capture['collocate_grounding'] = gen_result.get('collocate_grounding')
+    except JudgeUnavailable as exc:
+        capture['status'] = 'judge_unavailable'
+        capture['exceptions'].append({
+            'stage': 'generate_judge_unavailable', 'error': repr(exc),
+            'trace': traceback.format_exc(),
+        })
     except Exception as exc:
         capture['exceptions'].append({
             'stage': 'generate', 'error': repr(exc), 'trace': traceback.format_exc(),
         })
+    finally:
+        judges_logger.removeHandler(gen_handler)
+        capture['judge_failures'].extend(
+            dict(r, stage='generate') for r in gen_handler.records
+        )
 
     # Abort in-flight work between pipeline stages: if the run's cost cap was
     # already reached during generation (P1/P2/P3/typed), rendering (which
@@ -759,18 +887,31 @@ def process_one_sense(
             f"generation for this sense",
         ]
     elif capture['status'] in ('success', 'partial'):
+        render_handler, judges_logger = _attach_judge_failure_capture()
         try:
-            with generation_context(sense_id=sense_id, generation_batch_id=batch_id):
+            with generation_context(sense_id=sense_id, generation_batch_id=batch_id), \
+                 batch_mode():
                 rows = renderer.build_rows(sense_id, language_id)
             capture['exercise_rows'] = rows
             capture['deterministic_skips'] = [
                 _skip_to_dict(s) for s in (getattr(renderer, 'last_skips', None) or [])
             ]
             capture['judges'] = _summarize_judges(rows)
+        except JudgeUnavailable as exc:
+            capture['status'] = 'judge_unavailable'
+            capture['exceptions'].append({
+                'stage': 'render_judge_unavailable', 'error': repr(exc),
+                'trace': traceback.format_exc(),
+            })
         except Exception as exc:
             capture['exceptions'].append({
                 'stage': 'render', 'error': repr(exc), 'trace': traceback.format_exc(),
             })
+        finally:
+            judges_logger.removeHandler(render_handler)
+            capture['judge_failures'].extend(
+                dict(r, stage='render') for r in render_handler.records
+            )
 
     with lock:
         relevant = [r for r in capture_sink if _extract_sense_id(r) == sense_id]
@@ -860,6 +1001,24 @@ def build_summary(
     all_llm_call_rows = [r for r in capture_sink if r['table'] == 'llm_calls']
     all_llm_call_rows += cost_ledger.all_rows() if cost_ledger else []
 
+    # armD incident (2026-10-05): per-judge/per-error-class failure counts,
+    # pooled across every sense in this run -- regardless of whether that
+    # judge happened to fail open (safe_accept) or fail closed
+    # (JudgeUnavailable, aborting the sense). This is what would have
+    # surfaced the 160x ja + 226x zh "max_completion_tokens must be greater
+    # than thinking_budget" 400s directly in summary.json instead of only in
+    # the raw run log.
+    judge_failure_counts: dict = defaultdict(int)
+    judge_failures_total = 0
+    for c in captures:
+        for failure in (c.get('judge_failures') or []):
+            key = f"{failure.get('judge')}|{failure.get('error_class')}"
+            judge_failure_counts[key] += 1
+            judge_failures_total += 1
+    senses_with_judge_unavailable = sum(
+        1 for c in captures if c.get('status') == 'judge_unavailable'
+    )
+
     return {
         'batch_id': batch_id,
         'requested_senses': requested_count,
@@ -871,6 +1030,9 @@ def build_summary(
         'invalid_asset_rate_by_type': invalid_rate_by_type,
         'exercises_per_sense': exercises_per_sense,
         'judge_reject_counts': dict(judge_totals),
+        'judge_failure_counts_by_judge_and_error_class': dict(judge_failure_counts),
+        'judge_failures_total': judge_failures_total,
+        'senses_with_judge_unavailable': senses_with_judge_unavailable,
         'cost_usd_total_observed': cost_total,
         'stopped_due_to_cost_cap': stopped_due_to_cost_cap,
         'llm_calls_observed_count': len(all_llm_call_rows),
@@ -1581,6 +1743,19 @@ def main(argv: list[str] | None = None) -> int:
             'prompt_overrides_applied': applied_prompt_overrides,
             'prompt_override_file': args.prompt_override_file,
             'senses_from': args.senses_from,
+            # ADR-028 attribution flag (2026-10-03): 'on' (default) runs this
+            # eval under the Phase-1-validated qwen reasoning state (+
+            # reasoning-safe max_tokens caps); 'off' runs under the current
+            # cost-fix state (+ right-sized caps). See
+            # services.llm_service.ladder_qwen_reasoning_mode.
+            'ladder_qwen_reasoning': ladder_qwen_reasoning_mode(),
+            # ADR-028 Outcome 2026-10-08: effective budget for this run's
+            # language (per-language env override > global > 1024); only
+            # meaningful when the mode is 'budget', else null.
+            'ladder_qwen_reasoning_budget': (
+                ladder_qwen_reasoning_budget_tokens(args.lang)
+                if ladder_qwen_reasoning_mode() == 'budget' else None
+            ),
         },
     )
 

@@ -41,7 +41,9 @@ from services.vocabulary_ladder.asset_generators import typed_llm
 from services.vocabulary_ladder.collocation_grounding import (
     GROUNDING_ASSERTED, GROUNDING_CORPUS, CollocationGrounder, ground_core_asset,
 )
-from services.vocabulary_ladder.validators import VocabAssetValidator
+from services.vocabulary_ladder.validators import (
+    VocabAssetValidator, is_sentence_scoped, parse_sentence_errors,
+)
 from services.vocabulary_ladder.bundle.flags import bundle_authoritative, bundle_enabled
 from services.vocabulary_ladder.bundle.generator import BundleGenerator
 
@@ -183,6 +185,39 @@ class VocabAssetPipeline:
         p1_valid, p1_errors, p1_warnings = self.validator.validate_prompt1(
             core_asset, language_id,
         )
+        if not p1_valid:
+            # TASK-8xx (coverage-gap fix #2): when EVERY structural error is
+            # confined to specific sentences (e.g. a whole-word mismatch, or a
+            # sentence that simply doesn't contain the target at all — both
+            # observed live, e.g. en sense 15328 "away" / ja sense 34999 "一"),
+            # repair just those sentences in place via the SAME index-
+            # preserving `repair_sentences` the tier gate and the P1 sentence
+            # judge already use below, instead of letting one bad sentence out
+            # of ten fail the whole asset. The blunt whole-JSON `repair()`
+            # call below is tried only if this doesn't fully resolve it (or
+            # doesn't apply) — it has no index discipline and, observed live,
+            # sometimes rewrites unrelated fields (e.g. semantic_class) while
+            # leaving the actual bad sentence untouched.
+            if is_sentence_scoped(p1_errors):
+                bad_sentences = parse_sentence_errors(p1_errors)
+                with stage('p1_sentence_repair', stage_seconds):
+                    repaired_texts = p1_gen.repair_sentences(
+                        core_asset, sorted(bad_sentences.keys()), bad_sentences,
+                        sense_id,
+                    )
+                if repaired_texts:
+                    sentences = core_asset.get('sentences') or []
+                    for idx, new_text in repaired_texts.items():
+                        if 0 <= idx < len(sentences) and isinstance(sentences[idx], dict):
+                            sentences[idx]['text'] = new_text
+                    p1_valid, p1_errors, p1_warnings = self.validator.validate_prompt1(
+                        core_asset, language_id,
+                    )
+                    if p1_valid:
+                        logger.info(
+                            "Prompt 1 sentence repair succeeded for sense %s "
+                            "(indices %s)", sense_id, sorted(bad_sentences.keys()),
+                        )
         if not p1_valid:
             with stage('p1_repair', stage_seconds):
                 repaired = p1_gen.repair(core_asset, p1_errors, sense_id)

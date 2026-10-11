@@ -1,0 +1,110 @@
+{
+  "sense_id": 35033,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T12:47:35.933412+00:00",
+  "status": "failed",
+  "errors": [
+    "P1 sentence judge: too few acceptable sentences after repair"
+  ],
+  "warnings": [
+    "P1 sentence[0] rejected (rating 2): 語域：疑問文でpolite不整合",
+    "P1 sentence[1] rejected (rating 1): 対象語欠落：なるを使用",
+    "P1 sentence[2] rejected (rating 1): 対象語欠落：なるを使用",
+    "P1 sentence[3] rejected (rating 1): 対象語欠落：なるを使用",
+    "P1 sentence[4] rejected (rating 1): 対象語欠落：該当語なし",
+    "P1 sentence[5] rejected (rating 1): 対象語欠落：なりを使用",
+    "P1 sentence[6] rejected (rating 1): 対象語欠落：なるを使用",
+    "P1 sentence[7] rejected (rating 1): 非文法的：主語と結果の搭配不適",
+    "P1 sentence[8] rejected (rating 1): 対象語欠落：なるを使用",
+    "P1 sentence[9] rejected (rating 1): 対象語欠落：なるを使用",
+    "P1 sentence judge: only 0 acceptable sentences (< 6) after repair — asset blocked."
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.2186720371246338,
+    "p1_generate": 42.158167600631714,
+    "tier_gate": 23.928385496139526,
+    "p1_judge": 101.32565593719482
+  },
+  "assets": [],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00401728,
+      "prompt_tokens": 2942,
+      "completion_tokens": 2403,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 41957
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0014512,
+      "prompt_tokens": 283,
+      "completion_tokens": 1063,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35033,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23746
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018688,
+      "prompt_tokens": 856,
+      "completion_tokens": 1246,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22718
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 35033,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": null
+    }
+  ],
+  "llm_calls_observed": 4,
+  "llm_cost_observed_usd": 0.00733728,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 1,
+    "repaired": 1,
+    "still_failing": 0
+  },
+  "collocate_grounding": null,
+  "wall_clock_s": 168.75,
+  "finished_at": "2026-10-05T12:50:24.690174+00:00"
+}

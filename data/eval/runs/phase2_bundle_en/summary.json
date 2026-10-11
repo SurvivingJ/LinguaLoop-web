@@ -1,0 +1,880 @@
+{
+  "batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+  "requested_senses": 30,
+  "attempted_senses": 30,
+  "status_counts": {
+    "success": 9,
+    "partial": 3,
+    "failed": 18
+  },
+  "run_wall_clock_s": 1096.7660000000615,
+  "per_sense_wall_clock_s": {
+    "13898": 100.125,
+    "13900": 119.17199999990407,
+    "13902": 118.73499999998603,
+    "13929": 78.01599999994505,
+    "13931": 75.64100000006147,
+    "13946": 79.28099999995902,
+    "13981": 87.45299999997951,
+    "14001": 84.875,
+    "14010": 99.375,
+    "14015": 83.57900000002701,
+    "14020": 79.42200000002049,
+    "14024": 71.93700000003446,
+    "14033": 1.0469999999040738,
+    "14040": 0.9060000000754371,
+    "14090": 0.8900000000139698,
+    "14100": 0.9839999999385327,
+    "14189": 0.875,
+    "14390": 0.8900000000139698,
+    "14473": 0.765999999945052,
+    "14544": 0.859000000054948,
+    "15150": 0.890999999945052,
+    "15216": 0.8439999999245629,
+    "15328": 1.172000000020489,
+    "16031": 0.8900000000139698,
+    "16181": 0.7970000000204891,
+    "19458": 0.9060000000754371,
+    "19480": 0.7349999999860302,
+    "19521": 0.7810000000754371,
+    "40142": 0.75,
+    "40248": 0.7820000000065193
+  },
+  "assets_per_sense": {
+    "13898": 7,
+    "13900": 7,
+    "13902": 7,
+    "13929": 7,
+    "13931": 7,
+    "13946": 7,
+    "13981": 7,
+    "14001": 7,
+    "14010": 7,
+    "14015": 7,
+    "14020": 7,
+    "14024": 7,
+    "14033": 0,
+    "14040": 0,
+    "14090": 0,
+    "14100": 0,
+    "14189": 0,
+    "14390": 0,
+    "14473": 0,
+    "14544": 0,
+    "15150": 0,
+    "15216": 0,
+    "15328": 0,
+    "16031": 0,
+    "16181": 0,
+    "19458": 0,
+    "19480": 0,
+    "19521": 0,
+    "40142": 0,
+    "40248": 0
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 12,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 12,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 9,
+      "invalid": 3,
+      "invalid_rate": 0.25
+    },
+    "llm_types_A": {
+      "valid": 12,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 12,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 12,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_B": {
+      "valid": 12,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "13898": {
+      "total": 16,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 1,
+        "4": 4,
+        "6": 2,
+        "7": 2,
+        "9": 4
+      }
+    },
+    "13900": {
+      "total": 17,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "morphology_slot": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "synonym_antonym_match": 1,
+        "word_family": 2,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 1,
+        "4": 6,
+        "7": 2,
+        "9": 4,
+        "6": 2
+      }
+    },
+    "13902": {
+      "total": 12,
+      "by_type": {
+        "definition_match": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 1,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 4,
+        "cloze_typed": 1,
+        "word_family": 1
+      },
+      "by_level": {
+        "2": 2,
+        "4": 4,
+        "6": 1,
+        "7": 1,
+        "9": 4
+      }
+    },
+    "13929": {
+      "total": 19,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "word_family": 2
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "4": 6,
+        "6": 2,
+        "7": 2,
+        "9": 4
+      }
+    },
+    "13931": {
+      "total": 19,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "word_family": 2
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "4": 6,
+        "6": 2,
+        "7": 2,
+        "9": 4
+      }
+    },
+    "13946": {
+      "total": 12,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "9": 4,
+        "4": 2
+      }
+    },
+    "13981": {
+      "total": 18,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "word_family": 2,
+        "morphology_slot": 1,
+        "spot_incorrect_sentence": 1,
+        "collocation_repair": 1
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "9": 4,
+        "4": 5,
+        "7": 1,
+        "8": 1
+      }
+    },
+    "14001": {
+      "total": 15,
+      "by_type": {
+        "definition_match": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "cloze_completion": 1
+      },
+      "by_level": {
+        "2": 2,
+        "4": 4,
+        "6": 2,
+        "7": 2,
+        "9": 4,
+        "3": 1
+      }
+    },
+    "14010": {
+      "total": 19,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "synonym_antonym_match": 2,
+        "phonetic_recognition": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "4": 4,
+        "6": 4,
+        "7": 2,
+        "9": 4,
+        "1": 1
+      }
+    },
+    "14015": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "morphology_slot": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_completion": 1,
+        "semantic_discrimination": 1,
+        "cloze_typed": 1
+      },
+      "by_level": {
+        "2": 2,
+        "4": 3,
+        "7": 2,
+        "9": 4,
+        "3": 1,
+        "6": 1
+      }
+    },
+    "14020": {
+      "total": 17,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "4": 4,
+        "6": 2,
+        "7": 2,
+        "9": 4
+      }
+    },
+    "14024": {
+      "total": 18,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "synonym_antonym_match": 1,
+        "word_family": 2,
+        "morphology_slot": 1,
+        "spot_incorrect_sentence": 1
+      },
+      "by_level": {
+        "1": 1,
+        "2": 2,
+        "3": 2,
+        "6": 3,
+        "9": 4,
+        "4": 5,
+        "7": 1
+      }
+    },
+    "14033": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "14040": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "14090": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "14100": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "14189": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "14390": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "14473": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "14544": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "15150": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "15216": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "15328": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "16031": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "16181": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "19458": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "19480": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "19521": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "40142": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "40248": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    }
+  },
+  "judge_reject_counts": {
+    "l1_distractor": {
+      "ran": 7,
+      "rejected": 0,
+      "kept": 21
+    },
+    "cloze": {
+      "ran": 18,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 40,
+      "rejected": 6,
+      "kept": 83
+    },
+    "relation": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 12
+    },
+    "word_family": {
+      "ran": 11,
+      "rejected": 0,
+      "kept": 33
+    },
+    "collocation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    }
+  },
+  "cost_usd_total_observed": 0.144023,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 176,
+  "llm_calls_cost_breakdown": [
+    {
+      "task_name": "vocab_bundle_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 12,
+      "total_cost_usd": 0.05892224,
+      "avg_cost_usd": 0.004910186666666667
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 11,
+      "total_cost_usd": 0.0231252,
+      "avg_cost_usd": 0.002102290909090909
+    },
+    {
+      "task_name": "judge_ladder_sentence_validity",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 40,
+      "total_cost_usd": 0.012408399999999995,
+      "avg_cost_usd": 0.0003102099999999999
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 14,
+      "total_cost_usd": 0.0087719,
+      "avg_cost_usd": 0.0006265642857142857
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 16,
+      "total_cost_usd": 0.00857952,
+      "avg_cost_usd": 0.00053622
+    },
+    {
+      "task_name": "cloze_distractor_judge",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 24,
+      "total_cost_usd": 0.008047100000000001,
+      "avg_cost_usd": 0.0003352958333333334
+    },
+    {
+      "task_name": "judge_ladder_l1_distractor",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 20,
+      "total_cost_usd": 0.0071987,
+      "avg_cost_usd": 0.000359935
+    },
+    {
+      "task_name": "judge_ladder_word_family",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 11,
+      "total_cost_usd": 0.004514400000000001,
+      "avg_cost_usd": 0.00041040000000000006
+    },
+    {
+      "task_name": "judge_ladder_relation",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 14,
+      "total_cost_usd": 0.004345,
+      "avg_cost_usd": 0.0003103571428571429
+    },
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 2,
+      "total_cost_usd": 0.00255104,
+      "avg_cost_usd": 0.00127552
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "retry",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 1,
+      "total_cost_usd": 0.0021439,
+      "avg_cost_usd": 0.0021439
+    },
+    {
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "call_role": "repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 5,
+      "total_cost_usd": 0.0013719000000000001,
+      "avg_cost_usd": 0.00027438
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "retry",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 3,
+      "total_cost_usd": 0.0010216959999999999,
+      "avg_cost_usd": 0.0003405653333333333
+    },
+    {
+      "task_name": "ladder_l4_morphology_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 1,
+      "total_cost_usd": 0.00044736,
+      "avg_cost_usd": 0.00044736
+    },
+    {
+      "task_name": "judge_ladder_word_family__json_repair",
+      "call_role": "json_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 1,
+      "total_cost_usd": 0.0003616,
+      "avg_cost_usd": 0.0003616
+    },
+    {
+      "task_name": "judge_ladder_collocation",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 1,
+      "total_cost_usd": 0.0002017,
+      "avg_cost_usd": 0.0002017
+    }
+  ],
+  "unattributed_writes_count": 12,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14557
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14559
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14561
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14585
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14587
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14597
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14626
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14644
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14652
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14655
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14660
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14664
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = '7e18844b-1d9f-474c-ba09-d9041d64a822'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n",
+  "model_overrides_applied": [
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    },
+    {
+      "task_name": "ladder_syn_ant_generation",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    },
+    {
+      "task_name": "ladder_word_family_generation",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    },
+    {
+      "task_name": "ladder_l4_morphology_generation",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    }
+  ],
+  "prompt_overrides_applied": [
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "zh",
+      "language_id": 1,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "ja",
+      "language_id": 3,
+      "version": 3,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "en",
+      "language_id": 2,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "zh",
+      "language_id": 1,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "ja",
+      "language_id": 3,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "en",
+      "language_id": 2,
+      "version": 1,
+      "model": "google/gemini-3.5-flash-lite",
+      "provider": "openrouter"
+    }
+  ],
+  "prompt_override_file": "migrations/exercise_gen_bundle_prompts_draft.sql",
+  "senses_from": "data/eval/runs/phase1_en"
+}

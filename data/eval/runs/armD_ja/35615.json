@@ -1,0 +1,1158 @@
+{
+  "sense_id": 35615,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T19:49:55.485380+00:00",
+  "status": "partial",
+  "errors": [
+    "[B] Level 7: incorrect_sentence and corrected_sentence are identical"
+  ],
+  "warnings": [
+    "P1 sentence[9] flagged (rating 3): 義項：形状でやや弱い"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.5089101791381836,
+    "p1_generate": 33.245365619659424,
+    "p1_repair": 35.19172692298889,
+    "tier_gate": 0.0028235912322998047,
+    "p1_judge": 58.94908928871155,
+    "collocate_grounding": 0.0,
+    "fan_out": 61.0262131690979
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[9] flagged (rating 3): 義項：形状でやや弱い"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/fukuzatsu/",
+        "morphological_forms": [
+          {
+            "form": "複雑だ",
+            "label": "活用"
+          },
+          {
+            "form": "複雑な",
+            "label": "活用"
+          },
+          {
+            "form": "複雑に",
+            "label": "活用"
+          },
+          {
+            "form": "複雑さ",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "ふくざつ",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35615
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "3407a12c-790d-4a1e-9adf-60639f9cbecb",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "複雑",
+        "pronunciation": "ふくざつ",
+        "ipa": "/fukuzatsu/",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "福笹",
+          "服罪",
+          "伏罪",
+          "複雑"
+        ],
+        "correct_answer": "複雑",
+        "explanation": "正解です。「複雑」は「物事の仕組みや内容がからみ合って、簡単に理解できない様子。」という意味です。",
+        "distractor_explanations": {
+          "福笹": "「福笹」は「複雑」と一モーラだけ異なる実在語です（4モーラ目: 「つ」→「さ」、一部の音の違い）。",
+          "伏罪": "「伏罪」は「複雑」と一モーラだけ異なる実在語です（4モーラ目: 「つ」→「い」、一部の音の違い）。",
+          "服罪": "「服罪」は「複雑」と一モーラだけ異なる実在語です（4モーラ目: 「つ」→「い」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 2,
+          "kept": 5,
+          "rejected_items": [
+            "複座機",
+            "複舌"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b97a637a-aa64-42bc-a8d4-25034e88c828",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "複雑",
+        "pronunciation": "ふくざつ",
+        "correct_definition": "物事の仕組みや内容がからみ合って、簡単に理解できない様子。",
+        "options": [
+          "住む場所や生活の拠点を、別の地域や国に変えること。",
+          "複数の部品や要素を、順序や決まりに従って、一つのまとまった形にすること。",
+          "物事の仕組みや内容がからみ合って、簡単に理解できない様子。",
+          "工場などから出る二酸化炭素を回収し、地中などに貯留する技術。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "c358ca96-f953-4dcc-9bf8-db02e7a4f5bd",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この問題はとても___です。",
+        "original_sentence": "この問題はとても複雑です。",
+        "correct_answer": "複雑",
+        "options": [
+          "明確",
+          "複雑",
+          "簡単",
+          "単純"
+        ],
+        "explanation": "正解です。文脈に最も適切です。",
+        "distractor_tags": {},
+        "word_definition": "物事の仕組みや内容がからみ合って、簡単に理解できない様子。",
+        "target_word": "複雑"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "22b281c1-0a76-43cd-876b-fd769f173f6c",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "複雑",
+        "pronunciation": "ふくざつ",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "口で話すことによって、次の世代に伝えること",
+              "原因",
+              "物事の仕組みや内容がからみ合って、簡単に理解できない様子。",
+              "期待 —— 预想某事会实现，并强烈希望它发生的心情"
+            ],
+            "correct_answer": "物事の仕組みや内容がからみ合って、簡単に理解できない様子。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "3855a487-7a2a-4929-a1bd-d4c11ea07cdd",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この機械の仕組みは___に見えます。",
+        "original_sentence": "この機械の仕組みは複雑に見えます。",
+        "target_word": "複雑",
+        "word": "複雑",
+        "answer": {
+          "accepted": [
+            "複雑"
+          ],
+          "accepted_normalized": [
+            "複雑"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "91f87812-c03d-4b44-92c2-546697df5468",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "複雑",
+        "options": [
+          "ふくさつ",
+          "ふくざづ",
+          "ふぐざつ",
+          "ふくざつ"
+        ],
+        "correct_answer": "ふくざつ",
+        "word": "複雑",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "06808ae7-ace2-4f77-a72b-18841cd2d303",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "ふくざつ",
+        "options": [
+          "複雑",
+          "複合",
+          "雑誌",
+          "複数"
+        ],
+        "correct_answer": "複雑",
+        "word": "複雑",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "複数": "component",
+          "雑誌": "component",
+          "複合": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "346fc517-f286-4907-953a-e9dbf857095e",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "複雑",
+        "relation": "antonym",
+        "options": [
+          "難解",
+          "曖昧",
+          "煩雑",
+          "単純"
+        ],
+        "correct_answer": "単純",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事の仕組みや内容がからみ合って、簡単に理解できない様子。",
+            "explanation": "物事の仕組みがからみ合っておらず理解しやすい様子であり、目標語義の対義語となる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "曖昧": 0.512549
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a526fbb6-980b-43d1-8981-d90470612ce1",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___な手順で作業を進めています。",
+        "original_sentence": "複雑な手順で作業を進めています。",
+        "correct_answer": "複雑",
+        "base_form": "複雑",
+        "form_label": "語幹（「な」に続く形）",
+        "options": [
+          "複雑に",
+          "複雑さ",
+          "複雑な",
+          "複雑"
+        ],
+        "explanation": "形状詞の語幹に「な」が付いて「複雑な話」と連体修飾になる",
+        "word_definition": "物事の仕組みや内容がからみ合って、簡単に理解できない様子。",
+        "target_word": "複雑"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f7b1a0df-a593-4589-9545-1912066ef296",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "複雑な手順で作業を進めています。",
+            "is_correct": true
+          },
+          {
+            "text": "複雑な機械を分解しています。",
+            "is_correct": true
+          },
+          {
+            "text": "複雑な形をしている石です。",
+            "is_correct": true
+          },
+          {
+            "text": "この規則は複雑くて、覚えにくい。",
+            "is_correct": false,
+            "error_description": "活用の誤り。「複雑」は形状詞（ナ形容詞）なので、い形容詞のように「くて」とは言わず、「複雑で」と接続します。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "76135fec-9197-4dea-bccc-ca147f20f9a0",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___な手順で作業を進めています。",
+        "original_sentence": "複雑な手順で作業を進めています。",
+        "target_word": "複雑",
+        "word": "複雑",
+        "answer": {
+          "accepted": [
+            "複雑"
+          ],
+          "accepted_normalized": [
+            "複雑"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b00f8bdd-9b4c-482e-ab80-69d9a5f712f9",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "複雑",
+        "relation": "antonym",
+        "options": [
+          "単純",
+          "曖昧",
+          "煩雑",
+          "難解"
+        ],
+        "correct_answer": "単純",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事の仕組みや内容がからみ合って、簡単に理解できない様子。",
+            "explanation": "物事の仕組みがからみ合っておらず理解しやすい様子であり、目標語の対義語である"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "曖昧": 0.512549
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35615,
+      "word_asset_id": "shadow-35615-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 2,
+      "kept": 5
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '複雑' is fused into a neighbouring chunk — chunks=['社会の', '仕組みは', '複雑です']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "chunker returned empty or blank chunks"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00319424,
+      "prompt_tokens": 2582,
+      "completion_tokens": 1850,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 32983
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00293632,
+      "prompt_tokens": 1120,
+      "completion_tokens": 2014,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 35056
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175648,
+      "prompt_tokens": 705,
+      "completion_tokens": 1196,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21481
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00131488,
+      "prompt_tokens": 217,
+      "completion_tokens": 973,
+      "cached_tokens": 0,
+      "reasoning_tokens": 936,
+      "call_role": "repair",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 18180
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00155136,
+      "prompt_tokens": 620,
+      "completion_tokens": 1057,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 18765
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196448,
+      "prompt_tokens": 1611,
+      "completion_tokens": 1132,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20780
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175744,
+      "prompt_tokens": 748,
+      "completion_tokens": 1186,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22308
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00179168,
+      "prompt_tokens": 815,
+      "completion_tokens": 1196,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22959
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175232,
+      "prompt_tokens": 748,
+      "completion_tokens": 1182,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24324
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00179008,
+      "prompt_tokens": 814,
+      "completion_tokens": 1195,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24578
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00198496,
+      "prompt_tokens": 1611,
+      "completion_tokens": 1148,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 25130
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00295328,
+      "prompt_tokens": 2629,
+      "completion_tokens": 1650,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 29807
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002494016,
+      "prompt_tokens": 2629,
+      "completion_tokens": 1752,
+      "cached_tokens": 2304,
+      "reasoning_tokens": 1024,
+      "call_role": "retry",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 30900
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00180896,
+      "prompt_tokens": 805,
+      "completion_tokens": 1212,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21748
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016404,
+      "prompt_tokens": 369,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 3915
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016464,
+      "prompt_tokens": 629,
+      "completion_tokens": 1129,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20290
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015088,
+      "prompt_tokens": 515,
+      "completion_tokens": 1050,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21434
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160064,
+      "prompt_tokens": 626,
+      "completion_tokens": 1094,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21618
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00177312,
+      "prompt_tokens": 805,
+      "completion_tokens": 1184,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23697
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016608,
+      "prompt_tokens": 368,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 5630
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016224,
+      "prompt_tokens": 694,
+      "completion_tokens": 1094,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24022
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00143648,
+      "prompt_tokens": 517,
+      "completion_tokens": 993,
+      "cached_tokens": 0,
+      "reasoning_tokens": 968,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 18031
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00161216,
+      "prompt_tokens": 626,
+      "completion_tokens": 1103,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35615,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24372
+    }
+  ],
+  "llm_calls_observed": 23,
+  "llm_cost_observed_usd": 0.040580616,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 379.10999999998603,
+  "finished_at": "2026-10-05T19:56:14.595247+00:00"
+}

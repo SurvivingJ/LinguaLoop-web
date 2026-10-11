@@ -1,0 +1,834 @@
+{
+  "sense_id": 35525,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T19:43:24.407032+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] Level 7: incorrect_sentence and corrected_sentence are identical"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.6832573413848877,
+    "p1_generate": 168.88942432403564,
+    "tier_gate": 23.141281366348267,
+    "p1_judge": 26.693724870681763,
+    "collocate_grounding": 0.0,
+    "fan_out": 37.122331857681274
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/mazɯ/",
+        "pronunciation": "まず",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35525
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "aea19a6b-2e50-4a5c-a98b-cc7cdb11f414",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "先ず",
+        "pronunciation": "まず",
+        "ipa": "/mazɯ/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "儘",
+          "麻痺",
+          "付図",
+          "先ず"
+        ],
+        "correct_answer": "先ず",
+        "explanation": "正解です。「先ず」は「最初に。物事を始めるときに使う言葉。」という意味です。",
+        "distractor_explanations": {
+          "付図": "「付図」は「先ず」と一モーラだけ異なる実在語です（1モーラ目: 「ま」→「ふ」、一部の音の違い）。",
+          "麻痺": "「麻痺」は「先ず」と一モーラだけ異なる実在語です（2モーラ目: 「ず」→「ひ」、一部の音の違い）。",
+          "儘": "「儘」は「先ず」と一モーラだけ異なる実在語です（2モーラ目: 「ず」→「ま」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 3,
+          "kept": 7,
+          "rejected_items": [
+            "弭",
+            "間狭",
+            "飯"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f6d1ed52-8064-40d5-bec1-b5c2069f6637",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "まず",
+        "pronunciation": "まず",
+        "correct_definition": "最初に。物事を始めるときに使う言葉。",
+        "options": [
+          "人間の社会や歴史の中で、人々が作り出してきた知識、芸術、習慣、価値観などの総体。",
+          "何かを処理したあとに残る、不要な物質や部分。",
+          "手紙や文章で、相手に対する礼儀や敬意を表すために用いる、決まった書き方や文体のこと。",
+          "最初に。物事を始めるときに使う言葉。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "bb79c9f1-c8a1-42ac-a910-79d10a31cb65",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___、野菜をきれいに洗って、次に鍋に入れて、柔らかくなるまでゆっくりと煮ます。",
+        "original_sentence": "まず、野菜をきれいに洗って、次に鍋に入れて、柔らかくなるまでゆっくりと煮ます。",
+        "correct_answer": "まず",
+        "options": [
+          "急に",
+          "まず",
+          "最後に",
+          "同時に"
+        ],
+        "explanation": "正解です。複数の動作がある際に、最初に行う動作を指示する「まず」が適切です。",
+        "distractor_tags": {},
+        "word_definition": "最初に。物事を始めるときに使う言葉。",
+        "target_word": "まず"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "7185b608-2e4f-4f53-8e71-45fa8563aa5e",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "計画を立ててまず、行動に移りましょう。",
+            "is_correct": false
+          },
+          {
+            "text": "まずに、野菜をきれいに洗います。",
+            "is_correct": false
+          },
+          {
+            "text": "まずた、計画を立ててから行動します。",
+            "is_correct": false
+          },
+          {
+            "text": "まず、宿題を終わらせてから遊びましょう。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "助詞の混同：「まず」は副詞であり、格助詞「に」を直接伴って修飾語となる用法はありません。助詞の「に」は不要です。 活用の誤り：「まず」は副詞であり、過去を表す助動詞「た」が付くような活用はしません。副詞はそのままの形で文頭に置きます。 語順の誤り：「まず」は物事の始まりや第一動作を提示する副詞です。実際の第一動作である「計画を立てて」の後ろに置くのは語順として不自然です。",
+        "target_word": "まず"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "まず、宿題を終わらせてから遊びましょう。"
+          ]
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "892f3f5b-f08f-42b5-8560-73c0912a6426",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "まず、白い食パンを二枚用意して、その表面にバターをきれいに薄く塗っていきます。",
+            "is_correct": true
+          },
+          {
+            "text": "まず、野菜をきれいに洗って、次に鍋に入れて、柔らかくなるまでゆっくりと煮ます。",
+            "is_correct": true
+          },
+          {
+            "text": "まずはインターネットで販売を開始しましょう。",
+            "is_correct": true
+          },
+          {
+            "text": "まず、良質な全粒粉のパンが用意し、その多孔質な表面にピーナッツバターを均一に塗る。",
+            "is_correct": false,
+            "error_description": "助詞：他動詞「用意する」の対象は「を」で示す。「が」は誤り。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "b8a3b0d3-8a81-4e24-8bda-700df99481c7",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "まず",
+        "pronunciation": "まず",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "数量や程度が多くなる。",
+              "方便",
+              "一年のうち、六月から八月ごろまでの暑い季節。",
+              "最初に。物事を始めるときに使う言葉。"
+            ],
+            "correct_answer": "最初に。物事を始めるときに使う言葉。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "706529d3-9f23-4573-82d8-35f4576c864c",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "先ず",
+        "options": [
+          "まあず",
+          "ます",
+          "まず",
+          "まずう"
+        ],
+        "correct_answer": "まず",
+        "word": "先ず",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "cf4271fd-c5e3-4ffd-9c40-93d7af6491b3",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "まず",
+        "options": [
+          "規制",
+          "先ず",
+          "製造",
+          "先生"
+        ],
+        "correct_answer": "先ず",
+        "word": "先ず",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "先生": "component",
+          "製造": "component",
+          "規制": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "57a1318e-d154-45cc-91d2-84457a8f3fc9",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "まずに、相手の話をよく聞くことが大切です。",
+            "is_correct": false,
+            "error_description": "「まず」は副詞であるため、格助詞「に」を伴うことはできません。文頭で動作の順序や優先順位を示す場合は、「まず」または「まずは」をそのまま用います。"
+          },
+          {
+            "text": "まず、朝早く起きて散歩するのがおすすめです。",
+            "is_correct": true
+          },
+          {
+            "text": "まず、相手の話をよく聞くことが大切です。",
+            "is_correct": true
+          },
+          {
+            "text": "まず、計画を立ててから行動に移りましょう。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35525,
+      "word_asset_id": "shadow-35525-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 3,
+      "kept": 7
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 1,
+      "kept": 5
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0033824,
+      "prompt_tokens": 2662,
+      "completion_tokens": 1977,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 168073
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00150304,
+      "prompt_tokens": 345,
+      "completion_tokens": 1088,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23008
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00188992,
+      "prompt_tokens": 738,
+      "completion_tokens": 1292,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 26499
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00200032,
+      "prompt_tokens": 1603,
+      "completion_tokens": 1162,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22527
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00198272,
+      "prompt_tokens": 1604,
+      "completion_tokens": 1148,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23728
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00313728,
+      "prompt_tokens": 2668,
+      "completion_tokens": 1784,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 33280
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00320128,
+      "prompt_tokens": 2668,
+      "completion_tokens": 1834,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 36869
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00187776,
+      "prompt_tokens": 820,
+      "completion_tokens": 1262,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23723
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016872,
+      "prompt_tokens": 382,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 4481
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00166688,
+      "prompt_tokens": 717,
+      "completion_tokens": 1123,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20063
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00092544,
+      "prompt_tokens": 528,
+      "completion_tokens": 591,
+      "cached_tokens": 0,
+      "reasoning_tokens": 563,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 13132
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018832,
+      "prompt_tokens": 821,
+      "completion_tokens": 1266,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22643
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.0001614,
+      "prompt_tokens": 375,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 4230
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160704,
+      "prompt_tokens": 638,
+      "completion_tokens": 1096,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22733
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00151296,
+      "prompt_tokens": 528,
+      "completion_tokens": 1050,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35525,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19598
+    }
+  ],
+  "llm_calls_observed": 15,
+  "llm_cost_observed_usd": 0.02690036,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 2,
+    "repaired": 2,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 390.64100000006147,
+  "finished_at": "2026-10-05T19:49:55.049773+00:00"
+}

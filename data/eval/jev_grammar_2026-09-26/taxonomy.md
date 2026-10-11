@@ -611,6 +611,9 @@ Not an error:
 - Contrastive は in subordinate clauses when the contrast is overt (雨は降ったが、風は吹かなかった).
 - Particle omission in casual speech.
 - Never corrupt は ↔ が in a main clause.
+- An expletive or doubled は-topic calqued from English (それは雨が降っています, 私は私の部屋を…): **applied
+  2026-10-04 (K14).** This is `ja.topic_comment` routing-only (§2.2) — never authored under any type, including
+  this one.
 
 #### `ja.counter`
 | Level | Correct | Broken | What changed |
@@ -1019,6 +1022,8 @@ Not an error:
 - Generic *the tiger* / *tigers* / *a tiger*.
 - Headline or label style.
 - *a historic* / *an historic*.
+- A plural ending on an uncountable noun (*advices*): **applied 2026-10-04 (K8).** This moves to
+  `en.plural_number` (§3.2, N3); it is not authored here.
 
 #### `en.preposition`
 | Level | Correct | Broken | What changed |
@@ -1124,6 +1129,8 @@ Not an error:
 - *There's* + plural in speech.
 - *None of them are*, *A number of people are*, *data is* / *are*.
 - *Each … have* **(contested — exclude)**.
+- A number change on the subject noun that leaves two repairs (*The dogs barks*): **applied 2026-10-04 (K8).**
+  Invalid under C7 (§3.2, `en.plural_number` boundary rules); not an `en.agreement` positive either.
 
 #### `en.word_order`
 | Level | Correct | Broken | What changed |
@@ -1140,6 +1147,8 @@ Not an error:
 - *often goes* / *goes often*.
 - Adjective order reversed for contrastive stress in speech. Do not use as a positive unless the adjectives are
   plainly size and colour, or opinion and size.
+- Particle position relative to the object of an in-scope phrasal verb (*looked up it*, *looks her brother
+  after*): **applied 2026-10-04 (K1).** This moves to `en.phrasal_verb` (§3.2); it is not authored here.
 
 #### `en.pronoun`
 | Level | Correct | Broken | What changed |

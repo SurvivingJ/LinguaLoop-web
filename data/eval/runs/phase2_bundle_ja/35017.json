@@ -1,0 +1,1538 @@
+{
+  "sense_id": 35017,
+  "language_id": 3,
+  "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+  "started_at": "2026-10-03T01:35:55.759152+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.14345884323120117,
+    "p1_generate": 17.97057318687439,
+    "p1_sentence_repair": 2.324883460998535,
+    "tier_gate": 2.065899133682251,
+    "p1_judge": 7.383220911026001,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "ɸueɾu",
+        "morphological_forms": [
+          {
+            "form": "増えた",
+            "label": "活用"
+          },
+          {
+            "form": "増えて",
+            "label": "活用"
+          },
+          {
+            "form": "増えない",
+            "label": "活用"
+          },
+          {
+            "form": "増えること",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "ふえる",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35017
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "13075cf1-835a-4e26-9ed3-9ec23d49555c",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "増える",
+        "pronunciation": "ふえる",
+        "ipa": "ɸueɾu",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "添え",
+          "変え",
+          "据え",
+          "増える"
+        ],
+        "correct_answer": "増える",
+        "explanation": "正解です。「増える」は「数量や程度が多くなる。」という意味です。",
+        "distractor_explanations": {
+          "変え": "",
+          "添え": "",
+          "据え": ""
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "79a827bf-25f9-4663-937b-922913e9f726",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "増え",
+        "pronunciation": "ふえる",
+        "correct_definition": "数量や程度が多くなる。",
+        "options": [
+          "ある目的を達成するために考え出された方法や手段。",
+          "物事の内容や理由などを、相手によくわかるように述べること。",
+          "数量や程度が多くなる。",
+          "物事の進行や機能を妨げること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "6d1e0c16-8477-4887-af62-2c0b01597f2d",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "しかし、古い建物であることや管理の難しさから、壊されるケースも___ています。",
+        "original_sentence": "しかし、古い建物であることや管理の難しさから、壊されるケースも増えています。",
+        "correct_answer": "増え",
+        "options": [
+          "止まり",
+          "増え",
+          "変わり",
+          "減り"
+        ],
+        "explanation": "文脈に合致する正しい語です。「壊されるケースも増えています」は自然な表現です。",
+        "distractor_tags": {},
+        "word_definition": "数量や程度が多くなる。",
+        "target_word": "増え"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "37a57cb7-4d78-46cc-9a38-ca9b09bd9572",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "公園で遊ぶ子供たちの数が___ました。",
+        "original_sentence": "公園で遊ぶ子供たちの数が増えました。",
+        "correct_answer": "増え",
+        "base_form": "増える",
+        "form_label": "ます形語幹",
+        "options": [
+          "増える",
+          "増えて",
+          "増え",
+          "増えない"
+        ],
+        "explanation": "「ました」に接続する連用形（ます形）の語幹として正しい",
+        "word_definition": "数量や程度が多くなる。",
+        "target_word": "増え"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "79da6548-8ed6-4bd8-b05d-7c8c1bb264ee",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "最近、自転車に乗る人が増えられていますようです。",
+            "is_correct": false
+          },
+          {
+            "text": "最近、自転車に乗る人を増えているようです。",
+            "is_correct": false
+          },
+          {
+            "text": "最近、自転車に乗る人が増やしているようです。",
+            "is_correct": false
+          },
+          {
+            "text": "最近、自転車に乗る人が増えているようです。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "「増える」は自動詞なので、人を目的語（〜を）にとることはできません。 文脈的に人が自発的に増やす行為をしているわけではなく、自然現象や傾向として増えているため、他動詞「増やす」の進行形は不自然です。 「増える」に受身や可能の助動詞を直接つけるのは文法的に誤りです。",
+        "target_word": "増え"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "1ee83154-f4b6-432d-88dd-69fbc4496e9c",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "間違いが減って、正解が増えました。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "597215dd-1c4e-4c06-bfb9-485f38d7634c",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "増え",
+        "pronunciation": "ふえる",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "「モンスターと戦う」で、ゲーム内の敵キャラクターに対して攻撃や防御などの行動をすること。実際の争いではなく、遊びの範囲での対決。",
+              "the lower part",
+              "文字を読んだり書いたりできること",
+              "数量や程度が多くなる。"
+            ],
+            "correct_answer": "数量や程度が多くなる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b6196fa1-1b86-4c21-ade5-9b0978bae1f5",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "公園で遊ぶ子供たちの数が___ました。",
+        "original_sentence": "公園で遊ぶ子供たちの数が増えました。",
+        "target_word": "増え",
+        "word": "増え",
+        "answer": {
+          "accepted": [
+            "増え",
+            "増えた",
+            "増えて",
+            "増えない",
+            "増えること"
+          ],
+          "accepted_normalized": [
+            "増え",
+            "増えた",
+            "増えて",
+            "増えない",
+            "増えること"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e54908b4-6df0-4ac3-9120-25ae331488bf",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "間違いが減って、正解が増えました。",
+        "chunks": [
+          "間違いが",
+          "減って",
+          "正解が",
+          "増えました"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "増えました",
+          "正解が",
+          "減って",
+          "間違いが"
+        ],
+        "target_word": "増え",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "fd565d2b-34db-4c0d-9674-7ba7f48d2321",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "増える",
+        "options": [
+          "ふうえる",
+          "ふえる",
+          "ぶえる",
+          "ぷえる"
+        ],
+        "correct_answer": "ふえる",
+        "word": "増える",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "401e2ec8-bffd-47f9-a07e-1eef8a248d9b",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "ふえる",
+        "options": [
+          "異なる",
+          "増える",
+          "不思議",
+          "増やす"
+        ],
+        "correct_answer": "増える",
+        "word": "増える",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "増やす": "component",
+          "不思議": "component",
+          "異なる": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ddc22021-e3b5-423f-b50f-2bbfb1f31847",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "公園で遊ぶ子供たちの数___増えました。",
+        "original_sentence": "公園で遊ぶ子供たちの数が増えました。",
+        "options": [
+          "が",
+          "を",
+          "に",
+          "で"
+        ],
+        "correct_answer": "が",
+        "target_word": "増え",
+        "error_tags": {
+          "を": "",
+          "に": "",
+          "で": ""
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "自動詞「増える」の主語を示す助詞として最も自然です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ae382e9e-f0eb-4335-b5bd-7a05ab621521",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "増え",
+        "relation": "synonym",
+        "options": [
+          "下がる",
+          "続く",
+          "少なくなる",
+          "多くなる"
+        ],
+        "correct_answer": "多くなる",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "数量や程度が多くなる。",
+            "explanation": "「増える」の類義語です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "下がる": 0.531332,
+            "続く": 0.42052
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5dcf1516-6534-48a8-a4b9-9fc66e3617bb",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "友達の意見を取り入れて、参加者が___ました。",
+        "original_sentence": "友達の意見を取り入れて、参加者が増えました。",
+        "correct_answer": "増え",
+        "options": [
+          "変わり",
+          "減り",
+          "増え",
+          "止まり"
+        ],
+        "explanation": "文脈に合致する正しい語です。「友達の意見を取り入れて、参加者が増えました」は自然な表現です。",
+        "distractor_tags": {},
+        "word_definition": "数量や程度が多くなる。",
+        "target_word": "増え"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "61908ab9-5615-40ad-bf7e-5b2b994ef353",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この町には新しいお店が___ています。",
+        "original_sentence": "この町には新しいお店が増えています。",
+        "correct_answer": "増え",
+        "base_form": "増える",
+        "form_label": "連用形（ます形語幹）",
+        "options": [
+          "増え",
+          "増えて",
+          "増える",
+          "増えた"
+        ],
+        "explanation": "「ています」に接続する連用形（ます形の語幹）が正解です。",
+        "word_definition": "数量や程度が多くなる。",
+        "target_word": "増え"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "dbdabe74-7c1f-4b33-8566-a702ee86b24c",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "勉強時間が増やしますと、成績が良くなります。",
+            "is_correct": false
+          },
+          {
+            "text": "勉強時間を増えると、成績が良くなります。",
+            "is_correct": false
+          },
+          {
+            "text": "勉強時間が増えると、成績が良くなります。",
+            "is_correct": true
+          },
+          {
+            "text": "勉強時間が増えられますと、成績が良くなります。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "「増える」は自動詞なので、時間を目的語（〜を）にとることはできません。 文脈的に勉強時間が自発的に増やす行為をするわけではないため、他動詞「増やす」は不自然です。 「増える」に受身や可能の助動詞を直接つけるのは文法的に誤りです。",
+        "target_word": "増え"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "6fcd2c17-e57b-4398-aa9e-abff584a446a",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "最近、自転車に乗る人が増えているようです。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f73b81a6-cda4-40c4-83d3-f15f6bd208c2",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この町には新しいお店が___ています。",
+        "original_sentence": "この町には新しいお店が増えています。",
+        "target_word": "増え",
+        "word": "増え",
+        "answer": {
+          "accepted": [
+            "増え",
+            "増えた",
+            "増えて",
+            "増えない",
+            "増えること"
+          ],
+          "accepted_normalized": [
+            "増え",
+            "増えた",
+            "増えて",
+            "増えない",
+            "増えること"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "bedca25b-e0c2-410e-aa8e-c32bd00aa039",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "最近、自転車に乗る人が増えているようです。",
+        "chunks": [
+          "最近",
+          "自転車に",
+          "乗る人が",
+          "増えて",
+          "いるようです"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "いるようです",
+          "乗る人が",
+          "最近",
+          "自転車に",
+          "増えて"
+        ],
+        "target_word": "増え",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "4891cea3-1865-4115-9ee5-3769e5178d49",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この町には新しいお店___増えています。",
+        "original_sentence": "この町には新しいお店が増えています。",
+        "options": [
+          "を",
+          "が",
+          "に",
+          "で"
+        ],
+        "correct_answer": "が",
+        "target_word": "増え",
+        "error_tags": {
+          "を": "",
+          "に": "",
+          "で": ""
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "自動詞「増える」の主語を示す助詞として最も自然です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "77a2eb8d-a23f-49ec-a09f-d26ba3380632",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "増え",
+        "relation": "synonym",
+        "options": [
+          "続く",
+          "多くなる",
+          "下がる",
+          "少なくなる"
+        ],
+        "correct_answer": "多くなる",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "数量や程度が多くなる。",
+            "explanation": "「増える」の類義語です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "下がる": 0.531332,
+            "続く": 0.42052
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35017,
+      "word_asset_id": "shadow-35017-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "particle": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002024,
+      "prompt_tokens": 2597,
+      "completion_tokens": 932,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 17810
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 8.64e-05,
+      "prompt_tokens": 206,
+      "completion_tokens": 16,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2285
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00011232,
+      "prompt_tokens": 255,
+      "completion_tokens": 24,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2009
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00043584,
+      "prompt_tokens": 734,
+      "completion_tokens": 157,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4109
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 8.032e-05,
+      "prompt_tokens": 187,
+      "completion_tokens": 16,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 1374
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00021184,
+      "prompt_tokens": 602,
+      "completion_tokens": 15,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 1697
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00399168,
+      "prompt_tokens": 2254,
+      "completion_tokens": 2555,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 45289
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00044384,
+      "prompt_tokens": 807,
+      "completion_tokens": 145,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4118
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00047168,
+      "prompt_tokens": 806,
+      "completion_tokens": 167,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4236
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_bundle_judge",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0013312,
+      "prompt_tokens": 1172,
+      "completion_tokens": 747,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 13978
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00034656,
+      "prompt_tokens": 783,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2648
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00034656,
+      "prompt_tokens": 783,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2893
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002688,
+      "prompt_tokens": 592,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2502
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027712,
+      "prompt_tokens": 618,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2301
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027232,
+      "prompt_tokens": 591,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2266
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027712,
+      "prompt_tokens": 618,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35017,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2265
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.010977599999999997,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 1,
+    "repaired": 1,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 114.42099999997299,
+  "finished_at": "2026-10-03T01:37:50.183302+00:00"
+}

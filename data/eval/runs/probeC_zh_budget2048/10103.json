@@ -1,0 +1,1290 @@
+{
+  "sense_id": 10103,
+  "language_id": 1,
+  "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+  "started_at": "2026-10-05T12:17:10.550581+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] synonym_antonym_match generation failed",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 1.2407748699188232,
+    "p1_generate": 59.80831265449524,
+    "tier_gate": 0.0,
+    "p1_judge": 103.80315685272217,
+    "collocate_grounding": 0.0,
+    "fan_out": 52.100035190582275
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[t͡sɑʊ˨˩˦]",
+        "morphological_forms": [
+          {
+            "form": "早上",
+            "label": "复合"
+          },
+          {
+            "form": "早晨",
+            "label": "复合"
+          },
+          {
+            "form": "早早",
+            "label": "重叠"
+          }
+        ],
+        "pronunciation": "zǎo",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10103
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "841867a2-3318-473d-a908-f15365819cdc",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "早",
+        "pronunciation": "zǎo",
+        "ipa": "[t͡sɑʊ˨˩˦]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "造",
+          "凿",
+          "糟",
+          "早"
+        ],
+        "correct_answer": "早",
+        "explanation": "正确。读音为 zǎo（第三声），表示时间靠前。",
+        "distractor_explanations": {
+          "糟": "错误。读音为 zāo（第一声），声调不同，常用于“糟糕”等词，意义完全不同。",
+          "凿": "错误。读音为 záo（第二声），声调不同，意为挖掘或打孔，如“凿子”。",
+          "造": "错误。读音为 zào（第四声），声调不同，意为制作或建立，如“制造”。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "早",
+          "pronunciation": "zǎo",
+          "ipa": "[t͡sɑʊ˨˩˦]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "造",
+            "鑿",
+            "糟",
+            "早"
+          ],
+          "correct_answer": "早",
+          "explanation": "正確。讀音為 zǎo（第三聲），表示時間靠前。",
+          "distractor_explanations": {
+            "糟": "錯誤。讀音為 zāo（第一聲），聲調不同，常用於“糟糕”等詞，意義完全不同。",
+            "凿": "錯誤。讀音為 záo（第二聲），聲調不同，意為挖掘或打孔，如“鑿子”。",
+            "造": "錯誤。讀音為 zào（第四聲），聲調不同，意為製作或建立，如“製造”。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "08d94926-c9d0-4b7b-92c1-45601995d8a5",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "早",
+        "pronunciation": "zǎo",
+        "correct_definition": "指太阳刚升起或时间靠前的时段。",
+        "options": [
+          "生命终止，不再活着。",
+          "指太阳刚升起或时间靠前的时段。",
+          "表示由于某种原因导致某种结果。",
+          "一个国家对其领土和事务拥有的最高权力。"
+        ],
+        "hant": {
+          "word": "早",
+          "pronunciation": "zǎo",
+          "correct_definition": "指太陽剛升起或時間靠前的時段。",
+          "options": [
+            "生命終止，不再活著。",
+            "指太陽剛升起或時間靠前的時段。",
+            "表示由於某種原因導致某種結果。",
+            "一個國家對其領土和事務擁有的最高權力。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7dd0bfdc-5dbe-420f-b27c-ef4f27122912",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我们早一点去电影院买票吧。",
+            "is_correct": true
+          },
+          {
+            "text": "我们早一点去电影院买票吧。",
+            "is_correct": false
+          },
+          {
+            "text": "早我们去电影院一点买票吧。",
+            "is_correct": false
+          },
+          {
+            "text": "我们早了去电影院买票吧。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "错误。量词使用错误。“一点”表示时间量时，应使用“一点儿”或“一些”，“早一点”在口语中不够规范，通常说“早一点儿”。 错误。体标位置错误。表示时间提前的建议时，应使用“早一点儿”或“早点”，“早了”通常用于陈述已经发生的事实（如“我来早了”），不用于祈使句。 错误。语序错误。时间副词或形容词“早”及其修饰语应放在动词“去”之前，且“一点”应紧跟“早”之后，原句破坏了正常的状语语序。",
+        "target_word": "早",
+        "hant": {
+          "sentences": [
+            {
+              "text": "我們早一點去電影院買票吧。",
+              "is_correct": true
+            },
+            {
+              "text": "我們早一點去電影院買票吧。",
+              "is_correct": false
+            },
+            {
+              "text": "早我們去電影院一點買票吧。",
+              "is_correct": false
+            },
+            {
+              "text": "我們早了去電影院買票吧。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "錯誤。量詞使用錯誤。“一點”表示時間量時，應使用“一點兒”或“一些”，“早一點”在口語中不夠規範，通常說“早一點兒”。 錯誤。體標位置錯誤。表示時間提前的建議時，應使用“早一點兒”或“早點”，“早了”通常用於陳述已經發生的事實（如“我來早了”），不用於祈使句。 錯誤。語序錯誤。時間副詞或形容詞“早”及其修飾語應放在動詞“去”之前，且“一點”應緊跟“早”之後，原句破壞了正常的狀語語序。",
+          "target_word": "早"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c66dba8a-3e72-4036-b94e-ecffe4a4139b",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他每天起得很早，去公园跑步。",
+            "is_correct": true
+          },
+          {
+            "text": "她昨晚睡得很早，今天精神很好。",
+            "is_correct": true
+          },
+          {
+            "text": "昨天他来得太早，等了我们很久。",
+            "is_correct": true
+          },
+          {
+            "text": "他起得很早每天，去公园跑步。",
+            "is_correct": false,
+            "error_description": "时间状语“每天”应放在主语之后、谓语之前，不能放在句末。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他每天起得很早，去公園跑步。",
+              "is_correct": true
+            },
+            {
+              "text": "她昨晚睡得很早，今天精神很好。",
+              "is_correct": true
+            },
+            {
+              "text": "昨天他來得太早，等了我們很久。",
+              "is_correct": true
+            },
+            {
+              "text": "他起得很早每天，去公園跑步。",
+              "is_correct": false,
+              "error_description": "時間狀語“每天”應放在主語之後、謂語之前，不能放在句末。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "e063aec9-2ef8-4624-b2e8-7086bc220bb4",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "早",
+        "pronunciation": "zǎo",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "山麓；山の一番下、平地に接する部分",
+              "青少年；十三歳から十九歳くらいの人",
+              "指太阳刚升起或时间靠前的时段。",
+              "to indicate"
+            ],
+            "correct_answer": "指太阳刚升起或时间靠前的时段。"
+          }
+        },
+        "hant": {
+          "word": "早",
+          "pronunciation": "zǎo",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "山麓；山の一番下、平地に接する部分",
+                "青少年；十三歳から十九歳くらいの人",
+                "指太陽剛升起或時間靠前的時段。",
+                "to indicate"
+              ],
+              "correct_answer": "指太陽剛升起或時間靠前的時段。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "2ac0911b-a339-41b9-aa60-b05e3ebfd544",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "昨天他来得太___，等了我们很久。",
+        "original_sentence": "昨天他来得太早，等了我们很久。",
+        "target_word": "早",
+        "word": "早",
+        "answer": {
+          "accepted": [
+            "早",
+            "早上",
+            "早晨",
+            "早早"
+          ],
+          "accepted_normalized": [
+            "早",
+            "早上",
+            "早晨",
+            "早早"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "昨天他來得太___，等了我們很久。",
+          "original_sentence": "昨天他來得太早，等了我們很久。",
+          "target_word": "早",
+          "word": "早",
+          "answer": {
+            "accepted": [
+              "早",
+              "早上",
+              "早晨",
+              "早早"
+            ],
+            "accepted_normalized": [
+              "早",
+              "早上",
+              "早晨",
+              "早早"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e8e5d5fe-52b4-4d36-b7a9-15cab6f9e658",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "早",
+        "options": [
+          "zǎo",
+          "zāo",
+          "záo",
+          "zào"
+        ],
+        "correct_answer": "zǎo",
+        "word": "早",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "早",
+          "options": [
+            "zǎo",
+            "zāo",
+            "záo",
+            "zào"
+          ],
+          "correct_answer": "zǎo",
+          "word": "早",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ef275b1d-b8ab-47b2-a115-ee7e426da98a",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "zǎo",
+        "options": [
+          "相",
+          "早",
+          "花",
+          "子"
+        ],
+        "correct_answer": "早",
+        "word": "早",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "花": "frequency",
+          "相": "frequency",
+          "子": "frequency"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "zǎo",
+          "options": [
+            "相",
+            "早",
+            "花",
+            "子"
+          ],
+          "correct_answer": "早",
+          "word": "早",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "花": "frequency",
+            "相": "frequency",
+            "子": "frequency"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "c085898f-528d-4b21-9321-4320b0bdbb63",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "早",
+        "toneless_pinyin": "zao",
+        "full_pinyin": "zǎo",
+        "options": [
+          "1",
+          "3",
+          "4",
+          "2"
+        ],
+        "correct_answer": "3",
+        "option_labels": {
+          "1": "high level (1)",
+          "3": "dipping (3)",
+          "4": "falling (4)",
+          "2": "rising (2)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "早",
+          "toneless_pinyin": "zao",
+          "full_pinyin": "zǎo",
+          "options": [
+            "1",
+            "3",
+            "4",
+            "2"
+          ],
+          "correct_answer": "3",
+          "option_labels": {
+            "1": "high level (1)",
+            "3": "dipping (3)",
+            "4": "falling (4)",
+            "2": "rising (2)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "5f8bcb49-fdf7-44c6-8dfd-fb34a936cef3",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "现在时间还___，我们再聊会儿。",
+        "original_sentence": "现在时间还早，我们再聊会儿。",
+        "correct_answer": "早",
+        "options": [
+          "早",
+          "快",
+          "忙",
+          "晚"
+        ],
+        "explanation": "正确：'早'表示时间靠前，符合'时间还早，可以再聊会儿'的语境。",
+        "distractor_tags": {},
+        "word_definition": "指太阳刚升起或时间靠前的时段。",
+        "target_word": "早",
+        "hant": {
+          "sentence_with_blank": "現在時間還___，我們再聊會兒。",
+          "original_sentence": "現在時間還早，我們再聊會兒。",
+          "correct_answer": "早",
+          "options": [
+            "早",
+            "快",
+            "忙",
+            "晚"
+          ],
+          "explanation": "正確：'早'表示時間靠前，符合'時間還早，可以再聊會兒'的語境。",
+          "distractor_tags": {},
+          "word_definition": "指太陽剛升起或時間靠前的時段。",
+          "target_word": "早"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "aab82ddb-0592-4a40-a411-ce8847c23f5b",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他赶了早集去买新鲜水果。",
+            "is_correct": true
+          },
+          {
+            "text": "他每天很早起得，去公园跑步。",
+            "is_correct": false
+          },
+          {
+            "text": "他每天起得很早着，去公园跑步。",
+            "is_correct": false
+          },
+          {
+            "text": "他每天起得早下去，去公园跑步。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标选用错误：'早'在这里作程度补语，表示状态，后面不能加表示动作持续的动态助词'着'。 语序错误：'很早'作为状态补语应该放在动词'起'和结构助词'得'之后，不能放在动词之前。 方向补语误用：'早'表示时间状态，不能与表示动作延伸的方向补语'下去'连用。",
+        "target_word": "早",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他趕了早集去買新鮮水果。",
+              "is_correct": true
+            },
+            {
+              "text": "他每天很早起得，去公園跑步。",
+              "is_correct": false
+            },
+            {
+              "text": "他每天起得很早著，去公園跑步。",
+              "is_correct": false
+            },
+            {
+              "text": "他每天起得早下去，去公園跑步。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標選用錯誤：'早'在這裡作程度補語，表示狀態，後面不能加表示動作持續的動態助詞'著'。 語序錯誤：'很早'作為狀態補語應該放在動詞'起'和結構助詞'得'之後，不能放在動詞之前。 方向補語誤用：'早'表示時間狀態，不能與表示動作延伸的方向補語'下去'連用。",
+          "target_word": "早"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5ac95a84-41e4-4a7b-8464-3fe109c7259b",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "昨天他来得太早，等了我们很久。",
+            "is_correct": true
+          },
+          {
+            "text": "她昨晚睡得很早，今天精神很好。",
+            "is_correct": true
+          },
+          {
+            "text": "他每天起得很早，去公园跑步。",
+            "is_correct": true
+          },
+          {
+            "text": "你觉得现在出门会不会早太？",
+            "is_correct": false,
+            "error_description": "程度副词“太”应放在形容词“早”的前面进行修饰，不能放在形容词之后，此处属于语序错误。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "昨天他來得太早，等了我們很久。",
+              "is_correct": true
+            },
+            {
+              "text": "她昨晚睡得很早，今天精神很好。",
+              "is_correct": true
+            },
+            {
+              "text": "他每天起得很早，去公園跑步。",
+              "is_correct": true
+            },
+            {
+              "text": "你覺得現在出門會不會早太？",
+              "is_correct": false,
+              "error_description": "程度副詞“太”應放在形容詞“早”的前面進行修飾，不能放在形容詞之後，此處屬於語序錯誤。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "a4c51bd5-5876-4a7f-a217-51841329beec",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "你觉得现在出门会不会太___？",
+        "original_sentence": "你觉得现在出门会不会太早？",
+        "target_word": "早",
+        "word": "早",
+        "answer": {
+          "accepted": [
+            "早",
+            "早上",
+            "早晨",
+            "早早"
+          ],
+          "accepted_normalized": [
+            "早",
+            "早上",
+            "早晨",
+            "早早"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "你覺得現在出門會不會太___？",
+          "original_sentence": "你覺得現在出門會不會太早？",
+          "target_word": "早",
+          "word": "早",
+          "answer": {
+            "accepted": [
+              "早",
+              "早上",
+              "早晨",
+              "早早"
+            ],
+            "accepted_normalized": [
+              "早",
+              "早上",
+              "早晨",
+              "早早"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10103,
+      "word_asset_id": "shadow-10103-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '早' is fused into a neighbouring chunk — chunks=['为了看日出', '我们', '出发得很早']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '早' is fused into a neighbouring chunk — chunks=['我们', '早一点', '去电影院买票吧']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0042416,
+      "prompt_tokens": 2395,
+      "completion_tokens": 2715,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 59288
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00310112,
+      "prompt_tokens": 647,
+      "completion_tokens": 2261,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 39509
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00277472,
+      "prompt_tokens": 255,
+      "completion_tokens": 2104,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "repair",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 36471
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0012576,
+      "prompt_tokens": 558,
+      "completion_tokens": 843,
+      "cached_tokens": 0,
+      "reasoning_tokens": 762,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 26587
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00319072,
+      "prompt_tokens": 1467,
+      "completion_tokens": 2126,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 36890
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00317312,
+      "prompt_tokens": 1468,
+      "completion_tokens": 2112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2014,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 40121
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00400544,
+      "prompt_tokens": 1661,
+      "completion_tokens": 2714,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 47087
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00402464,
+      "prompt_tokens": 1661,
+      "completion_tokens": 2729,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 51781
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001657098,
+      "prompt_tokens": 396,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 2443
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001716246,
+      "prompt_tokens": 395,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10103,
+      "generation_batch_id": "7126b943-8726-4285-a1c3-44cd75a924eb",
+      "language_code": "zh",
+      "latency_ms": 2176
+    }
+  ],
+  "llm_calls_observed": 10,
+  "llm_cost_observed_usd": 0.0261062944,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 365.530999999959,
+  "finished_at": "2026-10-05T12:23:16.071006+00:00"
+}

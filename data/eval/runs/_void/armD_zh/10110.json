@@ -1,0 +1,1049 @@
+{
+  "sense_id": 10110,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T14:11:50.478516+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] rejected (rating 2): 义项：'可'为语气词，非许可/可能",
+    "P1 sentence[1] flagged (rating 3): 语域：科技论文语体，明显偏正式",
+    "P1 sentence[2] flagged (rating 3): 语域：学术论述语体，明显偏正式",
+    "P1 sentence[5] rejected (rating 2): 义项：'可'为强调副词，非许可/可能",
+    "P1 sentence[6] flagged (rating 3): 义项临界，'可是'用法不自然",
+    "P1 sentence[7] rejected (rating 2): 义项：'可'为强调副词，非许可/可能",
+    "P1 sentence[8] rejected (rating 2): 义项：'可'为语气强调，非许可/可能",
+    "P1 sentence[9] flagged (rating 3): 义项临界，'可是'用法不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.2727508544921875,
+    "p1_generate": 31.61941170692444,
+    "tier_gate": 0.0,
+    "p1_judge": 68.49613928794861,
+    "collocate_grounding": 0.0,
+    "fan_out": 30.51854634284973
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] rejected (rating 2): 义项：'可'为语气词，非许可/可能",
+        "P1 sentence[1] flagged (rating 3): 语域：科技论文语体，明显偏正式",
+        "P1 sentence[2] flagged (rating 3): 语域：学术论述语体，明显偏正式",
+        "P1 sentence[5] rejected (rating 2): 义项：'可'为强调副词，非许可/可能",
+        "P1 sentence[6] flagged (rating 3): 义项临界，'可是'用法不自然",
+        "P1 sentence[7] rejected (rating 2): 义项：'可'为强调副词，非许可/可能",
+        "P1 sentence[8] rejected (rating 2): 义项：'可'为语气强调，非许可/可能",
+        "P1 sentence[9] flagged (rating 3): 义项临界，'可是'用法不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[kʰɤ˨˩˦]",
+        "morphological_forms": [
+          {
+            "form": "可以",
+            "label": "复合"
+          },
+          {
+            "label": "可能",
+            "form": "复合"
+          },
+          {
+            "form": "可是",
+            "label": "复合"
+          },
+          {
+            "form": "可爱",
+            "label": "复合"
+          },
+          {
+            "form": "可",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "kě",
+        "register": "非正式"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10110
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "91bb1cb9-ce57-4574-95f1-32ba9b63de02",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "ipa": "[kʰɤ˨˩˦]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "可",
+          "咳",
+          "科",
+          "客"
+        ],
+        "correct_answer": "可",
+        "explanation": "“可”读第三声（kě），在此表示许可或可能，常用于口语商量或征求意见。",
+        "distractor_explanations": {
+          "科": "“科”读第一声（kē），指学科、类别或行政单位，与目标词声调及意义均不同。",
+          "咳": "“咳”读第二声（ké），指咳嗽或叹气声，声调不同且词义完全无关。",
+          "客": "“客”读第四声（kè），指客人或旅客，声调不同且无法在此语境中表达许可或可能。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "ipa": "[kʰɤ˨˩˦]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "可",
+            "咳",
+            "科",
+            "客"
+          ],
+          "correct_answer": "可",
+          "explanation": "“可”讀第三聲（kě），在此表示許可或可能，常用於口語商量或徵求意見。",
+          "distractor_explanations": {
+            "科": "“科”讀第一聲（kē），指學科、類別或行政單位，與目標詞聲調及意義均不同。",
+            "咳": "“咳”讀第二聲（ké），指咳嗽或嘆氣聲，聲調不同且詞義完全無關。",
+            "客": "“客”讀第四聲（kè），指客人或旅客，聲調不同且無法在此語境中表達許可或可能。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3915a3d7-6e3b-48a0-b6b1-69c3c5e7a198",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "correct_definition": "表示许可或可能，常用于口语。",
+        "options": [
+          "指事物向好的方向发展，质量或状况得到改善。",
+          "温菌指在温暖环境中容易繁殖的细菌，常导致食物腐败。",
+          "指一个人对某个群体、想法或事物感到认可、接受，并觉得自己属于它的一种心理感受。",
+          "表示许可或可能，常用于口语。"
+        ],
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "correct_definition": "表示許可或可能，常用於口語。",
+          "options": [
+            "指事物向好的方向發展，質量或狀況得到改善。",
+            "溫菌指在溫暖環境中容易繁殖的細菌，常導致食物腐敗。",
+            "指一個人對某個群體、想法或事物感到認可、接受，並覺得自己屬於它的一種心理感受。",
+            "表示許可或可能，常用於口語。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "669e9635-d940-4212-ad61-3c53612158b0",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "周末我们可去公园玩着。",
+            "is_correct": false
+          },
+          {
+            "text": "周末我们可去公园玩。",
+            "is_correct": true
+          },
+          {
+            "text": "周末我们可去公园玩得。",
+            "is_correct": false
+          },
+          {
+            "text": "周末我们公园可去玩。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置/选用错误：情态动词“可”后接动作时，不应使用表示状态持续的体标记“着”，应直接说“可去公园玩”。 语序错误：地点状语“公园”应放在动词“去”之后作为宾语，或放在“可”之前作状语，当前语序破坏了正常的句法结构。 体标位置/选用错误：结构助词“得”通常用于引出程度或结果补语，此处无补语成分，放在句末属于语法和体标记误用。",
+        "target_word": "可",
+        "hant": {
+          "sentences": [
+            {
+              "text": "週末我們可去公園玩著。",
+              "is_correct": false
+            },
+            {
+              "text": "週末我們可去公園玩。",
+              "is_correct": true
+            },
+            {
+              "text": "週末我們可去公園玩得。",
+              "is_correct": false
+            },
+            {
+              "text": "週末我們公園可去玩。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置/選用錯誤：情態動詞“可”後接動作時，不應使用表示狀態持續的體標記“著”，應直接說“可去公園玩”。 語序錯誤：地點狀語“公園”應放在動詞“去”之後作為賓語，或放在“可”之前作狀語，當前語序破壞了正常的句法結構。 體標位置/選用錯誤：結構助詞“得”通常用於引出程度或結果補語，此處無補語成分，放在句末屬於語法和體標記誤用。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "07f76a9e-ebc5-4f63-b18d-412ee3af42b1",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这意味着，同一代理可在不同计算平台间无缝迁移，其长期记忆与行为模式不受底层模型更迭的影响。",
+            "is_correct": true
+          },
+          {
+            "text": "可在不同计算平台间同一代理无缝迁移。",
+            "is_correct": false,
+            "error_description": "语序错误。情态动词“可”及其引导的谓语部分应紧跟在主语“同一代理”之后，地点状语“在不同计算平台间”之前，不能将主语置于状语和情态动词之后。"
+          },
+          {
+            "text": "这周末天气不错，咱们去爬山可好？",
+            "is_correct": true
+          },
+          {
+            "text": "这种“技术公地”的繁荣，暗示着一种可能的未来：个人AI代理不再由科技巨头垄断定义，而是成为可被公众共同塑造的认知基础设施。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這意味著，同一代理可在不同計算平臺間無縫遷移，其長期記憶與行為模式不受底層模型更迭的影響。",
+              "is_correct": true
+            },
+            {
+              "text": "可在不同計算平臺間同一代理無縫遷移。",
+              "is_correct": false,
+              "error_description": "語序錯誤。情態動詞“可”及其引導的謂語部分應緊跟在主語“同一代理”之後，地點狀語“在不同計算平臺間”之前，不能將主語置於狀語和情態動詞之後。"
+            },
+            {
+              "text": "這週末天氣不錯，咱們去爬山可好？",
+              "is_correct": true
+            },
+            {
+              "text": "這種“技術公地”的繁榮，暗示著一種可能的未來：個人AI代理不再由科技巨頭壟斷定義，而是成為可被公眾共同塑造的認知基礎設施。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "f16e1813-c84c-47a3-945f-ccb25bcee4b6",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "scientific validity; being done in a way that follows scientific principles correctly",
+              "volunteer; a person who helps others willingly",
+              "表示程度最高，没有比它更厉害的了。",
+              "表示许可或可能，常用于口语。"
+            ],
+            "correct_answer": "表示许可或可能，常用于口语。"
+          }
+        },
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "tier": "T5",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "scientific validity; being done in a way that follows scientific principles correctly",
+                "volunteer; a person who helps others willingly",
+                "表示程度最高，沒有比它更厲害的了。",
+                "表示許可或可能，常用於口語。"
+              ],
+              "correct_answer": "表示許可或可能，常用於口語。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "00896674-d30d-489e-91dd-efa8533ac7f0",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "可",
+        "options": [
+          "kē",
+          "kè",
+          "kě",
+          "ké"
+        ],
+        "correct_answer": "kě",
+        "word": "可",
+        "direction": "hanzi_to_pinyin",
+        "context_sentence": "这周末天气不错，咱们去爬山可好？",
+        "context_target": "可",
+        "is_polyphonic": true,
+        "hant": {
+          "schema_version": 2,
+          "prompt": "可",
+          "options": [
+            "kē",
+            "kè",
+            "kě",
+            "ké"
+          ],
+          "correct_answer": "kě",
+          "word": "可",
+          "direction": "hanzi_to_pinyin",
+          "context_sentence": "這週末天氣不錯，咱們去爬山可好？",
+          "context_target": "可",
+          "is_polyphonic": true
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "c22fa1b7-0263-412c-a338-aa773260c770",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "kě",
+        "options": [
+          "河",
+          "可",
+          "灯",
+          "打"
+        ],
+        "correct_answer": "可",
+        "word": "可",
+        "direction": "pinyin_to_hanzi",
+        "context_sentence": "这周末天气不错，咱们去爬山可好？",
+        "context_target": "可",
+        "is_polyphonic": true,
+        "distractor_sources": {
+          "打": "component",
+          "河": "component",
+          "灯": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "kě",
+          "options": [
+            "河",
+            "可",
+            "燈",
+            "打"
+          ],
+          "correct_answer": "可",
+          "word": "可",
+          "direction": "pinyin_to_hanzi",
+          "context_sentence": "這週末天氣不錯，咱們去爬山可好？",
+          "context_target": "可",
+          "is_polyphonic": true,
+          "distractor_sources": {
+            "打": "component",
+            "河": "component",
+            "灯": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "91065f01-68c3-40f9-ba90-6a7c8222e67a",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "可",
+        "toneless_pinyin": "ke",
+        "full_pinyin": "kě",
+        "options": [
+          "3",
+          "4",
+          "2",
+          "1"
+        ],
+        "correct_answer": "3",
+        "option_labels": {
+          "3": "dipping (3)",
+          "4": "falling (4)",
+          "2": "rising (2)",
+          "1": "high level (1)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "可",
+          "toneless_pinyin": "ke",
+          "full_pinyin": "kě",
+          "options": [
+            "3",
+            "4",
+            "2",
+            "1"
+          ],
+          "correct_answer": "3",
+          "option_labels": {
+            "3": "dipping (3)",
+            "4": "falling (4)",
+            "2": "rising (2)",
+            "1": "high level (1)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "590111f4-3831-4469-9b3c-965aa255b3ad",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他今天没来上课，可是生病了没。",
+            "is_correct": false
+          },
+          {
+            "text": "他今天没来上课，可是生病了过。",
+            "is_correct": false
+          },
+          {
+            "text": "可是生病了，他今天没来上课。",
+            "is_correct": false
+          },
+          {
+            "text": "他今天没来上课，可是生病了？",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标位置/选用错误。句末的“没”不能与表示猜测的“可是”搭配，应改为疑问语气词“吗”或“呢”。 语序错误。表示猜测的“可是”引导的分句应放在结果或现象之后，原句因果/推测逻辑颠倒。 体标位置/选用错误。句末的“过”表示经历，不能用于表示对当前情况的猜测，应改为“了吗”。",
+        "target_word": "可",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他今天沒來上課，可是生病了沒。",
+              "is_correct": false
+            },
+            {
+              "text": "他今天沒來上課，可是生病了過。",
+              "is_correct": false
+            },
+            {
+              "text": "可是生病了，他今天沒來上課。",
+              "is_correct": false
+            },
+            {
+              "text": "他今天沒來上課，可是生病了？",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標位置/選用錯誤。句末的“沒”不能與表示猜測的“可是”搭配，應改為疑問語氣詞“嗎”或“呢”。 語序錯誤。表示猜測的“可是”引導的分句應放在結果或現象之後，原句因果/推測邏輯顛倒。 體標位置/選用錯誤。句末的“過”表示經歷，不能用於表示對當前情況的猜測，應改為“了嗎”。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "4857bb2e-ddc3-4bbe-b0dc-55aaec05cd00",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他今天没来上班，可是生病了？",
+            "is_correct": true
+          },
+          {
+            "text": "他今天没来上班，可是生病了？",
+            "is_correct": false,
+            "error_description": "错误类型：疑问语气词缺失。句中的“可是”表示“是不是”或“难道是”，用于提出疑问，句末必须加上疑问语气词“吗”才能构成完整的疑问句，否则句子结构不完整。"
+          },
+          {
+            "text": "他今天没来上课，可是生病了？",
+            "is_correct": true
+          },
+          {
+            "text": "你到了那边，可要记得给家里打个电话。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他今天沒來上班，可是生病了？",
+              "is_correct": true
+            },
+            {
+              "text": "他今天沒來上班，可是生病了？",
+              "is_correct": false,
+              "error_description": "錯誤型別：疑問語氣詞缺失。句中的“可是”表示“是不是”或“難道是”，用於提出疑問，句末必須加上疑問語氣詞“嗎”才能構成完整的疑問句，否則句子結構不完整。"
+            },
+            {
+              "text": "他今天沒來上課，可是生病了？",
+              "is_correct": true
+            },
+            {
+              "text": "你到了那邊，可要記得給家裡打個電話。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00307808,
+      "prompt_tokens": 2495,
+      "completion_tokens": 1781,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 31356
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00190304,
+      "prompt_tokens": 691,
+      "completion_tokens": 1314,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 23341
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016096,
+      "prompt_tokens": 394,
+      "completion_tokens": 1159,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 23197
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017392,
+      "prompt_tokens": 619,
+      "completion_tokens": 1204,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 21426
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196384,
+      "prompt_tokens": 1545,
+      "completion_tokens": 1148,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20566
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196672,
+      "prompt_tokens": 1542,
+      "completion_tokens": 1151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20852
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00271808,
+      "prompt_tokens": 1710,
+      "completion_tokens": 1696,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30265
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00273216,
+      "prompt_tokens": 1710,
+      "completion_tokens": 1707,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30299
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001690533,
+      "prompt_tokens": 397,
+      "completion_tokens": 65,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 1749
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001659672,
+      "prompt_tokens": 397,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 1986
+    }
+  ],
+  "llm_calls_observed": 10,
+  "llm_cost_observed_usd": 0.018045740499999997,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 137.0,
+  "finished_at": "2026-10-05T14:14:07.477278+00:00"
+}

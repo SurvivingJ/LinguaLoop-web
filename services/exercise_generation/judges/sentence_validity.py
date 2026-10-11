@@ -109,13 +109,20 @@ def judge_wrong_sentences(
             prompt,
             model=cfg['model'],
             temperature=0.0,
-            # TASK-812: was 19000 (never re-derived since it was first set).
-            # TASK-808's baseline (data/eval/runs/baseline_{en,ja}/*.json)
-            # shows this judge's own completion_tokens p99 at 5247 (n=94,
-            # max 5247) -- 16000 is >=3x that, leaving headroom for a larger
-            # multi-item batch than the baseline sampled, while still cutting
-            # the worst-case runaway-completion cost by ~16%.
-            max_tokens=16000,
+            # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 16000 was
+            # itself still oversized -- that baseline's p99=5247 was inflated
+            # by reasoning tokens the qwen rows no longer emit (reasoning is
+            # now OFF). With reasoning off, data/eval/runs/phase2_bundle_*/
+            # + phase2_fix_*/ + phase2_smoke_ja_v3/ + phase2_smoke_zh_r/
+            # *.json llm_calls for judge_ladder_sentence_validity show
+            # completion_tokens pooled across languages: n=71, p99=146,
+            # max=147 (en, n=68, governs; ja n=1 and zh n=2 are both smaller
+            # and sparse, consistent with/bounded by en). cap =
+            # max(ceil(p99*2), ceil(max*1.25)) = 292, rounded up to 300. At
+            # gemini-3.5-flash-lite's $2.50/M completion price (en's model)
+            # this cuts the worst-case reservation from ~$0.040/request to
+            # ~$0.001/request.
+            max_tokens=300,
             response_format='json',
             provider=cfg['provider'],
             pipeline=_PIPELINE,

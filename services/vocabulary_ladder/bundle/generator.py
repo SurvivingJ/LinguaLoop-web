@@ -26,7 +26,7 @@ import json
 import logging
 from dataclasses import dataclass, field
 
-from services.llm_service import call_llm
+from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.asset_generators._renderer import render_template
 from services.vocabulary_ladder.asset_generators.l4_morphology import (
@@ -55,26 +55,48 @@ _LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
 # ADR-028's "≤2 real calls per step" rule: one primary attempt, one retry.
 _MAX_ATTEMPTS = 2
 
-# Bundle-call max_tokens, per language. Derived from summing the PER-COMPONENT
-# completion_tokens MAX observed in the Phase 0 baseline
-# (data/eval/runs/baseline_{en,ja}/*.json llm_calls: vocab_prompt2_exercises
-# max 11385, vocab_prompt3_transforms max 6471, ladder_l4_morphology_generation
-# max 1921, ladder_syn_ant_generation max 2017, ladder_word_family_generation
-# max 1799, ladder_particle_selection_generation max 1908 — L8's own task_name
-# logged zero completion_tokens rows in the baseline sample, so it borrows L4's
-# magnitude as a stand-in), doubled for variants A+B, plus headroom. This is a
-# WORST-CASE ceiling assuming every component's max co-occurs on one sense in
-# one call, which baseline per-sense data suggests is rare — a real bundle-call
-# measurement (blocked while the Phase 1 eval run is in flight; no paid LLM
-# calls from this task) should replace these with observed p99s before "on"
-# mode ships. Sized as a cap, not a target: it only affects the worst case,
-# never the typical-cost path Decision §1 is measured against.
-_MAX_TOKENS_BY_LANGUAGE: dict[int, int] = {
+# Bundle-call max_tokens, per language. RE-DERIVED 2026-10-03 (ADR-028 cost
+# work) from the REAL bundle-call measurement the module docstring above was
+# waiting on, now that it exists: data/eval/runs/phase2_bundle_{en,ja,zh}/ +
+# phase2_fix_*/ + phase2_smoke_ja_v3/ + phase2_smoke_zh_r/ *.json llm_calls,
+# vocab_bundle_generation completion_tokens (reasoning OFF for qwen in these
+# runs, unlike the Phase 0/1 baseline this used to cite):
+#   en n=19 p99=4532 max=4707 -> cap=max(ceil(p99*2), ceil(max*1.25))=9063
+#   ja n=20 p99=3317 max=3346 -> cap=6635
+#   zh n=16 p99=4267 max=4323 -> cap=8535
+# each rounded up to the nearest 500. The old values (one-component-sum
+# worst case, no real bundle call had ever been measured) were 4-5x these;
+# at qwen3.7-plus's $1.28/M completion price that was reserving (per
+# ADR-028's prompt+max_tokens-against-balance behaviour) ~$0.057/request
+# worst-case on en, now ~$0.013. Still sized as a cap, not a target.
+_MAX_TOKENS_BY_LANGUAGE_RIGHTSIZED: dict[int, int] = {
+    1: 9000,   # zh: see measurement above (p99=4267, max=4323, n=16)
+    2: 9500,   # en: see measurement above (p99=4532, max=4707, n=19)
+    3: 7000,   # ja: see measurement above (p99=3317, max=3346, n=20)
+}
+_DEFAULT_MAX_TOKENS_RIGHTSIZED = 9500  # max of the three measured languages, for any unlisted language_id
+
+# Pre-2026-10-03 (reasoning-safe) caps -- the original one-component-sum
+# worst case cited in the comment above, before the real bundle-call
+# measurement existed. This module runs on a qwen model for every language
+# (see TASK-813); when `LADDER_QWEN_REASONING=on` (the default) restores
+# Phase-1 reasoning-left-on behaviour, reasoning tokens count toward
+# `max_tokens` and the right-sized caps above (derived from reasoning-OFF
+# measurements) would truncate.
+_MAX_TOKENS_BY_LANGUAGE_REASONING_SAFE: dict[int, int] = {
     1: 40000,  # zh: L1(in P2)+L3+L6 + L7 + L4 + syn_ant, x2 variants (L5/L8 disabled today)
     2: 44000,  # en: L1+L3+L5+L6 + L7 + L4 + L8 + syn_ant + word_family, x2 variants
     3: 34000,  # ja: L3+L6 + L7 + particle_selection + syn_ant, x2 variants (no L1; L5/L8 disabled)
 }
-_DEFAULT_MAX_TOKENS = 40000
+_DEFAULT_MAX_TOKENS_REASONING_SAFE = 40000
+
+
+def _max_tokens_for_language(language_id: int) -> int:
+    if ladder_qwen_reasoning_mode() != 'off':
+        return _MAX_TOKENS_BY_LANGUAGE_REASONING_SAFE.get(
+            language_id, _DEFAULT_MAX_TOKENS_REASONING_SAFE)
+    return _MAX_TOKENS_BY_LANGUAGE_RIGHTSIZED.get(
+        language_id, _DEFAULT_MAX_TOKENS_RIGHTSIZED)
 
 # Which typed type_codes this module knows how to place into the bundle
 # prompt/response. A type registered later but not listed here is simply
@@ -236,7 +258,7 @@ class BundleGenerator:
         prompt_vars = self._prompt_vars(core_asset, active_levels, variants)
         prompt_text = render_template(self.cfg['template'], **prompt_vars)
         cfg = self.cfg
-        max_tokens = _MAX_TOKENS_BY_LANGUAGE.get(self.language_id, _DEFAULT_MAX_TOKENS)
+        max_tokens = _max_tokens_for_language(self.language_id)
 
         last_exc: Exception | None = None
         for attempt in range(1, _MAX_ATTEMPTS + 1):
@@ -412,6 +434,16 @@ class BundleGenerator:
             # this key", which mapping.build_l4_fragment(None, ...) treats as
             # a clean skip. A total failure must always fall back.
             fragment, errors = None, ['bundle call unavailable']
+        elif '4' not in raw_variant:
+            # TASK-8xx (item 5): the bundle call itself succeeded, but the
+            # model silently dropped a section `active_levels_json`
+            # explicitly told it to produce. That's not the same thing as the
+            # model's own "9" decline escape (which DOES appear as a key with
+            # an escape value, and mapping.build_l4_fragment handles that
+            # already) — an outright omission of a REQUESTED key must fall
+            # back to the real per-generator call rather than read as a clean
+            # skip identical to "not applicable".
+            fragment, errors = None, ['model omitted a requested level_4 section']
         else:
             raw_block = raw_variant.get('4')
             fragment, errors = mapping.build_l4_fragment(raw_block, sentence_assignments.get(4, 1), self.language_id)
@@ -434,6 +466,11 @@ class BundleGenerator:
             return
         if raw_variant is None:
             fragment, errors = None, ['bundle call unavailable']
+        elif '8' not in raw_variant:
+            # Same reasoning as _resolve_l4 above: an outright omission of a
+            # requested key is not the model's "9" decline escape and must
+            # fall back, not read as a clean skip.
+            fragment, errors = None, ['model omitted a requested level_8 section']
         else:
             raw_block = raw_variant.get('8')
             fragment, errors = mapping.build_l8_fragment(raw_block, sentence_assignments.get(8, 4), self.language_id)
@@ -466,6 +503,24 @@ class BundleGenerator:
                 failed_codes.append(type_code)
                 continue
             bundle_key = _TYPED_BUNDLE_KEY.get(type_code, type_code)
+            if bundle_key not in raw_variant:
+                # TASK-8xx (item 5): unlike L4/L8 — which active_levels_json
+                # explicitly enumerates as required numeric levels — a typed
+                # type like synonym_antonym_match has no equivalent explicit
+                # "you must produce this" signal in the prompt today (it's
+                # framed as "if applicable"), so the model omitting the key
+                # outright and the model correctly judging it inapplicable
+                # are INDISTINGUISHABLE to mapping.build_typed_fragment (both
+                # read as `raw_block is None` -> clean skip, `({}, [])`).
+                # Observed live: ja sense 34998 lost synonym_antonym_match
+                # this way even though the legacy per-generator path (which
+                # asks for it directly, not "if applicable") produced it.
+                # Treat an outright-missing key for a WANTED type the same as
+                # a schema failure — fall back to the real per-type call,
+                # which decides applicability on its own, rather than
+                # silently accepting the omission as a decline.
+                failed_codes.append(type_code)
+                continue
             raw_block = raw_variant.get(bundle_key)
             gen_cls = typed_llm.generator_class(type_code)
             sentence_index = _typed_sentence_index(gen_cls, core_asset, sentence_assignments)

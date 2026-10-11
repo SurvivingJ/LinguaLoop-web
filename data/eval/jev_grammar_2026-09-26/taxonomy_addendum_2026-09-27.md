@@ -292,7 +292,7 @@ B1 should add that en B1 now also covers verb particles (K2).
 ## 5. Knock-on edits (not done here; this addendum is the only file changed)
 
 - **K1** `taxonomy.md` en.word_order: exclude "particle position relative to the object of an in-scope phrasal
-  verb", which moves to `en.phrasal_verb`.
+  verb", which moves to `en.phrasal_verb`. **Applied 2026-10-04.**
 - **K2** `taxonomy.md` §4: add to the B1 comparability note that en B1 now covers verb particles, and add the
   ja-only B9 row. Rebalance en.B1 sizing to about 10 positives per type.
 - **K3** `taxonomy.md` §0.10 / authoring plans: B9 positives are excluded from ja.B1's cross-bucket negatives,
@@ -302,10 +302,11 @@ B1 should add that en B1 now also covers verb particles (K2).
   「は」、助数詞は…」). If adopted, B9 positives can go back into B1's cross-bucket negative set.
 - **K5** `merged_taxonomy.json`: set `jev_bucket` to `"B1"` (en phrasal_verb) and `"B9"` (ja particle_other).
   Replace "jev has no standalone equivalent" in both definitions with a pointer to this addendum. Leave all
-  other DT fields unchanged.
+  other DT fields unchanged. **Applied 2026-10-04** (jev_bucket was already set from the 2026-09-28 fold; only
+  the definition text was replaced).
 - **K6** `jev_grammar_to_merged.csv`: add `en,phrasal_verb,phrasal_verb,split,...` and
   `ja,particle_other,particle_other,split,...`, with the §4 divergences in the notes. `v5_to_merged.csv`: the
-  notes on both rows are now stale.
+  notes on both rows are now stale. **Applied 2026-10-04.**
 - **K7** v5 historical-alias triage (pre-v5 undifferentiated ja `particle` rows → wa_ga / case_particle /
   particle_other): use the §2.3 boundary table, and note that v5 would put より under particle_case.
 
@@ -763,7 +764,7 @@ Why each bucket was chosen:
 
 - **K8** `taxonomy.md` en.article_determiner: add "a plural ending on an uncountable noun (*advices*) →
   `en.plural_number`". en.agreement: add "a number change on the subject noun that leaves two repairs is
-  invalid (C7)".
+  invalid (C7)". **Applied 2026-10-04.**
 - **K9** `taxonomy.md` §3.3 / §2.3 / §1.3: replace the en.B4, ja.B3 and zh.B4 rows with §8.4's rows, and
   apply the sizing changes.
 - **K10** `taxonomy.md` §4: en B4 now includes a G type (plural_number). zh B4 and ja B3 gain topic_comment,
@@ -772,12 +773,13 @@ Why each bucket was chosen:
   §8.4 (both outbound and inbound).
 - **K12** `merged_taxonomy.json`: set `jev_bucket` to `"B4"` (en plural_number, zh topic_comment) and `"B3"`
   (ja topic_comment). Replace "jev has no (standalone) equivalent" with a pointer to §8. Leave the other DT
-  fields unchanged.
+  fields unchanged. **Applied 2026-10-04** (jev_bucket was already set from the 2026-09-28 fold; only the
+  definition text was replaced).
 - **K13** `jev_grammar_to_merged.csv`: add rows `en,plural_number,plural_number,split,...`,
   `zh,topic_comment,topic_comment,split,...` and `ja,topic_comment,topic_comment,split,...`, with the §8.5
-  divergences. `v5_to_merged.csv`: the notes on those three rows are now stale.
+  divergences. `v5_to_merged.csv`: the notes on those three rows are now stale. **Applied 2026-10-04.**
 - **K14** `taxonomy.md` ja.wa_ga: add to "Not an error / not authored" that expletive or doubled は-topics
-  (それは雨が…) are `ja.topic_comment` routing-only.
+  (それは雨が…) are `ja.topic_comment` routing-only. **Applied 2026-10-04.**
 
 ### 8.7 Review response
 

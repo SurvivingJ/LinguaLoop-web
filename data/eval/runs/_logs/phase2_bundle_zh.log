@@ -1,0 +1,1023 @@
+2026-10-03 11:28:36,080 INFO Supabase anon client initialized
+2026-10-03 11:28:36,080 INFO Supabase service role client initialized
+2026-10-03 11:28:36,080 INFO Starting eval run batch_id=350aabc9-7630-403e-bd83-4c4139eff968 senses=30 lang=zh out=data\eval\runs\phase2_bundle_zh max_cost_usd=2.0 concurrency=1 force=True model_overrides=[] prompt_overrides=[{'task_name': 'vocab_bundle_generation', 'language': 'zh', 'language_id': 1, 'version': 2, 'model': 'qwen/qwen3.7-plus', 'provider': 'openrouter'}, {'task_name': 'vocab_bundle_generation', 'language': 'ja', 'language_id': 3, 'version': 3, 'model': 'qwen/qwen3.7-plus', 'provider': 'openrouter'}, {'task_name': 'vocab_bundle_generation', 'language': 'en', 'language_id': 2, 'version': 2, 'model': 'qwen/qwen3.7-plus', 'provider': 'openrouter'}, {'task_name': 'ladder_bundle_judge', 'language': 'zh', 'language_id': 1, 'version': 2, 'model': 'qwen/qwen3.7-plus', 'provider': 'openrouter'}, {'task_name': 'ladder_bundle_judge', 'language': 'ja', 'language_id': 3, 'version': 2, 'model': 'qwen/qwen3.7-plus', 'provider': 'openrouter'}, {'task_name': 'ladder_bundle_judge', 'language': 'en', 'language_id': 2, 'version': 1, 'model': 'google/gemini-3.5-flash-lite', 'provider': 'openrouter'}] senses_from=data/eval/runs/phase1_zh
+2026-10-03 11:28:37,426 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810103%29 "HTTP/2 200 OK"
+2026-10-03 11:28:37,505 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10103 "HTTP/2 200 OK"
+2026-10-03 11:28:37,672 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+Building prefix dict from C:\Users\James\Documents\Coding\LinguaLoop\WebApp\venv\Lib\site-packages\wordfreq\data\jieba_zh.txt ...
+2026-10-03 11:28:37,889 DEBUG Building prefix dict from C:\Users\James\Documents\Coding\LinguaLoop\WebApp\venv\Lib\site-packages\wordfreq\data\jieba_zh.txt ...
+Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.uc1ef8820505da971b5bcc4f0a656bcdb.cache
+2026-10-03 11:28:37,889 DEBUG Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.uc1ef8820505da971b5bcc4f0a656bcdb.cache
+Loading model cost 0.051 seconds.
+2026-10-03 11:28:37,940 DEBUG Loading model cost 0.051 seconds.
+Prefix dict has been built successfully.
+2026-10-03 11:28:37,940 DEBUG Prefix dict has been built successfully.
+Building prefix dict from the default dictionary ...
+2026-10-03 11:28:38,054 DEBUG Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.cache
+2026-10-03 11:28:38,054 DEBUG Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.cache
+Loading model cost 0.536 seconds.
+2026-10-03 11:28:38,590 DEBUG Loading model cost 0.536 seconds.
+Prefix dict has been built successfully.
+2026-10-03 11:28:38,590 DEBUG Prefix dict has been built successfully.
+2026-10-03 11:28:38,596 INFO Mined 0 sentence(s) for sense 10103 from 1 transcript(s) (1 rejected by the tier gate at T1)
+2026-10-03 11:28:38,638 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10103 "HTTP/2 200 OK"
+2026-10-03 11:28:38,678 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:28:40,426 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:28:51,649 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:28:51,649 WARNING Prompt 1 validation failed: ["Sentence 1: target_word '早' is not a whole-word match in text (substring inside another word does not count)", "Sentence 7: target_word '早' is not a whole-word match in text (substring inside another word does not count)"]
+2026-10-03 11:28:53,081 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:28:53,511 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:28:53,515 INFO Prompt 1 sentence repair succeeded for sense 10103 (indices [1, 7])
+2026-10-03 11:28:53,604 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_p1_sentence_judge&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:28:54,931 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:28:58,253 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:28:58,283 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:28:59,349 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:28:59,900 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:29:00,948 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:29:01,487 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:29:01,536 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:29:01,536 INFO Stored prompt1_core asset for sense 10103 (valid=True)
+2026-10-03 11:29:01,573 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10103 "HTTP/2 200 OK"
+2026-10-03 11:29:03,373 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:30:17,109 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:30:17,125 INFO Bundle typed fallback for sense 10103 variant A: ['synonym_antonym_match']
+2026-10-03 11:30:17,182 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_syn_ant_generation&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:30:18,615 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:30:24,883 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:30:24,883 INFO Bundle generation for sense 10103: ok=True fallback_calls=['typed:synonym_antonym_match:A']
+2026-10-03 11:30:24,933 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:30:24,933 INFO Stored prompt2_exercises_A asset for sense 10103 (valid=True)
+2026-10-03 11:30:24,976 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:30:24,976 INFO Stored prompt3_transforms_A asset for sense 10103 (valid=True)
+2026-10-03 11:30:24,976 INFO Stored llm_types_A asset for sense 10103 (valid=True)
+2026-10-03 11:30:24,976 INFO Stored prompt2_exercises_B asset for sense 10103 (valid=True)
+2026-10-03 11:30:24,976 INFO Stored prompt3_transforms_B asset for sense 10103 (valid=True)
+2026-10-03 11:30:24,976 INFO Stored llm_types_B asset for sense 10103 (valid=True)
+2026-10-03 11:30:25,019 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10103&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:30:25,068 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10103&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:30:25,068 INFO Sense 10103: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=property)
+2026-10-03 11:30:25,114 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10103 "HTTP/2 200 OK"
+2026-10-03 11:30:26,559 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:30:51,984 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:30:52,026 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10103 "HTTP/2 200 OK"
+2026-10-03 11:30:52,082 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:30:52,368 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:30:52,383 INFO L3 cloze_judge rejected 3/3 distractors for sense 10103; skipping variant
+2026-10-03 11:30:52,385 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10103; skipping variant
+2026-10-03 11:30:52,420 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10103 "HTTP/2 200 OK"
+2026-10-03 11:30:52,503 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:52,601 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:52,746 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:52,821 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=3000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:52,921 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=4000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:53,079 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=5000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:53,203 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=6000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:53,321 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=7000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:53,468 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=8000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:53,621 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=9000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:53,723 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=10000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:53,924 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=11000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:54,094 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=12000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:54,291 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=13000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:54,462 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=14000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:54,647 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=15000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:54,841 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=16000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:55,045 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=17000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:55,226 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=18000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:55,442 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=19000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:55,642 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=20000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:55,877 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=21000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:56,129 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=22000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:56,498 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20sense_rank%2C%20definition_level%2Cdim_vocabulary%21inner%28lemma%2C%20language_id%2C%20frequency_rank%2C%20semantic_class%29&dim_vocabulary.language_id=eq.1&offset=23000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:56,586 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=0&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:56,628 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=1000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:56,845 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=2000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:56,915 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=3000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:56,963 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=4000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,033 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=5000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,116 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=6000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,230 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=7000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,301 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=8000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,349 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=9000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,418 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=10000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,502 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=11000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,662 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=12000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,804 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=13000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,879 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=14000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:57,936 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=15000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,034 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=16000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,114 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=17000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,183 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=18000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,232 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=19000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,295 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=20000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,368 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=21000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,432 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=22000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,487 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=23000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,553 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=24000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,638 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=25000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,691 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=26000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,733 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_character_components?select=character%2C%20components&offset=27000&limit=1000 "HTTP/2 200 OK"
+2026-10-03 11:30:58,738 INFO lexicon language=1: 23870 senses, 3498 reading keys, 27131 component chars
+2026-10-03 11:30:59,223 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:30:59,225 INFO syn_ant: embedding band dropped ['新'] for sense 10103 (cosine 0.33 < 0.365 — unrelated, not a distractor)
+2026-10-03 11:30:59,330 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_relation_judge&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:31:00,622 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:31:01,399 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:31:01,415 INFO syn_ant: 1/3 foils survived for sense 10103; skipping variant
+2026-10-03 11:31:01,448 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10103 "HTTP/2 200 OK"
+2026-10-03 11:31:01,448 INFO Sense 10103: skipping duplicate context-free phonetic_recognition from variant B (already produced by an earlier variant)
+2026-10-03 11:31:01,638 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:31:01,650 INFO L3 cloze_judge rejected 3/3 distractors for sense 10103; skipping variant
+2026-10-03 11:31:01,650 INFO L6 sentence_validity_judge kept 2/3 wrong sentences for sense 10103; skipping variant
+2026-10-03 11:31:01,650 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10103; skipping variant
+2026-10-03 11:31:01,695 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10103 "HTTP/2 200 OK"
+2026-10-03 11:31:01,767 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:31:03,441 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:31:04,580 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:31:04,591 INFO syn_ant: 2/3 foils survived for sense 10103; skipping variant
+2026-10-03 11:31:04,591 INFO Sense 10103 deterministic skips: synonym_antonym_match: judge or band check left too few distractors; synonym_antonym_match: judge or band check left too few distractors
+2026-10-03 11:31:04,591 INFO sense 10103: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:31:04,638 INFO sense 10103: status=success exercises=13 wall_clock=147.3s
+2026-10-03 11:31:05,013 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:31:05,061 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810104%29 "HTTP/2 200 OK"
+2026-10-03 11:31:05,100 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10104 "HTTP/2 200 OK"
+2026-10-03 11:31:05,182 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:31:05,213 INFO Mined 0 sentence(s) for sense 10104 from 4 transcript(s) (5 rejected by the tier gate at T1)
+2026-10-03 11:31:05,261 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10104 "HTTP/2 200 OK"
+2026-10-03 11:31:05,299 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:31:07,250 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:31:18,249 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:31:19,614 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:31:22,485 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:31:22,537 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:31:22,537 INFO Stored prompt1_core asset for sense 10104 (valid=True)
+2026-10-03 11:31:22,586 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10104 "HTTP/2 200 OK"
+2026-10-03 11:31:24,139 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:32:26,671 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:32:26,671 INFO Bundle generation for sense 10104: ok=True fallback_calls=[]
+2026-10-03 11:32:26,715 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:32:26,715 INFO Stored prompt2_exercises_A asset for sense 10104 (valid=True)
+2026-10-03 11:32:26,751 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:32:26,751 INFO Stored prompt3_transforms_A asset for sense 10104 (valid=True)
+2026-10-03 11:32:26,751 INFO Stored llm_types_A asset for sense 10104 (valid=True)
+2026-10-03 11:32:26,751 INFO Stored prompt2_exercises_B asset for sense 10104 (valid=True)
+2026-10-03 11:32:26,751 INFO Stored prompt3_transforms_B asset for sense 10104 (valid=True)
+2026-10-03 11:32:26,751 INFO Stored llm_types_B asset for sense 10104 (valid=True)
+2026-10-03 11:32:26,803 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10104&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:32:26,852 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10104&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:32:26,852 INFO Sense 10104: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=property)
+2026-10-03 11:32:26,888 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10104 "HTTP/2 200 OK"
+2026-10-03 11:32:28,286 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:32:44,038 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:32:44,068 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10104 "HTTP/2 200 OK"
+2026-10-03 11:32:44,117 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:32:45,136 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:32:45,136 INFO L3 cloze_judge rejected 3/3 distractors for sense 10104; skipping variant
+2026-10-03 11:32:45,166 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10104 "HTTP/2 200 OK"
+2026-10-03 11:32:45,301 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:32:47,096 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:32:48,209 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:32:48,231 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10104 "HTTP/2 200 OK"
+2026-10-03 11:32:48,247 INFO Sense 10104: skipping duplicate context-free phonetic_recognition from variant B (already produced by an earlier variant)
+2026-10-03 11:32:48,309 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:32:48,309 INFO L3 cloze_judge rejected 3/3 distractors for sense 10104; skipping variant
+2026-10-03 11:32:48,350 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10104 "HTTP/2 200 OK"
+2026-10-03 11:32:48,424 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:32:49,830 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:32:50,937 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:32:50,937 INFO sense 10104: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:32:50,983 INFO sense 10104: status=success exercises=18 wall_clock=105.9s
+2026-10-03 11:32:51,030 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:32:51,062 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810105%29 "HTTP/2 200 OK"
+2026-10-03 11:32:51,112 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10105 "HTTP/2 200 OK"
+2026-10-03 11:32:51,158 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:32:51,186 INFO Mined 2 sentence(s) for sense 10105 from 2 transcript(s) (0 rejected by the tier gate at T4)
+2026-10-03 11:32:51,231 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10105 "HTTP/2 200 OK"
+2026-10-03 11:32:51,267 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:32:53,037 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:33:06,280 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:33:06,280 WARNING Prompt 1 validation failed: ["Sentence 7: target_word '广泛应用' is not a whole-word match in text (substring inside another word does not count)"]
+2026-10-03 11:33:07,526 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:33:07,812 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:33:07,812 INFO Prompt 1 sentence repair succeeded for sense 10105 (indices [7])
+2026-10-03 11:33:08,919 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:33:11,949 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:33:11,988 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:33:13,144 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:33:13,417 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:33:14,730 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:33:15,033 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:33:15,070 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:33:15,070 INFO Stored prompt1_core asset for sense 10105 (valid=True)
+2026-10-03 11:33:15,112 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10105 "HTTP/2 200 OK"
+2026-10-03 11:33:16,567 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:34:12,018 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:12,028 INFO Bundle generation for sense 10105: ok=True fallback_calls=[]
+2026-10-03 11:34:12,067 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:34:12,067 INFO Stored prompt2_exercises_A asset for sense 10105 (valid=True)
+2026-10-03 11:34:12,114 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:34:12,116 INFO Stored prompt3_transforms_A asset for sense 10105 (valid=True)
+2026-10-03 11:34:12,116 INFO Stored llm_types_A asset for sense 10105 (valid=True)
+2026-10-03 11:34:12,116 INFO Stored prompt2_exercises_B asset for sense 10105 (valid=True)
+2026-10-03 11:34:12,117 INFO Stored prompt3_transforms_B asset for sense 10105 (valid=True)
+2026-10-03 11:34:12,117 INFO Stored llm_types_B asset for sense 10105 (valid=True)
+2026-10-03 11:34:12,151 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10105&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:34:12,198 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10105&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:34:12,198 INFO Sense 10105: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=action)
+2026-10-03 11:34:12,231 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10105 "HTTP/2 200 OK"
+2026-10-03 11:34:13,686 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:34:31,388 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:31,430 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10105 "HTTP/2 200 OK"
+2026-10-03 11:34:31,430 INFO L1 l1_distractor_judge (source=llm) kept 1/3 distractors for sense 10105; skipping variant
+2026-10-03 11:34:31,684 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:34:31,747 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:34:31,903 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10105 "HTTP/2 200 OK"
+2026-10-03 11:34:31,974 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:34:33,265 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:34:34,345 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:34,381 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10105 "HTTP/2 200 OK"
+2026-10-03 11:34:34,381 INFO L1 l1_distractor_judge (source=llm) kept 1/3 distractors for sense 10105; skipping variant
+2026-10-03 11:34:34,434 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:34:34,467 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10105 "HTTP/2 200 OK"
+2026-10-03 11:34:34,546 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:34:35,834 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:34:36,889 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:36,889 INFO sense 10105: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:34:36,940 INFO sense 10105: status=success exercises=19 wall_clock=105.9s
+2026-10-03 11:34:36,987 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:34:37,026 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810106%29 "HTTP/2 200 OK"
+2026-10-03 11:34:37,056 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10106 "HTTP/2 200 OK"
+2026-10-03 11:34:37,113 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:34:37,131 INFO Mined 1 sentence(s) for sense 10106 from 1 transcript(s) (0 rejected by the tier gate at T3)
+2026-10-03 11:34:37,167 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10106 "HTTP/2 200 OK"
+2026-10-03 11:34:37,214 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:34:38,669 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:34:50,277 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:52,050 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:34:55,061 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:55,103 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:56,898 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:34:57,685 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:59,011 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:34:59,740 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:59,802 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:34:59,802 INFO Stored prompt1_core asset for sense 10106 (valid=True)
+2026-10-03 11:34:59,849 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10106 "HTTP/2 200 OK"
+2026-10-03 11:35:01,370 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:35:55,558 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:35:55,558 INFO Bundle generation for sense 10106: ok=True fallback_calls=[]
+2026-10-03 11:35:55,592 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:35:55,592 INFO Stored prompt2_exercises_A asset for sense 10106 (valid=True)
+2026-10-03 11:35:55,632 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:35:55,632 INFO Stored prompt3_transforms_A asset for sense 10106 (valid=True)
+2026-10-03 11:35:55,632 INFO Stored llm_types_A asset for sense 10106 (valid=True)
+2026-10-03 11:35:55,632 INFO Stored prompt2_exercises_B asset for sense 10106 (valid=True)
+2026-10-03 11:35:55,632 INFO Stored prompt3_transforms_B asset for sense 10106 (valid=True)
+2026-10-03 11:35:55,632 INFO Stored llm_types_B asset for sense 10106 (valid=True)
+2026-10-03 11:35:55,684 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10106&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:35:55,715 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10106&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:35:55,715 INFO Sense 10106: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=action)
+2026-10-03 11:35:55,759 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10106 "HTTP/2 200 OK"
+2026-10-03 11:35:57,199 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:36:21,707 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:21,748 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10106 "HTTP/2 200 OK"
+2026-10-03 11:36:21,795 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:36:22,024 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:36:22,024 INFO L3 cloze_judge rejected 2/3 distractors for sense 10106; skipping variant
+2026-10-03 11:36:22,052 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10106 "HTTP/2 200 OK"
+2026-10-03 11:36:22,147 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:36:23,364 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:36:24,612 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:24,637 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10106 "HTTP/2 200 OK"
+2026-10-03 11:36:24,637 INFO Sense 10106: skipping duplicate context-free phonetic_recognition from variant B (already produced by an earlier variant)
+2026-10-03 11:36:24,702 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:36:24,703 INFO L3 cloze_judge rejected 1/3 distractors for sense 10106; skipping variant
+2026-10-03 11:36:24,733 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10106 "HTTP/2 200 OK"
+2026-10-03 11:36:24,813 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:36:25,961 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:36:27,074 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:27,074 INFO sense 10106: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:36:27,129 INFO sense 10106: status=success exercises=18 wall_clock=110.1s
+2026-10-03 11:36:27,165 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:36:27,206 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810107%29 "HTTP/2 200 OK"
+2026-10-03 11:36:27,236 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10107 "HTTP/2 200 OK"
+2026-10-03 11:36:27,283 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:36:27,307 INFO Mined 1 sentence(s) for sense 10107 from 1 transcript(s) (0 rejected by the tier gate at T3)
+2026-10-03 11:36:27,343 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10107 "HTTP/2 200 OK"
+2026-10-03 11:36:27,366 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:36:28,965 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:36:41,085 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:45,270 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:36:48,460 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:48,506 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:49,863 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:36:50,461 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:51,674 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:36:52,226 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:52,266 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:36:52,266 INFO Stored prompt1_core asset for sense 10107 (valid=True)
+2026-10-03 11:36:52,298 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10107 "HTTP/2 200 OK"
+2026-10-03 11:36:53,551 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:37:18,819 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:37:18,819 INFO Bundle typed fallback for sense 10107 variant A: ['synonym_antonym_match']
+2026-10-03 11:37:18,869 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_syn_ant_generation&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:37:20,286 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:37:24,578 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:37:24,589 INFO Bundle P2 fallback for sense 10107 variant B: ['bundle call unavailable']
+2026-10-03 11:37:24,653 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:37:25,957 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:37:37,636 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:37:37,636 INFO Bundle L7 fallback for sense 10107 variant B: ['bundle call unavailable']
+2026-10-03 11:37:37,680 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:37:39,008 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:37:41,378 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:37:41,378 INFO Bundle typed fallback for sense 10107 variant B: ['synonym_antonym_match']
+2026-10-03 11:37:41,427 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_syn_ant_generation&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:37:42,494 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:37:46,046 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:37:46,046 INFO Bundle generation for sense 10107: ok=True fallback_calls=['typed:synonym_antonym_match:A', 'p2:B', 'l7:B', 'typed:synonym_antonym_match:B']
+2026-10-03 11:37:46,085 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:37:46,085 INFO Stored prompt2_exercises_A asset for sense 10107 (valid=True)
+2026-10-03 11:37:46,121 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:37:46,121 INFO Stored prompt3_transforms_A asset for sense 10107 (valid=True)
+2026-10-03 11:37:46,121 INFO Stored llm_types_A asset for sense 10107 (valid=True)
+2026-10-03 11:37:46,121 INFO Stored prompt2_exercises_B asset for sense 10107 (valid=True)
+2026-10-03 11:37:46,121 INFO Stored prompt3_transforms_B asset for sense 10107 (valid=True)
+2026-10-03 11:37:46,121 INFO Stored llm_types_B asset for sense 10107 (valid=True)
+2026-10-03 11:37:46,164 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10107&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:37:46,204 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10107&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:37:46,204 INFO Sense 10107: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=action)
+2026-10-03 11:37:46,245 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10107 "HTTP/2 200 OK"
+2026-10-03 11:37:47,557 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:38:08,378 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:08,430 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10107 "HTTP/2 200 OK"
+2026-10-03 11:38:08,438 INFO L1 l1_distractor_judge (source=llm) kept 1/3 distractors for sense 10107; skipping variant
+2026-10-03 11:38:08,539 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:38:08,579 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:38:08,763 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10107 "HTTP/2 200 OK"
+2026-10-03 11:38:08,822 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:38:08,822 INFO syn_ant: embedding band dropped ['改进'] for sense 10107 (cosine 0.33 < 0.365 — unrelated, not a distractor)
+2026-10-03 11:38:10,334 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:38:10,935 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:10,935 INFO syn_ant: 1/3 foils survived for sense 10107; skipping variant
+2026-10-03 11:38:10,962 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10107 "HTTP/2 200 OK"
+2026-10-03 11:38:10,962 INFO L1 l1_distractor_judge (source=llm) kept 0/3 distractors for sense 10107; skipping variant
+2026-10-03 11:38:11,020 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:38:11,020 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10107; skipping variant
+2026-10-03 11:38:11,064 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10107 "HTTP/2 200 OK"
+2026-10-03 11:38:11,155 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:38:11,156 INFO syn_ant: embedding band dropped ['改良'] for sense 10107 (cosine 0.32 < 0.365 — unrelated, not a distractor)
+2026-10-03 11:38:12,322 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:38:13,082 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:13,082 INFO syn_ant: 1/3 foils survived for sense 10107; skipping variant
+2026-10-03 11:38:13,082 INFO Sense 10107 deterministic skips: synonym_antonym_match: judge or band check left too few distractors; synonym_antonym_match: judge or band check left too few distractors
+2026-10-03 11:38:13,082 INFO sense 10107: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:38:13,129 INFO sense 10107: status=success exercises=16 wall_clock=105.9s
+2026-10-03 11:38:13,183 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:38:13,223 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810110%29 "HTTP/2 200 OK"
+2026-10-03 11:38:13,257 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10110 "HTTP/2 200 OK"
+2026-10-03 11:38:13,338 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:38:13,400 INFO Mined 3 sentence(s) for sense 10110 from 5 transcript(s) (12 rejected by the tier gate at T1)
+2026-10-03 11:38:13,439 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10110 "HTTP/2 200 OK"
+2026-10-03 11:38:13,485 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:38:15,040 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:38:27,342 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:28,748 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:38:32,194 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:32,251 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:33,547 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:38:34,905 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:36,139 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:38:38,149 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:38,181 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:38:38,181 INFO Stored prompt1_core asset for sense 10110 (valid=True)
+2026-10-03 11:38:38,234 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10110 "HTTP/2 200 OK"
+2026-10-03 11:38:39,608 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:39:35,575 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:39:35,577 INFO Bundle generation for sense 10110: ok=True fallback_calls=[]
+2026-10-03 11:39:35,623 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:39:35,623 INFO Stored prompt2_exercises_A asset for sense 10110 (valid=True)
+2026-10-03 11:39:35,656 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:39:35,656 INFO Stored prompt3_transforms_A asset for sense 10110 (valid=True)
+2026-10-03 11:39:35,656 INFO Stored llm_types_A asset for sense 10110 (valid=True)
+2026-10-03 11:39:35,656 INFO Stored prompt2_exercises_B asset for sense 10110 (valid=True)
+2026-10-03 11:39:35,656 INFO Stored prompt3_transforms_B asset for sense 10110 (valid=True)
+2026-10-03 11:39:35,671 INFO Stored llm_types_B asset for sense 10110 (valid=True)
+2026-10-03 11:39:35,708 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10110&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:39:35,739 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10110&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:39:35,739 INFO Sense 10110: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=function)
+2026-10-03 11:39:35,783 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10110 "HTTP/2 200 OK"
+2026-10-03 11:39:37,025 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:40:05,825 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:40:05,864 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10110 "HTTP/2 200 OK"
+2026-10-03 11:40:05,864 INFO L1 l1_distractor_judge (source=llm) kept 0/3 distractors for sense 10110; skipping variant
+2026-10-03 11:40:06,340 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:40:06,371 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:40:06,488 INFO L3 cloze_judge rejected 3/3 distractors for sense 10110; skipping variant
+2026-10-03 11:40:06,488 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10110; skipping variant
+2026-10-03 11:40:06,519 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10110 "HTTP/2 200 OK"
+2026-10-03 11:40:06,574 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10110 "HTTP/2 200 OK"
+2026-10-03 11:40:06,574 INFO L1 l1_distractor_judge (source=llm) kept 0/3 distractors for sense 10110; skipping variant
+2026-10-03 11:40:06,622 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:40:06,622 INFO L3 cloze_judge rejected 3/3 distractors for sense 10110; skipping variant
+2026-10-03 11:40:06,638 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10110; skipping variant
+2026-10-03 11:40:06,675 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10110 "HTTP/2 200 OK"
+2026-10-03 11:40:06,705 INFO sense 10110: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:40:06,757 INFO sense 10110: status=success exercises=9 wall_clock=113.5s
+2026-10-03 11:40:06,791 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:40:06,823 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810111%29 "HTTP/2 200 OK"
+2026-10-03 11:40:06,857 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10111 "HTTP/2 200 OK"
+2026-10-03 11:40:06,907 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:40:06,947 INFO Mined 4 sentence(s) for sense 10111 from 3 transcript(s) (0 rejected by the tier gate at T2)
+2026-10-03 11:40:06,976 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10111 "HTTP/2 200 OK"
+2026-10-03 11:40:07,023 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:40:08,795 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:40:21,584 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:40:22,890 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:40:26,205 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:40:26,236 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:40:27,456 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:40:28,551 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:40:29,606 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:40:30,427 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:40:30,451 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:40:30,467 INFO Stored prompt1_core asset for sense 10111 (valid=True)
+2026-10-03 11:40:30,501 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10111 "HTTP/2 200 OK"
+2026-10-03 11:40:32,025 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:41:32,650 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:41:32,650 INFO Bundle generation for sense 10111: ok=True fallback_calls=[]
+2026-10-03 11:41:32,704 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:41:32,704 INFO Stored prompt2_exercises_A asset for sense 10111 (valid=True)
+2026-10-03 11:41:32,750 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:41:32,750 INFO Stored prompt3_transforms_A asset for sense 10111 (valid=True)
+2026-10-03 11:41:32,750 INFO Stored llm_types_A asset for sense 10111 (valid=True)
+2026-10-03 11:41:32,750 INFO Stored prompt2_exercises_B asset for sense 10111 (valid=True)
+2026-10-03 11:41:32,750 INFO Stored prompt3_transforms_B asset for sense 10111 (valid=True)
+2026-10-03 11:41:32,750 INFO Stored llm_types_B asset for sense 10111 (valid=True)
+2026-10-03 11:41:32,817 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10111&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:41:32,882 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10111&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:41:32,882 INFO Sense 10111: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=action)
+2026-10-03 11:41:32,921 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10111 "HTTP/2 200 OK"
+2026-10-03 11:41:34,376 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:41:57,525 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:41:57,577 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10111 "HTTP/2 200 OK"
+2026-10-03 11:41:57,577 INFO L1 l1_distractor_judge (source=llm) kept 1/3 distractors for sense 10111; skipping variant
+2026-10-03 11:41:58,479 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:41:58,525 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:41:58,649 INFO L6 sentence_validity_judge kept 2/3 wrong sentences for sense 10111; skipping variant
+2026-10-03 11:41:58,649 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10111; skipping variant
+2026-10-03 11:41:58,677 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10111 "HTTP/2 200 OK"
+2026-10-03 11:41:58,874 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:42:00,002 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:42:01,079 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:42:01,125 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10111 "HTTP/2 200 OK"
+2026-10-03 11:42:01,125 INFO L1 l1_distractor_judge (source=llm) kept 1/3 distractors for sense 10111; skipping variant
+2026-10-03 11:42:01,189 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:42:01,189 INFO L3 cloze_judge rejected 2/3 distractors for sense 10111; skipping variant
+2026-10-03 11:42:01,189 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10111; skipping variant
+2026-10-03 11:42:01,227 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10111 "HTTP/2 200 OK"
+2026-10-03 11:42:01,317 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:42:01,317 INFO syn_ant: embedding band dropped ['消失', '独特'] for sense 10111 (cosine 0.30 < 0.365 — unrelated, not a distractor; cosine 0.36 < 0.365 — unrelated, not a distractor)
+2026-10-03 11:42:02,538 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:42:02,977 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:42:02,977 INFO syn_ant: 1/3 foils survived for sense 10111; skipping variant
+2026-10-03 11:42:02,977 INFO Sense 10111 deterministic skips: synonym_antonym_match: judge or band check left too few distractors
+2026-10-03 11:42:02,977 INFO sense 10111: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:42:03,023 INFO sense 10111: status=success exercises=14 wall_clock=116.2s
+2026-10-03 11:42:03,378 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:42:03,425 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810112%29 "HTTP/2 200 OK"
+2026-10-03 11:42:03,464 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10112 "HTTP/2 200 OK"
+2026-10-03 11:42:03,529 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:42:03,548 INFO Mined 2 sentence(s) for sense 10112 from 1 transcript(s) (0 rejected by the tier gate at T4)
+2026-10-03 11:42:03,594 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10112 "HTTP/2 200 OK"
+2026-10-03 11:42:03,648 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:42:05,118 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:42:17,483 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:42:18,876 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:42:21,483 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:42:21,529 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:42:21,543 INFO Stored prompt1_core asset for sense 10112 (valid=True)
+2026-10-03 11:42:21,582 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10112 "HTTP/2 200 OK"
+2026-10-03 11:42:22,971 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:43:14,437 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:43:14,442 INFO Bundle generation for sense 10112: ok=True fallback_calls=[]
+2026-10-03 11:43:14,479 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:43:14,479 INFO Stored prompt2_exercises_A asset for sense 10112 (valid=True)
+2026-10-03 11:43:14,515 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:43:14,518 INFO Stored prompt3_transforms_A asset for sense 10112 (valid=True)
+2026-10-03 11:43:14,518 INFO Stored llm_types_A asset for sense 10112 (valid=True)
+2026-10-03 11:43:14,518 INFO Stored prompt2_exercises_B asset for sense 10112 (valid=True)
+2026-10-03 11:43:14,518 INFO Stored prompt3_transforms_B asset for sense 10112 (valid=True)
+2026-10-03 11:43:14,518 INFO Stored llm_types_B asset for sense 10112 (valid=True)
+2026-10-03 11:43:14,564 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10112&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:43:14,603 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10112&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:43:14,603 INFO Sense 10112: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=action)
+2026-10-03 11:43:14,646 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10112 "HTTP/2 200 OK"
+2026-10-03 11:43:16,534 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:43:52,313 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:43:52,359 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10112 "HTTP/2 200 OK"
+2026-10-03 11:43:52,360 INFO L1 l1_distractor_judge (source=llm) kept 2/3 distractors for sense 10112; skipping variant
+2026-10-03 11:43:52,412 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:43:52,443 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:43:52,565 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10112; skipping variant
+2026-10-03 11:43:52,594 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10112 "HTTP/2 200 OK"
+2026-10-03 11:43:52,678 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:43:53,985 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:43:55,027 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:43:55,065 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10112 "HTTP/2 200 OK"
+2026-10-03 11:43:55,065 INFO L1 l1_distractor_judge (source=llm) kept 2/3 distractors for sense 10112; skipping variant
+2026-10-03 11:43:55,113 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:43:55,113 INFO L3 cloze_judge rejected 2/3 distractors for sense 10112; skipping variant
+2026-10-03 11:43:55,113 INFO L6 sentence_validity_judge kept 2/4 wrong sentences for sense 10112; skipping variant
+2026-10-03 11:43:55,113 INFO L7 sentence_validity_judge rejected the incorrect sentence for sense 10112; skipping variant
+2026-10-03 11:43:55,278 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10112 "HTTP/2 200 OK"
+2026-10-03 11:43:55,347 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:43:56,493 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:43:57,590 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:43:57,591 INFO sense 10112: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:43:57,640 INFO sense 10112: status=success exercises=15 wall_clock=114.2s
+2026-10-03 11:43:57,683 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:43:57,722 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810113%29 "HTTP/2 200 OK"
+2026-10-03 11:43:57,751 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10113 "HTTP/2 200 OK"
+2026-10-03 11:43:57,807 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:43:57,818 INFO Mined 1 sentence(s) for sense 10113 from 1 transcript(s) (0 rejected by the tier gate at T4)
+2026-10-03 11:43:57,852 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10113 "HTTP/2 200 OK"
+2026-10-03 11:43:57,899 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:43:59,134 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:44:11,176 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:44:11,176 WARNING Prompt 1 validation failed: ["Sentence 1: target_word '先河' is not a whole-word match in text (substring inside another word does not count)"]
+2026-10-03 11:44:12,370 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:44:12,679 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:44:12,679 INFO Prompt 1 sentence repair succeeded for sense 10113 (indices [1])
+2026-10-03 11:44:13,982 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:44:17,914 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:44:17,950 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:44:19,171 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:44:20,456 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:44:21,674 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:44:23,028 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:44:23,067 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:44:23,083 INFO Stored prompt1_core asset for sense 10113 (valid=True)
+2026-10-03 11:44:23,122 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10113 "HTTP/2 200 OK"
+2026-10-03 11:44:24,514 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:45:26,955 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:26,955 INFO Bundle generation for sense 10113: ok=True fallback_calls=[]
+2026-10-03 11:45:27,015 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:45:27,024 INFO Stored prompt2_exercises_A asset for sense 10113 (valid=True)
+2026-10-03 11:45:27,068 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:45:27,068 INFO Stored prompt3_transforms_A asset for sense 10113 (valid=True)
+2026-10-03 11:45:27,068 INFO Stored llm_types_A asset for sense 10113 (valid=True)
+2026-10-03 11:45:27,068 INFO Stored prompt2_exercises_B asset for sense 10113 (valid=True)
+2026-10-03 11:45:27,068 INFO Stored prompt3_transforms_B asset for sense 10113 (valid=True)
+2026-10-03 11:45:27,068 INFO Stored llm_types_B asset for sense 10113 (valid=True)
+2026-10-03 11:45:27,122 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10113&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:45:27,152 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10113&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:45:27,152 INFO Sense 10113: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=abstract)
+2026-10-03 11:45:27,200 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10113 "HTTP/2 200 OK"
+2026-10-03 11:45:27,507 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:27,507 WARNING ladder_bundle_judge call failed for sense 10113: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:27,568 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_sentence_validity_judge&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:45:27,843 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:27,843 WARNING sentence_validity_judge: LLM call failed for lang=1, safe-accept all: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:28,108 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:28,108 WARNING sentence_validity_judge: LLM call failed for lang=1, safe-accept all: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:29,659 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:45:30,770 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:30,817 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:31,928 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:45:32,315 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:32,364 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:32,415 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.cloze_distractor_judge&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:45:37,645 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:45:38,330 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:41,062 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:45:42,106 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:42,151 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_l1_distractor_judge&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:45:43,526 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:45:44,700 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:44,969 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:44,969 WARNING l1_distractor_judge: LLM call failed, keep all: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:45,016 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10113 "HTTP/2 200 OK"
+2026-10-03 11:45:45,016 INFO L1 l1_distractor_judge (source=llm) kept 2/3 distractors for sense 10113; skipping variant
+2026-10-03 11:45:45,818 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:45:45,872 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:45:46,018 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10113 "HTTP/2 200 OK"
+2026-10-03 11:45:46,101 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:45:46,101 INFO syn_ant: embedding band dropped ['模仿', '传统'] for sense 10113 (cosine 0.31 < 0.365 — unrelated, not a distractor; cosine 0.33 < 0.365 — unrelated, not a distractor)
+2026-10-03 11:45:47,108 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:45:47,564 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:45:47,574 INFO syn_ant: 1/3 foils survived for sense 10113; skipping variant
+2026-10-03 11:45:47,618 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10113 "HTTP/2 200 OK"
+2026-10-03 11:45:47,674 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:45:47,674 INFO L3 cloze_judge rejected 1/3 distractors for sense 10113; skipping variant
+2026-10-03 11:45:47,707 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10113 "HTTP/2 200 OK"
+2026-10-03 11:45:47,774 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:45:48,047 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:48,047 WARNING ladder_relation_judge: LLM call failed, fail-open: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:48,047 INFO Sense 10113 deterministic skips: synonym_antonym_match: judge or band check left too few distractors
+2026-10-03 11:45:48,047 INFO sense 10113: context-free cap dropped 5 duplicate variant(s) (definition_match x2, hanzi_to_pinyin x1, pinyin_to_hanzi x1, tone_id_word x1)
+2026-10-03 11:45:48,063 INFO sense 10113: status=success exercises=18 wall_clock=110.4s
+2026-10-03 11:45:48,101 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:45:48,139 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810117%29 "HTTP/2 200 OK"
+2026-10-03 11:45:48,175 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10117 "HTTP/2 200 OK"
+2026-10-03 11:45:48,218 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:45:48,275 INFO Mined 1 sentence(s) for sense 10117 from 1 transcript(s) (0 rejected by the tier gate at T2)
+2026-10-03 11:45:48,319 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10117 "HTTP/2 200 OK"
+2026-10-03 11:45:48,350 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:45:48,635 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:48,635 WARNING Prompt 1 LLM call attempt 1 failed for '庞大' (sense 10117): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:48,911 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:48,911 WARNING Prompt 1 LLM call attempt 2 failed for '庞大' (sense 10117): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:48,911 ERROR Prompt 1 gave up for '庞大' (sense 10117) after 2 attempts
+2026-10-03 11:45:48,911 INFO sense 10117: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:45:48,951 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:45:48,976 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810119%29 "HTTP/2 200 OK"
+2026-10-03 11:45:49,027 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10119 "HTTP/2 200 OK"
+2026-10-03 11:45:49,167 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:45:49,257 INFO Mined 10 sentence(s) for sense 10119 from 17 transcript(s) (12 rejected by the tier gate at T1)
+2026-10-03 11:45:49,300 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10119 "HTTP/2 200 OK"
+2026-10-03 11:45:49,345 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:45:49,620 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:49,620 WARNING Prompt 1 LLM call attempt 1 failed for '社会' (sense 10119): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:49,893 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:45:49,908 WARNING Prompt 1 LLM call attempt 2 failed for '社会' (sense 10119): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:45:49,908 ERROR Prompt 1 gave up for '社会' (sense 10119) after 2 attempts
+2026-10-03 11:45:49,908 INFO sense 10119: status=failed exercises=0 wall_clock=1.0s
+2026-10-03 11:45:49,949 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:45:49,978 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810125%29 "HTTP/2 200 OK"
+2026-10-03 11:45:50,021 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10125 "HTTP/2 200 OK"
+2026-10-03 11:45:50,094 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:45:50,150 INFO Mined 3 sentence(s) for sense 10125 from 8 transcript(s) (5 rejected by the tier gate at T1)
+2026-10-03 11:45:50,178 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10125 "HTTP/2 200 OK"
+2026-10-03 11:45:50,223 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:45:51,755 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:46:03,339 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:46:03,632 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:03,632 WARNING p1_sentence_judge: LLM call failed for lang=1, safe-accept all: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:03,632 INFO Stored prompt1_core asset for sense 10125 (valid=True)
+2026-10-03 11:46:03,664 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.10125 "HTTP/2 200 OK"
+2026-10-03 11:46:03,933 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:03,949 WARNING Bundle generation attempt 1 failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:04,215 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:04,215 WARNING Bundle generation attempt 2 failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:04,215 WARNING Bundle generation call failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'} — falling back to per-generator calls for every family/variant
+2026-10-03 11:46:04,215 INFO Bundle P2 fallback for sense 10125 variant A: ['bundle call unavailable']
+2026-10-03 11:46:04,250 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:04,532 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:04,535 WARNING Prompt 2 LLM call attempt 1 failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:04,818 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:04,820 WARNING Prompt 2 LLM call attempt 2 failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:04,820 ERROR Prompt 2 gave up for sense 10125 after 2 attempts
+2026-10-03 11:46:04,820 INFO Bundle L7 fallback for sense 10125 variant A: ['bundle call unavailable']
+2026-10-03 11:46:04,851 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:05,124 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:05,124 WARNING Prompt 3 LLM call attempt 1 failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:05,383 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:05,383 WARNING Prompt 3 LLM call attempt 2 failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:05,383 ERROR Prompt 3 gave up for sense 10125 after 2 attempts (salvage removed, TASK-810)
+2026-10-03 11:46:05,383 INFO Bundle typed fallback for sense 10125 variant A: ['synonym_antonym_match']
+2026-10-03 11:46:05,420 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_syn_ant_generation&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:06,804 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:46:10,733 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:46:10,733 INFO Bundle P2 fallback for sense 10125 variant B: ['bundle call unavailable']
+2026-10-03 11:46:10,759 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:12,286 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:46:25,357 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:46:25,357 INFO Bundle L7 fallback for sense 10125 variant B: ['bundle call unavailable']
+2026-10-03 11:46:25,405 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:25,692 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:25,692 WARNING Prompt 3 LLM call attempt 1 failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:25,959 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:25,959 WARNING Prompt 3 LLM call attempt 2 failed for sense 10125: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:25,959 ERROR Prompt 3 gave up for sense 10125 after 2 attempts (salvage removed, TASK-810)
+2026-10-03 11:46:25,959 INFO Bundle typed fallback for sense 10125 variant B: ['synonym_antonym_match']
+2026-10-03 11:46:26,008 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_syn_ant_generation&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:27,246 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:46:30,983 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:46:30,983 INFO Bundle generation for sense 10125: ok=False fallback_calls=['p2:A', 'l7:A', 'typed:synonym_antonym_match:A', 'p2:B', 'l7:B', 'typed:synonym_antonym_match:B']
+2026-10-03 11:46:30,983 WARNING Prompt 3 validation failed: ['Missing level_7']
+2026-10-03 11:46:31,028 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:31,075 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=is_valid&sense_id=eq.10125&asset_type=eq.prompt3_transforms_A&is_valid=eq.True&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:31,075 INFO Stored prompt3_transforms_A asset for sense 10125 (valid=False)
+2026-10-03 11:46:31,075 INFO Stored llm_types_A asset for sense 10125 (valid=True)
+2026-10-03 11:46:31,116 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:31,116 INFO Stored prompt2_exercises_B asset for sense 10125 (valid=True)
+2026-10-03 11:46:31,116 WARNING Prompt 3 validation failed: ['Missing level_7']
+2026-10-03 11:46:31,146 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=is_valid&sense_id=eq.10125&asset_type=eq.prompt3_transforms_B&is_valid=eq.True&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:31,146 INFO Stored prompt3_transforms_B asset for sense 10125 (valid=False)
+2026-10-03 11:46:31,146 INFO Stored llm_types_B asset for sense 10125 (valid=True)
+2026-10-03 11:46:31,199 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.10125&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:46:31,246 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.10125&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:46:31,246 INFO Sense 10125: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=property)
+2026-10-03 11:46:31,286 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10125 "HTTP/2 200 OK"
+2026-10-03 11:46:32,560 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:46:41,989 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:46:42,029 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10125 "HTTP/2 200 OK"
+2026-10-03 11:46:42,029 INFO L1 l1_distractor_judge (source=llm) kept 0/3 distractors for sense 10125; skipping variant
+2026-10-03 11:46:42,089 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:46:42,122 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:46:42,235 INFO L3 cloze_judge rejected 2/3 distractors for sense 10125; skipping variant
+2026-10-03 11:46:42,280 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10125 "HTTP/2 200 OK"
+2026-10-03 11:46:42,347 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/sense_similarity_to_lemmas "HTTP/2 200 OK"
+2026-10-03 11:46:43,456 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:46:44,509 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:46:44,520 INFO sense 10125: status=partial exercises=10 wall_clock=54.6s
+2026-10-03 11:46:44,544 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:44,594 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810131%29 "HTTP/2 200 OK"
+2026-10-03 11:46:44,620 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10131 "HTTP/2 200 OK"
+2026-10-03 11:46:44,760 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:44,794 INFO Mined 2 sentence(s) for sense 10131 from 7 transcript(s) (7 rejected by the tier gate at T1)
+2026-10-03 11:46:44,822 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10131 "HTTP/2 200 OK"
+2026-10-03 11:46:44,869 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:45,147 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:45,147 WARNING Prompt 1 LLM call attempt 1 failed for '地区' (sense 10131): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:45,420 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:45,420 WARNING Prompt 1 LLM call attempt 2 failed for '地区' (sense 10131): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:45,420 ERROR Prompt 1 gave up for '地区' (sense 10131) after 2 attempts
+2026-10-03 11:46:45,420 INFO sense 10131: status=failed exercises=0 wall_clock=0.9s
+2026-10-03 11:46:45,461 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:45,494 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810137%29 "HTTP/2 200 OK"
+2026-10-03 11:46:45,530 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10137 "HTTP/2 200 OK"
+2026-10-03 11:46:45,565 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:45,566 INFO Mined 1 sentence(s) for sense 10137 from 1 transcript(s) (0 rejected by the tier gate at T4)
+2026-10-03 11:46:45,606 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10137 "HTTP/2 200 OK"
+2026-10-03 11:46:45,637 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:45,909 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:45,911 WARNING Prompt 1 LLM call attempt 1 failed for '压印' (sense 10137): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:46,185 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:46,187 WARNING Prompt 1 LLM call attempt 2 failed for '压印' (sense 10137): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:46,187 ERROR Prompt 1 gave up for '压印' (sense 10137) after 2 attempts
+2026-10-03 11:46:46,187 INFO sense 10137: status=failed exercises=0 wall_clock=0.7s
+2026-10-03 11:46:46,217 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:46,258 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810156%29 "HTTP/2 200 OK"
+2026-10-03 11:46:46,297 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10156 "HTTP/2 200 OK"
+2026-10-03 11:46:46,350 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:46,381 INFO Mined 4 sentence(s) for sense 10156 from 4 transcript(s) (1 rejected by the tier gate at T3)
+2026-10-03 11:46:46,420 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10156 "HTTP/2 200 OK"
+2026-10-03 11:46:46,453 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:46,725 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:46,725 WARNING Prompt 1 LLM call attempt 1 failed for '前所未有' (sense 10156): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:47,003 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:47,003 WARNING Prompt 1 LLM call attempt 2 failed for '前所未有' (sense 10156): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:47,003 ERROR Prompt 1 gave up for '前所未有' (sense 10156) after 2 attempts
+2026-10-03 11:46:47,003 INFO sense 10156: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:46:47,041 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:47,073 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810300%29 "HTTP/2 200 OK"
+2026-10-03 11:46:47,104 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10300 "HTTP/2 200 OK"
+2026-10-03 11:46:47,159 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:47,190 INFO Mined 3 sentence(s) for sense 10300 from 7 transcript(s) (0 rejected by the tier gate at T1)
+2026-10-03 11:46:47,220 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10300 "HTTP/2 200 OK"
+2026-10-03 11:46:47,258 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:47,536 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:47,536 WARNING Prompt 1 LLM call attempt 1 failed for '长' (sense 10300): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:47,806 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:47,806 WARNING Prompt 1 LLM call attempt 2 failed for '长' (sense 10300): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:47,806 ERROR Prompt 1 gave up for '长' (sense 10300) after 2 attempts
+2026-10-03 11:46:47,806 INFO sense 10300: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:46:47,847 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:47,880 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810353%29 "HTTP/2 200 OK"
+2026-10-03 11:46:47,911 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10353 "HTTP/2 200 OK"
+2026-10-03 11:46:47,978 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:48,050 INFO Mined 2 sentence(s) for sense 10353 from 14 transcript(s) (7 rejected by the tier gate at T1)
+2026-10-03 11:46:48,097 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10353 "HTTP/2 200 OK"
+2026-10-03 11:46:48,121 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:48,408 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:48,408 WARNING Prompt 1 LLM call attempt 1 failed for '再' (sense 10353): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:48,674 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:48,674 WARNING Prompt 1 LLM call attempt 2 failed for '再' (sense 10353): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:48,674 ERROR Prompt 1 gave up for '再' (sense 10353) after 2 attempts
+2026-10-03 11:46:48,674 INFO sense 10353: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:46:48,722 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:48,756 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810382%29 "HTTP/2 200 OK"
+2026-10-03 11:46:48,781 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10382 "HTTP/2 200 OK"
+2026-10-03 11:46:48,857 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:48,923 INFO Mined 10 sentence(s) for sense 10382 from 25 transcript(s) (2 rejected by the tier gate at T1)
+2026-10-03 11:46:48,963 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10382 "HTTP/2 200 OK"
+2026-10-03 11:46:48,994 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:49,261 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:49,261 WARNING Prompt 1 LLM call attempt 1 failed for '不同' (sense 10382): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:49,557 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:49,565 WARNING Prompt 1 LLM call attempt 2 failed for '不同' (sense 10382): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:49,565 ERROR Prompt 1 gave up for '不同' (sense 10382) after 2 attempts
+2026-10-03 11:46:49,568 INFO sense 10382: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:46:49,600 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:49,631 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810525%29 "HTTP/2 200 OK"
+2026-10-03 11:46:49,675 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10525 "HTTP/2 200 OK"
+2026-10-03 11:46:49,706 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:49,725 INFO Mined 1 sentence(s) for sense 10525 from 1 transcript(s) (0 rejected by the tier gate at T4)
+2026-10-03 11:46:49,768 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10525 "HTTP/2 200 OK"
+2026-10-03 11:46:49,799 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:50,069 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:50,069 WARNING Prompt 1 LLM call attempt 1 failed for '愈发' (sense 10525): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:50,352 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:50,352 WARNING Prompt 1 LLM call attempt 2 failed for '愈发' (sense 10525): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:50,354 ERROR Prompt 1 gave up for '愈发' (sense 10525) after 2 attempts
+2026-10-03 11:46:50,354 INFO sense 10525: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:46:50,389 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:50,417 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810553%29 "HTTP/2 200 OK"
+2026-10-03 11:46:50,450 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10553 "HTTP/2 200 OK"
+2026-10-03 11:46:50,505 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:50,528 INFO Mined 3 sentence(s) for sense 10553 from 3 transcript(s) (0 rejected by the tier gate at T4)
+2026-10-03 11:46:50,570 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10553 "HTTP/2 200 OK"
+2026-10-03 11:46:50,591 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:50,867 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:50,867 WARNING Prompt 1 LLM call attempt 1 failed for '频发' (sense 10553): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:51,147 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:51,163 WARNING Prompt 1 LLM call attempt 2 failed for '频发' (sense 10553): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:51,163 ERROR Prompt 1 gave up for '频发' (sense 10553) after 2 attempts
+2026-10-03 11:46:51,163 INFO sense 10553: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:46:51,195 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:51,237 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2810803%29 "HTTP/2 200 OK"
+2026-10-03 11:46:51,261 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.10803 "HTTP/2 200 OK"
+2026-10-03 11:46:51,330 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:51,438 INFO Mined 7 sentence(s) for sense 10803 from 13 transcript(s) (26 rejected by the tier gate at T1)
+2026-10-03 11:46:51,473 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.10803 "HTTP/2 200 OK"
+2026-10-03 11:46:51,497 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:51,800 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:51,800 WARNING Prompt 1 LLM call attempt 1 failed for '将' (sense 10803): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:52,262 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:46:52,262 WARNING Prompt 1 LLM call attempt 2 failed for '将' (sense 10803): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:46:52,262 ERROR Prompt 1 gave up for '将' (sense 10803) after 2 attempts
+2026-10-03 11:46:52,262 INFO sense 10803: status=failed exercises=0 wall_clock=1.1s
+2026-10-03 11:46:52,307 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:46:52,331 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2811315%29 "HTTP/2 200 OK"
+2026-10-03 11:46:52,384 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.11315 "HTTP/2 200 OK"
+2026-10-03 11:46:52,434 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:46:52,443 INFO Mined 1 sentence(s) for sense 11315 from 1 transcript(s) (0 rejected by the tier gate at T3)
+2026-10-03 11:46:52,474 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.11315 "HTTP/2 200 OK"
+2026-10-03 11:46:52,509 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:46:54,021 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:47:06,825 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:47:07,109 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:07,109 WARNING p1_sentence_judge: LLM call failed for lang=1, safe-accept all: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:07,109 INFO Stored prompt1_core asset for sense 11315 (valid=True)
+2026-10-03 11:47:07,130 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=vocab_id%2C%20definition&id=eq.11315 "HTTP/2 200 OK"
+2026-10-03 11:47:07,406 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:07,406 WARNING Bundle generation attempt 1 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:07,699 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:07,699 WARNING Bundle generation attempt 2 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:07,699 WARNING Bundle generation call failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'} — falling back to per-generator calls for every family/variant
+2026-10-03 11:47:07,699 INFO Bundle P2 fallback for sense 11315 variant A: ['bundle call unavailable']
+2026-10-03 11:47:07,732 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:08,002 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:08,002 WARNING Prompt 2 LLM call attempt 1 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:08,286 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:08,286 WARNING Prompt 2 LLM call attempt 2 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:08,286 ERROR Prompt 2 gave up for sense 11315 after 2 attempts
+2026-10-03 11:47:08,286 INFO Bundle L7 fallback for sense 11315 variant A: ['bundle call unavailable']
+2026-10-03 11:47:08,318 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:08,582 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:08,582 WARNING Prompt 3 LLM call attempt 1 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:08,866 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:08,866 WARNING Prompt 3 LLM call attempt 2 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:08,866 ERROR Prompt 3 gave up for sense 11315 after 2 attempts (salvage removed, TASK-810)
+2026-10-03 11:47:08,866 INFO Bundle typed fallback for sense 11315 variant A: ['synonym_antonym_match']
+2026-10-03 11:47:08,913 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_syn_ant_generation&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:09,977 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:47:12,845 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:47:12,845 INFO Bundle P2 fallback for sense 11315 variant B: ['bundle call unavailable']
+2026-10-03 11:47:12,879 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt2_exercises&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:13,169 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:13,169 WARNING Prompt 2 LLM call attempt 1 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:13,446 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:13,446 WARNING Prompt 2 LLM call attempt 2 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:13,446 ERROR Prompt 2 gave up for sense 11315 after 2 attempts
+2026-10-03 11:47:13,446 INFO Bundle L7 fallback for sense 11315 variant B: ['bundle call unavailable']
+2026-10-03 11:47:13,484 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:13,760 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:13,760 WARNING Prompt 3 LLM call attempt 1 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:14,017 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:14,017 WARNING Prompt 3 LLM call attempt 2 failed for sense 11315: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:14,017 ERROR Prompt 3 gave up for sense 11315 after 2 attempts (salvage removed, TASK-810)
+2026-10-03 11:47:14,017 INFO Bundle typed fallback for sense 11315 variant B: ['synonym_antonym_match']
+2026-10-03 11:47:14,062 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.ladder_syn_ant_generation&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:15,281 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+2026-10-03 11:47:19,183 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls "HTTP/2 201 Created"
+2026-10-03 11:47:19,183 INFO Bundle generation for sense 11315: ok=False fallback_calls=['p2:A', 'l7:A', 'typed:synonym_antonym_match:A', 'p2:B', 'l7:B', 'typed:synonym_antonym_match:B']
+2026-10-03 11:47:19,183 WARNING Prompt 3 validation failed: ['Missing level_7']
+2026-10-03 11:47:19,226 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt3_transforms&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:19,272 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=is_valid&sense_id=eq.11315&asset_type=eq.prompt3_transforms_A&is_valid=eq.True&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:19,279 INFO Stored prompt3_transforms_A asset for sense 11315 (valid=False)
+2026-10-03 11:47:19,279 INFO Stored llm_types_A asset for sense 11315 (valid=True)
+2026-10-03 11:47:19,279 WARNING Prompt 3 validation failed: ['Missing level_7']
+2026-10-03 11:47:19,320 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=is_valid&sense_id=eq.11315&asset_type=eq.prompt3_transforms_B&is_valid=eq.True&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:19,320 INFO Stored prompt3_transforms_B asset for sense 11315 (valid=False)
+2026-10-03 11:47:19,320 INFO Stored llm_types_B asset for sense 11315 (valid=True)
+2026-10-03 11:47:19,372 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=asset_type%2C%20content&sense_id=eq.11315&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:47:19,416 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/word_assets?select=id%2C%20asset_type&sense_id=eq.11315&is_valid=eq.True "HTTP/2 200 OK"
+2026-10-03 11:47:19,416 INFO Sense 11315: per-type gate suppressed render of level(s) [4, 8] (language_id=1 semantic_class=abstract)
+2026-10-03 11:47:19,456 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.11315 "HTTP/2 200 OK"
+2026-10-03 11:47:19,519 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/get_distractors "HTTP/2 200 OK"
+2026-10-03 11:47:19,557 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/script_conversion_overrides?select=simplified%2C%20traditional "HTTP/2 200 OK"
+2026-10-03 11:47:19,606 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.11315 "HTTP/2 200 OK"
+2026-10-03 11:47:19,658 INFO Sense 11315 deterministic skips: synonym_antonym_match: no generated asset for this variant
+2026-10-03 11:47:19,658 INFO sense 11315: status=partial exercises=8 wall_clock=27.4s
+2026-10-03 11:47:19,696 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:19,730 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2811319%29 "HTTP/2 200 OK"
+2026-10-03 11:47:19,774 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.11319 "HTTP/2 200 OK"
+2026-10-03 11:47:19,823 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:47:19,823 INFO Mined 1 sentence(s) for sense 11319 from 1 transcript(s) (0 rejected by the tier gate at T5)
+2026-10-03 11:47:19,872 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.11319 "HTTP/2 200 OK"
+2026-10-03 11:47:19,903 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:20,220 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:20,220 WARNING Prompt 1 LLM call attempt 1 failed for '强效' (sense 11319): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:20,489 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:20,489 WARNING Prompt 1 LLM call attempt 2 failed for '强效' (sense 11319): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:20,489 ERROR Prompt 1 gave up for '强效' (sense 11319) after 2 attempts
+2026-10-03 11:47:20,489 INFO sense 11319: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:47:20,536 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:20,575 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2811531%29 "HTTP/2 200 OK"
+2026-10-03 11:47:20,623 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.11531 "HTTP/2 200 OK"
+2026-10-03 11:47:20,659 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:47:20,666 INFO Mined 1 sentence(s) for sense 11531 from 1 transcript(s) (0 rejected by the tier gate at T5)
+2026-10-03 11:47:20,697 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.11531 "HTTP/2 200 OK"
+2026-10-03 11:47:20,744 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:21,021 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:21,021 WARNING Prompt 1 LLM call attempt 1 failed for '细碎' (sense 11531): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:21,307 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:21,307 WARNING Prompt 1 LLM call attempt 2 failed for '细碎' (sense 11531): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:21,307 ERROR Prompt 1 gave up for '细碎' (sense 11531) after 2 attempts
+2026-10-03 11:47:21,323 INFO sense 11531: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:47:21,359 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:21,408 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2812012%29 "HTTP/2 200 OK"
+2026-10-03 11:47:21,447 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.12012 "HTTP/2 200 OK"
+2026-10-03 11:47:21,490 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:47:21,521 INFO Mined 1 sentence(s) for sense 12012 from 1 transcript(s) (0 rejected by the tier gate at T3)
+2026-10-03 11:47:21,572 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.12012 "HTTP/2 200 OK"
+2026-10-03 11:47:21,609 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:21,878 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:21,893 WARNING Prompt 1 LLM call attempt 1 failed for '剑拔弩张' (sense 12012): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:22,158 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:22,159 WARNING Prompt 1 LLM call attempt 2 failed for '剑拔弩张' (sense 12012): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:22,159 ERROR Prompt 1 gave up for '剑拔弩张' (sense 12012) after 2 attempts
+2026-10-03 11:47:22,159 INFO sense 12012: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:47:22,196 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:22,238 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2819859%29 "HTTP/2 200 OK"
+2026-10-03 11:47:22,282 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.19859 "HTTP/2 200 OK"
+2026-10-03 11:47:22,325 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:47:22,325 INFO No transcripts contain sense 19859 — nothing to mine
+2026-10-03 11:47:22,377 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.19859 "HTTP/2 200 OK"
+2026-10-03 11:47:22,408 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:22,888 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:22,888 WARNING Prompt 1 LLM call attempt 1 failed for '要' (sense 19859): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:23,163 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:23,163 WARNING Prompt 1 LLM call attempt 2 failed for '要' (sense 19859): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:23,163 ERROR Prompt 1 gave up for '要' (sense 19859) after 2 attempts
+2026-10-03 11:47:23,163 INFO sense 19859: status=failed exercises=0 wall_clock=1.0s
+2026-10-03 11:47:23,213 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:23,252 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2819860%29 "HTTP/2 200 OK"
+2026-10-03 11:47:23,295 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.19860 "HTTP/2 200 OK"
+2026-10-03 11:47:23,343 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:47:23,343 INFO Mined 1 sentence(s) for sense 19860 from 1 transcript(s) (0 rejected by the tier gate at T2)
+2026-10-03 11:47:23,391 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.19860 "HTTP/2 200 OK"
+2026-10-03 11:47:23,445 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:23,730 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:23,730 WARNING Prompt 1 LLM call attempt 1 failed for '乱' (sense 19860): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:23,997 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:23,997 WARNING Prompt 1 LLM call attempt 2 failed for '乱' (sense 19860): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:23,997 ERROR Prompt 1 gave up for '乱' (sense 19860) after 2 attempts
+2026-10-03 11:47:23,997 INFO sense 19860: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:47:24,054 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:24,097 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2819867%29 "HTTP/2 200 OK"
+2026-10-03 11:47:24,144 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.19867 "HTTP/2 200 OK"
+2026-10-03 11:47:24,197 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:47:24,197 INFO No transcripts contain sense 19867 — nothing to mine
+2026-10-03 11:47:24,255 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.19867 "HTTP/2 200 OK"
+2026-10-03 11:47:24,299 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:24,579 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:24,579 WARNING Prompt 1 LLM call attempt 1 failed for '才' (sense 19867): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:24,880 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:24,880 WARNING Prompt 1 LLM call attempt 2 failed for '才' (sense 19867): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:24,880 ERROR Prompt 1 gave up for '才' (sense 19867) after 2 attempts
+2026-10-03 11:47:24,880 INFO sense 19867: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:47:24,919 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:24,968 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2819870%29 "HTTP/2 200 OK"
+2026-10-03 11:47:25,025 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.19870 "HTTP/2 200 OK"
+2026-10-03 11:47:25,074 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:47:25,074 INFO No transcripts contain sense 19870 — nothing to mine
+2026-10-03 11:47:25,120 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.19870 "HTTP/2 200 OK"
+2026-10-03 11:47:25,168 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:25,442 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:25,442 WARNING Prompt 1 LLM call attempt 1 failed for '也' (sense 19870): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:25,709 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:25,709 WARNING Prompt 1 LLM call attempt 2 failed for '也' (sense 19870): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:25,709 ERROR Prompt 1 gave up for '也' (sense 19870) after 2 attempts
+2026-10-03 11:47:25,709 INFO sense 19870: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:47:25,757 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:25,782 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/calibration_anchor_blocklist?select=sense_id&sense_id=in.%2819882%29 "HTTP/2 200 OK"
+2026-10-03 11:47:25,831 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=dim_vocabulary%28lemma%29&id=eq.19882 "HTTP/2 200 OK"
+2026-10-03 11:47:25,876 INFO HTTP Request: POST https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/rpc/tests_containing_sense "HTTP/2 200 OK"
+2026-10-03 11:47:25,882 INFO Mined 1 sentence(s) for sense 19882 from 1 transcript(s) (0 rejected by the tier gate at T3)
+2026-10-03 11:47:25,912 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/dim_word_senses?select=id%2C%20definition%2C%20pronunciation%2C%20vocab_id%2C%20dim_vocabulary%28lemma%2C%20part_of_speech%2C%20level_tag%29&id=eq.19882 "HTTP/2 200 OK"
+2026-10-03 11:47:25,959 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/prompt_templates?select=template_text%2C%20model%2C%20provider%2C%20version&task_name=eq.vocab_prompt1_core&language_id=eq.1&is_active=eq.True&order=version.desc&limit=1 "HTTP/2 200 OK"
+2026-10-03 11:47:26,246 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:26,246 WARNING Prompt 1 LLM call attempt 1 failed for '诚实' (sense 19882): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:26,518 INFO HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 402 Payment Required"
+2026-10-03 11:47:26,518 WARNING Prompt 1 LLM call attempt 2 failed for '诚实' (sense 19882): Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+2026-10-03 11:47:26,518 ERROR Prompt 1 gave up for '诚实' (sense 19882) after 2 attempts
+2026-10-03 11:47:26,518 INFO sense 19882: status=failed exercises=0 wall_clock=0.8s
+2026-10-03 11:47:26,565 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:26,607 INFO HTTP Request: GET https://kpfqrjtfxmujzolwsvdq.supabase.co/rest/v1/llm_calls?select=cost_usd&generation_batch_id=eq.350aabc9-7630-403e-bd83-4c4139eff968 "HTTP/2 200 OK"
+2026-10-03 11:47:26,607 INFO Done. attempted=30/30 status_counts={'success': 9, 'failed': 19, 'partial': 2} cost_usd=0.10057800000000003 -> data\eval\runs\phase2_bundle_zh

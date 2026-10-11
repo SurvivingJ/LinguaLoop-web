@@ -1,0 +1,39 @@
+=== 2026-10-08T20:25:04+11:00 START ja A limit=0
+[plan] L2=ja L1=en fixture-set=v5 items=30 (clean 10 / single 15 / multi 5) framework=v2
+[resume] loaded 0 graded + 0 skipped from data/eval/dt_v6_gate_2026-10-08/ja_A.ckpt.jsonl
+[1/30] ja_clean_01 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[2/30] ja_clean_02 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[3/30] ja_clean_03 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[4/30] ja_clean_04 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[5/30] ja_clean_05 kind=clean pred_errors=0 tier=tier0 fell_open=None
+[6/30] ja_clean_06 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[7/30] ja_clean_07 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[8/30] ja_clean_08 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[9/30] ja_clean_09 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[10/30] ja_clean_10 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[11/30] ja_seed_01 kind=single pred_errors=1 tier=tier2 fell_open=False
+[12/30] ja_seed_02 kind=single pred_errors=1 tier=tier2 fell_open=False
+[13/30] ja_seed_03 kind=single pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 20:38:59,820 - WARNING - dual_translation.grader_cascade: dropping error with out-of-range enum index: {'span_repro': [117, 118], 'span_ref': [117, 119], 'category': 5, 'source': 1, 'severity': 1, 'subtype': 5, 'learner_form': 'だ', 'corrected_form': 'です', 'confidence': 0.95, 'is_mistake': True}
+[14/30] ja_seed_04 kind=single pred_errors=1 tier=tier2 fell_open=False
+[15/30] ja_seed_05 kind=single pred_errors=1 tier=tier2 fell_open=False
+[16/30] ja_seed_06 kind=single pred_errors=1 tier=tier2 fell_open=False
+[17/30] ja_seed_07 kind=single pred_errors=1 tier=tier2 fell_open=False
+[18/30] ja_seed_08 kind=single pred_errors=0 tier=tier2 fell_open=False
+[19/30] ja_seed_09 kind=single pred_errors=1 tier=tier2 fell_open=False
+[20/30] ja_seed_10 kind=single pred_errors=1 tier=tier2 fell_open=False
+[21/30] ja_seed_11 kind=single pred_errors=1 tier=tier2 fell_open=False
+[22/30] ja_seed_12 kind=single pred_errors=1 tier=tier2 fell_open=False
+[23/30] ja_seed_13 kind=single pred_errors=0 tier=tier2 fell_open=False
+[24/30] ja_seed_14 kind=single pred_errors=1 tier=tier2 fell_open=False
+[25/30] ja_seed_15 kind=single pred_errors=1 tier=tier2 fell_open=False
+[26/30] ja_multi_01 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[27/30] ja_multi_02 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[28/30] ja_multi_03 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[29/30] ja_multi_04 kind=multi pred_errors=3 tier=tier2 fell_open=False
+[30/30] ja_multi_05 kind=multi pred_errors=2 tier=tier2 fell_open=False
+
+[done] wrote data/eval/dt_v6_gate_2026-10-08/ja_A.md
+  span F1=0.880  clean FP rate=0.000  overall QWK=0.643  cost=$0.3642
+  meaning_inversion recall=n/a  exemplar drops=0  no-template lines=1
+=== 2026-10-08T21:19:52+11:00 END ja A rc=0

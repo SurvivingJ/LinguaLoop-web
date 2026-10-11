@@ -1,0 +1,77 @@
+=== 2026-10-08T21:19:53+11:00 START ja C limit=0
+[plan] L2=ja L1=en fixture-set=v6_silver items=32 (clean 7 / single 22 / multi 3) framework=v2
+[taxonomy] candidate v6 parsed from migrations/dt_taxonomy_v6_seed.sql: 9 pair keys; baseline subtypes en=20 ja=23 zh=20
+[taxonomy] candidate v6 pre-seeded into the config cache (live DB taxonomy untouched)
+[resume] loaded 0 graded + 0 skipped from data/eval/dt_v6_gate_2026-10-08/ja_C.ckpt.jsonl
+2026-10-08 21:19:54,538 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[1/32] ja_silver_01 kind=clean pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:20:23,451 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[2/32] ja_silver_02 kind=clean pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:21:05,491 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[3/32] ja_silver_03 kind=clean pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:24:05,927 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[4/32] ja_silver_04 kind=clean pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:25:16,347 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[5/32] ja_silver_05 kind=clean pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:26:17,523 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[6/32] ja_silver_06 kind=clean pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:26:50,239 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[7/32] ja_silver_07 kind=single pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:27:35,608 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[8/32] ja_silver_08 kind=single pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:32:39,053 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[9/32] ja_silver_09 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:33:52,915 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[10/32] ja_silver_10 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:35:40,039 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[11/32] ja_silver_11 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:37:36,406 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[12/32] ja_silver_12 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:39:49,737 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[13/32] ja_silver_14 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:41:17,838 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+2026-10-08 21:41:59,030 - WARNING - dual_translation.grader_cascade: dropping error with out-of-range enum index: {'span_repro': [106, 108], 'span_ref': [106, 109], 'category': 5, 'source': 1, 'severity': 0, 'subtype': 5, 'learner_form': 'する', 'corrected_form': 'します', 'confidence': 0.95, 'is_mistake': False}
+[14/32] ja_silver_17 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:43:05,520 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[15/32] ja_silver_18 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:44:35,056 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[16/32] ja_silver_19 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:46:24,519 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[17/32] ja_silver_20 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:48:03,912 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[18/32] ja_silver_21 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:50:46,376 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[19/32] ja_silver_22 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:54:28,988 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[20/32] ja_silver_23 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:58:02,275 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[21/32] ja_silver_26 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 21:58:54,880 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[22/32] ja_silver_28 kind=single pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 22:00:06,357 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[23/32] ja_silver_30 kind=multi pred_errors=2 tier=tier2 fell_open=False
+2026-10-08 22:02:08,228 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[24/32] ja_silver_31 kind=multi pred_errors=2 tier=tier2 fell_open=False
+2026-10-08 22:06:30,581 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+2026-10-08 22:07:23,976 - WARNING - dual_translation.grader_cascade: dropping error with invalid spans/forms: {'span_repro': [165, 172], 'span_ref': [], 'category': 0, 'source': 1, 'severity': 0, 'subtype': 1, 'learner_form': '、さらに面白く', 'corrected_form': '', 'confidence': 0.95, 'is_mistake': True}
+[25/32] ja_silver_32 kind=multi pred_errors=3 tier=tier2 fell_open=False
+2026-10-08 22:09:34,301 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[26/32] ja_silver_13 kind=clean pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 22:11:03,237 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[27/32] ja_silver_15 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 22:12:35,658 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[28/32] ja_silver_16 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 22:14:23,160 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[29/32] ja_silver_24 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 22:16:19,078 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[30/32] ja_silver_25 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 22:20:56,160 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+[31/32] ja_silver_27 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 22:22:22,936 - WARNING - dual_translation.prompts: dropping the ja Detector exemplar — its subtype_slug/severity_slug did not resolve against the active taxonomy/severity enums (rubric and taxonomy rows have drifted, ADR-020). Prompt is degraded, not wrong.
+2026-10-08 22:22:43,318 - WARNING - dual_translation.grader_cascade: verifier call to 'qwen/qwen3.7-plus' failed: Error code: 402 - {'error': {'message': 'This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.', 'code': 402, 'metadata': {'reason': 'in_flight_budget_exhausted', 'limit_source': 'openrouter_in_flight_budget', 'remedy_hint': 'Retry after your in-flight requests settle (see the Retry-After header). Adding credits at https://openrouter.ai/settings/credits raises your in-flight budget, up to a capped ceiling.', 'headers': {'Retry-After': '120'}, 'provider_name': None}}, 'user_id': 'user_36VfYSNorMOIfjfqnOqOduad1Q3'}
+[32/32] ja_silver_29 kind=single pred_errors=0 tier=tier2 fell_open=True
+
+[done] wrote data/eval/dt_v6_gate_2026-10-08/ja_C.md
+  span F1=0.926  clean FP rate=0.000  overall QWK=0.520  cost=$0.4346
+  meaning_inversion recall=1.000  exemplar drops=32  no-template lines=0
+=== 2026-10-08T22:22:43+11:00 END ja C rc=0

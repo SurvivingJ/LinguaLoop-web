@@ -1,0 +1,34 @@
+[
+  {
+    "id": "en_v6_ws_01",
+    "errors": [
+      {
+        "learner_form": "pick small things",
+        "corrected_form": "pick up small things",
+        "v6_type": "phrasal_verb",
+        "severity": "minor",
+        "explanation_variant": null,
+        "contested": true,
+        "rationale": "The only diff is the dropped particle 'up' from 'pick up' (= lift). The DT phrasal_verb definition covers a wrong or avoided phrasal-verb form, so this is a particle deletion. It is not narrow wrong_sense: the needed unit is 'pick up', a separate lexical unit from bare 'pick' (choose/pluck), so the learner did not use the same lemma in another of its senses. The meaning stays recoverable from context, so the severity is minor. Contested: (a) the jev slice in taxonomy.md section 3.2 calls 'pick up the cup' (= lift) a literal verb + directional particle and puts it out of scope for phrasal_verb, which pushes it towards omission (a required word is missing); (b) anyone who files 'pick up' as a sense of 'pick' would argue word_choice/wrong_sense."
+      }
+    ],
+    "item_ok": true,
+    "notes": "Blind read: one error, and adding 'up' restores the reference exactly (checklist rule 3 passes). Risk under rule 2/9: in the robotics register, bare 'pick' meaning grasp-and-lift is well attested ('pick-and-place', 'the robot picks parts from a bin'), and this passage is about a robot arm. A strict corpus check could therefore call 'make the arm pick small things' a domain variant. For a tier-3 general reader, a native corrector would still restore 'up', so I keep it as an error, but it is borderline. In my reading this item gives NO wrong_sense coverage."
+  },
+  {
+    "id": "en_v6_ws_02",
+    "errors": [
+      {
+        "learner_form": "likes",
+        "corrected_form": "is like",
+        "v6_type": "word_choice",
+        "severity": "major",
+        "explanation_variant": "wrong_sense",
+        "contested": true,
+        "rationale": "The learner used 'like' in its verb sense ('enjoy'), inflected for 3sg with the copula dropped, where the context needs 'like' in its preposition sense ('similar to'). One headword, two of its own dictionary senses (both sit under the lemma 'like' in a lemma-keyed sense dictionary such as dim_word_senses; checklist rule 6), so precedence gives wrong_sense. The 'is' deletion is part of the same reanalysis, not a second error. Severity is major: the simile becomes an absurd claim that the gripper enjoys a hand, and the meaning is only recoverable from the reference or context. Contested: (a) semantic_anomaly fits cleanly by effect ('This likes a hand' is grammatical but describes an impossible event; that type's default is also major); (b) on a strict lexeme reading, verb 'like' and preposition 'like' are separate homographic lexemes (different POS, separate headwords in Cambridge/MW), which would demote the variant to wrong_word."
+      }
+    ],
+    "item_ok": true,
+    "notes": "Blind read: one error, and the inverse edit restores the reference (rule 3 passes). No context makes 'This likes a hand' correct here (rule 5 passes). This is the better wrong_sense candidate of the two, but only under the 'same headword string / same dim_word_senses lemma' operationalization. If wrong_sense requires the same POS (true polysemy, like 意思 intention/meaning), it does not qualify. The type call between word_choice and semantic_anomaly is the main dispute risk."
+  }
+]

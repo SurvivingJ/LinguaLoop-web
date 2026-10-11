@@ -1,0 +1,1185 @@
+{
+  "sense_id": 13902,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T22:45:31.954878+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[7] flagged (rating 3): slightly awkward phrasing with 'before he would go on'"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.16416096687316895,
+    "p1_generate": 2.2964048385620117,
+    "tier_gate": 0.0029993057250976562,
+    "p1_judge": 3.4512226581573486,
+    "collocate_grounding": 0.0,
+    "fan_out": 59.41868329048157
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[7] flagged (rating 3): slightly awkward phrasing with 'before he would go on'"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ɡoʊ ɒn/",
+        "morphological_forms": [
+          {
+            "form": "goes on",
+            "label": "present third person singular"
+          },
+          {
+            "form": "going on",
+            "label": "present participle"
+          },
+          {
+            "form": "went on",
+            "label": "past simple"
+          },
+          {
+            "form": "gone on",
+            "label": "past participle"
+          }
+        ],
+        "pronunciation": "goh on",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13902
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a7a34e8a-cd00-4b13-956a-3d47c3662c6b",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "go on",
+        "pronunciation": "goh on",
+        "correct_definition": "To begin or proceed with an action, event, or process.",
+        "options": [
+          "A person or thing that is the best or most successful.",
+          "To move something so that it covers an opening or stops being open.",
+          "To begin or proceed with an action, event, or process.",
+          "A very fine synthetic fiber, often used to make cleaning cloths or soft fabrics."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5106bb0b-e2b6-4239-9afc-f67555c184f8",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Let us ___ with the presentation now.",
+        "original_sentence": "Let us go on with the presentation now.",
+        "correct_answer": "go on",
+        "options": [
+          "go up",
+          "go off",
+          "go out",
+          "go on"
+        ],
+        "explanation": "Correct: 'go on' correctly completes the phrasal verb meaning to proceed with the presentation.",
+        "distractor_tags": {},
+        "word_definition": "To begin or proceed with an action, event, or process.",
+        "target_word": "go on"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "1508efa3-aaa9-493b-a01a-23638e01adde",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Let us ___ with our history project after lunch.",
+        "original_sentence": "Let us go on with our history project after lunch.",
+        "correct_answer": "go on",
+        "base_form": "go on",
+        "form_label": "bare infinitive",
+        "options": [
+          "going on",
+          "goes on",
+          "went on",
+          "go on"
+        ],
+        "explanation": "bare infinitive is required after the causative verb 'let' with an object",
+        "word_definition": "To begin or proceed with an action, event, or process.",
+        "target_word": "go on"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "18d54bf1-6cb8-4c1a-9ada-772fb67b38f9",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The sun will go on at exactly six o'clock tomorrow morning.",
+            "is_correct": false
+          },
+          {
+            "text": "After a brief pause, the speaker decided to go on with her speech.",
+            "is_correct": true
+          },
+          {
+            "text": "I decided to go on the refrigerator to see what was inside.",
+            "is_correct": false
+          },
+          {
+            "text": "She will go on the bus to travel to the city center.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Incorrect: 'go on' means to proceed with an action, not to physically climb onto a surface (which requires 'go on top of' or 'climb on'). Incorrect: When boarding a vehicle, the correct preposition is 'on' as a standalone particle (e.g., 'get on' or 'go on the bus' is less standard than 'take the bus' or 'get on the bus'), but 'go on' as a phrasal verb for 'proceed' does not fit here. Incorrect: 'go on' means to proceed with an action or event, whereas 'rise' or 'come up' is the correct verb for the sun appearing in the sky.",
+        "target_word": "go on"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "7ca7fe04-d2b6-4e52-aba2-c7aa5fed63a0",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Let us go on with the presentation now.",
+            "is_correct": true
+          },
+          {
+            "text": "After a short break, the teacher told the class to go on reading.",
+            "is_correct": true
+          },
+          {
+            "text": "Let us go on with our history project after lunch.",
+            "is_correct": true
+          },
+          {
+            "text": "After a short break, the teacher told the class to go on their reading.",
+            "is_correct": false,
+            "error_description": "The phrasal verb 'go on' cannot take a direct noun object. To continue an activity, it must be followed directly by a gerund (verb + -ing) or by the preposition 'with' plus a noun."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "e45387a2-b27d-4710-be86-3eb1acbaff73",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "go on",
+        "pronunciation": "goh on",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "Making something work like it was before it got broken.",
+              "To become conscious after sleeping.",
+              "To begin or proceed with an action, event, or process.",
+              "Having a shiny, smooth surface that reflects light."
+            ],
+            "correct_answer": "To begin or proceed with an action, event, or process."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "6c289446-7706-4fa7-a33e-9fab432cb098",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Let us ___ with our history project after lunch.",
+        "original_sentence": "Let us go on with our history project after lunch.",
+        "target_word": "go on",
+        "word": "go on",
+        "answer": {
+          "accepted": [
+            "go on",
+            "goes on",
+            "going on",
+            "went on",
+            "gone on"
+          ],
+          "accepted_normalized": [
+            "go on",
+            "goes on",
+            "going on",
+            "went on",
+            "gone on"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "edc914cc-ad40-4f1a-911b-411ff872bd2b",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "He paused for a moment before deciding to ___ with his speech.",
+        "original_sentence": "He paused for a moment before deciding to go on with his speech.",
+        "correct_answer": "go on",
+        "options": [
+          "go off",
+          "go on",
+          "go up",
+          "go for"
+        ],
+        "explanation": "Correct: 'go on' correctly means to proceed or continue with the speech after a pause.",
+        "distractor_tags": {},
+        "word_definition": "To begin or proceed with an action, event, or process.",
+        "target_word": "go on"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "af507687-4eee-42d1-b518-006d5ee4d0b1",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "He took a deep breath before he would ___ with the difficult task.",
+        "original_sentence": "He took a deep breath before he would go on with the difficult task.",
+        "correct_answer": "go on",
+        "base_form": "go on",
+        "form_label": "bare infinitive",
+        "options": [
+          "went on",
+          "go on",
+          "going on",
+          "goes on"
+        ],
+        "explanation": "bare infinitive is required after the modal auxiliary 'would'",
+        "word_definition": "To begin or proceed with an action, event, or process.",
+        "target_word": "go on"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "59f3ca7b-7244-4f4e-afca-1c1e5c1bbe04",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The heavy snow will go on the roof and stay there all winter.",
+            "is_correct": false
+          },
+          {
+            "text": "I will go on the milk from the fridge into this glass.",
+            "is_correct": false
+          },
+          {
+            "text": "Please go on the table and sit down to eat your dinner.",
+            "is_correct": false
+          },
+          {
+            "text": "After a brief pause, the speaker decided to go on with her speech.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'go on' meaning 'proceed' cannot be used to instruct someone to physically climb onto a piece of furniture. Semantically inappropriate: 'go on' is an intransitive phrasal verb and cannot take a direct physical object like 'the milk' to mean 'pour'. Semantically inappropriate: 'go on' means to continue an action or event, not to physically accumulate or rest on a surface like snow.",
+        "target_word": "go on"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "7ab2b2b3-6cbd-456c-857b-1091752b26d0",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "He took a deep breath before he would ___ with the difficult task.",
+        "original_sentence": "He took a deep breath before he would go on with the difficult task.",
+        "target_word": "go on",
+        "word": "go on",
+        "answer": {
+          "accepted": [
+            "go on",
+            "goes on",
+            "going on",
+            "went on",
+            "gone on"
+          ],
+          "accepted_normalized": [
+            "go on",
+            "goes on",
+            "going on",
+            "went on",
+            "gone on"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3347c4b0-4571-4f88-9cdf-3ce00e391e7e",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "After a brief pause, the speaker decided to go on with her speech.",
+        "chunks": [
+          "After a brief pause",
+          "the speaker",
+          "decided",
+          "to go on with her speech"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "decided",
+          "After a brief pause",
+          "to go on with her speech",
+          "the speaker"
+        ],
+        "target_word": "go on",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13902,
+      "word_asset_id": "shadow-13902-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "chunk reconstruction does not match the source sentence — chunks=['We can not wait here forever', 'we', 'must go on']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0017633,
+      "prompt_tokens": 1936,
+      "completion_tokens": 473,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2145
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0007141,
+      "prompt_tokens": 647,
+      "completion_tokens": 208,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1412
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002253,
+      "prompt_tokens": 251,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 878
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003001,
+      "prompt_tokens": 542,
+      "completion_tokens": 55,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 919
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185856,
+      "prompt_tokens": 1172,
+      "completion_tokens": 1159,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20981
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018672,
+      "prompt_tokens": 1171,
+      "completion_tokens": 1166,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21136
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185888,
+      "prompt_tokens": 857,
+      "completion_tokens": 1238,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22328
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00168704,
+      "prompt_tokens": 660,
+      "completion_tokens": 1153,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20713
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175136,
+      "prompt_tokens": 861,
+      "completion_tokens": 1153,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20714
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016992,
+      "prompt_tokens": 662,
+      "completion_tokens": 1162,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20886
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002518208,
+      "prompt_tokens": 1591,
+      "completion_tokens": 1672,
+      "cached_tokens": 512,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30050
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0026928,
+      "prompt_tokens": 1591,
+      "completion_tokens": 1706,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30404
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00158752,
+      "prompt_tokens": 825,
+      "completion_tokens": 1034,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18258
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00158624,
+      "prompt_tokens": 821,
+      "completion_tokens": 1034,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18294
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004167,
+      "prompt_tokens": 414,
+      "completion_tokens": 117,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1215
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003414,
+      "prompt_tokens": 388,
+      "completion_tokens": 90,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 969
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004647,
+      "prompt_tokens": 549,
+      "completion_tokens": 120,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1154
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001784,
+      "prompt_tokens": 403,
+      "completion_tokens": 23,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 831
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004384,
+      "prompt_tokens": 528,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1017
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002945,
+      "prompt_tokens": 415,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1105
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003254,
+      "prompt_tokens": 393,
+      "completion_tokens": 83,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 954
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003713,
+      "prompt_tokens": 496,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 967
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001921,
+      "prompt_tokens": 407,
+      "completion_tokens": 28,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 731
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004259,
+      "prompt_tokens": 528,
+      "completion_tokens": 107,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13902,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1085
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.02555860799999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 77.125,
+  "finished_at": "2026-10-05T22:46:49.073309+00:00"
+}

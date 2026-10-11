@@ -12,6 +12,7 @@ individually. Run with:
 
 import importlib.util
 import json
+import logging
 import os
 import sys
 import threading
@@ -301,6 +302,150 @@ def test_skipped_sense_does_not_call_renderer():
     assert capture['status'] == 'skipped'
     assert calls == [], "build_rows must not run for a skipped/failed sense"
     assert capture['exercise_rows'] == []
+
+
+# ---------------------------------------------------------------------------
+# (b.1) Fail-closed judging (armD incident, 2026-10-05) -- generation/render
+# now run inside batch_mode(), and every judge WARNING on the way to a
+# fail-open or fail-closed outcome is captured into capture['judge_failures']
+# instead of vanishing. See scripts/run_exercise_gen_eval.py's
+# `_JudgeFailureCapture` / `_attach_judge_failure_capture` docstrings.
+# ---------------------------------------------------------------------------
+
+def test_judge_warning_during_generate_is_captured_with_error_class():
+    real = FakeRealClient()
+    sink, lock = [], threading.Lock()
+    db = harness.InterceptingClient(real, sink, lock)
+
+    class WarningPipeline(StubPipeline):
+        def _generate_for_sense_impl(self, sense_id, language_id, force, batch_id):
+            logging.getLogger(
+                'services.exercise_generation.judges.l1_distractor'
+            ).warning(
+                "l1_distractor_judge: LLM call failed, keep all: Error code: "
+                "400 - {'error': {'code': 400, 'message': 'bad request'}}"
+            )
+            return super()._generate_for_sense_impl(sense_id, language_id, force, batch_id)
+
+    pipeline = WarningPipeline(db)
+    renderer = StubRenderer(db)
+
+    capture = harness.process_one_sense(pipeline, renderer, 10, 1, 'b1', sink, lock)
+
+    assert capture['status'] == 'success'
+    assert len(capture['judge_failures']) == 1
+    failure = capture['judge_failures'][0]
+    assert failure['judge'] == 'l1_distractor_judge'
+    assert failure['error_class'] == '400'
+    assert failure['stage'] == 'generate'
+
+
+def test_judge_unavailable_in_batch_mode_aborts_the_sense_and_is_recorded():
+    """Fail-closed: a judge that cannot run inside batch_mode() raises
+    JudgeUnavailable (production's own TASK-510 contract, see
+    scripts/run_generation_batch.py's `_process_sense`). The eval harness
+    must give this its own status rather than folding it into a generic
+    pipeline 'error' -- a run's judge-outage rate needs to be visible in
+    summary.json without grepping exceptions."""
+    from services.exercise_generation.judges.base import JudgeUnavailable, is_batch_mode
+
+    real = FakeRealClient()
+    sink, lock = [], threading.Lock()
+    db = harness.InterceptingClient(real, sink, lock)
+
+    class UnavailablePipeline(StubPipeline):
+        def _generate_for_sense_impl(self, sense_id, language_id, force, batch_id):
+            # batch_mode() must already be active on this thread by the time
+            # the pipeline runs -- the same contract run_generation_batch.py
+            # relies on for its own judges to fail closed.
+            assert is_batch_mode() is True
+            raise JudgeUnavailable(
+                "ladder_relation_judge could not run during a generation "
+                "batch (model='qwen/qwen3.7-plus' version=4)"
+            )
+
+    pipeline = UnavailablePipeline(db)
+    renderer = StubRenderer(db)
+
+    capture = harness.process_one_sense(pipeline, renderer, 11, 1, 'b1', sink, lock)
+
+    assert capture['status'] == 'judge_unavailable'
+    assert capture['exceptions'][0]['stage'] == 'generate_judge_unavailable'
+    assert 'ladder_relation_judge' in capture['exceptions'][0]['error']
+    # is_batch_mode() must NOT leak true onto the calling thread afterwards.
+    assert is_batch_mode() is False
+
+
+def test_judge_failures_aggregate_into_summary_by_judge_and_error_class(tmp_path):
+    sink, lock = [], threading.Lock()
+
+    def pipeline_factory():
+        db = harness.InterceptingClient(FakeRealClient(), sink, lock)
+
+        class WarningPipeline(StubPipeline):
+            def _generate_for_sense_impl(self, sense_id, language_id, force, batch_id):
+                logging.getLogger(
+                    'services.exercise_generation.judges.sentence_validity'
+                ).warning(
+                    "sentence_validity_judge: llm call error: Error code: "
+                    "429 - rate limited"
+                )
+                return super()._generate_for_sense_impl(
+                    sense_id, language_id, force, batch_id,
+                )
+
+        return WarningPipeline(db)
+
+    def renderer_factory():
+        db = harness.InterceptingClient(FakeRealClient(), sink, lock)
+        return StubRenderer(db)
+
+    summary = harness.run_eval(
+        [1, 2], language_id=3,
+        pipeline_factory=pipeline_factory, renderer_factory=renderer_factory,
+        batch_id='judge-fail-batch', out_dir=str(tmp_path),
+        capture_sink=sink, lock=lock, real_client=None,
+    )
+
+    assert summary['judge_failures_total'] == 2
+    assert summary['judge_failure_counts_by_judge_and_error_class'] == {
+        'sentence_validity_judge|429': 2,
+    }
+    assert summary['senses_with_judge_unavailable'] == 0
+
+
+def test_judge_failure_capture_handler_is_detached_after_each_sense():
+    """The log handler must not pile up across senses -- each call to
+    process_one_sense attaches and detaches its own, so a logger that fires
+    during sense A must never show up in sense B's judge_failures."""
+    real = FakeRealClient()
+    sink, lock = [], threading.Lock()
+    db = harness.InterceptingClient(real, sink, lock)
+
+    pipeline_a_fired = {'value': False}
+
+    class WarningPipeline(StubPipeline):
+        def _generate_for_sense_impl(self, sense_id, language_id, force, batch_id):
+            if not pipeline_a_fired['value']:
+                pipeline_a_fired['value'] = True
+                logging.getLogger(
+                    'services.exercise_generation.judges.cloze'
+                ).warning("cloze_judge: LLM call failed, keeping all: boom")
+            return super()._generate_for_sense_impl(sense_id, language_id, force, batch_id)
+
+    pipeline = WarningPipeline(db)
+    renderer = StubRenderer(db)
+
+    capture_a = harness.process_one_sense(pipeline, renderer, 20, 1, 'b1', sink, lock)
+    capture_b = harness.process_one_sense(pipeline, renderer, 21, 1, 'b1', sink, lock)
+
+    assert len(capture_a['judge_failures']) == 1
+    assert capture_b['judge_failures'] == []
+
+    judges_logger = logging.getLogger('services.exercise_generation.judges')
+    assert not any(
+        isinstance(h, harness._JudgeFailureCapture) for h in judges_logger.handlers
+    ), "handler must be removed once process_one_sense returns"
 
 
 # ---------------------------------------------------------------------------

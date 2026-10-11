@@ -1,0 +1,810 @@
+{
+  "sense_id": 10110,
+  "language_id": 1,
+  "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+  "started_at": "2026-10-03T01:38:13.183007+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] rejected (rating 2): 整词：'可'为语素非独立词",
+    "P1 sentence[2] rejected (rating 2): 义项：表强调语气，非许可可能",
+    "P1 sentence[5] rejected (rating 2): 义项：表强调/劝告，非许可可能",
+    "P1 sentence[7] rejected (rating 2): 义项：表强调语气，非许可可能"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.17685198783874512,
+    "p1_generate": 13.947124004364014,
+    "tier_gate": 0.0,
+    "p1_judge": 10.834391355514526,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] rejected (rating 2): 整词：'可'为语素非独立词",
+        "P1 sentence[2] rejected (rating 2): 义项：表强调语气，非许可可能",
+        "P1 sentence[5] rejected (rating 2): 义项：表强调/劝告，非许可可能",
+        "P1 sentence[7] rejected (rating 2): 义项：表强调语气，非许可可能"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[kʰɤ˨˩˦]",
+        "morphological_forms": [
+          {
+            "form": "可以",
+            "label": "复合"
+          },
+          {
+            "form": "可能",
+            "label": "复合"
+          },
+          {
+            "form": "可是",
+            "label": "复合"
+          },
+          {
+            "form": "可爱",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "kě",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10110
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "0179a1e7-fbbe-43b9-96bc-054634e08bde",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "correct_definition": "表示许可或可能，常用于口语。",
+        "options": [
+          "有价值的物品和金钱的总和。",
+          "表示许可或可能，常用于口语。",
+          "人和动物体内负责传递信息和指令的组织，由许多神经细胞组成；也指精神状态不正常。",
+          "指完成某项活动或任务所具备的才能、本领。"
+        ],
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "correct_definition": "表示許可或可能，常用於口語。",
+          "options": [
+            "有價值的物品和金錢的總和。",
+            "表示許可或可能，常用於口語。",
+            "人和動物體內負責傳遞資訊和指令的組織，由許多神經細胞組成；也指精神狀態不正常。",
+            "指完成某項活動或任務所具備的才能、本領。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "ba12d9cb-8d85-4093-acf7-4b091e95b93e",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "你可以把这本书借给看我吗？",
+            "is_correct": false
+          },
+          {
+            "text": "你可把这本书借给我看吗？以",
+            "is_correct": false
+          },
+          {
+            "text": "你可以把这本书借给我看吗？",
+            "is_correct": true
+          },
+          {
+            "text": "你可以把这本书我看借给吗？",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语序/结构错误。‘以’字多余且位置错误，破坏了‘可以’的完整性或句法结构。 语序错误。双宾语结构中，间接宾语‘我’应紧跟动词‘借给’或直接宾语前，通常说‘借给我’，‘借给看我’语序混乱。 语序严重错误。动词短语内部成分完全乱序。",
+        "target_word": "可",
+        "hant": {
+          "sentences": [
+            {
+              "text": "你可以把這本書借給看我嗎？",
+              "is_correct": false
+            },
+            {
+              "text": "你可把這本書借給我看嗎？以",
+              "is_correct": false
+            },
+            {
+              "text": "你可以把這本書借給我看嗎？",
+              "is_correct": true
+            },
+            {
+              "text": "你可以把這本書我看借給嗎？",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語序/結構錯誤。‘以’字多餘且位置錯誤，破壞了‘可以’的完整性或句法結構。 語序錯誤。雙賓語結構中，間接賓語‘我’應緊跟動詞‘借給’或直接賓語前，通常說‘借給我’，‘借給看我’語序混亂。 語序嚴重錯誤。動詞短語內部成分完全亂序。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "你可以把这本书借给我看吗？"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "177bcb52-682f-4a6d-a986-d8369c13272e",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "你可得小心点，别摔着了。",
+        "hant": {
+          "original_sentence": "你可得小心點，別摔著了。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "bbd6d797-9b13-42a0-b387-a404db52db71",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "崩壊する",
+              "競争相手；あなたと競い合う人",
+              "水从一处流向另一处。",
+              "表示许可或可能，常用于口语。"
+            ],
+            "correct_answer": "表示许可或可能，常用于口语。"
+          }
+        },
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "崩壊する",
+                "競爭相手；あなたと競い合う人",
+                "水從一處流向另一處。",
+                "表示許可或可能，常用於口語。"
+              ],
+              "correct_answer": "表示許可或可能，常用於口語。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "55825157-3f5c-46ee-8ad0-bdad9518f3b4",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "可",
+        "options": [
+          "kē",
+          "kè",
+          "kě",
+          "ké"
+        ],
+        "correct_answer": "kě",
+        "word": "可",
+        "direction": "hanzi_to_pinyin",
+        "context_sentence": "这种材料可回收利用，非常环保。",
+        "context_target": "可",
+        "is_polyphonic": true,
+        "hant": {
+          "schema_version": 2,
+          "prompt": "可",
+          "options": [
+            "kē",
+            "kè",
+            "kě",
+            "ké"
+          ],
+          "correct_answer": "kě",
+          "word": "可",
+          "direction": "hanzi_to_pinyin",
+          "context_sentence": "這種材料可回收利用，非常環保。",
+          "context_target": "可",
+          "is_polyphonic": true
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "c9dd6f99-da14-42d1-876f-8a120124eb71",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "kě",
+        "options": [
+          "河",
+          "可",
+          "灯",
+          "打"
+        ],
+        "correct_answer": "可",
+        "word": "可",
+        "direction": "pinyin_to_hanzi",
+        "context_sentence": "这种材料可回收利用，非常环保。",
+        "context_target": "可",
+        "is_polyphonic": true,
+        "distractor_sources": {
+          "打": "component",
+          "河": "component",
+          "灯": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "kě",
+          "options": [
+            "河",
+            "可",
+            "燈",
+            "打"
+          ],
+          "correct_answer": "可",
+          "word": "可",
+          "direction": "pinyin_to_hanzi",
+          "context_sentence": "這種材料可回收利用，非常環保。",
+          "context_target": "可",
+          "is_polyphonic": true,
+          "distractor_sources": {
+            "打": "component",
+            "河": "component",
+            "灯": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6d5c5dee-5af3-4b17-bea3-688887f54726",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "可",
+        "toneless_pinyin": "ke",
+        "full_pinyin": "kě",
+        "options": [
+          "3",
+          "4",
+          "2",
+          "1"
+        ],
+        "correct_answer": "3",
+        "option_labels": {
+          "3": "dipping (3)",
+          "4": "falling (4)",
+          "2": "rising (2)",
+          "1": "high level (1)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "可",
+          "toneless_pinyin": "ke",
+          "full_pinyin": "kě",
+          "options": [
+            "3",
+            "4",
+            "2",
+            "1"
+          ],
+          "correct_answer": "3",
+          "option_labels": {
+            "3": "dipping (3)",
+            "4": "falling (4)",
+            "2": "rising (2)",
+            "1": "high level (1)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "0ecd39bb-7748-4670-8977-5d7bebeeab7a",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这件事你可别告诉别人。",
+            "is_correct": true
+          },
+          {
+            "text": "这件事你可告诉别人别。",
+            "is_correct": false
+          },
+          {
+            "text": "这件事你可告诉别别人。",
+            "is_correct": false
+          },
+          {
+            "text": "这件事你别可告诉别人。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语序错误。否定词‘别’不应放在强调标记‘可’之前，应为‘可别’。 量词/重叠错误。‘别人’不应重叠为‘别别人’，且语意不通。 语序错误。否定副词‘别’置于句末不符合汉语语法规范。",
+        "target_word": "可",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這件事你可別告訴別人。",
+              "is_correct": true
+            },
+            {
+              "text": "這件事你可告訴別人別。",
+              "is_correct": false
+            },
+            {
+              "text": "這件事你可告訴別別人。",
+              "is_correct": false
+            },
+            {
+              "text": "這件事你別可告訴別人。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語序錯誤。否定詞‘別’不應放在強調標記‘可’之前，應為‘可別’。 量詞/重疊錯誤。‘別人’不應重疊為‘別別人’，且語意不通。 語序錯誤。否定副詞‘別’置於句末不符合漢語語法規範。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "这件事你可别告诉别人。"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "3a716b1d-f070-4f53-b868-99f90dfb60e5",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "你可以把这本书借给我看吗？",
+        "hant": {
+          "original_sentence": "你可以把這本書借給我看嗎？"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 2,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00171808,
+      "prompt_tokens": 2497,
+      "completion_tokens": 718,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 13772
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004736,
+      "prompt_tokens": 680,
+      "completion_tokens": 200,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 4808
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00020672,
+      "prompt_tokens": 354,
+      "completion_tokens": 73,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 10110,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 2614
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00033184,
+      "prompt_tokens": 577,
+      "completion_tokens": 115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 3190
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00489088,
+      "prompt_tokens": 2144,
+      "completion_tokens": 3285,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 57229
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_bundle_judge",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0026016,
+      "prompt_tokens": 1378,
+      "completion_tokens": 1688,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 29947
+    }
+  ],
+  "llm_calls_observed": 6,
+  "llm_cost_observed_usd": 0.010222720000000001,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 113.53200000000652,
+  "finished_at": "2026-10-03T01:40:06.705093+00:00"
+}

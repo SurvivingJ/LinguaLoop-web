@@ -325,6 +325,53 @@ def test_kana_only_lemma_skips_the_reading_exercise():
 
 
 # ---------------------------------------------------------------------------
+# Coverage-gap fix #4: `SenseContext.headword` vs `.lemma` for the ja kanji
+# reading pair. `.lemma` is a SENTENCE's target (the inflected surface form
+# of whichever sentence happens to be first), which for a verb like 因る can
+# legitimately be a kana-only inflection (よって) with no kanji at all —
+# `has_kanji(ctx.lemma)` then false-negatives even though the dictionary
+# headword plainly has kanji. `.headword` carries the dictionary form
+# (mirrors exercise_renderer._headword's existing TASK-803 rationale for L1).
+# ---------------------------------------------------------------------------
+
+def test_kanji_to_reading_uses_headword_when_lemma_is_a_kana_only_inflection():
+    """Regression for ja sense 35111 (因る): the first P1 sentence's target
+    was a kana-only inflected form, so `ctx.lemma` alone has no kanji even
+    though the word plainly does -- the exercise must not be skipped."""
+    ctx = make_ctx(
+        db=object(), language_id=3, lemma='よって', headword='因る',
+        core=make_core(pronunciation='よる'), pronunciation='よる',
+    )
+    items, skips = det.generate(ctx, type_codes={'kanji_to_reading'})
+    assert not any('no kanji' in s.reason for s in skips), skips
+    if items:
+        assert items[0].content['prompt'] == '因る'
+
+
+def test_kanji_to_reading_falls_back_to_lemma_when_headword_is_absent():
+    """Parity guard: omitting `headword` (every pre-existing caller/fixture)
+    keeps the prior behaviour exactly -- a kana-only `.lemma` still skips."""
+    ctx = make_ctx(
+        db=object(), language_id=3, lemma='よって',
+        core=make_core(pronunciation='よる'), pronunciation='よる',
+    )
+    assert ctx.headword is None
+    items, skips = det.generate(ctx, type_codes={'kanji_to_reading'})
+    assert items == []
+    assert any('no kanji' in s.reason for s in skips)
+
+
+def test_reading_to_kanji_also_uses_headword_for_the_has_kanji_gate():
+    install_lexicon(3, [('因る', 'よる', 'to be due to', 'B1', 3.0)])
+    ctx = make_ctx(
+        db=object(), language_id=3, lemma='よって', headword='因る',
+        core=make_core(pronunciation='よる'), pronunciation='よる',
+    )
+    items, skips = det.generate(ctx, type_codes={'reading_to_kanji'})
+    assert not any('no kanji' in s.reason for s in skips), skips
+
+
+# ---------------------------------------------------------------------------
 # classifier_match / counter_match (TASK-528 / TASK-530)
 # ---------------------------------------------------------------------------
 
@@ -428,6 +475,80 @@ def test_cloze_typed_admits_variants_only_for_an_uninflected_slot():
 
 
 # ---------------------------------------------------------------------------
+# cloze_typed accepted-answer defects (TASK follow-up bug #2)
+#
+# Real failing items from data/eval/runs/phase1_ja/*.json.
+# ---------------------------------------------------------------------------
+
+def test_cloze_typed_drops_counter_and_derivation_labelled_forms():
+    """Real eval-run bug, ja sense 35001: morphological_forms carried a
+    measure-word counter ('台', labelled 助数詞) and a derived compound
+    ('機械式', labelled 派生) alongside the noun itself. Neither is a
+    grammatical substitute in a bare-noun slot ('機械が動いています' with
+    '台' spliced in is nonsense), so both must be dropped."""
+    core = make_core(sentences=[
+        {'text': '機械が動いています。', 'target_word': '機械',
+         'complexity_tier': 'B1'}] * 10)
+    core['morphological_forms'] = [
+        {'form': '台', 'label': '助数詞'},
+        {'form': '機械式', 'label': '派生'},
+    ]
+    ctx = make_ctx(language_id=3, lemma='機械', core=core,
+                    pronunciation=None, semantic_class='concrete')
+    items, skips = det.generate(ctx, type_codes={'cloze_typed'})
+    assert len(items) == 1, skips
+    assert items[0].content['answer']['accepted'] == ['機械']
+
+
+def test_cloze_typed_blocks_all_variants_when_sentence_continues_the_conjugation():
+    """Real eval-run bug, ja sense 35017: the template bakes in the rest of
+    the conjugation right after the blank ('___ています'), so every other
+    活用 entry ('増えた', '増えて', '増えない', '増えています') is a
+    DIFFERENT complete conjugation of the same verb, not a drop-in for this
+    stem — splicing '増えています' in doubles the trailing 'ています'."""
+    core = make_core(sentences=[
+        {'text': '最近、ゴミの量が増えています。', 'target_word': '増え',
+         'complexity_tier': 'B1'}] * 10)
+    core['morphological_forms'] = [
+        {'form': '増えた', 'label': '活用'},
+        {'form': '増えて', 'label': '活用'},
+        {'form': '増えない', 'label': '活用'},
+        {'form': '増えています', 'label': '活用'},
+    ]
+    ctx = make_ctx(language_id=3, lemma='増え', core=core,
+                    pronunciation=None, semantic_class='action')
+    items, skips = det.generate(ctx, type_codes={'cloze_typed'})
+    assert len(items) == 1, skips
+    assert items[0].content['answer']['accepted'] == ['増え']
+
+
+def test_cloze_typed_skips_when_target_has_no_clean_word_boundary_occurrence():
+    """Same class of bug as the L3/L4 'workss' template glue (bug #3): if
+    `target` is only a prefix of the word actually in the sentence, blanking
+    it naively leaves a dangling suffix glued to the marker. cloze_typed must
+    skip rather than ship 'Marcus ___s'."""
+    core = make_core(sentences=[
+        {'text': 'Marcus works today.', 'target_word': 'work',
+         'complexity_tier': 'A2'}] * 10)
+    ctx = make_ctx(language_id=2, lemma='work', core=core,
+                    pronunciation=None, semantic_class='action')
+    items, skips = det.generate(ctx, type_codes={'cloze_typed'})
+    assert items == []
+    reasons = [s.reason for s in skips if s.type_code == 'cloze_typed']
+    assert any('clean word-boundary' in r for r in reasons), reasons
+
+
+def test_cloze_typed_correct_answer_is_always_in_accepted():
+    """Invariant the grading path (`grade()`) depends on: whatever ends up as
+    `target_word` must be a member of `answer.accepted`, always."""
+    ctx = make_ctx()
+    items, skips = det.generate(ctx, type_codes={'cloze_typed'})
+    assert len(items) == 1, skips
+    content = items[0].content
+    assert content['target_word'] in content['answer']['accepted']
+
+
+# ---------------------------------------------------------------------------
 # jumbled_sentence (TASK-516)
 # ---------------------------------------------------------------------------
 
@@ -447,6 +568,92 @@ def test_jumbled_shuffle_never_equals_the_answer():
         content = items[0].content
         assert content['shuffled_chunks'] != content['chunks']
         assert sorted(content['shuffled_chunks']) == sorted(content['chunks'])
+
+
+# ---------------------------------------------------------------------------
+# jumbled_sentence reconstruction invariant (TASK follow-up bug #1)
+#
+# Real failing items from data/eval/runs/phase1_en/16031.json (en sense
+# 16031): the chunker produced chunks ('will waterlog', 'quickly', 'it')
+# whose stored "correct" order concatenates to "will waterlog quickly it",
+# not the source sentence's actual word order. Fixed by having `build()`
+# verify the reconstruction itself and skip rather than trust the chunker.
+# ---------------------------------------------------------------------------
+
+from services.vocabulary_ladder.deterministic import jumbled as jumbled_mod  # noqa: E402
+
+
+def test_jumbled_skips_when_chunks_do_not_reconstruct_the_source_sentence(monkeypatch):
+    original = 'It will quickly waterlog the field.'
+    broken_chunks = ['will waterlog', 'quickly', 'it']  # real eval-run bug
+
+    monkeypatch.setattr(jumbled_mod, '_chunk', lambda text, lang: broken_chunks)
+
+    core = make_core(sentences=[
+        {'text': original, 'target_word': 'waterlog', 'complexity_tier': 'B1'},
+    ] * 10)
+    ctx = make_ctx(language_id=2, lemma='waterlog', core=core,
+                    pronunciation=None, semantic_class='action',
+                    sentence_assignments={9: 0})
+    items, skips = det.generate(ctx, type_codes={'jumbled_sentence'})
+    assert items == []
+    reasons = [s.reason for s in skips if s.type_code == 'jumbled_sentence']
+    assert any('reconstruct' in r for r in reasons), reasons
+
+
+def test_jumbled_accepts_chunks_that_do_reconstruct_modulo_punctuation(monkeypatch):
+    """The source sentence's trailing period is not part of any chunk (the
+    chunker drops punctuation); the invariant check must not reject a
+    perfectly good reconstruction over that."""
+    original = 'It will quickly waterlog the field.'
+    good_chunks = ['It', 'will quickly waterlog', 'the field']
+
+    monkeypatch.setattr(jumbled_mod, '_chunk', lambda text, lang: good_chunks)
+
+    core = make_core(sentences=[
+        {'text': original, 'target_word': 'waterlog', 'complexity_tier': 'B1'},
+    ] * 10)
+    ctx = make_ctx(language_id=2, lemma='waterlog', core=core,
+                    pronunciation=None, semantic_class='action',
+                    sentence_assignments={9: 0})
+    items, skips = det.generate(ctx, type_codes={'jumbled_sentence'})
+    assert len(items) == 1, skips
+    assert items[0].content['chunks'] == good_chunks
+
+
+def test_jumbled_merge_never_fuses_the_target_word_into_a_neighbour():
+    """Real eval-run bug (ja sense 34998): the shortest-adjacent-pair merge
+    picked the one-character target '一' and fused it with the adjacent '二',
+    producing a chunk ('一二') that reads as a different token entirely."""
+    chunks = ['一', '二', '三四五', '六七八', '九十']
+    merged = jumbled_mod._merge_to(chunks, limit=4, target='一')
+    assert merged is not None
+    assert '一' in merged
+    assert all('一二' not in c for c in merged)
+
+
+def test_jumbled_merge_returns_none_when_every_option_fuses_the_target():
+    """If the target chunk has only one possible merge partner left, and
+    using it is the only way to reach the chunk-count limit, bail rather
+    than silently fuse the target."""
+    merged = jumbled_mod._merge_to(['一', '二'], limit=1, target='一')
+    assert merged is None
+
+
+def test_jumbled_target_isolated_check_rejects_fused_chunk():
+    assert jumbled_mod._target_is_isolated(['一二', '三'], '一', language_id=1) is False
+    assert jumbled_mod._target_is_isolated(['一', '二', '三'], '一', language_id=1) is True
+
+
+def test_jumbled_normalize_for_check_strips_punctuation_not_words():
+    assert (
+        jumbled_mod._normalize_for_check('It will quickly waterlog the field.')
+        == jumbled_mod._normalize_for_check('It will quickly waterlog the field')
+    )
+    assert (
+        jumbled_mod._normalize_for_check('会いましょう。')
+        == jumbled_mod._normalize_for_check('会いましょう')
+    )
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,796 @@
+{
+  "sense_id": 35211,
+  "language_id": 3,
+  "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+  "started_at": "2026-10-04T04:41:50.005792+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "Tier gate: sentence[1] 3 words above tier T1 (max 2): 和らげる (Zipf 3.12), 排出 (Zipf 3.98), 持続 (Zipf 3.94)",
+    "Tier gate: sentence[5] 3 words above tier T1 (max 2): 一人ひとり (Zipf 3.16), 最大限 (Zipf 3.77), 高める (Zipf 3.96)",
+    "Tier gate: sentence[6] 4 words above tier T1 (max 2): 炭素 (Zipf 3.73), 地質 (Zipf 3.39), 細やか (Zipf 2.96), 保っ (Zipf 3.85)",
+    "Tier gate: sentence[9] 4 words above tier T1 (max 2): 時折 (Zipf 3.69), 天候 (Zipf 3.82), 力強く (Zipf 3.37), 茎 (Zipf 3.57)",
+    "P1 sentence[0] rejected (rating 2): 非文法：助詞の誤用",
+    "P1 sentence[1] rejected (rating 2): 非文法：助詞の誤用",
+    "P1 sentence[6] rejected (rating 2): 全単語：語形不一致"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.4013645648956299,
+    "p1_generate": 21.944704294204712,
+    "tier_gate": 4.9803173542022705,
+    "p1_judge": 9.518603086471558,
+    "collocate_grounding": 0.0,
+    "fan_out": 15.367361545562744
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Tier gate: sentence[1] 3 words above tier T1 (max 2): 和らげる (Zipf 3.12), 排出 (Zipf 3.98), 持続 (Zipf 3.94)",
+        "Tier gate: sentence[5] 3 words above tier T1 (max 2): 一人ひとり (Zipf 3.16), 最大限 (Zipf 3.77), 高める (Zipf 3.96)",
+        "Tier gate: sentence[6] 4 words above tier T1 (max 2): 炭素 (Zipf 3.73), 地質 (Zipf 3.39), 細やか (Zipf 2.96), 保っ (Zipf 3.85)",
+        "Tier gate: sentence[9] 4 words above tier T1 (max 2): 時折 (Zipf 3.69), 天候 (Zipf 3.82), 力強く (Zipf 3.37), 茎 (Zipf 3.57)",
+        "P1 sentence[0] rejected (rating 2): 非文法：助詞の誤用",
+        "P1 sentence[1] rejected (rating 2): 非文法：助詞の誤用",
+        "P1 sentence[6] rejected (rating 2): 全単語：語形不一致"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "oku",
+        "pronunciation": "おく",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35211
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "3ce74906-aa03-4281-9ed9-48ab6f062ca9",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "於く",
+        "pronunciation": "おく",
+        "ipa": "oku",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "徳",
+          "萼",
+          "於く",
+          "宿"
+        ],
+        "correct_answer": "於く",
+        "explanation": "正解です。「於く」は「場所・時・状況を示す「～において」の意味を表す、文語調の表現。」という意味です。",
+        "distractor_explanations": {
+          "萼": "「萼」は「於く」と一モーラだけ異なる実在語です（1モーラ目: 「お」→「が」、一部の音の違い）。",
+          "宿": "「宿」は「於く」と一モーラだけ異なる実在語です（1モーラ目: 「お」→「しゅ」、一部の音の違い）。",
+          "徳": "「徳」は「於く」と一モーラだけ異なる実在語です（1モーラ目: 「お」→「と」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "l1_distractor_judge": {
+          "rejected": 6,
+          "kept": 4,
+          "rejected_items": [
+            "族",
+            "海髪",
+            "融く",
+            "尾羽",
+            "オツ",
+            "猪口"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35211,
+      "word_asset_id": "shadow-35211-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7d0445ad-781d-4224-98da-213ceb842a6c",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "おい",
+        "pronunciation": "おく",
+        "correct_definition": "場所・時・状況を示す「～において」の意味を表す、文語調の表現。",
+        "options": [
+          "色の名前。黒と白をまぜたような色。また、つまらなくて、かわりのないようす。",
+          "場所・時・状況を示す「～において」の意味を表す、文語調の表現。",
+          "機械や装置を目的に合わせて動かしたり、制御したりすること。",
+          "特定の考え方や立場を基本として、行動や考えを進める方針や態度。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35211,
+      "word_asset_id": "shadow-35211-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b92e7e49-f0d1-49c1-88eb-491baec6503b",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "特に、住民の参加により作られる庭は、生物の多様性や気候の改善といった点に___でも、近くの緑地に良い影響を与えている。",
+        "original_sentence": "特に、住民の参加により作られる庭は、生物の多様性や気候の改善といった点においでも、近くの緑地に良い影響を与えている。",
+        "correct_answer": "おい",
+        "options": [
+          "おい",
+          "まで",
+          "ほど",
+          "から"
+        ],
+        "explanation": "正解です。文脈に合う適切な表現です。",
+        "distractor_tags": {},
+        "word_definition": "場所・時・状況を示す「～において」の意味を表す、文語調の表現。",
+        "target_word": "おい"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35211,
+      "word_asset_id": "shadow-35211-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "6811f854-1bca-4b83-90b3-73468dc58ebf",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担う。",
+            "is_correct": true
+          },
+          {
+            "text": "特に、住民の参加により作られる庭は、生物の多様性や気候の改善といった点においでも、近くの緑地に良い影響を与えている。",
+            "is_correct": true
+          },
+          {
+            "text": "気候変動という大きな危機を和らげるため、産業分野での排出量を減らすことは、持続可能性を守る上においで避けられない責任である。",
+            "is_correct": false,
+            "error_description": "誤り型：助詞の混同。「において」は固定された複合助詞であり、「おいで」という形は存在しません。文脈に合う正しい形式は「においても」です。"
+          },
+          {
+            "text": "気候変動という大きな危機を和らげるため、産業分野での排出量を減らすことは、持続可能性を守る上においでも避けられない責任である。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35211,
+      "word_asset_id": "shadow-35211-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "f3926ea8-e233-4cee-be9f-8ad82066b06a",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "おい",
+        "pronunciation": "おく",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "a field; an area — the range something falls into when divided by kind or nature, such as in study or work",
+              "ある会社の名前や、その会社が売っている品物のしるしのことです。",
+              "場所・時・状況を示す「～において」の意味を表す、文語調の表現。",
+              "状態や動作が一定に保たれて、変わらないこと。"
+            ],
+            "correct_answer": "場所・時・状況を示す「～において」の意味を表す、文語調の表現。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35211,
+      "word_asset_id": "shadow-35211-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7ae3bff2-b481-4a6b-9ef4-5ae1ca925338",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "於く",
+        "options": [
+          "おくう",
+          "おぐ",
+          "おく",
+          "おうく"
+        ],
+        "correct_answer": "おく",
+        "word": "於く",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35211,
+      "word_asset_id": "shadow-35211-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "c1c85554-28bf-4fb4-8a23-d287b5e93335",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "おく",
+        "options": [
+          "於く",
+          "飲食",
+          "奥",
+          "機会"
+        ],
+        "correct_answer": "於く",
+        "word": "於く",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "奥": "homophone",
+          "機会": "component",
+          "飲食": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35211,
+      "word_asset_id": "shadow-35211-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "10221a82-3c66-4bba-abcd-6ef583dd3bb7",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "地球の仕組みにおいける炭素の循環は、長い地質学的な時間の中で、細やかなバランスを保ってきた。",
+            "is_correct": true
+          },
+          {
+            "text": "戦後の都市計画において、ブルータリズムは機能性を重視した新たな住宅様式として普及しました。",
+            "is_correct": true
+          },
+          {
+            "text": "戦後の都市計画においける、ブルータリズムは機能性を重視した新たな住宅様式として普及しました。",
+            "is_correct": false,
+            "error_description": "誤り型：助詞の混同。「～において」は場所・場面・状況を示す格助詞的な用法であり、「～おける」は連体修飾節を作る形式です。文末や独立した状語節では「において」を用います。"
+          },
+          {
+            "text": "やがて成長の過程において、植物は時折厳しい天候にさらされながらも、力強く茎を伸ばしていく。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35211,
+      "word_asset_id": "shadow-35211-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 6,
+      "kept": 4
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 2
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00253952,
+      "prompt_tokens": 3064,
+      "completion_tokens": 1218,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 21585
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00053184,
+      "prompt_tokens": 774,
+      "completion_tokens": 222,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4916
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00050528,
+      "prompt_tokens": 939,
+      "completion_tokens": 160,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3898
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00024448,
+      "prompt_tokens": 304,
+      "completion_tokens": 115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2880
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00031168,
+      "prompt_tokens": 710,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2005
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.000784,
+      "prompt_tokens": 1818,
+      "completion_tokens": 158,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4226
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00078496,
+      "prompt_tokens": 1809,
+      "completion_tokens": 161,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4383
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00192096,
+      "prompt_tokens": 2871,
+      "completion_tokens": 783,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 14709
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019696,
+      "prompt_tokens": 2871,
+      "completion_tokens": 821,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 15185
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00055616,
+      "prompt_tokens": 822,
+      "completion_tokens": 229,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4862
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0003136,
+      "prompt_tokens": 720,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2275
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00020288,
+      "prompt_tokens": 550,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1342
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00054912,
+      "prompt_tokens": 820,
+      "completion_tokens": 224,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4678
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0003072,
+      "prompt_tokens": 732,
+      "completion_tokens": 57,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2063
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00020768,
+      "prompt_tokens": 557,
+      "completion_tokens": 23,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35211,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1068
+    }
+  ],
+  "llm_calls_observed": 15,
+  "llm_cost_observed_usd": 0.011728960000000004,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 6,
+    "repaired": 2,
+    "still_failing": 4
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 70.56299999996554,
+  "finished_at": "2026-10-04T04:43:00.575343+00:00"
+}

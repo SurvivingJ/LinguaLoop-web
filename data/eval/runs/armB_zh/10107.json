@@ -1,0 +1,1441 @@
+{
+  "sense_id": 10107,
+  "language_id": 1,
+  "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+  "started_at": "2026-10-04T05:06:54.925853+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[3] flagged (rating 3): 搭配弱，'活动'难称发明创造",
+    "P1 sentence[5] flagged (rating 3): 语义存疑，实验多为设计非首创"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.10785555839538574,
+    "p1_generate": 13.734438419342041,
+    "tier_gate": 0.0,
+    "p1_judge": 6.9078803062438965,
+    "collocate_grounding": 0.0,
+    "fan_out": 13.670910835266113
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[3] flagged (rating 3): 搭配弱，'活动'难称发明创造",
+        "P1 sentence[5] flagged (rating 3): 语义存疑，实验多为设计非首创"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ʂoʊ˨˩˦ ʈʂʰwɑŋ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "首创了",
+            "label": "体标"
+          },
+          {
+            "form": "首创过",
+            "label": "体标"
+          },
+          {
+            "form": "首创者",
+            "label": "复合"
+          },
+          {
+            "form": "首創",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "shǒu chuàng",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10107
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "fdaec73c-c986-4a47-bcba-3cf01f822bb8",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "首创",
+        "pronunciation": "shǒu chuàng",
+        "correct_definition": "最先创造或发明，指做别人没有做过的事情。",
+        "options": [
+          "最先创造或发明，指做别人没有做过的事情。",
+          "指人或事物聚集在一起，形成团体或状态。",
+          "进入睡眠状态，停止活动以恢复体力。",
+          "表示不用谢、不用道歉或不在意某事。"
+        ],
+        "hant": {
+          "word": "首創",
+          "pronunciation": "shǒu chuàng",
+          "correct_definition": "最先創造或發明，指做別人沒有做過的事情。",
+          "options": [
+            "最先創造或發明，指做別人沒有做過的事情。",
+            "指人或事物聚集在一起，形成團體或狀態。",
+            "進入睡眠狀態，停止活動以恢復體力。",
+            "表示不用謝、不用道歉或不在意某事。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "98ed2017-30bf-464c-93a1-0bb1e806ce2a",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更___泥活字，开启了可重复排版的技术先河。",
+        "original_sentence": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+        "correct_answer": "首创",
+        "options": [
+          "模仿",
+          "制造",
+          "首创",
+          "发现"
+        ],
+        "explanation": "正确。'首创'意为最先创造或发明，符合毕昇发明泥活字的历史事实。",
+        "distractor_tags": {},
+        "word_definition": "最先创造或发明，指做别人没有做过的事情。",
+        "target_word": "首创",
+        "hant": {
+          "sentence_with_blank": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更___泥活字，開啟了可重複排版的技術先河。",
+          "original_sentence": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+          "correct_answer": "首創",
+          "options": [
+            "模仿",
+            "製造",
+            "首創",
+            "發現"
+          ],
+          "explanation": "正確。'首創'意為最先創造或發明，符合畢昇發明泥活字的歷史事實。",
+          "distractor_tags": {},
+          "word_definition": "最先創造或發明，指做別人沒有做過的事情。",
+          "target_word": "首創"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "18797116-26f3-452e-b158-4efb1e86d8a4",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我们学校正在首创周末读书活动。",
+            "is_correct": false
+          },
+          {
+            "text": "周末读书活动被我们学校首创在图书馆。",
+            "is_correct": false
+          },
+          {
+            "text": "我们学校首创了周末读书活动给学生们。",
+            "is_correct": false
+          },
+          {
+            "text": "我们学校首创了周末读书活动。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体貌错误：'首创'是一个瞬间完成的动作动词，表示从无到有的突破，不能与表示持续进行的'正在'连用。 配价错误：'首创'是及物动词，直接接宾语（被创造的事物），不能像'送'或'给'那样带双宾语或通过介词引出接受者。 语序/搭配错误：被动句式中，'首创'通常不直接跟地点状语'在图书馆'作为补语，这种表达不符合汉语习惯，应改为'由我们学校在图书馆首创'或调整句式。",
+        "target_word": "首创",
+        "hant": {
+          "sentences": [
+            {
+              "text": "我們學校正在首創週末讀書活動。",
+              "is_correct": false
+            },
+            {
+              "text": "週末讀書活動被我們學校首創在圖書館。",
+              "is_correct": false
+            },
+            {
+              "text": "我們學校首創了週末讀書活動給學生們。",
+              "is_correct": false
+            },
+            {
+              "text": "我們學校首創了週末讀書活動。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體貌錯誤：'首創'是一個瞬間完成的動作動詞，表示從無到有的突破，不能與表示持續進行的'正在'連用。 配價錯誤：'首創'是及物動詞，直接接賓語（被創造的事物），不能像'送'或'給'那樣帶雙賓語或通過介詞引出接受者。 語序/搭配錯誤：被動句式中，'首創'通常不直接跟地點狀語'在圖書館'作為補語，這種表達不符合漢語習慣，應改為'由我們學校在圖書館首創'或調整句式。",
+          "target_word": "首創"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "bc7e3fe7-f367-45c4-92ef-fe98b8bfe0d2",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+            "is_correct": true
+          },
+          {
+            "text": "这家店首创了这种新口味的冰淇淋在昨天。",
+            "is_correct": false,
+            "error_description": "时间状语“昨天”通常放在主语之后、谓语动词之前，或者句首，不能放在句末。"
+          },
+          {
+            "text": "他首创了这个有趣的游戏。",
+            "is_correct": true
+          },
+          {
+            "text": "这家店首创了这种新口味的冰淇淋。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+              "is_correct": true
+            },
+            {
+              "text": "這家店首創了這種新口味的冰淇淋在昨天。",
+              "is_correct": false,
+              "error_description": "時間狀語“昨天”通常放在主語之後、謂語動詞之前，或者句首，不能放在句末。"
+            },
+            {
+              "text": "他首創了這個有趣的遊戲。",
+              "is_correct": true
+            },
+            {
+              "text": "這家店首創了這種新口味的冰淇淋。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "9234ac36-aded-443b-aadc-9c62dcfa843a",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "谁首创了这个简单的科学实验？",
+        "hant": {
+          "original_sentence": "誰首創了這個簡單的科學實驗？"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "4f9761de-1975-4c55-a13b-05039245609b",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "首创",
+        "pronunciation": "shǒu chuàng",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "最先创造或发明，指做别人没有做过的事情。",
+              "两个东西放在一起看，它们不一样的地方。",
+              "把东西放在一起。",
+              "実施する；計画などを実際に行い現実にすること"
+            ],
+            "correct_answer": "最先创造或发明，指做别人没有做过的事情。"
+          }
+        },
+        "hant": {
+          "word": "首創",
+          "pronunciation": "shǒu chuàng",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "最先創造或發明，指做別人沒有做過的事情。",
+                "兩個東西放在一起看，它們不一樣的地方。",
+                "把東西放在一起。",
+                "実施する；計畫などを実際に行い現実にすること"
+              ],
+              "correct_answer": "最先創造或發明，指做別人沒有做過的事情。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "96a44eba-e293-41ee-909a-58fc749b7167",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这家店___了这种新口味的冰淇淋。",
+        "original_sentence": "这家店首创了这种新口味的冰淇淋。",
+        "target_word": "首创",
+        "word": "首创",
+        "answer": {
+          "accepted": [
+            "首创",
+            "首创了",
+            "首创过",
+            "首创者"
+          ],
+          "accepted_normalized": [
+            "首创",
+            "首创了",
+            "首创过",
+            "首创者"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這家店___了這種新口味的冰淇淋。",
+          "original_sentence": "這家店首創了這種新口味的冰淇淋。",
+          "target_word": "首創",
+          "word": "首創",
+          "answer": {
+            "accepted": [
+              "首創",
+              "首創了",
+              "首創過",
+              "首創者"
+            ],
+            "accepted_normalized": [
+              "首創",
+              "首創了",
+              "首創過",
+              "首創者"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d280a33b-c55f-45eb-bd45-46cb0eb9e3fc",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "首创",
+        "options": [
+          "shǒu chuáng",
+          "shǒu chuāng",
+          "shǒu chuàng",
+          "shōu chuàng"
+        ],
+        "correct_answer": "shǒu chuàng",
+        "word": "首创",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "首創",
+          "options": [
+            "shǒu chuáng",
+            "shǒu chuāng",
+            "shǒu chuàng",
+            "shōu chuàng"
+          ],
+          "correct_answer": "shǒu chuàng",
+          "word": "首創",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ff4674c8-406f-4a04-9b21-5aab39f1b45e",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "shǒu chuàng",
+        "options": [
+          "创新",
+          "创造",
+          "首创",
+          "创作"
+        ],
+        "correct_answer": "首创",
+        "word": "首创",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "创新": "component",
+          "创造": "component",
+          "创作": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "shǒu chuàng",
+          "options": [
+            "創新",
+            "創造",
+            "首創",
+            "創作"
+          ],
+          "correct_answer": "首創",
+          "word": "首創",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "创新": "component",
+            "创造": "component",
+            "创作": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9145b26b-5e27-474d-b2ef-07807e9855ac",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "首创",
+        "toneless_pinyin": "shou chuang",
+        "full_pinyin": "shǒu chuàng",
+        "options": [
+          "34",
+          "33",
+          "32",
+          "31"
+        ],
+        "correct_answer": "34",
+        "option_labels": {
+          "34": "dipping (3) + falling (4)",
+          "33": "dipping (3) + dipping (3)",
+          "32": "dipping (3) + rising (2)",
+          "31": "dipping (3) + high level (1)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "首創",
+          "toneless_pinyin": "shou chuang",
+          "full_pinyin": "shǒu chuàng",
+          "options": [
+            "34",
+            "33",
+            "32",
+            "31"
+          ],
+          "correct_answer": "34",
+          "option_labels": {
+            "34": "dipping (3) + falling (4)",
+            "33": "dipping (3) + dipping (3)",
+            "32": "dipping (3) + rising (2)",
+            "31": "dipping (3) + high level (1)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "d8a784d4-7ad1-4366-a40b-033604f87ccc",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "首创",
+        "relation": "antonym",
+        "options": [
+          "发明",
+          "建立",
+          "创造",
+          "模仿"
+        ],
+        "correct_answer": "模仿",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "最先创造或发明，指做别人没有做过的事情。",
+            "explanation": "反义关系：首创指最先创造，模仿指照样子做，二者在创新性与原创性上构成对立。"
+          }
+        },
+        "hant": {
+          "word": "首創",
+          "relation": "antonym",
+          "options": [
+            "發明",
+            "建立",
+            "創造",
+            "模仿"
+          ],
+          "correct_answer": "模仿",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "最先創造或發明，指做別人沒有做過的事情。",
+              "explanation": "反義關係：首創指最先創造，模仿指照樣子做，二者在創新性與原創性上構成對立。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "创造": 0.763364,
+            "发明": 0.712721,
+            "建立": 0.566037
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "18c58b25-d05d-44a3-b374-63dcb8ca1b5d",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这种玩具的设计是他正在首创的吗？",
+            "is_correct": false
+          },
+          {
+            "text": "这种玩具的设计被他首创得非常好。",
+            "is_correct": false
+          },
+          {
+            "text": "他首创了这种玩具的设计在昨天。",
+            "is_correct": false
+          },
+          {
+            "text": "这种玩具的设计是他首创的吗？",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体貌错误：'首创'是一个瞬间完成的成就动词，表示动作的完成和结果，不能与表示持续进行的'正在'连用。 语序错误：汉语中时间状语'在昨天'通常放在动词之前或句首，不能像英语一样放在句末。 搭配/补语误用：'首创'强调的是'从无到有'的开创性事实，而不是动作的质量或程度，因此不能用'得非常好'来修饰。",
+        "target_word": "首创",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這種玩具的設計是他正在首創的嗎？",
+              "is_correct": false
+            },
+            {
+              "text": "這種玩具的設計被他首創得非常好。",
+              "is_correct": false
+            },
+            {
+              "text": "他首創了這種玩具的設計在昨天。",
+              "is_correct": false
+            },
+            {
+              "text": "這種玩具的設計是他首創的嗎？",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體貌錯誤：'首創'是一個瞬間完成的成就動詞，表示動作的完成和結果，不能與表示持續進行的'正在'連用。 語序錯誤：漢語中時間狀語'在昨天'通常放在動詞之前或句首，不能像英語一樣放在句末。 搭配/補語誤用：'首創'強調的是'從無到有'的開創性事實，而不是動作的質量或程度，因此不能用'得非常好'來修飾。",
+          "target_word": "首創"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "03d52d74-8b1e-4edf-823a-8ba4dd70aa3b",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "我们学校首创了周末读书活动。",
+        "hant": {
+          "original_sentence": "我們學校首創了週末讀書活動。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f6bc4921-8cd2-4853-af7c-e4f514bcbf08",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "我想学习他___的那种舞蹈动作。",
+        "original_sentence": "我想学习他首创的那种舞蹈动作。",
+        "target_word": "首创",
+        "word": "首创",
+        "answer": {
+          "accepted": [
+            "首创",
+            "首创了",
+            "首创过",
+            "首创者"
+          ],
+          "accepted_normalized": [
+            "首创",
+            "首创了",
+            "首创过",
+            "首创者"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "我想學習他___的那種舞蹈動作。",
+          "original_sentence": "我想學習他首創的那種舞蹈動作。",
+          "target_word": "首創",
+          "word": "首創",
+          "answer": {
+            "accepted": [
+              "首創",
+              "首創了",
+              "首創過",
+              "首創者"
+            ],
+            "accepted_normalized": [
+              "首創",
+              "首創了",
+              "首創過",
+              "首創者"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10107,
+      "word_asset_id": "shadow-10107-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '首创' is fused into a neighbouring chunk — chunks=['谁首创', '了这个', '简单的科学实验']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '首创' is fused into a neighbouring chunk — chunks=['我们学校', '首创了', '周末读书活动']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169824,
+      "prompt_tokens": 2443,
+      "completion_tokens": 716,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 13528
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00047104,
+      "prompt_tokens": 656,
+      "completion_tokens": 204,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4632
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 7.648e-05,
+      "prompt_tokens": 195,
+      "completion_tokens": 11,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 840
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00018816,
+      "prompt_tokens": 528,
+      "completion_tokens": 15,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1222
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00060544,
+      "prompt_tokens": 1488,
+      "completion_tokens": 101,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2984
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00064736,
+      "prompt_tokens": 1487,
+      "completion_tokens": 134,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 3313
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00041984,
+      "prompt_tokens": 636,
+      "completion_tokens": 169,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 3889
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00055808,
+      "prompt_tokens": 636,
+      "completion_tokens": 277,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 5683
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00141536,
+      "prompt_tokens": 1667,
+      "completion_tokens": 689,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 13435
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0013872,
+      "prompt_tokens": 1667,
+      "completion_tokens": 667,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 13544
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00023136,
+      "prompt_tokens": 423,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2039
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001783152,
+      "prompt_tokens": 413,
+      "completion_tokens": 70,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2770
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00025856,
+      "prompt_tokens": 568,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2271
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00016352,
+      "prompt_tokens": 427,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1451
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002512,
+      "prompt_tokens": 545,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2231
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00023136,
+      "prompt_tokens": 423,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2157
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.000165195,
+      "prompt_tokens": 394,
+      "completion_tokens": 62,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2158
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002528,
+      "prompt_tokens": 546,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2109
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0001744,
+      "prompt_tokens": 461,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1311
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00022688,
+      "prompt_tokens": 541,
+      "completion_tokens": 42,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10107,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1545
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.009600790199999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 55.98499999998603,
+  "finished_at": "2026-10-04T05:07:50.917569+00:00"
+}

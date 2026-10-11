@@ -50,7 +50,7 @@ from services.exercise_generation.judges.l1_distractor import filter_l1_distract
 from services.exercise_generation.judges.particle import filter_particle_foils
 from services.exercise_generation.judges.relation import filter_relation_foils
 from services.exercise_generation.judges.sentence_validity import judge_wrong_sentences
-from services.llm_service import call_llm
+from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.test_generation.schemas import likert_to_verdict
 
@@ -65,8 +65,32 @@ _LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
 # every en request always falls back to the existing per-judge calls.
 _SUPPORTED_LANGUAGES = frozenset({1, 3})
 
-_MAX_TOKENS = 16000  # >=3x judge_ladder_sentence_validity's own baseline p99 (5247);
-                      # the bundle axis with the most items is usually sentence_validity.
+_MAX_TOKENS_RIGHTSIZED = 4500  # RE-DERIVED 2026-10-03 (ADR-028 cost work) from the real
+                     # ladder_bundle_judge measurement, not sentence_validity's
+                     # per-axis baseline it used to borrow:
+                     # data/eval/runs/phase2_fix_{ja,zh}/ + phase2_bundle_{ja,zh}/
+                     # + phase2_smoke_{ja_v3,zh_r}/ *.json llm_calls (en has no
+                     # bundle-judge prompt row, always falls back):
+                     #   ja n=19 p99=1145 max=1189 -> cap=2290
+                     #   zh n=16 p99=2038 max=2100 -> cap=4077
+                     # rounded up to 4500 to cover both (zh governs). At
+                     # qwen3.7-plus's $1.28/M completion price this cuts the
+                     # worst-case reservation on zh from ~$0.021/request to
+                     # ~$0.006/request.
+
+# Pre-2026-10-03 (reasoning-safe) cap -- this judge runs on qwen3.7-plus for
+# both supported languages (zh, ja). When `LADDER_QWEN_REASONING=on` (the
+# default) restores Phase-1 reasoning-left-on behaviour, reasoning tokens
+# count toward `max_tokens` and the right-sized cap above (derived from
+# reasoning-OFF measurements) would truncate. 16000 was this task's own cap
+# before the 2026-10-03 re-derivation (borrowed from
+# judge_ladder_sentence_validity's old baseline p99).
+_MAX_TOKENS_REASONING_SAFE = 16000
+
+
+def _max_tokens() -> int:
+    return (_MAX_TOKENS_REASONING_SAFE if ladder_qwen_reasoning_mode() != 'off'
+            else _MAX_TOKENS_RIGHTSIZED)
 
 
 # ---------------------------------------------------------------------------
@@ -279,7 +303,7 @@ class BundleJudge:
                 prompt,
                 model=cfg['model'],
                 temperature=0.0,
-                max_tokens=_MAX_TOKENS,
+                max_tokens=_max_tokens(),
                 response_format='json_object',
                 provider=cfg['provider'],
                 pipeline=_PIPELINE,

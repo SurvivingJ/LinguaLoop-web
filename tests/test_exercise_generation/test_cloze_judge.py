@@ -16,6 +16,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from services.exercise_generation.judges import cloze as cloze_judge
+from services.exercise_generation.judges.base import JudgeUnavailable, batch_mode
 from services.exercise_generation.judges.cloze import (
     filter_distractors,
     judge_distractors,
@@ -132,6 +133,48 @@ def test_template_cache_avoids_second_db_call():
 # ---------------------------------------------------------------------------
 # filter_distractors
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# batch_mode() fail-closed (TASK-510) — 2026-10-04 armB_ja regression: this
+# judge's fail-open path (`_all_keep`) was never wired into `guard_fail_open`,
+# so a 404 from a stale model slug shipped every cloze exercise unjudged even
+# when the eval harness ran under `batch_mode()`.
+# ---------------------------------------------------------------------------
+
+def test_llm_exception_fails_closed_in_batch_mode():
+    db = MagicMock()
+    with patch.object(cloze_judge, 'call_llm', side_effect=RuntimeError("404 boom")):
+        with batch_mode():
+            with pytest.raises(JudgeUnavailable):
+                judge_distractors(db, "x ___ y", "c", ['a', 'b'], language_id=2)
+
+
+def test_template_missing_fails_closed_in_batch_mode():
+    cloze_judge._cfg_cache.clear()
+    db = MagicMock()
+    with patch.object(cloze_judge, 'get_template_config',
+                      side_effect=RuntimeError("no row")):
+        with batch_mode():
+            with pytest.raises(JudgeUnavailable):
+                judge_distractors(db, "x ___ y", "c", ['a'], language_id=2)
+
+
+def test_non_dict_response_fails_closed_in_batch_mode():
+    db = MagicMock()
+    with patch.object(cloze_judge, 'call_llm', return_value="not a dict"):
+        with batch_mode():
+            with pytest.raises(JudgeUnavailable):
+                judge_distractors(db, "x ___ y", "c", ['a'], language_id=2)
+
+
+def test_llm_exception_still_keeps_all_outside_batch_mode():
+    """Serve-adjacent callers (outside batch_mode()) keep the original
+    fail-open contract -- a dead judge must never break a live session."""
+    db = MagicMock()
+    with patch.object(cloze_judge, 'call_llm', side_effect=RuntimeError("404 boom")):
+        out = judge_distractors(db, "x ___ y", "c", ['a', 'b'], language_id=2)
+    assert out['verdicts'] == {'a': 'keep', 'b': 'keep'}
+
 
 def test_filter_returns_kept_and_meta():
     db = MagicMock()

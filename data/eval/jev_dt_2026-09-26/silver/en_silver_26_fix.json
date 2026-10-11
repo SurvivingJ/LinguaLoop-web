@@ -1,0 +1,17 @@
+{
+  "id": "en_silver_26",
+  "blind_analysis": {
+    "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+    "reproduction": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 9 degrees.\" Then you can tell another motor to move.",
+    "differences": [
+      {
+        "learner_form": "move motor 1 to 9 degrees",
+        "corrected_form": "move motor 1 to 90 degrees",
+        "description": "The quoted example command's target angle is changed from 90 degrees to 9 degrees -- not a typo-scale slip but a 10x reduction in the instructed value. The sentence stays fully grammatical and the command's syntax (what kind of instruction this is) is unaffected, but the specific fact the example illustrates -- how far the motor is told to move -- is now a materially different, drastically smaller quantity than the reference states.",
+        "v5_subtype": "word_choice",
+        "severity": "critical"
+      }
+    ]
+  },
+  "rationale": "Only one difference exists between reference and reproduction. It is not a grammatical/orthographic slip (both '90' and '9' are well-formed numerals) so 'orthography' is not the right fit; it is a wrong-value substitution within an otherwise-correct sentence, which is the same shape of error 'word_choice' (fidelity dimension) covers for en_silver_24 -- v5 has no dedicated meaning-inversion subtype, and 'word_choice' is the closest available fit for a whole-value substitution that is not a reordering ('word_order') or an anaphora failure ('pronoun_reference'). On severity: a 10x change to the only concrete numeric instruction in the passage is a large enough departure from the reference's actual content that a reader relying on this sentence for the fact it states (not just its grammar) would come away with a wrong, drastically different value -- this is 'meaning ... misleading' territory per the README's critical criterion, not a cosmetic wording choice. Rated critical."
+}

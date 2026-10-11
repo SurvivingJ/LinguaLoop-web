@@ -1,0 +1,1381 @@
+{
+  "sense_id": 10525,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T14:53:49.672539+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.13093972206115723,
+    "p1_generate": 31.005622625350952,
+    "tier_gate": 0.0,
+    "p1_judge": 27.55418872833252,
+    "collocate_grounding": 0.0,
+    "fan_out": 31.069090843200684
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[y˥˩ fa˥˥]",
+        "morphological_forms": [
+          {
+            "form": "越发",
+            "label": "复合"
+          },
+          {
+            "form": "愈加",
+            "label": "复合"
+          },
+          {
+            "form": "愈发地",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "yù fā",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10525
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "65ea8217-cec8-41b3-8289-781c227c7c1e",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "愈发",
+        "pronunciation": "yù fā",
+        "ipa": "[y˥˩ fa˥˥]",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "雨发",
+          "愈发",
+          "育发",
+          "欲伐"
+        ],
+        "correct_answer": "愈发",
+        "explanation": "正确。'愈发'（yù fā）是副词，表示程度进一步加深。",
+        "distractor_explanations": {
+          "育发": "错误。'育发'（yù fà）末字声调为四声，意为培育头发，与'愈发'读音和意义均不同。",
+          "欲伐": "错误。'欲伐'（yù fá）末字声调为二声，意为想要讨伐，声调不同导致词义改变。",
+          "雨发": "错误。'雨发'（yǔ fā）首字声调为三声，意为在雨中出发，声调差异使其成为完全不同的词组。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "愈發",
+          "pronunciation": "yù fā",
+          "ipa": "[y˥˩ fa˥˥]",
+          "syllable_count": 2,
+          "audio_url": null,
+          "options": [
+            "雨發",
+            "愈發",
+            "育發",
+            "欲伐"
+          ],
+          "correct_answer": "愈發",
+          "explanation": "正確。'愈發'（yù fā）是副詞，表示程度進一步加深。",
+          "distractor_explanations": {
+            "育发": "錯誤。'育發'（yù fà）末字聲調為四聲，意為培育頭髮，與'愈發'讀音和意義均不同。",
+            "欲伐": "錯誤。'欲伐'（yù fá）末字聲調為二聲，意為想要討伐，聲調不同導致詞義改變。",
+            "雨发": "錯誤。'雨發'（yǔ fā）首字聲調為三聲，意為在雨中出發，聲調差異使其成為完全不同的片語。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3b17ab45-fdf3-474b-986a-a0ba77b67c6f",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "愈发",
+        "pronunciation": "yù fā",
+        "correct_definition": "副词。表示程度进一步加深，相当于“更加”。",
+        "options": [
+          "深褐色是比褐色更深的一种颜色，常用来描述土壤、木材等。",
+          "副词。表示程度进一步加深，相当于“更加”。",
+          "指书籍、期刊、音像制品等经过编辑、制作并向公众发行的作品。",
+          "指对人力、财力、物资、时间等没有进行有效的利用，造成了不必要的消耗或损失。"
+        ],
+        "hant": {
+          "word": "愈發",
+          "pronunciation": "yù fā",
+          "correct_definition": "副詞。表示程度進一步加深，相當於“更加”。",
+          "options": [
+            "深褐色是比褐色更深的一種顏色，常用來描述土壤、木材等。",
+            "副詞。表示程度進一步加深，相當於“更加”。",
+            "指書籍、期刊、音像製品等經過編輯、製作並向公眾發行的作品。",
+            "指對人力、財力、物資、時間等沒有進行有效的利用，造成了不必要的消耗或損失。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "ec88296c-f797-406f-b37e-32b98e3b9249",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "看到好朋友进步，愈发我替他高兴。",
+            "is_correct": false
+          },
+          {
+            "text": "看到好朋友进步，我愈发为他高兴。",
+            "is_correct": true
+          },
+          {
+            "text": "看到好朋友进步，我替他愈发高兴。",
+            "is_correct": false
+          },
+          {
+            "text": "看到好朋友进步，我愈发地替他高兴了。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语序错误：副词'愈发'应放在主语'我'之后、谓语'替'之前，不能放在主语前面。 体标位置错误：'愈发'表示程度的加深，通常不与动态助词'了'连用，此处'了'破坏了状态持续的语义。 语序错误：程度副词'愈发'必须紧挨在形容词'高兴'之前，不能放在介词短语'替他'之后。",
+        "target_word": "愈发",
+        "hant": {
+          "sentences": [
+            {
+              "text": "看到好朋友進步，愈發我替他高興。",
+              "is_correct": false
+            },
+            {
+              "text": "看到好朋友進步，我愈發為他高興。",
+              "is_correct": true
+            },
+            {
+              "text": "看到好朋友進步，我替他愈發高興。",
+              "is_correct": false
+            },
+            {
+              "text": "看到好朋友進步，我愈發地替他高興了。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語序錯誤：副詞'愈發'應放在主語'我'之後、謂語'替'之前，不能放在主語前面。 體標位置錯誤：'愈發'表示程度的加深，通常不與動態助詞'了'連用，此處'了'破壞了狀態持續的語義。 語序錯誤：程度副詞'愈發'必須緊挨在形容詞'高興'之前，不能放在介詞短語'替他'之後。",
+          "target_word": "愈發"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "cd90a758-48b4-4e3f-bfc1-6fa3b2ac8f76",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "随着时间推移，他愈发喜欢这只猫。",
+            "is_correct": true
+          },
+          {
+            "text": "听了这个故事，她愈发觉得感动。",
+            "is_correct": true
+          },
+          {
+            "text": "一方面，大众零售市场依赖规模化生产的速溶咖啡与连锁咖啡店标准化产品；另一方面，精品咖啡运动的兴起推动了“从种子到杯子”的溯源理念，消费者愈发关注产地故事、处理工艺与风味谱系，进而反向影响原产地的种植实践与分级标准。",
+            "is_correct": true
+          },
+          {
+            "text": "随着时间推移，愈发他喜欢这只猫。",
+            "is_correct": false,
+            "error_description": "语序错误。副词“愈发”通常放在主语之后、谓语之前，不能放在主语前面。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "隨著時間推移，他愈發喜歡這隻貓。",
+              "is_correct": true
+            },
+            {
+              "text": "聽了這個故事，她愈發覺得感動。",
+              "is_correct": true
+            },
+            {
+              "text": "一方面，大眾零售市場依賴規模化生產的速溶咖啡與連鎖咖啡店標準化產品；另一方面，精品咖啡運動的興起推動了“從種子到杯子”的溯源理念，消費者愈發關注產地故事、處理工藝與風味譜系，進而反向影響原產地的種植實踐與分級標準。",
+              "is_correct": true
+            },
+            {
+              "text": "隨著時間推移，愈發他喜歡這隻貓。",
+              "is_correct": false,
+              "error_description": "語序錯誤。副詞“愈發”通常放在主語之後、謂語之前，不能放在主語前面。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "a6bd98dd-a835-416a-9291-fa55b5b7c7a5",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "愈发",
+        "pronunciation": "yù fā",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "起きる；横になっていた状態から立ち上がること、また物事が始まること",
+              "reflected light",
+              "将一种语言或文字转换成另一种语言或文字。",
+              "副词。表示程度进一步加深，相当于“更加”。"
+            ],
+            "correct_answer": "副词。表示程度进一步加深，相当于“更加”。"
+          }
+        },
+        "hant": {
+          "word": "愈發",
+          "pronunciation": "yù fā",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "起きる；橫になっていた狀態から立ち上がること、また物事が始まること",
+                "reflected light",
+                "將一種語言或文字轉換成另一種語言或文字。",
+                "副詞。表示程度進一步加深，相當於“更加”。"
+              ],
+              "correct_answer": "副詞。表示程度進一步加深，相當於“更加”。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "45659ed5-a7ce-4b02-95b6-a312782fe907",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "听了这个故事，她___觉得感动。",
+        "original_sentence": "听了这个故事，她愈发觉得感动。",
+        "target_word": "愈发",
+        "word": "愈发",
+        "answer": {
+          "accepted": [
+            "愈发",
+            "越发",
+            "愈加",
+            "愈发地"
+          ],
+          "accepted_normalized": [
+            "愈发",
+            "越发",
+            "愈加",
+            "愈发地"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "聽了這個故事，她___覺得感動。",
+          "original_sentence": "聽了這個故事，她愈發覺得感動。",
+          "target_word": "愈發",
+          "word": "愈發",
+          "answer": {
+            "accepted": [
+              "愈發",
+              "越發",
+              "愈加",
+              "愈發地"
+            ],
+            "accepted_normalized": [
+              "愈發",
+              "越發",
+              "愈加",
+              "愈發地"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "4b1d8cce-de0f-4854-ac5a-f09ee9e0c568",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "愈发",
+        "options": [
+          "yù fá",
+          "yū fā",
+          "yù fā",
+          "yú fā"
+        ],
+        "correct_answer": "yù fā",
+        "word": "愈发",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "愈發",
+          "options": [
+            "yù fá",
+            "yū fā",
+            "yù fā",
+            "yú fā"
+          ],
+          "correct_answer": "yù fā",
+          "word": "愈發",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "e5740d7d-07c3-47a9-a075-52d89dfd9c7b",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "yù fā",
+        "options": [
+          "运输",
+          "输出",
+          "愈发",
+          "疲惫"
+        ],
+        "correct_answer": "愈发",
+        "word": "愈发",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "运输": "component",
+          "输出": "component",
+          "疲惫": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "yù fā",
+          "options": [
+            "運輸",
+            "輸出",
+            "愈發",
+            "疲憊"
+          ],
+          "correct_answer": "愈發",
+          "word": "愈發",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "运输": "component",
+            "输出": "component",
+            "疲惫": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "376c2e58-42dd-46a7-9674-072d2deb6ae3",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "愈发",
+        "toneless_pinyin": "yu fa",
+        "full_pinyin": "yù fā",
+        "options": [
+          "43",
+          "41",
+          "42",
+          "44"
+        ],
+        "correct_answer": "41",
+        "option_labels": {
+          "43": "falling (4) + dipping (3)",
+          "41": "falling (4) + high level (1)",
+          "42": "falling (4) + rising (2)",
+          "44": "falling (4) + falling (4)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "愈發",
+          "toneless_pinyin": "yu fa",
+          "full_pinyin": "yù fā",
+          "options": [
+            "43",
+            "41",
+            "42",
+            "44"
+          ],
+          "correct_answer": "41",
+          "option_labels": {
+            "43": "falling (4) + dipping (3)",
+            "41": "falling (4) + high level (1)",
+            "42": "falling (4) + rising (2)",
+            "44": "falling (4) + falling (4)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "5c2fd28e-c10c-44fd-a3a7-0c028f9dea2e",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "大家觉得这个主意愈发不错。",
+            "is_correct": false
+          },
+          {
+            "text": "大家愈发觉得了这个主意不错。",
+            "is_correct": false
+          },
+          {
+            "text": "大家愈发觉得这个主意不错得很。",
+            "is_correct": false
+          },
+          {
+            "text": "大家愈发觉得这个主意不错。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "搭配错误：“愈发”通常修饰形容词或心理动词，不能与程度补语“得很”连用，造成语义重复和搭配不当。 语序错误：“愈发”作为程度副词，应放在心理动词“觉得”之前修饰整个谓语，放在“不错”前不符合汉语副词修饰习惯。 体标错误：动态助词“了”不能放在心理动词“觉得”之后，“觉得”表示心理状态，通常不加“了”来表示完成。",
+        "target_word": "愈发",
+        "hant": {
+          "sentences": [
+            {
+              "text": "大家覺得這個主意愈發不錯。",
+              "is_correct": false
+            },
+            {
+              "text": "大家愈發覺得了這個主意不錯。",
+              "is_correct": false
+            },
+            {
+              "text": "大家愈發覺得這個主意不錯得很。",
+              "is_correct": false
+            },
+            {
+              "text": "大家愈發覺得這個主意不錯。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "搭配錯誤：“愈發”通常修飾形容詞或心理動詞，不能與程度補語“得很”連用，造成語義重複和搭配不當。 語序錯誤：“愈發”作為程度副詞，應放在心理動詞“覺得”之前修飾整個謂語，放在“不錯”前不符合漢語副詞修飾習慣。 體標錯誤：動態助詞“了”不能放在心理動詞“覺得”之後，“覺得”表示心理狀態，通常不加“了”來表示完成。",
+          "target_word": "愈發"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b5ecd225-6285-40a3-b89f-5b5d3497646b",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "她把房间愈发收拾得干净了。",
+            "is_correct": true
+          },
+          {
+            "text": "大家愈发觉得这个主意不错。",
+            "is_correct": true
+          },
+          {
+            "text": "他把那本书愈发看得仔细了。",
+            "is_correct": true
+          },
+          {
+            "text": "他把那本书愈发看得仔细了。",
+            "is_correct": false,
+            "error_description": "语序错误。副词“愈发”修饰形容词“仔细”时，应紧跟在形容词之前，而不是放在动词“看”之前。正确的语序是“看得愈发仔细”。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "她把房間愈發收拾得乾淨了。",
+              "is_correct": true
+            },
+            {
+              "text": "大家愈發覺得這個主意不錯。",
+              "is_correct": true
+            },
+            {
+              "text": "他把那本書愈發看得仔細了。",
+              "is_correct": true
+            },
+            {
+              "text": "他把那本書愈發看得仔細了。",
+              "is_correct": false,
+              "error_description": "語序錯誤。副詞“愈發”修飾形容詞“仔細”時，應緊跟在形容詞之前，而不是放在動詞“看”之前。正確的語序是“看得愈發仔細”。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "25d938cf-6743-4d22-b19b-f683ae44f0e1",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "她把房间___收拾得干净了。",
+        "original_sentence": "她把房间愈发收拾得干净了。",
+        "target_word": "愈发",
+        "word": "愈发",
+        "answer": {
+          "accepted": [
+            "愈发",
+            "越发",
+            "愈加",
+            "愈发地"
+          ],
+          "accepted_normalized": [
+            "愈发",
+            "越发",
+            "愈加",
+            "愈发地"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "她把房間___收拾得乾淨了。",
+          "original_sentence": "她把房間愈發收拾得乾淨了。",
+          "target_word": "愈發",
+          "word": "愈發",
+          "answer": {
+            "accepted": [
+              "愈發",
+              "越發",
+              "愈加",
+              "愈發地"
+            ],
+            "accepted_normalized": [
+              "愈發",
+              "越發",
+              "愈加",
+              "愈發地"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3e33e4fa-1b07-4321-a63c-0de0f4fb0712",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "看到好朋友进步，我愈发为他高兴。",
+        "chunks": [
+          "看到好朋友",
+          "进步",
+          "我",
+          "愈发",
+          "为他高兴"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "愈发",
+          "进步",
+          "为他高兴",
+          "我",
+          "看到好朋友"
+        ],
+        "target_word": "愈发",
+        "chunk_count": 5,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "看到好朋友進步，我愈發為他高興。",
+          "chunks": [
+            "看到好朋友",
+            "進步",
+            "我",
+            "愈發",
+            "為他高興"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "shuffled_chunks": [
+            "愈發",
+            "進步",
+            "為他高興",
+            "我",
+            "看到好朋友"
+          ],
+          "target_word": "愈發",
+          "chunk_count": 5
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f219800f-58c1-4f9e-8ff5-e2d79cda7671",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "愈发",
+        "relation": "antonym",
+        "options": [
+          "逐渐",
+          "渐微",
+          "更加",
+          "稍微"
+        ],
+        "correct_answer": "渐微",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "副词。表示程度进一步加深，相当于“更加”。",
+            "explanation": "反义：表示程度逐渐减弱，与「愈发」表程度加深相反"
+          }
+        },
+        "hant": {
+          "word": "愈發",
+          "relation": "antonym",
+          "options": [
+            "逐漸",
+            "漸微",
+            "更加",
+            "稍微"
+          ],
+          "correct_answer": "漸微",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "副詞。表示程度進一步加深，相當於“更加”。",
+              "explanation": "反義：表示程度逐漸減弱，與「愈發」表程度加深相反"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "更加": 0.807414,
+            "逐渐": 0.540898,
+            "稍微": 0.511679
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10525,
+      "word_asset_id": "shadow-10525-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '愈发' is fused into a neighbouring chunk — chunks=['风', '越刮越冷', '大家', '愈发不想出门']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0030352,
+      "prompt_tokens": 2513,
+      "completion_tokens": 1743,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30813
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017696,
+      "prompt_tokens": 698,
+      "completion_tokens": 1208,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 27044
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019248,
+      "prompt_tokens": 1515,
+      "completion_tokens": 1125,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20130
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00194112,
+      "prompt_tokens": 1514,
+      "completion_tokens": 1138,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20273
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00168992,
+      "prompt_tokens": 637,
+      "completion_tokens": 1161,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20470
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00167776,
+      "prompt_tokens": 639,
+      "completion_tokens": 1151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20562
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002736,
+      "prompt_tokens": 1710,
+      "completion_tokens": 1710,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30356
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00276288,
+      "prompt_tokens": 1710,
+      "completion_tokens": 1731,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30860
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001826946,
+      "prompt_tokens": 446,
+      "completion_tokens": 66,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2712
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001641663,
+      "prompt_tokens": 394,
+      "completion_tokens": 61,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10525,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2260
+    }
+  ],
+  "llm_calls_observed": 10,
+  "llm_cost_observed_usd": 0.0178841409,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 99.04699999990407,
+  "finished_at": "2026-10-05T14:55:28.713220+00:00"
+}

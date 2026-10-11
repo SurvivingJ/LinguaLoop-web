@@ -1,0 +1,31 @@
+{
+  "id": "en_silver_34",
+  "blind_analysis": {
+    "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
+    "reproduction": "You learn how to use an Arduino. The coding involves simple command. You tell the Arduino to set a motor to a certain spot, yo. For example, \"move motor 1 to 90 degrees.\" Then another motor you can tell to move.",
+    "differences": [
+      {
+        "learner_form": "The coding involves simple command.",
+        "corrected_form": "The coding involves simple commands.",
+        "description": "Plural dropped on 'command'.",
+        "v5_subtype": "plural_number",
+        "severity": "minor"
+      },
+      {
+        "learner_form": "a certain spot, yo",
+        "corrected_form": "a certain position",
+        "description": "'position' is replaced by the near-synonym 'spot' (acceptable alone) with an appended informal slang tag ', yo' -- a register break into casual/spoken style that does not fit the passage's neutral instructional tone. Meaning is unaffected; only the register.",
+        "v5_subtype": "register",
+        "severity": "major"
+      },
+      {
+        "learner_form": "Then another motor you can tell to move.",
+        "corrected_form": "Then you can tell another motor to move.",
+        "description": "Final sentence scrambled from SVO to OSV order.",
+        "v5_subtype": "word_order",
+        "severity": "major"
+      }
+    ]
+  },
+  "rationale": "This item has three differences from the reference, not two. The merge log (en_merge_log.json) only kept the plural_number and word_order errors as 'kept_errors' for en_silver_34; the register error ('a certain spot, yo') was recorded under 'dropped_errors' with reason 'no_existence_majority', even though the draft, rater2, and rater3 sources ALL independently flagged this exact phrase as a register error at major severity (en_draft.json, en_rater2.json, en_rater3.json). The drop was a span-matching artifact, not a real disagreement: the draft spec spans the whole sentence ('You tell the Arduino to set a motor to a certain spot, yo.') while rater2/rater3 spans just the phrase ('a certain spot, yo'), and the merge script's matcher evidently treated the wider and narrower spans as non-overlapping votes rather than the same error, so no single span reached an majority and it was dropped as 'non-existent' despite unanimous subtype/severity agreement once the spans are read as describing the same error. Blind analysis independently reproduces subtype=register, severity=major for this phrase, agreeing with all three existing votes -- this is as close to unanimous (4 of 4) as any of these reconciliations gets."
+}

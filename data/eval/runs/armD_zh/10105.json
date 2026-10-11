@@ -1,0 +1,615 @@
+{
+  "sense_id": 10105,
+  "language_id": 1,
+  "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+  "started_at": "2026-10-05T20:46:52.514719+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "[A] synonym_antonym_match generation failed",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed",
+    "[B] synonym_antonym_match generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[2] flagged (rating 3): 语域：口语化，非正式书面",
+    "P1 sentence[4] flagged (rating 3): 语域：'更方便'偏口语",
+    "P1 sentence[5] flagged (rating 3): 语域：'好方法'偏口语",
+    "P1 sentence[6] flagged (rating 3): 语域：'同学们'偏口语",
+    "P1 sentence[7] flagged (rating 3): 语域：'好方法'偏口语",
+    "P1 sentence[9] flagged (rating 3): 语域：'大家'偏口语"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.302152156829834,
+    "p1_generate": 32.37264847755432,
+    "tier_gate": 0.0,
+    "p1_judge": 43.774515867233276,
+    "collocate_grounding": 0.0,
+    "fan_out": 0.014001846313476562
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[2] flagged (rating 3): 语域：口语化，非正式书面",
+        "P1 sentence[4] flagged (rating 3): 语域：'更方便'偏口语",
+        "P1 sentence[5] flagged (rating 3): 语域：'好方法'偏口语",
+        "P1 sentence[6] flagged (rating 3): 语域：'同学们'偏口语",
+        "P1 sentence[7] flagged (rating 3): 语域：'好方法'偏口语",
+        "P1 sentence[9] flagged (rating 3): 语域：'大家'偏口语"
+      ]
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[kwaŋ˨˩˦ fan˥˩ iŋ˥˩ yŋ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "广泛地应用",
+            "label": "复合"
+          },
+          {
+            "label": "广泛应用着",
+            "form": "体标"
+          },
+          {
+            "form": "广泛应用了",
+            "label": "体标"
+          },
+          {
+            "form": "广泛应用过",
+            "label": "体标"
+          },
+          {
+            "form": "廣泛應用",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "guǎng fàn yìng yòng",
+        "register": "正式（书面）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10105
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "c9aa46c0-e2fd-484b-8c93-e370cb8e50ed",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "广泛应用",
+        "pronunciation": "guǎng fàn yìng yòng",
+        "correct_definition": "在很多地方或很多方面使用。",
+        "options": [
+          "通过创造、生产或努力而产生出某种事物。",
+          "在很多地方或很多方面使用。",
+          "用乐器表演音乐，或指表演音乐的过程。",
+          "国家凭借政治权力，依法无偿地向企业和个人征收的货币或实物，是国家财政收入的主要形式。"
+        ],
+        "hant": {
+          "word": "廣泛應用",
+          "pronunciation": "guǎng fàn yìng yòng",
+          "correct_definition": "在很多地方或很多方面使用。",
+          "options": [
+            "通過創造、生產或努力而產生出某種事物。",
+            "在很多地方或很多方面使用。",
+            "用樂器表演音樂，或指表演音樂的過程。",
+            "國家憑藉政治權力，依法無償地向企業和個人徵收的貨幣或實物，是國家財政收入的主要形式。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "65311abe-ec44-4e06-b2bb-6d280c992229",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "广泛应用",
+        "pronunciation": "guǎng fàn yìng yòng",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "存活率是指一群东西里，活下来的有多少。",
+              "人文；人類の文化や生き方",
+              "在很多地方或很多方面使用。",
+              "to explain; to make something clear so others understand"
+            ],
+            "correct_answer": "在很多地方或很多方面使用。"
+          }
+        },
+        "hant": {
+          "word": "廣泛應用",
+          "pronunciation": "guǎng fàn yìng yòng",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "存活率是指一群東西里，活下來的有多少。",
+                "人文；人類の文化や生き方",
+                "在很多地方或很多方面使用。",
+                "to explain; to make something clear so others understand"
+              ],
+              "correct_answer": "在很多地方或很多方面使用。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "d0f79f5e-0dfe-4b44-92dc-71540146536f",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "中国早在唐代便已___雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+        "original_sentence": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+        "target_word": "广泛应用",
+        "word": "广泛应用",
+        "answer": {
+          "accepted": [
+            "广泛应用",
+            "广泛地应用",
+            "体标",
+            "广泛应用了",
+            "广泛应用过"
+          ],
+          "accepted_normalized": [
+            "广泛应用",
+            "广泛地应用",
+            "体标",
+            "广泛应用了",
+            "广泛应用过"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "中國早在唐代便已___雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+          "original_sentence": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+          "target_word": "廣泛應用",
+          "word": "廣泛應用",
+          "answer": {
+            "accepted": [
+              "廣泛應用",
+              "廣泛地應用",
+              "體標",
+              "廣泛應用了",
+              "廣泛應用過"
+            ],
+            "accepted_normalized": [
+              "廣泛應用",
+              "廣泛地應用",
+              "體標",
+              "廣泛應用了",
+              "廣泛應用過"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "01d397c2-0156-46e6-9ebe-cdc1acafb7e9",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "广泛应用",
+        "options": [
+          "guǎng fān yìng yòng",
+          "guǎng fàn yìng yōng",
+          "guǎng fàn yìng yòng",
+          "guāng fàn yìng yòng"
+        ],
+        "correct_answer": "guǎng fàn yìng yòng",
+        "word": "广泛应用",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "廣泛應用",
+          "options": [
+            "guǎng fān yìng yòng",
+            "guǎng fàn yìng yōng",
+            "guǎng fàn yìng yòng",
+            "guāng fàn yìng yòng"
+          ],
+          "correct_answer": "guǎng fàn yìng yòng",
+          "word": "廣泛應用",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "82a75316-21b9-4822-a5ea-a948f879b435",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "guǎng fàn yìng yòng",
+        "options": [
+          "当地政府",
+          "广泛应用",
+          "应运而生",
+          "归根结底"
+        ],
+        "correct_answer": "广泛应用",
+        "word": "广泛应用",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "当地政府": "component",
+          "归根结底": "component",
+          "应运而生": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "guǎng fàn yìng yòng",
+          "options": [
+            "當地政府",
+            "廣泛應用",
+            "應運而生",
+            "歸根結底"
+          ],
+          "correct_answer": "廣泛應用",
+          "word": "廣泛應用",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "当地政府": "component",
+            "归根结底": "component",
+            "应运而生": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "70f8e4db-a52e-46be-928a-c8e349299a18",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "广泛应用",
+        "toneless_pinyin": "guang fan ying yong",
+        "full_pinyin": "guǎng fàn yìng yòng",
+        "options": [
+          "3444",
+          "3443",
+          "3442",
+          "3441"
+        ],
+        "correct_answer": "3444",
+        "option_labels": {
+          "3444": "dipping (3) + falling (4) + falling (4) + falling (4)",
+          "3443": "dipping (3) + falling (4) + falling (4) + dipping (3)",
+          "3442": "dipping (3) + falling (4) + falling (4) + rising (2)",
+          "3441": "dipping (3) + falling (4) + falling (4) + high level (1)"
+        },
+        "syllable_count": 4,
+        "hant": {
+          "schema_version": 2,
+          "word": "廣泛應用",
+          "toneless_pinyin": "guang fan ying yong",
+          "full_pinyin": "guǎng fàn yìng yòng",
+          "options": [
+            "3444",
+            "3443",
+            "3442",
+            "3441"
+          ],
+          "correct_answer": "3444",
+          "option_labels": {
+            "3444": "dipping (3) + falling (4) + falling (4) + falling (4)",
+            "3443": "dipping (3) + falling (4) + falling (4) + dipping (3)",
+            "3442": "dipping (3) + falling (4) + falling (4) + rising (2)",
+            "3441": "dipping (3) + falling (4) + falling (4) + high level (1)"
+          },
+          "syllable_count": 4
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 1
+    }
+  ],
+  "judges": {},
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '广泛应用' is fused into a neighbouring chunk — chunks=['这种', '好方法', '值得', '被广泛应用']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00310496,
+      "prompt_tokens": 2475,
+      "completion_tokens": 1807,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 32002
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183424,
+      "prompt_tokens": 684,
+      "completion_tokens": 1262,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 22593
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00104416,
+      "prompt_tokens": 187,
+      "completion_tokens": 769,
+      "cached_tokens": 0,
+      "reasoning_tokens": 749,
+      "call_role": "repair",
+      "sense_id": 10105,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 14313
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00057632,
+      "prompt_tokens": 525,
+      "completion_tokens": 319,
+      "cached_tokens": 0,
+      "reasoning_tokens": 301,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 6383
+    }
+  ],
+  "llm_calls_observed": 4,
+  "llm_cost_observed_usd": 0.006559679999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 77.68700000003446,
+  "finished_at": "2026-10-05T20:48:10.206705+00:00"
+}

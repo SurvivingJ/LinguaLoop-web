@@ -1909,9 +1909,9 @@ directly, so no pipeline can skip logging by omission. Truncated 2026-09-21
 `migrations/archive_unused_modules_2026_09_21.sql`); the table has carried only
 smoke-test volume since. `cost_usd`/`latency_ms`/`language_code` are already
 populated on every `call_llm()` invocation regardless of pipeline; the seven
-columns marked **pending migration apply** below are Phase 0 cost-instrumentation
+columns below (prompt_tokens .. generation_batch_id) are Phase 0 cost-instrumentation
 additions ([migrations/llm_calls_cost_instrumentation.sql](../../migrations/llm_calls_cost_instrumentation.sql),
-not yet applied) aimed specifically at making vocabulary-ladder generation cost
+applied live 2026-10-09) aimed specifically at making vocabulary-ladder generation cost
 attributable per sense and per call kind.
 
 | Column | Type | Nullable | Default | Notes |
@@ -1934,13 +1934,13 @@ attributable per sense and per call kind.
 | `artifact_id` | uuid | YES | | Optional trace-back UUID (exercise_id, test_id, etc.); NOT the same axis as `sense_id` below |
 | `created_at` | timestamptz | YES | now() | |
 | `language_code` | text | YES | | Study-language tag (`zh`\|`en`\|`ja`); observability only, does not affect model resolution |
-| `prompt_tokens` | integer | YES | | **Pending migration apply.** `usage.prompt_tokens` |
-| `completion_tokens` | integer | YES | | **Pending migration apply.** `usage.completion_tokens` |
-| `cached_tokens` | integer | YES | | **Pending migration apply.** `usage.prompt_tokens_details.cached_tokens` — portion of the prompt served from a provider-side cache |
-| `reasoning_tokens` | integer | YES | | **Pending migration apply.** `usage.completion_tokens_details.reasoning_tokens`; NULL for non-reasoning models |
-| `sense_id` | integer | YES | | **Pending migration apply.** `dim_word_senses.id` this call generated/judged for. No FK (observability tag, not a referential relationship — a sense delete must not be blocked by call history). Threaded via a contextvar (`services.llm_service.generation_context`) set once per sense in `VocabAssetPipeline._generate_for_sense_impl`, so nested generator/judge calls — including those fanned out across `BatchModeThreadPoolExecutor` worker threads — populate it without each call site passing it explicitly |
-| `call_role` | text | YES | | **Pending migration apply.** CHECK-constrained to `primary`\|`retry`\|`json_repair`\|`repair`\|`salvage`. Defaults to `primary` when a caller doesn't specify one (see `services.llm_service.CALL_ROLE_*` constants) |
-| `generation_batch_id` | uuid | YES | | **Pending migration apply.** Matches `word_assets.generation_batch_id`. Same contextvar-fallback mechanism as `sense_id`. No FK |
+| `prompt_tokens` | integer | YES | | `usage.prompt_tokens` |
+| `completion_tokens` | integer | YES | | `usage.completion_tokens` |
+| `cached_tokens` | integer | YES | | `usage.prompt_tokens_details.cached_tokens` — portion of the prompt served from a provider-side cache |
+| `reasoning_tokens` | integer | YES | | `usage.completion_tokens_details.reasoning_tokens`; NULL for non-reasoning models |
+| `sense_id` | integer | YES | | `dim_word_senses.id` this call generated/judged for. No FK (observability tag, not a referential relationship — a sense delete must not be blocked by call history). Threaded via a contextvar (`services.llm_service.generation_context`) set once per sense in `VocabAssetPipeline._generate_for_sense_impl`, so nested generator/judge calls — including those fanned out across `BatchModeThreadPoolExecutor` worker threads — populate it without each call site passing it explicitly |
+| `call_role` | text | YES | | CHECK-constrained to `primary`\|`retry`\|`json_repair`\|`repair`\|`salvage`. Defaults to `primary` when a caller doesn't specify one (see `services.llm_service.CALL_ROLE_*` constants) |
+| `generation_batch_id` | uuid | YES | | Matches `word_assets.generation_batch_id`. Same contextvar-fallback mechanism as `sense_id`. No FK |
 
 - **Primary Key:** `llm_calls_pkey (id)`
 - **Indexes (pre-migration):** none observed live

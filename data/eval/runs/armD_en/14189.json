@@ -1,0 +1,1530 @@
+{
+  "sense_id": 14189,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T23:01:33.648368+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.27796411514282227,
+    "p1_generate": 3.30009126663208,
+    "tier_gate": 0.0,
+    "p1_judge": 1.1335883140563965,
+    "collocate_grounding": 0.0,
+    "fan_out": 42.42519497871399
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˌtɛknəˈlɒdʒɪkəli/",
+        "morphological_forms": [
+          {
+            "form": "technology",
+            "label": "base noun"
+          },
+          {
+            "form": "technological",
+            "label": "adjective"
+          },
+          {
+            "form": "technologists",
+            "label": "plural noun"
+          }
+        ],
+        "pronunciation": "tek-nuh-loj-i-kuh-lee",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14189
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a8088a93-26ba-4649-9bfd-5593db0ea4a5",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "technologically",
+        "pronunciation": "tek-nuh-loj-i-kuh-lee",
+        "ipa": "/ˌtɛknəˈlɒdʒɪkəli/",
+        "syllable_count": 5,
+        "audio_url": null,
+        "options": [
+          "technologically",
+          "theologically",
+          "chronologically",
+          "astrologically"
+        ],
+        "correct_answer": "technologically",
+        "explanation": "Correct: the target word itself, matching the spoken audio.",
+        "distractor_explanations": {
+          "chronologically": "Phonetic distractor: same stress pattern and syllable count, differing only in the initial consonant cluster (/tɛk/ vs /krɒ/).",
+          "theologically": "Phonetic distractor: same stress pattern and syllable count, differing only in the initial vowel and consonant sounds (/tɛk.nə/ vs /θiː.ə/).",
+          "astrologically": "Phonetic distractor: same stress pattern and syllable count, differing only in the initial consonant cluster (/tɛk/ vs /æs/)."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "eb0a4175-7446-45a1-897b-ded8e993d3f1",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "technologically",
+        "pronunciation": "tek-nuh-loj-i-kuh-lee",
+        "correct_definition": "in a way that relates to technology or using machines and equipment.",
+        "options": [
+          "A person who develops or studies theories about a subject.",
+          "To receive or absorb something into a system or body.",
+          "A long, thin piece of material used for tying or pulling things.",
+          "in a way that relates to technology or using machines and equipment."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "babb0d10-a488-4929-8608-00ff235a7fbf",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "However, the industry is increasingly seeing a shift towards more consolidated and ___ advanced agricultural operations, especially in larger estates, aiming for increased efficiency and yield.",
+        "original_sentence": "However, the industry is increasingly seeing a shift towards more consolidated and technologically advanced agricultural operations, especially in larger estates, aiming for increased efficiency and yield.",
+        "correct_answer": "technologically",
+        "options": [
+          "bureaucratically",
+          "technologically",
+          "anarchically",
+          "ecologically"
+        ],
+        "explanation": "Correct: fits the context of agricultural operations advancing through the use of modern machines and equipment.",
+        "distractor_tags": {},
+        "word_definition": "in a way that relates to technology or using machines and equipment.",
+        "target_word": "technologically"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "ed373db2-5201-4c04-977a-84ab7c79f3fd",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The new factory is ___ equipped to produce twice as many items while using less energy.",
+        "original_sentence": "The new factory is technologically equipped to produce twice as many items while using less energy.",
+        "correct_answer": "technologically",
+        "base_form": "technologically",
+        "form_label": "adverb",
+        "options": [
+          "technologically",
+          "technologists",
+          "technology",
+          "technological"
+        ],
+        "explanation": "adverb required to modify the participle 'equipped'",
+        "word_definition": "in a way that relates to technology or using machines and equipment.",
+        "target_word": "technologically"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "85ac4c36-d8b0-486c-b466-59c5177f63bb",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She technologically felt a deep sense of sorrow when she heard the tragic news about her friend.",
+            "is_correct": false
+          },
+          {
+            "text": "The baker technologically kneaded the dough by hand, relying entirely on his grandmother's traditional recipes.",
+            "is_correct": false
+          },
+          {
+            "text": "The ancient ruins were technologically preserved by the local historians who refused to use any modern tools.",
+            "is_correct": false
+          },
+          {
+            "text": "They have updated their equipment to remain technologically competitive in a fast-moving market.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: preserving something by refusing modern tools contradicts the definition of doing something in a way that relates to technology. Semantically inappropriate: 'technologically' modifies machines and equipment, not internal human emotions or psychological states. Pragmatically inappropriate: kneading dough by hand using traditional recipes is the exact opposite of using machines and technological equipment.",
+        "target_word": "technologically"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "76809f96-8a9f-40dc-8fe4-217e5bf64c48",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The new factory is technologically equipped to produce twice as many items while using less energy.",
+            "is_correct": true
+          },
+          {
+            "text": "Many modern schools are becoming technologically dependent as they introduce tablets for every student.",
+            "is_correct": true
+          },
+          {
+            "text": "The school's technologically advancement was evident when they introduced tablets for every student.",
+            "is_correct": false,
+            "error_description": "The adverb 'technologically' is incorrectly used to modify the noun 'advancement'. The adjective form 'technological' must be used to modify a noun."
+          },
+          {
+            "text": "However, the industry is increasingly seeing a shift towards more consolidated and technologically advanced agricultural operations, especially in larger estates, aiming for increased efficiency and yield.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "90fbb94a-4ee0-4999-b8c7-0c1f3dbce207",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "technologically",
+        "pronunciation": "tek-nuh-loj-i-kuh-lee",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "in a way that relates to technology or using machines and equipment.",
+              "A knife is a tool you use to cut things.",
+              "in a bad way that hurts or stops something",
+              "The system of trade and industry by which the wealth of a country is made and used."
+            ],
+            "correct_answer": "in a way that relates to technology or using machines and equipment."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "643ac53b-d797-4031-a719-0bd211465b9b",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The new factory is ___ equipped to produce twice as many items while using less energy.",
+        "original_sentence": "The new factory is technologically equipped to produce twice as many items while using less energy.",
+        "target_word": "technologically",
+        "word": "technologically",
+        "answer": {
+          "accepted": [
+            "technologically",
+            "technology",
+            "technological",
+            "technologists"
+          ],
+          "accepted_normalized": [
+            "technologically",
+            "technology",
+            "technological",
+            "technologists"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "864f3cfd-bdb7-4faa-b78d-ea81c6f0fb21",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Our daily lives have become technologically interconnected through smartphones and smart home devices.",
+        "chunks": [
+          "Our daily lives",
+          "have become",
+          "technologically interconnected through smartphones and smart home devices"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "have become",
+          "Our daily lives",
+          "technologically interconnected through smartphones and smart home devices"
+        ],
+        "target_word": "technologically",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f9d23c49-05d9-4a02-a2c2-c9be0e12babb",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "technologically",
+        "relation": "antonym",
+        "options": [
+          "mechanically",
+          "digitally",
+          "scientifically",
+          "manually"
+        ],
+        "correct_answer": "manually",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "in a way that relates to technology or using machines and equipment.",
+            "explanation": "antonym: done by hand rather than using machines or equipment"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c9df7e5d-12a8-4a19-bb53-906c8e54bbef",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "technology",
+        "sentence_with_blank": "The new factory is ___ equipped to produce twice as many items while using less energy.",
+        "original_sentence": "The new factory is technologically equipped to produce twice as many items while using less energy.",
+        "required_pos": "adverb",
+        "options": [
+          "technologement",
+          "technologically",
+          "technologive",
+          "technologer"
+        ],
+        "correct_answer": "technologically",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adverbial form modifying the participle 'equipped'"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "38a1436a-2fd3-4f41-96e3-eb60da6f3dae",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "She explained how the company grew ___ over the past decade by investing in research.",
+        "original_sentence": "She explained how the company grew technologically over the past decade by investing in research.",
+        "correct_answer": "technologically",
+        "options": [
+          "technique",
+          "technological",
+          "financially",
+          "technologically"
+        ],
+        "explanation": "Correct: The adverb 'technologically' correctly modifies the verb 'grew', indicating the specific domain of the company's development.",
+        "distractor_tags": {},
+        "word_definition": "in a way that relates to technology or using machines and equipment.",
+        "target_word": "technologically"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "cde10fb8-d0df-4f6c-a29d-e0bf0a4f12fe",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The museum featured exhibits showing how societies evolved ___ from simple tools to computers.",
+        "original_sentence": "The museum featured exhibits showing how societies evolved technologically from simple tools to computers.",
+        "correct_answer": "technologically",
+        "base_form": "technologically",
+        "form_label": "adverb",
+        "options": [
+          "technologists",
+          "technology",
+          "technological",
+          "technologically"
+        ],
+        "explanation": "adverb is required to modify the verb 'evolved'",
+        "word_definition": "in a way that relates to technology or using machines and equipment.",
+        "target_word": "technologically"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3ed1ae08-71a8-4243-a4fc-b587cbf22ca4",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The ancient ruins were built technologically by hand using only simple stones and mud.",
+            "is_correct": false
+          },
+          {
+            "text": "The soup tasted technologically delicious because the chef used fresh, organic ingredients.",
+            "is_correct": false
+          },
+          {
+            "text": "He felt technologically sad after reading the emotional final chapter of the novel.",
+            "is_correct": false
+          },
+          {
+            "text": "Engineers are working hard to ensure the new vehicles are fully sound both mechanically and technologically.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'Technologically' refers to machines and equipment, which does not logically explain the taste of fresh, organic food. Semantically inappropriate: 'Technologically' describes mechanical or digital processes, not human emotions or literary experiences. Semantically inappropriate: 'Technologically' implies the use of advanced machinery or modern equipment, which directly contradicts 'by hand' and 'simple stones'.",
+        "target_word": "technologically"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "073f7123-cea9-4b98-95bd-8f7cb1c0f0b4",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Engineers are working hard to ensure the new vehicles are fully sound both mechanically and technologically.",
+            "is_correct": true
+          },
+          {
+            "text": "The museum featured exhibits showing how societies evolved technologically from simple tools to computers.",
+            "is_correct": true
+          },
+          {
+            "text": "She explained how the company grew technologically over the past decade by investing in research.",
+            "is_correct": true
+          },
+          {
+            "text": "The university recently purchased a lot of technologically equipment for the new science laboratories.",
+            "is_correct": false,
+            "error_description": "The adverb 'technologically' is incorrectly used to modify the noun 'equipment'. An adjective like 'technological' is required to modify a noun."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "f9eda6f6-e212-426e-a315-90f43a9307cd",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The museum featured exhibits showing how societies evolved ___ from simple tools to computers.",
+        "original_sentence": "The museum featured exhibits showing how societies evolved technologically from simple tools to computers.",
+        "target_word": "technologically",
+        "word": "technologically",
+        "answer": {
+          "accepted": [
+            "technologically",
+            "technology",
+            "technological",
+            "technologists"
+          ],
+          "accepted_normalized": [
+            "technologically",
+            "technology",
+            "technological",
+            "technologists"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "871922f7-c949-4070-8e54-6fcf52c552e1",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "technologically",
+        "relation": "antonym",
+        "options": [
+          "electronically",
+          "scientifically",
+          "manually",
+          "industrially"
+        ],
+        "correct_answer": "manually",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "in a way that relates to technology or using machines and equipment.",
+            "explanation": "antonym: by hand rather than using machines or technology"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "ab1131c9-4f92-47ec-97b1-3b7b59512aba",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "technology",
+        "sentence_with_blank": "The museum featured exhibits showing how societies evolved ___ from simple tools to computers.",
+        "original_sentence": "The museum featured exhibits showing how societies evolved technologically from simple tools to computers.",
+        "required_pos": "adverb",
+        "options": [
+          "technologically",
+          "technologicalment",
+          "technologiness",
+          "technologiment"
+        ],
+        "correct_answer": "technologically",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adverbial form built from the adjective"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14189,
+      "word_asset_id": "shadow-14189-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "chunk reconstruction does not match the source sentence — chunks=['They have updated', 'their equipment', 'to remain technologically competitive in a fast moving market']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0023824,
+      "prompt_tokens": 1958,
+      "completion_tokens": 718,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 3160
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0005869,
+      "prompt_tokens": 698,
+      "completion_tokens": 151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1049
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00152672,
+      "prompt_tokens": 663,
+      "completion_tokens": 1027,
+      "cached_tokens": 0,
+      "reasoning_tokens": 899,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18204
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169248,
+      "prompt_tokens": 665,
+      "completion_tokens": 1156,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20439
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018528,
+      "prompt_tokens": 1214,
+      "completion_tokens": 1144,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20610
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185056,
+      "prompt_tokens": 1215,
+      "completion_tokens": 1142,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21359
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175488,
+      "prompt_tokens": 844,
+      "completion_tokens": 1160,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21465
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181824,
+      "prompt_tokens": 842,
+      "completion_tokens": 1210,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21689
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00273536,
+      "prompt_tokens": 1648,
+      "completion_tokens": 1725,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30454
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00269568,
+      "prompt_tokens": 1648,
+      "completion_tokens": 1694,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30661
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185728,
+      "prompt_tokens": 808,
+      "completion_tokens": 1249,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22135
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184128,
+      "prompt_tokens": 806,
+      "completion_tokens": 1237,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21670
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004017,
+      "prompt_tokens": 414,
+      "completion_tokens": 111,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1084
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003255,
+      "prompt_tokens": 410,
+      "completion_tokens": 81,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1035
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003595,
+      "prompt_tokens": 490,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1192
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001836,
+      "prompt_tokens": 387,
+      "completion_tokens": 27,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 834
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003781,
+      "prompt_tokens": 527,
+      "completion_tokens": 88,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 983
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.00042,
+      "prompt_tokens": 500,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 991
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003189,
+      "prompt_tokens": 413,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 918
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003251,
+      "prompt_tokens": 392,
+      "completion_tokens": 83,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1135
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004214,
+      "prompt_tokens": 488,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1099
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001952,
+      "prompt_tokens": 384,
+      "completion_tokens": 32,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 875
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004534,
+      "prompt_tokens": 528,
+      "completion_tokens": 118,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 990
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000345,
+      "prompt_tokens": 500,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14189,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 997
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.026721979999999996,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 60.71900000004098,
+  "finished_at": "2026-10-05T23:02:34.354467+00:00"
+}

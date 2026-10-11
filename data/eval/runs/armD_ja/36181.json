@@ -1,0 +1,987 @@
+{
+  "sense_id": 36181,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T19:56:15.216636+00:00",
+  "status": "partial",
+  "errors": [
+    "[B] Level 7: incorrect_sentence and corrected_sentence are identical"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.8006734848022461,
+    "p1_generate": 42.386807441711426,
+    "p1_repair": 41.37014842033386,
+    "tier_gate": 0.007993221282958984,
+    "p1_judge": 23.88919758796692,
+    "collocate_grounding": 0.0,
+    "fan_out": 41.21976375579834
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/aɾata/",
+        "morphological_forms": [
+          {
+            "form": "新たに",
+            "label": "派生"
+          },
+          {
+            "form": "新たさ",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "あらた",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            36181
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "3ad66e11-1b7a-47dc-bf79-66ac8e9dfb25",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "新た",
+        "pronunciation": "あらた",
+        "correct_definition": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+        "options": [
+          "食材を油をひいた鍋やフライパンに入れ、熱を加えながらかき混ぜて調理すること。",
+          "町の中にある、建物と建物の間の道。道路。",
+          "意見や利害の対立から起こる、言い合いやけんか。",
+          "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "e6de69ae-19d2-4602-88e7-35300c26a238",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "従来の肉体労働は減少しますが、機械を操作する専門知識を持つ人材の確保が、新たな課題に浮上しているのです。",
+            "is_correct": false
+          },
+          {
+            "text": "従来の肉体労働は減少しますが、機械を操作する専門知識を持つ人材の確保が、新たなに課題として浮上しているのです。",
+            "is_correct": false
+          },
+          {
+            "text": "従来の肉体労働は減少しますが、機械を操作する専門知識を持つ人材の確保が、新たなを課題として浮上しているのです。",
+            "is_correct": false
+          },
+          {
+            "text": "従来の肉体労働は減少しますが、機械を操作する専門知識を持つ人材の確保が、新たな課題として浮上しているのです。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "助詞・活用の誤り：「新た」を副詞的に使う場合は「新たに」とするのが正しい活用・連語の形であり、「新たなに」という形は文法的に誤りです。 助詞の混同：「新たな」は連体詞として機能し、直後の名詞「課題」を修飾すべきです。間に目的語を示す「を」を入れると、項構造が破壊され文法的に誤りとなります。 連語・助詞の誤り：「浮上する」は表面に現れることを意味し、通常「〜として」や「が」を伴います。「課題に浮上する」という表現は、対象語の連語および助詞の取り方が不自然です。",
+        "target_word": "新た"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "従来の肉体労働は減少しますが、機械を操作する専門知識を持つ人材の確保が、新たな課題として浮上しているのです。"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "35f3f3b6-bf73-48ba-ba6a-76207de56e7a",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "近年、精密農業の導入が小規模農家の経営に新たな可能性をもたらしています。",
+            "is_correct": true
+          },
+          {
+            "text": "地元の風景を愛するロックバンドが、新たなオリジナルTシャツを製作しました。",
+            "is_correct": true
+          },
+          {
+            "text": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスだ。",
+            "is_correct": true
+          },
+          {
+            "text": "これは事業の終了ではなく、資本の循環と新た創造への移行を意味する重要なプロセスだ。",
+            "is_correct": false,
+            "error_description": "「新た」は形状詞であり、名詞を修飾する際には助動詞「な」を付けて「新たな」とする必要がある連語の形です。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "1962824c-1a53-4621-a0cf-1ae33e1e4a22",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "新た",
+        "pronunciation": "あらた",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "何かに足すこと。",
+              "smooth",
+              "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+              "花のおしべにある粉。植物が実や種子を作るためのもので、虫や風によって運ばれる。"
+            ],
+            "correct_answer": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1b9ccaf1-d67b-4d2c-9345-38fcae7bdea7",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "これは事業の終了ではなく、資本の循環と___な創造への移行を意味する重要なプロセスだ。",
+        "original_sentence": "これは事業の終了ではなく、資本の循環と新たな創造への移行を意味する重要なプロセスだ。",
+        "target_word": "新た",
+        "word": "新た",
+        "answer": {
+          "accepted": [
+            "新た"
+          ],
+          "accepted_normalized": [
+            "新た"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3af75835-df43-466b-9e08-4f6767fffff9",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "新た",
+        "options": [
+          "ああらた",
+          "あらだ",
+          "あらた",
+          "あらあた"
+        ],
+        "correct_answer": "あらた",
+        "word": "新た",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "30dadb8d-ba6b-477d-9330-6317b7253a3a",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "あらた",
+        "options": [
+          "新鮮",
+          "更新",
+          "新聞",
+          "新た"
+        ],
+        "correct_answer": "新た",
+        "word": "新た",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "更新": "component",
+          "新聞": "component",
+          "新鮮": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "9cf72f84-5f29-41ba-b278-ac406fa41367",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "戦後の都市計画において、ブルータリズムは機能性を重視した___な住宅様式として普及しました。",
+        "original_sentence": "戦後の都市計画において、ブルータリズムは機能性を重視した新たな住宅様式として普及しました。",
+        "correct_answer": "新た",
+        "base_form": "新た",
+        "form_label": "語幹（な形容動詞・連体形の前）",
+        "options": [
+          "新たに",
+          "新た",
+          "新ただ",
+          "新たなら"
+        ],
+        "explanation": "「な」を伴い名詞を修飾する連体形の語幹。",
+        "word_definition": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+        "target_word": "新た"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f00b80fa-a313-4c87-b0b3-d7fb9a53d401",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "それは、確立された安住の地からの離脱であり、新たな社会的文脈における自己の再構築を迫られる、極めて重要な通過儀礼なのである。",
+            "is_correct": true
+          },
+          {
+            "text": "しかし現代ファッションの文脈では、この伝統的な職人技はデジタルデザインという新たなパラダイムと衝突し、あるいは融合しつつある。",
+            "is_correct": true
+          },
+          {
+            "text": "戦後の都市計画において、ブルータリズムは機能性を重視した新たな住宅様式として普及しました。",
+            "is_correct": true
+          },
+          {
+            "text": "しかし現代ファッションの文脈では、この伝統的な職人技はデジタルデザインという新ただパラダイムと衝突し、あるいは融合しつつある。",
+            "is_correct": false,
+            "error_description": "活用：名詞の前では連体形「新たな」を使う。「新ただ」は誤り。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "278f70cd-9384-4bac-b5b4-466146d78e45",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "戦後の都市計画において、ブルータリズムは機能性を重視した___な住宅様式として普及しました。",
+        "original_sentence": "戦後の都市計画において、ブルータリズムは機能性を重視した新たな住宅様式として普及しました。",
+        "target_word": "新た",
+        "word": "新た",
+        "answer": {
+          "accepted": [
+            "新た"
+          ],
+          "accepted_normalized": [
+            "新た"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 1,
+      "kept": 5
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '新た' is fused into a neighbouring chunk — chunks=['単なる出資に', 'とどまらず経営戦略や', 'ネットワークを提供することで', '市場に新たな価値を', '生むイノベーションを', '加速させるのだ']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '新た' is fused into a neighbouring chunk — chunks=['従来の肉体労働は', '減少しますが機械を', '操作する専門知識を', '持つ人材の確保が', '新たな課題と', 'して浮上しているのです']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00402944,
+      "prompt_tokens": 3024,
+      "completion_tokens": 2392,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 41848
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00355296,
+      "prompt_tokens": 1671,
+      "completion_tokens": 2358,
+      "cached_tokens": 0,
+      "reasoning_tokens": 822,
+      "call_role": "repair",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 41181
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019632,
+      "prompt_tokens": 931,
+      "completion_tokens": 1301,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23665
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00207776,
+      "prompt_tokens": 1857,
+      "completion_tokens": 1159,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22093
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00211776,
+      "prompt_tokens": 1826,
+      "completion_tokens": 1198,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24400
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00188064,
+      "prompt_tokens": 809,
+      "completion_tokens": 1267,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24524
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183808,
+      "prompt_tokens": 784,
+      "completion_tokens": 1240,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24849
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183616,
+      "prompt_tokens": 810,
+      "completion_tokens": 1232,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 26666
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185856,
+      "prompt_tokens": 776,
+      "completion_tokens": 1258,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 27711
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00348896,
+      "prompt_tokens": 2859,
+      "completion_tokens": 2011,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 38858
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0034608,
+      "prompt_tokens": 2859,
+      "completion_tokens": 1989,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 40866
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184736,
+      "prompt_tokens": 821,
+      "completion_tokens": 1238,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22028
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016768,
+      "prompt_tokens": 378,
+      "completion_tokens": 79,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 4755
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00173728,
+      "prompt_tokens": 825,
+      "completion_tokens": 1151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20693
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00140544,
+      "prompt_tokens": 528,
+      "completion_tokens": 966,
+      "cached_tokens": 0,
+      "reasoning_tokens": 937,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 18535
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00157312,
+      "prompt_tokens": 632,
+      "completion_tokens": 1071,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19323
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183616,
+      "prompt_tokens": 822,
+      "completion_tokens": 1229,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 28962
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00021328,
+      "prompt_tokens": 508,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 6149
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00171072,
+      "prompt_tokens": 978,
+      "completion_tokens": 1092,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "json_repair",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21808
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00151392,
+      "prompt_tokens": 527,
+      "completion_tokens": 1051,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 24736
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00154304,
+      "prompt_tokens": 626,
+      "completion_tokens": 1049,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 18938
+    }
+  ],
+  "llm_calls_observed": 21,
+  "llm_cost_observed_usd": 0.04165232,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 362.64000000001397,
+  "finished_at": "2026-10-05T20:02:17.858512+00:00"
+}

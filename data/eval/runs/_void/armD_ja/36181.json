@@ -1,0 +1,1207 @@
+{
+  "sense_id": 36181,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T13:38:07.997389+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.556887149810791,
+    "p1_generate": 34.52438521385193,
+    "p1_repair": 28.262687921524048,
+    "tier_gate": 0.008000850677490234,
+    "p1_judge": 64.03945207595825,
+    "collocate_grounding": 0.0,
+    "fan_out": 51.93576741218567
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/aɾata/",
+        "morphological_forms": [
+          {
+            "form": "新たに",
+            "label": "派生"
+          },
+          {
+            "form": "新ただ",
+            "label": "活用"
+          },
+          {
+            "form": "新たな",
+            "label": "活用"
+          },
+          {
+            "form": "新たで",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "あらた",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            36181
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "86c09803-71bb-4edd-b272-099b7377844e",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "新た",
+        "pronunciation": "あらた",
+        "ipa": "/aɾata/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "新た",
+          "わらた",
+          "荒らす",
+          "アラブ"
+        ],
+        "correct_answer": "新た",
+        "explanation": "正解です。「新た」は「「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。」という意味です。",
+        "distractor_explanations": {
+          "わらた": "「わらた」は「新た」と一モーラだけ異なる実在語です（1モーラ目: 「あ」→「わ」、一部の音の違い）。",
+          "荒らす": "「荒らす」は「新た」と一モーラだけ異なる実在語です（3モーラ目: 「た」→「す」、一部の音の違い）。",
+          "アラブ": "「アラブ」は「新た」と一モーラだけ異なる実在語です（3モーラ目: 「た」→「ぶ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 10,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "44a3ed24-3fc9-4de2-8cf2-d43303ad7abb",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "新たな",
+        "pronunciation": "あらた",
+        "correct_definition": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+        "options": [
+          "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+          "数量が二つ以上であること。一つではないこと。",
+          "今までずっと続いてきた状態や考え方を指す言葉。",
+          "気晴らしや楽しみのために、自発的に行う行動。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "bcfc2a98-51f5-4322-8d17-2df565fdf024",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この町には、___歴史が生まれます。",
+        "original_sentence": "この町には、新たな歴史が生まれます。",
+        "correct_answer": "新たな",
+        "base_form": "新たな",
+        "form_label": "連体形",
+        "options": [
+          "新ただ",
+          "新たな",
+          "新たに",
+          "新たで"
+        ],
+        "explanation": "名詞「歴史」を修飾するには連体形「新たな」が必要です。",
+        "word_definition": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+        "target_word": "新たな"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "cf900f94-1617-4857-aa45-c1e6827bfad4",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "新たな時代が、静かに幕を開けました。",
+            "is_correct": false
+          },
+          {
+            "text": "新たなが時代を、静かに幕を開けました。",
+            "is_correct": false
+          },
+          {
+            "text": "新たな時代が、静かに幕を開けました。",
+            "is_correct": true
+          },
+          {
+            "text": "新たなを、私たちは歓迎しました。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "正しい文です。 助詞の混同：「新たな」は形状詞であり、名詞のように単独で「を」の目的語になることはできません。「新たな仲間」のように名詞を修飾する必要があります。 語順・係り受けの誤り：「が」の位置が誤りです。「新たな」は「時代」を修飾すべきであり、「新たな時代が」とするのが正しい語順です。",
+        "target_word": "新たな"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 4,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "3f341d07-891a-4aa8-8dae-febd5a625e76",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "この町には、新たな歴史が生まれます。",
+            "is_correct": true
+          },
+          {
+            "text": "私たちは、新たな仲間を歓迎しました。",
+            "is_correct": true
+          },
+          {
+            "text": "私は、新たな決意で勉強を始めました。",
+            "is_correct": true
+          },
+          {
+            "text": "この町に、新たな歴史が生まれます。",
+            "is_correct": false,
+            "error_description": "場所を表す名詞の後ろで、存在や出現の場所を示すには助詞「に」を使います。「は」を使うと主題が強調されすぎて不自然になります。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "43545757-8701-46c9-b342-80b95f0568e0",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "新たな",
+        "pronunciation": "あらた",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "誓言 —— 决定要做某件事，并坚决遵守它",
+              "行動や判断をするときに、選べる可能性や自由の範囲。また、そうした選択が許される空間。",
+              "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+              "to deal with; to cope with — facing a problem or difficulty and trying to resolve it properly"
+            ],
+            "correct_answer": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "aa89c63e-2def-4414-9dcd-876909a3f7cf",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この町には、___歴史が生まれます。",
+        "original_sentence": "この町には、新たな歴史が生まれます。",
+        "target_word": "新たな",
+        "word": "新たな",
+        "answer": {
+          "accepted": [
+            "新たな",
+            "新ただ",
+            "新たで"
+          ],
+          "accepted_normalized": [
+            "新たな",
+            "新ただ",
+            "新たで"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "24e8ecbf-d021-4445-80a4-b4c494a27cdb",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "新た",
+        "options": [
+          "ああらた",
+          "あらだ",
+          "あらた",
+          "あらあた"
+        ],
+        "correct_answer": "あらた",
+        "word": "新た",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b15469a9-1763-468d-862c-2cde0f9296ed",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "あらた",
+        "options": [
+          "新鮮",
+          "更新",
+          "新聞",
+          "新た"
+        ],
+        "correct_answer": "新た",
+        "word": "新た",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "更新": "component",
+          "新聞": "component",
+          "新鮮": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "30e35e6b-c409-40a4-8ce7-485207c0378f",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "新たな",
+        "relation": "antonym",
+        "options": [
+          "旧套な",
+          "斬新な",
+          "古風な",
+          "陳腐な"
+        ],
+        "correct_answer": "旧套な",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+            "explanation": "「古い慣習ややり方」を意味し、「今までと違う新しい状態」という目標語の対義語となります。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2fc7a7c4-c0ec-4e6a-9286-6f40d3704358",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___道を選んで、歩き出しました。",
+        "original_sentence": "新たな道を選んで、歩き出しました。",
+        "correct_answer": "新たな",
+        "options": [
+          "明白な",
+          "伝統的な",
+          "新たな",
+          "巨大な"
+        ],
+        "explanation": "「新たな道」で、今までにない新しい道という意味になり、文脈に自然に合います。",
+        "distractor_tags": {},
+        "word_definition": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+        "target_word": "新たな"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "43859f03-0a32-4371-af8d-5ae9a84f4555",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___目標を、ノートに書きました。",
+        "original_sentence": "新たな目標を、ノートに書きました。",
+        "correct_answer": "新たな",
+        "base_form": "新たな",
+        "form_label": "連体形",
+        "options": [
+          "新たで",
+          "新たな",
+          "新たに",
+          "新ただ"
+        ],
+        "explanation": "名詞「目標」を修飾するには連体形「な」が必要です",
+        "word_definition": "「新た」は「新しい」という意味の形容動詞で、何かが今までと違う状態になることを表します。",
+        "target_word": "新たな"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "8ed94331-3c90-42df-b7c0-1f712b734e30",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "新たな始まりを、皆で祝いっています。",
+            "is_correct": false
+          },
+          {
+            "text": "新たな始まりを、皆で祝いました。",
+            "is_correct": false
+          },
+          {
+            "text": "新たなを始まり、皆で祝いました。",
+            "is_correct": false
+          },
+          {
+            "text": "新たな始まりを、皆で祝いました。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "助詞の混同：「新たな」が修飾する「始まり」は動作の結果ではなく状態や事柄であるため、目的語を示す「を」ではなく、存在や状態の主体を示す「が」を使うのが自然です。（新たな始まりが…） 活用・アスペクトの誤り：進行形や状態の継続を表す補助動詞「いる」の活用が誤っており、正しくは「祝っています」とする必要があります。 語順・係り受けの誤り：形状詞「新たな」は直後に名詞を置いて修飾する必要があります。助詞「を」を挟んで名詞から離れており、文構造が破綻しています。",
+        "target_word": "新たな"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "93d29758-a541-4bae-b21d-c83d8c09c72a",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "新たな目標を、ノートに書きまし。",
+            "is_correct": false,
+            "error_description": "「ました」は「ました」が正しい形です。動詞の過去・丁寧形の活用を間違えないようにしましょう。"
+          },
+          {
+            "text": "新たな始まりを、皆で祝いました。",
+            "is_correct": true
+          },
+          {
+            "text": "新たな道を選んで、歩き出しました。",
+            "is_correct": true
+          },
+          {
+            "text": "新たな目標を、ノートに書きました。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "d58eb69a-b853-4da5-8c38-ea6bef5ac08e",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___目標を、ノートに書きました。",
+        "original_sentence": "新たな目標を、ノートに書きました。",
+        "target_word": "新たな",
+        "word": "新たな",
+        "answer": {
+          "accepted": [
+            "新たな",
+            "新ただ",
+            "新たで"
+          ],
+          "accepted_normalized": [
+            "新たな",
+            "新ただ",
+            "新たで"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 36181,
+      "word_asset_id": "shadow-36181-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 10
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 9
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '新たな' is fused into a neighbouring chunk — chunks=['新たな発見が', '私を', '驚かせました']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '新たな' is fused into a neighbouring chunk — chunks=['新たな時代が', '静かに幕を', '開けました']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00346624,
+      "prompt_tokens": 3024,
+      "completion_tokens": 1952,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 34316
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00243264,
+      "prompt_tokens": 1222,
+      "completion_tokens": 1595,
+      "cached_tokens": 0,
+      "reasoning_tokens": 508,
+      "call_role": "repair",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 28133
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183104,
+      "prompt_tokens": 730,
+      "completion_tokens": 1248,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21943
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00166272,
+      "prompt_tokens": 432,
+      "completion_tokens": 1191,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21283
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00167616,
+      "prompt_tokens": 734,
+      "completion_tokens": 1126,
+      "cached_tokens": 0,
+      "reasoning_tokens": 972,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20131
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196288,
+      "prompt_tokens": 1630,
+      "completion_tokens": 1126,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20161
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00177568,
+      "prompt_tokens": 821,
+      "completion_tokens": 1182,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21179
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017824,
+      "prompt_tokens": 822,
+      "completion_tokens": 1187,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21541
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182464,
+      "prompt_tokens": 758,
+      "completion_tokens": 1236,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 24671
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00190592,
+      "prompt_tokens": 760,
+      "completion_tokens": 1299,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 25021
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0030464,
+      "prompt_tokens": 2660,
+      "completion_tokens": 1715,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 30392
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00317568,
+      "prompt_tokens": 2660,
+      "completion_tokens": 1816,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 33952
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001687168,
+      "prompt_tokens": 1630,
+      "completion_tokens": 1141,
+      "cached_tokens": 1152,
+      "reasoning_tokens": 1024,
+      "call_role": "retry",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20290
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016272,
+      "prompt_tokens": 372,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 3613
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016396,
+      "prompt_tokens": 371,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 36181,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 2558
+    }
+  ],
+  "llm_calls_observed": 15,
+  "llm_cost_observed_usd": 0.028556248000000003,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 188.4220000000205,
+  "finished_at": "2026-10-05T13:41:16.416896+00:00"
+}

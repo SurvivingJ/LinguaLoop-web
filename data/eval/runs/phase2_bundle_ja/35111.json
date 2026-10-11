@@ -1,0 +1,1339 @@
+{
+  "sense_id": 35111,
+  "language_id": 3,
+  "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+  "started_at": "2026-10-03T01:43:53.816764+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.6463360786437988,
+    "p1_generate": 32.99127435684204,
+    "tier_gate": 2.420029878616333,
+    "p1_judge": 11.313515186309814,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "joɾu",
+        "morphological_forms": [
+          {
+            "form": "よった",
+            "label": "活用"
+          },
+          {
+            "form": "よって",
+            "label": "活用"
+          },
+          {
+            "form": "よらない",
+            "label": "活用"
+          },
+          {
+            "form": "よれる",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "よる",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35111
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "8185f506-9077-41ba-85e5-2833963724ec",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "因る",
+        "pronunciation": "よる",
+        "ipa": "joɾu",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "より",
+          "因る",
+          "よる",
+          "よる"
+        ],
+        "correct_answer": "因る",
+        "explanation": "正解です。「因る」は「物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。」という意味です。",
+        "distractor_explanations": {
+          "より": "",
+          "よる": ""
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "116f64de-0778-4033-a6d0-5bf93dfb63cd",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よる",
+        "pronunciation": "よる",
+        "correct_definition": "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。",
+        "options": [
+          "必要なものや情報が不足している状態。欠けていること。",
+          "ある物や人が、場所を高い方から低い方へと移動することを言います。",
+          "図書館や博物館などが、本や作品などを収集して保管していること。また、そのもの。",
+          "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "0a0a5df7-1009-488b-9e60-35529611e384",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "天然染料に___染色の美しさは、素材との対話という儀礼的な過程に依るものである。",
+        "original_sentence": "天然染料による染色の美しさは、素材との対話という儀礼的な過程に依るものである。",
+        "correct_answer": "依る",
+        "options": [
+          "拠る",
+          "寄る",
+          "依る",
+          "因る"
+        ],
+        "explanation": "正解。文脈「〜に依るものである」に適合する原因・理由を表す動詞です。",
+        "distractor_tags": {},
+        "word_definition": "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。",
+        "target_word": "よる"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "fa6720c3-d82f-4022-af3f-6a67c0af67c7",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "植物から色素が解放される現象は、熱と水という物理的作用に依るものである。",
+        "original_sentence": "植物から色素が解放される現象は、熱と水という物理的作用に依るものである。",
+        "correct_answer": "よっ",
+        "base_form": "よる",
+        "form_label": "連用形促音便",
+        "options": [
+          "よる",
+          "よらない",
+          "より",
+          "よっ"
+        ],
+        "explanation": "「～に依るものである」の文脈では、連用形促音便の「よっ」が適切に接続する",
+        "word_definition": "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。",
+        "target_word": "よっ"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3895f4d2-aa02-4236-b97f-913e96fb211f",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼の成功は、若い頃からの不断の努力によります。",
+            "is_correct": false
+          },
+          {
+            "text": "彼の成功は、若い頃からの不断の努力によるものだ。",
+            "is_correct": true
+          },
+          {
+            "text": "彼の成功は、若い頃からの不断の努力によっていることだ。",
+            "is_correct": false
+          },
+          {
+            "text": "彼の成功は、若い頃からの不断の努力をよるものだ。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "誤答。『よる』は自動詞であり、直接目的語『を』を取ることはできません。 誤答。『〜ことだ』は勧誘や定義を表す表現であり、事実の説明である『〜ものだ』とは文脈が異なります。 誤答。文末が丁寧語『ます』で終わっており、説明的な文体『〜ものだ』と整合しません。",
+        "target_word": "よる"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b0d96b17-469e-4388-8652-d31e99afd9ef",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "天然染料による染色の美しさは、素材との対話という儀礼的な過程に依るものである。",
+            "is_correct": false,
+            "error_description": "誤答。『依る』は自動詞であり、対象に『を』ではなく『に』を用いる必要があります。"
+          },
+          {
+            "text": "天然染料による染色の美しさは、素材との対話という儀礼的な過程に依るものである。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "571ff3b4-22ff-4a0e-b2fc-b710ed039e50",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "空間に深みを与える陰影の演出は、間接照明の配置に依るところが大きい。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "4c3b8371-b8a0-4054-b13d-d3800252e854",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よる",
+        "pronunciation": "よる",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "一しゅうかんごとに。",
+              "the best; number one — the highest in degree among many things, or the most outstanding",
+              "礼貌语尾（ます）",
+              "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。"
+            ],
+            "correct_answer": "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f35b239b-1d6d-4c14-a706-a9d846d7b36f",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "空間に深みを与える陰影の演出は、間接照明の配置に依るところが大きい。",
+        "chunks": [
+          "空間に深みを",
+          "与える陰影の",
+          "演出は間接照明の",
+          "配置に",
+          "依るところが",
+          "大きい"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "配置に",
+          "大きい",
+          "与える陰影の",
+          "演出は間接照明の",
+          "空間に深みを",
+          "依るところが"
+        ],
+        "target_word": "よる",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "05629729-fe31-464c-a200-19b1d3f062d7",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "よる",
+        "options": [
+          "契機",
+          "太谿",
+          "天候",
+          "因る"
+        ],
+        "correct_answer": "因る",
+        "word": "因る",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "太谿": "component",
+          "天候": "component",
+          "契機": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "34ac907b-a621-450f-9595-370b46fb3c24",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "植物から色素が解放される現象は、熱と水という物理的作用___依るものである。",
+        "original_sentence": "植物から色素が解放される現象は、熱と水という物理的作用に依るものである。",
+        "options": [
+          "で",
+          "を",
+          "に",
+          "と"
+        ],
+        "correct_answer": "に",
+        "target_word": "よっ",
+        "error_tags": {
+          "を": "case_error",
+          "で": "particle_meaning_mismatch",
+          "と": "syntax_error"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "正解。『〜に依る』は固定された格助詞の搭配です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "129a24de-f393-48e2-a209-0a1271601227",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よる",
+        "relation": "synonym",
+        "options": [
+          "依存する",
+          "起因する",
+          "無関係である",
+          "結果する"
+        ],
+        "correct_answer": "起因する",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。",
+            "explanation": "正解。『よる（依る）』と同様に、ある事柄が別の事柄の原因となることを表す類義語です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f50c9417-ac9e-436c-bce7-4052e18726d3",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "建築の意味が絶えず更新されるのは、見る者の主観的な解釈に依る部分が大きいためである。",
+        "original_sentence": "建築の意味が絶えず更新されるのは、見る者の主観的な解釈に依る部分が大きいためである。",
+        "correct_answer": "依る",
+        "options": [
+          "因る",
+          "依る",
+          "拠る",
+          "寄る"
+        ],
+        "explanation": "正解。文脈「〜に依るものである」に適合する原因・理由を表す動詞です。",
+        "distractor_tags": {},
+        "word_definition": "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。",
+        "target_word": "よっ"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "6af0f6de-37dd-4c84-bee6-ced24475bcac",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "収量の安定化を通じて収益性が向上するのは、センサー等を用いた技術導入に依るものである。",
+        "original_sentence": "収量の安定化を通じて収益性が向上するのは、センサー等を用いた技術導入に依るものである。",
+        "correct_answer": "より",
+        "base_form": "よる",
+        "form_label": "連用形",
+        "options": [
+          "よる",
+          "より",
+          "よって",
+          "よらない"
+        ],
+        "explanation": "連用形「より」は名詞的用法や副詞的用法として、「～によるものである」の構成要素として適切に機能する",
+        "word_definition": "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。",
+        "target_word": "より"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b297933e-2a32-440c-aa3c-576113f0e335",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "学習者の認知特性に最適化された教材提示が可能になるのは、人工知能アルゴリズムによるリアルタイム分析を依るものである。",
+            "is_correct": false
+          },
+          {
+            "text": "学習者の認知特性に最適化された教材提示が可能になるのは、人工知能アルゴリズムによるリアルタイム分析に依ることだ。",
+            "is_correct": false
+          },
+          {
+            "text": "学習者の認知特性に最適化された教材提示が可能になるのは、人工知能アルゴリズムによるリアルタイム分析に依るものである。",
+            "is_correct": true
+          },
+          {
+            "text": "学習者の認知特性に最適化された教材提示が可能になるのは、人工知能アルゴリズムによるリアルタイム分析に依ります。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "誤答。『依る』は自動詞であり、直接目的語『を』を取ることはできません。 誤答。『〜ことだ』は勧誘や定義を表す表現であり、事実の説明である『〜ものである』とは文脈が異なります。 誤答。文末が丁寧語『ます』で終わっており、説明的な文体『〜ものである』と整合しません。",
+        "target_word": "よる"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "04d51526-c6ed-4638-9589-4c368d52cee9",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "彼の成功は、若い頃からの不断の努力によるものだ。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "448dcfca-5eeb-4021-ac10-caedfffaaeaf",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "彼の成功は、若い頃からの不断の努力によるものだ。",
+        "chunks": [
+          "彼の",
+          "成功は",
+          "若い頃から",
+          "の不断の",
+          "努力に",
+          "よるものだ"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "努力に",
+          "成功は",
+          "よるものだ",
+          "の不断の",
+          "若い頃から",
+          "彼の"
+        ],
+        "target_word": "よる",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "64d844dd-0f51-4717-8ebc-63c84535955b",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "収量の安定化を通じて収益性が向上するのは、センサー等を用いた技術導入___依るものである。",
+        "original_sentence": "収量の安定化を通じて収益性が向上するのは、センサー等を用いた技術導入に依るものである。",
+        "options": [
+          "と",
+          "に",
+          "を",
+          "で"
+        ],
+        "correct_answer": "に",
+        "target_word": "より",
+        "error_tags": {
+          "を": "case_error",
+          "で": "particle_meaning_mismatch",
+          "と": "syntax_error"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "正解。『〜に依る』は固定された格助詞の搭配です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f327529c-687a-460d-9321-ce140f71e950",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よる",
+        "relation": "synonym",
+        "options": [
+          "結果する",
+          "依存する",
+          "起因する",
+          "無関係である"
+        ],
+        "correct_answer": "起因する",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事の原因・理由を表す。主に「～に因る」の形で用いられ、「～が原因である」「～によって生じる」という意味になる。",
+            "explanation": "正解。『よる（依る）』と同様に、ある事柄が別の事柄の原因となることを表す類義語です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35111,
+      "word_asset_id": "shadow-35111-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    },
+    "particle": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'よっ' does not occur in its own sentence"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    },
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'より' does not occur in its own sentence"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00336704,
+      "prompt_tokens": 3142,
+      "completion_tokens": 1845,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 32799
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027136,
+      "prompt_tokens": 540,
+      "completion_tokens": 77,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2382
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00050016,
+      "prompt_tokens": 887,
+      "completion_tokens": 169,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 3971
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00037056,
+      "prompt_tokens": 450,
+      "completion_tokens": 177,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4209
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00036416,
+      "prompt_tokens": 778,
+      "completion_tokens": 90,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2887
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00463424,
+      "prompt_tokens": 2434,
+      "completion_tokens": 3012,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 52395
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00050752,
+      "prompt_tokens": 846,
+      "completion_tokens": 185,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4646
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00053184,
+      "prompt_tokens": 846,
+      "completion_tokens": 204,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4520
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0001936,
+      "prompt_tokens": 525,
+      "completion_tokens": 20,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 1689
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027968,
+      "prompt_tokens": 602,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35111,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2440
+    }
+  ],
+  "llm_calls_observed": 10,
+  "llm_cost_observed_usd": 0.01102016,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 4,
+    "repaired": 4,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 117.45299999997951,
+  "finished_at": "2026-10-03T01:45:51.281565+00:00"
+}

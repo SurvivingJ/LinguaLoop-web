@@ -253,14 +253,20 @@ def _judge(
             prompt,
             model=model,
             temperature=0.0,
-            # TASK-812: was 8000, shared by both callers of this function
-            # (ladder_relation_judge and ladder_word_family_judge). TASK-808's
-            # baseline shows relation's own completion_tokens p99 at 4210
-            # (n=43, max 4210) -- the longer of the two (word_family's p99 is
-            # 118) -- so 13000 (>=3x the larger p99) is sized to the actual
-            # shared caller, with headroom for a bigger candidate set than
-            # the baseline sampled.
-            max_tokens=13000,
+            # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 13000 was
+            # sized against a relation p99 inflated by reasoning tokens
+            # (qwen reasoning is now OFF). With reasoning off,
+            # data/eval/runs/phase2_bundle_*/ + phase2_fix_*/ +
+            # phase2_smoke_ja_v3/ + phase2_smoke_zh_r/ *.json llm_calls for
+            # the two task_names sharing this call site pooled together:
+            # n=100, p99=120, max=120 (judge_ladder_word_family/en, n=19,
+            # governs; judge_ladder_relation tops out at 111 across en/ja/zh,
+            # n=28/24/29). cap = max(ceil(p99*2), ceil(max*1.25)) = 240,
+            # rounded up to 250. At gemini-3.5-flash-lite's $2.50/M
+            # completion price (en's model, the governing case) this cuts
+            # the worst-case reservation from ~$0.033/request to
+            # ~$0.001/request.
+            max_tokens=250,
             # Provider-enforced JSON: a judge that answers in prose fails open
             # and keeps every candidate, which is the expensive failure here.
             response_format='json_object',

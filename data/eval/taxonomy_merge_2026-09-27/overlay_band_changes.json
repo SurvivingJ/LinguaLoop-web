@@ -4,7 +4,8 @@
     "en_silver_24"
   ],
   "v5_baseline_note": "en_silver_24 already fails derive_bands under v5: its note says MEANING INVERSION (agent swap, 'The Arduino writes instructions for you') but expected_errors is empty, so the derived understandability is 4 vs expected 2. Not an overlay entry (no labelled error); needs a meaning_inversion/critical error record added upstream.",
-  "count": 12,
+  "post_build_edits": "Hand-edited 2026-10-09 (build_overlay.py not re-run, see its docstring): en_seed_10, en_multi_03 and en_silver_13 removed from `changes` - their it/him-for-them errors were retyped word_choice -> pronoun (developer decision 2026-10-09, ADR-031), and pronoun (accuracy) derives the same bands as v5 pronoun_reference. en_silver_24 is stale here: it was repaired 2026-09-28 (meaning_inversion/critical), so it no longer mismatches.",
+  "count": 9,
   "changes": [
     {
       "item_id": "zh_silver_11",
@@ -151,41 +152,6 @@
       ]
     },
     {
-      "item_id": "en_seed_10",
-      "set": "gold",
-      "lang": "en",
-      "expected_bands": {
-        "accuracy": 3,
-        "understandability": 4,
-        "fidelity": 4,
-        "range": 4,
-        "naturalness": 4
-      },
-      "v6_bands": {
-        "accuracy": 4,
-        "understandability": 4,
-        "fidelity": 3,
-        "range": 4,
-        "naturalness": 4
-      },
-      "changed": {
-        "accuracy": [
-          3,
-          4
-        ],
-        "fidelity": [
-          4,
-          3
-        ]
-      },
-      "v6_errors": [
-        [
-          "word_choice",
-          "major"
-        ]
-      ]
-    },
-    {
       "item_id": "en_seed_15",
       "set": "gold",
       "lang": "en",
@@ -217,49 +183,6 @@
         [
           "meaning_inversion",
           "critical"
-        ]
-      ]
-    },
-    {
-      "item_id": "en_multi_03",
-      "set": "gold",
-      "lang": "en",
-      "expected_bands": {
-        "accuracy": 3,
-        "understandability": 4,
-        "fidelity": 3,
-        "range": 4,
-        "naturalness": 4
-      },
-      "v6_bands": {
-        "accuracy": 4,
-        "understandability": 4,
-        "fidelity": 2,
-        "range": 4,
-        "naturalness": 4
-      },
-      "changed": {
-        "accuracy": [
-          3,
-          4
-        ],
-        "fidelity": [
-          3,
-          2
-        ]
-      },
-      "v6_errors": [
-        [
-          "word_choice",
-          "minor"
-        ],
-        [
-          "phrasal_verb",
-          "minor"
-        ],
-        [
-          "word_choice",
-          "major"
         ]
       ]
     },
@@ -299,41 +222,6 @@
         [
           "meaning_inversion",
           "critical"
-        ]
-      ]
-    },
-    {
-      "item_id": "en_silver_13",
-      "set": "silver",
-      "lang": "en",
-      "expected_bands": {
-        "accuracy": 3,
-        "understandability": 4,
-        "fidelity": 4,
-        "range": 4,
-        "naturalness": 4
-      },
-      "v6_bands": {
-        "accuracy": 4,
-        "understandability": 4,
-        "fidelity": 3,
-        "range": 4,
-        "naturalness": 4
-      },
-      "changed": {
-        "accuracy": [
-          3,
-          4
-        ],
-        "fidelity": [
-          4,
-          3
-        ]
-      },
-      "v6_errors": [
-        [
-          "word_choice",
-          "major"
         ]
       ]
     },

@@ -213,15 +213,22 @@ def _judge_candidates(
             prompt,
             model=model,
             temperature=0.0,
-            # TASK-812: this call had NO max_tokens cap at all -- a
-            # worst-case runaway/repeating completion was billed and
-            # latency'd in full, with no baseline data to derive an
-            # observed-distribution cap from (no collocation judge calls
-            # landed in TASK-808's baseline sample). 1500 matches the other
-            # short structured-JSON Likert judges' sizing (cloze, l1) and is
-            # pure downside removal -- it costs nothing on the well-behaved
-            # path, since max_tokens is a ceiling, not a target.
-            max_tokens=1500,
+            # RE-DERIVED 2026-10-03 (ADR-028 cost work): this task_name's own
+            # measured sample is still too thin to derive a cap from alone
+            # (data/eval/runs/phase2_bundle_*/ + phase2_fix_*/ +
+            # phase2_smoke_ja_v3/ + phase2_smoke_zh_r/ *.json llm_calls:
+            # judge_ladder_collocation n=5, en-only, p99=28, max=28 -- no
+            # ja/zh rows at all), so this borrows the pooled distribution of
+            # the other short structured-JSON Likert judges it was already
+            # being sized against (cloze_distractor_judge,
+            # judge_ladder_l1_distractor, judge_ladder_relation/word_family,
+            # judge_ladder_particle, judge_ladder_sentence_validity): n=321
+            # pooled, p99=128, max=147. cap = max(ceil(p99*2), ceil(max*1.25))
+            # = 256, rounded up to 300, matching cloze/l1's own re-derived
+            # caps. At gemini-3.5-flash-lite's $2.50/M completion price
+            # (this judge's model) this cuts the worst-case reservation from
+            # ~$0.004/request to ~$0.0009/request.
+            max_tokens=300,
             response_format='json',
             provider=cfg['provider'],
             pipeline=_PIPELINE,

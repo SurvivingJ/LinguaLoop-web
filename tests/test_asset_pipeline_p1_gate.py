@@ -57,9 +57,12 @@ class _FakeCoreGen:
 
     model = 'fake-model'
 
-    def __init__(self, _db, _language_id, *, raw=None, repaired=None):
+    def __init__(self, _db, _language_id, *, raw=None, repaired=None,
+                 sentence_repair=None):
         self._raw = raw
         self._repaired = repaired
+        self._sentence_repair = sentence_repair
+        self.sentence_repair_calls: list = []
 
     def generate(self, _sense_id, _corpus_sentences):
         return self._raw
@@ -67,8 +70,15 @@ class _FakeCoreGen:
     def repair(self, _current_content, _validation_errors, _sense_id):
         return self._repaired
 
+    def repair_sentences(self, core_asset, bad_indices, reasons, sense_id):
+        self.sentence_repair_calls.append(
+            {'bad_indices': list(bad_indices), 'reasons': dict(reasons)},
+        )
+        return self._sentence_repair
 
-def _make_pipeline(monkeypatch, *, p1_raw, p1_valid_sequence, repaired=None):
+
+def _make_pipeline(monkeypatch, *, p1_raw, p1_valid_sequence, repaired=None,
+                    sentence_repair=None):
     """A VocabAssetPipeline with every DB-touching helper before the P1 gate
     faked out, `validate_prompt1` returning `p1_valid_sequence` in order (one
     call for the initial attempt, a second for the post-repair re-check when
@@ -79,10 +89,16 @@ def _make_pipeline(monkeypatch, *, p1_raw, p1_valid_sequence, repaired=None):
     monkeypatch.setattr(pipeline, '_assets_exist', lambda sid: False)
     monkeypatch.setattr(pipeline, '_fetch_corpus_sentences', lambda sid, lid: [])
     monkeypatch.setattr(pipeline, '_store_asset', lambda *a, **kw: None)
-    monkeypatch.setattr(
-        asset_pipeline_module, 'CoreAssetGenerator',
-        lambda db, language_id: _FakeCoreGen(db, language_id, raw=p1_raw, repaired=repaired),
-    )
+    fake_gen_holder = {}
+
+    def _make_fake_gen(db, language_id):
+        fake_gen_holder['gen'] = _FakeCoreGen(
+            db, language_id, raw=p1_raw, repaired=repaired,
+            sentence_repair=sentence_repair,
+        )
+        return fake_gen_holder['gen']
+
+    monkeypatch.setattr(asset_pipeline_module, 'CoreAssetGenerator', _make_fake_gen)
     monkeypatch.setattr(
         asset_pipeline_module, 'BatchModeThreadPoolExecutor',
         lambda *a, **kw: _RefusingPool(),
@@ -94,6 +110,7 @@ def _make_pipeline(monkeypatch, *, p1_raw, p1_valid_sequence, repaired=None):
         return remaining.pop(0)
 
     monkeypatch.setattr(pipeline.validator, 'validate_prompt1', _fake_validate)
+    pipeline._fake_gen_holder = fake_gen_holder
     return pipeline
 
 
@@ -130,6 +147,79 @@ def test_no_fan_out_when_repair_output_is_still_invalid(monkeypatch):
 
     assert result['status'] == 'failed'
     assert result['errors'] == ['still bad']
+
+
+def test_sentence_scoped_p1_error_uses_surgical_repair_not_blunt_repair(monkeypatch):
+    """TASK-8xx (item 2): a P1 validation failure confined ENTIRELY to
+    specific sentences (e.g. a whole-word mismatch, observed live on en sense
+    15328 'away' and ja sense 34999 '一') must route through the
+    index-preserving `repair_sentences` -- the same surgical repair the tier
+    gate and the P1 sentence judge already use -- rather than losing the
+    whole asset or handing it to the blunt whole-JSON `repair()` first."""
+    sentences = [{'text': f'Sentence {i} text.', 'target_word': 'away'} for i in range(10)]
+    pipeline = _make_pipeline(
+        monkeypatch,
+        p1_raw={'pos': 'adverb', 'sentences': sentences},
+        p1_valid_sequence=[
+            (False, ["Sentence 7: target_word 'away' is not a whole-word match in text"], []),
+            (True, [], []),
+        ],
+        sentence_repair={7: 'A fresh sentence that really is far away.'},
+    )
+
+    try:
+        pipeline._generate_for_sense_impl(1, 2, False, 'batch-1')
+    except Exception:
+        pass  # raised before/at the fan-out -- proves the P1 gate passed
+
+    fake_gen = pipeline._fake_gen_holder['gen']
+    assert len(fake_gen.sentence_repair_calls) == 1
+    assert fake_gen.sentence_repair_calls[0]['bad_indices'] == [7]
+
+
+def test_sentence_scoped_repair_failure_falls_through_to_blunt_repair(monkeypatch):
+    """When the scoped repair itself doesn't resolve it, the existing blunt
+    whole-JSON `repair()` is still tried (unchanged fallback), and the scoped
+    attempt happened FIRST."""
+    sentences = [{'text': f'Sentence {i} text.', 'target_word': 'away'} for i in range(10)]
+    pipeline = _make_pipeline(
+        monkeypatch,
+        p1_raw={'pos': 'adverb', 'sentences': sentences},
+        p1_valid_sequence=[
+            (False, ["Sentence 7: target_word 'away' is not a whole-word match in text"], []),
+        ],
+        sentence_repair=None,   # the scoped repair call itself produced nothing
+        repaired=None,          # the blunt repair also fails
+    )
+
+    result = pipeline._generate_for_sense_impl(1, 2, False, 'batch-1')
+
+    fake_gen = pipeline._fake_gen_holder['gen']
+    assert len(fake_gen.sentence_repair_calls) == 1, 'scoped repair was attempted first'
+    assert result['status'] == 'failed'
+
+
+def test_asset_wide_p1_error_skips_sentence_repair_entirely(monkeypatch):
+    """A non-sentence-scoped error (e.g. an invalid POS enum) must go
+    straight to the blunt `repair()` -- `repair_sentences` has nothing to
+    target when the defect isn't confined to specific sentence indices."""
+    sentences = [{'text': f'Sentence {i} text.', 'target_word': 'away'} for i in range(10)]
+    pipeline = _make_pipeline(
+        monkeypatch,
+        p1_raw={'pos': 'bogus', 'sentences': sentences},
+        p1_valid_sequence=[
+            (False, ["Invalid POS: 'bogus'"], []),
+        ],
+        sentence_repair={7: 'should never be used'},
+        repaired=None,
+    )
+
+    result = pipeline._generate_for_sense_impl(1, 2, False, 'batch-1')
+
+    fake_gen = pipeline._fake_gen_holder['gen']
+    assert fake_gen.sentence_repair_calls == [], \
+        'an asset-wide error must not trigger the sentence-scoped repair path'
+    assert result['status'] == 'failed'
 
 
 def test_fan_out_does_start_once_p1_is_valid(monkeypatch):

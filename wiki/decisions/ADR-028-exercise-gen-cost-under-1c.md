@@ -105,6 +105,17 @@ sentence judge exists to catch.
   bake-off; if no qwen model matches current output quality, this ADR's model-family rule, not
   the cost target, is what has to be revisited.
 
+**2026-10-03 note:** the bundle-call risk flagged two lines above was realized — Phase 2's blind
+pairwise review failed non-inferiority vs. Phase 1 in all three languages (ja major-defect 25.7%
+vs. 8.6%, en 13.2% vs. 2.9%, zh 24.2% vs. 19.4%; see
+[[evaluations/exercise-gen-phase2-2026-10]] §8). But Phase 2 also landed the reasoning-disable fix
+(qwen reasoning genuinely off, not just hidden) at the same time as bundle mode, so this result
+cannot yet be pinned on bundling specifically — it could equally be the reasoning-off change. A
+new flag, `LADDER_QWEN_REASONING` (`services/llm_service.py`), lets a follow-up eval hold qwen's
+reasoning state fixed while bundle mode varies independently; see TASK-856 in
+[[tasklist/exercise-gen-cost.tasks]], blocked on OpenRouter credit. TASK-814/815/816 (the bundle
+rollout tasks) are blocked pending that attribution.
+
 **Constraints that stand, unchanged by this decision:**
 - L1 is listening-only: pitch-accent-only distractor pairs are invalid (TTS renders one form
   only), the render gate is all-or-nothing, and at least 3 distractors must survive it.
@@ -140,6 +151,21 @@ sentence judge exists to catch.
   subscription-billed and logged in `llm_calls` as $0, which understates true cost for any
   path-vs-path comparison that includes the fat-seed/subagent route.
 
+## Outcome 2026-10-08
+
+**Target not met.** <$0.01/sense is not reachable at non-inferior quality with qwen3.7-plus. Reasoning off
+(~$0.009-0.013/sense) hits the cost target but fails blind quality in all languages (major-defect: ja 22.2% vs
+19.8%, zh 31.6% vs 7.0%, en 15.5% vs 7.1%); bundle mode also failed (confounded with reasoning-off, not
+re-tested). Bounded reasoning passes: ja budget 1024 ($0.0343 vs $0.0686), en budget 1024 ($0.0215 vs $0.0289),
+zh budget 2048 ($0.0390 vs $0.0493; 1024 failed for zh). Best validated cost is ~45-50% below Phase 1 and
+~65-80% below baseline. Attribution (TASK-856): reasoning-off is the cause of the regression.
+
+**Recommended (pending user approval, TASK-857):** `LADDER_QWEN_REASONING=budget`,
+`LADDER_QWEN_REASONING_BUDGET_JA=1024`, `_EN=1024`, `_ZH=2048`, bundle off, and en P2/P3 off claude-sonnet-5 via
+`migrations/exercise_gen_en_p2_p3_off_sonnet.sql`. Production defaults are unchanged. Caveats: coverage gate
+failed in every arm (likely reference variance, TASK-860); judge noise is large; arm F (en on gemini) void,
+needs re-run (TASK-858). Details: [[evaluations/exercise-gen-phase2-2026-10]] section 12.
+
 ## Alternatives Considered
 
 - **Model swap alone, no call collapse.** Rejected as insufficient: output tokens × ~26 calls
@@ -155,3 +181,7 @@ sentence judge exists to catch.
   validated (gold labels are still pending per TASK-726) — it is a candidate for the bundle-judge
   collapse in Decision §4, not for removal, since removing an unvalidated judge is not the same
   claim as removing a validated one.
+
+## Update 2026-10-09: production flipped (TASK-857)
+
+User approved the recommended config. Code defaults in `services/llm_service.py` now are `LADDER_QWEN_REASONING=budget` with per-language budgets ja 1024 / en 1024 / zh 2048 (env `LADDER_QWEN_REASONING_BUDGET_<LANG>` > `LADDER_QWEN_REASONING_BUDGET` > per-language default > 1024). Bundle mode stays off. Calls without a `language_code` (legacy `services/exercise_generation/generators/*`) fall back to 1024. Rollback: set `LADDER_QWEN_REASONING=on` (pre-flip unbounded reasoning). The en P2/P3 sonnet migration is separate. A post-flip `llm_calls` sample is still owed to close the TASK-857 cost criterion.

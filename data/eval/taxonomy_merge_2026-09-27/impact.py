@@ -21,7 +21,7 @@ V5_MAP = {
         ("omission", "1:1"), ("addition", "1:1"), ("word_choice", "1:1"),
         ("collocation", "1:1"), ("word_order", "1:1"), ("register", "1:1"),
         ("orthography", "1:1"), ("cohesion_connective", "1:1"),
-        ("classifier", "1:1"), ("aspect_marker", "merge"), ("de_particles", "split"),
+        ("classifier", "1:1"), ("aspect_marker", "merge"), ("de_particles", "1:1"),  # 1:1 since user decision 2026-09-27 (any 的/地/得 misuse is an error)
         ("ba_construction", "merge"), ("bei_passive", "merge"),
         ("resultative_complement", "merge"), ("directional_complement", "merge"),
         ("adverbial_order", "merge"), ("topic_comment", "1:1"),

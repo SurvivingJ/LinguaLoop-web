@@ -312,6 +312,128 @@ class TestPersistGrade:
 
 
 # ---------------------------------------------------------------------------
+# TASK-842: taxonomy_version / explanation_variant columns (flag-gated)
+# ---------------------------------------------------------------------------
+
+class _SelectRecordingQuery(_FakeQuery):
+    def select(self, *a, **k):
+        self._recorder.append((self._table_name, 'select', a[0] if a else None))
+        return self
+
+
+class _SelectRecordingDB(_FakeDB):
+    def table(self, name):
+        return _SelectRecordingQuery(self._tables.get(name, []), self.calls, name)
+
+
+_PRE_842_ERROR_SELECT = (
+    'span_reproduction, span_reference, category, subtype, source, '
+    'severity, learner_form, corrected_form, explanation, confidence, is_mistake'
+)
+
+
+class TestTaxonomyColumns:
+
+    _ERROR = {
+        'span_reproduction': [0, 1], 'span_reference': [0, 1], 'category': 'lexical',
+        'subtype': 'word_choice', 'source': 'interlingual', 'severity': 'major',
+        'learner_form': 'a', 'corrected_form': 'b', 'explanation': 'why',
+        'confidence': 0.9, 'is_mistake': False,
+        'taxonomy_version': 6, 'explanation_variant': 'false_synonym',
+        'explanation_parts': {'rule': 'r', 'application': None},
+    }
+
+    def _contract(self, *errors):
+        return {'scores': {}, 'overall_band': 3, 'diff': [], 'grader_trace': {},
+                'errors': list(errors)}
+
+    def _error_insert(self, db):
+        return next(p for n, m, p in db.calls if n == 'dt_error_instance' and m == 'insert')
+
+    def test_whitelist_names_the_new_columns(self):
+        assert 'taxonomy_version' in dt_routes._ERROR_INSERT_COLUMNS
+        assert 'explanation_variant' in dt_routes._ERROR_INSERT_COLUMNS
+        assert 'explanation_parts' not in dt_routes._ERROR_INSERT_COLUMNS
+
+    def test_flag_off_insert_never_names_new_columns(self, monkeypatch):
+        """Before migrations/dt_taxonomy_v6_columns.sql is applied, an insert
+        naming the new columns would be rejected by PostgREST — so with the flag
+        off they are dropped even if an error dict carries them."""
+        monkeypatch.setattr(Config, 'DT_TAXONOMY_COLUMNS', False)
+        db = _FakeDB({})
+
+        dt_routes._persist_grade(db, 5, 'repro', None, self._contract(self._ERROR))
+
+        row = self._error_insert(db)[0]
+        assert 'taxonomy_version' not in row
+        assert 'explanation_variant' not in row
+        assert 'explanation_parts' not in row
+        assert row['submission_id'] == 5
+
+    def test_flag_off_cached_select_is_unchanged(self, monkeypatch):
+        monkeypatch.setattr(Config, 'DT_TAXONOMY_COLUMNS', False)
+        db = _SelectRecordingDB({
+            'dt_grade': [{'scores': {}, 'overall_band': 3, 'diff': [], 'grader_trace': {}}],
+            'dt_error_instance': [],
+        })
+
+        dt_routes._cached_grade(db, 5)
+
+        selects = [p for n, m, p in db.calls if n == 'dt_error_instance' and m == 'select']
+        assert selects == [_PRE_842_ERROR_SELECT]
+
+    def test_flag_on_insert_carries_version_and_variant(self, monkeypatch):
+        monkeypatch.setattr(Config, 'DT_TAXONOMY_COLUMNS', True)
+        db = _FakeDB({})
+
+        dt_routes._persist_grade(db, 5, 'repro', None, self._contract(self._ERROR))
+
+        row = self._error_insert(db)[0]
+        assert row['taxonomy_version'] == 6
+        assert row['explanation_variant'] == 'false_synonym'
+        assert 'explanation_parts' not in row
+
+    def test_flag_on_variant_nulled_on_non_word_choice(self, monkeypatch):
+        """dt_error_instance_explanation_variant_check ties the variant to
+        word_choice; a stale variant on a re-typed error must not fail the insert."""
+        monkeypatch.setattr(Config, 'DT_TAXONOMY_COLUMNS', True)
+        db = _FakeDB({})
+        retyped = {**self._ERROR, 'subtype': 'omission'}
+
+        dt_routes._persist_grade(db, 5, 'repro', None, self._contract(retyped))
+
+        row = self._error_insert(db)[0]
+        assert row['explanation_variant'] is None
+        assert row['taxonomy_version'] == 6
+
+    def test_flag_on_absent_keys_are_not_inserted(self, monkeypatch):
+        monkeypatch.setattr(Config, 'DT_TAXONOMY_COLUMNS', True)
+        db = _FakeDB({})
+        legacy = {k: v for k, v in self._ERROR.items()
+                  if k not in ('taxonomy_version', 'explanation_variant')}
+
+        dt_routes._persist_grade(db, 5, 'repro', None, self._contract(legacy))
+
+        row = self._error_insert(db)[0]
+        assert 'taxonomy_version' not in row
+        assert 'explanation_variant' not in row
+
+    def test_flag_on_cached_select_reads_new_columns_back(self, monkeypatch):
+        monkeypatch.setattr(Config, 'DT_TAXONOMY_COLUMNS', True)
+        db = _SelectRecordingDB({
+            'dt_grade': [{'scores': {}, 'overall_band': 3, 'diff': [], 'grader_trace': {}}],
+            'dt_error_instance': [{'subtype': 'word_choice', 'taxonomy_version': 6,
+                                   'explanation_variant': 'wrong_word'}],
+        })
+
+        result = dt_routes._cached_grade(db, 5)
+
+        selects = [p for n, m, p in db.calls if n == 'dt_error_instance' and m == 'select']
+        assert selects == [_PRE_842_ERROR_SELECT + ', taxonomy_version, explanation_variant']
+        assert result['errors'][0]['explanation_variant'] == 'wrong_word'
+
+
+# ---------------------------------------------------------------------------
 # _tokens_used_today (TASK-601 budget guardrail)
 # ---------------------------------------------------------------------------
 

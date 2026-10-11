@@ -1,0 +1,517 @@
+{
+  "sense_id": 35009,
+  "language_id": 3,
+  "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+  "started_at": "2026-10-03T01:10:55.146474+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[4] flagged (rating 3): 語域：不自然な敬称"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.900439977645874,
+    "p1_generate": 16.058670043945312,
+    "tier_gate": 0.015636920928955078,
+    "p1_judge": 9.705087423324585,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[4] flagged (rating 3): 語域：不自然な敬称"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "sama",
+        "pronunciation": "さま",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35009
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "376c937a-2d0d-449d-a427-4dbe300b50b6",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よう",
+        "pronunciation": "さま",
+        "correct_definition": "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。",
+        "options": [
+          "ある場所から別の場所へ位置を変えること。",
+          "燃料を燃やしたり電気を使ったりして、回転する力や押し出す力を作り出す機械。車や飛行機、船などに使われ、動くためのもとになる力を生み出す。",
+          "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。",
+          "物事が一定の順序で並んでいること。また、その並び方や順序。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "16cb52d7-f014-4043-9ab7-5adeb473b40b",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "鈴木様、ご依頼いただきました資料をメールにて送付いたします。",
+            "is_correct": true
+          },
+          {
+            "text": "鈴木様、ご依頼いただきました資料をメールにて送付いたしましょう。",
+            "is_correct": false,
+            "error_description": "誤り型：活用・アスペクトの誤り。ビジネス文書や丁寧な連絡では、意志や提案を表す「～ましょう」ではなく、謙譲の意図を含む丁寧語「～いたします」を使用するのが適切です。「送付いたしましょう」は文法的に不自然であり、相手への敬意が欠如しています。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "5d746e07-07b3-4d7c-b24b-d969fb0d1b86",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よう",
+        "pronunciation": "さま",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "物事の動作や形状を、複数の数値（パラメーター）で自由に変えられるように設計すること。",
+              "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。",
+              "a mailbox (postbox)",
+              "蒸发 —— 液体变成气体而消失不见"
+            ],
+            "correct_answer": "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "8f8eb8a6-2b15-40f7-ad84-a9fd2d16aa7a",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "様",
+        "options": [
+          "さま",
+          "さまあ",
+          "ざま",
+          "さあま"
+        ],
+        "correct_answer": "さま",
+        "word": "様",
+        "direction": "kanji_to_reading",
+        "context_sentence": "田中様、本日はお忙しい中、お越しいただきありがとうございます。",
+        "context_target": "よう",
+        "is_polyphonic": true
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "45249411-ad45-4f0c-8a1c-c6a3ffd732e5",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "さま",
+        "options": [
+          "差",
+          "美",
+          "線",
+          "様"
+        ],
+        "correct_answer": "様",
+        "word": "様",
+        "direction": "reading_to_kanji",
+        "context_sentence": "田中様、本日はお忙しい中、お越しいただきありがとうございます。",
+        "context_target": "よう",
+        "is_polyphonic": true,
+        "distractor_sources": {
+          "線": "component",
+          "美": "component",
+          "差": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 1
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183616,
+      "prompt_tokens": 2706,
+      "completion_tokens": 758,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 15834
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00047392,
+      "prompt_tokens": 765,
+      "completion_tokens": 179,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 4431
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00017696,
+      "prompt_tokens": 277,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 2550
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.000272,
+      "prompt_tokens": 670,
+      "completion_tokens": 45,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 1800
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00450752,
+      "prompt_tokens": 2202,
+      "completion_tokens": 2971,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 51957
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006992,
+      "prompt_tokens": 1601,
+      "completion_tokens": 146,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 4236
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00069696,
+      "prompt_tokens": 1606,
+      "completion_tokens": 143,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 3647
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_bundle_judge",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016336,
+      "prompt_tokens": 1333,
+      "completion_tokens": 943,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 17449
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00033536,
+      "prompt_tokens": 784,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 3270
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00033888,
+      "prompt_tokens": 783,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+      "language_code": "ja",
+      "latency_ms": 2498
+    }
+  ],
+  "llm_calls_observed": 10,
+  "llm_cost_observed_usd": 0.01097056,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 132.7970000000205,
+  "finished_at": "2026-10-03T01:13:07.940711+00:00"
+}

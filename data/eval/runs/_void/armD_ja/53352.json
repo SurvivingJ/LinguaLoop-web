@@ -1,0 +1,1405 @@
+{
+  "sense_id": 53352,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T13:55:41.865037+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "Tier gate: sentence[2] 5 words above tier T1 (max 2): 微生物 (Zipf 3.52), 発酵 (Zipf 3.73), こえ (Zipf 3.66), 主食 (Zipf 3.48), 広げる (Zipf 3.73)"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.0855283737182617,
+    "p1_generate": 38.656742334365845,
+    "tier_gate": 20.444851398468018,
+    "p1_judge": 64.86958265304565,
+    "collocate_grounding": 0.0,
+    "fan_out": 45.968337297439575
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Tier gate: sentence[2] 5 words above tier T1 (max 2): 微生物 (Zipf 3.52), 発酵 (Zipf 3.73), こえ (Zipf 3.66), 主食 (Zipf 3.48), 広げる (Zipf 3.73)"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/koeru/",
+        "morphological_forms": [
+          {
+            "form": "超えた",
+            "label": "活用"
+          },
+          {
+            "form": "超えて",
+            "label": "活用"
+          },
+          {
+            "form": "超えない",
+            "label": "活用"
+          },
+          {
+            "form": "超えられる",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "こえる",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            53352
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "aba3d1e6-5535-4045-802e-f8dc25b9f5cb",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "超える",
+        "pronunciation": "こえる",
+        "ipa": "/koeru/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "仔猿",
+          "超える",
+          "据える",
+          "生える"
+        ],
+        "correct_answer": "超える",
+        "explanation": "正解です。「超える」は「限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。」という意味です。",
+        "distractor_explanations": {
+          "据える": "「据える」は「超える」と一モーラだけ異なる実在語です（1モーラ目: 「こ」→「す」、一部の音の違い）。",
+          "仔猿": "「仔猿」は「超える」と一モーラだけ異なる実在語です（2モーラ目: 「え」→「ざ」、一部の音の違い）。",
+          "生える": "「生える」は「超える」と一モーラだけ異なる実在語です（1モーラ目: 「こ」→「は」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 10,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "c13769d2-8c9c-4d79-8a4a-3e2102caea45",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "超え",
+        "pronunciation": "こえる",
+        "correct_definition": "限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。",
+        "options": [
+          "電磁波の波長の違いによって現れる、色の連続した帯。転じて、さまざまな要素が連続的に分布する範囲。",
+          "限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。",
+          "物と物の間にすきまがなく、しっかりと結びついているさま。また、強くて動かないさま。",
+          "ある物事や考え方が、広く一般に広まること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "36d1b941-cb58-4080-b0d4-2c2acf5f14fc",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "学校の行事という特別な場において、Tシャツのデザインはただの飾りを___、グループ内の細かい違いや個性を表すものとして働きます。",
+        "original_sentence": "学校の行事という特別な場において、Tシャツのデザインはただの飾りを超え、グループ内の細かい違いや個性を表すものとして働きます。",
+        "correct_answer": "超え",
+        "base_form": "超える",
+        "form_label": "連用形（中止法）",
+        "options": [
+          "超えます",
+          "超える",
+          "超えない",
+          "超え"
+        ],
+        "explanation": "書き言葉の文脈において、連用形による中止法として後続の句を自然に導く正しい形です。",
+        "word_definition": "限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。",
+        "target_word": "超え"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "db1db478-7b0c-488a-bad4-3104c8b36743",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "その行為は単なるガーデニングの域に超え、自然の摂理に対する静かなる祈りにも似ています。",
+            "is_correct": false
+          },
+          {
+            "text": "その行為は単なるガーデニングの域を超えで、自然の摂理に対する静かなる祈りにも似ています。",
+            "is_correct": false
+          },
+          {
+            "text": "その行為は単なるガーデニングの域を超え、自然の摂理に対する静かなる祈りにも似ています。",
+            "is_correct": true
+          },
+          {
+            "text": "その行為は単なるガーデニングの域を超え、自然の摂理に対する静かなる祈りにも似ているです。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "活用・アスペクトの誤り：「超え」の後に「で」を続けることはできません。連用形「超え」で一度文を区切るか、「超えて」とする必要があります。 語域・形態素の誤り：「似ている」の後に丁寧語の「です」を直接続けることはできません。「似ています」とするのが正しい日本語の語法です。 助詞の混同：「域」は「超える」動作の起点や通過点ではなく、直接目的語（対象）です。ここでは「を」を使い「域を超え」とする必要があります。",
+        "target_word": "超え"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "1e10c4ee-ddc5-4161-bb5e-dc621e668a76",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "微生物の働きによる発酵は、ただの保存方法を超え、主食の持つ可能性を大きく広げる素晴らしい化学的な技術だと言います。",
+            "is_correct": false,
+            "error_description": "「〜と言える」という可能・推量の表現を用いて事物的な性質を客観的に評価する場面で、動作主の意志を表す「〜と言います」とするのは不自然です。文脈に合わせて「〜と言えます」を用いるのが適切です。"
+          },
+          {
+            "text": "微生物の働きによる発酵は、ただの保存方法を超え、主食の持つ可能性を大きく広げる素晴らしい化学的な技術だと言えます。",
+            "is_correct": true
+          },
+          {
+            "text": "学校の行事という特別な場において、Tシャツのデザインはただの飾りを超え、グループ内の細かい違いや個性を表すものとして働きます。",
+            "is_correct": true
+          },
+          {
+            "text": "この活動は、ただ植物を育てることを超え、自然環境を元に戻し、人々の結びつきを深めることを同時に目指している点に特徴があります。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "f0ef1d14-c28b-4d1e-a32b-dbc16f4891a9",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "超え",
+        "pronunciation": "こえる",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "implementation",
+              "weeds — grasses that grow naturally without being deliberately cultivated, often hindering crops",
+              "限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。",
+              "土を道具でやわらかくすること。"
+            ],
+            "correct_answer": "限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "d7793828-2ef8-43b6-9898-eefc9cd4f880",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "学校の行事という特別な場において、Tシャツのデザインはただの飾りを___、グループ内の細かい違いや個性を表すものとして働きます。",
+        "original_sentence": "学校の行事という特別な場において、Tシャツのデザインはただの飾りを超え、グループ内の細かい違いや個性を表すものとして働きます。",
+        "target_word": "超え",
+        "word": "超え",
+        "answer": {
+          "accepted": [
+            "超え",
+            "超えた",
+            "超えて",
+            "超えない",
+            "超えられる"
+          ],
+          "accepted_normalized": [
+            "超え",
+            "超えた",
+            "超えて",
+            "超えない",
+            "超えられる"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "2ac90727-cd85-4235-936f-2654010a1380",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "超える",
+        "options": [
+          "こえいる",
+          "ごえる",
+          "こうえる",
+          "こえる"
+        ],
+        "correct_answer": "こえる",
+        "word": "超える",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "2338777b-471d-4957-a344-9ac4b38cbabf",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "こえる",
+        "options": [
+          "起こし",
+          "起きる",
+          "超える",
+          "越える"
+        ],
+        "correct_answer": "超える",
+        "word": "超える",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "越える": "homophone",
+          "起こし": "component",
+          "起きる": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "abbe2ca6-8ecd-4252-a722-ab1f9803bc2e",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "学校の行事という特別な場において、Tシャツのデザインはただの飾り___超え、グループ内の細かい違いや個性を表すものとして働きます。",
+        "original_sentence": "学校の行事という特別な場において、Tシャツのデザインはただの飾りを超え、グループ内の細かい違いや個性を表すものとして働きます。",
+        "options": [
+          "で",
+          "に",
+          "が",
+          "を"
+        ],
+        "correct_answer": "を",
+        "target_word": "超え",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "に": "location_vs_target",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「超える」が超えるべき基準や限度（この場合は「飾り」）の直接目的語を標示する"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "aa09c9bc-81ca-4950-8bf8-e74859b10912",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "超え",
+        "relation": "antonym",
+        "options": [
+          "維持する",
+          "達する",
+          "上回る",
+          "下回る"
+        ],
+        "correct_answer": "下回る",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。",
+            "explanation": "数量や水準が基準より小さいことを表し、目標語の厳密な対義語となる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "上回る": 0.689361
+          }
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "3489d11b-2d14-4ae0-9aac-15900f296b17",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "想像を___結果だった。",
+        "original_sentence": "想像を超える結果だった。",
+        "correct_answer": "超える",
+        "base_form": "超える",
+        "form_label": "辞書形（連体形）",
+        "options": [
+          "超えます",
+          "超えて",
+          "超える",
+          "超え"
+        ],
+        "explanation": "名詞「結果」を修飾するには連体形（辞書形）の「超える」が必要です。",
+        "word_definition": "限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。",
+        "target_word": "超える"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "383c1c2b-39a0-41ba-b4b9-55024eb7a3b6",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "その悲痛な叫び声は、想定されていた音量の限界を超えて、会場全体に響き渡った。",
+            "is_correct": false
+          },
+          {
+            "text": "その悲痛な叫び声は、想定されていた音量の限界を超えて、会場全体に響き渡りました。",
+            "is_correct": true
+          },
+          {
+            "text": "その悲痛な叫び声は、会場全体に響き渡り、想定されていた音量の限界を超えていました。",
+            "is_correct": false
+          },
+          {
+            "text": "その悲痛な叫び声は、想定されていた音量の限界を超え、会場全体に響き渡りました。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「超える」は他動詞であり、「限界」という目的語を取るため、格助詞「て」ではなく「を」が必要です。 活用・アスペクトの誤り：文全体が過去の出来事（響き渡りました）を述べているため、後続の動詞「響き渡る」も過去の助動詞「た」を伴う必要があります。 語順・係り受けの誤り：「限界を超えていた」という状態が先にあり、その結果として「響き渡った」という自然な因果関係にするため、原因・程度を表す句は結果の動詞より前に置くべきです。",
+        "target_word": "超え"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "8ab09459-4655-4e03-986f-a5a40a2dfd88",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼の成績は、いつも平均を超えしている。",
+            "is_correct": false,
+            "error_description": "誤り型：活用・アスペクトの誤り。動詞「超える」の連用形「超え」に、進行・継続の助動詞「している」を直接接続することはできません。正しくは「超えている」とします。"
+          },
+          {
+            "text": "その悲痛な叫び声は、想定されていた音量の限界を超えて、会場全体に響き渡りました。",
+            "is_correct": true
+          },
+          {
+            "text": "目標を超えて努力する。",
+            "is_correct": true
+          },
+          {
+            "text": "想像を超える結果だった。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "8b3fe73a-24cd-4ed6-a96e-8befe381215b",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "想像を___結果だった。",
+        "original_sentence": "想像を超える結果だった。",
+        "target_word": "超える",
+        "word": "超え",
+        "answer": {
+          "accepted": [
+            "超える"
+          ],
+          "accepted_normalized": [
+            "超える"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "394719ef-5d7a-4d2a-a163-fa5420ba2bd4",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この活動は、ただ植物___育てることを超え、自然環境を元に戻し、人々の結びつきを深めることを同時に目指している点に特徴があります。",
+        "original_sentence": "この活動は、ただ植物を育てることを超え、自然環境を元に戻し、人々の結びつきを深めることを同時に目指している点に特徴があります。",
+        "options": [
+          "が",
+          "を",
+          "で",
+          "に"
+        ],
+        "correct_answer": "を",
+        "target_word": "超え",
+        "error_tags": {
+          "が": "object_marking",
+          "に": "location_vs_target",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「超える」の直接目的語を標示する"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a63b9c90-6b1c-4865-8c04-9e348dda40d5",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "超え",
+        "relation": "antonym",
+        "options": [
+          "及ぶ",
+          "上回る",
+          "下がる",
+          "下回る"
+        ],
+        "correct_answer": "下回る",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "限度や範囲より、むこうへいくこと。数量や水準が、基準より、おおきいこと。",
+            "explanation": "数量や水準が基準より小さいことを表し、目標語の語義と対義関係にある"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "上回る": 0.689361,
+            "下がる": 0.517039
+          }
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 53352,
+      "word_asset_id": "shadow-53352-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 10
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "particle": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '超え' is fused into a neighbouring chunk — chunks=['この値は', '限界を', '超えない']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '超え' is fused into a neighbouring chunk — chunks=['その行為は', '単なるガーデニングの', '域を超え', '自然の摂理に', '対する静かなる祈りに', 'も似ています']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00369056,
+      "prompt_tokens": 2797,
+      "completion_tokens": 2184,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 38368
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163456,
+      "prompt_tokens": 512,
+      "completion_tokens": 1149,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20276
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00192032,
+      "prompt_tokens": 805,
+      "completion_tokens": 1299,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22870
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160544,
+      "prompt_tokens": 333,
+      "completion_tokens": 1171,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20797
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016944,
+      "prompt_tokens": 731,
+      "completion_tokens": 1141,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20418
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00187904,
+      "prompt_tokens": 1172,
+      "completion_tokens": 1175,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20861
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00206752,
+      "prompt_tokens": 1733,
+      "completion_tokens": 1182,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20945
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00208768,
+      "prompt_tokens": 1736,
+      "completion_tokens": 1197,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21659
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186592,
+      "prompt_tokens": 819,
+      "completion_tokens": 1253,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22130
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001904,
+      "prompt_tokens": 846,
+      "completion_tokens": 1276,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22445
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00201664,
+      "prompt_tokens": 1154,
+      "completion_tokens": 1287,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23089
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00320608,
+      "prompt_tokens": 2759,
+      "completion_tokens": 1815,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 32420
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0033072,
+      "prompt_tokens": 2759,
+      "completion_tokens": 1894,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 33398
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018384,
+      "prompt_tokens": 773,
+      "completion_tokens": 1243,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23553
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018368,
+      "prompt_tokens": 776,
+      "completion_tokens": 1241,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22450
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017192,
+      "prompt_tokens": 402,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 2166
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160672,
+      "prompt_tokens": 613,
+      "completion_tokens": 1102,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 19784
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.0001592,
+      "prompt_tokens": 370,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 3279
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163456,
+      "prompt_tokens": 616,
+      "completion_tokens": 1123,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 53352,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 19797
+    }
+  ],
+  "llm_calls_observed": 19,
+  "llm_cost_observed_usd": 0.03612696,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 3,
+    "repaired": 2,
+    "still_failing": 1
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 219.75,
+  "finished_at": "2026-10-05T13:59:21.624306+00:00"
+}

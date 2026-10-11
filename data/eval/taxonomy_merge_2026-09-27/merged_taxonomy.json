@@ -38,20 +38,20 @@
         "values": [
           "wrong_word",
           "wrong_sense",
-          "shared_translation"
+          "false_synonym"
         ],
         "required": true,
         "definitions": {
           "wrong_word": "A word that does not fit the intended idea (vocabulary gap); no shared L1 gloss with the correct word and not a sense confusion of one lemma.",
           "wrong_sense": "NARROW: the SAME word/lemma the context needs, used in a different one of its own dictionary senses (e.g. 意思 read as 'intention' where 'meaning' is needed). A different lexeme never qualifies, even if it is a near-synonym.",
-          "shared_translation": "A DIFFERENT word that shares a translation/gloss in the learner's L1 with the correct word (e.g. 知道 vs 认识 both 'know'; 見る vs 会う both 'see'). The error is L1-translation transfer."
+          "false_synonym": "A DIFFERENT word that the learner's L1 glosses the same way as the correct word, but whose meaning or usage differs (e.g. 知道 vs 认识 both glossed 'know'; 見る vs 会う both glossed 'see'). The error is an L1-gloss-driven false synonym."
         },
-        "precedence": "Same lemma -> wrong_sense; else shared L1 gloss -> shared_translation; else wrong_word.",
-        "detection": "shared_translation is largely deterministic: look up the L1 glosses of the learner's word and the correct word in the sense dictionary (dim_word_senses cross-language definitions); if they share an L1 gloss -> shared_translation. Caveat: en words currently have no zh/ja glosses, so for en L2 this lookup is not available yet and the variant is a grader judgement until en->zh/ja glosses exist.",
-        "grader_question": "Is the learner's word the same lemma as the needed word (wrong_sense), a different word that shares an L1 translation with it (shared_translation), or simply a word that does not fit (wrong_word)?",
-        "note": "User decision 2026-09-27 (Decision A, final): word_choice stays one type for scoring (same dimension/severity); the explanation is split three ways via this field. Recorded per error instance on dt_error_instance; explainer.py needs a rendered-explanation template per variant."
+        "precedence": "Same lemma -> wrong_sense; else shared L1 gloss -> false_synonym; else wrong_word.",
+        "detection": "false_synonym is largely deterministic: look up the L1 glosses of the learner's word and the correct word in the sense dictionary (dim_word_senses cross-language definitions) and compare them as normalised gloss terms; exact match on a normalised L1 gloss term -> false_synonym. Caveat: en words currently have no zh/ja glosses, so for en L2 this lookup is not available yet and the variant is a grader judgement until en->zh/ja glosses exist.",
+        "grader_question": "Is the learner's word the same lemma as the needed word (wrong_sense), a different word that shares an L1 translation with it but differs in meaning or usage (false_synonym), or simply a word that does not fit (wrong_word)?",
+        "note": "User decision 2026-09-27 (Decision A, final): word_choice stays one type for scoring (same dimension/severity); the explanation is split three ways via this field. Recorded per error instance on dt_error_instance; explainer.py needs a rendered-explanation template per variant. The third variant was renamed 2026-10-04 for clarity (same meaning and detection method; name change only)."
       },
-      "definition": "A wrong or unnatural lexical choice (absorbs v5/jev wrong_sense). The explanation_variant field records why: wrong_word, wrong_sense (same lemma, wrong sense) or shared_translation (different word sharing an L1 gloss)."
+      "definition": "A wrong or unnatural lexical choice (absorbs v5/jev wrong_sense). The explanation_variant field records why: wrong_word, wrong_sense (same lemma, wrong sense) or false_synonym (a different word the L1 glosses the same way, but whose meaning/usage differs)."
     },
     {
       "id": "collocation",
@@ -123,7 +123,7 @@
       "jev_bucket": "B1",
       "treatable": true,
       "cloze_suitable": true,
-      "definition": "Wrong or missing classifier in a numeral/demonstrative + classifier + noun phrase, or 们 after a numeral. Renamed from v5 `classifier`; never corrupt to 个 (acceptable default)."
+      "definition": "Wrong or missing classifier in a numeral/demonstrative + classifier + noun phrase, or 们 after a numeral. Renamed from v5 `classifier`. 个 is acceptable only where native speakers would use it; replacing a specific classifier the noun requires with 个 (一个T恤 for 一件T恤) is an error (developer decision 2026-10-09, ADR-031; stricter than jev taxonomy.md, which accepts 个 for nouns with a specific classifier)."
     },
     {
       "id": "aspect_negation",
@@ -140,7 +140,7 @@
     {
       "id": "de_particle",
       "en_name": "的/得/地 (structural particle)",
-      "native_name": "结构助词“得/地”",
+      "native_name": "结构助词“的／地／得”",
       "class": "G",
       "dimension": "accuracy",
       "default_severity": "minor",
@@ -152,19 +152,19 @@
     {
       "id": "complement",
       "en_name": "Verb complements",
-      "native_name": "补语（结果/趋向/可能/程度）",
+      "native_name": "补语（结果／趋向／可能／程度）",
       "class": "G",
       "dimension": "accuracy",
       "default_severity": "major",
       "jev_bucket": "B2",
       "treatable": true,
       "cloze_suitable": true,
-      "definition": "Wrong form or position of a resultative, directional, potential or degree complement. Merges v5 `resultative_complement` + `directional_complement`."
+      "definition": "Wrong form or position of a resultative, directional, potential or degree complement. Merges v5 `resultative_complement` + `directional_complement`. Boundary (string review 2026-10-07, reviewer-proposed, pending user confirmation — ADR-031): a 的/地/得 misuse or a missing obligatory 得 alone (跑快 → 跑得快) is de_particle, not complement."
     },
     {
       "id": "ba_bei",
       "en_name": "把/被 constructions",
-      "native_name": "把字句/被字句",
+      "native_name": "把字句／被字句",
       "class": "G",
       "dimension": "accuracy",
       "default_severity": "major",
@@ -188,7 +188,7 @@
     {
       "id": "coverb",
       "en_name": "Prepositions / coverbs",
-      "native_name": "介词/介动词",
+      "native_name": "介词",
       "class": "G",
       "dimension": "accuracy",
       "default_severity": "minor",
@@ -212,14 +212,14 @@
     {
       "id": "topic_comment",
       "en_name": "Topic-comment structure",
-      "native_name": "话题—评论结构",
+      "native_name": "话题—述题结构",
       "class": "D",
       "dimension": "naturalness",
       "default_severity": "minor",
       "jev_bucket": "B4",
       "treatable": false,
       "cloze_suitable": false,
-      "definition": "Topic/subject-comment structure used inappropriately, often over-transfer from the learner's L1. Retained verbatim from v5. Being ported into jev's own taxonomy per user decision 2026-09-27 (author/reviewer pass in progress); `jev_bucket` is 'pending' until that lands."
+      "definition": "Topic/subject-comment structure used inappropriately, often over-transfer from the learner's L1. Retained verbatim from v5. jev's narrower slice (Z1 only: expletive 它 as the subject of a closed-list weather verb, authored as a capped diagnostic) is specified in `data/eval/jev_grammar_2026-09-26/taxonomy.md` §1.2 `zh.topic_comment` (folded in 2026-09-28)."
     },
     {
       "id": "semantic_anomaly",
@@ -248,7 +248,7 @@
     {
       "id": "meaning_inversion",
       "en_name": "Meaning inversion",
-      "native_name": "语义反转（极性/方向/数量）",
+      "native_name": "语义反转（极性／方向／数量／施受）",
       "class": "S",
       "dimension": "fidelity",
       "default_severity": "critical",
@@ -297,20 +297,20 @@
         "values": [
           "wrong_word",
           "wrong_sense",
-          "shared_translation"
+          "false_synonym"
         ],
         "required": true,
         "definitions": {
           "wrong_word": "A word that does not fit the intended idea (vocabulary gap); no shared L1 gloss with the correct word and not a sense confusion of one lemma.",
           "wrong_sense": "NARROW: the SAME word/lemma the context needs, used in a different one of its own dictionary senses (e.g. 意思 read as 'intention' where 'meaning' is needed). A different lexeme never qualifies, even if it is a near-synonym.",
-          "shared_translation": "A DIFFERENT word that shares a translation/gloss in the learner's L1 with the correct word (e.g. 知道 vs 认识 both 'know'; 見る vs 会う both 'see'). The error is L1-translation transfer."
+          "false_synonym": "A DIFFERENT word that the learner's L1 glosses the same way as the correct word, but whose meaning or usage differs (e.g. 知道 vs 认识 both glossed 'know'; 見る vs 会う both glossed 'see'). The error is an L1-gloss-driven false synonym."
         },
-        "precedence": "Same lemma -> wrong_sense; else shared L1 gloss -> shared_translation; else wrong_word.",
-        "detection": "shared_translation is largely deterministic: look up the L1 glosses of the learner's word and the correct word in the sense dictionary (dim_word_senses cross-language definitions); if they share an L1 gloss -> shared_translation. Caveat: en words currently have no zh/ja glosses, so for en L2 this lookup is not available yet and the variant is a grader judgement until en->zh/ja glosses exist.",
-        "grader_question": "Is the learner's word the same lemma as the needed word (wrong_sense), a different word that shares an L1 translation with it (shared_translation), or simply a word that does not fit (wrong_word)?",
-        "note": "User decision 2026-09-27 (Decision A, final): word_choice stays one type for scoring (same dimension/severity); the explanation is split three ways via this field. Recorded per error instance on dt_error_instance; explainer.py needs a rendered-explanation template per variant."
+        "precedence": "Same lemma -> wrong_sense; else shared L1 gloss -> false_synonym; else wrong_word.",
+        "detection": "false_synonym is largely deterministic: look up the L1 glosses of the learner's word and the correct word in the sense dictionary (dim_word_senses cross-language definitions) and compare them as normalised gloss terms; exact match on a normalised L1 gloss term -> false_synonym. Caveat: en words currently have no zh/ja glosses, so for en L2 this lookup is not available yet and the variant is a grader judgement until en->zh/ja glosses exist.",
+        "grader_question": "Is the learner's word the same lemma as the needed word (wrong_sense), a different word that shares an L1 translation with it but differs in meaning or usage (false_synonym), or simply a word that does not fit (wrong_word)?",
+        "note": "User decision 2026-09-27 (Decision A, final): word_choice stays one type for scoring (same dimension/severity); the explanation is split three ways via this field. Recorded per error instance on dt_error_instance; explainer.py needs a rendered-explanation template per variant. The third variant was renamed 2026-10-04 for clarity (same meaning and detection method; name change only)."
       },
-      "definition": "A wrong or unnatural lexical choice (absorbs v5/jev wrong_sense). The explanation_variant field records why: wrong_word, wrong_sense (same lemma, wrong sense) or shared_translation (different word sharing an L1 gloss)."
+      "definition": "A wrong or unnatural lexical choice (absorbs v5/jev wrong_sense). The explanation_variant field records why: wrong_word, wrong_sense (same lemma, wrong sense) or false_synonym (a different word the L1 glosses the same way, but whose meaning/usage differs)."
     },
     {
       "id": "collocation",
@@ -346,7 +346,7 @@
       "jev_bucket": "B8",
       "treatable": false,
       "cloze_suitable": false,
-      "definition": "Wrong level of formality or tone for the declared register/tier (distinct from `keigo`'s honorific-direction rule)."
+      "definition": "Word-level or stylistic register clashes with the declared register/tier (written vs spoken vocabulary, stiff vs casual expressions, slang). The plain/polite style choice (だ vs です, る vs ます) is `keigo`, not register (developer decision 2026-10-09, ADR-031)."
     },
     {
       "id": "orthography",
@@ -406,12 +406,12 @@
       "jev_bucket": "B9",
       "treatable": true,
       "cloze_suitable": true,
-      "definition": "Parallel particles (や・と), focus particles (も・だけ・しか), or sentence-final particles used incorrectly. Ported into jev's grammar taxonomy via `data/eval/jev_grammar_2026-09-26/taxonomy_addendum_2026-09-27.md` (jev bucket B9, new) — no longer a DT-only legacy type (user decision 2026-09-27); author/reviewer pass on the addendum is in progress."
+      "definition": "Parallel particles (や・と), focus particles (も・だけ・しか), or sentence-final particles used incorrectly. jev's narrower slice (P1–P3 only: negative-polarity しか/ほど/も, time-point まで/までに, closed-list や/とか; final particles and stacking are routing-only) is specified in `data/eval/jev_grammar_2026-09-26/taxonomy.md` §2.2 `ja.particle_other` (folded in 2026-09-28; new bucket B9)."
     },
     {
       "id": "conjugation",
       "en_name": "Conjugation",
-      "native_name": "動詞の活用",
+      "native_name": "活用（動詞・形容詞）",
       "class": "G",
       "dimension": "accuracy",
       "default_severity": "major",
@@ -434,15 +434,15 @@
     },
     {
       "id": "keigo",
-      "en_name": "Keigo direction",
-      "native_name": "敬語（方向）",
+      "en_name": "Keigo and politeness level",
+      "native_name": "敬語・丁寧さ",
       "class": "G",
       "dimension": "fidelity",
       "default_severity": "major",
       "jev_bucket": "B8",
       "treatable": true,
       "cloze_suitable": true,
-      "definition": "Honorific (尊敬語) used for the speaker's own/in-group action, or humble (謙譲語) used for a superior's action. Renamed 1:1 from v5 `keigo_register`; dimension stays fidelity per business-rules doc (a grammatically correct sentence at the wrong keigo level is still a real error)."
+      "definition": "Wrong politeness level — plain style (だ, dictionary-form verbs) where the polite style (です/ます) is needed, or the reverse — or honorific (尊敬語) used for the speaker's own/in-group action, or humble (謙譲語) used for a superior's action. Politeness level is keigo, not register (developer decision 2026-10-09, ADR-031; jev taxonomy.md files だ/です mixing under ja.register — a known divergence). Renamed 1:1 from v5 `keigo_register`; dimension stays fidelity per business-rules doc (a grammatically correct sentence at the wrong keigo level is still a real error)."
     },
     {
       "id": "counter",
@@ -459,7 +459,7 @@
     {
       "id": "transitivity_voice",
       "en_name": "Transitivity & voice",
-      "native_name": "自動詞/他動詞・受身",
+      "native_name": "自動詞・他動詞／受身・使役",
       "class": "G",
       "dimension": "accuracy",
       "default_severity": "major",
@@ -471,7 +471,7 @@
     {
       "id": "modification",
       "en_name": "Noun-modification form",
-      "native_name": "連体修飾形（い/な/の）",
+      "native_name": "連体修飾形（い・な・の）",
       "class": "G",
       "dimension": "accuracy",
       "default_severity": "minor",
@@ -514,7 +514,7 @@
       "jev_bucket": "B3",
       "treatable": false,
       "cloze_suitable": false,
-      "definition": "は-based topic presentation used inappropriately. Retained verbatim from v5. Being ported into jev's own taxonomy per user decision 2026-09-27 (author/reviewer pass in progress); `jev_bucket` is 'pending' until that lands."
+      "definition": "は-based topic presentation used inappropriately. Retained verbatim from v5. jev's narrower slice (comment-side 主述のねじれ only, J1a/J1b; presentation-side errors such as expletive or doubled は-topics remain DT-only / routing-only) is specified in `data/eval/jev_grammar_2026-09-26/taxonomy.md` §2.2 `ja.topic_comment` (folded in 2026-09-28)."
     },
     {
       "id": "semantic_anomaly",
@@ -543,7 +543,7 @@
     {
       "id": "meaning_inversion",
       "en_name": "Meaning inversion",
-      "native_name": "意味の反転（極性・方向・数量）",
+      "native_name": "意味の反転（極性・方向・数量・動作主）",
       "class": "S",
       "dimension": "fidelity",
       "default_severity": "critical",
@@ -592,20 +592,20 @@
         "values": [
           "wrong_word",
           "wrong_sense",
-          "shared_translation"
+          "false_synonym"
         ],
         "required": true,
         "definitions": {
           "wrong_word": "A word that does not fit the intended idea (vocabulary gap); no shared L1 gloss with the correct word and not a sense confusion of one lemma.",
           "wrong_sense": "NARROW: the SAME word/lemma the context needs, used in a different one of its own dictionary senses (e.g. 意思 read as 'intention' where 'meaning' is needed). A different lexeme never qualifies, even if it is a near-synonym.",
-          "shared_translation": "A DIFFERENT word that shares a translation/gloss in the learner's L1 with the correct word (e.g. 知道 vs 认识 both 'know'; 見る vs 会う both 'see'). The error is L1-translation transfer."
+          "false_synonym": "A DIFFERENT word that the learner's L1 glosses the same way as the correct word, but whose meaning or usage differs (e.g. 知道 vs 认识 both glossed 'know'; 見る vs 会う both glossed 'see'). The error is an L1-gloss-driven false synonym."
         },
-        "precedence": "Same lemma -> wrong_sense; else shared L1 gloss -> shared_translation; else wrong_word.",
-        "detection": "shared_translation is largely deterministic: look up the L1 glosses of the learner's word and the correct word in the sense dictionary (dim_word_senses cross-language definitions); if they share an L1 gloss -> shared_translation. Caveat: en words currently have no zh/ja glosses, so for en L2 this lookup is not available yet and the variant is a grader judgement until en->zh/ja glosses exist.",
-        "grader_question": "Is the learner's word the same lemma as the needed word (wrong_sense), a different word that shares an L1 translation with it (shared_translation), or simply a word that does not fit (wrong_word)?",
-        "note": "User decision 2026-09-27 (Decision A, final): word_choice stays one type for scoring (same dimension/severity); the explanation is split three ways via this field. Recorded per error instance on dt_error_instance; explainer.py needs a rendered-explanation template per variant."
+        "precedence": "Same lemma -> wrong_sense; else shared L1 gloss -> false_synonym; else wrong_word.",
+        "detection": "false_synonym is largely deterministic: look up the L1 glosses of the learner's word and the correct word in the sense dictionary (dim_word_senses cross-language definitions) and compare them as normalised gloss terms; exact match on a normalised L1 gloss term -> false_synonym. Caveat: en words currently have no zh/ja glosses, so for en L2 this lookup is not available yet and the variant is a grader judgement until en->zh/ja glosses exist.",
+        "grader_question": "Is the learner's word the same lemma as the needed word (wrong_sense), a different word that shares an L1 translation with it but differs in meaning or usage (false_synonym), or simply a word that does not fit (wrong_word)?",
+        "note": "User decision 2026-09-27 (Decision A, final): word_choice stays one type for scoring (same dimension/severity); the explanation is split three ways via this field. Recorded per error instance on dt_error_instance; explainer.py needs a rendered-explanation template per variant. The third variant was renamed 2026-10-04 for clarity (same meaning and detection method; name change only)."
       },
-      "definition": "A wrong or unnatural lexical choice (absorbs v5/jev wrong_sense). The explanation_variant field records why: wrong_word, wrong_sense (same lemma, wrong sense) or shared_translation (different word sharing an L1 gloss)."
+      "definition": "A wrong or unnatural lexical choice (absorbs v5/jev wrong_sense). The explanation_variant field records why: wrong_word, wrong_sense (same lemma, wrong sense) or false_synonym (a different word the L1 glosses the same way, but whose meaning/usage differs)."
     },
     {
       "id": "collocation",
@@ -737,7 +737,7 @@
       "jev_bucket": "B3",
       "treatable": false,
       "cloze_suitable": false,
-      "definition": "Wrong case, a reflexive without a local antecedent, 'which' for a person, or a resumptive pronoun. SPLIT from v5 `pronoun_reference`, which also covered general ambiguous-antecedent errors outside this narrower binding-based scope."
+      "definition": "Wrong case, a reflexive without a local antecedent, 'which' for a person, a resumptive pronoun, or a pronoun that refers to the wrong antecedent or the wrong number of things ('it' for 'them'). SPLIT from v5 `pronoun_reference`; the antecedent/number limb was restored by developer decision 2026-10-09 (ADR-031), so DT's en pronoun is broader than jev taxonomy.md's en.pronoun (a known divergence)."
     },
     {
       "id": "plural_number",
@@ -749,7 +749,7 @@
       "jev_bucket": "B4",
       "treatable": true,
       "cloze_suitable": true,
-      "definition": "Wrong singular/plural form or countability (a missing -s, or a plural on an uncountable noun). Retained verbatim from v5 (partially overlaps `article_determiner`'s countability clause, but not fully). Being ported into jev's own taxonomy per user decision 2026-09-27 (author/reviewer pass in progress); `jev_bucket` is 'pending' until that lands."
+      "definition": "Wrong singular/plural form or countability (a missing -s, or a plural on an uncountable noun). Retained verbatim from v5. jev's narrower slice (noun-side number against a fixed licensor, N1–N3; determiner-side countability is `article_determiner`, verb-side is `agreement`) is specified in `data/eval/jev_grammar_2026-09-26/taxonomy.md` §3.2 `en.plural_number` (folded in 2026-09-28)."
     },
     {
       "id": "phrasal_verb",
@@ -761,7 +761,7 @@
       "jev_bucket": "B1",
       "treatable": false,
       "cloze_suitable": true,
-      "definition": "Wrong particle or wrong/avoided phrasal-verb form. Ported into jev's grammar taxonomy via `data/eval/jev_grammar_2026-09-26/taxonomy_addendum_2026-09-27.md` (jev bucket B1) — no longer a DT-only legacy type (user decision 2026-09-27); author/reviewer pass on the addendum is in progress."
+      "definition": "Wrong particle or wrong/avoided phrasal-verb form. jev's narrower slice (particle choice, omission and placement on idiomatic verbs; 'avoided form' stays DT-only) is specified in `data/eval/jev_grammar_2026-09-26/taxonomy.md` §3.2 `en.phrasal_verb` (folded in 2026-09-28)."
     },
     {
       "id": "lexical_form",

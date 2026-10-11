@@ -1,0 +1,1323 @@
+{
+  "sense_id": 19521,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T23:13:38.050221+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.08494114875793457,
+    "p1_generate": 2.4692893028259277,
+    "tier_gate": 0.0,
+    "p1_judge": 1.3440501689910889,
+    "collocate_grounding": 0.0,
+    "fan_out": 35.225977420806885
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈnaɪn.tiːnθ/",
+        "morphological_forms": [
+          {
+            "form": "nineteenth",
+            "label": "base form"
+          },
+          {
+            "form": "nineteenths",
+            "label": "plural noun form"
+          }
+        ],
+        "pronunciation": "nineteenth",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            19521
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "c14f8d5a-d909-4f69-9af8-e941257c35e1",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nineteenth",
+        "pronunciation": "nineteenth",
+        "ipa": "/ˈnaɪn.tiːnθ/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "nineteen",
+          "nineteenth",
+          "ninety",
+          "ninth"
+        ],
+        "correct_answer": "nineteenth",
+        "explanation": "Correct: This is the exact target word pronounced /ˌnaɪnˈtiːnθ/.",
+        "distractor_explanations": {
+          "nineteen": "Minimal pair: Differs only by the omission of the final /θ/ sound.",
+          "ninety": "Minimal pair: Differs in the final syllable, ending in /ti/ instead of /tiːnθ/.",
+          "ninth": "Minimal pair: Differs by the omission of the middle /tiːn/ syllable."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "1e1ebf68-1994-4221-aaab-4328bc6e671c",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nineteenth",
+        "pronunciation": "nineteenth",
+        "correct_definition": "Coming next after the eighteenth in a series.",
+        "options": [
+          "The quality of a sound that makes it seem high or low.",
+          "Coming next after the eighteenth in a series.",
+          "The underside of a foot or a shoe.",
+          "always behaving or happening in the same way; not changing"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "8f0b5c97-c3dd-4f84-952a-8cc90ce6641b",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "She celebrated her ___ birthday with a big party.",
+        "original_sentence": "She celebrated her nineteenth birthday with a big party.",
+        "correct_answer": "nineteenth",
+        "options": [
+          "nineteenth",
+          "primary",
+          "annual",
+          "major"
+        ],
+        "explanation": "Correct: 'Nineteenth' is the exact ordinal adjective needed to specify the 19th occurrence of her birthday.",
+        "distractor_tags": {},
+        "word_definition": "Coming next after the eighteenth in a series.",
+        "target_word": "nineteenth"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b253839a-f2cd-4c32-991c-9fa41f8a102b",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The nineteenth color of the rainbow is a deep shade of purple.",
+            "is_correct": false
+          },
+          {
+            "text": "He felt a nineteenth emotion when he heard the tragic news.",
+            "is_correct": false
+          },
+          {
+            "text": "Our school team won its nineteenth game of the season.",
+            "is_correct": true
+          },
+          {
+            "text": "The nineteenth ingredient in the recipe is a pinch of salt.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: Recipes are procedural sequences, not typically counted up to nineteen in a way that highlights the nineteenth step as a distinct milestone. Semantically inappropriate: Human emotions are not conventionally categorized or counted as a discrete, numbered sequence up to nineteen. Semantically inappropriate: The rainbow is universally recognized as having only seven colors, making a 'nineteenth' color physically and conceptually impossible.",
+        "target_word": "nineteenth"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d5b58a05-969b-4ed3-894e-8254770ed486",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "We are reading the nineteenth chapter of the novel today.",
+            "is_correct": true
+          },
+          {
+            "text": "She celebrated her nineteenth birthday with a big party.",
+            "is_correct": true
+          },
+          {
+            "text": "Nineteenth of the students in the class were absent today.",
+            "is_correct": false,
+            "error_description": "The sentence incorrectly uses the ordinal number 'nineteenth' instead of the cardinal number 'nineteen' to express a specific quantity or count of students."
+          },
+          {
+            "text": "The museum is hosting an exhibition about nineteenth-century art.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "35265108-b918-48e6-94bd-e4a923a1e089",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "nineteenth",
+        "pronunciation": "nineteenth",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A partnership is a relationship between two or more people, organizations, or countries who work together to achieve a shared goal.",
+              "Coming next after the eighteenth in a series.",
+              "Cloth is a material made from fibers, used for making clothing, curtains, and other items.",
+              "harmful gases that pollute the air and damage health."
+            ],
+            "correct_answer": "Coming next after the eighteenth in a series."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "dc017bd6-ed32-43d0-b907-c95b7dbe11fc",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "We are reading the ___ chapter of the novel today.",
+        "original_sentence": "We are reading the nineteenth chapter of the novel today.",
+        "target_word": "nineteenth",
+        "word": "nineteenth",
+        "answer": {
+          "accepted": [
+            "nineteenth",
+            "nineteenths"
+          ],
+          "accepted_normalized": [
+            "nineteenth",
+            "nineteenths"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f58cb7fa-6825-4aa5-a28a-1c8fac6162ac",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "That old building was constructed in the late nineteenth century.",
+        "chunks": [
+          "That old building",
+          "was constructed",
+          "in the late nineteenth century"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "was constructed",
+          "in the late nineteenth century",
+          "That old building"
+        ],
+        "target_word": "nineteenth",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "768264dd-9be3-4f9b-928b-95e018ea5ae0",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "nineteen",
+        "sentence_with_blank": "We are reading the ___ chapter of the novel today.",
+        "original_sentence": "We are reading the nineteenth chapter of the novel today.",
+        "required_pos": "adjective",
+        "options": [
+          "nineteenthly",
+          "nineteenth",
+          "nineteenal",
+          "nineteenment"
+        ],
+        "correct_answer": "nineteenth",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established ordinal form derived from nineteen with -th"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b6b4f0ee-df45-4cd0-b3cd-fdf19bc66041",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "For her ___ project, she decided to build a website.",
+        "original_sentence": "For her nineteenth project, she decided to build a website.",
+        "correct_answer": "nineteenth",
+        "options": [
+          "nineteen's",
+          "nineteen",
+          "ninetieth",
+          "nineteenth"
+        ],
+        "explanation": "Correct: 'Nineteenth' is the correct ordinal number indicating the sequence of her project.",
+        "distractor_tags": {},
+        "word_definition": "Coming next after the eighteenth in a series.",
+        "target_word": "nineteenth"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b16ac299-5906-4547-a17a-2b82258247d7",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She nineteenth the book on the table.",
+            "is_correct": false
+          },
+          {
+            "text": "He felt very nineteenth after eating the large meal.",
+            "is_correct": false
+          },
+          {
+            "text": "I am currently reading the nineteenth page of the assignment.",
+            "is_correct": true
+          },
+          {
+            "text": "The nineteenth liquid in the glass was water.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: Ordinal numbers like 'nineteenth' denote sequence or order, not the physical state or identity of a substance like a liquid. Semantically inappropriate: 'Nineteenth' is an ordinal adjective and cannot be used as a predicate adjective to describe a physical or emotional state. Grammatically inappropriate: 'Nineteenth' is an adjective and cannot function as a transitive verb to take a direct object like 'the book'.",
+        "target_word": "nineteenth"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "19101760-45af-4adc-a087-c554fe0d66e9",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "I am currently reading the nineteenth page of the assignment.",
+            "is_correct": true
+          },
+          {
+            "text": "They have reached the nineteenth hole on the golf course.",
+            "is_correct": true
+          },
+          {
+            "text": "She was born in the nineteenth of May, 1998.",
+            "is_correct": false,
+            "error_description": "When referring to a specific day of the month using an ordinal number, the correct preposition is 'on' rather than 'in'."
+          },
+          {
+            "text": "For her nineteenth project, she decided to build a website.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "7d6b77f3-5c11-4824-a042-f7dcb8292153",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "They have reached the ___ hole on the golf course.",
+        "original_sentence": "They have reached the nineteenth hole on the golf course.",
+        "target_word": "nineteenth",
+        "word": "nineteenth",
+        "answer": {
+          "accepted": [
+            "nineteenth",
+            "nineteenths"
+          ],
+          "accepted_normalized": [
+            "nineteenth",
+            "nineteenths"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "bbddf39e-df20-4537-8453-c596e0fcd8a3",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Our school team won its nineteenth game of the season.",
+        "chunks": [
+          "Our school team",
+          "won",
+          "its nineteenth game of the season"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "won",
+          "its nineteenth game of the season",
+          "Our school team"
+        ],
+        "target_word": "nineteenth",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "27903a98-1a67-40f3-a963-6d7edd638b0e",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "nineteen",
+        "sentence_with_blank": "They have reached the ___ hole on the golf course.",
+        "original_sentence": "They have reached the nineteenth hole on the golf course.",
+        "required_pos": "adjective",
+        "options": [
+          "nineteenify",
+          "nineteenthness",
+          "nineteenthment",
+          "nineteenth"
+        ],
+        "correct_answer": "nineteenth",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established ordinal adjective formed with -th"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 19521,
+      "word_asset_id": "shadow-19521-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0020412,
+      "prompt_tokens": 1904,
+      "completion_tokens": 588,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2334
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006587,
+      "prompt_tokens": 629,
+      "completion_tokens": 188,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1262
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00081376,
+      "prompt_tokens": 651,
+      "completion_tokens": 473,
+      "cached_tokens": 0,
+      "reasoning_tokens": 463,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 9869
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00103136,
+      "prompt_tokens": 651,
+      "completion_tokens": 643,
+      "cached_tokens": 0,
+      "reasoning_tokens": 633,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 12917
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015872,
+      "prompt_tokens": 820,
+      "completion_tokens": 1035,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18380
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015872,
+      "prompt_tokens": 820,
+      "completion_tokens": 1035,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18843
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182016,
+      "prompt_tokens": 1136,
+      "completion_tokens": 1138,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22171
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181952,
+      "prompt_tokens": 1134,
+      "completion_tokens": 1138,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22777
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00263712,
+      "prompt_tokens": 1577,
+      "completion_tokens": 1666,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 29573
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00270624,
+      "prompt_tokens": 1577,
+      "completion_tokens": 1720,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1025,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30817
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176512,
+      "prompt_tokens": 784,
+      "completion_tokens": 1183,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21287
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183936,
+      "prompt_tokens": 784,
+      "completion_tokens": 1241,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21828
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003783,
+      "prompt_tokens": 411,
+      "completion_tokens": 102,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1228
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003458,
+      "prompt_tokens": 386,
+      "completion_tokens": 92,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1206
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003643,
+      "prompt_tokens": 481,
+      "completion_tokens": 88,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1073
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001893,
+      "prompt_tokens": 381,
+      "completion_tokens": 30,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 771
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004153,
+      "prompt_tokens": 501,
+      "completion_tokens": 106,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 949
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000302,
+      "prompt_tokens": 415,
+      "completion_tokens": 71,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1008
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003876,
+      "prompt_tokens": 392,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1067
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000444,
+      "prompt_tokens": 480,
+      "completion_tokens": 120,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1002
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000204,
+      "prompt_tokens": 380,
+      "completion_tokens": 36,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 788
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004225,
+      "prompt_tokens": 500,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 19521,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1059
+    }
+  ],
+  "llm_calls_observed": 22,
+  "llm_cost_observed_usd": 0.023760039999999996,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 50.53200000000652,
+  "finished_at": "2026-10-05T23:14:28.574403+00:00"
+}

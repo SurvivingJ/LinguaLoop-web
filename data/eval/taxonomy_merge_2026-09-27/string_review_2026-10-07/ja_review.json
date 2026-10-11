@@ -1,0 +1,1070 @@
+{
+  "_meta": {
+    "task": "TASK-840 (ADR-031 taxonomy v6) - ja string review",
+    "reviewer": "AI review (Opus) at the developer's direction 2026-10-08, not a native-speaker review",
+    "scope": "every ja gloss/template/variant template in v6_strings.json; ja native_name in merged_taxonomy.json; ja type judgements; Japanese v6 text in prompts.py and explainer.py; replacement for the ja particle_wa_ga rubric exemplar.",
+    "counts": {
+      "ok": 93,
+      "fix": 32
+    }
+  },
+  "entries": [
+    {
+      "location": "v6_strings.json subtype_glosses.omission.ja",
+      "provenance": "ai_draft",
+      "current": "要素の欠落——必要な語や要素が抜けて内容が失われている（意味の反転を伴わない欠落。否定語の脱落などで意味が反転する場合は「意味の反転」とし、欠落とはしない）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; states the by-effect boundary with 意味の反転 and refers to it by its gloss label. Natural."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.addition.ja",
+      "provenance": "v5_verbatim",
+      "current": "余分な追加——参照文にない語や情報を加えている（冗長な繰り返しや不要な挿入など）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; accurate and natural."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.word_choice.ja",
+      "provenance": "v5_verbatim",
+      "current": "語彙選択——語の選び方が誤っている、または不自然（意味は近いが語が不適切）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; accurate. The variant split is carried by the variant templates."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.collocation.ja",
+      "provenance": "v5_verbatim",
+      "current": "コロケーション——語自体は正しいが、組み合わせが不自然（自然には共起しない語の結び付き）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; 共起 is a little technical but the parenthesis is clear; consistent with the template."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.word_order.ja",
+      "provenance": "v5_verbatim",
+      "current": "語順——語や成分の並び順が不自然、または文法的に誤っている",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; accurate."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.register.ja",
+      "provenance": "v5_verbatim",
+      "current": "文体・語調——場面に対して丁寧さや語調のレベルが合っていない",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; accurate, and the keigo gloss points the politeness level here."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.orthography.ja",
+      "provenance": "v5_verbatim",
+      "current": "表記・綴り——綴り、送り仮名、記号など表記上の誤り（意図した語は明らか）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; 送り仮名 is the right ja-specific example."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.cohesion_connective.ja",
+      "provenance": "v5_verbatim",
+      "current": "結束性・接続表現——接続語（しかし、したがって、だから等）の誤り・欠落により文のつながりが弱い",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; accurate."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.article_determiner.ja",
+      "provenance": "ai_draft",
+      "current": "冠詞・限定詞——英語の冠詞（a/an/the）や限定詞（some・many・much・this など）の誤り・欠落・余分。特定・不特定の区別や、an advice・many information のような可算・不可算との不一致を含む",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; an advice / many information are the standard examples for Japanese learners (可算・不可算 is the school term)."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.preposition.ja",
+      "provenance": "ai_draft",
+      "current": "前置詞——英語の前置詞（in/on/at/to/for/of など）の誤り・欠落・余分。多くは特定の動詞・名詞・形容詞や定型表現によって決まり、逐語訳では選べない",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate and natural."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.verb_form_tense.ja",
+      "provenance": "ai_draft",
+      "current": "動詞の形・時制——英語で時間枠に合わない時制・相、または不規則変化形や分詞の形の誤り（goed、have went など）",
+      "verdict": "fix",
+      "proposed": "動詞の形・時制——英語で、表す時に合わない時制（進行形・完了形を含む）、または不規則動詞の変化形や分詞の形の誤り（goed、have went など）",
+      "reason": "時間枠 is a calque of 'time frame' and 時制・相 uses the linguistics term 相 (aspect), which Japanese school English never uses; Japanese learners know progressive/perfect as 進行形・完了形. Same scope, learner-facing wording."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.complementation.ja",
+      "provenance": "ai_draft",
+      "current": "動詞の型——英語の動詞の後に続く補部の型の誤り：to不定詞・-ing形・原形不定詞・that節（例：enjoy to swim→enjoy swimming）",
+      "verdict": "fix",
+      "proposed": "動詞の型——英語で、動詞の後に続く形の誤り：to不定詞・動名詞（-ing形）・原形不定詞・that節のどれを取るかは動詞ごとに決まっている（例：enjoy to swim→enjoy swimming）",
+      "reason": "補部 is linguistics jargon an age-tier-3 learner will not know; Japanese school grammar calls -ing after a verb 動名詞. Rewritten around 'which form follows is fixed per verb', which is the actual rule."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.agreement.ja",
+      "provenance": "ai_draft",
+      "current": "主語と動詞の一致——英語で動詞が主語と数・人称で一致していない（間に挟まった名詞に引きずられた不一致を含む）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate, includes the attraction case."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.pronoun.ja",
+      "provenance": "ai_draft",
+      "current": "代名詞——英語の代名詞の形や照応の誤り：格の誤り（him and me went）、同じ節に先行詞のない再帰代名詞、人に対する which、関係節内の余分な代名詞（the man that I met him）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; the four sub-cases match the merged definition and the template."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.plural_number.ja",
+      "provenance": "ai_draft",
+      "current": "数（単複）——英語の名詞の単数・複数や可算性の誤り（複数語尾 -s の欠落、不可算名詞の複数形など）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.phrasal_verb.ja",
+      "provenance": "ai_draft",
+      "current": "句動詞——英語の句動詞の不変化詞（up/out/in など）の誤り、または句動詞の形の誤り・回避",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; 不変化詞 is the standard Japanese term for the particle of a phrasal verb."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.lexical_form.ja",
+      "provenance": "ai_draft",
+      "current": "派生形——英語で、正しい語族の中の別の形（品詞・派生語）を選んでいる（success→successful、economic→economical など）",
+      "verdict": "fix",
+      "proposed": "語形（品詞・派生語）——英語で、同じ語の仲間（語族）の中の別の形を選んでいる。品詞の違いや、関連する派生語の取り違え（success→successful、economic→economical など）",
+      "reason": "Short name mismatch: the gloss says 派生形 but the template prefix says 語形の誤り, and 派生形 alone hides the commonest case (wrong part of speech, success for successful). 語族 alone is jargon; glossed as 語の仲間."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.semantic_anomaly.ja",
+      "provenance": "ai_draft",
+      "current": "意味的な破綻——文法的には正しいが、描かれた出来事が不可能・不合理で（動詞が取り得ない主語や目的語）、訳文が原文の内容を表していない。擬人化・慣用的な比喩・誇張は誤りではない",
+      "verdict": "fix",
+      "proposed": "意味的な破綻——文法的には正しいが、表している出来事があり得ない・不合理で（動詞と主語・目的語の意味の組み合わせが成り立たない）、原文の内容を表していない。擬人化・慣用的な比喩・誇張は誤りではない",
+      "reason": "'動詞が取り得ない主語や目的語' is a stiff calque of 'a verb with a subject or object it cannot take'; restated as the meanings not combining. 描かれた→表している (a sentence 'expresses', it is not 'drawn'). Scope unchanged."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.contradiction.ja",
+      "provenance": "ai_draft",
+      "current": "矛盾・論理の破綻——文法的には正しいが、文が自己矛盾している（時間の衝突、親族関係などあり得ない関係、常識との衝突）。参照訳と照合しなくても訳文だけで分かる",
+      "verdict": "fix",
+      "proposed": "矛盾・論理の破綻——文法的には正しいが、文が自己矛盾している（時間の食い違い、親族関係などあり得ない関係、原因と結果の食い違い、常識に反する内容）。参照文と照らし合わせなくても訳文だけで分かる",
+      "reason": "参照訳 → 参照文 (every other ja string and the prompts say 参照文). 時間の衝突/常識との衝突 are calques; 食い違い/常識に反する are natural. Added 原因と結果の食い違い, which jev's ja.contradiction lists (cause-effect, e.g. お腹がいっぱいなので、もっと食べたい). The en gloss's extra 'wrong connective' limb is deliberately NOT added: for ja L2 a のに/ので mix-up belongs to 節の接続 (clause_linkage), and this one gloss is the ja grader's label."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.meaning_inversion.ja",
+      "provenance": "ai_draft",
+      "current": "意味の反転——参照訳と比べて、核心的な主張の極性・方向・数量・動作主と被動作主の関係が反転している（否定の脱落・追加、反意語、方向の逆転、比較の反転、動作主と被動作主の入れ替え。例：with→without）。表面形式ではなく効果で判定する：前置詞や語の置き換え、否定語の脱落であっても、意味を反転させるなら「要素の欠落」や「語彙選択」ではなくこちらとし、両方は付けない",
+      "verdict": "fix",
+      "proposed": "意味の反転——参照文と比べて、核心的な内容の極性（肯定／否定）・方向・数量・動作主と受け手の関係が反転している（否定の脱落・追加、反意語、方向の逆転、比較の反転、動作主と受け手の入れ替え。例：with→without）。表面形式ではなく効果で判定する：前置詞・助詞や語の置き換え、否定語の脱落であっても、意味を反転させるなら「要素の欠落」や「語彙選択」ではなくこちらとし、両方は付けない",
+      "reason": "参照訳 → 参照文 for consistency. 被動作主 is jargon; 受け手 is plain and matches the precedence block. 'polarity' made explicit as 肯定／否定 (as zh). Added 助詞 to the surface forms, since for ja L2 the adposition type is 格助詞. Keeps 効果で判定 and 両方は付けない (pinned)."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.wa_ga.ja",
+      "provenance": "ai_draft",
+      "current": "「は」「が」（構造規則）——構造上「が」が必要な箇所で「は」を使っている：疑問詞が主語の場合（誰が）、連体修飾節（関係節）内の主語、主節と異なる従属節の主語。主節での通常の「は」「が」の選択は誤りとしない",
+      "verdict": "fix",
+      "proposed": "「は」「が」（構造規則）——構造上「が」が必要な箇所で「は」を使っている：疑問詞が主語の場合（誰が・何が）、連体修飾節（名詞を修飾する節）の中の主語（「の」も可）、主節の主語と異なる従属節（「とき」「ので」などの節）の主語。主節での通常の「は」「が」の選択、対比の「は」、「も」への置き換えは誤りとしない",
+      "reason": "'主節と異なる従属節の主語' is ambiguous (reads as 'a subordinate clause that differs from the main clause'); the rule is a subordinate-clause subject that differs from the MAIN-CLAUSE SUBJECT. Added the が/の alternation in relative clauses (私の作ったケーキ is correct) and jev's not-an-error list (contrastive は, も) so the grader does not over-flag. This is the grader's label for the narrowed type, so precision matters more than brevity."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.case_particle.ja",
+      "provenance": "v5_verbatim",
+      "current": "格助詞——「を」（対象）、「に」（着点・時・相手）、「で」（場所・手段）、「へ」（方向）など格助詞の誤り",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; accurate."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.particle_other.ja",
+      "provenance": "v5_verbatim",
+      "current": "その他の助詞——並列助詞（や・と・か）、取り立て助詞（も・だけ・しか）、終助詞など、格助詞以外の助詞の誤り",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; accurate (並列/取り立て/終助詞 are the standard school terms)."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.conjugation.ja",
+      "provenance": "ai_draft",
+      "current": "活用——動詞・い形容詞・な形容詞の活用形の誤り（五段動詞を一段動詞として活用するなど、活用の種類の取り違えを含む）。ら抜き言葉は許容し、誤りとしない",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; ら抜き tolerance matches jev."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.tam.ja",
+      "provenance": "ai_draft",
+      "current": "テンス・アスペクト・モダリティ——時間枠に合わないテンス、「ている／てある／ておく」の誤り、「前に／後で」節の相対テンスの誤り（「前に」の前は非過去形、「後で」の前は過去形）、「まだ＋否定」の形の誤り（まだ食べていない）",
+      "verdict": "fix",
+      "proposed": "テンス・アスペクト・モダリティ——文の表す時に合わないテンス（「昨日…行きます」など）、「ている／てある／ておく」の誤り、「前に／後で」節の相対テンスの誤り（「前に」の前は非過去形、「後で」の前は過去形）、「まだ＋否定」の形の誤り（正しくは「まだ食べていない」）",
+      "reason": "時間枠 is a calque; replaced with the plain phrase plus jev's obvious example. The まだ example showed the CORRECT form without saying so, so a reader can take it as the error; marked 正しくは (as the zh review did)."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.keigo.ja",
+      "provenance": "ai_draft",
+      "current": "敬語（方向）——敬語の向きの誤り：自分や身内の動作に尊敬語を使う、または目上の人の動作に謙譲語を使う。です・ますなど丁寧さのレベル自体は「文体・語調」で扱う",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; direction-only scope and the pointer to 文体・語調 match the definition."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.counter.ja",
+      "provenance": "v5_verbatim",
+      "current": "助数詞——数を数える際の助数詞（カウンター）の誤り",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; accurate."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.transitivity_voice.ja",
+      "provenance": "ai_draft",
+      "current": "自動詞／他動詞・ヴォイス——自他の対になる動詞（開ける／開く、始める／始まる）の取り違え、または受身・使役の形と助詞が対応していない",
+      "verdict": "fix",
+      "proposed": "自動詞・他動詞／受身・使役——自他の対になる動詞（開ける／開く、始める／始まる）の取り違え、または受身・使役の形と助詞が対応していない",
+      "reason": "ヴォイス is a katakana linguistics term; the type covers passive and causative, so name those. Same short name now used for native_name (which said 受身 only and used a half-width slash)."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.modification.ja",
+      "provenance": "ai_draft",
+      "current": "連体修飾形——名詞の前の接続形（い・な・の）の誤り（静かい部屋→静かな部屋）、または修飾語が被修飾語の前に来ていない",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; the 静かい部屋 example is the canonical one."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.clause_linkage.ja",
+      "provenance": "ai_draft",
+      "current": "節の接続——節をつなぐ接続形・条件形の誤り：から・ので／のに、と・たら・ば・なら（後件が依頼・命令なのに「と」を使うなど）、ために／ように",
+      "verdict": "fix",
+      "proposed": "節の接続——節をつなぐ接続形・条件形の誤り：理由の「から・ので」と逆接の「のに」の取り違え、条件の「と・たら・ば・なら」の誤用（後件が依頼・命令なのに「と」を使うなど）、「ために」と「ように」の取り違え。「から」と「ので」の入れ替えは誤りとしない",
+      "reason": "'から・ので／のに' and 'ために／ように' were bare lists that do not say what the error is; spelled out as confusions. Added jev's not-an-error case (から/ので interchange) so the grader does not flag it."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.kanji_choice.ja",
+      "provenance": "ai_draft",
+      "current": "漢字の選択（同音異義）——実在する正しい表記の語だが、同じ読みの語のうち意味に合わない漢字を選んでいる（計る／測る／量る、暑い／熱い）。漢字の代わりに仮名で書くことは誤りとしない",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; the kana-is-fine clause matches the jev norm and the script_choice drop."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.topic_comment.ja",
+      "provenance": "v5_verbatim",
+      "current": "主題—解説構造——「は」による主題提示など、主題と解説の組み立て方の誤り",
+      "verdict": "fix",
+      "proposed": "主題—解説構造——主題（日本語では多く「は」で示す）と、それについて述べる部分（解説）の組み立て方の誤り（主語と述語がかみ合わない「ねじれ」や、母語の構造の持ち込みなど）",
+      "reason": "This gloss is also the explainer label for ja-L1 learners of zh, where 'は による主題提示' makes no sense; は is now given as the Japanese case. 解説 explained in plain words, and the two main sources (jev's 主述のねじれ, L1 transfer, as in the en/zh glosses) named."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.measure_word.ja",
+      "provenance": "ai_draft",
+      "current": "量詞句——中国語の「数詞／指示詞＋量詞＋名詞」における量詞の誤りや欠落、または数量を表す語句の後の「们」（三个学生们）。汎用量詞「个」の使用は誤りではない",
+      "verdict": "fix",
+      "proposed": "量詞——中国語の「数詞／指示詞＋量詞＋名詞」における量詞の誤りや欠落、または数量を表す語句の後の「们」（三个学生们）。汎用量詞「个」の使用は誤りではない",
+      "reason": "Short name 量詞句 is unusual; Japanese learners of Chinese know this as 量詞, and the template prefix already says 量詞の誤り."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.aspect_negation.ja",
+      "provenance": "ai_draft",
+      "current": "アスペクトと否定——中国語のアスペクト標識「了／过／着／正在」の誤用、またはアスペクトと合わない「不」と「没」の選択（中国語は時制ではなくアスペクトを標示する）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; the 不/没 rule and the aspect-not-tense note are right."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.de_particle.ja",
+      "provenance": "ai_draft",
+      "current": "構造助詞「的／地／得」——中国語の「的・地・得」の取り違え（的＝名詞修飾、地＝動詞前の連用修飾、得＝動詞後の補語）、または必須の「得」の欠落。いずれの取り違えも誤りとする",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; includes the missing-得 case and the any-misuse ruling."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.complement.ja",
+      "provenance": "ai_draft",
+      "current": "補語——中国語の結果補語・方向補語・可能補語・程度補語の形や位置の誤り（例：看完、走进来、听不懂、跑得快）",
+      "verdict": "fix",
+      "proposed": "補語——中国語の結果補語・方向補語・可能補語・程度（様態）補語の形の誤り、または補語と目的語の位置関係の誤り（例：看完、走进来、听不懂、跑得快）。「的／地／得」の取り違えや「得」の欠落だけの場合は、構造助詞「的／地／得」の誤りとする",
+      "reason": "Mirrors the zh review's boundary (2026-10-07, pending user confirmation): a missing 得 (跑快) is de_particle, not complement. 'form or position' clarified as position relative to the object. 様態補語 is the name Japanese textbooks use for 跑得快."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.ba_bei.ja",
+      "provenance": "ai_draft",
+      "current": "「把」「被」構文——中国語の「把」構文・「被」受身文の誤りや欠落：裸の動詞、不定の目的語、処置性のない動詞、可能補語との併用、「把」の後ろに置いた否定詞、または「被」受身文の形の誤り",
+      "verdict": "fix",
+      "proposed": "「把」「被」構文——中国語の「把」構文・「被」受身文の誤りや欠落：動詞の後に結果・方向・「了」などの成分がない、目的語が特定されていない、処置を表さない動詞を使っている、可能補語と併用している、否定詞を「把」の後ろに置いている、または「被」受身文の形の誤り",
+      "reason": "裸の動詞 and 不定の目的語 are calques ('bare verb', 'indefinite object') that a Japanese reader cannot decode; spelled out. Scope unchanged."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.separable_verb.ja",
+      "provenance": "ai_draft",
+      "current": "離合詞——中国語の離合詞の後ろに目的語やアスペクト標識を置いている（中に入れるか前に出すべき。例：见面他→跟他见面、帮忙他→帮他的忙）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; both repair strategies shown."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.coverb.ja",
+      "provenance": "ai_draft",
+      "current": "介詞——中国語の介詞（对・给・跟・向・离・从・在など）の誤り、または「对…来说」のような固定の枠組みの崩れ",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; 介詞 is the term Japanese learners of Chinese use."
+    },
+    {
+      "location": "v6_strings.json subtype_glosses.connective.ja",
+      "provenance": "ai_draft",
+      "current": "関連詞の呼応——中国語の対になる関連詞（虽然…但是、只要…就、只有…才、不但…而且）の組み合わせや位置の誤り（片方だけの使用は誤りではない）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; 関連詞 is the standard term and the one-half-is-fine note is kept."
+    },
+    {
+      "location": "v6_strings.json templates.omission.ja",
+      "provenance": "v5_verbatim",
+      "current": "必要な要素が抜けています。「{learner_form}」と書いていますが、参照文では「{corrected_form}」です。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; natural です/ます register."
+    },
+    {
+      "location": "v6_strings.json templates.addition.ja",
+      "provenance": "v5_verbatim",
+      "current": "余分な追加：「{learner_form}」を加えていますが、参照文にはありません。原文にある内容だけにとどめ、冗長な追加はしないでください。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; quotes only learner_form, so it renders when corrected_form is empty."
+    },
+    {
+      "location": "v6_strings.json templates.word_choice.ja",
+      "provenance": "v5_verbatim",
+      "current": "「{learner_form}」は適切な語ではありません。参照文では「{corrected_form}」を使います。意味は近いですが、通常はこう表現します。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text; the variant-less fallback."
+    },
+    {
+      "location": "v6_strings.json templates.collocation.ja",
+      "provenance": "v5_verbatim",
+      "current": "コロケーションの誤り：「{learner_form}」は語の組み合わせが不自然です。「{corrected_form}」を使ってください。語単体は正しくても、この組み合わせは母語話者には不自然に響きます。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.word_order.ja",
+      "provenance": "v5_verbatim",
+      "current": "「{learner_form}」と書いていますが、ここでは「{corrected_form}」の語順が自然です。目標言語ではこれらの成分の並び方が逐語訳とは異なります。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text. 目標言語 is slightly technical but kept for v5 consistency."
+    },
+    {
+      "location": "v6_strings.json templates.register.ja",
+      "provenance": "v5_verbatim",
+      "current": "「{learner_form}」は丁寧さ・語調のレベルが合っていません。「{corrected_form}」が原文の文体（語調・丁寧さ）に合います。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.orthography.ja",
+      "provenance": "v5_verbatim",
+      "current": "表記の誤り：「{learner_form}」は「{corrected_form}」と書きます。語は正しいものの、綴り・表記が誤っています。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.cohesion_connective.ja",
+      "provenance": "v5_verbatim",
+      "current": "接続表現の誤り：「{learner_form}」は「{corrected_form}」とすべきです。接続語は前の内容との関係を示すため、誤ると文のつながりが崩れます。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.article_determiner.ja",
+      "provenance": "ai_draft",
+      "current": "冠詞・限定詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。英語は名詞の特定・不特定と可算・不可算を示します——特定・既知は「the」、不特定で数えられる単数は「a/an」、総称の複数や不可算名詞は無冠詞です。限定詞も名詞に合わせます（可算名詞には many／few、不可算名詞には much／little）。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate and complete; long but the rule genuinely has these parts."
+    },
+    {
+      "location": "v6_strings.json templates.preposition.ja",
+      "provenance": "v5_verbatim",
+      "current": "前置詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。ここでの前置詞は動詞・名詞・定型表現によって決まり（例：depend on、interested in、arrive at）、逐語訳では選べません。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.verb_form_tense.ja",
+      "provenance": "ai_draft",
+      "current": "動詞の形・時制の誤り：「{learner_form}」は「{corrected_form}」とすべきです。動作の時間に合った時制・相と、正しい動詞の形の二点を確認してください。不規則動詞の過去形・過去分詞（went／gone、wrote／written）は覚える必要があります。",
+      "verdict": "fix",
+      "proposed": "動詞の形・時制の誤り：「{learner_form}」は「{corrected_form}」とすべきです。動作の時に合った時制（進行形・完了形を含む）と、正しい動詞の形の二点を確認してください。不規則動詞の過去形・過去分詞（went／gone、wrote／written）は覚える必要があります。",
+      "reason": "Same as the gloss: 時制・相 → 時制（進行形・完了形を含む）, the terms Japanese learners know."
+    },
+    {
+      "location": "v6_strings.json templates.complementation.ja",
+      "provenance": "ai_draft",
+      "current": "動詞の型の誤り：「{learner_form}」は「{corrected_form}」とすべきです。英語では動詞ごとに後ろに続く形が決まっています——to不定詞（decide to go）、-ing形（enjoy going）、原形不定詞（make him go）、that節など。動詞と型をセットで覚えましょう。",
+      "verdict": "fix",
+      "proposed": "動詞の型の誤り：「{learner_form}」は「{corrected_form}」とすべきです。英語では動詞ごとに後ろに続く形が決まっています——to不定詞（decide to go）、動名詞（-ing形：enjoy going）、原形不定詞（make him go）、that節など。動詞と型をセットで覚えましょう。",
+      "reason": "Use the school term 動名詞 for -ing after a verb, consistent with the revised gloss."
+    },
+    {
+      "location": "v6_strings.json templates.agreement.ja",
+      "provenance": "v5_verbatim",
+      "current": "主語と動詞の一致の誤り：「{learner_form}」は主語と一致していません。数・人称を主語に合わせて「{corrected_form}」を使ってください。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.pronoun.ja",
+      "provenance": "ai_draft",
+      "current": "代名詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。位置に応じて主格・目的格（I／me、he／him）を使い分け、再帰代名詞（himself）は同じ節に先行詞があるときだけ使います。人には which ではなく who を使い、関係節の中に余分な代名詞を入れません。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate and learner-friendly."
+    },
+    {
+      "location": "v6_strings.json templates.plural_number.ja",
+      "provenance": "v5_verbatim",
+      "current": "数の誤り：「{learner_form}」は「{corrected_form}」とすべきです。ここで名詞が単数か複数かを確認してください。英語は数えられる名詞の単複を形で示します。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.phrasal_verb.ja",
+      "provenance": "v5_verbatim",
+      "current": "句動詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。不変化詞（up/out/in など）で意味が変わるため、入れ替えはできません。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.lexical_form.ja",
+      "provenance": "ai_draft",
+      "current": "語形の誤り：「{learner_form}」は「{corrected_form}」とすべきです。語族は正しいものの、その中の別の形を選んでいます。ここで名詞・動詞・形容詞・副詞のどれが必要か（success／succeed／successful）、また関連する二つの形容詞のどちらが合うか（economic／economical）を確認してください。",
+      "verdict": "fix",
+      "proposed": "語形の誤り：「{learner_form}」は「{corrected_form}」とすべきです。語の仲間（語族）は合っていますが、その中の別の形を選んでいます。ここで名詞・動詞・形容詞・副詞のどれが必要か（success／succeed／successful）、また関連する二つの形容詞のどちらが合うか（economic／economical）を確認してください。",
+      "reason": "語族 is jargon for a 中高生; glossed as 語の仲間. ものの → が for a lighter register matching the other templates."
+    },
+    {
+      "location": "v6_strings.json templates.semantic_anomaly.ja",
+      "provenance": "ai_draft",
+      "current": "意味の破綻：「{learner_form}」は文法的には正しいものの、あり得ない・不合理な出来事を表しています（語の意味の組み合わせが成り立ちません）。参照文は「{corrected_form}」で、これが原文の内容です。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; quotes both forms and states the reference."
+    },
+    {
+      "location": "v6_strings.json templates.contradiction.ja",
+      "provenance": "ai_draft",
+      "current": "論理の矛盾：「{learner_form}」により文が自己矛盾しています（時間・関係・論理が成り立ちません）。「{corrected_form}」なら原文どおり矛盾のない文になります。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate and natural."
+    },
+    {
+      "location": "v6_strings.json templates.meaning_inversion.ja",
+      "provenance": "ai_draft",
+      "current": "意味の反転：「{learner_form}」は原文と逆の意味になっています。参照文は「{corrected_form}」です。否定語の脱落、反意語、方向の逆転などの小さな違いでも意味が正反対になるため、見た目がほぼ正しくても重大な誤りです。",
+      "verdict": "fix",
+      "proposed": "意味の反転：この部分は原文と逆の意味になっています。参照文では「{corrected_form}」です。否定語の脱落、反意語、方向の逆転などの小さな違いでも意味が正反対になるため、見た目がほぼ正しくても重大な誤りです。",
+      "reason": "The commonest inversion is a dropped negation, where learner_form is empty, so quoting it forced the generic empty-form fallback and lost the 'this is serious' message. Now quotes only corrected_form, as the revised en template does."
+    },
+    {
+      "location": "v6_strings.json templates.wa_ga.ja",
+      "provenance": "ai_draft",
+      "current": "「は」「が」の誤り：「{learner_form}」ではなく「{corrected_form}」が必要です。疑問詞が主語のとき（誰が・何が）、名詞を修飾する節の中の主語、主節と異なる従属節の主語には「が」を使い、「は」は使えません。",
+      "verdict": "fix",
+      "proposed": "「は」「が」の誤り：「{learner_form}」ではなく「{corrected_form}」が必要です。疑問詞が主語のとき（誰が・何が）、名詞を修飾する節の中の主語、主節と主語が異なる従属節（「〜とき」など）の主語には「が」を使い、「は」は使えません。",
+      "reason": "Same ambiguity as the gloss: '主節と異なる従属節の主語' → a subordinate clause whose subject differs from the main clause's, with an example clause type."
+    },
+    {
+      "location": "v6_strings.json templates.case_particle.ja",
+      "provenance": "v5_verbatim",
+      "current": "格助詞の誤り：「{learner_form}」ではなく「{corrected_form}」が必要です。を＝対象、に＝着点・時、で＝場所・手段、へ＝方向、のように格助詞は文法的役割を決めるため、誤ると意味関係が変わります。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.particle_other.ja",
+      "provenance": "v5_verbatim",
+      "current": "助詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。並列助詞（や・と）、取り立て助詞（も・だけ・しか）、終助詞などで、誤るとニュアンスが変わります。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.conjugation.ja",
+      "provenance": "ai_draft",
+      "current": "活用の誤り：「{learner_form}」は「{corrected_form}」とすべきです。動詞・形容詞は規則に従って活用し（て形・否定・過去・可能など）、その規則は語の種類（五段／一段動詞、い形容詞／な形容詞）によって異なります。語の種類を確認してください。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; names the verb-class check, which is the useful advice."
+    },
+    {
+      "location": "v6_strings.json templates.tam.ja",
+      "provenance": "ai_draft",
+      "current": "テンス・アスペクトの誤り：「{learner_form}」は「{corrected_form}」とすべきです。「た」は完了・過去、「ている」は進行や結果の状態を表します。また「前に」の前は非過去形、「後で」の前は過去形を使い、主節の時制には左右されません。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate (た/ている, relative tense in 前に/後で)."
+    },
+    {
+      "location": "v6_strings.json templates.keigo.ja",
+      "provenance": "ai_draft",
+      "current": "敬語の誤り：「{learner_form}」は敬語の向きが逆です。参照文では「{corrected_form}」を用います。尊敬語は相手（特に目上）の動作を高めるとき、謙譲語は自分や身内の動作をへりくだるときに使い、逆にはできません。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate and natural."
+    },
+    {
+      "location": "v6_strings.json templates.counter.ja",
+      "provenance": "v5_verbatim",
+      "current": "助数詞の誤り：「{learner_form}」は助数詞が誤っています。この種類の名詞に合う助数詞「{corrected_form}」を使ってください。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.transitivity_voice.ja",
+      "provenance": "ai_draft",
+      "current": "自動詞・他動詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。多くの動詞は「を」を取る他動詞（開ける・始める）と「が」を取る自動詞（開く・始まる）の対になっています。また受身・使役の形にすると、必要な助詞も変わります。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; the を/が pairing is the right learner rule."
+    },
+    {
+      "location": "v6_strings.json templates.modification.ja",
+      "provenance": "ai_draft",
+      "current": "連体修飾の誤り：「{learner_form}」は「{corrected_form}」とすべきです。名詞の前では、い形容詞はそのまま（高い山）、な形容詞は「な」（静かな部屋）、名詞は「の」（日本の車）でつなぎ、修飾語は必ず名詞の前に置きます。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; the three forms with examples."
+    },
+    {
+      "location": "v6_strings.json templates.clause_linkage.ja",
+      "provenance": "ai_draft",
+      "current": "節の接続の誤り：「{learner_form}」は「{corrected_form}」とすべきです。接続の形にはそれぞれ意味と制限があります。から・ので＝理由、のに＝逆接。「と」の後には依頼・命令を続けられません（「たら」を使う）。意志で制御できる目的は「ために」、できない目的は「ように」です。",
+      "verdict": "fix",
+      "proposed": "節の接続の誤り：「{learner_form}」は「{corrected_form}」とすべきです。接続の形にはそれぞれ意味と制限があります。から・ので＝理由、のに＝逆接。「〜と」の条件文の後半には依頼・命令を続けられません（「たら」を使います）。意志で制御できる目的は「ために」、できない目的は「ように」です。",
+      "reason": "'「と」の後には依頼・命令を続けられません' reads as 'nothing request-like may follow the particle と' (that would also ban 友達と行ってください); the rule is about the main clause after a と-conditional."
+    },
+    {
+      "location": "v6_strings.json templates.kanji_choice.ja",
+      "provenance": "ai_draft",
+      "current": "漢字の選択の誤り：「{learner_form}」は「{corrected_form}」と書くべきです。どちらも同じ読みの実在する語ですが、漢字ごとに意味が異なります（計る＝時間、測る＝長さ、量る＝重さ）。意味に合う漢字を選んでください。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; 計る/測る/量る glosses are the textbook ones."
+    },
+    {
+      "location": "v6_strings.json templates.topic_comment.ja",
+      "provenance": "v5_verbatim",
+      "current": "主題—解説構造の誤り：「{learner_form}」と組み立てていますが、「{corrected_form}」が目標言語に沿った主題と解説の示し方です。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "v5 text."
+    },
+    {
+      "location": "v6_strings.json templates.measure_word.ja",
+      "provenance": "ai_draft",
+      "current": "量詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。中国語では数詞や指示詞の後に名詞に合った量詞が必要で（本＝本、服＝件、小動物＝只など）、数量を表す語句の後には「们」を付けません。迷ったときは汎用の「个」でもたいてい通じます。",
+      "verdict": "fix",
+      "proposed": "量詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。中国語では数詞や指示詞の後に名詞に合った量詞が必要で（書籍には「本」、服には「件」、小動物には「只」など）、数量を表す語句の後には「们」を付けません。迷ったときは汎用の「个」でもたいてい通じます。",
+      "reason": "'本＝本' is unreadable for a Japanese reader (book = 本 and the measure word is 本); rewritten as noun → measure word."
+    },
+    {
+      "location": "v6_strings.json templates.aspect_negation.ja",
+      "provenance": "ai_draft",
+      "current": "アスペクト・否定の誤り：「{learner_form}」は「{corrected_form}」とすべきです。中国語は時制ではなくアスペクトを標示します：了＝完了、过＝経験、着／正在＝持続・進行。既に起きた（完了した）動作の否定には「没」、習慣・意志・未来の否定には「不」を使います。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate."
+    },
+    {
+      "location": "v6_strings.json templates.de_particle.ja",
+      "provenance": "ai_draft",
+      "current": "「的／地／得」の誤り：「{learner_form}」は「{corrected_form}」とすべきです。三つの de は置き換えられません——的＝名詞を修飾、地＝動詞の前の連用修飾、得＝動詞の後の補語を導く。取り違えはすべて誤りとなります。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; keeps the any-misuse ruling."
+    },
+    {
+      "location": "v6_strings.json templates.complement.ja",
+      "provenance": "ai_draft",
+      "current": "補語の誤り：「{learner_form}」は「{corrected_form}」とすべきです。中国語は動作の結果・方向・可能・程度を補語として動詞に付けます（看完、走进来、听不懂、跑得快）。補語の形も、目的語との位置関係も重要です。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate."
+    },
+    {
+      "location": "v6_strings.json templates.ba_bei.ja",
+      "provenance": "ai_draft",
+      "current": "「把」「被」構文の誤り：「{learner_form}」は「{corrected_form}」とすべきです。「把」構文は特定の目的語を動詞の前に出し、それに何をしたかを示すため、動詞の後に結果・方向・了などが必要で、可能補語は使えません。「被」構文は動作の受け手を主語にします（被＋動作主＋動詞）。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate and readable."
+    },
+    {
+      "location": "v6_strings.json templates.separable_verb.ja",
+      "provenance": "ai_draft",
+      "current": "離合詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。见面・帮忙・睡觉などはそれ自体が「動詞＋目的語」なので、後ろにさらに目的語を取れません。目的語は中に入れる（帮他的忙）か介詞で前に出し（跟他见面）、了・过も中に入れます（见了面）。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate."
+    },
+    {
+      "location": "v6_strings.json templates.coverb.ja",
+      "provenance": "ai_draft",
+      "current": "介詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。中国語の介詞（对・给・跟・向・离・从・在）は動詞の前に置かれ、どれを使うかは意味や固定の枠組み（对…来说、离…很远）で決まります。英語などの前置詞とは一対一に対応しません。",
+      "verdict": "fix",
+      "proposed": "介詞の誤り：「{learner_form}」は「{corrected_form}」とすべきです。中国語の介詞（对・给・跟・向・离・从・在）は動詞の前に置かれ、どれを使うかは意味や固定の枠組み（对…来说、离…很远）で決まります。日本語の助詞や英語の前置詞とは一対一に対応しません。",
+      "reason": "This template is read by Japanese speakers; the relevant false friend is the Japanese particle (に/で/から), not only the English preposition."
+    },
+    {
+      "location": "v6_strings.json templates.connective.ja",
+      "provenance": "ai_draft",
+      "current": "関連詞の呼応の誤り：「{learner_form}」は「{corrected_form}」とすべきです。中国語の関連詞は決まった組み合わせで呼応し（虽然…但是、只要…就、只有…才、不但…而且）、後半は前半に合ったものを正しい位置に置きます（但是・而且は節の頭、就・才は動詞の直前）。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate, including the position rule."
+    },
+    {
+      "location": "v6_strings.json variant_templates.word_choice.wrong_word.ja",
+      "provenance": "ai_draft",
+      "current": "語彙選択の誤り：「{learner_form}」はここで必要な意味を表していません。参照文では「{corrected_form}」を使います。意味の異なる別の語なので、この意味を表す語として「{corrected_form}」を覚えましょう。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Natural; consistent with the word_choice template."
+    },
+    {
+      "location": "v6_strings.json variant_templates.word_choice.wrong_sense.ja",
+      "provenance": "ai_draft",
+      "current": "語義の誤り：「{learner_form}」と「{corrected_form}」は同じ語ですが、この語には複数の意味があり、ここでの使い方では文が必要とするのとは別の意味になっています。文脈に合う語義を確認してください。",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; quotes both forms of the same lemma."
+    },
+    {
+      "location": "v6_strings.json variant_templates.word_choice.false_synonym.ja",
+      "provenance": "ai_draft",
+      "current": "「{learner_form}」と「{corrected_form}」は、あなたの母語では同じ語に訳せることがありますが、使い方が異なります。ここでは「{corrected_form}」しか合いません。",
+      "verdict": "fix",
+      "proposed": "紛らわしい語：「{learner_form}」と「{corrected_form}」は日本語ではどちらも同じ語に訳せますが、使い方が異なります。ここでは「{corrected_form}」しか使えません。",
+      "reason": "This is the L1=ja template, so 'あなたの母語では' should name the language, as the en ('the same English word') and zh ('在中文里') templates do. Added a short type prefix (紛らわしい語：) like the other variant templates and en's 'Easily confused words:'."
+    },
+    {
+      "location": "merged_taxonomy.json ja[omission].native_name",
+      "provenance": "n/a",
+      "current": "要素の欠落",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[addition].native_name",
+      "provenance": "n/a",
+      "current": "余分な追加",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[word_choice].native_name",
+      "provenance": "n/a",
+      "current": "語彙選択",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[collocation].native_name",
+      "provenance": "n/a",
+      "current": "コロケーション",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Standard term."
+    },
+    {
+      "location": "merged_taxonomy.json ja[word_order].native_name",
+      "provenance": "n/a",
+      "current": "語順",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Standard term."
+    },
+    {
+      "location": "merged_taxonomy.json ja[register].native_name",
+      "provenance": "n/a",
+      "current": "文体・語調",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[orthography].native_name",
+      "provenance": "n/a",
+      "current": "表記・綴り",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[cohesion_connective].native_name",
+      "provenance": "n/a",
+      "current": "結束性・接続表現",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[wa_ga].native_name",
+      "provenance": "n/a",
+      "current": "「は」「が」（構造規則）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Names the narrowing (構造規則)."
+    },
+    {
+      "location": "merged_taxonomy.json ja[case_particle].native_name",
+      "provenance": "n/a",
+      "current": "格助詞",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Standard term."
+    },
+    {
+      "location": "merged_taxonomy.json ja[particle_other].native_name",
+      "provenance": "n/a",
+      "current": "その他の助詞",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[conjugation].native_name",
+      "provenance": "n/a",
+      "current": "動詞の活用",
+      "verdict": "fix",
+      "proposed": "活用（動詞・形容詞）",
+      "reason": "'動詞の活用' is narrower than the type, which also covers い/な-adjective conjugation (静かくない)."
+    },
+    {
+      "location": "merged_taxonomy.json ja[tam].native_name",
+      "provenance": "n/a",
+      "current": "テンス・アスペクト・モダリティ",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Standard Japanese-linguistics names for the three categories."
+    },
+    {
+      "location": "merged_taxonomy.json ja[keigo].native_name",
+      "provenance": "n/a",
+      "current": "敬語（方向）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[counter].native_name",
+      "provenance": "n/a",
+      "current": "助数詞",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Standard term."
+    },
+    {
+      "location": "merged_taxonomy.json ja[transitivity_voice].native_name",
+      "provenance": "n/a",
+      "current": "自動詞/他動詞・受身",
+      "verdict": "fix",
+      "proposed": "自動詞・他動詞／受身・使役",
+      "reason": "Half-width slash, and 受身 alone omits causative, which the definition covers. Now identical to the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[modification].native_name",
+      "provenance": "n/a",
+      "current": "連体修飾形（い/な/の）",
+      "verdict": "fix",
+      "proposed": "連体修飾形（い・な・の）",
+      "reason": "Half-width slashes; 中黒 matches the gloss."
+    },
+    {
+      "location": "merged_taxonomy.json ja[clause_linkage].native_name",
+      "provenance": "n/a",
+      "current": "節の接続",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[kanji_choice].native_name",
+      "provenance": "n/a",
+      "current": "漢字の選択（同音異義）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Accurate; 同音異義 signals the homophone scope."
+    },
+    {
+      "location": "merged_taxonomy.json ja[topic_comment].native_name",
+      "provenance": "n/a",
+      "current": "主題—解説構造",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[semantic_anomaly].native_name",
+      "provenance": "n/a",
+      "current": "意味的な破綻",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[contradiction].native_name",
+      "provenance": "n/a",
+      "current": "矛盾・論理の破綻",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Matches the gloss short name."
+    },
+    {
+      "location": "merged_taxonomy.json ja[meaning_inversion].native_name",
+      "provenance": "n/a",
+      "current": "意味の反転（極性・方向・数量）",
+      "verdict": "fix",
+      "proposed": "意味の反転（極性・方向・数量・動作主）",
+      "reason": "The definition also covers swapped doer/receiver; zh added 施受 to its native name in the same way."
+    },
+    {
+      "location": "type judgement ja.transitivity_voice (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Sound type: 自他 pairs and passive/causative-particle mismatch are one learner problem (which argument gets が/を). accuracy/major is right: 電気をついて changes the grammatical relations."
+    },
+    {
+      "location": "type judgement ja.modification (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Sound. accuracy/minor is right: 静かい部屋 is wrong but never blocks meaning."
+    },
+    {
+      "location": "type judgement ja.clause_linkage (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Sound. accuracy/major is right: のに for ので inverts the stated relation; と + request is ungrammatical. The から/ので interchange must not be flagged (now in the gloss)."
+    },
+    {
+      "location": "type judgement ja.kanji_choice (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Sound and accurate: a real word in the wrong 異字同訓/同音 kanji (測る for 量る) is different from a misspelling (orthography) and from kana-vs-kanji (never an error). accuracy/minor is right."
+    },
+    {
+      "location": "type judgement ja.wa_ga (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "The narrowing to the three structural rules (question-word subject, relative-clause subject, differing subordinate-clause subject) is linguistically correct: main-clause は/が is a topic/focus choice, not a grammar error, and a grader cannot judge it reliably. major is defensible: 誰は来ましたか is ungrammatical. The live v5 rubric exemplar is NOT valid under this definition (see exemplar_proposal)."
+    },
+    {
+      "location": "type judgement ja.tam (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Sound. Note the name says modality but the defined errors are tense, aspect and relative tense; ておく is aspectual. Acceptable — no change proposed."
+    },
+    {
+      "location": "type judgement ja.semantic_anomaly (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Sound; fidelity/major is right. The personification/metaphor/hyperbole exclusion is essential for ja (e.g. 時間が飛ぶ)."
+    },
+    {
+      "location": "type judgement ja.contradiction (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Sound for ja as a self-contained check. For ja L2 a wrong connective (のに/ので) is clause_linkage, not contradiction — so the ja precedence block keeps {co} to self-contradiction only, unlike en."
+    },
+    {
+      "location": "type judgement ja.meaning_inversion (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Sound; critical is right for ja (否定 dropped: 行きます for 行きません). For ja L2 the inversion often hides in a particle swap (から↔まで, に↔から with 借りる/貸す) — the block names 助詞 so the grader re-types it from case_particle."
+    },
+    {
+      "location": "type judgement ja.script_choice (merged_taxonomy.json / ADR-031; no string change)",
+      "provenance": "n/a",
+      "current": null,
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Drop confirmed: kana vs kanji spelling of the same word (りんご/林檎, 分かる/わかる) is a stylistic choice, not an error, under the edited-writing norm jev uses; a wrong kanji for the meaning is covered by kanji_choice and a misspelling by orthography. Its live rows are deleted by TASK-852."
+    },
+    {
+      "location": "services/dual_translation/prompts.py _PRECEDENCE_V6.ja",
+      "provenance": "ai_draft (TASK-843)",
+      "current": "意味の反転——表面形式ではなく効果で判定してください。誤りの効果が、参照文に対して極性（否定）、方向、数量・程度、または動作主・受け手（誰が誰に何をするか）を反転させるものであれば、表面上は助詞の置き換え、語の選択の置き換え、語の脱落のいずれであっても、サブタイプ{mi}として報告してください。学習者が否定（ない・ず・ません等）を落とした、または加えたことで極性が反転する場合は{mi}とし、{om}や{ad}としないでください。反転を伴わず内容が失われるだけの場合は引き続き{om}です。程度が変わっても反転しない場合（「とても」→「かなり」など）は反転ではありません。{co}は、参照文を見なくても学習者文だけで分かる文内の自己矛盾に限ります。参照文と逆になっている場合は{mi}です。{mi}の重大度は常に致命的（2）です。",
+      "verdict": "fix",
+      "proposed": "意味の反転——表面形式ではなく効果で判定してください。誤りの効果が、参照文と比べて極性（肯定／否定）、方向、数量・程度（多い→少ない、いつも→決して〜ない）、または動作主と受け手（誰が誰に何をするか）を反転させるものであれば、表面上は助詞の置き換え、別の語への置き換え、語の脱落・追加のいずれであっても、サブタイプ{mi}として報告してください。特に、学習者が否定（ない・ず・ません等）を落とした、または加えたことで極性が反転する場合は、{om}や{ad}ではなくこちらです。このような誤りはこのサブタイプで一度だけ報告し、表面形式の種類で重ねて報告しないでください。反転を伴わず内容が失われるだけの場合は欠落のままとし、程度が変わっても反転しない場合（「とても」→「かなり」など）は反転ではありません。{co}は、参照文を見なくても学習者文だけで分かる文内の自己矛盾（時間・関係・因果の食い違い）に限ります。参照文と比べて初めて分かる反転は意味の反転です。意味の反転の重大度は常に致命的（2）です。",
+      "reason": "Brought in line with the revised en/zh blocks: (1) each placeholder used once ({mi} appeared 4x, {om} 2x); (2) the explicit 'report once, never also under the surface-form type' rule was missing; (3) '参照文と逆になっている場合は{mi}' covered any clash with the reference - narrowed to a reversal that only shows against the reference; (4) degree examples (多い→少ない、いつも→決して〜ない) as in en; (5) surface forms include 語の追加 (an added negation); (6) {co} keeps only the self-contradiction limb, with jev's ja sub-cases (time, relation, cause-effect). Unlike en, a wrong ja connective (のに for ので) is 節の接続 (clause_linkage), not contradiction, so no connective limb. 致命的（2） matches the severity enum."
+    },
+    {
+      "location": "services/dual_translation/prompts.py _PRECEDENCE_V6_VERIFIER.ja",
+      "provenance": "ai_draft (TASK-843)",
+      "current": "審査対象誤りの効果が上記の反転に当たるのに{surface}と分類されている場合は、修正（2）と判定し、サブタイプを{mi}、重大度を致命的（2）に修正してください。",
+      "verdict": "fix",
+      "proposed": "審査対象誤りの効果が上記の反転に当たるのに、{surface}のいずれかに分類されている場合は、修正（2）と判定し、サブタイプを{mi}に、重大度を致命的（2）に変更してください。",
+      "reason": "{surface} is joined with '、', so '{surface}と分類されている' reads as 'classified as all of them'; add のいずれか (same fix as zh). '修正（2）と判定し…に修正してください' repeated 修正; the second is now 変更. 修正（2） matches the ja verifier verdict enum."
+    },
+    {
+      "location": "services/dual_translation/prompts.py _VARIANT_BLOCK.ja",
+      "provenance": "ai_draft (TASK-845)",
+      "current": "explanation_variant（任意。サブタイプ{wc}の誤りにのみ付け、それ以外では省略）：0＝誤った語——参照文の語とは意味の異なる別の語、1＝誤った語義——参照文と同じ語だが、辞書上の別の語義で使っている、2＝偽の同義語——学習者の母語{l1_paren}では参照文の語と同じ訳になる別の語だが、意味や用法が異なる（例：「着る」と「履く」）。",
+      "verdict": "fix",
+      "proposed": "explanation_variant（サブタイプ{wc}の誤りには必ず付け、それ以外の誤りには付けない）。{l1_sentence}次の順に判定してください：1＝誤った語義——学習者が参照文と同じ語（同じ見出し語）を使っているが、その語の辞書上の別の語義で使っている。そうでなければ、2＝偽の同義語——別の語で、{l1_ref}では参照文の語と同じ語に訳されるが、意味や用法が異なる{example}。そうでなければ、0＝誤った語——参照文の語と意味の異なる別の語（1にも2にも当たらない場合）。",
+      "reason": "Aligned with en/zh (string review 2026-10-07): the field is REQUIRED on every word_choice error (merged_taxonomy marks it required; the block said 任意), decided in ADR-031's order (same lemma -> 1 wrong_sense; else same L1 translation -> 2 false_synonym; else 0 wrong_word, stated as the residual), and the learner's L1 is named in its own sentence ({l1_sentence} = 学習者の母語は英語です。) and in the false_synonym test ({l1_ref}) instead of the old （英語） parenthesis. The fixed example 着る/履く becomes a per-L1 {example} (see next entry). explanation_variant, {wc} and the indices 0/1/2 are unchanged."
+    },
+    {
+      "location": "services/dual_translation/prompts.py _VARIANT_EXAMPLE[\"ja\"] (new)",
+      "provenance": "new",
+      "current": null,
+      "verdict": "fix",
+      "proposed": "{\"en\": \"（例：「着る」と「履く」は英語ではどちらも同じ一語に訳される）\", \"zh\": \"（例：「着る」と「履く」は中国語ではどちらも「穿」）\", \"neutral\": \"（例：「着る」と「履く」）\"}",
+      "reason": "Per-L1 false_synonym examples for the ja-L2 variant line, mirroring en/zh. 着る/履く is one verb in English (wear) and in Chinese (穿), so it is a true false synonym for both L1s. The en example avoids Latin ('wear') so the ja block stays free of English prose."
+    },
+    {
+      "location": "services/dual_translation/prompts.py _VARIANT_EXAMPLE[\"zh\"][\"ja\"]",
+      "provenance": "ai_draft",
+      "current": "（如“知道”与“认识”，在日语中都译作「知っている」）",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Japanese content check: 知道 and 认识 are both commonly rendered 知っている (事実を知っている / 人を知っている), so the example holds for ja L1."
+    },
+    {
+      "location": "services/dual_translation/prompts.py _VARIANT_EXAMPLE[\"en\"][\"ja\"]",
+      "provenance": "ai_draft",
+      "current": " (e.g. look / watch, both 見る in Japanese)",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Japanese content check: look and watch are both 見る in Japanese. Accurate."
+    },
+    {
+      "location": "services/dual_translation/prompts.py _L1_NAME[\"ja\"]",
+      "provenance": "ai_draft",
+      "current": "{\"en\": \"英語\", \"zh\": \"中国語\", \"ja\": \"日本語\"}",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "英語／中国語／日本語 are the natural names."
+    },
+    {
+      "location": "services/dual_translation/prompts.py _EXPLAINER_VARIANT_GUIDANCE.ja",
+      "provenance": "ai_draft (TASK-846)",
+      "current": "一部の語彙選択の誤りには「variant」が付いています。wrong_word：学習者が意味の異なる別の語を使った——ここでの各語の意味を説明すること。wrong_sense：同じ語だが、この文に合わない語義で使われている——文脈が求める語義を示すこと。false_synonym：二つの語は日本語では同じ訳語になり得るが置き換えはできない——二つの語を対比し、使い方の違いを説明すること。",
+      "verdict": "fix",
+      "proposed": "一部の「語彙選択」の誤りには「variant」の項目が付いています。wrong_word：学習者が意味の異なる別の語を使った——ここでの各語の意味を説明すること。wrong_sense：同じ語だが、この文に合わない語義で使われている——文脈が求める語義を示すこと。false_synonym：二つの語は日本語では同じ訳語になり得るが置き換えはできない——二つの語を対比し、使い方の違いを説明すること。",
+      "reason": "The explainer sees the type as its gloss label 語彙選択, so quote it as a label; 'variant' is a field name, so say 「variant」の項目 (same fix as zh). Otherwise faithful; register matches the ja explainer header. variant / wrong_word / wrong_sense / false_synonym tokens unchanged."
+    },
+    {
+      "location": "services/dual_translation/explainer.py _EMPTY_FORM_PHRASES.ja",
+      "provenance": "ai_draft (string review 2026-10-07)",
+      "current": "{\"missing\": \"参照文ではここに「{corrected_form}」がありますが、あなたの文では抜けています。\", \"extra\": \"「{learner_form}」は参照文のこの部分にはありません。削除してください。\", \"prefix\": \"{type}：\"}",
+      "verdict": "ok",
+      "proposed": null,
+      "reason": "Natural and correct: 'missing' quotes only corrected_form and 'extra' only learner_form; 削除してください is the right instruction for an added word or negation; the full-width colon prefix matches the ja templates."
+    }
+  ],
+  "exemplar_proposal": {
+    "status": "Proposal only - migrations/dt_rubric_v6_seed.sql is NOT edited. For the optional rubric v7 re-slug (TASK-841 notes).",
+    "verdict_on_live_exemplar": "INVALID under v6. The live ja exemplar (learner 部品はセットになっている。 / reference 部品がセットになっている。, particle_wa_ga, major) is a main-clause は/が choice. Under the narrowed v6 wa_ga (three structural rules only) and jev's not-an-error list ('almost every main-clause は/が choice'), it is not an error at all: both sentences are grammatical and differ only in topic vs. focus. It must not be re-slugged to wa_ga; it needs replacing.",
+    "proposed_exemplar": {
+      "learner": "これは弟は作ったカレーです。",
+      "reference": "これは弟が作ったカレーです。",
+      "error": {
+        "category": 0,
+        "confidence": 0.9,
+        "corrected_form": "弟が",
+        "is_mistake": false,
+        "learner_form": "弟は",
+        "severity_slug": "major",
+        "source": 1,
+        "span_ref": [
+          3,
+          5
+        ],
+        "span_repro": [
+          3,
+          5
+        ],
+        "subtype_slug": "wa_ga"
+      },
+      "scores": {
+        "accuracy": 3,
+        "fidelity": 4,
+        "naturalness": 4,
+        "range": 4,
+        "understandability": 4
+      },
+      "confidence": 0.9,
+      "rule": "Rule 2: the subject inside a relative (noun-modifying) clause takes が (or の), never は.",
+      "why_this_one": "Unambiguous: the relative clause sits after これは, so 弟は cannot be re-read as a main-clause topic (unlike 弟は作ったカレーを食べました, which is grammatical with another meaning). Same shape as the live exemplar: one particle, span [3,5] in both texts, accuracy 3, source 1 (intralingual: は overgeneralised as a subject marker)."
+    },
+    "alternate_exemplar": {
+      "learner": "母は帰ってきたとき、私は寝ていました。",
+      "reference": "母が帰ってきたとき、私は寝ていました。",
+      "error": {
+        "category": 0,
+        "corrected_form": "母が",
+        "learner_form": "母は",
+        "severity_slug": "major",
+        "source": 1,
+        "span_ref": [
+          0,
+          2
+        ],
+        "span_repro": [
+          0,
+          2
+        ],
+        "subtype_slug": "wa_ga"
+      },
+      "rule": "Rule 3: the subject of a とき-clause that differs from the main-clause subject takes が. jev's 'subtle' item; harder, so better as a second exemplar than the only one."
+    }
+  }
+}

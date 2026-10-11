@@ -353,15 +353,35 @@ def test_l4_generator_retries_once_on_schema_failure(monkeypatch, split_base):
     assert len(calls) == 2
 
 
-def test_l4_generator_gives_up_after_two_bad_responses(monkeypatch, split_base):
+def test_l4_generator_gives_up_after_three_bad_responses(monkeypatch, split_base):
+    """TASK-8xx (item 1): a schema failure on both the primary and the retry
+    now gets ONE additional scoped repair call (tagged call_role='repair')
+    before giving up — capped at 3, not an unbounded loop."""
     calls = _stub(monkeypatch, split_base, [
         _l4_payload(base_form=''),
         _l4_payload(form_label=''),
+        _l4_payload(base_form=''),
     ])
     gen = MorphologySlotGenerator(db=None, language_id=2)
 
     assert gen.generate(1, _core(), {4: 1}) is None
-    assert len(calls) == 2, 'exactly one retry, not an unbounded loop'
+    assert len(calls) == 3, 'primary + retry + one scoped repair call, then give up'
+    assert [c['call_role'] for c in calls] == ['primary', 'retry', 'repair']
+
+
+def test_l4_generator_repair_call_can_recover_the_level(monkeypatch, split_base):
+    calls = _stub(monkeypatch, split_base, [
+        _l4_payload(base_form=''),
+        _l4_payload(form_label=''),
+        _l4_payload(),   # good on the repair call
+    ])
+    gen = MorphologySlotGenerator(db=None, language_id=2)
+
+    out = gen.generate(1, _core(), {4: 1})
+
+    assert out['level_4']['base_form'] == 'run'
+    assert len(calls) == 3
+    assert calls[2]['call_role'] == 'repair'
 
 
 def test_l4_generator_survives_a_call_exception_then_succeeds(monkeypatch, split_base):
@@ -429,7 +449,8 @@ def test_l4_and_l8_use_independently_configured_models(monkeypatch, split_base):
 def test_a_failing_l4_costs_l8_nothing(monkeypatch, split_base):
     """Under the monolith, one bad level forced a retry of the other two."""
     calls = _stub(monkeypatch, split_base, [
-        _l4_payload(base_form=''), _l4_payload(base_form=''),   # L4 burns both attempts
+        _l4_payload(base_form=''), _l4_payload(base_form=''),   # L4 burns primary+retry
+        _l4_payload(base_form=''),                              # ...and its scoped repair
         _l8_payload(),                                          # L8 succeeds first try
     ])
 
@@ -439,7 +460,7 @@ def test_a_failing_l4_costs_l8_nothing(monkeypatch, split_base):
     l8_out = CollocationRepairGenerator(None, 2).generate(1, l8_core, {8: 0})
 
     assert l8_out['level_8']['correct_collocate'] == 'brew'
-    assert len(calls) == 3, 'L8 paid for exactly one call despite L4 burning two'
+    assert len(calls) == 4, 'L8 paid for exactly one call despite L4 burning three'
 
 
 def test_generation_calls_are_labelled_for_the_reject_rate_view(monkeypatch, split_base):

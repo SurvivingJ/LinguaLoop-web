@@ -217,7 +217,7 @@ updated to match but **not applied live**: no gate reads the live table, and app
 
 ## TASK-802: ESLint parses `static/js/session/**` as script, `npm run check` fails
 
-**Status:** [ ] Not Started
+**Status:** [x] Done 2026-10-09 (see closing note)
 **Feature:** tooling
 **Type:** infra
 **Complexity:** XS
@@ -245,7 +245,7 @@ players). Append this object to the array in `eslint.config.js` (after the
   },
 ```
 
-Awaiting that edit; then confirm `npm run check` fails only on the CRLF prettier baseline.
+**Closing note 2026-10-09:** the module block was already in `eslint.config.js`. `eslint .` still reported 27 `static/js` errors from other causes (`LinguaI18n` undefined in session modules, empty `catch (_) {}` blocks) plus `process`/`window`/`afterEach` undefined in `playwright.config.js` and `tests/**`. Fixed in `eslint.config.js`: `LinguaI18n` read-only global scoped to `static/js/session/**` (the legacy files declare it themselves, so a global would trip `no-redeclare`), `no-empty` with `allowEmptyCatch`, and a Node+browser+vitest globals block for `playwright.config.js` and `tests/**`. `eslint .` now reports 0 errors (38 warnings). `npm run check` still exits 1 on one stylelint `rule-empty-line-before` error (static/css/styles.css:168) and the CRLF prettier baseline — both pre-existing and unrelated.
 
 ---
 

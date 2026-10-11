@@ -107,8 +107,12 @@ def _run(
         )
         return errors, 0, 0, "no slug"
 
-    system_prompt = prompts.build_explainer_system_prompt(l1_code)
     numbered = [_numbered_error(e, i, taxonomy_cfg, l1_code) for i, e in enumerate(errors)]
+    # TASK-846: the per-variant guidance is appended only when some error carries a
+    # word_choice explanation_variant (v6) — every v5 system prompt is unchanged.
+    system_prompt = prompts.build_explainer_system_prompt(
+        l1_code, variants=any("variant" in n for n in numbered),
+    )
     user_prompt = prompts.build_explainer_user_prompt(l1_code, reference, reproduction, numbered)
 
     try:
@@ -146,14 +150,23 @@ def _run(
 
 def _numbered_error(error: dict, index: int, taxonomy_cfg: dict, l1_code: str) -> dict:
     """The compact per-error shape the §7e user prompt lists: index + forms + the
-    L1 subtype gloss + the Rule-template text (which the error already carries)."""
-    return {
+    L1 subtype gloss + the Rule-template text (which the error already carries).
+
+    TASK-846: a v6 word_choice error also carries ``variant`` (its
+    ``explanation_variant`` slug). The key is omitted when the error has none —
+    every v5 error and every non-word_choice v6 error — so v5 payloads are
+    byte-identical."""
+    numbered = {
         "i": index,
         "learner_form": error.get("learner_form", ""),
         "corrected_form": error.get("corrected_form", ""),
         "type": _subtype_gloss(taxonomy_cfg, error.get("subtype"), l1_code),
         "rule": error["explanation_parts"]["rule"],
     }
+    variant = error.get("explanation_variant")
+    if variant:
+        numbered["variant"] = variant
+    return numbered
 
 
 def _apply_explanations(errors: list[dict], raw_explanations) -> int:
@@ -236,6 +249,56 @@ def _index(value) -> Optional[int]:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+# --- Empty-form fallback phrasing (taxonomy v6, string review 2026-10-07 en item 3) ---
+#
+# An omission-like error (a dropped "not", a missing 得 or article) is a zero-width
+# point in the learner text, so its learner_form is empty; an addition-like one has
+# an empty corrected_form. A Rule template that quotes the empty form would show the
+# learner an empty quotation (“” / 「」). Rather than special-casing templates one by
+# one, grader_cascade.render_explanation (v6 only — v5 output is unchanged) asks for
+# this L1 phrasing whenever the chosen template quotes a form that is empty. It names
+# the type by its L1 short name and quotes only the form that exists. EN/ZH were
+# written with the 2026-10-07 string review; JA was checked in the TASK-840 review
+# (2026-10-08, AI review — not a native-speaker review) and kept unchanged.
+_EMPTY_FORM_PHRASES: dict[str, dict[str, str]] = {
+    "en": {
+        "missing": "the reference has “{corrected_form}” here, and it is missing from your sentence.",
+        "extra": "“{learner_form}” is not in the reference here — leave it out.",
+        "prefix": "{type}: ",
+    },
+    "zh": {
+        "missing": "这里参考译文是“{corrected_form}”，你的句子里缺少了这部分。",
+        "extra": "参考译文这里没有“{learner_form}”，应该去掉。",
+        "prefix": "{type}：",
+    },
+    "ja": {
+        "missing": "参照文ではここに「{corrected_form}」がありますが、あなたの文では抜けています。",
+        "extra": "「{learner_form}」は参照文のこの部分にはありません。削除してください。",
+        "prefix": "{type}：",
+    },
+}
+
+
+def empty_form_explanation(
+    taxonomy_cfg: dict, subtype, l1_code: str, learner_form: str, corrected_form: str,
+) -> Optional[str]:
+    """The L1 Rule text for an error whose learner_form OR corrected_form is empty,
+    quoting only the non-empty form — or None when the L1 has no phrasing (or both
+    forms are empty), in which case the caller keeps its own fallback."""
+    phrases = _EMPTY_FORM_PHRASES.get(l1_code)
+    if phrases is None or (not learner_form and not corrected_form):
+        return None
+    if not learner_form:
+        body = phrases["missing"].format(corrected_form=corrected_form)
+    else:
+        body = phrases["extra"].format(learner_form=learner_form)
+    gloss = _subtype_gloss(taxonomy_cfg, subtype, l1_code)
+    if not gloss or gloss == subtype:  # no L1 gloss seeded: don't show a bare slug
+        return body[:1].upper() + body[1:]
+    name = prompts._short_label(gloss)
+    return phrases["prefix"].format(type=name[:1].upper() + name[1:]) + body
 
 
 def _subtype_gloss(taxonomy_cfg: dict, subtype, l1_code: str) -> str:

@@ -361,3 +361,113 @@ def aggregate_metrics(
         "bands": bands,
         "overall": band_metrics(overall_t, overall_p, band_min, band_max),
     }
+
+
+# ---------------------------------------------------------------------------
+# Taxonomy v6 metrics (TASK-849) — additive; aggregate_metrics/QWK are untouched
+# ---------------------------------------------------------------------------
+
+MEANING_INVERSION = "meaning_inversion"
+# The v6 types meaning_inversion is most often confused with (TASK-843 precedence rule).
+MI_CONFUSABLE: tuple[str, ...] = ("omission", "word_choice", "preposition", "contradiction")
+VARIANT_SUBTYPE = "word_choice"
+OTHER_LABEL = "other"
+
+
+def _matched_pairs(records: list[dict], span_threshold: float = 0.5):
+    """Yield (pred_error, exp_error) for every span-matched pair, using the same
+    `align_errors` rule as `aggregate_metrics` so the counts are consistent."""
+    for rec in records:
+        pred = rec.get("pred_errors", [])
+        exp = rec.get("exp_errors", [])
+        al = align_errors([p["span"] for p in pred], [e["span"] for e in exp], span_threshold)
+        for i, j in al.matches:
+            yield pred[i], exp[j]
+
+
+def subtype_confusion(
+    records: list[dict],
+    focus: str = MEANING_INVERSION,
+    against: tuple[str, ...] = MI_CONFUSABLE,
+    span_threshold: float = 0.5,
+) -> dict:
+    """Confusion counts among {focus} ∪ against on span-matched pairs.
+
+    Only pairs where the expected OR predicted subtype is in the set are counted;
+    a label outside the set is bucketed as "other". Returns
+    {"labels": [...], "matrix": {exp_label: {pred_label: n}}} (rows = expected)."""
+    labels = (focus, *against)
+    bucket = lambda s: s if s in labels else OTHER_LABEL  # noqa: E731
+    all_labels = [*labels, OTHER_LABEL]
+    matrix = {e: {p: 0 for p in all_labels} for e in all_labels}
+    for p, e in _matched_pairs(records, span_threshold):
+        ps, es = p.get("subtype"), e.get("subtype")
+        if ps not in labels and es not in labels:
+            continue
+        matrix[bucket(es)][bucket(ps)] += 1
+    return {"labels": all_labels, "matrix": matrix}
+
+
+def subtype_prf(records: list[dict], subtype: str = MEANING_INVERSION,
+                span_threshold: float = 0.5) -> dict:
+    """End-to-end precision/recall for one subtype (detection AND classification).
+
+    TP = a span-matched pair where both sides carry `subtype`. Recall's denominator is
+    every expected error of that subtype (a missed span is a miss); precision's is every
+    predicted error of that subtype (an unmatched prediction is a false alarm). NaN when
+    the denominator is 0 (e.g. a v5 run, where meaning_inversion does not exist)."""
+    tp = sum(1 for p, e in _matched_pairs(records, span_threshold)
+             if p.get("subtype") == subtype and e.get("subtype") == subtype)
+    n_exp = sum(1 for r in records for e in r.get("exp_errors", []) if e.get("subtype") == subtype)
+    n_pred = sum(1 for r in records for p in r.get("pred_errors", []) if p.get("subtype") == subtype)
+    return {
+        "subtype": subtype,
+        "tp": tp,
+        "n_expected": n_exp,
+        "n_predicted": n_pred,
+        "recall": (tp / n_exp) if n_exp else float("nan"),
+        "precision": (tp / n_pred) if n_pred else float("nan"),
+    }
+
+
+def explanation_variant_metrics(records: list[dict], span_threshold: float = 0.5) -> dict:
+    """`explanation_variant` accuracy on word_choice true positives + variant_basis mix.
+
+    Scored pairs: span-matched, both sides `word_choice`, and the expected error carries a
+    variant (v5 fixtures carry none → n=0). A missing predicted variant counts as wrong and
+    is tallied separately (`pred_missing`) so "grader emits no variant" (pre-TASK-845) is
+    distinguishable from "grader picks the wrong one". `variant_basis` is the sum of each
+    record's `pred_variant_basis` counts ({basis: n}, from grader_trace.variant_basis)."""
+    correct = total = missing = 0
+    for p, e in _matched_pairs(records, span_threshold):
+        if p.get("subtype") != VARIANT_SUBTYPE or e.get("subtype") != VARIANT_SUBTYPE:
+            continue
+        ev = e.get("explanation_variant")
+        if not ev:
+            continue
+        total += 1
+        pv = p.get("explanation_variant")
+        if not pv:
+            missing += 1
+        elif pv == ev:
+            correct += 1
+    basis: dict[str, int] = {}
+    for rec in records:
+        for k, v in (rec.get("pred_variant_basis") or {}).items():
+            basis[k] = basis.get(k, 0) + int(v or 0)
+    return {
+        "correct": correct,
+        "total": total,
+        "pred_missing": missing,
+        "accuracy": (correct / total) if total else float("nan"),
+        "variant_basis": dict(sorted(basis.items())),
+    }
+
+
+def taxonomy_v6_metrics(records: list[dict], span_threshold: float = 0.5) -> dict:
+    """The TASK-849 report block: meaning_inversion confusion + P/R, and variant metrics."""
+    return {
+        "mi_confusion": subtype_confusion(records, span_threshold=span_threshold),
+        "meaning_inversion": subtype_prf(records, MEANING_INVERSION, span_threshold),
+        "explanation_variant": explanation_variant_metrics(records, span_threshold),
+    }

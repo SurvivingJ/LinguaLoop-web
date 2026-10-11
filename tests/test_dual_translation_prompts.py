@@ -364,3 +364,248 @@ def test_error_has_required_keys():
     }
     assert prompts.error_has_required_keys(good) is True
     assert prompts.error_has_required_keys({"span_repro": [0, 1]}) is False
+
+
+# ---------------------------------------------------------------------------
+# TASK-843: meaning_inversion by-effect precedence block (taxonomy v6, ADR-031)
+# ---------------------------------------------------------------------------
+
+import hashlib  # noqa: E402
+import json  # noqa: E402
+import pathlib  # noqa: E402
+
+_MIGRATIONS = pathlib.Path(__file__).resolve().parent.parent / "migrations"
+
+
+def _seed_taxonomy(name: str) -> dict:
+    text = (_MIGRATIONS / name).read_text(encoding="utf-8")
+    m = re.search(r"\$taxonomy\$(.*?)\$taxonomy\$", text, re.S)
+    assert m, f"no $taxonomy$ literal in {name}"
+    return json.loads(m.group(1))
+
+
+V5_TAX = _seed_taxonomy("dt_taxonomy_v5_seed.sql")
+V6_TAX = _seed_taxonomy("dt_taxonomy_v6_seed.sql")
+
+# Fixed rubric config for the byte-stability snapshot (acceptable variation +
+# a verifier band descriptor), so the hashes cover those code paths too.
+_SNAPSHOT_RUBRIC = {
+    "acceptable_variation": {"en": ["synonyms that preserve meaning"], "zh": ["同义替换"], "ja": ["同義の言い換え"]},
+    "band_descriptors": {"3": {"naturalness": {
+        "en": {"1": "a", "4": "b"}, "zh": {"1": "甲", "4": "乙"}, "ja": {"1": "甲", "4": "乙"},
+    }}},
+}
+
+# sha256 of the Detector / Verifier system prompts built from the v5 baseline
+# subtype lists, captured BEFORE TASK-843 touched prompts.py. Keyed
+# (l2, labels) -> (detector, verifier); labels "bare" = slug fallback,
+# "glossed" = the v5 seed's subtype_glosses.
+_V5_PRE_TASK843_SHA256 = {
+    ("en", "bare"): ("94314baae349e9a4cde60a30acfca12948f0966d48ee5ba35a8203d45292104a",
+                     "ec63540e167489d9f4c80b28eb3ce9f1af4a81fc8e480e6a0c884ee02c4f54a3"),
+    ("en", "glossed"): ("f70120d280a09439111cdf1918043ade198b01c1ee0f617aa684f42bfda8d6ab",
+                        "f08ecb6857d09caa140b02eeac7e7b08029e3e022041a7bff285400fdce1828d"),
+    ("zh", "bare"): ("0edb61f89c0dcf900505cea77393230a6e8e0d93d0710380bab437622cafbb63",
+                     "229f8fa85335edd64f7e84321326f669ff0f5828aa726432d895b5f8030ffae6"),
+    ("zh", "glossed"): ("301904087ba9a7b66b640c7f84dfabeabce4c23bee2aee7ddb536b6e97b7a118",
+                        "9fa775ae3bb6a3fd0f19886811c95920ff0012353851d7371af8a2eafd6aeb76"),
+    ("ja", "bare"): ("e59e7964fb632d266d3bcc1f904fa6998d1f2a9a828d6a391c59d502d6db195b",
+                     "9e95460755a5105900bc86f2327e3ef2515b923225c79ece9fd30b7173c4658b"),
+    ("ja", "glossed"): ("562e16186a9de2192f68440a6562309fd12ae92c2f614e5cb968f47999d2d722",
+                        "8e792093d0ed4505cc569e6b5502b74b7dd2edf6d6011b186e7b7232e722a587"),
+}
+
+# The opening phrase of each L2's precedence block, and of the Verifier addendum.
+_PRECEDENCE_MARKER = {
+    "en": "Meaning inversion — label by EFFECT",
+    "zh": "语义反转——按效果标注",
+    "ja": "意味の反転——表面形式ではなく効果で判定",
+}
+_RETYPE_MARKER = {
+    "en": "If a proposed error's effect is such an inversion",
+    "zh": "若某个待核错误的效果属于上述反转",
+    "ja": "審査対象誤りの効果が上記の反転に当たる",
+}
+
+
+def _sha(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _v5_labels(l2: str, kind: str):
+    subtypes = V5_TAX["pairs"][l2]["subtypes"]
+    if kind == "bare":
+        return None
+    return [V5_TAX["subtype_glosses"].get(s, {}).get(l2) or s for s in subtypes]
+
+
+@pytest.mark.parametrize("l2", ["en", "zh", "ja"])
+@pytest.mark.parametrize("kind", ["bare", "glossed"])
+def test_v5_detector_and_verifier_prompts_are_byte_identical_to_pre_task843(l2, kind):
+    """Gate proof: under the v5 taxonomy (no meaning_inversion) nothing changes."""
+    subtypes = V5_TAX["pairs"][l2]["subtypes"]
+    assert "meaning_inversion" not in subtypes
+    labels = _v5_labels(l2, kind)
+    det = prompts.build_detector_system_prompt(l2, _SNAPSHOT_RUBRIC, subtypes, subtype_labels=labels)
+    ver = prompts.build_verifier_system_prompt(l2, _SNAPSHOT_RUBRIC, 3, subtypes, subtype_labels=labels)
+    assert (_sha(det), _sha(ver)) == _V5_PRE_TASK843_SHA256[(l2, kind)]
+    assert _PRECEDENCE_MARKER[l2] not in det and _PRECEDENCE_MARKER[l2] not in ver
+
+
+@pytest.mark.parametrize("l2", ["en", "zh", "ja"])
+def test_v6_detector_and_verifier_carry_the_precedence_block_once(l2):
+    subtypes = V6_TAX["pairs"][l2]["subtypes"]
+    assert "meaning_inversion" in subtypes
+    det = prompts.build_detector_system_prompt(l2, _SNAPSHOT_RUBRIC, subtypes)
+    ver = prompts.build_verifier_system_prompt(l2, _SNAPSHOT_RUBRIC, 3, subtypes)
+    assert det.count(_PRECEDENCE_MARKER[l2]) == 1
+    assert ver.count(_PRECEDENCE_MARKER[l2]) == 1
+    # Re-type instruction is the Verifier's alone.
+    assert _RETYPE_MARKER[l2] not in det
+    assert ver.count(_RETYPE_MARKER[l2]) == 1
+    # Placed right after the subtype list, before span discipline.
+    for prompt in (det, ver):
+        sub_at = prompt.index(prompts._SUBTYPE_LIST_LABEL[l2])
+        block_at = prompt.index(_PRECEDENCE_MARKER[l2])
+        span_at = prompt.index(prompts._SPAN_DISCIPLINE[l2])
+        assert sub_at < block_at < span_at
+
+
+@pytest.mark.parametrize("l2", ["en", "zh", "ja"])
+def test_v6_precedence_block_references_live_indices_and_critical(l2):
+    subtypes = V6_TAX["pairs"][l2]["subtypes"]
+    labels = [f"L{i}" for i in range(len(subtypes))]
+    block = prompts._precedence_block(l2, subtypes, labels, verifier=True)
+    fmt = prompts._SUBTYPE_REF_FORMAT[l2]
+
+    def ref(slug):
+        i = subtypes.index(slug)
+        return fmt.format(i=i, label=labels[i])
+
+    # (1) by-effect rule -> meaning_inversion; (2)/(3) omission/addition named;
+    # (4) contradiction scoped; verifier names the surface-form types.
+    for slug in ("meaning_inversion", "omission", "addition", "contradiction", "word_choice"):
+        assert ref(slug) in block, slug
+    surface = {"en": "preposition", "zh": "coverb", "ja": "case_particle"}[l2]
+    assert ref(surface) in block
+    # (5) severity critical = index 2 of SEVERITY_ENUM.
+    assert prompts.SEVERITY_ENUM.index("critical") == 2
+    assert {"en": "critical (2)", "zh": "严重（2）", "ja": "致命的（2）"}[l2] in block
+
+
+@pytest.mark.parametrize("l2", ["zh", "ja"])
+def test_v6_precedence_block_has_no_english_prose(l2):
+    subtypes = V6_TAX["pairs"][l2]["subtypes"]
+    # With L2 labels: no ASCII word at all.
+    cjk_labels = [f"类型{chr(0x4e00 + i)}" for i in range(len(subtypes))]
+    for verifier in (False, True):
+        block = prompts._precedence_block(l2, subtypes, cjk_labels, verifier=verifier)
+        assert block
+        assert not _ASCII_WORD.findall(block), _ASCII_WORD.findall(block)
+    # With the bare-slug fallback (v6 seed has no glosses yet): only enum slugs.
+    slug_tokens = {tok for s in subtypes for tok in s.split("_")}
+    block = prompts._precedence_block(l2, subtypes, None, verifier=True)
+    leaked = set(_ASCII_WORD.findall(block)) - slug_tokens
+    assert not leaked, f"English prose in {l2} precedence block: {leaked}"
+
+
+def test_precedence_gate_is_meaning_inversion_presence():
+    v5_en = V5_TAX["pairs"]["en"]["subtypes"]
+    assert prompts._precedence_block("en", v5_en, None, verifier=True) == ""
+    assert prompts._precedence_block("en", v5_en + ["meaning_inversion"], None, verifier=False)
+
+
+# ---------------------------------------------------------------------------
+# TASK-844: zh 的/地/得 rule (ADR-031 user ruling: any misuse is de_particle)
+# ---------------------------------------------------------------------------
+
+_DE_RULE_MARKER = "结构助词“的、地、得”：三者之间的任何误用"
+_DE_VERIFIER_MARKER = "若待核错误是“的、地、得”误用"
+
+
+def test_de_rule_in_zh_v6_detector_and_verifier_exactly_once():
+    subtypes = V6_TAX["pairs"]["zh"]["subtypes"]
+    det = prompts.build_detector_system_prompt("zh", _SNAPSHOT_RUBRIC, subtypes)
+    ver = prompts.build_verifier_system_prompt("zh", _SNAPSHOT_RUBRIC, 3, subtypes)
+    assert det.count(_DE_RULE_MARKER) == 1
+    assert ver.count(_DE_RULE_MARKER) == 1
+    assert _DE_VERIFIER_MARKER not in det
+    assert ver.count(_DE_VERIFIER_MARKER) == 1
+    for prompt in (det, ver):
+        assert prompt.index(prompts._SUBTYPE_LIST_LABEL["zh"]) < prompt.index(_DE_RULE_MARKER) \
+            < prompt.index(prompts._SPAN_DISCIPLINE["zh"])
+
+
+@pytest.mark.parametrize("l2", ["en", "ja"])
+def test_de_rule_absent_from_en_and_ja_v6_prompts(l2):
+    subtypes = V6_TAX["pairs"][l2]["subtypes"]
+    det = prompts.build_detector_system_prompt(l2, _SNAPSHOT_RUBRIC, subtypes)
+    ver = prompts.build_verifier_system_prompt(l2, _SNAPSHOT_RUBRIC, 3, subtypes)
+    for prompt in (det, ver):
+        assert _DE_RULE_MARKER not in prompt and _DE_VERIFIER_MARKER not in prompt
+        assert "地、得" not in prompt
+
+
+@pytest.mark.parametrize("kind", ["bare", "glossed"])
+def test_de_rule_absent_from_zh_v5_prompts(kind):
+    subtypes = V5_TAX["pairs"]["zh"]["subtypes"]
+    assert "de_particle" not in subtypes  # v5 slug is de_particles
+    labels = _v5_labels("zh", kind)
+    det = prompts.build_detector_system_prompt("zh", _SNAPSHOT_RUBRIC, subtypes, subtype_labels=labels)
+    ver = prompts.build_verifier_system_prompt("zh", _SNAPSHOT_RUBRIC, 3, subtypes, subtype_labels=labels)
+    assert _DE_RULE_MARKER not in det and _DE_RULE_MARKER not in ver
+
+
+def test_de_rule_references_live_indices_and_minor_severity():
+    subtypes = V6_TAX["pairs"]["zh"]["subtypes"]
+    labels = [f"L{i}" for i in range(len(subtypes))]
+    fmt = prompts._SUBTYPE_REF_FORMAT["zh"]
+
+    def ref(slug):
+        i = subtypes.index(slug)
+        return fmt.format(i=i, label=labels[i])
+
+    det_block = prompts._precedence_block("zh", subtypes, labels, verifier=False)
+    rule = det_block[det_block.index(_DE_RULE_MARKER):]
+    for slug in ("de_particle", "word_choice", "orthography"):
+        assert ref(slug) in rule, slug
+    assert prompts.SEVERITY_ENUM.index("minor") == 0
+    assert "轻微（0）" in rule
+    # Every misuse direction the ruling names. String review 2026-10-07 (zh item
+    # 105): the redundant "（含定语位置误用“地”）" was dropped (地-for-的 is
+    # attributive by definition) and the missing-得 boundary (跑快 → 跑得快 is
+    # de_particle, not complement; reviewer-proposed, pending user confirmation —
+    # ADR-031) was added.
+    for phrase in ("用“的”代替“地”或“得”", "用“地”代替“的”", "用“得”代替“的”或“地”",
+                   "缺少必需的“得”（如“跑快”应为“跑得快”）", "不属于可接受的变体"):
+        assert phrase in rule
+    ver_block = prompts._precedence_block("zh", subtypes, labels, verifier=True)
+    assert prompts.VERDICT_ENUM.index("reject") == 1 and prompts.VERDICT_ENUM.index("adjust") == 2
+    tail = ver_block[ver_block.index(_DE_VERIFIER_MARKER):]
+    assert "驳回（1）" in tail and "调整（2）" in tail and ref("de_particle") in tail
+
+
+def test_de_rule_gate_needs_v6_and_de_particle():
+    v6_zh = V6_TAX["pairs"]["zh"]["subtypes"]
+    no_mi = [s for s in v6_zh if s != "meaning_inversion"]
+    assert prompts._precedence_block("zh", no_mi, None, verifier=True) == ""
+    no_de = [s for s in v6_zh if s != "de_particle"]
+    assert _DE_RULE_MARKER not in prompts._precedence_block("zh", no_de, None, verifier=True)
+
+
+def _seed_rubric(name: str) -> dict:
+    text = (_MIGRATIONS / name).read_text(encoding="utf-8")
+    m = re.search(r"\$rubric\$(.*?)\$rubric\$", text, re.S)
+    assert m, f"no $rubric$ literal in {name}"
+    return json.loads(m.group(1))
+
+
+def test_de_rubric_v6_zh_acceptable_variation_cannot_cover_a_de_swap():
+    """No zh acceptable-variation item may license a 的/地/得 swap: none names
+    地 or 得, a structural/auxiliary particle (助词), or 的 as a quoted token."""
+    items = _seed_rubric("dt_rubric_v6_seed.sql")["acceptable_variation"]["zh"]
+    assert items
+    for item in items:
+        assert "地" not in item and "得" not in item, item
+        assert "助词" not in item, item
+        assert not re.search(r"[“\"'「]的", item), item

@@ -732,18 +732,34 @@
     "id": "en_silver_26",
     "kind": "single",
     "source_passage_id": 16,
-    "note": "MEANING INVERSION - quantity change inside a quoted example: 90->9 degrees (drastically different value)",
+    "note": "MEANING INVERSION - quantity change inside a quoted example: 90->9 degrees (drastically different value). FIXED 2026-10-04: silver merge dropped this error for no severity majority (critical/minor/major split, votes word_choice-leaning on subtype); blind label + draft = 2-of-4 majority on critical (see en_silver_26_fix.json).",
     "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
     "reproduction": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 9 degrees.\" Then you can tell another motor to move.",
-    "expected_errors": [],
+    "expected_errors": [
+      {
+        "span_repro": [
+          143,
+          168
+        ],
+        "span_ref": [
+          143,
+          169
+        ],
+        "subtype": "word_choice",
+        "subtype_v5_target": "word_choice",
+        "severity_v2": "critical",
+        "learner_form": "move motor 1 to 9 degrees",
+        "corrected_form": "move motor 1 to 90 degrees"
+      }
+    ],
     "expected_bands": {
       "accuracy": 4,
-      "understandability": 4,
-      "fidelity": 4,
+      "understandability": 2,
+      "fidelity": 1,
       "range": 4,
       "naturalness": 4
     },
-    "label_source": "silver_majority3"
+    "label_source": "silver_majority3_reconciled"
   },
   {
     "id": "en_silver_27",
@@ -1025,7 +1041,7 @@
     "id": "en_silver_34",
     "kind": "multi",
     "source_passage_id": 16,
-    "note": "plural commands->command (min) + word order scrambled (maj) + register informal slang (maj)",
+    "note": "plural commands->command (min) + word order scrambled (maj) + register informal slang (maj). FIXED 2026-10-04: the register error was dropped at silver merge for no_existence_majority (a span-matching artifact -- draft/rater2/rater3 all independently flagged it at register/major, see en_silver_34_fix.json); restored.",
     "reference": "You learn how to use an Arduino. The coding involves simple commands. You tell the Arduino to set a motor to a certain position. For example, \"move motor 1 to 90 degrees.\" Then you can tell another motor to move.",
     "reproduction": "You learn how to use an Arduino. The coding involves simple command. You tell the Arduino to set a motor to a certain spot, yo. For example, \"move motor 1 to 90 degrees.\" Then another motor you can tell to move.",
     "expected_errors": [
@@ -1058,16 +1074,31 @@
         "severity_v2": "major",
         "learner_form": "Then another motor you can tell to move.",
         "corrected_form": "Then you can tell another motor to move."
+      },
+      {
+        "span_repro": [
+          108,
+          126
+        ],
+        "span_ref": [
+          109,
+          127
+        ],
+        "subtype": "register",
+        "subtype_v5_target": "register",
+        "severity_v2": "major",
+        "learner_form": "a certain spot, yo",
+        "corrected_form": "a certain position"
       }
     ],
     "expected_bands": {
       "accuracy": 3,
-      "understandability": 4,
-      "fidelity": 4,
+      "understandability": 3,
+      "fidelity": 3,
       "range": 4,
       "naturalness": 4
     },
-    "label_source": "silver_majority3"
+    "label_source": "silver_majority3_reconciled"
   },
   {
     "id": "en_silver_35",

@@ -1,0 +1,1461 @@
+{
+  "sense_id": 14040,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T22:57:15.267430+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.26057004928588867,
+    "p1_generate": 3.0277109146118164,
+    "tier_gate": 0.0010004043579101562,
+    "p1_judge": 1.2850310802459717,
+    "collocate_grounding": 0.0,
+    "fan_out": 42.86199903488159
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈkɒnstəntli/",
+        "morphological_forms": [
+          {
+            "form": "constant",
+            "label": "base adjective"
+          },
+          {
+            "form": "constantly",
+            "label": "adverb"
+          }
+        ],
+        "pronunciation": "kon-stuhnt-lee",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14040
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "61fcf10d-6eb1-46df-82e9-77926ee51794",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "constantly",
+        "pronunciation": "kon-stuhnt-lee",
+        "correct_definition": "Happening without stopping or very often.",
+        "options": [
+          "Allocation means the act of deciding how something, like money or time, is shared among different people or uses.",
+          "To bring or gather things together from different places.",
+          "Happening without stopping or very often.",
+          "in a way that involves a close personal relationship or thorough knowledge"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "83b1d6b6-3c21-4b3f-a056-7080c9052924",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "By ___ removing heat, the system stops bacteria from multiplying, which protects our health and prevents premature spoiling.",
+        "original_sentence": "By constantly removing heat, the system stops bacteria from multiplying, which protects our health and prevents premature spoiling.",
+        "correct_answer": "constantly",
+        "options": [
+          "constantly",
+          "rarely",
+          "accidentally",
+          "loudly"
+        ],
+        "explanation": "Correct: fits perfectly to describe the continuous, non-stop action of removing heat to prevent bacteria growth.",
+        "distractor_tags": {},
+        "word_definition": "Happening without stopping or very often.",
+        "target_word": "constantly"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "48d3029f-b6b5-4c26-9e75-ed68f414ce36",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The demand for coffee means that this supply chain is ___ in motion.",
+        "original_sentence": "The demand for coffee means that this supply chain is constantly in motion.",
+        "correct_answer": "constantly",
+        "base_form": "constant",
+        "form_label": "base adverb",
+        "options": [
+          "more constant",
+          "constantly",
+          "constant",
+          "most constant"
+        ],
+        "explanation": "adverb required to modify the prepositional phrase 'in motion'",
+        "word_definition": "Happening without stopping or very often.",
+        "target_word": "constantly"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a931b2f3-e8dd-4b3d-84b6-fb5f2d080fc0",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The heavy wooden door constantly remained locked throughout the entire night to keep the building secure.",
+            "is_correct": false
+          },
+          {
+            "text": "She constantly knew the answer to the difficult math question before the teacher even finished speaking.",
+            "is_correct": false
+          },
+          {
+            "text": "The ancient statue stood constantly in the center of the quiet museum hall for hundreds of years.",
+            "is_correct": false
+          },
+          {
+            "text": "The weather in our town changes constantly throughout the spring season.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'constantly' implies an active, repeated, or ongoing process, whereas a statue standing is a permanent, unchanging stative condition. Semantically inappropriate: 'knew' is a stative cognitive verb representing a single state of mind, which cannot be performed continuously or repeatedly in this context. Aspectually inappropriate: 'remained locked' describes a continuous state of being rather than an ongoing action, making the continuous adverb 'constantly' redundant and unnatural.",
+        "target_word": "constantly"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b8b26bcd-514c-4ced-a016-080069551cab",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "By constantly removing heat, the system stops bacteria from multiplying, which protects our health and prevents premature spoiling.",
+            "is_correct": true
+          },
+          {
+            "text": "The demand for coffee means that this supply chain is constantly in motion.",
+            "is_correct": true
+          },
+          {
+            "text": "She constantly was reading a book when the phone rang.",
+            "is_correct": false,
+            "error_description": "The adverb 'constantly' is misplaced; in continuous tenses, it should be placed after the auxiliary verb 'be' and before the present participle."
+          },
+          {
+            "text": "My younger brother is constantly asking questions about how computers work.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 4.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "c9eedc67-45c6-461d-b205-36539a102fab",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "constantly",
+        "pronunciation": "kon-stuhnt-lee",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "The ability to remember information or past experiences.",
+              "Happening without stopping or very often.",
+              "The process of gaining knowledge or skill through study, experience, or teaching.",
+              "Something that shows what a situation is like or how it is changing."
+            ],
+            "correct_answer": "Happening without stopping or very often."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "ff5dd44b-2452-4c6f-a73d-a5b91ce0b6a2",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The demand for coffee means that this supply chain is ___ in motion.",
+        "original_sentence": "The demand for coffee means that this supply chain is constantly in motion.",
+        "target_word": "constantly",
+        "word": "constantly",
+        "answer": {
+          "accepted": [
+            "constantly",
+            "constant"
+          ],
+          "accepted_normalized": [
+            "constantly",
+            "constant"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "5450ae99-77b6-45de-a65d-3c4a7fa72cb2",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "constantly",
+        "relation": "antonym",
+        "options": [
+          "frequently",
+          "occasionally",
+          "permanently",
+          "regularly"
+        ],
+        "correct_answer": "occasionally",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Happening without stopping or very often.",
+            "explanation": "antonym: happening from time to time rather than without stopping"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "frequently": 0.732123,
+            "regularly": 0.623889
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "6d9a015f-18f1-408f-8812-0b122e069895",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "constant",
+        "sentence_with_blank": "The demand for coffee means that this supply chain is ___ in motion.",
+        "original_sentence": "The demand for coffee means that this supply chain is constantly in motion.",
+        "required_pos": "adverb",
+        "options": [
+          "constantly",
+          "constantic",
+          "constantment",
+          "constantion"
+        ],
+        "correct_answer": "constantly",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adverbial derivation with -ly"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "0da286b9-b9d6-41eb-8ffe-cadebed23f43",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "He is ___ trying to improve his guitar skills by practicing every evening.",
+        "original_sentence": "He is constantly trying to improve his guitar skills by practicing every evening.",
+        "correct_answer": "constantly",
+        "options": [
+          "loudly",
+          "constantly",
+          "accidentally",
+          "rarely"
+        ],
+        "explanation": "Correct: 'Constantly' means happening without stopping, which perfectly fits the context of practicing every evening to improve.",
+        "distractor_tags": {},
+        "word_definition": "Happening without stopping or very often.",
+        "target_word": "constantly"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "cf6a2329-6d60-418b-98ba-814f0e5d04b4",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The students felt that the teacher was ___ giving them too much homework.",
+        "original_sentence": "The students felt that the teacher was constantly giving them too much homework.",
+        "correct_answer": "constantly",
+        "base_form": "constantly",
+        "form_label": "base adverb",
+        "options": [
+          "constant",
+          "most constantly",
+          "more constantly",
+          "constantly"
+        ],
+        "explanation": "adverb required to modify the participle 'giving'",
+        "word_definition": "Happening without stopping or very often.",
+        "target_word": "constantly"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "042c3d71-e4c3-4690-aa6e-20f667a15932",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She constantly knew the answer to the difficult math question before the teacher even asked it.",
+            "is_correct": false
+          },
+          {
+            "text": "The heavy rain constantly fell for exactly one second and then the sky became completely clear.",
+            "is_correct": false
+          },
+          {
+            "text": "They were constantly whispering during the movie, which annoyed the other viewers.",
+            "is_correct": true
+          },
+          {
+            "text": "The ancient statue stood constantly in the center of the quiet museum for hundreds of years.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatic failure: 'Constantly' implies continuous active change or repetition, which is inappropriate for a stationary, unchanging object like a statue. Aspectual failure: 'Knew' is a stative verb describing a state of mind, which cannot be modified by 'constantly' to show continuous, repeated action. Semantic contradiction: 'Constantly' means happening without stopping, which directly contradicts the phrase 'for exactly one second'.",
+        "target_word": "constantly"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "072b38e2-a542-4b85-8a71-ae3e2ee68d0f",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "My sister constantly is complaining about the noise.",
+            "is_correct": false,
+            "error_description": "The adverb 'constantly' should be placed after the auxiliary verb 'is' and before the present participle 'complaining' in the present continuous tense, rather than before the auxiliary verb."
+          },
+          {
+            "text": "He is constantly trying to improve his guitar skills by practicing every evening.",
+            "is_correct": true
+          },
+          {
+            "text": "They were constantly whispering during the movie, which annoyed the other viewers.",
+            "is_correct": true
+          },
+          {
+            "text": "The students felt that the teacher was constantly giving them too much homework.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "53ccb36e-289a-40c0-96c6-a4c9a0e3a646",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The students felt that the teacher was ___ giving them too much homework.",
+        "original_sentence": "The students felt that the teacher was constantly giving them too much homework.",
+        "target_word": "constantly",
+        "word": "constantly",
+        "answer": {
+          "accepted": [
+            "constantly",
+            "constant"
+          ],
+          "accepted_normalized": [
+            "constantly",
+            "constant"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "5ca95d3e-902b-429c-811b-d2f2743ccbf2",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The weather in our town changes constantly throughout the spring season.",
+        "chunks": [
+          "The weather in our town",
+          "changes",
+          "constantly",
+          "throughout the spring season"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "throughout the spring season",
+          "The weather in our town",
+          "changes",
+          "constantly"
+        ],
+        "target_word": "constantly",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "96c471ac-12cd-4a7a-8297-cdcfd709016f",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "constantly",
+        "relation": "antonym",
+        "options": [
+          "briefly",
+          "rarely",
+          "steadily",
+          "suddenly"
+        ],
+        "correct_answer": "rarely",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Happening without stopping or very often.",
+            "explanation": "antonym: means not often, directly opposing 'happening very often'"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "suddenly": 0.436985
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a51226e3-fc83-4a82-aa17-a414622d4dfe",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "constant",
+        "sentence_with_blank": "The students felt that the teacher was ___ giving them too much homework.",
+        "original_sentence": "The students felt that the teacher was constantly giving them too much homework.",
+        "required_pos": "adverb",
+        "options": [
+          "constantly",
+          "constantation",
+          "constantment",
+          "constantive"
+        ],
+        "correct_answer": "constantly",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adverbial derivation from the adjective"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14040,
+      "word_asset_id": "shadow-14040-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "chunk reconstruction does not match the source sentence — chunks=['Online video games', 'are updating', 'constantly', 'to fix bugs and add new features']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.002179,
+      "prompt_tokens": 1955,
+      "completion_tokens": 637,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2596
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006318,
+      "prompt_tokens": 656,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1191
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00167168,
+      "prompt_tokens": 652,
+      "completion_tokens": 1143,
+      "cached_tokens": 0,
+      "reasoning_tokens": 948,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20290
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018208,
+      "prompt_tokens": 1150,
+      "completion_tokens": 1135,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20371
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001824,
+      "prompt_tokens": 1148,
+      "completion_tokens": 1138,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20733
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169568,
+      "prompt_tokens": 655,
+      "completion_tokens": 1161,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20760
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182592,
+      "prompt_tokens": 818,
+      "completion_tokens": 1222,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21700
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181312,
+      "prompt_tokens": 818,
+      "completion_tokens": 1212,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21739
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00269504,
+      "prompt_tokens": 1598,
+      "completion_tokens": 1706,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30451
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00269632,
+      "prompt_tokens": 1598,
+      "completion_tokens": 1707,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30363
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00148288,
+      "prompt_tokens": 782,
+      "completion_tokens": 963,
+      "cached_tokens": 0,
+      "reasoning_tokens": 745,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 17272
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00177728,
+      "prompt_tokens": 782,
+      "completion_tokens": 1193,
+      "cached_tokens": 0,
+      "reasoning_tokens": 983,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21385
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003239,
+      "prompt_tokens": 413,
+      "completion_tokens": 80,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1169
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003066,
+      "prompt_tokens": 397,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1546
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004045,
+      "prompt_tokens": 515,
+      "completion_tokens": 100,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1276
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001843,
+      "prompt_tokens": 381,
+      "completion_tokens": 28,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 806
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004441,
+      "prompt_tokens": 522,
+      "completion_tokens": 115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 983
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.00044,
+      "prompt_tokens": 500,
+      "completion_tokens": 116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1060
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003758,
+      "prompt_tokens": 411,
+      "completion_tokens": 101,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1067
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002995,
+      "prompt_tokens": 390,
+      "completion_tokens": 73,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 973
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004262,
+      "prompt_tokens": 504,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1007
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001833,
+      "prompt_tokens": 386,
+      "completion_tokens": 27,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 820
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004491,
+      "prompt_tokens": 522,
+      "completion_tokens": 117,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1049
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000395,
+      "prompt_tokens": 500,
+      "completion_tokens": 98,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14040,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1060
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.026345819999999995,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 62.67200000002049,
+  "finished_at": "2026-10-05T22:58:17.937944+00:00"
+}

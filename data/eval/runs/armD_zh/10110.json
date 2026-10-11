@@ -1,0 +1,1192 @@
+{
+  "sense_id": 10110,
+  "language_id": 1,
+  "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+  "started_at": "2026-10-05T20:57:32.481432+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] rejected (rating 2): 语域偏书面，且'可食用'偏复合词",
+    "P1 sentence[1] flagged (rating 3): 语域偏正式，技术文体明显",
+    "P1 sentence[2] flagged (rating 3): 语域偏正式，学术文体明显",
+    "P1 sentence[4] flagged (rating 3): 语域偏正式科技说明文",
+    "P1 sentence[5] rejected (rating 2): 语域偏正式，且'不可'非整词",
+    "P1 sentence[9] rejected (rating 1): 整词：'可'为'可以'的语素片段"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.26347923278808594,
+    "p1_generate": 63.74543380737305,
+    "tier_gate": 0.0,
+    "p1_judge": 67.86521625518799,
+    "collocate_grounding": 0.0,
+    "fan_out": 31.636947870254517
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] rejected (rating 2): 语域偏书面，且'可食用'偏复合词",
+        "P1 sentence[1] flagged (rating 3): 语域偏正式，技术文体明显",
+        "P1 sentence[2] flagged (rating 3): 语域偏正式，学术文体明显",
+        "P1 sentence[4] flagged (rating 3): 语域偏正式科技说明文",
+        "P1 sentence[5] rejected (rating 2): 语域偏正式，且'不可'非整词",
+        "P1 sentence[9] rejected (rating 1): 整词：'可'为'可以'的语素片段"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[kʰɤ˨˩˦]",
+        "morphological_forms": [
+          {
+            "form": "可以",
+            "label": "复合"
+          },
+          {
+            "form": "可能",
+            "label": "复合"
+          },
+          {
+            "form": "可是",
+            "label": "复合"
+          },
+          {
+            "form": "可爱",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "kě",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10110
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "caa28613-d416-4d98-97a4-be715986ba79",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "ipa": "[kʰɤ˨˩˦]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "克",
+          "科",
+          "可",
+          "客"
+        ],
+        "correct_answer": "可",
+        "explanation": "正确。'可'读第三声kě，在此表示许可或可能。",
+        "distractor_explanations": {
+          "克": "错误。'克'读第四声kè，意为克服或重量单位，声调不同导致意义改变。",
+          "客": "错误。'客'读第四声kè，指客人或旅客，与目标词声调不同。",
+          "科": "错误。'科'读第一声kē，指学科或类别，声调不同导致意义完全不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "ipa": "[kʰɤ˨˩˦]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "克",
+            "科",
+            "可",
+            "客"
+          ],
+          "correct_answer": "可",
+          "explanation": "正確。'可'讀第三聲kě，在此表示許可或可能。",
+          "distractor_explanations": {
+            "克": "錯誤。'克'讀第四聲kè，意為克服或重量單位，聲調不同導致意義改變。",
+            "客": "錯誤。'客'讀第四聲kè，指客人或旅客，與目標詞聲調不同。",
+            "科": "錯誤。'科'讀第一聲kē，指學科或類別，聲調不同導致意義完全不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "119826e3-2ac5-4db9-8d5e-a56484744d1e",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "correct_definition": "表示许可或可能，常用于口语。",
+        "options": [
+          "帮助记忆的方法或技巧。",
+          "表示清楚；显示。",
+          "作为标志的布制品，通常悬挂在杆上，用于象征国家、政党、组织、团体或某种主张。",
+          "表示许可或可能，常用于口语。"
+        ],
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "correct_definition": "表示許可或可能，常用於口語。",
+          "options": [
+            "幫助記憶的方法或技巧。",
+            "表示清楚；顯示。",
+            "作為標誌的布製品，通常懸掛在杆上，用於象徵國家、政黨、組織、團體或某種主張。",
+            "表示許可或可能，常用於口語。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "303d959d-9b1c-499b-bb5a-71296da2d308",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "这片森林里的野生蘑菇有些___食用，有些则含有剧毒。",
+        "original_sentence": "这片森林里的野生蘑菇有些可食用，有些则含有剧毒。",
+        "correct_answer": "可",
+        "options": [
+          "愿",
+          "须",
+          "可",
+          "应"
+        ],
+        "explanation": "正确。'可'在此处作情态动词，表示野生蘑菇具备被食用的可能性或许可。",
+        "distractor_tags": {},
+        "word_definition": "表示许可或可能，常用于口语。",
+        "target_word": "可",
+        "hant": {
+          "sentence_with_blank": "這片森林裡的野生蘑菇有些___食用，有些則含有劇毒。",
+          "original_sentence": "這片森林裡的野生蘑菇有些可食用，有些則含有劇毒。",
+          "correct_answer": "可",
+          "options": [
+            "願",
+            "須",
+            "可",
+            "應"
+          ],
+          "explanation": "正確。'可'在此處作情態動詞，表示野生蘑菇具備被食用的可能性或許可。",
+          "distractor_tags": {},
+          "word_definition": "表示許可或可能，常用於口語。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "ced7cd11-eb33-433b-bac2-94fd2d849461",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这意味着，同一代理可在不同计算平台间无缝迁移，其长期记忆与行为模式不受底层模型更迭的影响。",
+            "is_correct": true
+          },
+          {
+            "text": "这种“技术公地”的繁荣，暗示着一种可能的未来：个人AI代理不再由科技巨头垄断定义，而是成为可被公众共同塑造的认知基础设施。",
+            "is_correct": true
+          },
+          {
+            "text": "这片森林里的野生蘑菇有些可食用，有些则含有剧毒。",
+            "is_correct": true
+          },
+          {
+            "text": "他昨天把那份机密文件可不经过批准就带出了办公室。",
+            "is_correct": false,
+            "error_description": "语序错误。情态动词“可”应放在“把”字之前，即“可不经过批准就把……”，不能放在“把”字和宾语之间。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這意味著，同一代理可在不同計算平臺間無縫遷移，其長期記憶與行為模式不受底層模型更迭的影響。",
+              "is_correct": true
+            },
+            {
+              "text": "這種“技術公地”的繁榮，暗示著一種可能的未來：個人AI代理不再由科技巨頭壟斷定義，而是成為可被公眾共同塑造的認知基礎設施。",
+              "is_correct": true
+            },
+            {
+              "text": "這片森林裡的野生蘑菇有些可食用，有些則含有劇毒。",
+              "is_correct": true
+            },
+            {
+              "text": "他昨天把那份機密檔案可不經過批准就帶出了辦公室。",
+              "is_correct": false,
+              "error_description": "語序錯誤。情態動詞“可”應放在“把”字之前，即“可不經過批准就把……”，不能放在“把”字和賓語之間。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "ba961b34-c472-4b0a-9c53-ab25417e7fec",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可",
+        "pronunciation": "kě",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "to understand",
+              "行う",
+              "把东西从一个地方送到另一个地方。",
+              "表示许可或可能，常用于口语。"
+            ],
+            "correct_answer": "表示许可或可能，常用于口语。"
+          }
+        },
+        "hant": {
+          "word": "可",
+          "pronunciation": "kě",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "to understand",
+                "行う",
+                "把東西從一個地方送到另一個地方。",
+                "表示許可或可能，常用於口語。"
+              ],
+              "correct_answer": "表示許可或可能，常用於口語。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "63cea35f-2241-4738-8311-62276b13fc1e",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "可",
+        "options": [
+          "kē",
+          "kè",
+          "kě",
+          "ké"
+        ],
+        "correct_answer": "kě",
+        "word": "可",
+        "direction": "hanzi_to_pinyin",
+        "context_sentence": "这片森林里的野生蘑菇有些可食用，有些则含有剧毒。",
+        "context_target": "可",
+        "is_polyphonic": true,
+        "hant": {
+          "schema_version": 2,
+          "prompt": "可",
+          "options": [
+            "kē",
+            "kè",
+            "kě",
+            "ké"
+          ],
+          "correct_answer": "kě",
+          "word": "可",
+          "direction": "hanzi_to_pinyin",
+          "context_sentence": "這片森林裡的野生蘑菇有些可食用，有些則含有劇毒。",
+          "context_target": "可",
+          "is_polyphonic": true
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b7ebd8d3-fab6-4fef-8423-6dbf521206db",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "kě",
+        "options": [
+          "河",
+          "可",
+          "灯",
+          "打"
+        ],
+        "correct_answer": "可",
+        "word": "可",
+        "direction": "pinyin_to_hanzi",
+        "context_sentence": "这片森林里的野生蘑菇有些可食用，有些则含有剧毒。",
+        "context_target": "可",
+        "is_polyphonic": true,
+        "distractor_sources": {
+          "打": "component",
+          "河": "component",
+          "灯": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "kě",
+          "options": [
+            "河",
+            "可",
+            "燈",
+            "打"
+          ],
+          "correct_answer": "可",
+          "word": "可",
+          "direction": "pinyin_to_hanzi",
+          "context_sentence": "這片森林裡的野生蘑菇有些可食用，有些則含有劇毒。",
+          "context_target": "可",
+          "is_polyphonic": true,
+          "distractor_sources": {
+            "打": "component",
+            "河": "component",
+            "灯": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "85feda2f-b2f9-492d-9b07-b1df403c1f2a",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "可",
+        "toneless_pinyin": "ke",
+        "full_pinyin": "kě",
+        "options": [
+          "3",
+          "4",
+          "2",
+          "1"
+        ],
+        "correct_answer": "3",
+        "option_labels": {
+          "3": "dipping (3)",
+          "4": "falling (4)",
+          "2": "rising (2)",
+          "1": "high level (1)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "可",
+          "toneless_pinyin": "ke",
+          "full_pinyin": "kě",
+          "options": [
+            "3",
+            "4",
+            "2",
+            "1"
+          ],
+          "correct_answer": "3",
+          "option_labels": {
+            "3": "dipping (3)",
+            "4": "falling (4)",
+            "2": "rising (2)",
+            "1": "high level (1)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "功能词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "57acd344-a6ac-4cc2-ab1a-eef864e84719",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "现在的智能手机功能很多，除了打电话，还___用来拍照和上网。",
+        "original_sentence": "现在的智能手机功能很多，除了打电话，还可用来拍照和上网。",
+        "correct_answer": "可",
+        "options": [
+          "须",
+          "敢",
+          "欲",
+          "可"
+        ],
+        "explanation": "正确。此处“可”表示客观条件允许或具备某种功能。",
+        "distractor_tags": {},
+        "word_definition": "表示许可或可能，常用于口语。",
+        "target_word": "可",
+        "hant": {
+          "sentence_with_blank": "現在的智慧手機功能很多，除了打電話，還___用來拍照和上網。",
+          "original_sentence": "現在的智慧手機功能很多，除了打電話，還可用來拍照和上網。",
+          "correct_answer": "可",
+          "options": [
+            "須",
+            "敢",
+            "欲",
+            "可"
+          ],
+          "explanation": "正確。此處“可”表示客觀條件允許或具備某種功能。",
+          "distractor_tags": {},
+          "word_definition": "表示許可或可能，常用於口語。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b0e8bad0-10db-4c92-a59f-9027a34fc771",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这扇窗户的锁坏了，从外面用手一拉就可以过打开，很不安全。",
+            "is_correct": false
+          },
+          {
+            "text": "这扇窗户的锁坏了，从外面用手一拉就可以得打开，很不安全。",
+            "is_correct": false
+          },
+          {
+            "text": "这扇窗户的锁坏了，从外面用手一拉就可以打开着，很不安全。",
+            "is_correct": false
+          },
+          {
+            "text": "这扇窗户的锁坏了，从外面用手一拉就可以打开，很不安全。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标位置/选用错误：“可以”后面不能加结构助词“得”，应直接接动词“打开”。 体标位置/选用错误：句末误用动态助词“着”，“打开”表示动作完成或结果，不能用“着”表示状态持续。 体标位置/选用错误：误用“过”表示经历，此处描述的是窗户当前具备的客观属性或结果，而非过去的经历。",
+        "target_word": "可",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這扇窗戶的鎖壞了，從外面用手一拉就可以過開啟，很不安全。",
+              "is_correct": false
+            },
+            {
+              "text": "這扇窗戶的鎖壞了，從外面用手一拉就可以得開啟，很不安全。",
+              "is_correct": false
+            },
+            {
+              "text": "這扇窗戶的鎖壞了，從外面用手一拉就可以開啟著，很不安全。",
+              "is_correct": false
+            },
+            {
+              "text": "這扇窗戶的鎖壞了，從外面用手一拉就可以開啟，很不安全。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標位置/選用錯誤：“可以”後面不能加結構助詞“得”，應直接接動詞“開啟”。 體標位置/選用錯誤：句末誤用動態助詞“著”，“開啟”表示動作完成或結果，不能用“著”表示狀態持續。 體標位置/選用錯誤：誤用“過”表示經歷，此處描述的是窗戶當前具備的客觀屬性或結果，而非過去的經歷。",
+          "target_word": "可"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "8f93b569-8ad6-455a-9615-f4840c1b7886",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他可了去北京。",
+            "is_correct": false,
+            "error_description": "体标位置错误。情态动词“可”（可以）后面不能直接加动态助词“了”表示动作完成。如果要表示情况的变化或新情况的出现，语气助词“了”应该放在句末。"
+          },
+          {
+            "text": "这个旧零件虽然生锈了，但清理一下后还可继续使用。",
+            "is_correct": true
+          },
+          {
+            "text": "现在的智能手机功能很多，除了打电话，还可用来拍照和上网。",
+            "is_correct": true
+          },
+          {
+            "text": "这扇窗户的锁坏了，从外面用手一拉就可以打开，很不安全。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他可了去北京。",
+              "is_correct": false,
+              "error_description": "體標位置錯誤。情態動詞“可”（可以）後面不能直接加動態助詞“了”表示動作完成。如果要表示情況的變化或新情況的出現，語氣助詞“了”應該放在句末。"
+            },
+            {
+              "text": "這個舊零件雖然生鏽了，但清理一下後還可繼續使用。",
+              "is_correct": true
+            },
+            {
+              "text": "現在的智慧手機功能很多，除了打電話，還可用來拍照和上網。",
+              "is_correct": true
+            },
+            {
+              "text": "這扇窗戶的鎖壞了，從外面用手一拉就可以開啟，很不安全。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "功能词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 4.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10110,
+      "word_asset_id": "shadow-10110-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002438336,
+      "prompt_tokens": 2495,
+      "completion_tokens": 1742,
+      "cached_tokens": 2304,
+      "reasoning_tokens": 1024,
+      "call_role": "retry",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 32076
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185152,
+      "prompt_tokens": 674,
+      "completion_tokens": 1278,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 23132
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163616,
+      "prompt_tokens": 369,
+      "completion_tokens": 1186,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21945
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181216,
+      "prompt_tokens": 647,
+      "completion_tokens": 1254,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 22167
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00194976,
+      "prompt_tokens": 1561,
+      "completion_tokens": 1133,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20456
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196864,
+      "prompt_tokens": 1568,
+      "completion_tokens": 1146,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20497
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00267616,
+      "prompt_tokens": 1743,
+      "completion_tokens": 1655,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 29197
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00282976,
+      "prompt_tokens": 1743,
+      "completion_tokens": 1775,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 31284
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00086848,
+      "prompt_tokens": 418,
+      "completion_tokens": 574,
+      "cached_tokens": 0,
+      "reasoning_tokens": 487,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 10739
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001741977,
+      "prompt_tokens": 401,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 4512
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00158912,
+      "prompt_tokens": 622,
+      "completion_tokens": 1086,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1012,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19285
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00072704,
+      "prompt_tokens": 440,
+      "completion_tokens": 458,
+      "cached_tokens": 0,
+      "reasoning_tokens": 434,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 8687
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00094656,
+      "prompt_tokens": 418,
+      "completion_tokens": 635,
+      "cached_tokens": 0,
+      "reasoning_tokens": 525,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 11711
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001649394,
+      "prompt_tokens": 401,
+      "completion_tokens": 60,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 3109
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015856,
+      "prompt_tokens": 571,
+      "completion_tokens": 1096,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21352
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00108032,
+      "prompt_tokens": 444,
+      "completion_tokens": 733,
+      "cached_tokens": 0,
+      "reasoning_tokens": 708,
+      "call_role": "primary",
+      "sense_id": 10110,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 14674
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.024298753100000004,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 260.43800000008196,
+  "finished_at": "2026-10-05T21:01:52.911831+00:00"
+}

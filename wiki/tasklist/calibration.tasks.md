@@ -930,7 +930,7 @@ recorded with `rows_found = 0`.
 
 ## TASK-776: Drop foils that share a head gloss with the right answer
 
-**Status:** [~] In Progress — migration written 2026-09-14, **not yet applied live**; cache not rebuilt
+**Status:** [x] Done — verified live 2026-10-09. The guard shipped inside the halfvec768 `semantic_distractors()` rewrite (`shrink_sense_embeddings_halfvec768.sql`) and the cache was cleared and refilled by `clear_calibration_distractor_cache_after_halfvec768`
 **Feature:** calibration
 **Type:** bug
 **Complexity:** S
@@ -958,12 +958,12 @@ of 85 any-overlap matches was overwhelmingly true synonyms, loosest being cross-
 **Acceptance Criteria:**
 - [x] `definition_head_glosses(text) → text[]` exists, IMMUTABLE, returns `{}` for NULL/prose.
 - [x] Guard applied after the index scan; signature unchanged, so no DROP / re-GRANT.
-- [ ] Migration applied live.
-- [ ] Affected anchors' definition-mode cache rows deleted and refilled (the cache is an exact
+- [x] Migration applied live (guard present in the live function body).
+- [x] Affected anchors' definition-mode cache rows deleted and refilled (the cache is an exact
       copy of the function's output — without the rebuild nothing a learner sees changes).
-- [ ] The no-overlap verification query in the migration returns 0.
-- [ ] Anchor 43399 (先生, ja/en) no longer caches sense 56314 (教師).
-- [ ] Short anchors (fewer than 3 foils after the guard) counted and reported.
+- [x] The no-overlap verification query returns 0 (163,431 definition rows checked, 0 head-gloss overlaps).
+- [x] Anchor 43399 (先生, ja/en) no longer caches sense 56314 (教師).
+- [x] Short anchors (fewer than 3 foils after the guard) counted and reported: 80 of 27,339 anchors (word/definition lang): 1/1 23 of 4,041 · 1/2 7 of 3,680 · 1/3 4 of 3,681 · 2/2 1 of 6,110 · 3/1 5 of 3,277 · 3/2 5 of 3,278 · 3/3 35 of 3,272.
 
 **Technical Notes:**
 Only anchors with a match in their cached rows need rebuilding: the guard only removes rows, and

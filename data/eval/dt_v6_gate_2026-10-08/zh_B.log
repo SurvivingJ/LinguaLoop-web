@@ -1,0 +1,50 @@
+=== 2026-10-08T20:25:03+11:00 START zh B limit=0
+[plan] L2=zh L1=en fixture-set=v6 items=30 (clean 10 / single 15 / multi 5) framework=v2
+[taxonomy] candidate v6 parsed from migrations/dt_taxonomy_v6_seed.sql: 9 pair keys; baseline subtypes en=20 ja=23 zh=20
+[taxonomy] candidate v6 pre-seeded into the config cache (live DB taxonomy untouched)
+[resume] loaded 0 graded + 0 skipped from data/eval/dt_v6_gate_2026-10-08/zh_B.ckpt.jsonl
+Building prefix dict from the default dictionary ...
+2026-10-08 20:25:05,943 - DEBUG - Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.cache
+2026-10-08 20:25:05,943 - DEBUG - Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.cache
+Loading model cost 0.591 seconds.
+2026-10-08 20:25:06,534 - DEBUG - Loading model cost 0.591 seconds.
+Prefix dict has been built successfully.
+2026-10-08 20:25:06,534 - DEBUG - Prefix dict has been built successfully.
+[1/30] zh_clean_01 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[2/30] zh_clean_02 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[3/30] zh_clean_03 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[4/30] zh_clean_04 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[5/30] zh_clean_05 kind=clean pred_errors=0 tier=tier0 fell_open=None
+[6/30] zh_clean_06 kind=clean pred_errors=0 tier=tier0 fell_open=None
+[7/30] zh_clean_07 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[8/30] zh_clean_08 kind=clean pred_errors=1 tier=tier2 fell_open=False
+[9/30] zh_clean_09 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[10/30] zh_clean_10 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[11/30] zh_seed_01 kind=single pred_errors=0 tier=tier2 fell_open=False
+[12/30] zh_seed_02 kind=single pred_errors=0 tier=tier2 fell_open=False
+[13/30] zh_seed_03 kind=single pred_errors=1 tier=tier2 fell_open=False
+[14/30] zh_seed_04 kind=single pred_errors=1 tier=tier2 fell_open=False
+[15/30] zh_seed_05 kind=single pred_errors=1 tier=tier2 fell_open=False
+[16/30] zh_seed_06 kind=single pred_errors=0 tier=tier2 fell_open=False
+[17/30] zh_seed_07 kind=single pred_errors=1 tier=tier2 fell_open=False
+[18/30] zh_seed_08 kind=single pred_errors=1 tier=tier2 fell_open=False
+[19/30] zh_seed_09 kind=single pred_errors=1 tier=tier2 fell_open=False
+[20/30] zh_seed_10 kind=single pred_errors=1 tier=tier2 fell_open=False
+[21/30] zh_seed_11 kind=single pred_errors=1 tier=tier2 fell_open=False
+[22/30] zh_seed_12 kind=single pred_errors=1 tier=tier2 fell_open=False
+[23/30] zh_seed_13 kind=single pred_errors=1 tier=tier2 fell_open=False
+[24/30] zh_seed_14 kind=single pred_errors=1 tier=tier2 fell_open=False
+[25/30] zh_seed_15 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 20:50:43,485 - WARNING - dual_translation.grader_cascade: dropping error with out-of-range enum index: {'span_repro': [8, 10], 'span_ref': [8, 10], 'category': 8, 'source': 0, 'severity': 0, 'subtype': 8, 'learner_form': '一个', 'corrected_form': '一件', 'confidence': 0.95, 'is_mistake': False}
+2026-10-08 20:50:43,485 - WARNING - dual_translation.grader_cascade: dropping error with out-of-range enum index: {'span_repro': [68, 68], 'span_ref': [68, 69], 'category': 9, 'source': 0, 'severity': 0, 'subtype': 9, 'learner_form': '', 'corrected_form': '了', 'confidence': 0.9, 'is_mistake': False}
+[26/30] zh_multi_01 kind=multi pred_errors=0 tier=tier2 fell_open=False
+[27/30] zh_multi_02 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[28/30] zh_multi_03 kind=multi pred_errors=1 tier=tier2 fell_open=False
+[29/30] zh_multi_04 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[30/30] zh_multi_05 kind=multi pred_errors=2 tier=tier2 fell_open=False
+
+[done] wrote data/eval/dt_v6_gate_2026-10-08/zh_B.md
+  span F1=0.826  clean FP rate=0.100  overall QWK=0.615  cost=$0.2712
+  meaning_inversion recall=1.000  exemplar drops=0  no-template lines=0
+=== 2026-10-08T20:58:43+11:00 END zh B rc=0

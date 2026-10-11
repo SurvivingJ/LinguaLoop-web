@@ -1,0 +1,1238 @@
+{
+  "sense_id": 35341,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T13:28:05.044945+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[1] flagged (rating 3): 語域：plain調でpolite指定に反する",
+    "P1 sentence[3] flagged (rating 3): 語域：plain調でpolite指定に反する"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.507920503616333,
+    "p1_generate": 37.956448554992676,
+    "p1_repair": 41.14861536026001,
+    "tier_gate": 0.00796818733215332,
+    "p1_judge": 25.42543864250183,
+    "collocate_grounding": 0.0,
+    "fan_out": 37.14270901679993
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] flagged (rating 3): 語域：plain調でpolite指定に反する",
+        "P1 sentence[3] flagged (rating 3): 語域：plain調でpolite指定に反する"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ɸɯkakeʦɯɯ/",
+        "morphological_forms": [
+          {
+            "form": "不可欠な",
+            "label": "活用"
+          },
+          {
+            "form": "不可欠に",
+            "label": "活用"
+          },
+          {
+            "form": "必要不可欠",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "ふかけつ",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35341
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "81753173-82fc-4ba8-a7f1-2e95cfdd9633",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不可欠",
+        "pronunciation": "ふかけつ",
+        "ipa": "/ɸɯkakeʦɯɯ/",
+        "syllable_count": 5,
+        "audio_url": null,
+        "options": [
+          "負荷率",
+          "深靴",
+          "深履",
+          "不可欠"
+        ],
+        "correct_answer": "不可欠",
+        "explanation": "正解です。「不可欠」は「あることをするために、どうしても必要なこと。」という意味です。",
+        "distractor_explanations": {
+          "深靴": "「深靴」は「不可欠」と一モーラだけ異なる実在語です（3モーラ目: 「け」→「ぐ」、一部の音の違い）。",
+          "負荷率": "「負荷率」は「不可欠」と一モーラだけ異なる実在語です（3モーラ目: 「け」→「り」、一部の音の違い）。",
+          "深履": "「深履」は「不可欠」と一モーラだけ異なる実在語です（3モーラ目: 「け」→「ぐ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 5,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "96911e0c-5a5f-4a66-9e3c-dc538d319b18",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不可欠",
+        "pronunciation": "ふかけつ",
+        "correct_definition": "あることをするために、どうしても必要なこと。",
+        "options": [
+          "物や場所をいくつかの部分に分けること。",
+          "あることをするために、どうしても必要なこと。",
+          "人や動物の体の表面を覆っている組織。",
+          "飲料などを飲むための、ガラス製の容器。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "327ff8f2-637d-4ba8-be31-749f0f34be9d",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "天然酵母を用いた製パンは、職人の緻密な管理が___な工程です。",
+        "original_sentence": "天然酵母を用いた製パンは、職人の緻密な管理が不可欠な工程です。",
+        "correct_answer": "不可欠",
+        "options": [
+          "不可欠",
+          "有害",
+          "不要",
+          "任意"
+        ],
+        "explanation": "文脈にぴったり合致します。職人の緻密な管理が「どうしても必要」であることを表しています。",
+        "distractor_tags": {},
+        "word_definition": "あることをするために、どうしても必要なこと。",
+        "target_word": "不可欠"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "fff9955e-a595-4cd1-bfe6-f22fbd8c24bb",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "そこに、発酵の___な役割が凝縮されているのである。",
+        "original_sentence": "そこに、発酵の不可欠な役割が凝縮されているのである。",
+        "correct_answer": "不可欠",
+        "base_form": "不可欠",
+        "form_label": "語幹（無活用形）",
+        "options": [
+          "不可欠に",
+          "不可欠で",
+          "不可欠",
+          "不可欠な"
+        ],
+        "explanation": "「発酵の不可欠役割」という複合的な名詞修飾として形状詞の語幹が直接名詞に接続している",
+        "word_definition": "あることをするために、どうしても必要なこと。",
+        "target_word": "不可欠"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "08d99e17-6cb2-407a-80e1-39d7cc52fae9",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "テクノロジー産業の持続的発展において、ベンチャーキャピタルの存在は極めて不可欠なだ。",
+            "is_correct": false
+          },
+          {
+            "text": "テクノロジー産業の持続的発展において、ベンチャーキャピタルの存在は極めて不可欠でである。",
+            "is_correct": false
+          },
+          {
+            "text": "テクノロジー産業の持続的発展において、ベンチャーキャピタルの存在は極めて不可欠だ。",
+            "is_correct": false
+          },
+          {
+            "text": "テクノロジー産業の持続的発展において、ベンチャーキャピタルの存在は極めて不可欠である。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "活用・終止形の誤り：「不可欠」は形状詞であり、名詞的用法を除き、文末では「不可欠だ」となるのが正しい終止形です。「不可欠だ」の「だ」が欠落しています。 活用の誤り：「不可欠」の連用形は「不可欠で」ですが、それに「である」を続けることはできません。「不可欠である」とするのが正しい形です。 連体形と終止形の混同：「不可欠な」は連体形（名詞を修する形）であり、文末で文を終わらせる終止形としては使えません。正しくは「不可欠だ」となります。",
+        "target_word": "不可欠"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "724e0b30-a256-4545-8b16-c4dada723a2d",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "特に多色印刷の場合、色ごとに異なる版木を使い分ける必要があり、職人たちの高度な技術と協力が不可欠です。",
+            "is_correct": true
+          },
+          {
+            "text": "そこに、発酵の不可欠な役割が凝縮されているのである。",
+            "is_correct": true
+          },
+          {
+            "text": "天然酵母を用いた製パンは、職人の緻密な管理が不可欠な工程です。",
+            "is_correct": true
+          },
+          {
+            "text": "健康な生活には、バランスの良い食事を不可欠です。",
+            "is_correct": false,
+            "error_description": "「不可欠」は形状詞（ナ形容詞）であり、必要なものを示す主語には助詞「が」を使います。「を」を使うのは動詞（例：「必要とする」）の場合であり、形状詞の「不可欠」には不適切です。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "90136f84-b4b6-4a75-b27e-52a5d517958e",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不可欠",
+        "pronunciation": "ふかけつ",
+        "tier": "T4",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "赚钱",
+              "an expansion; a spread — the extent to which a range or scale has grown",
+              "あることをするために、どうしても必要なこと。",
+              "spoken language"
+            ],
+            "correct_answer": "あることをするために、どうしても必要なこと。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "9e93a8bb-02d8-42d2-a556-73632fc473c0",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "そこに、発酵の___な役割が凝縮されているのである。",
+        "original_sentence": "そこに、発酵の不可欠な役割が凝縮されているのである。",
+        "target_word": "不可欠",
+        "word": "不可欠",
+        "answer": {
+          "accepted": [
+            "不可欠"
+          ],
+          "accepted_normalized": [
+            "不可欠"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "532f552a-b728-43df-9860-04e5efaf2e3a",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "不可欠",
+        "options": [
+          "ふかげつ",
+          "ふがけつ",
+          "ふかけづ",
+          "ふかけつ"
+        ],
+        "correct_answer": "ふかけつ",
+        "word": "不可欠",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "37c5b487-af8e-4381-9563-504ab9addea6",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "ふかけつ",
+        "options": [
+          "社内外",
+          "大丈夫",
+          "不可欠",
+          "不可避"
+        ],
+        "correct_answer": "不可欠",
+        "word": "不可欠",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "社内外": "component",
+          "大丈夫": "component",
+          "不可避": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7c05714e-8e68-48aa-885c-7413c2c2f610",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不可欠",
+        "relation": "antonym",
+        "options": [
+          "主要",
+          "重要",
+          "必須",
+          "不要"
+        ],
+        "correct_answer": "不要",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "あることをするために、どうしても必要なこと。",
+            "explanation": "「どうしても必要」という語義の対義語は「必要ない」を意味する「不要」である。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "重要": 0.617479,
+            "主要": 0.520354
+          }
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c0addad5-517f-40f5-ad6e-b468e1e675bb",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "外国語を学ぶとき、毎日の努力が___になります。",
+        "original_sentence": "外国語を学ぶとき、毎日の努力が不可欠になります。",
+        "correct_answer": "不可欠",
+        "options": [
+          "有害",
+          "無関係",
+          "不可欠",
+          "不要"
+        ],
+        "explanation": "正解です。文脈に合っており、自然な日本語です。",
+        "distractor_tags": {},
+        "word_definition": "あることをするために、どうしても必要なこと。",
+        "target_word": "不可欠"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "44b3af97-31c1-419c-bfb4-2135a0016c90",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "良い関係を保つには、お互いの思いやり不可欠です。",
+            "is_correct": false
+          },
+          {
+            "text": "良い関係を保つには、お互いの思いやりが不可欠です。",
+            "is_correct": true
+          },
+          {
+            "text": "良い関係を保つには、不可欠がお互いの思いやりです。",
+            "is_correct": false
+          },
+          {
+            "text": "良い関係を保つには、お互いの思いやりが不可欠なだ。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "活用・アスペクトの誤り：形状詞「不可欠」に「な」を直接続けることはできず、「不可欠だ」とするのが正しいです。 助詞の混同：主語「思いやり」と述語「不可欠です」を結ぶ格助詞「が」が欠落しています。 語順・係り受けの誤り：主題と解説の構造が破壊されており、自然な日本語の語順になっていません。",
+        "target_word": "不可欠"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "8b597b1e-fb4e-4b4e-a041-564756099b09",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "良い関係を保つには、お互いの思いやりが不可欠です。",
+            "is_correct": true
+          },
+          {
+            "text": "外国語を学ぶとき、毎日の努力が不可欠になります。",
+            "is_correct": true
+          },
+          {
+            "text": "良い関係を保つには、お互いの思いやりに不可欠です。",
+            "is_correct": false,
+            "error_description": "助詞の混同。「不可欠」は性質を表す形状詞であり、その性質の主体（何が不可欠か）を示す場合は主格の助詞「が」を用います。「に」は対象や方向を表すことが多く、ここでは不適切です。"
+          },
+          {
+            "text": "楽しい旅行には、事前の計画が不可欠な要素です。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "daeec856-ff10-42ec-af9c-f098eea14bb9",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "楽しい旅行には、事前の計画が___な要素です。",
+        "original_sentence": "楽しい旅行には、事前の計画が不可欠な要素です。",
+        "target_word": "不可欠",
+        "word": "不可欠",
+        "answer": {
+          "accepted": [
+            "不可欠"
+          ],
+          "accepted_normalized": [
+            "不可欠"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "005d7cab-39ab-4028-92ba-452fc2efeaa1",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不可欠",
+        "relation": "antonym",
+        "options": [
+          "任意",
+          "重要",
+          "不要",
+          "必須"
+        ],
+        "correct_answer": "不要",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "あることをするために、どうしても必要なこと。",
+            "explanation": "「どうしても必要である」の対義語は「必要ないこと」を表す本語である。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "重要": 0.617479
+          }
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35341,
+      "word_asset_id": "shadow-35341-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 5
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '不可欠' is fused into a neighbouring chunk — chunks=['健康な生活に', 'は', 'バランスの', '良い食事が', '不可欠です']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '不可欠' is fused into a neighbouring chunk — chunks=['テクノロジー産業の', '持続的発展に', 'おいて', 'ベンチャーキャピタルの', '存在は', '極めて不可欠である']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0036272,
+      "prompt_tokens": 2691,
+      "completion_tokens": 2161,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 37656
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00342944,
+      "prompt_tokens": 1433,
+      "completion_tokens": 2321,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 41020
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181312,
+      "prompt_tokens": 786,
+      "completion_tokens": 1220,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 24899
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017664,
+      "prompt_tokens": 796,
+      "completion_tokens": 1181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21193
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00203392,
+      "prompt_tokens": 1692,
+      "completion_tokens": 1166,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21616
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0020304,
+      "prompt_tokens": 1693,
+      "completion_tokens": 1163,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21913
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018384,
+      "prompt_tokens": 797,
+      "completion_tokens": 1237,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22143
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174112,
+      "prompt_tokens": 745,
+      "completion_tokens": 1174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23214
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017648,
+      "prompt_tokens": 751,
+      "completion_tokens": 1191,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 24520
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0030256,
+      "prompt_tokens": 2711,
+      "completion_tokens": 1686,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 32982
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00313824,
+      "prompt_tokens": 2711,
+      "completion_tokens": 1774,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 36870
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.000168,
+      "prompt_tokens": 380,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 3286
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.000163,
+      "prompt_tokens": 375,
+      "completion_tokens": 70,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35341,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 3211
+    }
+  ],
+  "llm_calls_observed": 13,
+  "llm_cost_observed_usd": 0.02653964,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 152.89099999994505,
+  "finished_at": "2026-10-05T13:30:37.927207+00:00"
+}

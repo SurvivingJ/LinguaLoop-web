@@ -1,0 +1,107 @@
+{
+  "sense_id": 34999,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T17:46:20.818992+00:00",
+  "status": "failed",
+  "errors": [
+    "P1 sentence judge: too few acceptable sentences after repair"
+  ],
+  "warnings": [
+    "P1 sentence[1] rejected (rating 2): 全単語：複合語、語域：常体",
+    "P1 sentence[2] rejected (rating 2): 全単語：複合語、語域：常体",
+    "P1 sentence[3] rejected (rating 2): 全単語：複合語の一部",
+    "P1 sentence[5] rejected (rating 2): 全単語：複合語の一部",
+    "P1 sentence[6] rejected (rating 2): 全単語：複合語の一部",
+    "P1 sentence[7] rejected (rating 2): 全単語：複合語、語域：常体",
+    "P1 sentence judge: only 4 acceptable sentences (< 6) after repair — asset blocked."
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.0584802627563477,
+    "p1_generate": 35.76123356819153,
+    "tier_gate": 0.0029697418212890625,
+    "p1_judge": 65.65165686607361
+  },
+  "assets": [],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00338208,
+      "prompt_tokens": 2653,
+      "completion_tokens": 1979,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 34998
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00179264,
+      "prompt_tokens": 738,
+      "completion_tokens": 1216,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23535
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00158336,
+      "prompt_tokens": 340,
+      "completion_tokens": 1152,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 34999,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20563
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00171648,
+      "prompt_tokens": 692,
+      "completion_tokens": 1168,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20842
+    }
+  ],
+  "llm_calls_observed": 4,
+  "llm_cost_observed_usd": 0.008474559999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": null,
+  "wall_clock_s": 102.67200000002049,
+  "finished_at": "2026-10-05T17:48:03.499137+00:00"
+}

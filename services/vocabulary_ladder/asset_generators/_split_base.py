@@ -169,60 +169,92 @@ class SplitLevelGenerator:
         cheaper than losing the level. What is *not* retried is an unregistered
         prompt version — that is a configuration error, and re-asking would
         only produce the same ungated output.
+
+        TASK-8xx (coverage-gap fix #1): after the primary+retry pair above
+        still produces no schema-valid output, one bounded extra attempt runs
+        tagged ``call_role='repair'`` rather than giving up outright. This
+        generator only ever asks for its own single ``LEVEL``, so "scoped" is
+        trivial here — the ask doesn't get any narrower than it already is —
+        but the retry-cap regression (families that used to recover via a
+        3rd/4th call now fail outright) showed TASK-810's cap of 2 is too
+        tight specifically for the split levels. Documented bound: 3 real
+        calls per step (primary + retry + repair), up from 2.
         """
         last_errors: list[str] = []
 
         for attempt in range(1, _MAX_ATTEMPTS + 1):
-            try:
-                raw = call_llm(
-                    prompt,
-                    model=cfg['model'],
-                    provider=cfg['provider'],
-                    temperature=self.TEMPERATURE,
-                    max_tokens=self.MAX_TOKENS,
-                    # Provider-enforced, not just client-side parsed: these
-                    # prompts return numeric keys, and a model that drifts
-                    # into prose costs a whole retry cycle to discover.
-                    response_format='json_object',
-                    pipeline='vocab_ladder',
-                    task_name=self.TASK_NAME,
-                    template_version=cfg['version'],
-                    language_code=_LANG_ID_TO_CODE.get(self.language_id),
-                    call_role='retry' if attempt > 1 else 'primary',
-                    sense_id=sense_id,
-                    allow_internal_repair=False,
-                )
-            except Exception as exc:
-                last_errors = [f'LLM call failed: {exc}']
-                logger.warning(
-                    'L%d attempt %d failed for sense %s: %s',
-                    self.LEVEL, attempt, sense_id, exc,
-                )
-                continue
-
-            try:
-                errors = validate_ladder_output(
-                    self.TYPE_CODE, int(cfg['version']), raw,
-                )
-            except SchemaError as exc:
-                # Ungated prompt version — a deploy problem, not model noise.
-                logger.error('L%d schema gate refused sense %s: %s', self.LEVEL, sense_id, exc)
+            raw, errors = self._attempt(prompt, cfg, sense_id, 'primary' if attempt == 1 else 'retry')
+            if errors is None:
+                # Unregistered prompt version — a deploy problem, not model
+                # noise. Re-asking (retry OR repair) would only reproduce the
+                # same ungated output, so stop immediately.
                 return None
-
             if not errors:
                 return raw
-
             last_errors = errors
             logger.warning(
-                'L%d schema check failed on attempt %d for sense %s: %s',
+                'L%d attempt %d failed for sense %s: %s',
                 self.LEVEL, attempt, sense_id, '; '.join(errors[:4]),
             )
 
+        raw, errors = self._attempt(prompt, cfg, sense_id, 'repair')
+        if errors is not None and not errors:
+            return raw
+        if errors:
+            last_errors = errors
+            logger.warning(
+                'L%d scoped repair call failed for sense %s: %s',
+                self.LEVEL, sense_id, '; '.join(errors[:4]),
+            )
+
         logger.error(
-            'L%d produced no schema-valid output for sense %s after %d attempts: %s',
+            'L%d produced no schema-valid output for sense %s after %d attempts '
+            '+ 1 repair call: %s',
             self.LEVEL, sense_id, _MAX_ATTEMPTS, '; '.join(last_errors[:4]),
         )
         return None
+
+    def _attempt(
+        self, prompt: str, cfg: dict, sense_id: int, call_role: str,
+    ) -> tuple[dict | None, list[str] | None]:
+        """One LLM call + schema gate. Returns ``(raw, errors)``.
+
+        ``errors is None`` means an unregistered (type_code, version) pair —
+        the caller must stop, not retry. ``errors == []`` means success.
+        Otherwise ``errors`` is the schema gate's (or the call failure's)
+        message list and the caller may try again.
+        """
+        try:
+            raw = call_llm(
+                prompt,
+                model=cfg['model'],
+                provider=cfg['provider'],
+                temperature=self.TEMPERATURE,
+                max_tokens=self.MAX_TOKENS,
+                # Provider-enforced, not just client-side parsed: these
+                # prompts return numeric keys, and a model that drifts
+                # into prose costs a whole retry cycle to discover.
+                response_format='json_object',
+                pipeline='vocab_ladder',
+                task_name=self.TASK_NAME,
+                template_version=cfg['version'],
+                language_code=_LANG_ID_TO_CODE.get(self.language_id),
+                call_role=call_role,
+                sense_id=sense_id,
+                allow_internal_repair=False,
+            )
+        except Exception as exc:
+            return None, [f'LLM call failed: {exc}']
+
+        try:
+            errors = validate_ladder_output(
+                self.TYPE_CODE, int(cfg['version']), raw,
+            )
+        except SchemaError as exc:
+            logger.error('L%d schema gate refused sense %s: %s', self.LEVEL, sense_id, exc)
+            return None, None
+
+        return raw, errors
 
     # ------------------------------------------------------------------
     # Subclass hooks

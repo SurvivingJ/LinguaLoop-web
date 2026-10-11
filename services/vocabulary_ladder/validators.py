@@ -336,6 +336,10 @@ class VocabAssetValidator:
     def _validate_level_4(self, data: dict, errors: list[str]):
         """Validate Level 4 morphology slot."""
         self._validate_option_level(4, data, errors)
+        if not isinstance(data, dict):
+            # _validate_option_level already recorded the "expected dict"
+            # error above; stop here instead of crashing on `.get()` below.
+            return
 
         if not data.get('correct_form'):
             errors.append("Level 4: missing correct_form")
@@ -368,15 +372,26 @@ class VocabAssetValidator:
             errors.append("Level 7: expected dict")
             return
 
-        if not data.get('incorrect_sentence'):
+        inc = data.get('incorrect_sentence', '')
+        cor = data.get('corrected_sentence', '')
+        # TASK-8xx: neither field is schema-guaranteed to be a string -- a
+        # bundle-mode response was observed live returning a bool for one of
+        # these keys (en sense 13902/15328, phase2_fix_en), which crashed
+        # `.strip()` below with an unhandled AttributeError instead of a
+        # clean validation error. Treat anything non-string as equivalent to
+        # missing/empty rather than trusting the type.
+        if not isinstance(inc, str):
+            inc = ''
+        if not isinstance(cor, str):
+            cor = ''
+
+        if not inc:
             errors.append("Level 7: missing incorrect_sentence")
-        if not data.get('corrected_sentence'):
+        if not cor:
             errors.append("Level 7: missing corrected_sentence")
-        if not data.get('error_description'):
+        if not isinstance(data.get('error_description'), str) or not data.get('error_description'):
             errors.append("Level 7: missing error_description")
 
         # Incorrect and corrected must differ
-        inc = data.get('incorrect_sentence', '')
-        cor = data.get('corrected_sentence', '')
         if inc and cor and inc.strip() == cor.strip():
             errors.append("Level 7: incorrect_sentence and corrected_sentence are identical")

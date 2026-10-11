@@ -152,6 +152,16 @@ The looser accuracy + understandability gate, suggested in the earlier report, *
 - **Short edits can disappear.** Same-length, one-letter-apart word pairs (commands→command) can collapse under the dictation grader's fuzzy matching. This is already documented in the gold README for English morphology, and it also affects agreement, plural and spelling seeds.
 - **zh `bei_passive` has no gloss or template** in the v4 zh taxonomy seed; it only exists in the v5 subtype list.
 
+## Correction 2026-10-04
+Three en silver items (`en_silver_24`, `en_silver_26`, `en_silver_34`) had lost errors in the
+3-rater silver merge (no subtype/severity majority, or a span-matching artifact) and were
+restored. Frozen configs (τ/τ_n/τ_c/variant) and routing cutoffs (τ_r) are **unchanged** —
+re-fitting on the corrected silver picked the same values. All **gold** results in this report
+are unaffected (gold was never touched). Only the en silver CV QWK moved, since two of the three
+items' previously-wrong "easy" labels had been coincidentally agreeing with the grader:
+full_mean_qwk **.901 → .856** (understandability .916 → .818); `frozen_config_en.json`,
+`a3_cv_en.json`, `routing_en.json` regenerated from cache accordingly.
+
 ## Related Pages
 - [[evaluations/jev-judge-feasibility-2026-09-26]] — the first jev experiment this one follows
 - [[evaluations/dt-grading-v2-2026-07-19]] — live-grader baseline on the same gold set

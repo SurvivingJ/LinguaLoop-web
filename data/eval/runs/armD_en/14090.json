@@ -1,0 +1,1106 @@
+{
+  "sense_id": 14090,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T22:58:18.062201+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "Expected at least 2 morphological_forms, got 1",
+    "P1 sentence[6] flagged (rating 3): register: 'multifaceted ideas' is awkward usage for this sense",
+    "P1 sentence[8] flagged (rating 3): sense: describes multiple talents rather than a single complex feature"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.3112492561340332,
+    "p1_generate": 2.8732118606567383,
+    "tier_gate": 0.0,
+    "p1_judge": 1.3461353778839111,
+    "collocate_grounding": 0.0,
+    "fan_out": 107.47825789451599
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Expected at least 2 morphological_forms, got 1",
+        "P1 sentence[6] flagged (rating 3): register: 'multifaceted ideas' is awkward usage for this sense",
+        "P1 sentence[8] flagged (rating 3): sense: describes multiple talents rather than a single complex feature"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˌmʌltɪˈfæsɪtɪd/",
+        "morphological_forms": [
+          {
+            "form": "multifaceted",
+            "label": "base form"
+          }
+        ],
+        "pronunciation": "multi-faceted",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14090
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "03be0c9c-59e7-4e34-a901-1bd268b4b306",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "multifaceted",
+        "pronunciation": "multi-faceted",
+        "correct_definition": "Having many different aspects or features.",
+        "options": [
+          "Having many different aspects or features.",
+          "To depend on someone or something for support or help.",
+          "An object used to contain or store something.",
+          "Relating to the social system of medieval Europe in which land was held by lords and worked by serfs or peasants under a hierarchy of obligations."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "98fca9ae-1764-4645-8fdc-5932699acbdd",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "He felt multifaceted because he forgot his keys, missed the bus, and spilled his coffee all in one morning.",
+            "is_correct": false
+          },
+          {
+            "text": "The multifaceted pebble was perfectly round and completely smooth to the touch.",
+            "is_correct": false
+          },
+          {
+            "text": "The baker used a multifaceted rolling pin to flatten the dough into a single, perfect circle.",
+            "is_correct": false
+          },
+          {
+            "text": "Our history teacher explained the causes of the revolution as a multifaceted issue that involved politics, economics, and social changes.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: A rolling pin is physically cylindrical and single-purpose; describing it as 'multifaceted' (having many flat surfaces or aspects) contradicts its basic physical design and function. Semantically inappropriate: 'Multifaceted' describes complexity or having many distinct features/aspects, not a sequence of unfortunate, unrelated clumsy events (which would be better described as 'unlucky' or 'having a bad day'). Semantically inappropriate: 'Faceted' implies having flat, cut surfaces (like a gemstone). A pebble that is 'perfectly round and completely smooth' directly contradicts the physical definition of being multifaceted.",
+        "target_word": "multifaceted"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5cc2bcc3-a5d5-4761-a0d7-f007249a4f57",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The intricate tapestry of the global coffee bean supply chain is a testament to the multifaceted nature of international trade, agriculture, and sophisticated logistical networks.",
+            "is_correct": true
+          },
+          {
+            "text": "The multifaceted of the global coffee bean supply chain makes it very difficult to manage.",
+            "is_correct": false,
+            "error_description": "The word 'multifaceted' is an adjective and cannot be used as a noun. It must modify a noun, such as 'nature', 'aspect', or 'problem'."
+          },
+          {
+            "text": "Preparing for the school science fair required a multifaceted approach because we had to build a model, write a report, and present our findings.",
+            "is_correct": true
+          },
+          {
+            "text": "Sarah felt that choosing a career was a multifaceted decision involving her personal interests, financial needs, and future goals.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "4a9d3b45-003f-418f-9631-584449f45c6a",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "multifaceted",
+        "pronunciation": "multi-faceted",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "Causing a significant or complete change in something.",
+              "Consisting of or involving more than one.",
+              "cause or encourage a situation or condition to exist or develop",
+              "Having many different aspects or features."
+            ],
+            "correct_answer": "Having many different aspects or features."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "9c4343e2-3a41-49a6-9d6c-9ce26bf41ece",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Preparing for the school science fair required a ___ approach because we had to build a model, write a report, and present our findings.",
+        "original_sentence": "Preparing for the school science fair required a multifaceted approach because we had to build a model, write a report, and present our findings.",
+        "target_word": "multifaceted",
+        "word": "multifaceted",
+        "answer": {
+          "accepted": [
+            "multifaceted"
+          ],
+          "accepted_normalized": [
+            "multifaceted"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e3d6af11-b719-4e24-840a-db2fbbfa86b1",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Solving the community problem proved difficult because it was a multifaceted challenge affecting local families, businesses, and schools.",
+        "chunks": [
+          "Solving the community problem",
+          "proved",
+          "difficult",
+          "because it was a multifaceted challenge affecting local families businesses and schools"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "Solving the community problem",
+          "because it was a multifaceted challenge affecting local families businesses and schools",
+          "difficult",
+          "proved"
+        ],
+        "target_word": "multifaceted",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ec0fb3d1-6048-4f55-bd85-0efbb2a31b24",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "During the club meeting, the members discussed several ___ ideas for improving our neighborhood park.",
+        "original_sentence": "During the club meeting, the members discussed several multifaceted ideas for improving our neighborhood park.",
+        "correct_answer": "multifaceted",
+        "options": [
+          "multifaceted",
+          "superficial",
+          "trivial",
+          "unilateral"
+        ],
+        "explanation": "Correct: 'multifaceted' correctly describes the 'ideas' as having many different aspects, fitting the context of park improvement.",
+        "distractor_tags": {},
+        "word_definition": "Having many different aspects or features.",
+        "target_word": "multifaceted"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "87dac086-a295-4a2a-8e63-d276b0bb4e83",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The coach designed a multifaceted training program to improve our speed, strength, and teamwork before the championship game.",
+            "is_correct": true
+          },
+          {
+            "text": "He made a multifaceted choice between the two identical options, as there was only one single factor to consider.",
+            "is_correct": false
+          },
+          {
+            "text": "The multifaceted rock was just a perfectly smooth, featureless sphere with no angles or different sides.",
+            "is_correct": false
+          },
+          {
+            "text": "The single, plain white wall in the empty room was completely multifaceted, offering no visual interest or depth to the space.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatic contradiction: A 'plain white wall' in an 'empty room' is by definition simple and uniform, making the use of 'multifaceted' logically contradictory. Semantic contradiction: 'Multifaceted' implies many aspects or features, which contradicts the explicit statement that there was only 'one single factor' to consider. Semantic contradiction: A 'perfectly smooth, featureless sphere' lacks the distinct sides, angles, or features required to be accurately described as 'multifaceted'.",
+        "target_word": "multifaceted"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f6bf1eba-1948-4392-af63-306c401d6287",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "During the club meeting, the members discussed several multifaceted ideas for improving our neighborhood park.",
+            "is_correct": true
+          },
+          {
+            "text": "The coach designed a multifaceted training program to improve our speed, strength, and teamwork before the championship game.",
+            "is_correct": true
+          },
+          {
+            "text": "The environmental report presented a multifaceted view of how climate change impacts oceans, forests, and wildlife.",
+            "is_correct": true
+          },
+          {
+            "text": "The multifaceted of the new software requires extensive training for all employees.",
+            "is_correct": false,
+            "error_description": "The adjective 'multifaceted' is incorrectly used as a noun. It must modify a noun, such as 'nature', 'design', or 'system', to be grammatically correct."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "3df527e3-4f7d-4bd9-aed0-2ec4515d6386",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The environmental report presented a ___ view of how climate change impacts oceans, forests, and wildlife.",
+        "original_sentence": "The environmental report presented a multifaceted view of how climate change impacts oceans, forests, and wildlife.",
+        "target_word": "multifaceted",
+        "word": "multifaceted",
+        "answer": {
+          "accepted": [
+            "multifaceted"
+          ],
+          "accepted_normalized": [
+            "multifaceted"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "daa2ac7a-766a-4c7e-9c05-694a644a2dc5",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Our history teacher explained the causes of the revolution as a multifaceted issue that involved politics, economics, and social changes.",
+        "chunks": [
+          "Our history teacher",
+          "explained",
+          "the causes of the revolution",
+          "as a multifaceted issue that involved politics economics and social changes"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "explained",
+          "as a multifaceted issue that involved politics economics and social changes",
+          "Our history teacher",
+          "the causes of the revolution"
+        ],
+        "target_word": "multifaceted",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f26a7a38-b35f-4d80-af27-db61f2b0222c",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "multifaceted",
+        "relation": "antonym",
+        "options": [
+          "elaborate",
+          "versatile",
+          "one-dimensional",
+          "complex"
+        ],
+        "correct_answer": "one-dimensional",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Having many different aspects or features.",
+            "explanation": "genuine antonym: having only a single aspect or lacking depth and complexity"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "complex": 0.620079,
+            "elaborate": 0.564292
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14090,
+      "word_asset_id": "shadow-14090-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0024621,
+      "prompt_tokens": 1932,
+      "completion_tokens": 753,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2749
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0007114,
+      "prompt_tokens": 738,
+      "completion_tokens": 196,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1255
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00188832,
+      "prompt_tokens": 1281,
+      "completion_tokens": 1155,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21224
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00178592,
+      "prompt_tokens": 661,
+      "completion_tokens": 1230,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21764
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00179296,
+      "prompt_tokens": 663,
+      "completion_tokens": 1235,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22009
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00292992,
+      "prompt_tokens": 1720,
+      "completion_tokens": 1859,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 32821
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0053568,
+      "prompt_tokens": 1720,
+      "completion_tokens": 3755,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 65207
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002559488,
+      "prompt_tokens": 1720,
+      "completion_tokens": 1800,
+      "cached_tokens": 1152,
+      "reasoning_tokens": 1024,
+      "call_role": "retry",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 31690
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018832,
+      "prompt_tokens": 1285,
+      "completion_tokens": 1150,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 106664
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004248,
+      "prompt_tokens": 416,
+      "completion_tokens": 120,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1012
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003487,
+      "prompt_tokens": 404,
+      "completion_tokens": 91,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1136
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000436,
+      "prompt_tokens": 545,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 953
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000192,
+      "prompt_tokens": 390,
+      "completion_tokens": 30,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 987
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004269,
+      "prompt_tokens": 523,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1225
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002854,
+      "prompt_tokens": 418,
+      "completion_tokens": 64,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 946
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003529,
+      "prompt_tokens": 393,
+      "completion_tokens": 94,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1239
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004284,
+      "prompt_tokens": 528,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 962
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002067,
+      "prompt_tokens": 389,
+      "completion_tokens": 36,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 806
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004519,
+      "prompt_tokens": 523,
+      "completion_tokens": 118,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14090,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 979
+    }
+  ],
+  "llm_calls_observed": 19,
+  "llm_cost_observed_usd": 0.024923808000000002,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T5",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 131.7970000000205,
+  "finished_at": "2026-10-05T23:00:29.853592+00:00"
+}

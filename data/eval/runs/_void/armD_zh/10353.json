@@ -1,0 +1,1423 @@
+{
+  "sense_id": 10353,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T14:45:03.000240+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[9] flagged (rating 3): 义项：'别再'为固定否定祈使，略有偏移"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.41582751274108887,
+    "p1_generate": 82.12906217575073,
+    "tier_gate": 0.0,
+    "p1_judge": 101.050217628479,
+    "collocate_grounding": 0.0,
+    "fan_out": 162.84352326393127
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[9] flagged (rating 3): 义项：'别再'为固定否定祈使，略有偏移"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[t͡saɪ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "再见",
+            "label": "复合"
+          },
+          {
+            "form": "再次",
+            "label": "复合"
+          },
+          {
+            "form": "再来",
+            "label": "复合"
+          },
+          {
+            "form": "再会",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "zài",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10353
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "18fd12c8-689d-44bf-af9c-465e6e20e2b4",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "再",
+        "pronunciation": "zài",
+        "ipa": "[t͡saɪ˥˩]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "再",
+          "宰",
+          "崽",
+          "灾"
+        ],
+        "correct_answer": "再",
+        "explanation": "正确：'再'读第四声（zài），表示动作重复或继续，符合听到的语音。",
+        "distractor_explanations": {
+          "灾": "声调混淆：'灾'读第一声（zāi），指自然灾害；而目标词'再'读第四声（zài）。",
+          "宰": "声调混淆：'宰'读第三声（zǎi），指杀牲畜或主管；而目标词'再'读第四声（zài）。",
+          "崽": "声调混淆：'崽'读第三声（zǎi），指小孩子或动物幼崽；而目标词'再'读第四声（zài）。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "再",
+          "pronunciation": "zài",
+          "ipa": "[t͡saɪ˥˩]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "再",
+            "宰",
+            "崽",
+            "災"
+          ],
+          "correct_answer": "再",
+          "explanation": "正確：'再'讀第四聲（zài），表示動作重複或繼續，符合聽到的語音。",
+          "distractor_explanations": {
+            "灾": "聲調混淆：'災'讀第一聲（zāi），指自然災害；而目標詞'再'讀第四聲（zài）。",
+            "宰": "聲調混淆：'宰'讀第三聲（zǎi），指殺牲畜或主管；而目標詞'再'讀第四聲（zài）。",
+            "崽": "聲調混淆：'崽'讀第三聲（zǎi），指小孩子或動物幼崽；而目標詞'再'讀第四聲（zài）。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3b3c95ad-f213-427d-891b-94768a6c3459",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "再",
+        "pronunciation": "zài",
+        "correct_definition": "副词，表示动作或情况重复或继续。",
+        "options": [
+          "副词，表示动作或情况重复或继续。",
+          "指一事物对另一事物产生影响，使其表现出相应的状态或变化。",
+          "指战争、战斗或进行武力对抗的行为。",
+          "媒体指传播信息的工具或平台，如报纸、电视、互联网等。"
+        ],
+        "hant": {
+          "word": "再",
+          "pronunciation": "zài",
+          "correct_definition": "副詞，表示動作或情況重複或繼續。",
+          "options": [
+            "副詞，表示動作或情況重複或繼續。",
+            "指一事物對另一事物產生影響，使其表現出相應的狀態或變化。",
+            "指戰爭、戰鬥或進行武力對抗的行為。",
+            "媒體指傳播資訊的工具或平臺，如報紙、電視、網際網路等。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "253110c8-7379-4f1b-aff4-abf03952046d",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "请你把这件事再想一次遍。",
+            "is_correct": false
+          },
+          {
+            "text": "请你把这件事想再一遍。",
+            "is_correct": false
+          },
+          {
+            "text": "请你把这件事再想一遍了。",
+            "is_correct": false
+          },
+          {
+            "text": "请你把这件事再想一遍。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标位置错误：'再'表示未然或重复的动作，不能与表示已然的动态助词'了'在句末共现。 语序错误：副词'再'必须放在动词'想'之前作状语，不能放在动词和动量补语'一遍'之间。 量词使用错误：'次'和'遍'都是动量词，语义重复且不能连用，应保留其中一个。",
+        "target_word": "再",
+        "hant": {
+          "sentences": [
+            {
+              "text": "請你把這件事再想一次遍。",
+              "is_correct": false
+            },
+            {
+              "text": "請你把這件事想再一遍。",
+              "is_correct": false
+            },
+            {
+              "text": "請你把這件事再想一遍了。",
+              "is_correct": false
+            },
+            {
+              "text": "請你把這件事再想一遍。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標位置錯誤：'再'表示未然或重複的動作，不能與表示已然的動態助詞'了'在句末共現。 語序錯誤：副詞'再'必須放在動詞'想'之前作狀語，不能放在動詞和動量補語'一遍'之間。 量詞使用錯誤：'次'和'遍'都是動量詞，語義重複且不能連用，應保留其中一個。",
+          "target_word": "再"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "0f647a7e-7875-4def-af77-7db50b319149",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他们观察升力和阻力的变化，再测试一遍。",
+            "is_correct": true
+          },
+          {
+            "text": "他们把水用来灌溉农田，再重复利用。",
+            "is_correct": true
+          },
+          {
+            "text": "他们观察升力和阻力的变化，测试再一遍。",
+            "is_correct": false,
+            "error_description": "副词“再”表示动作的重复，应该放在动词“测试”的前面，而不能放在动词和动量补语“一遍”之间。"
+          },
+          {
+            "text": "我们明天再去公园玩吧。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他們觀察升力和阻力的變化，再測試一遍。",
+              "is_correct": true
+            },
+            {
+              "text": "他們把水用來灌溉農田，再重複利用。",
+              "is_correct": true
+            },
+            {
+              "text": "他們觀察升力和阻力的變化，測試再一遍。",
+              "is_correct": false,
+              "error_description": "副詞“再”表示動作的重複，應該放在動詞“測試”的前面，而不能放在動詞和動量補語“一遍”之間。"
+            },
+            {
+              "text": "我們明天再去公園玩吧。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "b2410f05-1096-4dae-a8b5-0b7bf4fcce65",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "再",
+        "pronunciation": "zài",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "to score points",
+              "名声；みんなが尊敬し感心する評判",
+              "ソフトウェア",
+              "副词，表示动作或情况重复或继续。"
+            ],
+            "correct_answer": "副词，表示动作或情况重复或继续。"
+          }
+        },
+        "hant": {
+          "word": "再",
+          "pronunciation": "zài",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "to score points",
+                "名聲；みんなが尊敬し感心する評判",
+                "ソフトウェア",
+                "副詞，表示動作或情況重複或繼續。"
+              ],
+              "correct_answer": "副詞，表示動作或情況重複或繼續。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "224c07cf-a779-4be5-8098-79beb81ae4f0",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他们把水用来灌溉农田，___重复利用。",
+        "original_sentence": "他们把水用来灌溉农田，再重复利用。",
+        "target_word": "再",
+        "word": "再",
+        "answer": {
+          "accepted": [
+            "再",
+            "再见",
+            "再次",
+            "再来",
+            "再会"
+          ],
+          "accepted_normalized": [
+            "再",
+            "再见",
+            "再次",
+            "再来",
+            "再会"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他們把水用來灌溉農田，___重複利用。",
+          "original_sentence": "他們把水用來灌溉農田，再重複利用。",
+          "target_word": "再",
+          "word": "再",
+          "answer": {
+            "accepted": [
+              "再",
+              "再見",
+              "再次",
+              "再來",
+              "再會"
+            ],
+            "accepted_normalized": [
+              "再",
+              "再見",
+              "再次",
+              "再來",
+              "再會"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e2aa8576-e439-4517-a033-e5cc5b881987",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "再",
+        "options": [
+          "zǎi",
+          "zái",
+          "zāi",
+          "zài"
+        ],
+        "correct_answer": "zài",
+        "word": "再",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "再",
+          "options": [
+            "zǎi",
+            "zái",
+            "zāi",
+            "zài"
+          ],
+          "correct_answer": "zài",
+          "word": "再",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "84124b5e-745d-4a50-baf5-51af99d47321",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "zài",
+        "options": [
+          "再",
+          "内",
+          "却",
+          "小"
+        ],
+        "correct_answer": "再",
+        "word": "再",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "小": "frequency",
+          "却": "frequency",
+          "内": "frequency"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "zài",
+          "options": [
+            "再",
+            "內",
+            "卻",
+            "小"
+          ],
+          "correct_answer": "再",
+          "word": "再",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "小": "frequency",
+            "却": "frequency",
+            "内": "frequency"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ec693f31-ae84-4313-b7cf-f65904937489",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "再",
+        "toneless_pinyin": "zai",
+        "full_pinyin": "zài",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "correct_answer": "4",
+        "option_labels": {
+          "1": "high level (1)",
+          "2": "rising (2)",
+          "3": "dipping (3)",
+          "4": "falling (4)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "再",
+          "toneless_pinyin": "zai",
+          "full_pinyin": "zài",
+          "options": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "correct_answer": "4",
+          "option_labels": {
+            "1": "high level (1)",
+            "2": "rising (2)",
+            "3": "dipping (3)",
+            "4": "falling (4)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "bf8a7972-04a8-43d2-947d-cde14bcab2a0",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "再",
+        "relation": "antonym",
+        "options": [
+          "已",
+          "还",
+          "刚",
+          "又"
+        ],
+        "correct_answer": "已",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "副词，表示动作或情况重复或继续。",
+            "explanation": "反义：'已'表动作已完成、不再继续，与'再'表重复或继续构成反义"
+          }
+        },
+        "hant": {
+          "word": "再",
+          "relation": "antonym",
+          "options": [
+            "已",
+            "還",
+            "剛",
+            "又"
+          ],
+          "correct_answer": "已",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "副詞，表示動作或情況重複或繼續。",
+              "explanation": "反義：'已'表動作已完成、不再繼續，與'再'表重複或繼續構成反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "又": 0.849104,
+            "还": 0.730026,
+            "刚": 0.664528
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "1dff766c-a461-4129-b27f-381e4a847daf",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "别再生气了，开心一点吧。",
+            "is_correct": true
+          },
+          {
+            "text": "别生气再了，开心一点吧。",
+            "is_correct": false
+          },
+          {
+            "text": "别再生一次气了，开心一点吧。",
+            "is_correct": false
+          },
+          {
+            "text": "别再生气着了，开心一点吧。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置错误：“着”表示状态持续，不能放在“再”和动词“生气”之间，应直接说“别再生气了”。 语序错误：副词“再”必须放在动词“生气”之前，不能放在动词之后。 搭配错误：“再”后面直接加动词表示重复，不需要加“一次”，“再生气”即可表达停止重复该动作。",
+        "target_word": "再",
+        "hant": {
+          "sentences": [
+            {
+              "text": "別再生氣了，開心一點吧。",
+              "is_correct": true
+            },
+            {
+              "text": "別生氣再了，開心一點吧。",
+              "is_correct": false
+            },
+            {
+              "text": "別再生一次氣了，開心一點吧。",
+              "is_correct": false
+            },
+            {
+              "text": "別再生氣著了，開心一點吧。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置錯誤：“著”表示狀態持續，不能放在“再”和動詞“生氣”之間，應直接說“別再生氣了”。 語序錯誤：副詞“再”必須放在動詞“生氣”之前，不能放在動詞之後。 搭配錯誤：“再”後面直接加動詞表示重複，不需要加“一次”，“再生氣”即可表達停止重複該動作。",
+          "target_word": "再"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "32706e3b-7e28-408e-8cbc-16e779456bca",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "请你把再这件事想一遍。",
+            "is_correct": false,
+            "error_description": "语序错误。在“把”字句中，副词“再”应该放在“把”字之前，或者放在“把”的宾语之后、动词之前，不能放在“把”和宾语之间。"
+          },
+          {
+            "text": "他看着照片，再想起那些事。",
+            "is_correct": true
+          },
+          {
+            "text": "你能不能再帮我一个忙？",
+            "is_correct": true
+          },
+          {
+            "text": "别再生气了，开心一点吧。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "請你把再這件事想一遍。",
+              "is_correct": false,
+              "error_description": "語序錯誤。在“把”字句中，副詞“再”應該放在“把”字之前，或者放在“把”的賓語之後、動詞之前，不能放在“把”和賓語之間。"
+            },
+            {
+              "text": "他看著照片，再想起那些事。",
+              "is_correct": true
+            },
+            {
+              "text": "你能不能再幫我一個忙？",
+              "is_correct": true
+            },
+            {
+              "text": "別再生氣了，開心一點吧。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "e95056a9-bbd6-488b-a09b-b238165ab628",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他看着照片，___想起那些事。",
+        "original_sentence": "他看着照片，再想起那些事。",
+        "target_word": "再",
+        "word": "再",
+        "answer": {
+          "accepted": [
+            "再",
+            "再见",
+            "再次",
+            "再来",
+            "再会"
+          ],
+          "accepted_normalized": [
+            "再",
+            "再见",
+            "再次",
+            "再来",
+            "再会"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他看著照片，___想起那些事。",
+          "original_sentence": "他看著照片，再想起那些事。",
+          "target_word": "再",
+          "word": "再",
+          "answer": {
+            "accepted": [
+              "再",
+              "再見",
+              "再次",
+              "再來",
+              "再會"
+            ],
+            "accepted_normalized": [
+              "再",
+              "再見",
+              "再次",
+              "再來",
+              "再會"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "94132dfd-0dd2-417e-872d-cc49a5ea64fe",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "再",
+        "relation": "antonym",
+        "options": [
+          "更",
+          "还",
+          "又",
+          "不再"
+        ],
+        "correct_answer": "不再",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "副词，表示动作或情况重复或继续。",
+            "explanation": "反义项：表示动作或情况停止、不继续或不重复，与目标词义项构成反义。"
+          }
+        },
+        "hant": {
+          "word": "再",
+          "relation": "antonym",
+          "options": [
+            "更",
+            "還",
+            "又",
+            "不再"
+          ],
+          "correct_answer": "不再",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "副詞，表示動作或情況重複或繼續。",
+              "explanation": "反義項：表示動作或情況停止、不繼續或不重複，與目標詞義項構成反義。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "又": 0.849104,
+            "还": 0.730026,
+            "更": 0.690147
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10353,
+      "word_asset_id": "shadow-10353-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '再' is fused into a neighbouring chunk — chunks=['刚才', '被打断了', '我们', '再出去散步吧']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '再' is fused into a neighbouring chunk — chunks=['请你', '把这件事', '再想一遍']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0029696,
+      "prompt_tokens": 2444,
+      "completion_tokens": 1709,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "retry",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30276
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184288,
+      "prompt_tokens": 643,
+      "completion_tokens": 1279,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 22757
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00150432,
+      "prompt_tokens": 297,
+      "completion_tokens": 1101,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 21832
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0014016,
+      "prompt_tokens": 576,
+      "completion_tokens": 951,
+      "cached_tokens": 0,
+      "reasoning_tokens": 869,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 16900
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00193088,
+      "prompt_tokens": 1478,
+      "completion_tokens": 1139,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 26111
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017872,
+      "prompt_tokens": 637,
+      "completion_tokens": 1237,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 28312
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00272224,
+      "prompt_tokens": 1659,
+      "completion_tokens": 1712,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30425
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017792,
+      "prompt_tokens": 636,
+      "completion_tokens": 1231,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 34258
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00263904,
+      "prompt_tokens": 1659,
+      "completion_tokens": 1647,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 35360
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019328,
+      "prompt_tokens": 1476,
+      "completion_tokens": 1141,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 162011
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001672533,
+      "prompt_tokens": 398,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2128
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001626228,
+      "prompt_tokens": 392,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10353,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2351
+    }
+  ],
+  "llm_calls_observed": 12,
+  "llm_cost_observed_usd": 0.0208396361,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 371.25,
+  "finished_at": "2026-10-05T14:51:14.242549+00:00"
+}

@@ -166,6 +166,20 @@ class Config:
     # the third call's cost.
     DT_TIER3_ARBITER_ENABLED = os.environ.get('DT_TIER3_ARBITER_ENABLED', 'False').lower() == 'true'
 
+    # Dual Translation — taxonomy v6 row stamping (TASK-842, ADR-031). Default
+    # OFF. Gates every read/write of the columns migrations/dt_taxonomy_v6_columns.sql
+    # adds (dt_error_instance.taxonomy_version / .explanation_variant): when on,
+    # _grade_v2 stamps taxonomy_version on every final error, the error insert
+    # whitelists both columns and _cached_grade reads them back; TASK-851 adds
+    # the remediation writers — scripts/dt_nightly_synthesis.py stamps
+    # dt_error_profile_entry.taxonomy_version and warns once per run on subtypes
+    # outside the active pair lists, cards.generate_cards_for_queued_entries
+    # stamps dt_card.taxonomy_version. It MUST stay off
+    # until that migration is applied live — PostgREST rejects an insert/select
+    # naming a column that does not exist, which would fail every graded
+    # submission. Turned on in the TASK-853 cutover runbook.
+    DT_TAXONOMY_COLUMNS = os.environ.get('DT_TAXONOMY_COLUMNS', 'False').lower() == 'true'
+
     # ==========================================================================
     # ELO & GAME CONSTANTS
     # ==========================================================================

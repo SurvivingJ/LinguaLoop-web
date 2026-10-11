@@ -37,6 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 
+from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.dual_translation import synthesis
 
@@ -125,7 +126,55 @@ def fetch_error_records(db, *, since: datetime, user_id: str | None = None) -> l
         })
     if dropped:
         logger.warning('%d error rows dropped: submission had no resolvable passage L2', dropped)
+    if Config.DT_TAXONOMY_COLUMNS:
+        _warn_on_legacy_subtypes(db, records)
     return records
+
+
+def _active_pair_subtypes(taxonomy_cfg: dict) -> set[str]:
+    """Every subtype slug in any of the active taxonomy's pair lists (per-pair
+    and L2-baseline keys alike — see grader_cascade._resolve_subtypes)."""
+    pairs = (taxonomy_cfg or {}).get('pairs', {}) or {}
+    return {s for pair in pairs.values() for s in (pair or {}).get('subtypes', [])}
+
+
+def _warn_on_legacy_subtypes(db, records: list[dict]) -> int:
+    """TASK-851 legacy-slug guard (ADR-031, user decision 3).
+
+    After the TASK-852 cutover rewrite every subtype-bearing row is in v6 names,
+    so a slug outside the active taxonomy's pair lists means the rewrite missed
+    a table or an old process is still grading under v5. Count them and log ONE
+    WARNING per run with the slug list. Detection only: the records are still
+    clustered as-is (no silent drop, no remap). Returns the offending row count.
+
+    Never blocks the sweep — if the active taxonomy cannot be read, that is
+    logged and the check is skipped.
+    """
+    from services.dual_translation import grader_cascade  # lazy: flag-on path only
+
+    try:
+        active = _active_pair_subtypes(grader_cascade.get_active_taxonomy(db))
+    except Exception as exc:  # noqa: BLE001 — a guard must not fail the nightly
+        logger.warning('DT synthesis: legacy-slug check skipped, active taxonomy unreadable: %s', exc)
+        return 0
+    if not active:
+        logger.warning('DT synthesis: legacy-slug check skipped, active taxonomy has no pair lists.')
+        return 0
+
+    legacy: dict[str, int] = {}
+    for r in records:
+        if r['subtype'] not in active:
+            legacy[r['subtype']] = legacy.get(r['subtype'], 0) + 1
+    total = sum(legacy.values())
+    if total:
+        logger.warning(
+            'DT synthesis: %d error rows carry subtypes outside the active taxonomy '
+            '(v%s) pair lists — clustered as-is; did the v6 history rewrite miss rows, '
+            'or is a process still grading under an old taxonomy? slugs=%s',
+            total, grader_cascade.get_active_taxonomy_version(db),
+            ', '.join(f'{s}={n}' for s, n in sorted(legacy.items())),
+        )
+    return total
 
 
 def fetch_existing_status(db, user_ids: list[str]) -> dict[tuple, str]:
@@ -144,8 +193,31 @@ def fetch_existing_status(db, user_ids: list[str]) -> dict[tuple, str]:
     }
 
 
+def _taxonomy_stamp(db) -> dict:
+    """``{'taxonomy_version': <active version>}`` to merge into every written
+    row, or ``{}``. Empty while ``Config.DT_TAXONOMY_COLUMNS`` is off (the column
+    may not exist yet — PostgREST would reject the whole upsert) and when the
+    version read fails (never overwrite a stamped row with NULL)."""
+    if not Config.DT_TAXONOMY_COLUMNS:
+        return {}
+    from services.dual_translation import grader_cascade  # lazy: flag-on path only
+
+    version = grader_cascade.get_active_taxonomy_version(db)
+    if version is None:
+        logger.warning('DT synthesis: active taxonomy version unreadable — profile rows written unstamped.')
+        return {}
+    return {'taxonomy_version': version}
+
+
 def upsert_profile_rows(db, rows: list[dict]) -> None:
-    """Upsert profile rows on the composite UNIQUE key, chunked."""
+    """Upsert profile rows on the composite UNIQUE key, chunked.
+
+    TASK-851: with ``Config.DT_TAXONOMY_COLUMNS`` on, every row is stamped with
+    the active ``dt_taxonomy_version.version`` (the vocabulary its ``subtype`` is
+    in). The caller's dicts are not mutated."""
+    stamp = _taxonomy_stamp(db)
+    if stamp:
+        rows = [{**r, **stamp} for r in rows]
     for i in range(0, len(rows), _CHUNK):
         chunk = rows[i:i + _CHUNK]
         db.table('dt_error_profile_entry').upsert(

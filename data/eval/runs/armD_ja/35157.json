@@ -1,0 +1,1331 @@
+{
+  "sense_id": 35157,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T18:49:35.389363+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[1] flagged (rating 3): 語域：「通じ合う」は重複的",
+    "P1 sentence[4] flagged (rating 3): 語域：「通じ合う」は重複的",
+    "P1 sentence[5] rejected (rating 2): 全単語：「通じる」は文字断片",
+    "P1 sentence[8] rejected (rating 2): 義項：物理的経路の別義"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.7061331272125244,
+    "p1_generate": 48.653523683547974,
+    "tier_gate": 20.66260004043579,
+    "p1_judge": 63.79279971122742,
+    "collocate_grounding": 0.0,
+    "fan_out": 47.225876808166504
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] flagged (rating 3): 語域：「通じ合う」は重複的",
+        "P1 sentence[4] flagged (rating 3): 語域：「通じ合う」は重複的",
+        "P1 sentence[5] rejected (rating 2): 全単語：「通じる」は文字断片",
+        "P1 sentence[8] rejected (rating 2): 義項：物理的経路の別義"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/tsuːdʑiɾu/",
+        "morphological_forms": [
+          {
+            "form": "通じた",
+            "label": "活用"
+          },
+          {
+            "form": "通じて",
+            "label": "活用"
+          },
+          {
+            "form": "通じない",
+            "label": "活用"
+          },
+          {
+            "form": "通じられる",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "つうじる",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35157
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "95daf052-311d-4169-870e-d14100243cfb",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "通じ",
+        "pronunciation": "つうじる",
+        "correct_definition": "物や気持ちが、離れた別のものとつながり合う。また、考えなどが広く行き渡る。",
+        "options": [
+          "相手の立場や考え方を大切にし、軽く見たりしないこと。",
+          "人や物事を区別したり、目印にしたりするための図形や記号のこと。",
+          "物や気持ちが、離れた別のものとつながり合う。また、考えなどが広く行き渡る。",
+          "目標や目的地に達すること。また、その程度。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "4e889d31-6da8-4910-b95e-ea092be85420",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "作り手の温かい気持ちが丁寧に織り込まれることで、完成した衣服は着る人の心と深く___、長く愛されるものになります。",
+        "original_sentence": "作り手の温かい気持ちが丁寧に織り込まれることで、完成した衣服は着る人の心と深く通じ、長く愛されるものになります。",
+        "correct_answer": "通じ",
+        "options": [
+          "届き",
+          "響き",
+          "通じ",
+          "達し"
+        ],
+        "explanation": "正解です。",
+        "distractor_tags": {},
+        "word_definition": "物や気持ちが、離れた別のものとつながり合う。また、考えなどが広く行き渡る。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c3359278-a8a8-43f5-9697-c0410f772888",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "言葉が不自由な相手であっても、真心を込めれば必ず心が___合えると信じています。",
+        "original_sentence": "言葉が不自由な相手であっても、真心を込めれば必ず心が通じ合えると信じています。",
+        "correct_answer": "通じ",
+        "base_form": "通じる",
+        "form_label": "連用形",
+        "options": [
+          "通じて",
+          "通じる",
+          "通じた",
+          "通じ"
+        ],
+        "explanation": "「合う」に接続して複合動詞を作るには連用形が必要",
+        "word_definition": "物や気持ちが、離れた別のものとつながり合う。また、考えなどが広く行き渡る。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "75730b73-78e5-4968-95ab-103d86cfd264",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼の熱意は周囲のスタッフにも十分に通じており、チーム一丸となってプロジェクトに取り組んでいます。",
+            "is_correct": true
+          },
+          {
+            "text": "作り手の温かい気持ちが丁寧に織り込まれることで、完成した衣服は着る人の心と深く通じ、長く愛されるものになります。",
+            "is_correct": true
+          },
+          {
+            "text": "私の気持ちは彼に通じないです。",
+            "is_correct": false,
+            "error_description": "動詞「通じる」の否定形は「通じない」ですが、丁寧な文脈では「ないです」ではなく「ません」を使うのが自然です。"
+          },
+          {
+            "text": "言葉が不自由な相手であっても、真心を込めれば必ず心が通じ合えると信じています。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "319678cc-d3dd-4961-878f-60e5218dda48",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "通じ",
+        "pronunciation": "つうじる",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "地面からまっすぐにのびて、上に枝や葉がある、大きい植物です。",
+              "物や気持ちが、離れた別のものとつながり合う。また、考えなどが広く行き渡る。",
+              "clear; obvious — leaving no room for doubt, very plain",
+              "a limit"
+            ],
+            "correct_answer": "物や気持ちが、離れた別のものとつながり合う。また、考えなどが広く行き渡る。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "d43536f1-28aa-45eb-9aec-998ae5c8b69c",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "言葉が不自由な相手であっても、真心を込めれば必ず心が___合えると信じています。",
+        "original_sentence": "言葉が不自由な相手であっても、真心を込めれば必ず心が通じ合えると信じています。",
+        "target_word": "通じ",
+        "word": "通じ",
+        "answer": {
+          "accepted": [
+            "通じ",
+            "通じた",
+            "通じて",
+            "通じない",
+            "通じられる"
+          ],
+          "accepted_normalized": [
+            "通じ",
+            "通じた",
+            "通じて",
+            "通じない",
+            "通じられる"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "99155c60-07dc-4df1-ab0d-6bba43ac1f1a",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "通ずる",
+        "options": [
+          "つうしる",
+          "つうじる",
+          "づうじる",
+          "つじる"
+        ],
+        "correct_answer": "つうじる",
+        "word": "通ずる",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ad43edc3-2f2c-4891-b800-b8c809ec509e",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "つうじる",
+        "options": [
+          "迎え角",
+          "間違い",
+          "風通し",
+          "通ずる"
+        ],
+        "correct_answer": "通ずる",
+        "word": "通ずる",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "風通し": "component",
+          "迎え角": "component",
+          "間違い": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ed3cd8de-a99f-44fb-828e-b41c14679c78",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "言葉___不自由な相手であっても、真心を込めれば必ず心が通じ合えると信じています。",
+        "original_sentence": "言葉が不自由な相手であっても、真心を込めれば必ず心が通じ合えると信じています。",
+        "options": [
+          "で",
+          "を",
+          "が",
+          "に"
+        ],
+        "correct_answer": "が",
+        "target_word": "通じ",
+        "error_tags": {
+          "を": "object_marking",
+          "に": "direction",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "自動詞「通じ合う」の主語を標示する格助詞として正しい"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3563a3f5-77b0-4594-bb72-b1508b2e9e64",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "通じ",
+        "relation": "antonym",
+        "options": [
+          "伝わる",
+          "すれ違う",
+          "理解する",
+          "届く"
+        ],
+        "correct_answer": "すれ違う",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物や気持ちが、離れた別のものとつながり合う。また、考えなどが広く行き渡る。",
+            "explanation": "互いの気持ちや意見が一致せず食い違うため、つながり合うことの対義となる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "伝わる": 0.509895,
+            "届く": 0.526633
+          }
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a3aa44da-4e8c-4668-85e4-2f57f1510981",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "毎日丁寧に世話をする中で植物と心が___、美しい花が咲いた時には、育てた人にとって大きな喜びと達成感をもたらしてくれます。",
+        "original_sentence": "毎日丁寧に世話をする中で植物と心が通じ、美しい花が咲いた時には、育てた人にとって大きな喜びと達成感をもたらしてくれます。",
+        "correct_answer": "通じ",
+        "options": [
+          "通じ",
+          "通し",
+          "届き",
+          "合わせ"
+        ],
+        "explanation": "正解です。文脈から、植物と作り手の心が意思疎通し、つながり合うという意味で「通じ」が最も適切です。",
+        "distractor_tags": {},
+        "word_definition": "物や気持ちが、離れた別のものとつながり合う。また、考えなどが広く行き渡る。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "e986bdbc-41f2-464e-ae8e-16aaf37f30d8",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼の考えは多くの人に広く通じている。",
+            "is_correct": true
+          },
+          {
+            "text": "彼の考えは多くの人に広く通じだ。",
+            "is_correct": false
+          },
+          {
+            "text": "彼の考えは多くの人に広く通じてある。",
+            "is_correct": false
+          },
+          {
+            "text": "彼の考えは多くの人に広くを通じている。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "活用・アスペクトの誤り：「通じる」は状態変化や到達を表す動詞であり、結果の状態を「てある」で表すのは不自然です。「通じている」や「通じている」が適切です。 助詞の混同：「通じる」は「に」や「へ」の格助詞を取って到達先を示します。「を」を使うと、通り道や媒体を通過する意味（例：窓を通じる）になり、考えが行き渡る意味とは異なります。 語域の誤り：「だ」は常体（タメ口）の断定の助動詞であり、文末で「通じ」の連用形に直接接続することはできません。「通じた」や「通じている」が適切です。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b1af9410-0ff6-44da-acca-1488b73a7e1a",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼の考えは多くの人に広く通じている。",
+            "is_correct": true
+          },
+          {
+            "text": "言葉はなくても、お互いの気持ちがしっかりに通じている。",
+            "is_correct": false,
+            "error_description": "副詞「しっかり」の後に「の」を入れるのは誤りです。副詞を修飾する場合、「しっかり通じている」とするのが正しい日本語です。"
+          },
+          {
+            "text": "言葉はなくても、お互いの気持ちがしっかり通じている。",
+            "is_correct": true
+          },
+          {
+            "text": "毎日丁寧に世話をする中で植物と心が通じ、美しい花が咲いた時には、育てた人にとって大きな喜びと達成感をもたらしてくれます。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "37945315-da04-4462-82c2-219ce86920a8",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "言葉はなくても、お互いの気持ちがしっかり___ている。",
+        "original_sentence": "言葉はなくても、お互いの気持ちがしっかり通じている。",
+        "target_word": "通じ",
+        "word": "通じ",
+        "answer": {
+          "accepted": [
+            "通じ"
+          ],
+          "accepted_normalized": [
+            "通じ"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    },
+    "particle": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '通じ' is fused into a neighbouring chunk — chunks=['長年の', '努力が実り', 'ようやく私の', '考えが', '上司にも', '通じるようになりました']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '通じ' is fused into a neighbouring chunk — chunks=['自分の手で丁寧に素材と', '向き合うことで', '完成した作品は', '作り手の思いと', 'しっかりと通じ毎日の', '生活に喜びを与えてくれます']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "no generated asset for this variant"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0044672,
+      "prompt_tokens": 2984,
+      "completion_tokens": 2744,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 47997
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001616,
+      "prompt_tokens": 462,
+      "completion_tokens": 1147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20541
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00188608,
+      "prompt_tokens": 938,
+      "completion_tokens": 1239,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22182
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00163616,
+      "prompt_tokens": 453,
+      "completion_tokens": 1165,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20949
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00168864,
+      "prompt_tokens": 713,
+      "completion_tokens": 1141,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20133
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176064,
+      "prompt_tokens": 834,
+      "completion_tokens": 1167,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20633
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00202496,
+      "prompt_tokens": 1780,
+      "completion_tokens": 1137,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20806
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176448,
+      "prompt_tokens": 754,
+      "completion_tokens": 1190,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21289
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00178016,
+      "prompt_tokens": 823,
+      "completion_tokens": 1185,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21367
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00193728,
+      "prompt_tokens": 1102,
+      "completion_tokens": 1238,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22044
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0026592,
+      "prompt_tokens": 1770,
+      "completion_tokens": 1635,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 29588
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00325056,
+      "prompt_tokens": 2782,
+      "completion_tokens": 1844,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 32314
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176448,
+      "prompt_tokens": 774,
+      "completion_tokens": 1185,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21205
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00430016,
+      "prompt_tokens": 2782,
+      "completion_tokens": 2664,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1882,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 46965
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184608,
+      "prompt_tokens": 825,
+      "completion_tokens": 1236,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22019
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016608,
+      "prompt_tokens": 398,
+      "completion_tokens": 57,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 3616
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001632,
+      "prompt_tokens": 708,
+      "completion_tokens": 1098,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20431
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00151168,
+      "prompt_tokens": 520,
+      "completion_tokens": 1051,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19790
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00164832,
+      "prompt_tokens": 603,
+      "completion_tokens": 1137,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20478
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00161696,
+      "prompt_tokens": 633,
+      "completion_tokens": 1105,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19702
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "call_role": "json_repair",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": null
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017228,
+      "prompt_tokens": 403,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 9729
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00167808,
+      "prompt_tokens": 704,
+      "completion_tokens": 1135,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20125
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001056,
+      "prompt_tokens": 520,
+      "completion_tokens": 695,
+      "cached_tokens": 0,
+      "reasoning_tokens": 665,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 12565
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160672,
+      "prompt_tokens": 633,
+      "completion_tokens": 1097,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19557
+    }
+  ],
+  "llm_calls_observed": 25,
+  "llm_cost_observed_usd": 0.045470199999999995,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [
+    {
+      "judge": "l1_distractor_judge",
+      "error_class": "parse_error",
+      "message": "l1_distractor_judge: LLM call failed, keep all: Expecting ',' delimiter: line 33 column 4 (char 528)",
+      "logger": "services.exercise_generation.judges.l1_distractor",
+      "stage": "render"
+    }
+  ],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 3,
+    "repaired": 3,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "grounding deferred for this language — no frequency source"
+  },
+  "wall_clock_s": 400.0929999999935,
+  "finished_at": "2026-10-05T18:56:15.484994+00:00"
+}

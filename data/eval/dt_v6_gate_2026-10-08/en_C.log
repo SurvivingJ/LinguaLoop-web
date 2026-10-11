@@ -1,0 +1,46 @@
+=== 2026-10-08T20:26:58+11:00 START en C limit=0
+[plan] L2=en L1=zh fixture-set=v6_silver items=35 (clean 6 / single 26 / multi 3) framework=v2
+[taxonomy] candidate v6 parsed from migrations/dt_taxonomy_v6_seed.sql: 9 pair keys; baseline subtypes en=20 ja=23 zh=20
+[taxonomy] candidate v6 pre-seeded into the config cache (live DB taxonomy untouched)
+[resume] loaded 0 graded + 0 skipped from data/eval/dt_v6_gate_2026-10-08/en_C.ckpt.jsonl
+[1/35] en_silver_01 kind=clean pred_errors=1 tier=tier2 fell_open=False
+[2/35] en_silver_02 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[3/35] en_silver_03 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[4/35] en_silver_04 kind=clean pred_errors=1 tier=tier2 fell_open=False
+[5/35] en_silver_05 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[6/35] en_silver_06 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[7/35] en_silver_07 kind=single pred_errors=1 tier=tier2 fell_open=False
+[8/35] en_silver_08 kind=single pred_errors=1 tier=tier2 fell_open=False
+[9/35] en_silver_09 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 20:27:32,850 - WARNING - dual_translation.grader_cascade: verifier response from 'google/gemini-3.5-flash-lite' was not valid JSON (Extra data: line 1 column 315 (char 314)): '```json\n{"confidence": "1.0", "verdicts": [{"error_index": 0, "verdict": 0, "severity": 1, "subtype": 12, "span_repro": [48, 51], "span_ref": [45, 47]}], "added_errors": [], "judgments": {"naturalne
+[10/35] en_silver_10 kind=single pred_errors=1 tier=tier2 fell_open=True
+[11/35] en_silver_11 kind=single pred_errors=1 tier=tier2 fell_open=False
+[12/35] en_silver_12 kind=single pred_errors=1 tier=tier2 fell_open=False
+[13/35] en_silver_13 kind=single pred_errors=1 tier=tier2 fell_open=False
+[14/35] en_silver_14 kind=single pred_errors=1 tier=tier2 fell_open=False
+[15/35] en_silver_15 kind=single pred_errors=2 tier=tier2 fell_open=False
+[16/35] en_silver_16 kind=single pred_errors=1 tier=tier2 fell_open=False
+[17/35] en_silver_17 kind=single pred_errors=1 tier=tier2 fell_open=False
+[18/35] en_silver_18 kind=single pred_errors=1 tier=tier2 fell_open=False
+[19/35] en_silver_19 kind=single pred_errors=1 tier=tier2 fell_open=False
+[20/35] en_silver_20 kind=single pred_errors=1 tier=tier2 fell_open=False
+[21/35] en_silver_21 kind=single pred_errors=1 tier=tier2 fell_open=False
+[22/35] en_silver_22 kind=single pred_errors=1 tier=tier2 fell_open=False
+[23/35] en_silver_23 kind=single pred_errors=1 tier=tier2 fell_open=False
+[24/35] en_silver_24 kind=single pred_errors=1 tier=tier2 fell_open=False
+[25/35] en_silver_25 kind=single pred_errors=1 tier=tier2 fell_open=False
+[26/35] en_silver_26 kind=single pred_errors=1 tier=tier2 fell_open=False
+[27/35] en_silver_27 kind=single pred_errors=1 tier=tier2 fell_open=False
+[28/35] en_silver_28 kind=single pred_errors=1 tier=tier2 fell_open=False
+[29/35] en_silver_29 kind=single pred_errors=1 tier=tier2 fell_open=False
+[30/35] en_silver_30 kind=single pred_errors=1 tier=tier2 fell_open=False
+[31/35] en_silver_31 kind=single pred_errors=1 tier=tier2 fell_open=False
+[32/35] en_silver_32 kind=single pred_errors=1 tier=tier2 fell_open=False
+[33/35] en_silver_33 kind=multi pred_errors=4 tier=tier2 fell_open=False
+[34/35] en_silver_34 kind=multi pred_errors=4 tier=tier2 fell_open=False
+[35/35] en_silver_35 kind=multi pred_errors=2 tier=tier2 fell_open=False
+
+[done] wrote data/eval/dt_v6_gate_2026-10-08/en_C.md
+  span F1=0.946  clean FP rate=0.333  overall QWK=0.860  cost=$0.0771
+  meaning_inversion recall=0.875  exemplar drops=0  no-template lines=0
+=== 2026-10-08T20:29:27+11:00 END en C rc=0

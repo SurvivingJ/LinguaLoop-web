@@ -1,0 +1,1189 @@
+{
+  "sense_id": 34999,
+  "language_id": 3,
+  "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+  "started_at": "2026-10-05T17:27:24.604060+00:00",
+  "status": "partial",
+  "errors": [
+    "[A] Level 7: incorrect_sentence and corrected_sentence are identical"
+  ],
+  "warnings": [
+    "P1 sentence[2] rejected (rating 2): 語域：plain調で逸脱"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.0984957218170166,
+    "p1_generate": 37.467061042785645,
+    "tier_gate": 0.0039730072021484375,
+    "p1_judge": 70.37682127952576,
+    "collocate_grounding": 0.0,
+    "fan_out": 43.2739520072937
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[2] rejected (rating 2): 語域：plain調で逸脱"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/iti/",
+        "morphological_forms": [
+          {
+            "form": "一つ",
+            "label": "派生"
+          },
+          {
+            "form": "一度",
+            "label": "派生"
+          },
+          {
+            "form": "一人",
+            "label": "派生"
+          },
+          {
+            "form": "第一",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "いち",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            34999
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "c0b4c87d-33bf-4935-a2f3-0d1b640b11ae",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "一",
+        "pronunciation": "いち",
+        "ipa": "/iti/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "未知",
+          "蜜",
+          "イイ",
+          "一"
+        ],
+        "correct_answer": "一",
+        "explanation": "正解です。「一」は「数や順番の最初。一つだけ。」という意味です。",
+        "distractor_explanations": {
+          "イイ": "「イイ」は「一」と一モーラだけ異なる実在語です（2モーラ目: 「ち」→「い」、一部の音の違い）。",
+          "蜜": "「蜜」は「一」と一モーラだけ異なる実在語です（1モーラ目: 「い」→「み」、一部の音の違い）。",
+          "未知": "「未知」は「一」と一モーラだけ異なる実在語です（1モーラ目: 「い」→「み」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 6,
+          "kept": 4,
+          "rejected_items": [
+            "歩行",
+            "海驢",
+            "医者",
+            "多智",
+            "唯唯",
+            "イニ"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "08890211-af7a-4293-a6a3-5ee431113513",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "一",
+        "pronunciation": "いち",
+        "correct_definition": "数や順番の最初。一つだけ。",
+        "options": [
+          "製品を機械や人の力でたくさん作るところ。",
+          "七日間続く期間のことです",
+          "物事を細かいところまで注意して、相手に失礼のないように行うこと。また、念入りにすること。",
+          "数や順番の最初。一つだけ。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "9894874b-09b0-47d7-8c8e-82fda03ab9c6",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "こうして、計算の最終的な答えは「___」になりました。",
+        "original_sentence": "こうして、計算の最終的な答えは「一」になりました。",
+        "correct_answer": "一",
+        "options": [
+          "一",
+          "二",
+          "十",
+          "百"
+        ],
+        "explanation": "文脈に合う正しい数字の表記です。",
+        "distractor_tags": {},
+        "word_definition": "数や順番の最初。一つだけ。",
+        "target_word": "一"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "f2bd719f-4c45-4941-a045-a33dfd0fb7f3",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "数字の「一」は、すべての整数の始まりとなる重要な存在です。",
+            "is_correct": true
+          },
+          {
+            "text": "彼女はクラスに一位になった。",
+            "is_correct": false,
+            "error_description": "範囲を表す「で」を使うべきところを「に」にしている誤り。"
+          },
+          {
+            "text": "親である私にできるのは、子供が「一」という数字を初めて書く姿を、ただ静かに、そして確かな祈りを込めて見守ることだけだ。",
+            "is_correct": true
+          },
+          {
+            "text": "こうして、計算の最終的な答えは「一」になりました。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "2477cd07-cda6-434c-8cd6-4b9d35d163bf",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "一",
+        "pronunciation": "いち",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "数や順番の最初。一つだけ。",
+              "升力",
+              "开启 —— 电器开关处于接通状态，也指连接到网络",
+              "ある物や事が、他の物や事に与える影響や働きかけ。"
+            ],
+            "correct_answer": "数や順番の最初。一つだけ。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "09c5c02c-0284-4216-9461-ae7afa1aed44",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "数字の「___」は、すべての整数の始まりとなる重要な存在です。",
+        "original_sentence": "数字の「一」は、すべての整数の始まりとなる重要な存在です。",
+        "target_word": "一",
+        "word": "一",
+        "answer": {
+          "accepted": [
+            "一"
+          ],
+          "accepted_normalized": [
+            "一"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "fc52327f-09c3-4f8a-9212-bde0eb8b2b82",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "一",
+        "options": [
+          "いち",
+          "いいち",
+          "いちい",
+          "いぢ"
+        ],
+        "correct_answer": "いち",
+        "word": "一",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "d751ce7b-2be7-48ca-82de-3c689da4a809",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "いち",
+        "options": [
+          "位置",
+          "方",
+          "4",
+          "一"
+        ],
+        "correct_answer": "一",
+        "word": "一",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "位置": "homophone",
+          "4": "frequency",
+          "方": "frequency"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "27e07443-6485-4543-b411-8f4bbb2a643d",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "数字___「一」は、すべての整数の始まりとなる重要な存在です。",
+        "original_sentence": "数字の「一」は、すべての整数の始まりとなる重要な存在です。",
+        "options": [
+          "に",
+          "の",
+          "が",
+          "を"
+        ],
+        "correct_answer": "の",
+        "target_word": "一",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "に": "location_vs_target",
+          "を": "object_marking"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "名詞「数字」を名詞「一」に接続し、属性・帰属を表す連体修飾の格助詞"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b76bd178-4c39-4fa7-93ff-1adedd29358c",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "足し算の計算では、最後に「___」を忘れないように注意してください。",
+        "original_sentence": "足し算の計算では、最後に「一」を忘れないように注意してください。",
+        "correct_answer": "一",
+        "options": [
+          "数字",
+          "足し",
+          "一",
+          "答え"
+        ],
+        "explanation": "正解です。文脈から、足し算の計算結果としての数字「一」が入ります。",
+        "distractor_tags": {},
+        "word_definition": "数や順番の最初。一つだけ。",
+        "target_word": "一"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "4e7e6318-a082-4290-910f-d910fcd7a57a",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "彼はサイコロを振り、出た目の「___」を見て静かに微笑みました。",
+        "original_sentence": "彼はサイコロを振り、出た目の「一」を見て静かに微笑みました。",
+        "target_word": "一",
+        "word": "一",
+        "answer": {
+          "accepted": [
+            "一"
+          ],
+          "accepted_normalized": [
+            "一"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "9eb41d39-d657-4155-a105-3ee313310834",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "彼はサイコロ___振り、出た目の「一」を見て静かに微笑みました。",
+        "original_sentence": "彼はサイコロを振り、出た目の「一」を見て静かに微笑みました。",
+        "options": [
+          "に",
+          "が",
+          "を",
+          "で"
+        ],
+        "correct_answer": "を",
+        "target_word": "一",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "に": "location_vs_target",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「見る」の直接目的語を標示する格助詞が正しい"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 34999,
+      "word_asset_id": "shadow-34999-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 6,
+      "kept": 4
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    },
+    "particle": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '一' is fused into a neighbouring chunk — chunks=['彼は', 'トランプの', 'カードの', '中から慎重に', '一だけを', '抜き出しました']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '一' is fused into a neighbouring chunk — chunks=['私は毎日', '黒板に一と', 'いう文字だけ', 'を', '丁寧に書いて', 'います']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.003528,
+      "prompt_tokens": 2653,
+      "completion_tokens": 2093,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 36557
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019648,
+      "prompt_tokens": 764,
+      "completion_tokens": 1344,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 23978
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00179872,
+      "prompt_tokens": 461,
+      "completion_tokens": 1290,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 22891
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00190944,
+      "prompt_tokens": 815,
+      "completion_tokens": 1288,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 22942
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00205216,
+      "prompt_tokens": 1741,
+      "completion_tokens": 1168,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 20750
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00202656,
+      "prompt_tokens": 1737,
+      "completion_tokens": 1149,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 21154
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00187328,
+      "prompt_tokens": 1046,
+      "completion_tokens": 1202,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 21440
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00190976,
+      "prompt_tokens": 1044,
+      "completion_tokens": 1231,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 21784
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00310848,
+      "prompt_tokens": 2742,
+      "completion_tokens": 1743,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 31283
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00311744,
+      "prompt_tokens": 2742,
+      "completion_tokens": 1750,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 31438
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174784,
+      "prompt_tokens": 750,
+      "completion_tokens": 1178,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 20949
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001776,
+      "prompt_tokens": 754,
+      "completion_tokens": 1199,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 21447
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00187232,
+      "prompt_tokens": 819,
+      "completion_tokens": 1258,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 22039
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00015804,
+      "prompt_tokens": 369,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 4970
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160928,
+      "prompt_tokens": 649,
+      "completion_tokens": 1095,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 19769
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00062016,
+      "prompt_tokens": 498,
+      "completion_tokens": 360,
+      "cached_tokens": 0,
+      "reasoning_tokens": 333,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 6813
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00164992,
+      "prompt_tokens": 596,
+      "completion_tokens": 1140,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 20188
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016016,
+      "prompt_tokens": 617,
+      "completion_tokens": 1097,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 19823
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00187072,
+      "prompt_tokens": 818,
+      "completion_tokens": 1257,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 22179
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016524,
+      "prompt_tokens": 379,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 10080
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00162784,
+      "prompt_tokens": 675,
+      "completion_tokens": 1103,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 19613
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00151168,
+      "prompt_tokens": 540,
+      "completion_tokens": 1046,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 18734
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00165184,
+      "prompt_tokens": 598,
+      "completion_tokens": 1141,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 20402
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160544,
+      "prompt_tokens": 617,
+      "completion_tokens": 1100,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 34999,
+      "generation_batch_id": "eb22f16b-71c5-4bcf-a4d2-adf4bbc81f8a",
+      "language_code": "ja",
+      "latency_ms": 19627
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.042756560000000006,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 360.204000000027,
+  "finished_at": "2026-10-05T17:33:24.802900+00:00"
+}

@@ -1,0 +1,1353 @@
+{
+  "sense_id": 10111,
+  "language_id": 1,
+  "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+  "started_at": "2026-10-04T05:08:43.924125+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.16591930389404297,
+    "p1_generate": 14.43150782585144,
+    "tier_gate": 0.0,
+    "p1_judge": 8.449039220809937,
+    "collocate_grounding": 0.0,
+    "fan_out": 13.080358743667603
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ʈʂʰʊŋ˧˥ fu˥˩]",
+        "morphological_forms": [
+          {
+            "form": "重复了",
+            "label": "体标"
+          },
+          {
+            "form": "重复过",
+            "label": "体标"
+          },
+          {
+            "form": "重复着",
+            "label": "体标"
+          },
+          {
+            "form": "重複",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "chóng fù",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10111
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "80f64bdd-edfb-4eaf-bdf3-33b70ddca266",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "重复",
+        "pronunciation": "chóng fù",
+        "correct_definition": "表示某个动作或情况再次出现或进行第二次。",
+        "options": [
+          "表示彼此之间对等地进行某种动作或具有某种关系。",
+          "指事物所具有的独特滋味或气味，也常用来比喻事物的特色或风格。",
+          "表示某个动作或情况再次出现或进行第二次。",
+          "特质指某人或某事物独有的、区别于其他的特征或性质。"
+        ],
+        "hant": {
+          "word": "重複",
+          "pronunciation": "chóng fù",
+          "correct_definition": "表示某個動作或情況再次出現或進行第二次。",
+          "options": [
+            "表示彼此之間對等地進行某種動作或具有某種關係。",
+            "指事物所具有的獨特滋味或氣味，也常用來比喻事物的特色或風格。",
+            "表示某個動作或情況再次出現或進行第二次。",
+            "特質指某人或某事物獨有的、區別於其他的特徵或性質。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5ef58dfd-4977-46a1-8266-0b10efb29bd2",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "他重复着刚才说过的话，希望我能听懂。",
+        "hant": {
+          "original_sentence": "他重複著剛才說過的話，希望我能聽懂。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "81822cf2-d540-4422-92c5-c267134fd183",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "重复",
+        "pronunciation": "chóng fù",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "很小的，不严重。",
+              "〜しなくていい",
+              "表示某个动作或情况再次出现或进行第二次。",
+              "指生物为了寻找更好的生活环境或食物，从一个地区转移到另一个地区的现象。"
+            ],
+            "correct_answer": "表示某个动作或情况再次出现或进行第二次。"
+          }
+        },
+        "hant": {
+          "word": "重複",
+          "pronunciation": "chóng fù",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "很小的，不嚴重。",
+                "〜しなくていい",
+                "表示某個動作或情況再次出現或進行第二次。",
+                "指生物為了尋找更好的生活環境或食物，從一個地區轉移到另一個地區的現象。"
+              ],
+              "correct_answer": "表示某個動作或情況再次出現或進行第二次。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "eeecd7c4-1b3a-4c83-81cf-b0a79d875db4",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "为了避免内容单调，请不要___使用相同的例子。",
+        "original_sentence": "为了避免内容单调，请不要重复使用相同的例子。",
+        "target_word": "重复",
+        "word": "重复",
+        "answer": {
+          "accepted": [
+            "重复",
+            "重复了",
+            "重复过",
+            "重复着"
+          ],
+          "accepted_normalized": [
+            "重复",
+            "重复了",
+            "重复过",
+            "重复着"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "為了避免內容單調，請不要___使用相同的例子。",
+          "original_sentence": "為了避免內容單調，請不要重複使用相同的例子。",
+          "target_word": "重複",
+          "word": "重複",
+          "answer": {
+            "accepted": [
+              "重複",
+              "重複了",
+              "重複過",
+              "重複著"
+            ],
+            "accepted_normalized": [
+              "重複",
+              "重複了",
+              "重複過",
+              "重複著"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a5966305-de87-4c4b-8eb8-5438e5c19eb9",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "重复",
+        "options": [
+          "chóng fù",
+          "chóng fū",
+          "chōng fù",
+          "chóng fú"
+        ],
+        "correct_answer": "chóng fù",
+        "word": "重复",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "重複",
+          "options": [
+            "chóng fù",
+            "chóng fū",
+            "chōng fù",
+            "chóng fú"
+          ],
+          "correct_answer": "chóng fù",
+          "word": "重複",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "a372da77-beb2-482b-90c6-bff6c4902675",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "chóng fù",
+        "options": [
+          "重量",
+          "重复",
+          "处理",
+          "设备"
+        ],
+        "correct_answer": "重复",
+        "word": "重复",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "重量": "component",
+          "处理": "component",
+          "设备": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "chóng fù",
+          "options": [
+            "重量",
+            "重複",
+            "處理",
+            "裝置"
+          ],
+          "correct_answer": "重複",
+          "word": "重複",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "重量": "component",
+            "处理": "component",
+            "设备": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "c6f39ecb-d0e0-4b5b-b394-16efc9c38780",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "重复",
+        "toneless_pinyin": "chong fu",
+        "full_pinyin": "chóng fù",
+        "options": [
+          "24",
+          "22",
+          "23",
+          "21"
+        ],
+        "correct_answer": "24",
+        "option_labels": {
+          "24": "rising (2) + falling (4)",
+          "22": "rising (2) + rising (2)",
+          "23": "rising (2) + dipping (3)",
+          "21": "rising (2) + high level (1)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "重複",
+          "toneless_pinyin": "chong fu",
+          "full_pinyin": "chóng fù",
+          "options": [
+            "24",
+            "22",
+            "23",
+            "21"
+          ],
+          "correct_answer": "24",
+          "option_labels": {
+            "24": "rising (2) + falling (4)",
+            "22": "rising (2) + rising (2)",
+            "23": "rising (2) + dipping (3)",
+            "21": "rising (2) + high level (1)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ff3bde4a-1f23-451e-abe1-c724583300fb",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "重复",
+        "relation": "antonym",
+        "options": [
+          "继续",
+          "练习",
+          "模仿",
+          "创新"
+        ],
+        "correct_answer": "创新",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "表示某个动作或情况再次出现或进行第二次。",
+            "explanation": "“重复”指照原样再次进行，“创新”指创造新的事物或方法，二者在动作性质上构成反义关系。"
+          }
+        },
+        "hant": {
+          "word": "重複",
+          "relation": "antonym",
+          "options": [
+            "繼續",
+            "練習",
+            "模仿",
+            "創新"
+          ],
+          "correct_answer": "創新",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "表示某個動作或情況再次出現或進行第二次。",
+              "explanation": "“重複”指照原樣再次進行，“創新”指創造新的事物或方法，二者在動作性質上構成反義關係。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "继续": 0.543514,
+            "模仿": 0.452255,
+            "练习": 0.549964
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "4a8cfc13-2f35-4800-89a3-f9947153e50a",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "这种错误不应该在作业里___出现。",
+        "original_sentence": "这种错误不应该在作业里重复出现。",
+        "correct_answer": "重复",
+        "options": [
+          "继续",
+          "坚持",
+          "保持",
+          "重复"
+        ],
+        "explanation": "正确。'重复出现'指同样的错误再次发生，符合语境。",
+        "distractor_tags": {},
+        "word_definition": "表示某个动作或情况再次出现或进行第二次。",
+        "target_word": "重复",
+        "hant": {
+          "sentence_with_blank": "這種錯誤不應該在作業裡___出現。",
+          "original_sentence": "這種錯誤不應該在作業裡重複出現。",
+          "correct_answer": "重複",
+          "options": [
+            "繼續",
+            "堅持",
+            "保持",
+            "重複"
+          ],
+          "explanation": "正確。'重複出現'指同樣的錯誤再次發生，符合語境。",
+          "distractor_tags": {},
+          "word_definition": "表示某個動作或情況再次出現或進行第二次。",
+          "target_word": "重複"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "343f0af2-4e8c-4a26-9f12-eed48b3439bc",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "不要总是对别人的观点重复去。",
+            "is_correct": false
+          },
+          {
+            "text": "不要总是重复着别人的观点已经。",
+            "is_correct": false
+          },
+          {
+            "text": "不要总是重复别人的观点，要有自己的想法。",
+            "is_correct": true
+          },
+          {
+            "text": "不要总是把别人的观点重复有。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语法错误：'有'不能作为结果补语与'重复'搭配，应改为'重复别人的观点'或'重复出...'（视具体语境），此处结构混乱。 语序错误：时间副词或完成态标记'已经'位置错误，不应置于句末，且与'着'（进行态）冲突。 补语误用：'去'作为趋向补语表示离开说话人方向，与'重复'这一抽象认知行为搭配不当，语义不通。",
+        "target_word": "重复",
+        "hant": {
+          "sentences": [
+            {
+              "text": "不要總是對別人的觀點重複去。",
+              "is_correct": false
+            },
+            {
+              "text": "不要總是重複著別人的觀點已經。",
+              "is_correct": false
+            },
+            {
+              "text": "不要總是重複別人的觀點，要有自己的想法。",
+              "is_correct": true
+            },
+            {
+              "text": "不要總是把別人的觀點重複有。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語法錯誤：'有'不能作為結果補語與'重複'搭配，應改為'重複別人的觀點'或'重複出...'（視具體語境），此處結構混亂。 語序錯誤：時間副詞或完成態標記'已經'位置錯誤，不應置於句末，且與'著'（進行態）衝突。 補語誤用：'去'作為趨向補語表示離開說話人方向，與'重複'這一抽象認知行為搭配不當，語義不通。",
+          "target_word": "重複"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5e992802-44d0-47fc-bf53-898bea01301d",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "这项实验需要重复多次，以确保结果的准确性。",
+        "hant": {
+          "original_sentence": "這項實驗需要重複多次，以確保結果的準確性。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "a148ec22-22d9-47c7-bddc-d315c747ab88",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "请你___一下刚才的问题，我没听清。",
+        "original_sentence": "请你重复一下刚才的问题，我没听清。",
+        "target_word": "重复",
+        "word": "重复",
+        "answer": {
+          "accepted": [
+            "重复",
+            "重复了",
+            "重复过",
+            "重复着"
+          ],
+          "accepted_normalized": [
+            "重复",
+            "重复了",
+            "重复过",
+            "重复着"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "請你___一下剛才的問題，我沒聽清。",
+          "original_sentence": "請你重複一下剛才的問題，我沒聽清。",
+          "target_word": "重複",
+          "word": "重複",
+          "answer": {
+            "accepted": [
+              "重複",
+              "重複了",
+              "重複過",
+              "重複著"
+            ],
+            "accepted_normalized": [
+              "重複",
+              "重複了",
+              "重複過",
+              "重複著"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "318a58e6-1f28-4ecd-83f6-591c349509f9",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "重复",
+        "relation": "antonym",
+        "options": [
+          "创新",
+          "继续",
+          "模仿",
+          "练习"
+        ],
+        "correct_answer": "创新",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "表示某个动作或情况再次出现或进行第二次。",
+            "explanation": "反义词：指创造新的事物或方法，与‘再次出现’的重复义相对。"
+          }
+        },
+        "hant": {
+          "word": "重複",
+          "relation": "antonym",
+          "options": [
+            "創新",
+            "繼續",
+            "模仿",
+            "練習"
+          ],
+          "correct_answer": "創新",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "表示某個動作或情況再次出現或進行第二次。",
+              "explanation": "反義詞：指創造新的事物或方法，與‘再次出現’的重複義相對。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "模仿": 0.452255,
+            "继续": 0.543514,
+            "练习": 0.549964
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10111,
+      "word_asset_id": "shadow-10111-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '重复' is fused into a neighbouring chunk — chunks=['他', '重复着刚才', '说过的话', '希望我', '能听懂']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '重复' is fused into a neighbouring chunk — chunks=['这项', '实验需要重复多次', '以确保结果的准确性']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175968,
+      "prompt_tokens": 2519,
+      "completion_tokens": 745,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 14211
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004592,
+      "prompt_tokens": 691,
+      "completion_tokens": 186,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4368
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00016032,
+      "prompt_tokens": 281,
+      "completion_tokens": 55,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2042
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002368,
+      "prompt_tokens": 560,
+      "completion_tokens": 45,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1724
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00058304,
+      "prompt_tokens": 1498,
+      "completion_tokens": 81,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2471
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006448,
+      "prompt_tokens": 1499,
+      "completion_tokens": 129,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 3805
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004368,
+      "prompt_tokens": 637,
+      "completion_tokens": 182,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4501
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00049344,
+      "prompt_tokens": 638,
+      "completion_tokens": 226,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 5220
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00135936,
+      "prompt_tokens": 1676,
+      "completion_tokens": 643,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 12662
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00141696,
+      "prompt_tokens": 1676,
+      "completion_tokens": 688,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 12907
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00021088,
+      "prompt_tokens": 423,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2015
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001659672,
+      "prompt_tokens": 397,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1784
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027328,
+      "prompt_tokens": 578,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2524
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00017248,
+      "prompt_tokens": 455,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1329
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00025216,
+      "prompt_tokens": 544,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1915
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00021312,
+      "prompt_tokens": 422,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2041
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001726533,
+      "prompt_tokens": 395,
+      "completion_tokens": 69,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2340
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00025984,
+      "prompt_tokens": 552,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1914
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00016352,
+      "prompt_tokens": 431,
+      "completion_tokens": 20,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1445
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00025216,
+      "prompt_tokens": 544,
+      "completion_tokens": 61,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10111,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1964
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.009686460500000002,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 57.18799999996554,
+  "finished_at": "2026-10-04T05:09:41.119527+00:00"
+}

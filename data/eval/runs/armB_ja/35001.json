@@ -1,0 +1,1258 @@
+{
+  "sense_id": 35001,
+  "language_id": 3,
+  "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+  "started_at": "2026-10-04T04:25:56.892126+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.1756889820098877,
+    "p1_generate": 16.311142206192017,
+    "tier_gate": 0.0,
+    "p1_judge": 3.667853355407715,
+    "collocate_grounding": 0.0,
+    "fan_out": 16.271048545837402
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "kikai",
+        "morphological_forms": [
+          {
+            "form": "台",
+            "label": "助数詞"
+          },
+          {
+            "form": "機械化",
+            "label": "派生"
+          },
+          {
+            "form": "機械的",
+            "label": "派生"
+          }
+        ],
+        "pronunciation": "きかい",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35001
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "79d880b8-731c-4f00-abb8-ea3100740458",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "機械",
+        "pronunciation": "きかい",
+        "ipa": "kikai",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "既定",
+          "棄世",
+          "耳介",
+          "機械"
+        ],
+        "correct_answer": "機械",
+        "explanation": "正解です。「機械」は「動力や電気で動き、人間の代わりに仕事をする装置。」という意味です。",
+        "distractor_explanations": {
+          "棄世": "「棄世」は「機械」と一モーラだけ異なる実在語です（2モーラ目: 「か」→「せ」、一部の音の違い）。",
+          "耳介": "「耳介」は「機械」と一モーラだけ異なる実在語です（1モーラ目: 「き」→「じ」、一部の音の違い）。",
+          "既定": "「既定」は「機械」と一モーラだけ異なる実在語です（2モーラ目: 「か」→「て」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 7,
+          "kept": 3,
+          "rejected_items": [
+            "雅懐",
+            "忌明",
+            "補回",
+            "附会",
+            "界",
+            "帰来",
+            "キレイ"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6aafa3f1-5507-40a5-bbd6-4be3c84419d8",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "機械",
+        "pronunciation": "きかい",
+        "correct_definition": "動力や電気で動き、人間の代わりに仕事をする装置。",
+        "options": [
+          "容器などの口をふさぐ物。また、物の上にかぶせる物。",
+          "機械や乗り物など、一人で使ったり動かしたりするものを数える語。",
+          "動力や電気で動き、人間の代わりに仕事をする装置。",
+          "父母の母親。家族の中で、年をとった女性の親族。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f5952ab6-67d2-4e23-93f9-1c96e0934d6a",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "従来の肉体労働は減少しますが、___を操作する専門知識を持つ人材の確保が、新たな課題として浮上しているのです。",
+        "original_sentence": "従来の肉体労働は減少しますが、機械を操作する専門知識を持つ人材の確保が、新たな課題として浮上しているのです。",
+        "correct_answer": "機械",
+        "options": [
+          "機材",
+          "機械",
+          "機構",
+          "機械化"
+        ],
+        "explanation": "正解です。文脈にある「操作する専門知識」や「肉体労働の代替」という意味から、動力で動く装置である「機械」が適切です。",
+        "distractor_tags": {},
+        "word_definition": "動力や電気で動き、人間の代わりに仕事をする装置。",
+        "target_word": "機械"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "5595dc65-4314-45c2-bd52-3e6a7d8491be",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "機械はで壊れてしまいました。",
+            "is_correct": false
+          },
+          {
+            "text": "機械が壊れていますしまいました。",
+            "is_correct": false
+          },
+          {
+            "text": "一冊の機械が壊れてしまいました。",
+            "is_correct": false
+          },
+          {
+            "text": "機械が壊れてしまいました。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "助数詞の誤り：不正解です。「冊」は本やノートなど紙でできた物を数える際に使います。機械のような装置には「台」を使います。 助詞の混同：不正解です。主語を示す助詞「が」または「は」が必要です。「で」は手段や場所を表すため、ここでは文法的に誤りです。 活用・アスペクトの誤り：不正解です。「ています」は状態の継続を表し、「てしまいました」は完了や後悔を表します。これらを重ねて使うことはできません。正しくは「壊れてしまいました」です。",
+        "target_word": "機械"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "一台の機械が壊れてしまいました。"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "dd1145a8-e525-4edb-8f41-b6c597f59184",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "新しい機械を買いました。",
+            "is_correct": true
+          },
+          {
+            "text": "この機械はとても静かです。",
+            "is_correct": true
+          },
+          {
+            "text": "機械を三匹買いました。",
+            "is_correct": false,
+            "error_description": "助数詞の誤りです。「機械」のような大型の機器や車両を数える場合は「台」を使います。「匹」は動物を数える際に用いる助数詞です。"
+          },
+          {
+            "text": "従来の肉体労働は減少しますが、機械を操作する専門知識を持つ人材の確保が、新たな課題として浮上しているのです。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "ae4509d8-27bd-43fa-8bc1-6b84627948e4",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "機械を使って仕事をしています。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "141f74be-2c46-4bd1-b1ac-9a80dd0f664c",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "機械",
+        "pronunciation": "きかい",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "a seed",
+              "動力や電気で動き、人間の代わりに仕事をする装置。",
+              "fertilizer",
+              "ノブは、ドアや機械などを操作するために手で握る部分です。特に、回したり引いたりして開閉するための取っ手を指します。"
+            ],
+            "correct_answer": "動力や電気で動き、人間の代わりに仕事をする装置。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5863a557-6a8a-4d9a-9dbb-70d779398738",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この___はとても静かです。",
+        "original_sentence": "この機械はとても静かです。",
+        "target_word": "機械",
+        "word": "機械",
+        "answer": {
+          "accepted": [
+            "機械"
+          ],
+          "accepted_normalized": [
+            "機械"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "886c218a-c036-4179-b711-4d5206066c01",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "機械",
+        "options": [
+          "きいかい",
+          "きかい",
+          "ぎかい",
+          "きがい"
+        ],
+        "correct_answer": "きかい",
+        "word": "機械",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f86123f0-af09-48a4-bcd2-a8fb012bc7f3",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "きかい",
+        "options": [
+          "機能",
+          "機会",
+          "契機",
+          "機械"
+        ],
+        "correct_answer": "機械",
+        "word": "機械",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "機会": "homophone",
+          "契機": "component",
+          "機能": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ab28817a-5b82-4a3f-831a-72d6df686005",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "従来の肉体労働は減少しますが、機械___操作する専門知識を持つ人材の確保が、新たな課題として浮上しているのです。",
+        "original_sentence": "従来の肉体労働は減少しますが、機械を操作する専門知識を持つ人材の確保が、新たな課題として浮上しているのです。",
+        "options": [
+          "で",
+          "に",
+          "を",
+          "が"
+        ],
+        "correct_answer": "を",
+        "target_word": "機械",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "に": "location_vs_target",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「操作する」の直接目的語（対象）を示す格助詞です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "26649003-7326-4503-9162-2c3578ea1057",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "大きな___が見えます。",
+        "original_sentence": "大きな機械が見えます。",
+        "correct_answer": "機械",
+        "options": [
+          "意見",
+          "時間",
+          "機械",
+          "方法"
+        ],
+        "explanation": "正解です。文脈「大きな～が見えます」において、視覚的に確認できる物理的な装置として「機械」が適切です。",
+        "distractor_tags": {},
+        "word_definition": "動力や電気で動き、人間の代わりに仕事をする装置。",
+        "target_word": "機械"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "499084f4-ff34-4a13-94c2-504347118620",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "機械で絵を描けます。",
+            "is_correct": true
+          },
+          {
+            "text": "機械に絵を描けます。",
+            "is_correct": false
+          },
+          {
+            "text": "機械は絵を描けます。",
+            "is_correct": false
+          },
+          {
+            "text": "一冊の機械で絵を描けます。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助数詞の誤り：「機械」のような一般の器物や装置を数える際は「台（だい）」や「個（こ）」を用います。「冊（さつ）」は本やノートなど綴じられた物を数える助数詞です。 助詞の混同：手段・道具を表す場合は「で」を使います。「に」を使うと、機械そのものに対して絵を描きつける（落書きするなど）意味になり、文脈「描けます（能力・可能）」との組み合わせとして不自然です。 意味・主語の誤り：「機械」自体が主体となって自発的に絵を描く能力を持っているように聞こえます。人間が機械という道具を使って描くという意味であれば、「機械で」とするべきです。",
+        "target_word": "機械"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "機械で絵を描けます。"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "253b2b0f-be2d-4751-af8d-828289395026",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "機械が壊れてしまいました。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f65ea52a-a863-497e-a1b5-3eae94b984b8",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___の音がうるさいです。",
+        "original_sentence": "機械の音がうるさいです。",
+        "target_word": "機械",
+        "word": "機械",
+        "answer": {
+          "accepted": [
+            "機械"
+          ],
+          "accepted_normalized": [
+            "機械"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e04d21e9-9516-4140-89a6-a5a22df54188",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "機械___音がうるさいです。",
+        "original_sentence": "機械の音がうるさいです。",
+        "options": [
+          "に",
+          "を",
+          "が",
+          "の"
+        ],
+        "correct_answer": "の",
+        "target_word": "機械",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "を": "object_marking",
+          "に": "location_vs_target"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "名詞「機械」と名詞「音」をつなぎ、所有・属性の関係を示す連体修飾を作る"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35001,
+      "word_asset_id": "shadow-35001-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 7,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 2,
+      "kept": 7
+    },
+    "particle": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "counter_match",
+      "reason": "'機械' is not in the counter dictionary"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '機械' is fused into a neighbouring chunk — chunks=['機械を', '使って', '仕事を', 'して', 'います']"
+    },
+    {
+      "type_code": "counter_match",
+      "reason": "'機械' is not in the counter dictionary"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '機械' is fused into a neighbouring chunk — chunks=['機械が', '壊れて', 'しまいました']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00194624,
+      "prompt_tokens": 2610,
+      "completion_tokens": 868,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 16043
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00042016,
+      "prompt_tokens": 709,
+      "completion_tokens": 151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3451
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00065472,
+      "prompt_tokens": 1610,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2827
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00068896,
+      "prompt_tokens": 1609,
+      "completion_tokens": 136,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3283
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.000584,
+      "prompt_tokens": 1125,
+      "completion_tokens": 175,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4427
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.000552,
+      "prompt_tokens": 1001,
+      "completion_tokens": 181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4536
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00189088,
+      "prompt_tokens": 2637,
+      "completion_tokens": 818,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 15208
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019344,
+      "prompt_tokens": 2637,
+      "completion_tokens": 852,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 15982
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00055104,
+      "prompt_tokens": 822,
+      "completion_tokens": 225,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4841
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00034176,
+      "prompt_tokens": 712,
+      "completion_tokens": 89,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2295
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0001984,
+      "prompt_tokens": 524,
+      "completion_tokens": 24,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1330
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002832,
+      "prompt_tokens": 609,
+      "completion_tokens": 69,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2042
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00055136,
+      "prompt_tokens": 823,
+      "completion_tokens": 225,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4790
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00034368,
+      "prompt_tokens": 742,
+      "completion_tokens": 83,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2530
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00020224,
+      "prompt_tokens": 548,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1421
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00028576,
+      "prompt_tokens": 589,
+      "completion_tokens": 76,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35001,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2283
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.011428800000000003,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 59.57799999997951,
+  "finished_at": "2026-10-04T04:26:56.470792+00:00"
+}

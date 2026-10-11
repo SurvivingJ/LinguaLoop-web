@@ -1,0 +1,1193 @@
+{
+  "sense_id": 38099,
+  "language_id": 3,
+  "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+  "started_at": "2026-10-05T20:09:12.396510+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[4] flagged (rating 3): 語域：体言止めでやや不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.7066447734832764,
+    "p1_generate": 45.299577713012695,
+    "tier_gate": 0.007498741149902344,
+    "p1_judge": 79.9130711555481,
+    "collocate_grounding": 0.0,
+    "fan_out": 57.58950138092041
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[4] flagged (rating 3): 語域：体言止めでやや不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ɕoːka]",
+        "morphological_forms": [
+          {
+            "form": "昇華する",
+            "label": "活用"
+          },
+          {
+            "form": "昇華した",
+            "label": "活用"
+          },
+          {
+            "form": "昇華して",
+            "label": "活用"
+          },
+          {
+            "form": "昇華させる",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "しょうか",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            38099
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "500fef03-c7f2-4305-9869-4d4cc9bee60b",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "pronunciation": "しょうか",
+        "ipa": "[ɕoːka]",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "昇華",
+          "工科",
+          "小誌",
+          "道家"
+        ],
+        "correct_answer": "昇華",
+        "explanation": "正解です。「昇華」は「物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。」という意味です。",
+        "distractor_explanations": {
+          "道家": "「道家」は「昇華」と一モーラだけ異なる実在語です（1モーラ目: 「しょ」→「ど」、一部の音の違い）。",
+          "工科": "「工科」は「昇華」と一モーラだけ異なる実在語です（1モーラ目: 「しょ」→「こ」、一部の音の違い）。",
+          "小誌": "「小誌」は「昇華」と一モーラだけ異なる実在語です（3モーラ目: 「か」→「し」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "l1_distractor_judge": {
+          "rejected": 3,
+          "kept": 7,
+          "rejected_items": [
+            "如何か",
+            "沼地",
+            "請雨"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "1fa9bce1-1038-48b7-99fe-ffd06919574c",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "pronunciation": "しょうか",
+        "correct_definition": "物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。",
+        "options": [
+          "物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。",
+          "「ミリ」は、基本の単位の1000分の1を表す接頭語です。例えば、1メートルの1000分の1が1ミリメートルです。",
+          "物事が起こる、ほんのわずかな時間。",
+          "大気や地層などで、性質の異なる層が積み重なっている状態。また、そのような層を作ること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "7f276748-0bdb-4225-ba26-5b904306dfee",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この一連の作業は、移ろいやすい自然の産物を、人間の手によって恒久の美へと___させる、高度な技術と美意識の結晶なのである。",
+        "original_sentence": "この一連の作業は、移ろいやすい自然の産物を、人間の手によって恒久の美へと昇華させる、高度な技術と美意識の結晶なのである。",
+        "correct_answer": "昇華",
+        "options": [
+          "変遷",
+          "昇華",
+          "変化",
+          "転換"
+        ],
+        "explanation": "正解です。自然の産物が人間の手によって恒久の美という「より高い価値や状態」に変わっているため、文脈に合致します。",
+        "distractor_tags": {},
+        "word_definition": "物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。",
+        "target_word": "昇華"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "698ae6e4-3190-4dc5-b9af-3a6ebe2b2b64",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "pronunciation": "しょうか",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "ばらばらのものを、一つにくっつけて、一つのものにする。",
+              "弄响",
+              "frequent occurrence; to occur often — the same thing happening many times within a short span",
+              "物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。"
+            ],
+            "correct_answer": "物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "ea298f24-fadf-409b-bf3d-2a35cc8f9934",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "生徒たちが繊維の纹理に想いを込め、独自のプロットを紡ぎ出すとき、それは単なる被服製作ではなく、記号的な自己主張の確立へと___されるのである。",
+        "original_sentence": "生徒たちが繊維の纹理に想いを込め、独自のプロットを紡ぎ出すとき、それは単なる被服製作ではなく、記号的な自己主張の確立へと昇華されるのである。",
+        "target_word": "昇華",
+        "word": "昇華",
+        "answer": {
+          "accepted": [
+            "昇華"
+          ],
+          "accepted_normalized": [
+            "昇華"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "1c645c6e-b723-424c-aefc-597b2a64c056",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "昇華",
+        "options": [
+          "しょうが",
+          "じょうか",
+          "しいょうか",
+          "しょうか"
+        ],
+        "correct_answer": "しょうか",
+        "word": "昇華",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "e67b08f4-b412-4013-aa4c-0a8e3dc5431f",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "しょうか",
+        "options": [
+          "上昇",
+          "飛ぶ",
+          "昇華",
+          "飛行"
+        ],
+        "correct_answer": "昇華",
+        "word": "昇華",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "上昇": "component",
+          "飛行": "component",
+          "飛ぶ": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "21bbbf3c-d671-4993-b36b-05fbb6b72daa",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "relation": "antonym",
+        "options": [
+          "退化",
+          "向上",
+          "転換",
+          "深化"
+        ],
+        "correct_answer": "退化",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。",
+            "explanation": "事物がより低級で劣った状態へ変わることを指し、より高い価値へ変わる「昇華」の対義語となる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "転換": 0.485451,
+            "向上": 0.565839
+          }
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "cc1e7f1d-64b7-4e56-ba06-e55a4738d1f9",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "個人が抱える深い悲しみは、長い時間を経て、やがて他者への静かな慈愛へと___されるのである。",
+        "original_sentence": "個人が抱える深い悲しみは、長い時間を経て、やがて他者への静かな慈愛へと昇華されるのである。",
+        "correct_answer": "昇華",
+        "options": [
+          "転換",
+          "昇進",
+          "昇華",
+          "変遷"
+        ],
+        "explanation": "正解です。悲しみや怒りなどの感情が、時間や表現活動を経て、より高い価値や慈愛へと変わることを表します。",
+        "distractor_tags": {},
+        "word_definition": "物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。",
+        "target_word": "昇華"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c1da9419-7618-41e5-a5f7-23fed2ab87f5",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "社会に対する根強い怒りの感情は、やがて創造的な表現活動を通じて、崇高な芸術作品へと___されたのである。",
+        "original_sentence": "社会に対する根強い怒りの感情は、やがて創造的な表現活動を通じて、崇高な芸術作品へと昇華されたのである。",
+        "target_word": "昇華",
+        "word": "昇華",
+        "answer": {
+          "accepted": [
+            "昇華"
+          ],
+          "accepted_normalized": [
+            "昇華"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "58777d55-28de-4463-b94a-b4a3c75b7c45",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "社会に対する根強い怒りの感情は、やがて創造的な表現活動を通じて、崇高な芸術作品へ___昇華されたのである。",
+        "original_sentence": "社会に対する根強い怒りの感情は、やがて創造的な表現活動を通じて、崇高な芸術作品へと昇華されたのである。",
+        "options": [
+          "で",
+          "に",
+          "と",
+          "へ"
+        ],
+        "correct_answer": "と",
+        "target_word": "昇華",
+        "error_tags": {
+          "に": "direction",
+          "へ": "direction",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "変化の結果や到達点を示す格助詞「と」が「昇華される」に接続して自然な日本語になる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c727e382-8617-4847-8ead-db1cdddb6333",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "昇華",
+        "relation": "antonym",
+        "options": [
+          "深化",
+          "進化",
+          "堕落",
+          "変遷"
+        ],
+        "correct_answer": "堕落",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事が、より高い価値や状態に変わること。気持ちが深まることにも使います。",
+            "explanation": "精神や価値が低い状態へ落ちる点で、高い状態へ変わる昇華の対義語となる"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "abstract",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "進化": 0.463392,
+            "変遷": 0.457389
+          }
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 38099,
+      "word_asset_id": "shadow-38099-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 3,
+      "kept": 7
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "particle": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '昇華' is fused into a neighbouring chunk — chunks=['この憧れの感情は', 'やがてグローバルな大衆向けブランドに', 'よって巧妙に咀嚼され', '単なる消費財を超えた普遍的', 'な文化的価値へと', '昇華されるのだ']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '昇華' is fused into a neighbouring chunk — chunks=['単なるエネルギー源に', '過ぎなかった穀物が', '生命の維持と', '豊かな食体験を同時に', '叶える食文化へ', 'と昇華される']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00400256,
+      "prompt_tokens": 2916,
+      "completion_tokens": 2398,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 44957
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00198016,
+      "prompt_tokens": 884,
+      "completion_tokens": 1326,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 27254
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00167616,
+      "prompt_tokens": 334,
+      "completion_tokens": 1226,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 28026
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016608,
+      "prompt_tokens": 782,
+      "completion_tokens": 1102,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22768
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00210784,
+      "prompt_tokens": 1915,
+      "completion_tokens": 1168,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 23599
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00190784,
+      "prompt_tokens": 1110,
+      "completion_tokens": 1213,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 27480
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002144,
+      "prompt_tokens": 1912,
+      "completion_tokens": 1197,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 28529
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00205312,
+      "prompt_tokens": 1188,
+      "completion_tokens": 1307,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 30304
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00337536,
+      "prompt_tokens": 2908,
+      "completion_tokens": 1910,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 38258
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00336384,
+      "prompt_tokens": 2908,
+      "completion_tokens": 1901,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 41035
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175744,
+      "prompt_tokens": 784,
+      "completion_tokens": 1177,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 25682
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185056,
+      "prompt_tokens": 775,
+      "completion_tokens": 1252,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 26554
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001888,
+      "prompt_tokens": 820,
+      "completion_tokens": 1270,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 26400
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017388,
+      "prompt_tokens": 403,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 4255
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00162976,
+      "prompt_tokens": 745,
+      "completion_tokens": 1087,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22751
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00152448,
+      "prompt_tokens": 560,
+      "completion_tokens": 1051,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20187
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00164832,
+      "prompt_tokens": 623,
+      "completion_tokens": 1132,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22249
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160448,
+      "prompt_tokens": 630,
+      "completion_tokens": 1096,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 21493
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184608,
+      "prompt_tokens": 821,
+      "completion_tokens": 1237,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 22873
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017064,
+      "prompt_tokens": 394,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 4814
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169984,
+      "prompt_tokens": 816,
+      "completion_tokens": 1124,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20105
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00151648,
+      "prompt_tokens": 555,
+      "completion_tokens": 1046,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19433
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00166208,
+      "prompt_tokens": 610,
+      "completion_tokens": 1146,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 20892
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00159424,
+      "prompt_tokens": 630,
+      "completion_tokens": 1088,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 38099,
+      "generation_batch_id": "f589a069-b68f-40ca-8931-84d648d84f33",
+      "language_code": "ja",
+      "latency_ms": 19452
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.04483796,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 413.75,
+  "finished_at": "2026-10-05T20:16:06.148923+00:00"
+}

@@ -29,14 +29,41 @@ sentence's own target is the bare lemma, i.e. the slot is uninflected.
 
 from __future__ import annotations
 
-from services.vocabulary_ladder.config import get_sentence_target
+import re
+
+from services.vocabulary_ladder.config import blank_target, get_sentence_target
 from services.vocabulary_ladder.deterministic import SenseContext, Skip, register
-from services.vocabulary_ladder.tier_gate import morph_form_texts
 from utils.answer_normalization import (
     build_accepted, matches, normalization_spec, normalize,
 )
 
 _TYPE = 'cloze_typed'
+
+# `morphological_forms` labels that mark an entry as something OTHER than an
+# inflection of the same word — a measure-word counter or a derived/compound
+# word. Both have shown up in the `accepted` list for real cloze_typed items
+# (助数詞 "台" offered for a bare-noun slot; 派生 compounds like 発明家/世界観
+# offered as substitutes for their root noun) because every entry in
+# `morphological_forms` was trusted as a safe substitute for the bare lemma.
+# ja uses the coarse category labels; the English equivalents are included in
+# case a future P1 prompt revision adopts the same vocabulary.
+_NON_INFLECTION_LABELS = frozenset({
+    '派生', '助数詞', 'derivation', 'counter', 'compound',
+})
+
+# A kana/katakana character (incl. the long-vowel mark) immediately after the
+# target's occurrence means the sentence bakes in more of the conjugation
+# right after the blank (て-form + auxiliary, ichidan stem + ます, ...). In
+# that situation NO other `morphological_forms` entry is a safe substitute —
+# every one of them is a *different complete* conjugation of the same verb,
+# not a drop-in replacement for this stem, and splicing one in either
+# duplicates the sentence's own suffix ('増え' + 'ています' template +
+# accepted '増えています' -> doubled 'ています') or produces a mismatched
+# conjugation ('不可欠' blanked out of '___な...', accepted '不可欠な' ->
+# doubled 'な'). Returning nothing is the safe direction here, per the module
+# docstring: a missing variant marks one right answer wrong; an over-broad
+# set marks a wrong answer right.
+_KANA_CONTINUATION = re.compile(r'^[぀-ヿㇰ-ㇿ]')
 
 
 @register(_TYPE)
@@ -47,16 +74,21 @@ def build(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
         return []
 
     text, target = source
-    if target not in text:
-        # The blank is cut by replacing the target in the sentence; if it is
-        # not there, the asset is internally inconsistent.
+    blanked = blank_target(text, target, ctx.language_id)
+    if blanked is None:
+        # The blank is cut by replacing the target in the sentence; if there
+        # is no clean word-boundary occurrence, the asset is internally
+        # inconsistent (or `target` is only a fused substring of a longer
+        # word, which would glue a stray suffix onto the blank marker).
         skips.append(Skip(
-            _TYPE, f'target {target!r} does not occur in its own sentence'))
+            _TYPE,
+            f'target {target!r} has no clean word-boundary occurrence in its '
+            f'own sentence',
+        ))
         return []
 
-    blanked = text.replace(target, '___', 1)
     accepted = build_accepted(
-        target, _interchangeable_variants(ctx, target), ctx.language_id,
+        target, _interchangeable_variants(ctx, text, target), ctx.language_id,
     )
 
     return [{
@@ -130,13 +162,43 @@ def _cloze_source(ctx: SenseContext) -> tuple[str, str] | None:
     return text, target
 
 
-def _interchangeable_variants(ctx: SenseContext, target: str) -> list[str]:
+def _interchangeable_variants(ctx: SenseContext, text: str, target: str) -> list[str]:
     """Morphological forms that may substitute for ``target`` in this blank.
 
-    Empty unless the slot is uninflected — see the module docstring. Returning
-    nothing is the safe direction: a missing variant marks one correct answer
-    wrong, whereas an over-broad set marks a wrong answer correct.
+    Empty unless the slot is uninflected — see the module docstring. Three
+    checks gate what used to be a blind ``morph_form_texts(ctx.core)``:
+
+    1. The existing bare-lemma guard: nothing is admitted unless ``target``
+       is itself the dictionary-plain form.
+    2. ``morphological_forms`` entries labelled as a derivation or counter
+       (:data:`_NON_INFLECTION_LABELS`) are dropped outright — they are a
+       different word, not an inflection, and substituting one produces a
+       counter in a bare-noun slot or a compound noun standing in for its
+       root (see the module-level constant's docstring for real examples).
+    3. If the sentence continues the inflection immediately after the blank
+       (:data:`_KANA_CONTINUATION`), the slot is conjugation-fixed: no
+       variant is admitted at all, because every remaining
+       ``morphological_forms`` entry is a different *complete* conjugation of
+       the verb, not a substitute for this stem.
     """
     if normalize(target, ctx.language_id) != normalize(ctx.lemma, ctx.language_id):
         return []
-    return morph_form_texts(ctx.core)
+
+    idx = text.find(target)
+    if idx != -1:
+        after = text[idx + len(target):]
+        if _KANA_CONTINUATION.match(after):
+            return []
+
+    out: list[str] = []
+    for form in (ctx.core or {}).get('morphological_forms') or []:
+        if isinstance(form, dict):
+            label = (form.get('label') or '').strip()
+            if label in _NON_INFLECTION_LABELS:
+                continue
+            value = (form.get('form') or form.get('text') or '').strip()
+        else:
+            value = str(form or '').strip()
+        if value and value != target:
+            out.append(value)
+    return out

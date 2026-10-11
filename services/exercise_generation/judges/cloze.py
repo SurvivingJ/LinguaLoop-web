@@ -14,8 +14,12 @@ Key differences from the original:
 - Calls ``services.llm_service.call_llm`` (unified service) so cloze judge
   calls appear in ``llm_calls`` with ``pipeline='vocab_ladder'``,
   ``task_name='cloze_distractor_judge'``, and the per-language model.
-- Failure mode is unchanged: any error → safe-default-keep (act as if the
-  judge wasn't there).
+- Failure mode: fail-open outside ``batch_mode()`` (any error →
+  safe-default-keep, act as if the judge wasn't there); fail-closed inside
+  it, via ``guard_fail_open`` — see TASK-510 / an armB_ja eval run
+  (2026-10-04) where a stale model slug 404'd on every cloze call and this
+  judge, not yet wired into the batch-mode contract, silently shipped every
+  cloze exercise unjudged.
 """
 
 from __future__ import annotations
@@ -24,6 +28,8 @@ import logging
 
 from services.llm_service import call_llm
 from services.prompt_service import get_template_config
+
+from .base import guard_fail_open
 
 logger = logging.getLogger(__name__)
 
@@ -85,12 +91,17 @@ def judge_distractors(
             prompt,
             model=judge_model,
             temperature=0.0,
-            # TASK-812: was 4750. TASK-808's baseline shows this judge's
-            # completion_tokens p99 at 122 (n=70, max 122) -- a short
-            # structured Likert-per-candidate response. 1000 is >=8x that,
-            # generous insurance against a legitimately longer multi-item
-            # batch, while cutting the worst-case runaway cost ~5x.
-            max_tokens=1000,
+            # RE-DERIVED 2026-10-03 (ADR-028 cost work): data/eval/runs/
+            # phase2_bundle_*/ + phase2_fix_*/ + phase2_smoke_ja_v3/ +
+            # phase2_smoke_zh_r/ *.json llm_calls for cloze_distractor_judge
+            # (reasoning off): n=40 pooled, p99=128, max=128 (en, n=38,
+            # governs; zh n=2 is sparse but smaller). cap =
+            # max(ceil(p99*2), ceil(max*1.25)) = 256, rounded up to 300 --
+            # still >=2x TASK-812's own p99 measurement. At
+            # gemini-3.5-flash-lite's $2.50/M completion price (en's model)
+            # this cuts the worst-case reservation from ~$0.003/request to
+            # ~$0.0009/request.
+            max_tokens=300,
             response_format='json',
             provider='openrouter',
             pipeline=_PIPELINE,
@@ -173,6 +184,11 @@ def _empty_result(model: str, version: int) -> dict:
 
 
 def _all_keep(distractors: list[str], model: str, version: int) -> dict:
+    # In a generation/eval batch this raises instead of returning — an
+    # unreachable judge must abort the batch, not silently ship unjudged
+    # content (TASK-510). Serve-adjacent callers (outside batch_mode()) are
+    # unaffected: guard_fail_open is a no-op there.
+    guard_fail_open('cloze_judge', f'model={model!r} version={version}')
     return {
         'verdicts': {d: 'keep' for d in distractors},
         'reasons':  {d: ''     for d in distractors},

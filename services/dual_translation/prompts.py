@@ -31,6 +31,12 @@ reuse today. Once TASK-616 seeds genuinely per-directed-pair subtype tables (int
 classification is L1-dependent per the taxonomy doc), `subtypes` will start varying by
 L1 too and the cache will correctly narrow to per-(L1, L2) prefixes at that point — not a
 regression, just the cache boundary tracking the data that's actually L1-specific.
+
+Exception (taxonomy v6 only, string review 2026-10-07): the word_choice
+explanation_variant line names the learner's L1 (`l1_code=` on the Detector/Verifier
+builders), because its false_synonym variant ("a word the learner's L1 translates the
+same way") cannot be judged without it. Under v6 the cached prefix is therefore
+per-(L1, L2); every v5 prompt ignores `l1_code` and stays byte-identical.
 """
 
 from __future__ import annotations
@@ -686,6 +692,18 @@ def _example_schema(dims: tuple[str, ...]) -> str:
 HIGHLIGHT_REASON_ENUM: tuple[str, ...] = ("grammar", "word_choice", "register_politeness", "structure")
 VERDICT_ENUM: tuple[str, ...] = ("confirm", "reject", "adjust")
 
+# TASK-845 (taxonomy v6, ADR-031 Decision A): the word_choice explanation_variant.
+# Order is the index contract the model reports; the slugs match the
+# dt_error_instance CHECK (migrations/dt_taxonomy_v6_columns.sql).
+VARIANT_ENUM: tuple[str, ...] = ("wrong_word", "wrong_sense", "false_synonym")
+
+
+def variants_enabled(subtypes) -> bool:
+    """True only under a v6+ taxonomy (same `meaning_inversion` marker as the
+    TASK-843 precedence gate) that has `word_choice`. False → no variant prompt
+    text, no schema field, no decoded key: v5 grading stays byte-identical."""
+    return "meaning_inversion" in subtypes and "word_choice" in subtypes
+
 # The two model-judged dimensions the Verifier scores with evidence spans; the
 # other three (accuracy/fidelity/understandability) are derived, not judged.
 JUDGE_DIMENSIONS: tuple[str, ...] = ("naturalness", "range")
@@ -830,6 +848,297 @@ _RESPOND_WITH_SHAPE: dict[str, str] = {
     "ja": "必ず以下のJSON形式で回答してください：\n{schema}",
 }
 
+# --- TASK-843: meaning_inversion by-effect precedence (taxonomy v6, ADR-031) ---
+#
+# ADR-031 labels meaning_inversion BY EFFECT: any error whose effect reverses the
+# reference's polarity/negation, direction, quantity/degree or agent/recipient is
+# meaning_inversion (fidelity/critical), whatever its surface form; a pure content
+# loss stays omission; contradiction is sentence-internal only.
+#
+# Version gate: the block renders only when the resolved subtype list contains
+# `meaning_inversion` — i.e. only when the taxonomy row the grader resolved at
+# runtime (active row, or a pinned version) is v6+. v5 has no such slug, so every
+# v5 prompt stays byte-identical (tests/test_dual_translation_prompts.py pins
+# pre-change hashes). Subtypes are referenced by the same "index (label)" the
+# model reads in the subtype list above — it reports indices, and under glossed
+# taxonomies it never sees the English slug. {mi}/{om}/{ad}/{co}/{surface} are
+# filled by _precedence_block. ZH/JA are AI-authored drafts flagged for native
+# review (TASK-839/840), same caveat as every other block in this module.
+#
+# String review 2026-10-07 (en item 1, applied to en + zh): each placeholder is
+# used exactly once, "a clash with the reference" is narrowed to a reversal that
+# only shows against the reference, {co} carries both limbs of its definition
+# (self-contradiction OR an illogical clause link), and the "report it once, never
+# also under its surface type" rule is explicit. References render as
+# "index (short name)" — see _short_label.
+# ja review 2026-10-08 (TASK-840, AI review — not a native-speaker review): the ja
+# block follows the same structure. Its {co} keeps only the self-contradiction
+# limb (time / relation / cause-effect), because a wrong ja connective (のに for
+# ので) is clause_linkage, not contradiction.
+_PRECEDENCE_V6: dict[str, str] = {
+    "en": (
+        "Meaning inversion — label by EFFECT, not by surface form. Use subtype {mi} for any error "
+        "whose effect is to reverse the reference's polarity (negation), direction, quantity or "
+        "degree (more → less, always → never), or who does what to whom — whatever its surface "
+        "form: a preposition swap, a different word, or a dropped or added word. In particular, a "
+        "negator (not, no, never …) that the learner dropped or added so that the polarity "
+        "reverses belongs here, not under {om} or {ad}. Report such an error once, under this "
+        "subtype only — never also under its surface-form type. Content that is lost without any "
+        "reversal stays an omission, and a change of degree that does not reverse it "
+        "(very → quite) is not an inversion. {co} is only for a sentence that contradicts itself "
+        "or links its clauses illogically, visible from the learner text alone; a reversal that "
+        "only shows when compared with the reference is a meaning inversion. A meaning inversion "
+        "is always severity critical (2)."
+    ),
+    "zh": (
+        "语义反转——按效果标注，而非按表面形式。若某个错误的效果是使学习者译文相对参考译文在极性（否定）、"
+        "方向、数量或程度（多→少、总是→从不）、施事/受事（谁对谁做什么）上发生反转，无论其表面形式是"
+        "介词替换、换了另一个词，还是漏掉或多加了某个词，一律标为子类型{mi}。特别是学习者漏掉或多加"
+        "否定词（不、没、别、无等）导致极性反转的，属于此类，不标{om}或{ad}。这类错误只按此子类型"
+        "报告一次，不要再按其表面形式的类型重复标注。只是丢失内容而没有发生反转的，仍属成分缺失；"
+        "程度有变化但没有反转的（如“很”→“比较”）不算反转。{co}仅用于不看参考译文、仅凭学习者译文"
+        "本身即可看出的句内自相矛盾或分句之间逻辑关系错误；只有与参考译文对照才能看出的反转，属于"
+        "语义反转。语义反转的严重程度一律为严重（2）。"
+    ),
+    "ja": (
+        "意味の反転——表面形式ではなく効果で判定してください。誤りの効果が、参照文と比べて極性（肯定／否定）、"
+        "方向、数量・程度（多い→少ない、いつも→決して〜ない）、または動作主と受け手（誰が誰に何をするか）を"
+        "反転させるものであれば、表面上は助詞の置き換え、別の語への置き換え、語の脱落・追加のいずれであっても、"
+        "サブタイプ{mi}として報告してください。特に、学習者が否定（ない・ず・ません等）を落とした、または"
+        "加えたことで極性が反転する場合は、{om}や{ad}ではなくこちらです。このような誤りはこのサブタイプで"
+        "一度だけ報告し、表面形式の種類で重ねて報告しないでください。反転を伴わず内容が失われるだけの場合は"
+        "欠落のままとし、程度が変わっても反転しない場合（「とても」→「かなり」など）は反転ではありません。"
+        "{co}は、参照文を見なくても学習者文だけで分かる文内の自己矛盾（時間・関係・因果の食い違い）に限ります。"
+        "参照文と比べて初めて分かる反転は意味の反転です。意味の反転の重大度は常に致命的（2）です。"
+    ),
+}
+
+# Verifier-only addendum: re-type a Detector error whose effect is an inversion
+# but whose subtype is a surface-form type.
+_PRECEDENCE_V6_VERIFIER: dict[str, str] = {
+    "en": (
+        "If a proposed error's effect is such an inversion but it was typed as {surface}, adjust "
+        "it (verdict 2) to subtype {mi} with severity critical (2)."
+    ),
+    "zh": (
+        "若某个待核错误的效果属于上述反转，却被标为{surface}中的任一子类型，请裁定为调整（2），"
+        "将子类型改为{mi}，严重程度改为严重（2）。"
+    ),
+    "ja": (
+        "審査対象誤りの効果が上記の反転に当たるのに、{surface}のいずれかに分類されている場合は、修正（2）と"
+        "判定し、サブタイプを{mi}に、重大度を致命的（2）に変更してください。"
+    ),
+}
+
+# Surface-form subtypes an inversion is typically mis-filed under, per L2 (the
+# v6 slug for the adposition type differs: en preposition / zh coverb / ja
+# case_particle). Only those present in the resolved list are named.
+_INVERSION_SURFACE_SUBTYPES: dict[str, tuple[str, ...]] = {
+    "en": ("preposition", "word_choice", "omission", "addition"),
+    "zh": ("coverb", "word_choice", "omission", "addition"),
+    "ja": ("case_particle", "word_choice", "omission", "addition"),
+}
+
+# --- TASK-844: zh 的/地/得 rule (taxonomy v6, ADR-031 user ruling 2026-09-27) ---
+#
+# ANY 的/地/得 misuse (的-for-得, 的-for-地, attributive 地-for-的, ...) is a
+# `de_particle` error at minor severity — never acceptable variation, never
+# word_choice/orthography. zh only; rendered by _precedence_block under the same
+# v6 gate as TASK-843 (and only when the resolved list has `de_particle`, a
+# v6-only slug — v5 has `de_particles`), so v5 prompts stay byte-identical.
+# {de}/{wc}/{orth} are filled with the live "index（label）" references. AI draft,
+# in scope for the TASK-839/840 native review. String review 2026-10-07 (zh item
+# 105): a MISSING obligatory 得 in a degree/state complement (跑快 → 跑得快) is
+# also {de}, not complement — reviewer-proposed boundary pending user
+# confirmation (ADR-031, 2026-10-07 note); the redundant "（含定语位置误用“地”）"
+# was dropped (地-for-的 is attributive by definition).
+_ZH_DE_RULE = (
+    "结构助词“的、地、得”：三者之间的任何误用——包括用“的”代替“地”或“得”、用“地”代替“的”、"
+    "用“得”代替“的”或“地”——以及缺少必需的“得”（如“跑快”应为“跑得快”），一律标为子类型{de}，"
+    "严重程度为轻微（0）。这类误用不属于可接受的变体，不得因“意思不受影响”而忽略；不要标为{wc}或{orth}。"
+)
+_ZH_DE_RULE_VERIFIER = (
+    "若待核错误是“的、地、得”误用，不得以可接受的变体为由驳回（1）；若被标为{wc}或{orth}，"
+    "请裁定为调整（2），将子类型改为{de}，严重程度改为轻微（0）。"
+)
+
+_SUBTYPE_REF_FORMAT: dict[str, str] = {
+    "en": "{i} ({label})",
+    "zh": "{i}（{label}）",
+    "ja": "{i}（{label}）",
+}
+_SUBTYPE_REF_SEP: dict[str, str] = {"en": " / ", "zh": "、", "ja": "、"}
+
+# Name/definition separators used by the v6 glosses: en "name — definition",
+# zh/ja "名称——定义". (A single "—" can sit inside a name, e.g. 话题—述题结构.)
+_GLOSS_NAME_SEPARATORS: tuple[str, ...] = (" — ", "——")
+
+
+def _short_label(label: str) -> str:
+    """The gloss's short name — the text before its first name/definition
+    separator — for inline "index (label)" references (string review
+    2026-10-07, en item 84). The full gloss is already listed once in the
+    subtype list above the block; repeating the whole definition at every
+    reference made the rendered block unreadable. A label with no separator
+    (bare slug, test labels) is returned unchanged."""
+    cut = min((label.find(sep) for sep in _GLOSS_NAME_SEPARATORS if sep in label), default=-1)
+    return label[:cut] if cut > 0 else label
+
+
+def _precedence_block(
+    l2_code: str, subtypes: list[str], subtype_labels, *, verifier: bool,
+) -> str:
+    """The TASK-843 meaning_inversion precedence block, or '' when the resolved
+    subtype list has no `meaning_inversion` (every pre-v6 taxonomy) — the caller
+    then appends nothing, keeping v5 prompts byte-identical."""
+    if "meaning_inversion" not in subtypes:
+        return ""
+    labels = subtype_labels if subtype_labels is not None else subtypes
+    ref_fmt = _SUBTYPE_REF_FORMAT[l2_code]
+
+    def ref(slug: str) -> str:
+        idx = _slug_index(subtypes, slug)
+        if idx is None:
+            return slug
+        return ref_fmt.format(i=idx, label=_short_label(labels[idx]))
+
+    fields = {
+        "mi": ref("meaning_inversion"),
+        "om": ref("omission"),
+        "ad": ref("addition"),
+        "co": ref("contradiction"),
+    }
+    text = _PRECEDENCE_V6[l2_code].format(**fields)
+    if verifier:
+        surface = _SUBTYPE_REF_SEP[l2_code].join(
+            ref(s) for s in _INVERSION_SURFACE_SUBTYPES[l2_code] if s in subtypes
+        )
+        text += "\n" + _PRECEDENCE_V6_VERIFIER[l2_code].format(mi=fields["mi"], surface=surface)
+    # TASK-844: zh 的/地/得 rule, same v6 gate (+ the v6-only de_particle slug).
+    if l2_code == "zh" and "de_particle" in subtypes:
+        de_fields = {"de": ref("de_particle"), "wc": ref("word_choice"), "orth": ref("orthography")}
+        text += "\n" + _ZH_DE_RULE.format(**de_fields)
+        if verifier:
+            text += "\n" + _ZH_DE_RULE_VERIFIER.format(**de_fields)
+    return text
+
+
+# --- TASK-845: word_choice explanation_variant (taxonomy v6, ADR-031 A) ------
+#
+# One line per L2 defining the three VARIANT_ENUM indices. The model's call is
+# only the residual: same-lemma (wrong_sense) and shared-L1-gloss (false_synonym)
+# are re-decided in Python from the sense dictionary
+# (services/dual_translation/word_choice_variant.py). `explanation_variant` is a
+# machine-contract key and stays Latin in every L2. {wc} is the live
+# "index (short name)" reference for word_choice. ZH/JA are AI-authored drafts, in
+# scope for the TASK-839/840 native review.
+#
+# String review 2026-10-07 (en item 86, zh item 107): the field is REQUIRED on
+# every word_choice error under v6 (merged_taxonomy marks it required; the
+# decoder still tolerates its absence and falls back to the variant-less
+# template), the variants are decided in ADR-031's precedence order (same lemma
+# -> wrong_sense; else shared L1 translation -> false_synonym; else wrong_word),
+# and the learner's L1 is named — the false_synonym question cannot be answered
+# without it. {l1_sentence}/{l1_ref}/{example} come from _variant_l1_fields: with
+# no l1_code they fall back to L1-neutral wording. ja review 2026-10-08 (TASK-840,
+# AI review — not a native-speaker review): the ja line now has the same
+# structure (required, decision order, L1 named via {l1_sentence}/{l1_ref}, per-L1
+# {example}), replacing its old "任意" wording and {l1_paren} slot.
+_VARIANT_BLOCK: dict[str, str] = {
+    "en": (
+        "explanation_variant (required on every error of subtype {wc}; omit it on all other "
+        "errors).{l1_sentence} Decide in this order: 1 = wrong sense — the learner used the same "
+        "word (same lemma) as the reference, but in a different one of its dictionary senses; "
+        "otherwise 2 = false synonym — a different word that {l1_ref} would translate the same "
+        "way as the reference word, but whose meaning or usage differs{example}; otherwise "
+        "0 = wrong word — a different word that does not mean what the reference word means."
+    ),
+    "zh": (
+        "explanation_variant（子类型为{wc}的每个错误都必须填写，其他错误不填）。{l1_sentence}"
+        "请按以下顺序判断：1＝用错义项——学习者用的正是参考译文中的那个词（同一词条），但用成了它的"
+        "另一个义项；否则，2＝假同义词——用了另一个词，它在{l1_ref}中与参考译文中的词译法相同，"
+        "但意思或用法不同{example}；否则，0＝用错词——用了一个与参考译文中的词意思不同的词"
+        "（不属于1或2的情况）。"
+    ),
+    "ja": (
+        "explanation_variant（サブタイプ{wc}の誤りには必ず付け、それ以外の誤りには付けない）。{l1_sentence}"
+        "次の順に判定してください：1＝誤った語義——学習者が参照文と同じ語（同じ見出し語）を使っているが、"
+        "その語の辞書上の別の語義で使っている。そうでなければ、2＝偽の同義語——別の語で、{l1_ref}では"
+        "参照文の語と同じ語に訳されるが、意味や用法が異なる{example}。そうでなければ、0＝誤った語——"
+        "参照文の語と意味の異なる別の語（1にも2にも当たらない場合）。"
+    ),
+}
+
+# The learner's L1, named in the L2 the prompt is written in.
+_L1_NAME: dict[str, dict[str, str]] = {
+    "en": {"en": "English", "zh": "Chinese", "ja": "Japanese"},
+    "zh": {"en": "英语", "zh": "汉语", "ja": "日语"},
+    "ja": {"en": "英語", "zh": "中国語", "ja": "日本語"},
+}
+
+# Per-(L2, L1) false_synonym example — a pair that THIS L1 translates with one
+# word (borrow / lend is a false synonym for Chinese speakers, 借, but not for
+# Japanese speakers, 借りる / 貸す). Absent pair -> the L1-neutral default below.
+_VARIANT_EXAMPLE: dict[str, dict[str, str]] = {
+    "en": {
+        "zh": " (e.g. borrow / lend, both 借 in Chinese)",
+        "ja": " (e.g. look / watch, both 見る in Japanese)",
+    },
+    "zh": {
+        "en": "（如“知道”与“认识”，在英语中都译作同一个词）",
+        "ja": "（如“知道”与“认识”，在日语中都译作「知っている」）",
+    },
+    # 着る / 履く is one verb in English (wear) and in Chinese (穿). The en example
+    # avoids the Latin word so the ja block carries no English prose.
+    "ja": {
+        "en": "（例：「着る」と「履く」は英語ではどちらも同じ一語に訳される）",
+        "zh": "（例：「着る」と「履く」は中国語ではどちらも「穿」）",
+    },
+}
+_VARIANT_EXAMPLE_NEUTRAL: dict[str, str] = {
+    "en": "",
+    "zh": "（如“知道”与“认识”）",
+    "ja": "（例：「着る」と「履く」）",
+}
+
+
+def _variant_l1_fields(l2_code: str, l1_code) -> dict[str, str]:
+    """Fill the L1 slots of _VARIANT_BLOCK[l2_code]. A known L1 is named (and gets
+    its own false_synonym example where one is authored); with no/unknown L1 the
+    wording stays L1-neutral ("the learner's native language")."""
+    name = _L1_NAME[l2_code].get(l1_code) if l1_code else None
+    example = (_VARIANT_EXAMPLE.get(l2_code, {}).get(l1_code)
+               or _VARIANT_EXAMPLE_NEUTRAL.get(l2_code, ""))
+    if l2_code == "en":
+        return {
+            "l1_sentence": f" The learner's native language is {name}." if name else "",
+            "l1_ref": name or "the learner's native language",
+            "example": example,
+        }
+    if l2_code == "zh":
+        return {
+            "l1_sentence": f"学习者的母语是{name}。" if name else "",
+            "l1_ref": name or "学习者母语",
+            "example": example,
+        }
+    return {
+        "l1_sentence": f"学習者の母語は{name}です。" if name else "",
+        "l1_ref": name or "学習者の母語",
+        "example": example,
+    }
+
+
+def _variant_block(l2_code: str, subtypes: list[str], subtype_labels, l1_code=None) -> str:
+    """The TASK-845 explanation_variant line, or '' when variants are not enabled
+    (every pre-v6 taxonomy) — the caller then appends nothing. `l1_code` (the
+    learner's L1) is named in the line; None keeps it L1-neutral."""
+    if not variants_enabled(subtypes):
+        return ""
+    labels = subtype_labels if subtype_labels is not None else subtypes
+    idx = _slug_index(subtypes, "word_choice")
+    wc = _SUBTYPE_REF_FORMAT[l2_code].format(i=idx, label=_short_label(labels[idx]))
+    return _VARIANT_BLOCK[l2_code].format(wc=wc, **_variant_l1_fields(l2_code, l1_code))
+
 
 def build_detector_system_prompt(
     l2_code: str,
@@ -837,6 +1146,7 @@ def build_detector_system_prompt(
     subtypes: list[str],
     *,
     subtype_labels: list[str] = None,
+    l1_code: str = None,
 ) -> str:
     """Build the cacheable Detector prefix (§7a). NO score instruction and NO
     band descriptors — the Detector only detects; scores are derived in Python.
@@ -855,10 +1165,18 @@ def build_detector_system_prompt(
     if variation_block:
         parts.append(variation_block)
     parts.extend(_enum_and_subtype_blocks(l2_code, subtypes, subtype_labels))
+    # TASK-843: v6-only (gated on meaning_inversion in the resolved list).
+    precedence = _precedence_block(l2_code, subtypes, subtype_labels, verifier=False)
+    if precedence:
+        parts.append(precedence)
+    # TASK-845: v6-only explanation_variant line + optional schema field.
+    variants = variants_enabled(subtypes)
+    if variants:
+        parts.append(_variant_block(l2_code, subtypes, subtype_labels, l1_code))
     parts.append(_SPAN_DISCIPLINE[l2_code])
     parts.append(_IS_MISTAKE[l2_code])
     parts.append(_HIGHLIGHTS_BLOCK[l2_code])
-    parts.append(_RESPOND_WITH_SHAPE[l2_code].format(schema=_detector_schema()))
+    parts.append(_RESPOND_WITH_SHAPE[l2_code].format(schema=_detector_schema(variants=variants)))
     exemplar_block = _detector_exemplar_text(rubric_cfg, l2_code, subtypes)
     if exemplar_block:
         parts.append(exemplar_block)
@@ -872,6 +1190,7 @@ def build_verifier_system_prompt(
     subtypes: list[str],
     *,
     subtype_labels: list[str] = None,
+    l1_code: str = None,
 ) -> str:
     """Build the cacheable Verifier prefix (§7c). Carries the naturalness/range
     band descriptors for this age tier (the only model-facing descriptors left)
@@ -887,13 +1206,21 @@ def build_verifier_system_prompt(
     if variation_block:
         parts.append(variation_block)
     parts.extend(_enum_and_subtype_blocks(l2_code, subtypes, subtype_labels))
+    # TASK-843: v6-only (gated on meaning_inversion in the resolved list).
+    precedence = _precedence_block(l2_code, subtypes, subtype_labels, verifier=True)
+    if precedence:
+        parts.append(precedence)
+    # TASK-845: v6-only explanation_variant line (applies to added_errors).
+    variants = variants_enabled(subtypes)
+    if variants:
+        parts.append(_variant_block(l2_code, subtypes, subtype_labels, l1_code))
     parts.append(_SPAN_DISCIPLINE[l2_code])
 
     descriptor_block = _band_descriptors_text(rubric_cfg, JUDGE_DIMENSIONS, age_tier, l2_code)
     if descriptor_block:
         parts.append(f"{_BAND_DESCRIPTOR_LABEL[l2_code]}:\n{descriptor_block}")
 
-    parts.append(_RESPOND_WITH_SHAPE[l2_code].format(schema=_verifier_schema()))
+    parts.append(_RESPOND_WITH_SHAPE[l2_code].format(schema=_verifier_schema(variants=variants)))
     exemplar_block = _verifier_exemplar_text(rubric_cfg, l2_code, subtypes)
     if exemplar_block:
         parts.append(exemplar_block)
@@ -958,30 +1285,39 @@ def _enum_and_subtype_blocks(l2_code: str, subtypes: list[str], subtype_labels) 
     ]
 
 
-def _detector_schema() -> str:
+def _error_schema_item(variants: bool) -> dict:
+    """One error entry of the Detector `errors` / Verifier `added_errors` shape.
+    TASK-845: under v6 (`variants`) it also shows the optional
+    `explanation_variant` index; without it the dict — and so the serialized
+    schema — is exactly the pre-v6 one."""
+    item = {
+        "span_repro": [0, 0],
+        "span_ref": [0, 0],
+        "category": 0,
+        "source": 0,
+        "severity": 0,
+        "subtype": 0,
+        "learner_form": "...",
+        "corrected_form": "...",
+        "confidence": "<0.0-1.0>",
+        "is_mistake": False,
+    }
+    if variants:
+        item["explanation_variant"] = 0
+    return item
+
+
+def _detector_schema(*, variants: bool = False) -> str:
     """The §6a Detector JSON shape: confidence + errors[] (no scores) + highlights[]."""
     schema = {
         "confidence": "<0.0-1.0>",
-        "errors": [
-            {
-                "span_repro": [0, 0],
-                "span_ref": [0, 0],
-                "category": 0,
-                "source": 0,
-                "severity": 0,
-                "subtype": 0,
-                "learner_form": "...",
-                "corrected_form": "...",
-                "confidence": "<0.0-1.0>",
-                "is_mistake": False,
-            }
-        ],
+        "errors": [_error_schema_item(variants)],
         "highlights": [{"span_repro": [0, 0], "reason": 0}],
     }
     return json.dumps(schema, ensure_ascii=False)
 
 
-def _verifier_schema() -> str:
+def _verifier_schema(*, variants: bool = False) -> str:
     """The §6b Verifier JSON shape: confidence + verdicts[] + added_errors[] + judgments{}."""
     schema = {
         "confidence": "<0.0-1.0>",
@@ -995,20 +1331,7 @@ def _verifier_schema() -> str:
                 "span_ref": [0, 0],
             }
         ],
-        "added_errors": [
-            {
-                "span_repro": [0, 0],
-                "span_ref": [0, 0],
-                "category": 0,
-                "source": 0,
-                "severity": 0,
-                "subtype": 0,
-                "learner_form": "...",
-                "corrected_form": "...",
-                "confidence": "<0.0-1.0>",
-                "is_mistake": False,
-            }
-        ],
+        "added_errors": [_error_schema_item(variants)],
         "judgments": {
             "naturalness": {"band": "<1-4>", "evidence_spans": [[0, 0]]},
             "range": {"band": "<1-4>", "evidence_spans": [[0, 0]]},
@@ -1138,12 +1461,45 @@ _EXPLAINER_ERRORS_LABEL: dict[str, str] = {
 }
 
 
-def build_explainer_system_prompt(l1_code: str) -> str:
+# TASK-846 (taxonomy v6, ADR-031 Decision A): appended to the Explainer system
+# prompt only when an error in the batch carries a word_choice `variant`. One
+# sentence per variant, in the learner's L1; the slugs are protocol tokens (they
+# appear verbatim in the error list) so they stay Latin. ZH/JA are AI drafts →
+# native review with the rest of the v6 strings (TASK-839/840).
+_EXPLAINER_VARIANT_GUIDANCE: dict[str, str] = {
+    "en": (
+        ' Some word-choice errors carry a "variant". wrong_word: the learner used a '
+        "different word with a different meaning — say what each word means here. "
+        "wrong_sense: it is the same word used in a sense this sentence does not need — "
+        "say which sense the context calls for. false_synonym: the two words can share "
+        "one English translation but are not interchangeable — contrast the two words "
+        "and say how their usage differs."
+    ),
+    "zh": (
+        "部分“词语选择”类错误带有“variant”字段。wrong_word：学习者用了意思不同的另一个词——说明两个词在这里各自的意思。"
+        "wrong_sense：是同一个词，但用成了这个句子不需要的义项——说明语境需要的是哪个义项。"
+        "false_synonym：两个词在中文里常常译成同一个词，但不能互换——对比这两个词，说明它们的用法有何不同。"
+    ),
+    "ja": (
+        "一部の「語彙選択」の誤りには「variant」の項目が付いています。wrong_word：学習者が意味の異なる別の語を"
+        "使った——ここでの各語の意味を説明すること。wrong_sense：同じ語だが、この文に合わない語義で使われている"
+        "——文脈が求める語義を示すこと。false_synonym：二つの語は日本語では同じ訳語になり得るが置き換えはできない"
+        "——二つの語を対比し、使い方の違いを説明すること。"
+    ),
+}
+
+
+def build_explainer_system_prompt(l1_code: str, variants: bool = False) -> str:
     """The Explainer system prompt in the learner's L1 (§7e). Raises for an
     unauthored L1 — the caller (services.dual_translation.explainer) is fail-silent
-    around this, so an unsupported L1 degrades to Rule-only rather than crashing."""
+    around this, so an unsupported L1 degrades to Rule-only rather than crashing.
+
+    TASK-846: `variants=True` (some error carries a v6 word_choice variant) appends
+    the per-variant guidance; the default returns the v5 header byte-identically."""
     if l1_code not in _EXPLAINER_HEADER:
         raise ValueError(f"No Explainer template authored for l1_code={l1_code!r}")
+    if variants:
+        return _EXPLAINER_HEADER[l1_code] + _EXPLAINER_VARIANT_GUIDANCE[l1_code]
     return _EXPLAINER_HEADER[l1_code]
 
 
@@ -1153,7 +1509,9 @@ def build_explainer_user_prompt(
     """The small, never-cached Explainer suffix (§7e): reference + learner text +
     the numbered confirmed-error list. `errors` is the compact per-error shape the
     explainer builds — ``{i, learner_form, corrected_form, type, rule}`` — where
-    `type` (the subtype gloss) and `rule` are already in the L1."""
+    `type` (the subtype gloss) and `rule` are already in the L1. TASK-846: a v6
+    word_choice error also carries ``variant`` (its explanation_variant slug),
+    serialized as-is with the rest of the item."""
     ref_label, learner_label = _USER_PROMPT_LABELS.get(l1_code, _USER_PROMPT_LABELS["en"])
     errors_label = _EXPLAINER_ERRORS_LABEL.get(l1_code, _EXPLAINER_ERRORS_LABEL["en"])
     return "\n".join([

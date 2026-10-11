@@ -216,17 +216,57 @@ def test_salvage_from_text_no_longer_exists():
 
 
 def test_prompt3_still_accepts_a_partial_response_on_the_retry(monkeypatch):
-    """Parity guard: the 'accept partial after retry' branch is unchanged by
-    the salvage removal -- a still-missing level on attempt 2 returns the
-    partial dict rather than None."""
+    """Parity guard, updated for the item-1 scoped repair call: a level still
+    missing after primary+retry now gets ONE additional scoped repair call
+    (tagged call_role='repair') asking only for that level, before the
+    'accept partial' fallback -- not a 3rd unscoped retry, and not a return
+    to the salvage call TASK-810 removed."""
 
     def _missing_then_missing(_n):
-        return {}  # never includes level 7
+        return {}  # never includes level 7, on any of the 3 calls
 
     calls = _stub_p3(monkeypatch, _missing_then_missing)
     gen = p3mod.TransformAssetGenerator(db=object(), language_id=2)
 
     result = gen.generate(sense_id=1, core_asset=_P3_CORE, active_levels=[7])
 
-    assert len(calls) == 2
+    assert len(calls) == 3, 'primary + retry + one scoped repair call'
+    assert [c['call_role'] for c in calls] == ['primary', 'retry', 'repair']
     assert result == {}, 'accepted partial (empty) output, not None'
+
+
+def test_prompt3_scoped_repair_fills_in_the_missing_level(monkeypatch):
+    """The scoped repair call's output is merged into the final result when
+    it succeeds where the primary/retry pair didn't."""
+
+    def _missing_then_fixed(n):
+        if n < 3:
+            return {}
+        return {'7': {'1': 'bad', '2': 'good', '3': 'wrong tense', '4': [0, 1, 2]}}
+
+    calls = _stub_p3(monkeypatch, _missing_then_fixed)
+    gen = p3mod.TransformAssetGenerator(db=object(), language_id=2)
+
+    result = gen.generate(sense_id=1, core_asset=_P3_CORE, active_levels=[7])
+
+    assert len(calls) == 3
+    assert calls[2]['call_role'] == 'repair'
+    assert result.get('level_7', {}).get('incorrect_sentence') == 'bad'
+
+
+def test_prompt3_repair_not_attempted_on_total_call_failure(monkeypatch):
+    """A repair call only makes sense when SOME response came back but was
+    incomplete -- a repeated hard failure (exception on every attempt) has
+    nothing to scope a repair to, so it must stay capped at exactly 2 calls,
+    unchanged from TASK-810 (see test_prompt3_salvage_never_fires above)."""
+
+    def _always_raise(_n):
+        raise RuntimeError('provider down')
+
+    calls = _stub_p3(monkeypatch, _always_raise)
+    gen = p3mod.TransformAssetGenerator(db=object(), language_id=2)
+
+    result = gen.generate(sense_id=1, core_asset=_P3_CORE, active_levels=[7])
+
+    assert result is None
+    assert len(calls) == 2

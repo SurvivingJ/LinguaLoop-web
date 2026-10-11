@@ -1,0 +1,1079 @@
+{
+  "sense_id": 14544,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T23:04:23.431611+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.2564849853515625,
+    "p1_generate": 2.8589627742767334,
+    "tier_gate": 0.0,
+    "p1_judge": 1.3334639072418213,
+    "collocate_grounding": 0.0,
+    "fan_out": 30.37668752670288
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/njuːm/",
+        "morphological_forms": [
+          {
+            "form": "neume",
+            "label": "singular"
+          },
+          {
+            "form": "neumes",
+            "label": "plural"
+          }
+        ],
+        "pronunciation": "nyoom",
+        "register": "technical"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14544
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "5772f442-9b40-4198-9e69-c000e95bc344",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "neumes",
+        "pronunciation": "nyoom",
+        "correct_definition": "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+        "options": [
+          "The state of being blocked or crowded, especially with traffic or fluid in the body.",
+          "To cause something to happen or bring about a result.",
+          "An area of land that is controlled by a particular country or ruler.",
+          "A symbol used in medieval musical notation to indicate pitch and rhythm."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f9c9e04e-f952-4198-b15e-5aba5811ee94",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Around the 9th century, the development of ___ marked a crucial step forward.",
+        "original_sentence": "Around the 9th century, the development of neumes marked a crucial step forward.",
+        "correct_answer": "neumes",
+        "options": [
+          "stanzas",
+          "glyphs",
+          "chords",
+          "neumes"
+        ],
+        "explanation": "Correct: 'neumes' refers to medieval musical notation symbols, fitting the historical context of the 9th century.",
+        "distractor_tags": {},
+        "word_definition": "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+        "target_word": "neumes"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "337e1cdc-02e0-43ba-9af6-cf86bcd01cc9",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The music historian studied every single ___ written on the ancient parchment.",
+        "original_sentence": "The music historian studied every single neume written on the ancient parchment.",
+        "correct_answer": "neume",
+        "base_form": "neume",
+        "form_label": "singular",
+        "options": [
+          "neume",
+          "neume's",
+          "neumes'",
+          "neumes"
+        ],
+        "explanation": "singular noun required by the quantifier 'every single'",
+        "word_definition": "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+        "target_word": "neume"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "db51b4db-3a09-4fd9-8947-f5cbbe5a7ed9",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The gardener planted neumes along the border of the flower bed.",
+            "is_correct": false
+          },
+          {
+            "text": "Without modern staff lines, these early neumes guided the choir through the melody.",
+            "is_correct": true
+          },
+          {
+            "text": "The chef sprinkled neumes over the pasta like dried herbs.",
+            "is_correct": false
+          },
+          {
+            "text": "She wore a necklace made of golden neumes to the formal dinner.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: neumes are abstract musical notation symbols, not physical objects that can be sprinkled as a garnish. Pragmatically inappropriate: neumes are notional symbols written on manuscripts, not physical jewelry items one can wear. Pragmatically inappropriate: neumes are written musical symbols, not seeds or plants that can be cultivated in a garden.",
+        "target_word": "neumes"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "81cf3344-3f74-4eeb-82dd-2e12c1c493be",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Monks drew each neume carefully above the sacred Latin lyrics.",
+            "is_correct": true
+          },
+          {
+            "text": "The ancient neumes was difficult to read without the modern staff lines.",
+            "is_correct": false,
+            "error_description": "Subject-verb agreement error: the plural subject 'neumes' requires the plural verb 'were' instead of the singular 'was'."
+          },
+          {
+            "text": "Around the 9th century, the development of neumes marked a crucial step forward.",
+            "is_correct": true
+          },
+          {
+            "text": "The music historian studied every single neume written on the ancient parchment.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "a42b7a3e-1eb5-4c86-9aaf-f94409f6cbe6",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "neumes",
+        "pronunciation": "nyoom",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A barrier or obstacle that must be overcome; also, a problem or difficulty.",
+              "To change something completely in form or character.",
+              "To accumulate or increase in amount, often in a disorderly way.",
+              "A symbol used in medieval musical notation to indicate pitch and rhythm."
+            ],
+            "correct_answer": "A symbol used in medieval musical notation to indicate pitch and rhythm."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "9e9252cc-69ec-46b5-bb3e-b61e2c79a2a1",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The music historian studied every single ___ written on the ancient parchment.",
+        "original_sentence": "The music historian studied every single neume written on the ancient parchment.",
+        "target_word": "neume",
+        "word": "neumes",
+        "answer": {
+          "accepted": [
+            "neume"
+          ],
+          "accepted_normalized": [
+            "neume"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "4f13d77e-13ec-4b48-a6aa-097fd2198ba3",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Researchers have debated how these specific neumes should be translated into modern notes.",
+        "chunks": [
+          "Researchers",
+          "have debated",
+          "how these specific neumes should be translated into modern notes"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "how these specific neumes should be translated into modern notes",
+          "have debated",
+          "Researchers"
+        ],
+        "target_word": "neumes",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "fa6b0a85-5ee9-4ff4-b3cb-ec55e67ab62d",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The choir director explained how each ___ represented a specific vocal movement.",
+        "original_sentence": "The choir director explained how each neume represented a specific vocal movement.",
+        "correct_answer": "neume",
+        "base_form": "neume",
+        "form_label": "singular",
+        "options": [
+          "neume",
+          "neumes",
+          "neume's",
+          "neumes'"
+        ],
+        "explanation": "singular form required by the distributive determiner 'each'",
+        "word_definition": "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+        "target_word": "neume"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ac681979-a1a1-4de7-b2b5-fcd309626540",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The chef sprinkled the neumes over the pasta like a fine, musical seasoning.",
+            "is_correct": false
+          },
+          {
+            "text": "The neumes barked loudly at the mailman when he approached the front door.",
+            "is_correct": false
+          },
+          {
+            "text": "She wore a beautiful necklace made of polished neumes that sparkled in the sun.",
+            "is_correct": false
+          },
+          {
+            "text": "He had never seen such an elaborate neume in any other manuscript.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: Neumes are visual symbols for musical notation, not physical objects that can be used as food seasoning. Semantically inappropriate: Neumes are ink symbols drawn on parchment, not physical gemstones or beads that can be carved into jewelry. Semantically inappropriate: Neumes are inanimate written symbols, not living animals capable of barking.",
+        "target_word": "neume"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "91ed0541-12c7-4494-b3f2-b5c8aa369427",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "He had never seen such an elaborate neume in any other manuscript.",
+            "is_correct": true
+          },
+          {
+            "text": "The choir director explained how each neume represented a specific vocal movement.",
+            "is_correct": true
+          },
+          {
+            "text": "A faded neume near the top of the page puzzled the young scholar.",
+            "is_correct": true
+          },
+          {
+            "text": "The ancient neumes was difficult for the modern choir to interpret correctly.",
+            "is_correct": false,
+            "error_description": "Subject-verb agreement error: the plural subject 'neumes' requires the plural verb 'were' instead of the singular 'was'."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "e45d92b7-33a5-418f-ab4c-d468b8343fef",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The choir director explained how each ___ represented a specific vocal movement.",
+        "original_sentence": "The choir director explained how each neume represented a specific vocal movement.",
+        "target_word": "neume",
+        "word": "neumes",
+        "answer": {
+          "accepted": [
+            "neume"
+          ],
+          "accepted_normalized": [
+            "neume"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "485d7a05-9cd8-41a7-8bb3-e8050d8c399d",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Without modern staff lines, these early neumes guided the choir through the melody.",
+        "chunks": [
+          "Without modern staff lines",
+          "these early neumes",
+          "guided",
+          "the choir",
+          "through the melody"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "Without modern staff lines",
+          "through the melody",
+          "guided",
+          "the choir",
+          "these early neumes"
+        ],
+        "target_word": "neumes",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0022141,
+      "prompt_tokens": 1947,
+      "completion_tokens": 652,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2661
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006378,
+      "prompt_tokens": 676,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1240
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174624,
+      "prompt_tokens": 825,
+      "completion_tokens": 1158,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20675
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182656,
+      "prompt_tokens": 1164,
+      "completion_tokens": 1136,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20753
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182496,
+      "prompt_tokens": 1159,
+      "completion_tokens": 1136,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20875
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182816,
+      "prompt_tokens": 825,
+      "completion_tokens": 1222,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22389
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00256672,
+      "prompt_tokens": 1613,
+      "completion_tokens": 1602,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 28618
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00266272,
+      "prompt_tokens": 1613,
+      "completion_tokens": 1677,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30206
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004039,
+      "prompt_tokens": 413,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1025
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003513,
+      "prompt_tokens": 396,
+      "completion_tokens": 93,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 983
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003475,
+      "prompt_tokens": 475,
+      "completion_tokens": 82,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1006
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001968,
+      "prompt_tokens": 381,
+      "completion_tokens": 33,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 885
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002989,
+      "prompt_tokens": 413,
+      "completion_tokens": 70,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 877
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003423,
+      "prompt_tokens": 391,
+      "completion_tokens": 90,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 880
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003705,
+      "prompt_tokens": 485,
+      "completion_tokens": 90,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 928
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001868,
+      "prompt_tokens": 381,
+      "completion_tokens": 29,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 783
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.017805260000000003,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T6",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 43.28099999995902,
+  "finished_at": "2026-10-05T23:05:06.724696+00:00"
+}

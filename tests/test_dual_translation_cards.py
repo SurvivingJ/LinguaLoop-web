@@ -367,6 +367,57 @@ class TestGenerateCardsForQueuedEntries:
 
 
 # ---------------------------------------------------------------------------
+# TASK-851: dt_card.taxonomy_version stamping (gated on Config.DT_TAXONOMY_COLUMNS)
+# ---------------------------------------------------------------------------
+
+class TestCardTaxonomyVersionStamp:
+
+    def _card_inserts(self, db):
+        return [p for n, m, p in db.calls if n == 'dt_card' and m == 'insert']
+
+    def test_flag_off_writes_are_identical_and_version_never_read(self, monkeypatch):
+        from services.dual_translation import grader_cascade
+
+        monkeypatch.setattr(cards.Config, 'DT_TAXONOMY_COLUMNS', False)
+
+        def _boom(db):
+            raise AssertionError('taxonomy version must not be read with the flag off')
+
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', _boom)
+        db = _FakeDB(_base_tables())
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 1
+        for row in self._card_inserts(db)[0]:
+            assert 'taxonomy_version' not in row
+            assert set(row) == {
+                'card_type', 'subtype', 'prompt_payload',
+                'user_id', 'profile_entry_id', 'origin_error_id', 'state',
+            }
+
+    def test_flag_on_stamps_every_new_card_with_the_active_version(self, monkeypatch):
+        from services.dual_translation import grader_cascade
+
+        monkeypatch.setattr(cards.Config, 'DT_TAXONOMY_COLUMNS', True)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', lambda db: 6)
+        db = _FakeDB(_base_tables())
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 1
+        rows = self._card_inserts(db)[0]
+        assert len(rows) == 2
+        assert [r['taxonomy_version'] for r in rows] == [6, 6]
+
+    def test_flag_on_unreadable_version_leaves_cards_unstamped(self, monkeypatch):
+        from services.dual_translation import grader_cascade
+
+        monkeypatch.setattr(cards.Config, 'DT_TAXONOMY_COLUMNS', True)
+        monkeypatch.setattr(grader_cascade, 'get_active_taxonomy_version', lambda db: None)
+        db = _FakeDB(_base_tables())
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 1
+        assert all('taxonomy_version' not in r for r in self._card_inserts(db)[0])
+
+
+# ---------------------------------------------------------------------------
 # select_error_exercises_for_practice (TASK-618 Practice Engine injection)
 # ---------------------------------------------------------------------------
 

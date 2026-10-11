@@ -298,3 +298,76 @@ def test_numbered_error_falls_back_to_slug_when_no_gloss(monkeypatch):
 
     _run([_error(subtype='no_such_subtype')], monkeypatch)
     assert 'no_such_subtype' in captured['user']
+
+
+# ---------------------------------------------------------------------------
+# TASK-846: word_choice explanation_variant in the explainer context
+# ---------------------------------------------------------------------------
+
+def _capture_prompts(monkeypatch):
+    captured = {}
+
+    def _call(model_slug, user_prompt, system_prompt=None, temperature=0.0):
+        captured['user'] = user_prompt
+        captured['system'] = system_prompt
+        return json.dumps({'explanations': []}), 1, 1, 0.1
+
+    monkeypatch.setattr(explainer, 'resolve_tier', lambda db, tier, lid, **k: _route('tier1-slug'))
+    monkeypatch.setattr(explainer, 'call_model_with_usage', _call)
+    return captured
+
+
+def _wc_error(variant):
+    err = _error(learner_form='borrow', corrected_form='lend', subtype='word_choice',
+                 rule='Rule text.')
+    err['explanation_variant'] = variant
+    return err
+
+
+def test_numbered_error_carries_variant_when_present():
+    err = _wc_error('false_synonym')
+    err['explanation_parts'] = {'rule': 'Rule text.', 'application': None}
+    assert explainer._numbered_error(err, 0, TAXONOMY_CFG, 'en')['variant'] == 'false_synonym'
+
+
+@pytest.mark.parametrize('variant', [None, 'absent'])
+def test_numbered_error_omits_variant_key_without_one(variant):
+    """v5 errors (no key) and non-word_choice v6 errors (None) → no `variant` key,
+    so the v5 payload is byte-identical."""
+    err = _error()
+    if variant is None:
+        err['explanation_variant'] = None
+    err['explanation_parts'] = {'rule': 'r', 'application': None}
+    assert 'variant' not in explainer._numbered_error(err, 0, TAXONOMY_CFG, 'en')
+
+
+def test_explainer_payload_and_system_prompt_carry_the_variant(monkeypatch):
+    captured = _capture_prompts(monkeypatch)
+    _run([_wc_error('false_synonym'), _error()], monkeypatch)
+
+    numbered = json.loads(captured['user'].split('CONFIRMED ERRORS: ', 1)[1])
+    assert numbered[0]['variant'] == 'false_synonym'
+    assert 'variant' not in numbered[1]
+    assert captured['system'] == prompts.build_explainer_system_prompt('en', variants=True)
+    assert 'false_synonym' in captured['system']
+
+
+def test_explainer_v5_system_prompt_unchanged(monkeypatch):
+    captured = _capture_prompts(monkeypatch)
+    _run([_error()], monkeypatch)
+
+    assert captured['system'] == prompts._EXPLAINER_HEADER['en']
+    assert '"variant"' not in captured['user']
+
+
+@pytest.mark.parametrize('l1_code', ['en', 'zh', 'ja'])
+def test_explainer_variant_guidance_per_l1(l1_code):
+    base = prompts.build_explainer_system_prompt(l1_code)
+    with_variants = prompts.build_explainer_system_prompt(l1_code, variants=True)
+
+    assert base == prompts._EXPLAINER_HEADER[l1_code]  # default: v5 byte-identical
+    assert with_variants.startswith(base) and with_variants != base
+    guidance = with_variants[len(base):]
+    # One sentence per variant, each naming its protocol slug.
+    for slug in prompts.VARIANT_ENUM:
+        assert guidance.count(slug) == 1, (l1_code, slug)

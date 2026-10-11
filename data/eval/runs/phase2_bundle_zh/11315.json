@@ -1,0 +1,697 @@
+{
+  "sense_id": 11315,
+  "language_id": 1,
+  "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+  "started_at": "2026-10-03T01:46:52.307172+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "[A] Missing level_7",
+    "Prompt 2 variant B generation failed",
+    "[B] Missing level_7"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.09650063514709473,
+    "p1_generate": 14.382281303405762,
+    "tier_gate": 0.0,
+    "p1_judge": 0.2838771343231201,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_7"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Missing level_7"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[tɕiɛ˧˥ kʰaŋ˥˩ tɕi˥˩]",
+        "morphological_forms": [
+          {
+            "form": "种",
+            "label": "量词"
+          },
+          {
+            "form": "瓶",
+            "label": "量词"
+          },
+          {
+            "form": "受体拮抗剂",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "jié kàng jì",
+        "register": "专业（技术）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11315
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "3decc619-2e29-498f-ba36-6829fb2aca3f",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "拮抗剂",
+        "pronunciation": "jié kàng jì",
+        "correct_definition": "能抵消另一种物质作用的药或成分。",
+        "options": [
+          "指因粮食短缺而引发的争夺或冲突。",
+          "能抵消另一种物质作用的药或成分。",
+          "地位指个人或事物在社会关系中所处的位置或等级。",
+          "液体流动而消失；也比喻时间等逝去。"
+        ],
+        "hant": {
+          "word": "拮抗劑",
+          "pronunciation": "jié kàng jì",
+          "correct_definition": "能抵消另一種物質作用的藥或成分。",
+          "options": [
+            "指因糧食短缺而引發的爭奪或衝突。",
+            "能抵消另一種物質作用的藥或成分。",
+            "地位指個人或事物在社會關係中所處的位置或等級。",
+            "液體流動而消失；也比喻時間等逝去。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "be952adf-5096-418f-bb02-4f43c4e3e907",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "我们需要研究这种拮抗剂的副作用。",
+        "hant": {
+          "original_sentence": "我們需要研究這種拮抗劑的副作用。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "984dfa72-a72d-41ea-8b18-21c1e4b2607a",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "拮抗剂",
+        "pronunciation": "jié kàng jì",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "能抵消另一种物质作用的药或成分。",
+              "班次的意思是车、船、飞机等出发的时间安排。",
+              "建造する",
+              "市井；一般の人々が暮らす日常の世界"
+            ],
+            "correct_answer": "能抵消另一种物质作用的药或成分。"
+          }
+        },
+        "hant": {
+          "word": "拮抗劑",
+          "pronunciation": "jié kàng jì",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "能抵消另一種物質作用的藥或成分。",
+                "班次的意思是車、船、飛機等出發的時間安排。",
+                "建造する",
+                "市井；一般の人々が暮らす日常の世界"
+              ],
+              "correct_answer": "能抵消另一種物質作用的藥或成分。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "8ef44db3-ada5-49b7-a618-52d39e540ac0",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这种___可以阻止病毒进入细胞。",
+        "original_sentence": "这种拮抗剂可以阻止病毒进入细胞。",
+        "target_word": "拮抗剂",
+        "word": "拮抗剂",
+        "answer": {
+          "accepted": [
+            "拮抗剂",
+            "种",
+            "瓶",
+            "受体拮抗剂"
+          ],
+          "accepted_normalized": [
+            "拮抗剂",
+            "种",
+            "瓶",
+            "受体拮抗剂"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這種___可以阻止病毒進入細胞。",
+          "original_sentence": "這種拮抗劑可以阻止病毒進入細胞。",
+          "target_word": "拮抗劑",
+          "word": "拮抗劑",
+          "answer": {
+            "accepted": [
+              "拮抗劑",
+              "種",
+              "瓶",
+              "受體拮抗劑"
+            ],
+            "accepted_normalized": [
+              "拮抗劑",
+              "種",
+              "瓶",
+              "受體拮抗劑"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "fa728afd-cfdf-4ad3-9e83-5eb556690f9e",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "我们需要研究这种拮抗剂的副作用。",
+        "chunks": [
+          "我们需要",
+          "研究这种",
+          "拮抗剂的副作用"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "我们需要",
+          "拮抗剂的副作用",
+          "研究这种"
+        ],
+        "target_word": "拮抗剂",
+        "chunk_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "我們需要研究這種拮抗劑的副作用。",
+          "chunks": [
+            "我們需要",
+            "研究這種",
+            "拮抗劑的副作用"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2
+          ],
+          "shuffled_chunks": [
+            "我們需要",
+            "拮抗劑的副作用",
+            "研究這種"
+          ],
+          "target_word": "拮抗劑",
+          "chunk_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1ab5db67-565e-497a-81f2-57cf1e55b4c2",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "拮抗剂",
+        "options": [
+          "jiē kàng jì",
+          "jié kàng jì",
+          "jié kāng jì",
+          "jié kàng jī"
+        ],
+        "correct_answer": "jié kàng jì",
+        "word": "拮抗剂",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "拮抗劑",
+          "options": [
+            "jiē kàng jì",
+            "jié kàng jì",
+            "jié kāng jì",
+            "jié kàng jī"
+          ],
+          "correct_answer": "jié kàng jì",
+          "word": "拮抗劑",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "53970085-97ab-499c-9e17-0400955a44ae",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "jié kàng jì",
+        "options": [
+          "捕捉到",
+          "显影剂",
+          "抗逆性",
+          "拮抗剂"
+        ],
+        "correct_answer": "拮抗剂",
+        "word": "拮抗剂",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "捕捉到": "component",
+          "显影剂": "component",
+          "抗逆性": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "jié kàng jì",
+          "options": [
+            "捕捉到",
+            "顯影劑",
+            "抗逆性",
+            "拮抗劑"
+          ],
+          "correct_answer": "拮抗劑",
+          "word": "拮抗劑",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "捕捉到": "component",
+            "显影剂": "component",
+            "抗逆性": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "0c42abe1-0d34-46af-b030-060b0e0bc3d4",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "拮抗剂",
+        "toneless_pinyin": "jie kang ji",
+        "full_pinyin": "jié kàng jì",
+        "options": [
+          "244",
+          "243",
+          "242",
+          "241"
+        ],
+        "correct_answer": "244",
+        "option_labels": {
+          "244": "rising (2) + falling (4) + falling (4)",
+          "243": "rising (2) + falling (4) + dipping (3)",
+          "242": "rising (2) + falling (4) + rising (2)",
+          "241": "rising (2) + falling (4) + high level (1)"
+        },
+        "syllable_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "word": "拮抗劑",
+          "toneless_pinyin": "jie kang ji",
+          "full_pinyin": "jié kàng jì",
+          "options": [
+            "244",
+            "243",
+            "242",
+            "241"
+          ],
+          "correct_answer": "244",
+          "option_labels": {
+            "244": "rising (2) + falling (4) + falling (4)",
+            "243": "rising (2) + falling (4) + dipping (3)",
+            "242": "rising (2) + falling (4) + rising (2)",
+            "241": "rising (2) + falling (4) + high level (1)"
+          },
+          "syllable_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 1
+    }
+  ],
+  "judges": {},
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174976,
+      "prompt_tokens": 2480,
+      "completion_tokens": 747,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 14204
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004176,
+      "prompt_tokens": 645,
+      "completion_tokens": 165,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 3892
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004928,
+      "prompt_tokens": 644,
+      "completion_tokens": 224,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "350aabc9-7630-403e-bd83-4c4139eff968",
+      "language_code": "zh",
+      "latency_ms": 5031
+    }
+  ],
+  "llm_calls_observed": 3,
+  "llm_cost_observed_usd": 0.00266016,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 27.35999999998603,
+  "finished_at": "2026-10-03T01:47:19.658362+00:00"
+}

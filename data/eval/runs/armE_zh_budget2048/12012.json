@@ -1,0 +1,1481 @@
+{
+  "sense_id": 12012,
+  "language_id": 1,
+  "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+  "started_at": "2026-10-08T10:56:35.090583+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] flagged (rating 3): 句子冗长，'排行榜上剑拔弩张'搭配略不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.3421516418457031,
+    "p1_generate": 48.844120264053345,
+    "tier_gate": 0.0,
+    "p1_judge": 70.55892658233643,
+    "collocate_grounding": 0.0,
+    "fan_out": 49.14016366004944
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] flagged (rating 3): 句子冗长，'排行榜上剑拔弩张'搭配略不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[tɕjɛn˥˩ pa˧˥ nu˨˩˦ tʂaŋ˥]",
+        "morphological_forms": [
+          {
+            "form": "劍拔弩張",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "jiàn bá nǔ zhāng",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            12012
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "fa417fff-2b60-420b-b8ab-0f9deaecb1aa",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "剑拔弩张",
+        "pronunciation": "jiàn bá nǔ zhāng",
+        "correct_definition": "形容双方争吵或对立，气氛非常紧张。",
+        "options": [
+          "培养、教育，使生物或事物成长、发展。",
+          "表示数量或程度没有达到某个标准。",
+          "副词，表示动作、变化已经完成或达到某种程度。",
+          "形容双方争吵或对立，气氛非常紧张。"
+        ],
+        "hant": {
+          "word": "劍拔弩張",
+          "pronunciation": "jiàn bá nǔ zhāng",
+          "correct_definition": "形容雙方爭吵或對立，氣氛非常緊張。",
+          "options": [
+            "培養、教育，使生物或事物成長、發展。",
+            "表示數量或程度沒有達到某個標準。",
+            "副詞，表示動作、變化已經完成或達到某種程度。",
+            "形容雙方爭吵或對立，氣氛非常緊張。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1d43cf4e-91dd-4b3e-8cfa-fcfeb711d4d4",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他们把关系弄得剑拔弩张着。",
+            "is_correct": false
+          },
+          {
+            "text": "他们把关系弄得剑拔弩张起来。",
+            "is_correct": false
+          },
+          {
+            "text": "他们把关系弄得剑拔弩张。",
+            "is_correct": true
+          },
+          {
+            "text": "剑拔弩张他们把关系弄得。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置错误。“剑拔弩张”是状态形容词，不能加动态助词“着”来表示动作的持续。 语序错误。“剑拔弩张”作为补语或谓语，不能脱离其主语和宾语前置到句首，破坏了“把”字句的基本结构。 体标选用错误。“起来”表示动作或状态的开始，而“弄得”后面通常接结果补语，表示状态达到的程度，两者搭配不当。",
+        "target_word": "剑拔弩张",
+        "hant": {
+          "sentences": [
+            {
+              "text": "他們把關係弄得劍拔弩張著。",
+              "is_correct": false
+            },
+            {
+              "text": "他們把關係弄得劍拔弩張起來。",
+              "is_correct": false
+            },
+            {
+              "text": "他們把關係弄得劍拔弩張。",
+              "is_correct": true
+            },
+            {
+              "text": "劍拔弩張他們把關係弄得。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置錯誤。“劍拔弩張”是狀態形容詞，不能加動態助詞“著”來表示動作的持續。 語序錯誤。“劍拔弩張”作為補語或謂語，不能脫離其主語和賓語前置到句首，破壞了“把”字句的基本結構。 體標選用錯誤。“起來”表示動作或狀態的開始，而“弄得”後面通常接結果補語，表示狀態達到的程度，兩者搭配不當。",
+          "target_word": "劍拔弩張"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "4d874837-0db6-4d09-a0fa-ab709549a7e3",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "玩家在“敌对公会”的竞技场厮杀后，可能在同一资源区合作采矿；竞争对手在排行榜上剑拔弩张，却又在社区论坛共享战术心得。",
+            "is_correct": true
+          },
+          {
+            "text": "这是一场剑拔弩张的比赛。",
+            "is_correct": true
+          },
+          {
+            "text": "几句话把气氛剑拔弩张。",
+            "is_correct": false,
+            "error_description": "在“把”字句中，“把”的宾语后不能直接接形容词“剑拔弩张”，必须使用“动词+得+形容词”的结构，例如改为“搞得剑拔弩张”。"
+          },
+          {
+            "text": "两边的气氛剑拔弩张。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "玩家在“敵對公會”的競技場廝殺後，可能在同一資源區合作採礦；競爭對手在排行榜上劍拔弩張，卻又在社群論壇共享戰術心得。",
+              "is_correct": true
+            },
+            {
+              "text": "這是一場劍拔弩張的比賽。",
+              "is_correct": true
+            },
+            {
+              "text": "幾句話把氣氛劍拔弩張。",
+              "is_correct": false,
+              "error_description": "在“把”字句中，“把”的賓語後不能直接接形容詞“劍拔弩張”，必須使用“動詞+得+形容詞”的結構，例如改為“搞得劍拔弩張”。"
+            },
+            {
+              "text": "兩邊的氣氛劍拔弩張。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "e32ff2c2-c828-4bf0-b34a-ea6917d86642",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "剑拔弩张",
+        "pronunciation": "jiàn bá nǔ zhāng",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "指人或事物聚集在一起，形成团体或状态。",
+              "让别人做他不想做的事。",
+              "since childhood; starting from a very young age",
+              "形容双方争吵或对立，气氛非常紧张。"
+            ],
+            "correct_answer": "形容双方争吵或对立，气氛非常紧张。"
+          }
+        },
+        "hant": {
+          "word": "劍拔弩張",
+          "pronunciation": "jiàn bá nǔ zhāng",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "指人或事物聚集在一起，形成團體或狀態。",
+                "讓別人做他不想做的事。",
+                "since childhood; starting from a very young age",
+                "形容雙方爭吵或對立，氣氛非常緊張。"
+              ],
+              "correct_answer": "形容雙方爭吵或對立，氣氛非常緊張。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "2450864d-a818-4b62-82f4-68ceb9873f4f",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "两边的气氛___。",
+        "original_sentence": "两边的气氛剑拔弩张。",
+        "target_word": "剑拔弩张",
+        "word": "剑拔弩张",
+        "answer": {
+          "accepted": [
+            "剑拔弩张"
+          ],
+          "accepted_normalized": [
+            "剑拔弩张"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "兩邊的氣氛___。",
+          "original_sentence": "兩邊的氣氛劍拔弩張。",
+          "target_word": "劍拔弩張",
+          "word": "劍拔弩張",
+          "answer": {
+            "accepted": [
+              "劍拔弩張"
+            ],
+            "accepted_normalized": [
+              "劍拔弩張"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "8ee8bcb3-802c-4d8c-a035-432587df70c3",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "剑拔弩张",
+        "options": [
+          "jiàn bá nū zhāng",
+          "jiàn bá nǔ zhāng",
+          "jiān bá nǔ zhāng",
+          "jiàn bā nǔ zhāng"
+        ],
+        "correct_answer": "jiàn bá nǔ zhāng",
+        "word": "剑拔弩张",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "劍拔弩張",
+          "options": [
+            "jiàn bá nū zhāng",
+            "jiàn bá nǔ zhāng",
+            "jiān bá nǔ zhāng",
+            "jiàn bā nǔ zhāng"
+          ],
+          "correct_answer": "jiàn bá nǔ zhāng",
+          "word": "劍拔弩張",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6108453c-18d1-4326-9440-56d6285f8a6f",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "jiàn bá nǔ zhāng",
+        "options": [
+          "剑拔弩张",
+          "控制技术",
+          "技术手段",
+          "检查数据"
+        ],
+        "correct_answer": "剑拔弩张",
+        "word": "剑拔弩张",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "控制技术": "component",
+          "技术手段": "component",
+          "检查数据": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "jiàn bá nǔ zhāng",
+          "options": [
+            "劍拔弩張",
+            "控制技術",
+            "技術手段",
+            "檢查資料"
+          ],
+          "correct_answer": "劍拔弩張",
+          "word": "劍拔弩張",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "控制技术": "component",
+            "技术手段": "component",
+            "检查数据": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "46451864-8a12-4e87-a627-c6ed81258918",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "剑拔弩张",
+        "toneless_pinyin": "jian ba nu zhang",
+        "full_pinyin": "jiàn bá nǔ zhāng",
+        "options": [
+          "4234",
+          "4232",
+          "4231",
+          "4233"
+        ],
+        "correct_answer": "4231",
+        "option_labels": {
+          "4234": "falling (4) + rising (2) + dipping (3) + falling (4)",
+          "4232": "falling (4) + rising (2) + dipping (3) + rising (2)",
+          "4231": "falling (4) + rising (2) + dipping (3) + high level (1)",
+          "4233": "falling (4) + rising (2) + dipping (3) + dipping (3)"
+        },
+        "syllable_count": 4,
+        "hant": {
+          "schema_version": 2,
+          "word": "劍拔弩張",
+          "toneless_pinyin": "jian ba nu zhang",
+          "full_pinyin": "jiàn bá nǔ zhāng",
+          "options": [
+            "4234",
+            "4232",
+            "4231",
+            "4233"
+          ],
+          "correct_answer": "4231",
+          "option_labels": {
+            "4234": "falling (4) + rising (2) + dipping (3) + falling (4)",
+            "4232": "falling (4) + rising (2) + dipping (3) + rising (2)",
+            "4231": "falling (4) + rising (2) + dipping (3) + high level (1)",
+            "4233": "falling (4) + rising (2) + dipping (3) + dipping (3)"
+          },
+          "syllable_count": 4
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7a34fc71-c56f-49ff-b0e7-d40179425526",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "剑拔弩张",
+        "relation": "antonym",
+        "options": [
+          "错综复杂",
+          "热火朝天",
+          "千钧一发",
+          "风平浪静"
+        ],
+        "correct_answer": "风平浪静",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "形容双方争吵或对立，气氛非常紧张。",
+            "explanation": "反义项：比喻平静无事，与目标词形容双方对立、气氛紧张构成反义。"
+          }
+        },
+        "hant": {
+          "word": "劍拔弩張",
+          "relation": "antonym",
+          "options": [
+            "錯綜複雜",
+            "熱火朝天",
+            "千鈞一髮",
+            "風平浪靜"
+          ],
+          "correct_answer": "風平浪靜",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "形容雙方爭吵或對立，氣氛非常緊張。",
+              "explanation": "反義項：比喻平靜無事，與目標詞形容雙方對立、氣氛緊張構成反義。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "错综复杂": 0.480666
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "0562a567-526f-4e67-9fb8-4bd91daf3018",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "双方___地争吵着。",
+        "original_sentence": "双方剑拔弩张地争吵着。",
+        "correct_answer": "剑拔弩张",
+        "options": [
+          "漫不经心",
+          "和颜悦色",
+          "剑拔弩张",
+          "心平气和"
+        ],
+        "explanation": "正确。“剑拔弩张”形容双方对立、气氛紧张，完美契合“争吵”的语境。",
+        "distractor_tags": {},
+        "word_definition": "形容双方争吵或对立，气氛非常紧张。",
+        "target_word": "剑拔弩张",
+        "hant": {
+          "sentence_with_blank": "雙方___地爭吵著。",
+          "original_sentence": "雙方劍拔弩張地爭吵著。",
+          "correct_answer": "劍拔弩張",
+          "options": [
+            "漫不經心",
+            "和顏悅色",
+            "劍拔弩張",
+            "心平氣和"
+          ],
+          "explanation": "正確。“劍拔弩張”形容雙方對立、氣氛緊張，完美契合“爭吵”的語境。",
+          "distractor_tags": {},
+          "word_definition": "形容雙方爭吵或對立，氣氛非常緊張。",
+          "target_word": "劍拔弩張"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "1f80a6d2-1ccc-4d35-afe4-a52fe767d083",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "谈判双方剑拔弩张得很，互不相让。",
+            "is_correct": false
+          },
+          {
+            "text": "剑拔弩张着谈判双方，互不相让。",
+            "is_correct": false
+          },
+          {
+            "text": "谈判双方把关系剑拔弩张起来，互不相让。",
+            "is_correct": false
+          },
+          {
+            "text": "谈判双方剑拔弩张，互不相让。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标误用：“剑拔弩张”本身已包含极度紧张的状态，不能加程度补语“得很”，造成语义重复与体貌错误。 语序错误：“剑拔弩张”是不及物状态的形容词，不能带动态助词“着”并前置作及物动词使用，破坏了主题-评论结构。 配价与补语误用：“剑拔弩张”不能用于“把”字句中作结果补语，也不能与趋向补语“起来”搭配表示状态起始。",
+        "target_word": "剑拔弩张",
+        "hant": {
+          "sentences": [
+            {
+              "text": "談判雙方劍拔弩張得很，互不相讓。",
+              "is_correct": false
+            },
+            {
+              "text": "劍拔弩張著談判雙方，互不相讓。",
+              "is_correct": false
+            },
+            {
+              "text": "談判雙方把關係劍拔弩張起來，互不相讓。",
+              "is_correct": false
+            },
+            {
+              "text": "談判雙方劍拔弩張，互不相讓。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標誤用：“劍拔弩張”本身已包含極度緊張的狀態，不能加程度補語“得很”，造成語義重複與體貌錯誤。 語序錯誤：“劍拔弩張”是不及物狀態的形容詞，不能帶動態助詞“著”並前置作及物動詞使用，破壞了主題-評論結構。 配價與補語誤用：“劍拔弩張”不能用於“把”字句中作結果補語，也不能與趨向補語“起來”搭配表示狀態起始。",
+          "target_word": "劍拔弩張"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "7d04fa7d-1a3b-4c10-890b-627a00bef3e8",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "双方剑拔弩张地争吵着。",
+            "is_correct": true
+          },
+          {
+            "text": "几句话把搞得气氛剑拔弩张。",
+            "is_correct": false,
+            "error_description": "“把”字句的宾语“气氛”必须紧跟在“把”之后，不能放在动词“搞”之后。"
+          },
+          {
+            "text": "谈判双方剑拔弩张，互不相让。",
+            "is_correct": true
+          },
+          {
+            "text": "两国关系曾经剑拔弩张。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "雙方劍拔弩張地爭吵著。",
+              "is_correct": true
+            },
+            {
+              "text": "幾句話把搞得氣氛劍拔弩張。",
+              "is_correct": false,
+              "error_description": "“把”字句的賓語“氣氛”必須緊跟在“把”之後，不能放在動詞“搞”之後。"
+            },
+            {
+              "text": "談判雙方劍拔弩張，互不相讓。",
+              "is_correct": true
+            },
+            {
+              "text": "兩國關係曾經劍拔弩張。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "7955a0c8-360e-4849-a6f6-7dffad0a6432",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "两国关系曾经___。",
+        "original_sentence": "两国关系曾经剑拔弩张。",
+        "target_word": "剑拔弩张",
+        "word": "剑拔弩张",
+        "answer": {
+          "accepted": [
+            "剑拔弩张"
+          ],
+          "accepted_normalized": [
+            "剑拔弩张"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "兩國關係曾經___。",
+          "original_sentence": "兩國關係曾經劍拔弩張。",
+          "target_word": "劍拔弩張",
+          "word": "劍拔弩張",
+          "answer": {
+            "accepted": [
+              "劍拔弩張"
+            ],
+            "accepted_normalized": [
+              "劍拔弩張"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "edff47bb-0dd6-4662-831d-d1e4895e3f6b",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "剑拔弩张",
+        "relation": "antonym",
+        "options": [
+          "势均力敌",
+          "死气沉沉",
+          "如火如荼",
+          "一团和气"
+        ],
+        "correct_answer": "一团和气",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "形容双方争吵或对立，气氛非常紧张。",
+            "explanation": "形容气氛融洽、态度温和，与目标词“气氛非常紧张、对立”构成反义。"
+          }
+        },
+        "hant": {
+          "word": "劍拔弩張",
+          "relation": "antonym",
+          "options": [
+            "勢均力敵",
+            "死氣沉沉",
+            "如火如荼",
+            "一團和氣"
+          ],
+          "correct_answer": "一團和氣",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "形容雙方爭吵或對立，氣氛非常緊張。",
+              "explanation": "形容氣氛融洽、態度溫和，與目標詞“氣氛非常緊張、對立”構成反義。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 12012,
+      "word_asset_id": "shadow-12012-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '剑拔弩张' is fused into a neighbouring chunk — chunks=['剑拔弩张的局势', '让人', '害怕']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '剑拔弩张' is fused into a neighbouring chunk — chunks=['他们', '把关系', '弄得剑拔弩张']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00430336,
+      "prompt_tokens": 2464,
+      "completion_tokens": 2746,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48494
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0031104,
+      "prompt_tokens": 668,
+      "completion_tokens": 2263,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 41106
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00125536,
+      "prompt_tokens": 195,
+      "completion_tokens": 932,
+      "cached_tokens": 0,
+      "reasoning_tokens": 908,
+      "call_role": "repair",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 20210
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006304,
+      "prompt_tokens": 534,
+      "completion_tokens": 359,
+      "cached_tokens": 0,
+      "reasoning_tokens": 341,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 8587
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00306208,
+      "prompt_tokens": 1509,
+      "completion_tokens": 2015,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1906,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 35431
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00322496,
+      "prompt_tokens": 1510,
+      "completion_tokens": 2142,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37714
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00312512,
+      "prompt_tokens": 638,
+      "completion_tokens": 2282,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 39901
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00311296,
+      "prompt_tokens": 640,
+      "completion_tokens": 2272,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 42652
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00402624,
+      "prompt_tokens": 1714,
+      "completion_tokens": 2717,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47737
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00410816,
+      "prompt_tokens": 1714,
+      "completion_tokens": 2781,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48906
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00284736,
+      "prompt_tokens": 430,
+      "completion_tokens": 2117,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 41169
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001783188,
+      "prompt_tokens": 429,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2436
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015168,
+      "prompt_tokens": 552,
+      "completion_tokens": 1047,
+      "cached_tokens": 0,
+      "reasoning_tokens": 979,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 161915
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00077536,
+      "prompt_tokens": 443,
+      "completion_tokens": 495,
+      "cached_tokens": 0,
+      "reasoning_tokens": 469,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 9593
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018672,
+      "prompt_tokens": 551,
+      "completion_tokens": 1321,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1225,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 25985
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00287424,
+      "prompt_tokens": 430,
+      "completion_tokens": 2138,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 43665
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001795986,
+      "prompt_tokens": 402,
+      "completion_tokens": 74,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2164
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00291616,
+      "prompt_tokens": 573,
+      "completion_tokens": 2135,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 39057
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00090336,
+      "prompt_tokens": 427,
+      "completion_tokens": 599,
+      "cached_tokens": 0,
+      "reasoning_tokens": 572,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 11725
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00288448,
+      "prompt_tokens": 550,
+      "completion_tokens": 2116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 12012,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37128
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.0469019174,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 549.9379999999946,
+  "finished_at": "2026-10-08T11:05:45.017607+00:00"
+}

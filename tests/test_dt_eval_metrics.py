@@ -345,3 +345,93 @@ def test_aggregate_excludes_none_pred_overall():
     m = em.aggregate_metrics(records)
     assert m["overall"]["n"] == 1
     assert m["overall"]["exact"] == pytest.approx(1.0)
+
+
+# ---------------------------------------------------------------------------
+# Taxonomy v6 metrics (TASK-849)
+# ---------------------------------------------------------------------------
+
+def _err(span, subtype, variant=None):
+    return {"span": span, "subtype": subtype, "severity": "major", "explanation_variant": variant}
+
+
+def _v6_records():
+    return [
+        # MI correctly typed; plus an unmatched predicted MI (false alarm).
+        _rec("multi",
+             [_err([0, 4], "meaning_inversion"), _err([20, 24], "meaning_inversion")],
+             [_err([0, 4], "meaning_inversion")], {}, {}, 4, 4),
+        # MI expected, typed as omission; word_choice TP with the right variant.
+        _rec("multi",
+             [_err([0, 4], "omission"), _err([10, 14], "word_choice", "wrong_word")],
+             [_err([0, 4], "meaning_inversion"), _err([10, 14], "word_choice", "wrong_word")],
+             {}, {}, 3, 3),
+        # MI expected, span missed entirely; word_choice TP with no predicted variant;
+        # a pair outside the confusable set (ignored by the confusion matrix).
+        _rec("multi",
+             [_err([10, 14], "word_choice"), _err([30, 33], "particle")],
+             [_err([0, 4], "meaning_inversion"), _err([10, 14], "word_choice", "false_synonym"),
+              _err([30, 33], "particle")],
+             {}, {}, 3, 3),
+        # word_choice TP, wrong variant; expected contradiction typed as particle -> "other".
+        _rec("multi",
+             [_err([10, 14], "word_choice", "wrong_word"), _err([40, 44], "particle")],
+             [_err([10, 14], "word_choice", "wrong_sense"), _err([40, 44], "contradiction")],
+             {}, {}, 3, 3),
+    ]
+
+
+def test_subtype_prf_meaning_inversion_counts_misses_and_false_alarms():
+    m = em.subtype_prf(_v6_records())
+    assert (m["tp"], m["n_expected"], m["n_predicted"]) == (1, 3, 2)
+    assert m["recall"] == pytest.approx(1 / 3)
+    assert m["precision"] == pytest.approx(1 / 2)
+
+
+def test_subtype_prf_nan_when_subtype_absent():
+    m = em.subtype_prf([_rec("single", [_err([0, 2], "omission")], [_err([0, 2], "omission")],
+                             {}, {}, 4, 4)])
+    assert math.isnan(m["recall"]) and math.isnan(m["precision"])
+
+
+def test_mi_confusion_matrix_rows_expected_cols_predicted():
+    conf = em.subtype_confusion(_v6_records())
+    assert conf["labels"] == ["meaning_inversion", "omission", "word_choice", "preposition",
+                              "contradiction", "other"]
+    mx = conf["matrix"]
+    assert mx["meaning_inversion"]["meaning_inversion"] == 1
+    assert mx["meaning_inversion"]["omission"] == 1
+    assert mx["word_choice"]["word_choice"] == 3
+    assert mx["contradiction"]["other"] == 1
+    # particle/particle is outside the set on both sides -> not counted anywhere.
+    assert mx["other"]["other"] == 0
+    # the missed MI span is not a matched pair -> not in the matrix (it is in recall).
+    assert sum(mx["meaning_inversion"].values()) == 2
+
+
+def test_explanation_variant_accuracy_and_basis():
+    recs = _v6_records()
+    recs[1]["pred_variant_basis"] = {"model": 1}
+    recs[3]["pred_variant_basis"] = {"same_lemma": 1, "model": 2}
+    m = em.explanation_variant_metrics(recs)
+    assert (m["correct"], m["total"], m["pred_missing"]) == (1, 3, 1)
+    assert m["accuracy"] == pytest.approx(1 / 3)
+    assert m["variant_basis"] == {"model": 3, "same_lemma": 1}
+
+
+def test_explanation_variant_nan_on_v5_style_records():
+    """v5 gold carries no explanation_variant -> nothing scored, not a 0% accuracy."""
+    rec = _rec("single", [_err([0, 2], "word_choice", "wrong_word")],
+               [_err([0, 2], "word_choice")], {}, {}, 4, 4)
+    m = em.explanation_variant_metrics([rec])
+    assert m["total"] == 0 and math.isnan(m["accuracy"]) and m["variant_basis"] == {}
+
+
+def test_taxonomy_v6_metrics_leaves_aggregate_metrics_unchanged():
+    import json  # NaN-safe comparison (NaN != NaN as dict values)
+    recs = _v6_records()
+    before = json.dumps(em.aggregate_metrics(recs), sort_keys=True)
+    em.taxonomy_v6_metrics(recs)
+    assert json.dumps(em.aggregate_metrics(recs), sort_keys=True) == before
+    assert set(em.taxonomy_v6_metrics(recs)) == {"mi_confusion", "meaning_inversion",
+                                                  "explanation_variant"}

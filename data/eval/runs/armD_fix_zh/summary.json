@@ -1,0 +1,255 @@
+{
+  "batch_id": "dfe0aa22-3e6b-4563-a202-b49d99289a8c",
+  "requested_senses": 2,
+  "attempted_senses": 2,
+  "status_counts": {
+    "success": 2
+  },
+  "run_wall_clock_s": 517.7029999999795,
+  "per_sense_wall_clock_s": {
+    "10103": 297.76599999994505,
+    "10104": 217.65599999995902
+  },
+  "assets_per_sense": {
+    "10103": 7,
+    "10104": 7
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "10103": {
+      "total": 15,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "3": 2,
+        "6": 3,
+        "7": 2,
+        "4": 2
+      }
+    },
+    "10104": {
+      "total": 14,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "cloze_typed": 2,
+        "hanzi_to_pinyin": 1,
+        "pinyin_to_hanzi": 1,
+        "tone_id_word": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "1": 4,
+        "2": 2,
+        "6": 4,
+        "7": 2,
+        "4": 2
+      }
+    }
+  },
+  "judge_reject_counts": {
+    "l1_distractor": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 8,
+      "rejected": 0,
+      "kept": 16
+    },
+    "relation": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 9
+    }
+  },
+  "judge_failure_counts_by_judge_and_error_class": {},
+  "judge_failures_total": 0,
+  "senses_with_judge_unavailable": 0,
+  "cost_usd_total_observed": 0.057939000000000004,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 38,
+  "llm_calls_cost_breakdown": [
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 4,
+      "total_cost_usd": 0.010913280000000001,
+      "avg_cost_usd": 0.0027283200000000002
+    },
+    {
+      "task_name": "judge_ladder_sentence_validity",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 7,
+      "total_cost_usd": 0.00814816,
+      "avg_cost_usd": 0.0011640228571428571
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 4,
+      "total_cost_usd": 0.00768128,
+      "avg_cost_usd": 0.00192032
+    },
+    {
+      "task_name": "ladder_syn_ant_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 4,
+      "total_cost_usd": 0.00694368,
+      "avg_cost_usd": 0.00173592
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 2,
+      "total_cost_usd": 0.005905280000000001,
+      "avg_cost_usd": 0.0029526400000000003
+    },
+    {
+      "task_name": "judge_ladder_relation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 4,
+      "total_cost_usd": 0.00583168,
+      "avg_cost_usd": 0.00145792
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 3,
+      "total_cost_usd": 0.00521632,
+      "avg_cost_usd": 0.0017387733333333333
+    },
+    {
+      "task_name": "judge_ladder_l1_distractor",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 4,
+      "total_cost_usd": 0.004128,
+      "avg_cost_usd": 0.001032
+    },
+    {
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "call_role": "repair",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 1,
+      "total_cost_usd": 0.00156576,
+      "avg_cost_usd": 0.00156576
+    },
+    {
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "call_role": "json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 1,
+      "total_cost_usd": 0.0009056,
+      "avg_cost_usd": 0.0009056
+    },
+    {
+      "task_name": "cloze_distractor_judge",
+      "call_role": "primary",
+      "model": "deepseek/deepseek-chat",
+      "calls": 4,
+      "total_cost_usd": 0.0006963418000000001,
+      "avg_cost_usd": 0.00017408545000000003
+    }
+  ],
+  "unattributed_writes_count": 2,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11046
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11047
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = 'dfe0aa22-3e6b-4563-a202-b49d99289a8c'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n",
+  "model_overrides_applied": [],
+  "prompt_overrides_applied": [],
+  "prompt_override_file": null,
+  "senses_from": "data/eval/runs/phase1_zh",
+  "ladder_qwen_reasoning": "budget"
+}

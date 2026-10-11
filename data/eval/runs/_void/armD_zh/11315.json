@@ -1,0 +1,1196 @@
+{
+  "sense_id": 11315,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T14:59:46.178488+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[6] flagged (rating 3): 整词：'受体拮抗剂'为复合词片段",
+    "P1 sentence[7] flagged (rating 3): 语域偏口语，不够专业",
+    "P1 sentence[8] flagged (rating 3): 语域偏口语，不够专业"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.18181729316711426,
+    "p1_generate": 31.832392692565918,
+    "tier_gate": 0.01569199562072754,
+    "p1_judge": 22.119590282440186,
+    "collocate_grounding": 0.0,
+    "fan_out": 30.886762380599976
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[6] flagged (rating 3): 整词：'受体拮抗剂'为复合词片段",
+        "P1 sentence[7] flagged (rating 3): 语域偏口语，不够专业",
+        "P1 sentence[8] flagged (rating 3): 语域偏口语，不够专业"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[tɕjɛ˧˥ kʰɑŋ˥˩ tɕi˥˩]",
+        "morphological_forms": [
+          {
+            "form": "种",
+            "label": "量词"
+          },
+          {
+            "form": "受体拮抗剂",
+            "label": "复合"
+          },
+          {
+            "form": "拮抗",
+            "label": "复合"
+          },
+          {
+            "form": "拮抗劑",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "jié kàng jì",
+        "register": "专业（技术）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            11315
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "1adac38a-ecb3-408e-849b-0f9e997e7b5d",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "拮抗剂",
+        "pronunciation": "jié kàng jì",
+        "ipa": "[tɕjɛ˧˥ kʰɑŋ˥˩ tɕi˥˩]",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "拮抗剂",
+          "解抗剂",
+          "拮扛剂",
+          "拮抗集"
+        ],
+        "correct_answer": "拮抗剂",
+        "explanation": "正确。'拮抗剂'（jié kàng jì）指能抵消另一种物质作用的药物或化学物质。",
+        "distractor_explanations": {
+          "解抗剂": "错误。'解'（jiě）为第三声，而目标词首字'拮'（jié）为第二声，声调不同导致词义改变。",
+          "拮扛剂": "错误。'扛'（káng）为第二声，而目标词中字'抗'（kàng）为第四声，声调混淆。",
+          "拮抗集": "错误。'集'（jí）为第二声，而目标词尾字'剂'（jì）为第四声，声调不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "拮抗劑",
+          "pronunciation": "jié kàng jì",
+          "ipa": "[tɕjɛ˧˥ kʰɑŋ˥˩ tɕi˥˩]",
+          "syllable_count": 3,
+          "audio_url": null,
+          "options": [
+            "拮抗劑",
+            "解抗劑",
+            "拮扛劑",
+            "拮抗集"
+          ],
+          "correct_answer": "拮抗劑",
+          "explanation": "正確。'拮抗劑'（jié kàng jì）指能抵消另一種物質作用的藥物或化學物質。",
+          "distractor_explanations": {
+            "解抗剂": "錯誤。'解'（jiě）為第三聲，而目標詞首字'拮'（jié）為第二聲，聲調不同導致詞義改變。",
+            "拮扛剂": "錯誤。'扛'（káng）為第二聲，而目標詞中字'抗'（kàng）為第四聲，聲調混淆。",
+            "拮抗集": "錯誤。'集'（jí）為第二聲，而目標詞尾字'劑'（jì）為第四聲，聲調不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "251f4a18-49a2-4252-a1ef-c942afcb670b",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "拮抗剂",
+        "pronunciation": "jié kàng jì",
+        "correct_definition": "能抵消另一种物质作用的药物或化学物质。",
+        "options": [
+          "用货币交换商品或服务。",
+          "副词，表示程度达到极点，相当于‘最’或‘极其’。",
+          "能抵消另一种物质作用的药物或化学物质。",
+          "土地所具有的使植物生长、孕育万物的能力。"
+        ],
+        "hant": {
+          "word": "拮抗劑",
+          "pronunciation": "jié kàng jì",
+          "correct_definition": "能抵消另一種物質作用的藥物或化學物質。",
+          "options": [
+            "用貨幣交換商品或服務。",
+            "副詞，表示程度達到極點，相當於‘最’或‘極其’。",
+            "能抵消另一種物質作用的藥物或化學物質。",
+            "土地所具有的使植物生長、孕育萬物的能力。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "18f09079-8a72-4fc5-9b09-831e40f69f4c",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "拮抗剂着了药效比原来的药更好。",
+            "is_correct": false
+          },
+          {
+            "text": "拮抗剂的药效比原来的药更好。",
+            "is_correct": true
+          },
+          {
+            "text": "药效比原来的药拮抗剂更好。",
+            "is_correct": false
+          },
+          {
+            "text": "拮抗剂们的药效比原来的药更好。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "量词使用错误：'拮抗剂'作为专业物质名词，通常不可数，不能直接加复数后缀'们'。 体标位置错误：'着'表示动作进行或状态持续，不能直接放在名词'拮抗剂'后表示其具有药效。 语序错误：主语'拮抗剂的药效'被错误拆分，导致'拮抗剂'与'药效'的所属关系混乱，句子结构破裂。",
+        "target_word": "拮抗剂",
+        "hant": {
+          "sentences": [
+            {
+              "text": "拮抗劑著了藥效比原來的藥更好。",
+              "is_correct": false
+            },
+            {
+              "text": "拮抗劑的藥效比原來的藥更好。",
+              "is_correct": true
+            },
+            {
+              "text": "藥效比原來的藥拮抗劑更好。",
+              "is_correct": false
+            },
+            {
+              "text": "拮抗劑們的藥效比原來的藥更好。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "量詞使用錯誤：'拮抗劑'作為專業物質名詞，通常不可數，不能直接加複數字尾'們'。 體標位置錯誤：'著'表示動作進行或狀態持續，不能直接放在名詞'拮抗劑'後表示其具有藥效。 語序錯誤：主語'拮抗劑的藥效'被錯誤拆分，導致'拮抗劑'與'藥效'的所屬關係混亂，句子結構破裂。",
+          "target_word": "拮抗劑"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b6264ac1-a8ec-423c-abe5-ccef47370e19",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "医生给病人使用了一种新拮抗剂。",
+            "is_correct": true
+          },
+          {
+            "text": "医生给病人使用了一只新拮抗剂。",
+            "is_correct": false,
+            "error_description": "量词使用错误。'拮抗剂'作为药物或化学物质，应使用量词'种'，不能使用用于动物的量词'只'。"
+          },
+          {
+            "text": "这种拮抗剂能阻止毒素发挥作用。",
+            "is_correct": true
+          },
+          {
+            "text": "例如，多巴胺水平的升高可显著增加哈欠频率，而其拮抗剂则能抑制该行为。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "醫生給病人使用了一種新拮抗劑。",
+              "is_correct": true
+            },
+            {
+              "text": "醫生給病人使用了一隻新拮抗劑。",
+              "is_correct": false,
+              "error_description": "量詞使用錯誤。'拮抗劑'作為藥物或化學物質，應使用量詞'種'，不能使用用於動物的量詞'只'。"
+            },
+            {
+              "text": "這種拮抗劑能阻止毒素髮揮作用。",
+              "is_correct": true
+            },
+            {
+              "text": "例如，多巴胺水平的升高可顯著增加哈欠頻率，而其拮抗劑則能抑制該行為。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "6dacb916-984a-447e-9e0c-bb9199479f57",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "拮抗剂",
+        "pronunciation": "jié kàng jì",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "能抵消另一种物质作用的药物或化学物质。",
+              "政策是政府告诉大家要怎么做事情。",
+              "産業",
+              "long-term"
+            ],
+            "correct_answer": "能抵消另一种物质作用的药物或化学物质。"
+          }
+        },
+        "hant": {
+          "word": "拮抗劑",
+          "pronunciation": "jié kàng jì",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "能抵消另一種物質作用的藥物或化學物質。",
+                "政策是政府告訴大家要怎麼做事情。",
+                "産業",
+                "long-term"
+              ],
+              "correct_answer": "能抵消另一種物質作用的藥物或化學物質。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "16dc13e3-ac1c-40aa-a65c-840edbbe26e4",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "医生给病人使用了一种新___。",
+        "original_sentence": "医生给病人使用了一种新拮抗剂。",
+        "target_word": "拮抗剂",
+        "word": "拮抗剂",
+        "answer": {
+          "accepted": [
+            "拮抗剂",
+            "种",
+            "受体拮抗剂",
+            "拮抗"
+          ],
+          "accepted_normalized": [
+            "拮抗剂",
+            "种",
+            "受体拮抗剂",
+            "拮抗"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "醫生給病人使用了一種新___。",
+          "original_sentence": "醫生給病人使用了一種新拮抗劑。",
+          "target_word": "拮抗劑",
+          "word": "拮抗劑",
+          "answer": {
+            "accepted": [
+              "拮抗劑",
+              "種",
+              "受體拮抗劑",
+              "拮抗"
+            ],
+            "accepted_normalized": [
+              "拮抗劑",
+              "種",
+              "受體拮抗劑",
+              "拮抗"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "6a9f9921-2a6d-4b3d-894c-25b851dc671f",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "拮抗剂",
+        "options": [
+          "jiē kàng jì",
+          "jié kàng jì",
+          "jié kāng jì",
+          "jié kàng jī"
+        ],
+        "correct_answer": "jié kàng jì",
+        "word": "拮抗剂",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "拮抗劑",
+          "options": [
+            "jiē kàng jì",
+            "jié kàng jì",
+            "jié kāng jì",
+            "jié kàng jī"
+          ],
+          "correct_answer": "jié kàng jì",
+          "word": "拮抗劑",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "5421a272-e37a-4cfa-861a-3dab87bcde1e",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "jié kàng jì",
+        "options": [
+          "捕捉到",
+          "显影剂",
+          "抗逆性",
+          "拮抗剂"
+        ],
+        "correct_answer": "拮抗剂",
+        "word": "拮抗剂",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "捕捉到": "component",
+          "显影剂": "component",
+          "抗逆性": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "jié kàng jì",
+          "options": [
+            "捕捉到",
+            "顯影劑",
+            "抗逆性",
+            "拮抗劑"
+          ],
+          "correct_answer": "拮抗劑",
+          "word": "拮抗劑",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "捕捉到": "component",
+            "显影剂": "component",
+            "抗逆性": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "dbfc3a57-d349-474e-90da-0a57d4e9b5c2",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "拮抗剂",
+        "toneless_pinyin": "jie kang ji",
+        "full_pinyin": "jié kàng jì",
+        "options": [
+          "244",
+          "243",
+          "242",
+          "241"
+        ],
+        "correct_answer": "244",
+        "option_labels": {
+          "244": "rising (2) + falling (4) + falling (4)",
+          "243": "rising (2) + falling (4) + dipping (3)",
+          "242": "rising (2) + falling (4) + rising (2)",
+          "241": "rising (2) + falling (4) + high level (1)"
+        },
+        "syllable_count": 3,
+        "hant": {
+          "schema_version": 2,
+          "word": "拮抗劑",
+          "toneless_pinyin": "jie kang ji",
+          "full_pinyin": "jié kàng jì",
+          "options": [
+            "244",
+            "243",
+            "242",
+            "241"
+          ],
+          "correct_answer": "244",
+          "option_labels": {
+            "244": "rising (2) + falling (4) + falling (4)",
+            "243": "rising (2) + falling (4) + dipping (3)",
+            "242": "rising (2) + falling (4) + rising (2)",
+            "241": "rising (2) + falling (4) + high level (1)"
+          },
+          "syllable_count": 3
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f8be3b55-b227-46da-954b-1164bfc7f23f",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "很有效对治疗该病这种拮抗剂。",
+            "is_correct": false
+          },
+          {
+            "text": "这种拮抗剂对治疗该病很有效了。",
+            "is_correct": false
+          },
+          {
+            "text": "这种拮抗剂对治疗该病很有效过。",
+            "is_correct": false
+          },
+          {
+            "text": "这种拮抗剂对治疗该病很有效。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标位置/选用错误：句末误加动态助词“了”，陈述药物客观疗效时不应使用表示状态改变的“了”。 语序错误：状语“对治疗该病”和主语“这种拮抗剂”位置错乱，破坏了正常的“主语+状语+谓语”结构。 体标位置/选用错误：误用经历体标记“过”，药物的客观有效性属于属性状态，不能用表示过去经历的“过”。",
+        "target_word": "拮抗剂",
+        "hant": {
+          "sentences": [
+            {
+              "text": "很有效對治療該病這種拮抗劑。",
+              "is_correct": false
+            },
+            {
+              "text": "這種拮抗劑對治療該病很有效了。",
+              "is_correct": false
+            },
+            {
+              "text": "這種拮抗劑對治療該病很有效過。",
+              "is_correct": false
+            },
+            {
+              "text": "這種拮抗劑對治療該病很有效。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標位置/選用錯誤：句末誤加動態助詞“了”，陳述藥物客觀療效時不應使用表示狀態改變的“了”。 語序錯誤：狀語“對治療該病”和主語“這種拮抗劑”位置錯亂，破壞了正常的“主語+狀語+謂語”結構。 體標位置/選用錯誤：誤用經歷體標記“過”，藥物的客觀有效性屬於屬性狀態，不能用表示過去經歷的“過”。",
+          "target_word": "拮抗劑"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "ba687ce6-9adc-4a62-9574-87d8bf5f4587",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他昨天在书上关于拮抗剂看过图。",
+            "is_correct": false,
+            "error_description": "语序错误。介词短语“关于拮抗剂”应作为定语修饰“图”，放在“图”的前面，而不是放在动词“看过”的前面。"
+          },
+          {
+            "text": "我们学过关于受体拮抗剂的知识。",
+            "is_correct": true
+          },
+          {
+            "text": "他昨天在书上看过关于拮抗剂的图。",
+            "is_correct": true
+          },
+          {
+            "text": "这种拮抗剂对治疗该病很有效。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他昨天在書上關於拮抗劑看過圖。",
+              "is_correct": false,
+              "error_description": "語序錯誤。介詞短語“關於拮抗劑”應作為定語修飾“圖”，放在“圖”的前面，而不是放在動詞“看過”的前面。"
+            },
+            {
+              "text": "我們學過關於受體拮抗劑的知識。",
+              "is_correct": true
+            },
+            {
+              "text": "他昨天在書上看過關於拮抗劑的圖。",
+              "is_correct": true
+            },
+            {
+              "text": "這種拮抗劑對治療該病很有效。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "06292eb6-7d1d-4cb7-be05-249f093d0440",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他昨天在书上看过关于___的图。",
+        "original_sentence": "他昨天在书上看过关于拮抗剂的图。",
+        "target_word": "拮抗剂",
+        "word": "拮抗剂",
+        "answer": {
+          "accepted": [
+            "拮抗剂",
+            "种",
+            "受体拮抗剂",
+            "拮抗"
+          ],
+          "accepted_normalized": [
+            "拮抗剂",
+            "种",
+            "受体拮抗剂",
+            "拮抗"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他昨天在書上看過關於___的圖。",
+          "original_sentence": "他昨天在書上看過關於拮抗劑的圖。",
+          "target_word": "拮抗劑",
+          "word": "拮抗劑",
+          "answer": {
+            "accepted": [
+              "拮抗劑",
+              "種",
+              "受體拮抗劑",
+              "拮抗"
+            ],
+            "accepted_normalized": [
+              "拮抗劑",
+              "種",
+              "受體拮抗劑",
+              "拮抗"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 11315,
+      "word_asset_id": "shadow-11315-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "classifier_match",
+      "reason": "'拮抗剂' is not in the classifier dictionary"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '拮抗剂' is fused into a neighbouring chunk — chunks=['新的', '拮抗剂正在', '实验室里', '测试着']"
+    },
+    {
+      "type_code": "classifier_match",
+      "reason": "'拮抗剂' is not in the classifier dictionary"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '拮抗剂' is fused into a neighbouring chunk — chunks=['拮抗剂的药效', '比原来的药', '更好']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00310336,
+      "prompt_tokens": 2478,
+      "completion_tokens": 1805,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1025,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 31596
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00178912,
+      "prompt_tokens": 683,
+      "completion_tokens": 1227,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 21939
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00195808,
+      "prompt_tokens": 1567,
+      "completion_tokens": 1138,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20524
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196576,
+      "prompt_tokens": 1567,
+      "completion_tokens": 1144,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20577
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0027664,
+      "prompt_tokens": 1725,
+      "completion_tokens": 1730,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30410
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00276256,
+      "prompt_tokens": 1725,
+      "completion_tokens": 1727,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30736
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001749717,
+      "prompt_tokens": 412,
+      "completion_tokens": 67,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2406
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.00017891,
+      "prompt_tokens": 395,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 11315,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 6188
+    }
+  ],
+  "llm_calls_observed": 8,
+  "llm_cost_observed_usd": 0.014699161699999998,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 95.90599999995902,
+  "finished_at": "2026-10-05T15:01:22.086052+00:00"
+}

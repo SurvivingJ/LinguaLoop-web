@@ -1,0 +1,1124 @@
+{
+  "sense_id": 10117,
+  "language_id": 1,
+  "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+  "started_at": "2026-10-05T21:15:30.139328+00:00",
+  "status": "partial",
+  "errors": [
+    "[B] Level 7: incorrect_sentence and corrected_sentence are identical"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.3208045959472656,
+    "p1_generate": 29.902328491210938,
+    "tier_gate": 0.0,
+    "p1_judge": 22.243635177612305,
+    "collocate_grounding": 0.0,
+    "fan_out": 31.258201599121094
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "Level 7: incorrect_sentence and corrected_sentence are identical"
+      ],
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[pʰɑŋ˧˥ ta˥˩]",
+        "morphological_forms": [
+          {
+            "form": "龐大",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "páng dà",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10117
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "287a3565-73e0-4cbe-aaf3-d77941370002",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "庞大",
+        "pronunciation": "páng dà",
+        "correct_definition": "形容体积、规模、数量等非常大，超过一般水平。",
+        "options": [
+          "蠕虫是身体细长、柔软、没有骨骼的一类动物，通常生活在土壤或水中，如蚯蚓。",
+          "指已经具有或存在的事物，或者已经发生过的事情。",
+          "形容体积、规模、数量等非常大，超过一般水平。",
+          "形容变化速度非常快、程度非常深。"
+        ],
+        "hant": {
+          "word": "龐大",
+          "pronunciation": "páng dà",
+          "correct_definition": "形容體積、規模、數量等非常大，超過一般水平。",
+          "options": [
+            "蠕蟲是身體細長、柔軟、沒有骨骼的一類動物，通常生活在土壤或水中，如蚯蚓。",
+            "指已經具有或存在的事物，或者已經發生過的事情。",
+            "形容體積、規模、數量等非常大，超過一般水平。",
+            "形容變化速度非常快、程度非常深。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "a0f5b1d1-51c9-49e0-8f27-1025c5ab5d08",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这个庞大的计划让我们感到压力。",
+            "is_correct": true
+          },
+          {
+            "text": "他的身躯庞大十分。",
+            "is_correct": false,
+            "error_description": "程度副词“十分”应放在形容词“庞大”之前作状语，不能放在形容词之后。"
+          },
+          {
+            "text": "他的身躯看起来十分庞大。",
+            "is_correct": true
+          },
+          {
+            "text": "然而，受制于汉字数量庞大、排版复杂以及社会结构的限制，这一技术未能引发大规模的知识普及浪潮。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這個龐大的計劃讓我們感到壓力。",
+              "is_correct": true
+            },
+            {
+              "text": "他的身軀龐大十分。",
+              "is_correct": false,
+              "error_description": "程度副詞“十分”應放在形容詞“龐大”之前作狀語，不能放在形容詞之後。"
+            },
+            {
+              "text": "他的身軀看起來十分龐大。",
+              "is_correct": true
+            },
+            {
+              "text": "然而，受制於漢字數量龐大、排版複雜以及社會結構的限制，這一技術未能引發大規模的知識普及浪潮。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "4ae14aa9-f751-4463-8959-df91a60c0f74",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "庞大",
+        "pronunciation": "páng dà",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "形容体积、规模、数量等非常大，超过一般水平。",
+              "指有节奏地运动或变化，常用来形容音乐、舞蹈或身体动作的韵律感。",
+              "推薦する",
+              "根据不同人的能力或任务需要指派职责"
+            ],
+            "correct_answer": "形容体积、规模、数量等非常大，超过一般水平。"
+          }
+        },
+        "hant": {
+          "word": "龐大",
+          "pronunciation": "páng dà",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "形容體積、規模、數量等非常大，超過一般水平。",
+                "指有節奏地運動或變化，常用來形容音樂、舞蹈或身體動作的韻律感。",
+                "推薦する",
+                "根據不同人的能力或任務需要指派職責"
+              ],
+              "correct_answer": "形容體積、規模、數量等非常大，超過一般水平。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "dc6aaec9-f78d-445a-a2c1-905f043c7579",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这个___的计划让我们感到压力。",
+        "original_sentence": "这个庞大的计划让我们感到压力。",
+        "target_word": "庞大",
+        "word": "庞大",
+        "answer": {
+          "accepted": [
+            "庞大"
+          ],
+          "accepted_normalized": [
+            "庞大"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這個___的計劃讓我們感到壓力。",
+          "original_sentence": "這個龐大的計劃讓我們感到壓力。",
+          "target_word": "龐大",
+          "word": "龐大",
+          "answer": {
+            "accepted": [
+              "龐大"
+            ],
+            "accepted_normalized": [
+              "龐大"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "1a8594ee-b7f3-4d56-879b-6a7fa9876015",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "庞大",
+        "options": [
+          "páng dā",
+          "pāng dà",
+          "páng dá",
+          "páng dà"
+        ],
+        "correct_answer": "páng dà",
+        "word": "庞大",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "龐大",
+          "options": [
+            "páng dā",
+            "pāng dà",
+            "páng dá",
+            "páng dà"
+          ],
+          "correct_answer": "páng dà",
+          "word": "龐大",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6028cfcc-8fd8-475a-b862-27f648b3ac7b",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "páng dà",
+        "options": [
+          "扩大",
+          "廉价",
+          "仓库",
+          "庞大"
+        ],
+        "correct_answer": "庞大",
+        "word": "庞大",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "扩大": "component",
+          "仓库": "component",
+          "廉价": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "páng dà",
+          "options": [
+            "擴大",
+            "廉價",
+            "倉庫",
+            "龐大"
+          ],
+          "correct_answer": "龐大",
+          "word": "龐大",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "扩大": "component",
+            "仓库": "component",
+            "廉价": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3f162a38-c624-4c8e-9596-8d3ed5000511",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "庞大",
+        "toneless_pinyin": "pang da",
+        "full_pinyin": "páng dà",
+        "options": [
+          "22",
+          "21",
+          "23",
+          "24"
+        ],
+        "correct_answer": "24",
+        "option_labels": {
+          "22": "rising (2) + rising (2)",
+          "21": "rising (2) + high level (1)",
+          "23": "rising (2) + dipping (3)",
+          "24": "rising (2) + falling (4)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "龐大",
+          "toneless_pinyin": "pang da",
+          "full_pinyin": "páng dà",
+          "options": [
+            "22",
+            "21",
+            "23",
+            "24"
+          ],
+          "correct_answer": "24",
+          "option_labels": {
+            "22": "rising (2) + rising (2)",
+            "21": "rising (2) + high level (1)",
+            "23": "rising (2) + dipping (3)",
+            "24": "rising (2) + falling (4)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "a024cfe0-4d2e-493f-900b-5b142fc58229",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "庞大",
+        "relation": "antonym",
+        "options": [
+          "微小",
+          "巨大",
+          "单薄",
+          "复杂"
+        ],
+        "correct_answer": "微小",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "形容体积、规模、数量等非常大，超过一般水平。",
+            "explanation": "反义项：形容体积、规模或数量等非常小，与目标词构成反义"
+          }
+        },
+        "hant": {
+          "word": "龐大",
+          "relation": "antonym",
+          "options": [
+            "微小",
+            "巨大",
+            "單薄",
+            "複雜"
+          ],
+          "correct_answer": "微小",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "形容體積、規模、數量等非常大，超過一般水平。",
+              "explanation": "反義項：形容體積、規模或數量等非常小，與目標詞構成反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "巨大": 0.819818,
+            "复杂": 0.428313
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "72cbebdd-7367-4968-bb6f-fb897bc8e836",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他把___的行李放到了车上。",
+        "original_sentence": "他把庞大的行李放到了车上。",
+        "target_word": "庞大",
+        "word": "庞大",
+        "answer": {
+          "accepted": [
+            "庞大"
+          ],
+          "accepted_normalized": [
+            "庞大"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他把___的行李放到了車上。",
+          "original_sentence": "他把龐大的行李放到了車上。",
+          "target_word": "龐大",
+          "word": "龐大",
+          "answer": {
+            "accepted": [
+              "龐大"
+            ],
+            "accepted_normalized": [
+              "龐大"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "69eb7eec-bb63-4610-afea-4d0db16927eb",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "庞大",
+        "relation": "antonym",
+        "options": [
+          "巨大",
+          "平整",
+          "纤细",
+          "微小"
+        ],
+        "correct_answer": "微小",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "形容体积、规模、数量等非常大，超过一般水平。",
+            "explanation": "反义项：形容体积、规模或数量等非常小，与目标词构成反义。"
+          }
+        },
+        "hant": {
+          "word": "龐大",
+          "relation": "antonym",
+          "options": [
+            "巨大",
+            "平整",
+            "纖細",
+            "微小"
+          ],
+          "correct_answer": "微小",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "形容體積、規模、數量等非常大，超過一般水平。",
+              "explanation": "反義項：形容體積、規模或數量等非常小，與目標詞構成反義。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "巨大": 0.819818
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10117,
+      "word_asset_id": "shadow-10117-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '庞大' is fused into a neighbouring chunk — chunks=['这个', '庞大的工程', '让人', '感到震撼']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '庞大' is fused into a neighbouring chunk — chunks=['这个', '庞大的家族聚会', '真热闹']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0028896,
+      "prompt_tokens": 2450,
+      "completion_tokens": 1645,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 29039
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176832,
+      "prompt_tokens": 642,
+      "completion_tokens": 1221,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21920
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00188544,
+      "prompt_tokens": 1432,
+      "completion_tokens": 1115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20022
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169664,
+      "prompt_tokens": 634,
+      "completion_tokens": 1167,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20859
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00169888,
+      "prompt_tokens": 633,
+      "completion_tokens": 1169,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21060
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00260192,
+      "prompt_tokens": 1655,
+      "completion_tokens": 1619,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 28877
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00265184,
+      "prompt_tokens": 1431,
+      "completion_tokens": 1714,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 30272
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00276064,
+      "prompt_tokens": 1655,
+      "completion_tokens": 1743,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 30677
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00153248,
+      "prompt_tokens": 421,
+      "completion_tokens": 1092,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19563
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001705995,
+      "prompt_tokens": 411,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 2206
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00166624,
+      "prompt_tokens": 683,
+      "completion_tokens": 1131,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "json_repair",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20392
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00072096,
+      "prompt_tokens": 417,
+      "completion_tokens": 459,
+      "cached_tokens": 0,
+      "reasoning_tokens": 434,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 8490
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00156544,
+      "prompt_tokens": 544,
+      "completion_tokens": 1087,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19982
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015376,
+      "prompt_tokens": 421,
+      "completion_tokens": 1096,
+      "cached_tokens": 0,
+      "reasoning_tokens": 995,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19525
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001726578,
+      "prompt_tokens": 415,
+      "completion_tokens": 64,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 2226
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00120128,
+      "prompt_tokens": 554,
+      "completion_tokens": 800,
+      "cached_tokens": 0,
+      "reasoning_tokens": 722,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 14299
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00156544,
+      "prompt_tokens": 544,
+      "completion_tokens": 1087,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10117,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19440
+    }
+  ],
+  "llm_calls_observed": 17,
+  "llm_cost_observed_usd": 0.028085977300000002,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 230.28200000000652,
+  "finished_at": "2026-10-05T21:19:20.416985+00:00"
+}

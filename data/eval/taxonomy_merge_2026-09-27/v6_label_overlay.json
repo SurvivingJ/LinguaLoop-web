@@ -3,7 +3,8 @@
   "built_by": "build_overlay.py",
   "date": "2026-09-27",
   "final": true,
-  "finalised": "2026-09-27: blind review (overlay_reconciled.json) + user Decision A (word_choice explanation_variant is 3-way: wrong_word | wrong_sense (narrow, same lemma) | shared_translation) + Decision B (reviewer's call on zh_silver_18, zh_silver_37, ja_silver_19, en_silver_17).",
+  "finalised": "2026-09-27: blind review (overlay_reconciled.json) + user Decision A (word_choice explanation_variant is 3-way: wrong_word | wrong_sense (narrow, same lemma) | false_synonym) + Decision B (reviewer's call on zh_silver_18, zh_silver_37, ja_silver_19, en_silver_17). The third variant was renamed 2026-10-04 for clarity (meaning and detection method unchanged).",
+  "post_build_edits": "Hand-edited after build_overlay.py (re-running the script reverts these): en_silver_24 meaning_inversion/critical added 2026-09-28; en_seed_10#0, en_multi_03#2, en_silver_13#0 retyped word_choice -> pronoun (major, no explanation_variant) by developer decision 2026-10-09 after the TASK-850 gate (ADR-031). The same decision confirmed the four ja だ/です keigo labels as keigo (no change) and retyped the two silver plain->polite items labelled register (ja_silver_30#0 見つかるよ, ja_silver_32#1 養われるよ) to keigo (major, bands unchanged).",
   "resolution_scope": "`resolution` is set only on the 61 entries that went through blind review; csv_deterministic entries outside that set were never contested and carry none.",
   "entries": [
     {
@@ -98,7 +99,7 @@
       "v6_type": "word_choice",
       "v6_severity": "minor",
       "basis": "csv_deterministic",
-      "explanation_variant": "shared_translation",
+      "explanation_variant": "false_synonym",
       "judgement_fields": [
         "explanation_variant"
       ],
@@ -317,7 +318,7 @@
       "v6_type": "word_choice",
       "v6_severity": "minor",
       "basis": "csv_deterministic",
-      "explanation_variant": "shared_translation",
+      "explanation_variant": "false_synonym",
       "variant_uncertain": true,
       "judgement_fields": [
         "explanation_variant"
@@ -1109,7 +1110,7 @@
       "v6_type": "word_choice",
       "v6_severity": "minor",
       "basis": "csv_deterministic",
-      "explanation_variant": "shared_translation",
+      "explanation_variant": "false_synonym",
       "judgement_fields": [
         "explanation_variant"
       ],
@@ -1283,7 +1284,7 @@
       "v6_type": "word_choice",
       "v6_severity": "minor",
       "basis": "csv_deterministic",
-      "explanation_variant": "shared_translation",
+      "explanation_variant": "false_synonym",
       "judgement_fields": [
         "explanation_variant"
       ],
@@ -1388,7 +1389,7 @@
       "v6_type": "word_choice",
       "v6_severity": "minor",
       "basis": "csv_deterministic",
-      "explanation_variant": "shared_translation",
+      "explanation_variant": "false_synonym",
       "variant_uncertain": true,
       "judgement_fields": [
         "explanation_variant"
@@ -1725,11 +1726,11 @@
       "corrected_form": "見つかります。",
       "v5_subtype": "register",
       "v5_severity": "major",
-      "v6_type": "register",
+      "v6_type": "keigo",
       "v6_severity": "major",
-      "basis": "csv_deterministic",
+      "basis": "user_decision",
       "judgement_fields": [],
-      "note": null,
+      "note": "Developer decision 2026-10-09 (TASK-850 gate): ja politeness level (plain る/だ vs polite ます/です) is `keigo`, not `register`. Plain 見つかる(よ) for polite 見つかります is the same pattern as the gold keigo items (ja_seed_04, ja_multi_03), so register -> keigo. Severity major kept; both types are fidelity, so bands are unchanged.",
       "final": true
     },
     {
@@ -1805,11 +1806,11 @@
       "corrected_form": "論理的に考える力が養われます。",
       "v5_subtype": "register",
       "v5_severity": "major",
-      "v6_type": "register",
+      "v6_type": "keigo",
       "v6_severity": "major",
-      "basis": "csv_deterministic",
+      "basis": "user_decision",
       "judgement_fields": [],
-      "note": null,
+      "note": "Developer decision 2026-10-09 (TASK-850 gate): plain 養われる(よ) for polite 養われます is a politeness-level error -> `keigo`, not `register` (same pattern as ja_silver_30#0). Severity major kept; bands unchanged (both fidelity).",
       "final": true
     },
     {
@@ -2090,16 +2091,13 @@
       "corrected_form": "move them to a new spot",
       "v5_subtype": "pronoun_reference",
       "v5_severity": "major",
-      "v6_type": "word_choice",
+      "v6_type": "pronoun",
       "v6_severity": "major",
-      "basis": "relabel_decision",
-      "explanation_variant": "wrong_word",
-      "judgement_fields": [
-        "explanation_variant"
-      ],
-      "note": "reconciled.json: pronoun_reference split — antecedent-number error (it for them) is outside v6 `pronoun`; retyped word_choice, severity major (referent shift). | variant: 'it' for 'them': wrong pronoun form (number), not a gloss or sense confusion.",
+      "basis": "user_decision",
+      "judgement_fields": [],
+      "note": "Developer decision 2026-10-09 (TASK-850 gate): a pronoun that refers to the wrong antecedent or the wrong number of things ('it' for 'them') is v6 `pronoun`; the en pronoun definition was widened to cover it. Supersedes the 2026-09-27 reconciled.json relabel to word_choice/wrong_word. Severity major kept (referent shift).",
       "final": true,
-      "resolution": "agreed"
+      "resolution": "user_decision"
     },
     {
       "item_id": "en_seed_11",
@@ -2278,7 +2276,7 @@
       "v6_type": "word_choice",
       "v6_severity": "minor",
       "basis": "csv_deterministic",
-      "explanation_variant": "shared_translation",
+      "explanation_variant": "false_synonym",
       "variant_uncertain": true,
       "judgement_fields": [
         "explanation_variant"
@@ -2312,16 +2310,13 @@
       "corrected_form": "move them to a new spot",
       "v5_subtype": "pronoun_reference",
       "v5_severity": "major",
-      "v6_type": "word_choice",
+      "v6_type": "pronoun",
       "v6_severity": "major",
-      "basis": "relabel_decision",
-      "explanation_variant": "wrong_word",
-      "judgement_fields": [
-        "explanation_variant"
-      ],
-      "note": "reconciled.json: same as en_seed_10 (it for them), word_choice major. | variant: 'it' for 'them': wrong pronoun form (number).",
+      "basis": "user_decision",
+      "judgement_fields": [],
+      "note": "Developer decision 2026-10-09 (TASK-850 gate): same as en_seed_10 ('it' for 'them', wrong number of antecedents) -> v6 `pronoun` major. Supersedes the 2026-09-27 reconciled.json relabel to word_choice/wrong_word.",
       "final": true,
-      "resolution": "agreed"
+      "resolution": "user_decision"
     },
     {
       "item_id": "en_multi_04",
@@ -2497,16 +2492,13 @@
       "corrected_form": "You can move them to a new spot.",
       "v5_subtype": "pronoun_reference",
       "v5_severity": "major",
-      "v6_type": "word_choice",
+      "v6_type": "pronoun",
       "v6_severity": "major",
-      "basis": "relabel_decision",
-      "explanation_variant": "wrong_word",
-      "judgement_fields": [
-        "explanation_variant"
-      ],
-      "note": "reconciled.json: 'him' for 'them' unanchors the referent; word_choice major. | variant: 'him' for 'them': wrong pronoun form (person/number).",
+      "basis": "user_decision",
+      "judgement_fields": [],
+      "note": "Developer decision 2026-10-09 (TASK-850 gate): 'him' for 'them' refers to the wrong number of things (and person) -> v6 `pronoun` major, like en_seed_10. Supersedes the 2026-09-27 reconciled.json relabel to word_choice/wrong_word.",
       "final": true,
-      "resolution": "agreed"
+      "resolution": "user_decision"
     },
     {
       "item_id": "en_silver_14",
@@ -2572,7 +2564,7 @@
       "v6_type": "word_choice",
       "v6_severity": "minor",
       "basis": "user_decision",
-      "explanation_variant": "shared_translation",
+      "explanation_variant": "false_synonym",
       "judgement_fields": [
         "explanation_variant"
       ],
@@ -2726,7 +2718,7 @@
       "v6_type": "word_choice",
       "v6_severity": "minor",
       "basis": "csv_deterministic",
-      "explanation_variant": "shared_translation",
+      "explanation_variant": "false_synonym",
       "judgement_fields": [
         "explanation_variant"
       ],
@@ -2954,6 +2946,40 @@
       "note": "Subject/object of writes instructions swapped: agent (you) and recipient (the Arduino) reverse roles, flipping who instructs whom. Was dropped from en_final3.json expected_errors during silver merge because the 3 raters (draft=pronoun_reference, rater2=word_choice, rater3=word_order) had no subtype majority despite unanimous severity=critical; fixed 2026-09-28 via a 4th (blind) label of word_choice/critical agreeing with rater2, forming a 2-of-4 majority. word_choice -> meaning_inversion, consistent with sibling passage-14 items (en_silver_20/21/22/23/25/27).",
       "final": true,
       "resolution": "agreed"
+    },
+    {
+      "item_id": "en_silver_26",
+      "set": "silver",
+      "lang": "en",
+      "error_index": 0,
+      "learner_form": "move motor 1 to 9 degrees",
+      "corrected_form": "move motor 1 to 90 degrees",
+      "v5_subtype": "word_choice",
+      "v5_severity": "critical",
+      "v6_type": "meaning_inversion",
+      "v6_severity": "critical",
+      "basis": "inversion_by_effect",
+      "judgement_fields": [],
+      "note": "The quoted example command's target value is changed from 90 degrees to 9 degrees -- a 10x reduction, not a cosmetic numeral slip. Under ADR-031's by-effect rule, meaning_inversion covers any error whose effect flips polarity/negation, direction, quantity/degree, or agent/recipient relative to the reference; this is a quantity/degree flip on the passage's one concrete numeric instruction, so it is tagged meaning_inversion/critical rather than word_choice, even though no v5 subtype existed for it. Was dropped from en_final3.json expected_errors during silver merge because the 3 raters split 3 ways on severity (draft=critical/orthography, rater2=minor/word_choice, rater3=major/word_choice) with subtype already a 2-of-3 majority for word_choice but no severity majority; fixed 2026-10-04 via a 4th (blind) label of word_choice/critical agreeing with draft's severity, forming a 2-of-4 majority on critical (see en_silver_26_fix.json).",
+      "final": true,
+      "resolution": "user_decision"
+    },
+    {
+      "item_id": "en_silver_34",
+      "set": "silver",
+      "lang": "en",
+      "error_index": 2,
+      "learner_form": "a certain spot, yo",
+      "corrected_form": "a certain position",
+      "v5_subtype": "register",
+      "v5_severity": "major",
+      "v6_type": "register",
+      "v6_severity": "major",
+      "basis": "csv_deterministic",
+      "judgement_fields": [],
+      "note": "Register break: 'position' replaced by the near-synonym 'spot' plus an appended informal slang tag ', yo'. Not a meaning_inversion (no polarity/direction/quantity/agent flip -- the instructed position concept is unchanged, only its register). Was dropped from en_final3.json expected_errors during silver merge with reason 'no_existence_majority', but this was a span-matching artifact, not a real disagreement: draft, rater2, and rater3 all independently flagged this phrase at register/major -- draft spanned the whole sentence, rater2/rater3 spanned just the phrase, and the merge script treated the wider and narrower spans as non-overlapping votes. Restored 2026-10-04 at the narrower (majority) span (see en_silver_34_fix.json); appended as error_index 2 to keep the existing plural_number/word_order overlay entries' indices stable.",
+      "final": true,
+      "resolution": "user_decision"
     }
   ]
 }

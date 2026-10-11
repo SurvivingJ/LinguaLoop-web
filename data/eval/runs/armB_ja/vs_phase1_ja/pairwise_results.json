@@ -1,0 +1,733 @@
+{
+  "total_pairs_in_key": 81,
+  "total_judged": 81,
+  "unmatched_verdicts": [],
+  "missing_verdicts": [],
+  "candidate_wins": 8,
+  "reference_wins": 9,
+  "ties": 64,
+  "win_rate_pct": 9.88,
+  "loss_rate_pct": 11.11,
+  "tie_rate_pct": 79.01,
+  "major_defect_rate_candidate": 22.22,
+  "major_defect_rate_reference": 19.75,
+  "per_sense": [
+    {
+      "sense_id": "34998",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 option sets are real one-mora-diff words, audio-confusable, no pitch-accent-only pairs."
+    },
+    {
+      "sense_id": "34998",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both cloze items are natural with a single defensible answer; B has one extra variant (cosmetic)."
+    },
+    {
+      "sense_id": "34998",
+      "level": 4,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "compound-word anchoring"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's blank tests the particle for 鉛筆 while 一 only appears fused in 一本; B's 一から keeps 一 standalone and anchored."
+    },
+    {
+      "sense_id": "34998",
+      "level": 6,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "compound-word anchoring"
+      ],
+      "major_defects_reference": [],
+      "notes": "A keeps 一 standalone throughout; B fuses 一 into counters (一個/一匹/一枚/一本/一つ/一冊) in every sentence, actually testing counter choice not 一."
+    },
+    {
+      "sense_id": "34998",
+      "level": 7,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "compound-word anchoring"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's error is a particle directly on standalone 一; B's two variants both hinge on counter mismatches (一冊/一匹/一輪) with 一 fused and incidental."
+    },
+    {
+      "sense_id": "34999",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both cloze sets isolate 一 itself in the blank with the counter/suffix fixed outside it; well anchored on both sides."
+    },
+    {
+      "sense_id": "34999",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "compound-word anchoring"
+      ],
+      "major_defects_reference": [
+        "compound-word anchoring"
+      ],
+      "notes": "Both sides' main variant fuses 一 into 一つ and really tests surrounding particle/counter grammar, not 一 itself."
+    },
+    {
+      "sense_id": "34999",
+      "level": 7,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "compound-word anchoring"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's distinguishing error is a particle directly on free-standing 一 (から vs を); B's two variants both hinge on counter mismatches (一つ/一冊/一匹) irrelevant to 一."
+    },
+    {
+      "sense_id": "35001",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 option sets for 機械 are real one-mora-diff words, no pitch-accent issue."
+    },
+    {
+      "sense_id": "35001",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor 機械 as a standalone noun with plausible particle/counter/aspect error distractors."
+    },
+    {
+      "sense_id": "35001",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 機械 cleanly with single, clear counter/particle errors."
+    },
+    {
+      "sense_id": "35011",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 option sets for 発明 are real one-mora-diff words."
+    },
+    {
+      "sense_id": "35011",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A's two discrimination variants and B's synonym/antonym + discrimination mix are each internally consistent and correct; B has mild redundancy (two near-identical antonym items), cosmetic."
+    },
+    {
+      "sense_id": "35011",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 発明 cleanly with single clear errors."
+    },
+    {
+      "sense_id": "35017",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets use real one-mora-diff words for 増える; B's 栄える/はえる reading is an obscure classical alternate but not clearly wrong."
+    },
+    {
+      "sense_id": "35017",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both cloze sets have a single defensible answer and natural context."
+    },
+    {
+      "sense_id": "35017",
+      "level": 4,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly anchor 増え/particle choice; A's two morphology_slot explanations reference patterns (てきた/病気になる人) absent from their own sentences (minor mismatched-explanation quality nit, not a major defect)."
+    },
+    {
+      "sense_id": "35017",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets are clean, single clear conjugation errors."
+    },
+    {
+      "sense_id": "35039",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets are real one-mora-diff words; B has two distractors sharing the same reading (厭きる/飽きる), redundant but not invalid."
+    },
+    {
+      "sense_id": "35039",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [
+        "also-correct distractor"
+      ],
+      "notes": "Both sides include distractor 'し' (する) which grammatically and semantically also completes the blank (e.g. 獲得します/成功します), not uniquely excludable by context."
+    },
+    {
+      "sense_id": "35039",
+      "level": 4,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "anchoring failure"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's morphology_slot items correctly blank でき itself; B's particle_selection items test unrelated particles (variant A's sentence does not even contain でき/できる)."
+    },
+    {
+      "sense_id": "35039",
+      "level": 6,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "anchoring failure"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's only correct example (図れます) does not contain でき/できる at all while its three wrong options do; B's correct example properly contains ができます and all distractors are でき-conjugation errors."
+    },
+    {
+      "sense_id": "35039",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sets are clean; a couple of items in each hinge on an unrelated particle but the batch as a whole anchors on でき/できる."
+    },
+    {
+      "sense_id": "35055",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 世界 are real one-mora-diff words."
+    },
+    {
+      "sense_id": "35055",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both use 世界 in idiomatic collocations (世界一周/世界中/世界で一番) but the word's own meaning remains load-bearing in each; not treated as compound-fusion."
+    },
+    {
+      "sense_id": "35055",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor 世界 as a standalone noun with plausible counter/particle/aspect distractors."
+    },
+    {
+      "sense_id": "35093",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 技術 are real one-mora-diff words."
+    },
+    {
+      "sense_id": "35093",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both have single defensible answers; A's two explanations reference wording ('解析技術'/'技術を研究する') not actually in the sentence (minor mismatch nit, not major)."
+    },
+    {
+      "sense_id": "35093",
+      "level": 4,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly anchor the を particle to 技術 as object of 活用する/使う."
+    },
+    {
+      "sense_id": "35111",
+      "level": 1,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "distractor misreading"
+      ],
+      "notes": "B's distractor 彫る is attributed the reading える, but 彫る is actually read ほる, which does not resemble よる at all; the one-mora-diff claim is factually wrong."
+    },
+    {
+      "sense_id": "35111",
+      "level": 4,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "incorrect answer key / broken conjugation",
+        "anchoring failure"
+      ],
+      "notes": "B's two morphology_slot items swap より/よっ incorrectly, producing ungrammatical results (によっ収益性.../水によりてその奥底に...) inconsistent with their own original_sentence; B's particle_selection item tests the unrelated 共に, not 因る."
+    },
+    {
+      "sense_id": "35111",
+      "level": 6,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "unnatural/garbled distractor sentence"
+      ],
+      "notes": "A's single item is clean and consistent; B's variant A includes a scrambled word-salad false sentence (効果的です陰影の演出などが...)."
+    },
+    {
+      "sense_id": "35127",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 無い are real/plausible one-mora-diff words."
+    },
+    {
+      "sense_id": "35127",
+      "level": 4,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "broken blank"
+      ],
+      "notes": "B's variant B 'sentence_with_blank' is identical to original_sentence with no placeholder at all, so the item has no actual blank to fill; A's item has a mild present/past tense ambiguity (ない vs なかった) but is still usable."
+    },
+    {
+      "sense_id": "35127",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly anchor なく/ない; A offers more exercise-type variety (cosmetic)."
+    },
+    {
+      "sense_id": "35127",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets are clean with single clear errors."
+    },
+    {
+      "sense_id": "35147",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 行く are real one-mora-diff words; B's options are slightly more obscure but not wrong."
+    },
+    {
+      "sense_id": "35147",
+      "level": 4,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "broken exercise"
+      ],
+      "notes": "A's variant A correct_answer (いった, plain past) does not reconstruct its own original_sentence (行っています, present progressive) and its explanation references a nonexistent '昨日'; B's item is internally consistent."
+    },
+    {
+      "sense_id": "35147",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor 行き/行けます cleanly with plausible conjugation/particle errors."
+    },
+    {
+      "sense_id": "35147",
+      "level": 7,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "mislabeled correctness"
+      ],
+      "notes": "B's variant A marks '彼と一緒に行くには楽しい' as an error, but 'Vるには+evaluative adjective' (cf. 住むには便利だ) is a standard valid pattern; a learner could be unfairly marked wrong."
+    },
+    {
+      "sense_id": "35201",
+      "level": 3,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [
+        "broken blank / incorrect answer key"
+      ],
+      "notes": "A's variant A distractor 与え also grammatically/semantically completes the sentence (与えています); B's variant B correct_answer もたらしている duplicates the template's trailing いる (would render '...もたらしているいる笑顔'), while the properly-fitting もたらして is listed as wrong."
+    },
+    {
+      "sense_id": "35201",
+      "level": 4,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "broken blank"
+      ],
+      "notes": "Both of B's morphology_slot items have sentence_with_blank identical to original_sentence with no placeholder, making them unusable as fill-in items; A's items are clean and correctly anchored."
+    },
+    {
+      "sense_id": "35201",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor もたらす/もたらしている cleanly; B's one false sentence (台風が被害もたらしたを) is somewhat awkwardly garbled but still illustrates a describable error."
+    },
+    {
+      "sense_id": "35227",
+      "level": 3,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [],
+      "notes": "B's variant B blank ('彼はその___を詳しく説明しました') is equally well completed by 結果 (result) as by プロセス given no disambiguating context; A's items have clearer single-answer context."
+    },
+    {
+      "sense_id": "35227",
+      "level": 4,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly anchor the を particle to プロセス as object of 守る/経る."
+    },
+    {
+      "sense_id": "35227",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor プロセス cleanly across synonym/antonym and discrimination items; B has mild redundancy (duplicate antonym item), cosmetic."
+    },
+    {
+      "sense_id": "35293",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly anchor 極めて with single, clear adverb-usage errors (extraneous に / incomplete であること ending)."
+    },
+    {
+      "sense_id": "35311",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 可能 are real one-mora-diff words."
+    },
+    {
+      "sense_id": "35311",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both have a single clearly best answer; A's variant A (容易/確実 as competing fits for 'となっています') is a mild soft ambiguity but not strong enough to call also-correct."
+    },
+    {
+      "sense_id": "35311",
+      "level": 6,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "mislabeled correctness"
+      ],
+      "major_defects_reference": [],
+      "notes": "B's variant A marks a fully grammatical sentence ('...ことは不可能です') as incorrect purely on disputable logical-contradiction grounds; A has no such issue."
+    },
+    {
+      "sense_id": "35331",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 特に are real one-mora-diff words."
+    },
+    {
+      "sense_id": "35331",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [
+        "also-correct distractor"
+      ],
+      "notes": "A's distractor 決して (決して…にとどまらない) and B's distractor まず (as a discourse opener) both plausibly complete the same base sentence."
+    },
+    {
+      "sense_id": "35331",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 特に cleanly with single clear errors."
+    },
+    {
+      "sense_id": "35341",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [
+        "also-correct distractor"
+      ],
+      "notes": "A's variant B (重要 also fits 'データ収集が___な要素です') and B's variant B (必要/重要 also fit '信頼は友達に___なものです') both lack strong disambiguation from 不可欠."
+    },
+    {
+      "sense_id": "35341",
+      "level": 4,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly test the 連体形/stem form of 不可欠 with no other option grammatically fitting."
+    },
+    {
+      "sense_id": "35341",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor 不可欠 cleanly with plausible particle/conjugation/register errors."
+    },
+    {
+      "sense_id": "35419",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 軈て/やがて are real or plausible one-mora-diff words."
+    },
+    {
+      "sense_id": "35419",
+      "level": 3,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [],
+      "notes": "B's variant B distractor すぐに also plausibly completes '春が来て、___桜が咲くでしょう' with a near-synonymous future-timing meaning; A's items are more decisively disambiguated."
+    },
+    {
+      "sense_id": "35419",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor 軈て/やがて cleanly with plausible particle/word-order/conjugation errors."
+    },
+    {
+      "sense_id": "35615",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 複雑 are real one-mora-diff words (minor same-reading redundancy in A, not invalid)."
+    },
+    {
+      "sense_id": "35615",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [
+        "also-correct distractor"
+      ],
+      "notes": "A's only item ('この問題はとても___です') and B's variant A ('この問題は___です') give no semantic cue favoring 複雑 over 簡単/単純/明確, so any option would complete the sentence equally validly; B's variant B is well-anchored via the 複雑な気持ち idiom."
+    },
+    {
+      "sense_id": "35615",
+      "level": 4,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly test 複雑's stem/renyoukei forms with a single grammatically fitting option."
+    },
+    {
+      "sense_id": "35615",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 複雑 cleanly with single clear errors."
+    },
+    {
+      "sense_id": "36181",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly test 新た's collocation/attributive-form constraints; A offers more variety (cosmetic)."
+    },
+    {
+      "sense_id": "36191",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 見る are real one-mora-diff words."
+    },
+    {
+      "sense_id": "36191",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both have context (自分の目で / 窓の外には見慣れた / 黒板を見ながら) that clearly disambiguates 見 from the other options."
+    },
+    {
+      "sense_id": "36191",
+      "level": 4,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both correctly anchor 見る/見 conjugation and the を particle for its object."
+    },
+    {
+      "sense_id": "36191",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor 見る/見/見て cleanly; A offers broader coverage (cosmetic)."
+    },
+    {
+      "sense_id": "36191",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 見る cleanly with single clear errors."
+    },
+    {
+      "sense_id": "38099",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 昇華 are real one-mora-diff words."
+    },
+    {
+      "sense_id": "38099",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both have a reasonably strong contextual fit for 昇華 over the weaker near-synonym 変化; explanations on both sides reference unrelated wording (minor nit, not major)."
+    },
+    {
+      "sense_id": "38099",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor 昇華 cleanly; each side has one somewhat scrambled/awkward distractor sentence of comparable severity."
+    },
+    {
+      "sense_id": "38099",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 昇華 cleanly with a single clear particle error."
+    },
+    {
+      "sense_id": "39187",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 自ら cleanly with single clear errors."
+    },
+    {
+      "sense_id": "39661",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [
+        "also-correct distractor"
+      ],
+      "notes": "Both sides' shared base sentence has a plausible competing distractor (A: 仕事, B: 習慣) that could defensibly fill '日常的な___の模倣' alongside 営み; B's variant B is cleanly disambiguated."
+    },
+    {
+      "sense_id": "39661",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 営み cleanly with the same core error type (を vs が for 積み重なる)."
+    },
+    {
+      "sense_id": "53352",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both L1 sets for 超える are real one-mora-diff words."
+    },
+    {
+      "sense_id": "53352",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "also-correct distractor"
+      ],
+      "major_defects_reference": [
+        "also-correct distractor"
+      ],
+      "notes": "A's variant B (外れ also plausible for '予想を___て') and B's variant B (過ぎ also plausible for a numeric threshold, cf. 80歳を過ぎる) both carry a comparable soft also-correct risk."
+    },
+    {
+      "sense_id": "53352",
+      "level": 4,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "mislabeled grammatical form"
+      ],
+      "major_defects_reference": [
+        "mislabeled grammatical form"
+      ],
+      "notes": "Both sides have one morphology_slot item labeled 未然形（ない形） with an explanation about ない, but the actual sentence has no ない context (A: 中止法 use before a comma; B: て form before てはいけません) -- same defect on both sides."
+    },
+    {
+      "sense_id": "53352",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both anchor 超え/超える cleanly with plausible conjugation/particle/register errors."
+    },
+    {
+      "sense_id": "53352",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets anchor 超える cleanly, sharing the same tense-mismatch error sentence."
+    }
+  ]
+}

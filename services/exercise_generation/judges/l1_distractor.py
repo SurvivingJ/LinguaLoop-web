@@ -16,8 +16,9 @@ bad ones:
 This polarity holds across every language (project memory: L1 is listening).
 
 Filter shape (mirrors judges/cloze.py): ``filter_l1_distractors`` returns
-``(kept, judge_meta)``. Fail-open — any error (missing template, LLM failure,
-malformed response) keeps every distractor and logs a warning.
+``(kept, judge_meta)``. Fail-open outside ``batch_mode()`` — any error
+(missing template, LLM failure, malformed response) keeps every distractor
+and logs a warning. Fail-closed inside it, via ``guard_fail_open`` (TASK-510).
 """
 
 from __future__ import annotations
@@ -26,6 +27,8 @@ import logging
 
 from services.llm_service import call_llm
 from services.prompt_service import get_template_config
+
+from .base import guard_fail_open
 
 logger = logging.getLogger(__name__)
 
@@ -78,15 +81,19 @@ def judge_l1_distractors(
             prompt,
             model=judge_model,
             temperature=0.0,
-            # TASK-812: was 4500. TASK-808's baseline shows this judge's own
-            # completion_tokens p99 at 4458 (n=55, max 4458) -- right up
-            # against the old cap, and the presence of __json_repair rows for
-            # this same task_name (avg 2911, max 4230) is consistent with
-            # some primary responses being truncated mid-JSON at 4500 and
-            # then re-asked. 14000 (>=3x p99) removes that truncation risk
-            # instead of tightening a cap that was already too close to the
-            # real distribution.
-            max_tokens=14000,
+            # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 14000 was
+            # sized against a p99 that was inflated by reasoning tokens
+            # (qwen reasoning is now OFF). With reasoning off,
+            # data/eval/runs/phase2_bundle_*/ + phase2_fix_*/ +
+            # phase2_smoke_ja_v3/ + phase2_smoke_zh_r/ *.json llm_calls for
+            # judge_ladder_l1_distractor show completion_tokens pooled
+            # across languages: n=73, p99=121, max=121 (en, n=34, governs;
+            # ja n=38 tops out at 75; zh n=1 is sparse but smaller, not the
+            # governing case). cap = max(ceil(p99*2), ceil(max*1.25)) = 242,
+            # rounded up to 250. At gemini-3.5-flash-lite's $2.50/M
+            # completion price (en's model) this cuts the worst-case
+            # reservation from ~$0.035/request to ~$0.001/request.
+            max_tokens=250,
             response_format='json',
             provider=cfg['provider'],
             pipeline=_PIPELINE,
@@ -168,6 +175,11 @@ def _empty_result(model: str, version: int) -> dict:
 
 
 def _all_keep(distractors: list[str], model: str, version: int) -> dict:
+    # In a generation/eval batch this raises instead of returning — an
+    # unreachable judge must abort the batch, not silently ship unjudged
+    # content (TASK-510). Serve-adjacent callers (outside batch_mode()) are
+    # unaffected: guard_fail_open is a no-op there.
+    guard_fail_open('l1_distractor_judge', f'model={model!r} version={version}')
     return {
         'verdicts': {d: 'keep' for d in distractors},
         'reasons':  {d: ''     for d in distractors},

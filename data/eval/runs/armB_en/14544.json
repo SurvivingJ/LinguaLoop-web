@@ -1,0 +1,1102 @@
+{
+  "sense_id": 14544,
+  "language_id": 2,
+  "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+  "started_at": "2026-10-04T05:40:42.692003+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.13174867630004883,
+    "p1_generate": 2.6681113243103027,
+    "tier_gate": 0.0,
+    "p1_judge": 1.3214001655578613,
+    "collocate_grounding": 0.0,
+    "fan_out": 11.909801959991455
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/njuːm/",
+        "morphological_forms": [
+          {
+            "form": "neume",
+            "label": "singular"
+          },
+          {
+            "form": "neumes",
+            "label": "plural"
+          }
+        ],
+        "pronunciation": "nyoom",
+        "register": "technical"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14544
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "e2d3f171-9b59-43a6-abd3-f747eaf3d611",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "neumes",
+        "pronunciation": "nyoom",
+        "correct_definition": "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+        "options": [
+          "To fail to remember or to be unable to recall something.",
+          "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+          "Great skill or ability at doing something.",
+          "Extremely good or excellent."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b4e62836-2540-40f0-a103-e72ab77912ec",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Around the 9th century, the development of ___ marked a crucial step forward.",
+        "original_sentence": "Around the 9th century, the development of neumes marked a crucial step forward.",
+        "correct_answer": "neumes",
+        "options": [
+          "concerts",
+          "lyrics",
+          "neumes",
+          "instruments"
+        ],
+        "explanation": "Correct: Fits the historical context of medieval musical notation development.",
+        "distractor_tags": {},
+        "word_definition": "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+        "target_word": "neumes"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "8c84fc52-9908-434d-86a1-30247238a824",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The music historian studied every single ___ written on the old parchment.",
+        "original_sentence": "The music historian studied every single neume written on the old parchment.",
+        "correct_answer": "neume",
+        "base_form": "neume",
+        "form_label": "singular",
+        "options": [
+          "neumed",
+          "neumes",
+          "neume",
+          "neuming"
+        ],
+        "explanation": "singular noun required by the quantifier 'every single'",
+        "word_definition": "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+        "target_word": "neume"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "40a8e7fe-6080-4a3e-b849-2c7cd786b7a1",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Without modern staff lines, singers relied heavily on each tiny neume to guide their voices.",
+            "is_correct": true
+          },
+          {
+            "text": "The software engineer coded a new neume to fix the database error.",
+            "is_correct": false
+          },
+          {
+            "text": "The chef added a pinch of neumes to the soup to enhance the flavor.",
+            "is_correct": false
+          },
+          {
+            "text": "She wore a diamond neume around her neck for the gala.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: Neumes are abstract visual symbols for music, not physical ingredients that can be tasted or added to food. Semantically inappropriate: Neumes are ink markings on parchment, not tangible jewelry or precious stones. Register/Domain inappropriate: Neumes belong to the domain of medieval musicology, not modern computer programming or database management.",
+        "target_word": "neume"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d2d31d04-91cd-498b-af65-f79b845712ef",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The choir director explained that the neumes was difficult to interpret without a staff.",
+            "is_correct": false,
+            "error_description": "Subject-verb agreement error: 'neumes' is a plural noun and requires the plural verb 'were', not the singular 'was'."
+          },
+          {
+            "text": "Monks drew each neume carefully above the sacred Latin texts.",
+            "is_correct": true
+          },
+          {
+            "text": "The music historian studied every single neume written on the old parchment.",
+            "is_correct": true
+          },
+          {
+            "text": "Around the 9th century, the development of neumes marked a crucial step forward.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "0e2caa5d-ec92-4894-baec-9a2df518be2d",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Can you explain how this specific neume shows the rise in pitch?"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "279c8ccb-bcec-4896-8af1-fe1fb6efdfaf",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "neumes",
+        "pronunciation": "nyoom",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A barrier or obstacle that must be overcome; also, a problem or difficulty.",
+              "To change something completely in form or character.",
+              "To accumulate or increase in amount, often in a disorderly way.",
+              "A symbol used in medieval musical notation to indicate pitch and rhythm."
+            ],
+            "correct_answer": "A symbol used in medieval musical notation to indicate pitch and rhythm."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "dcec1fcf-87b2-4dd8-9e33-ac7a8b0dd505",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The music historian studied every single ___ written on the old parchment.",
+        "original_sentence": "The music historian studied every single neume written on the old parchment.",
+        "target_word": "neume",
+        "word": "neumes",
+        "answer": {
+          "accepted": [
+            "neume"
+          ],
+          "accepted_normalized": [
+            "neume"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "73af8c84-f16c-4fbc-846d-52c885ac0606",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Early musicians used the simple ___ system before modern musical notes were invented.",
+        "original_sentence": "Early musicians used the simple neume system before modern musical notes were invented.",
+        "correct_answer": "neume",
+        "base_form": "neume",
+        "form_label": "singular",
+        "options": [
+          "neumes",
+          "neumed",
+          "neume",
+          "neuming"
+        ],
+        "explanation": "singular noun required by the singular determiner 'the' and modifier 'simple'",
+        "word_definition": "A symbol used in medieval musical notation to indicate pitch and rhythm.",
+        "target_word": "neume"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ac15a808-4dab-4cc0-ac13-0d7a51e934be",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Learning to read an ancient neume takes a lot of patience and practice.",
+            "is_correct": true
+          },
+          {
+            "text": "The software developer wrote a neume in Python to fix the bug.",
+            "is_correct": false
+          },
+          {
+            "text": "He bought a new neume for his car to replace the broken tire.",
+            "is_correct": false
+          },
+          {
+            "text": "The chef added a neume of salt to the soup for better flavor.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatic error: 'neume' is a musical symbol, not a culinary measure or ingredient. Semantic error: 'neume' is not a mechanical part or automotive component. Register/Domain error: 'neume' belongs to medieval musicology, not computer programming.",
+        "target_word": "neume"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b68f4c78-4ba7-4279-bf17-d618b31484c4",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Early musicians used the simple neume system before modern musical notes were invented.",
+            "is_correct": true
+          },
+          {
+            "text": "The choir director explained that the neumes was difficult to interpret without the original staff lines.",
+            "is_correct": false,
+            "error_description": "Subject-verb agreement error: The plural noun 'neumes' requires the plural verb 'were', not the singular 'was'."
+          },
+          {
+            "text": "Learning to read an ancient neume takes a lot of patience and practice.",
+            "is_correct": true
+          },
+          {
+            "text": "They examined the faded manuscript to decode the meaning of each neume.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "b4515bf6-e554-48b4-b0d3-d91dc4d4c96a",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "Without modern staff lines, singers relied heavily on each tiny neume to guide their voices."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "6ecc5b69-a7cd-42f5-a9de-460698b90b24",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Early musicians used the simple ___ system before modern musical notes were invented.",
+        "original_sentence": "Early musicians used the simple neume system before modern musical notes were invented.",
+        "target_word": "neume",
+        "word": "neumes",
+        "answer": {
+          "accepted": [
+            "neume"
+          ],
+          "accepted_normalized": [
+            "neume"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "8aeb7f83-46d5-43b4-b5ad-02d8bc2790e7",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Without modern staff lines, singers relied heavily on each tiny neume to guide their voices.",
+        "chunks": [
+          "Without modern staff lines",
+          "singers",
+          "relied",
+          "heavily",
+          "on each tiny neume",
+          "to guide their voices"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "to guide their voices",
+          "Without modern staff lines",
+          "on each tiny neume",
+          "relied",
+          "heavily",
+          "singers"
+        ],
+        "target_word": "neume",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14544,
+      "word_asset_id": "shadow-14544-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "chunk reconstruction does not match the source sentence — chunks=['Can explain', 'you', 'how this specific neume shows the rise in pitch']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0021516,
+      "prompt_tokens": 1947,
+      "completion_tokens": 627,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 2553
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006375,
+      "prompt_tokens": 675,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 1231
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00051872,
+      "prompt_tokens": 1165,
+      "completion_tokens": 114,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 3303
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00042784,
+      "prompt_tokens": 825,
+      "completion_tokens": 128,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 3326
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0005216,
+      "prompt_tokens": 1166,
+      "completion_tokens": 116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 3331
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00045248,
+      "prompt_tokens": 826,
+      "completion_tokens": 147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 3566
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001224,
+      "prompt_tokens": 1617,
+      "completion_tokens": 552,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 10758
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00131872,
+      "prompt_tokens": 1617,
+      "completion_tokens": 626,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 11819
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003211,
+      "prompt_tokens": 412,
+      "completion_tokens": 79,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 905
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003557,
+      "prompt_tokens": 394,
+      "completion_tokens": 95,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 1033
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004262,
+      "prompt_tokens": 479,
+      "completion_tokens": 113,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 1015
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002052,
+      "prompt_tokens": 384,
+      "completion_tokens": 36,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 784
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003189,
+      "prompt_tokens": 413,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 918
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003495,
+      "prompt_tokens": 390,
+      "completion_tokens": 93,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 1030
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004301,
+      "prompt_tokens": 467,
+      "completion_tokens": 116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 1006
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002102,
+      "prompt_tokens": 384,
+      "completion_tokens": 38,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14544,
+      "generation_batch_id": "c38bcca3-07bc-4c28-bd29-be55908f22ea",
+      "language_code": "en",
+      "latency_ms": 842
+    }
+  ],
+  "llm_calls_observed": 16,
+  "llm_cost_observed_usd": 0.00986936,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T6",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 24.484000000054948,
+  "finished_at": "2026-10-04T05:41:07.180366+00:00"
+}

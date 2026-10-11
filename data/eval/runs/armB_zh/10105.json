@@ -1,0 +1,1445 @@
+{
+  "sense_id": 10105,
+  "language_id": 1,
+  "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+  "started_at": "2026-10-04T05:05:03.782368+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[6] flagged (rating 3): 搭配：规则多用执行/实施"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.12653803825378418,
+    "p1_generate": 14.19339394569397,
+    "tier_gate": 0.014567136764526367,
+    "p1_judge": 7.612143516540527,
+    "collocate_grounding": 0.0,
+    "fan_out": 14.633273124694824
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[6] flagged (rating 3): 搭配：规则多用执行/实施"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[kwaŋ˨˩˦ fan˥˩ iŋ˥˩ jʊŋ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "广泛地应用",
+            "label": "复合"
+          },
+          {
+            "form": "应用了",
+            "label": "体标"
+          },
+          {
+            "form": "应用过",
+            "label": "体标"
+          },
+          {
+            "form": "應用",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "guǎng fàn yìng yòng",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10105
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "030269e7-d494-49b1-aa54-3fbaeb5998ea",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "广泛应用",
+        "pronunciation": "guǎng fàn yìng yòng",
+        "correct_definition": "在很多地方或领域里使用。",
+        "options": [
+          "晶体是原子、离子或分子在空间按一定规律周期性排列的固体。",
+          "指刚学会的一种能力或技巧。",
+          "在很多地方或领域里使用。",
+          "波形图是一种以图形方式展示信号（如声音、电流）随时间变化的图表，横轴通常表示时间，纵轴表示幅度。"
+        ],
+        "hant": {
+          "word": "廣泛應用",
+          "pronunciation": "guǎng fàn yìng yòng",
+          "correct_definition": "在很多地方或領域裡使用。",
+          "options": [
+            "晶體是原子、離子或分子在空間按一定規律週期性排列的固體。",
+            "指剛學會的一種能力或技巧。",
+            "在很多地方或領域裡使用。",
+            "波形圖是一種以圖形方式展示訊號（如聲音、電流）隨時間變化的圖表，橫軸通常表示時間，縱軸表示幅度。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "8c3da8b9-2ff0-4dd5-a0f1-45c9057d7bae",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "老师广泛应用这种方法过在教学。",
+            "is_correct": false
+          },
+          {
+            "text": "老师把这种方法广泛应用在教学中。",
+            "is_correct": true
+          },
+          {
+            "text": "老师正在广泛应用着这种方法在教学。",
+            "is_correct": false
+          },
+          {
+            "text": "老师把这种方法广泛应用了在教学。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语序错误：介词短语'在教学中'应作为状语修饰动词，或紧跟动词后作补语，但不能将'在'置于宾语'教学'之前并断开动词。正确应为'广泛应用在教学中'或'在教学里广泛应用'。 体标误用：'广泛应用'通常表示一种普遍的状态或已完成的事实，不宜与进行体标记'正在...着'连用，且句式杂糅。 语序/体标错误：动态助词'过'应紧贴动词之后，即'应用过'，且'在教学'的位置不当，导致句子结构混乱。",
+        "target_word": "广泛应用",
+        "hant": {
+          "sentences": [
+            {
+              "text": "老師廣泛應用這種方法過在教學。",
+              "is_correct": false
+            },
+            {
+              "text": "老師把這種方法廣泛應用在教學中。",
+              "is_correct": true
+            },
+            {
+              "text": "老師正在廣泛應用著這種方法在教學。",
+              "is_correct": false
+            },
+            {
+              "text": "老師把這種方法廣泛應用了在教學。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語序錯誤：介詞短語'在教學中'應作為狀語修飾動詞，或緊跟動詞後作補語，但不能將'在'置於賓語'教學'之前並斷開動詞。正確應為'廣泛應用在教學中'或'在教學裡廣泛應用'。 體標誤用：'廣泛應用'通常表示一種普遍的狀態或已完成的事實，不宜與進行體標記'正在...著'連用，且句式雜糅。 語序/體標錯誤：動態助詞'過'應緊貼動詞之後，即'應用過'，且'在教學'的位置不當，導致句子結構混亂。",
+          "target_word": "廣泛應用"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "0cd67ae9-ca01-46a7-a288-a9c39f064b6d",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+            "is_correct": true
+          },
+          {
+            "text": "这种新软件在学校里被广泛应用。",
+            "is_correct": true
+          },
+          {
+            "text": "这种新软件在学校里被广泛应用了昨天。",
+            "is_correct": false,
+            "error_description": "时间状语“昨天”位置错误。在汉语中，时间状语通常放在主语之后、谓语动词之前，或者句首，不能放在句末。"
+          },
+          {
+            "text": "材料科学的进步使得复合材料得以广泛应用，不仅减轻了结构重量，还增强了疲劳耐久性；计算流体动力学（CFD）的发展则使工程师能够在虚拟风洞中模拟极端工况下的气动性能，从而在原型制造前完成多轮迭代。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+              "is_correct": true
+            },
+            {
+              "text": "這種新軟體在學校裡被廣泛應用。",
+              "is_correct": true
+            },
+            {
+              "text": "這種新軟體在學校裡被廣泛應用了昨天。",
+              "is_correct": false,
+              "error_description": "時間狀語“昨天”位置錯誤。在漢語中，時間狀語通常放在主語之後、謂語動詞之前，或者句首，不能放在句末。"
+            },
+            {
+              "text": "材料科學的進步使得複合材料得以廣泛應用，不僅減輕了結構重量，還增強了疲勞耐久性；計算流體動力學（CFD）的發展則使工程師能夠在虛擬風洞中模擬極端工況下的氣動效能，從而在原型製造前完成多輪迭代。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "959e95fa-8b9a-4f52-8ba4-9341e761fe5f",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "智能手机在生活中得到了广泛应用。",
+        "hant": {
+          "original_sentence": "智慧手機在生活中得到了廣泛應用。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "9bd40ae2-aff9-4609-8949-15c3ae7c6a59",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "广泛应用",
+        "pronunciation": "guǎng fàn yìng yòng",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "存活率是指一群东西里，活下来的有多少。",
+              "人文；人類の文化や生き方",
+              "在很多地方或领域里使用。",
+              "to explain; to make something clear so others understand"
+            ],
+            "correct_answer": "在很多地方或领域里使用。"
+          }
+        },
+        "hant": {
+          "word": "廣泛應用",
+          "pronunciation": "guǎng fàn yìng yòng",
+          "tier": "T5",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "存活率是指一群東西里，活下來的有多少。",
+                "人文；人類の文化や生き方",
+                "在很多地方或領域裡使用。",
+                "to explain; to make something clear so others understand"
+              ],
+              "correct_answer": "在很多地方或領域裡使用。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "74474bf8-0f7e-4be9-99b7-bfd82d035bee",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "中国早在唐代便已___雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+        "original_sentence": "中国早在唐代便已广泛应用雕版印刷，宋代毕昇更首创泥活字，开启了可重复排版的技术先河。",
+        "target_word": "广泛应用",
+        "word": "广泛应用",
+        "answer": {
+          "accepted": [
+            "广泛应用",
+            "广泛地应用",
+            "应用了",
+            "应用过",
+            "應用"
+          ],
+          "accepted_normalized": [
+            "广泛应用",
+            "广泛地应用",
+            "应用了",
+            "应用过",
+            "应用"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "中國早在唐代便已___雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+          "original_sentence": "中國早在唐代便已廣泛應用雕版印刷，宋代畢昇更首創泥活字，開啟了可重複排版的技術先河。",
+          "target_word": "廣泛應用",
+          "word": "廣泛應用",
+          "answer": {
+            "accepted": [
+              "廣泛應用",
+              "廣泛地應用",
+              "應用了",
+              "應用過",
+              "應用"
+            ],
+            "accepted_normalized": [
+              "廣泛應用",
+              "廣泛地應用",
+              "應用了",
+              "應用過",
+              "應用"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "00d36da9-9035-4069-89ac-07054788c8b5",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "广泛应用",
+        "options": [
+          "guǎng fān yìng yòng",
+          "guǎng fàn yìng yōng",
+          "guǎng fàn yìng yòng",
+          "guāng fàn yìng yòng"
+        ],
+        "correct_answer": "guǎng fàn yìng yòng",
+        "word": "广泛应用",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "廣泛應用",
+          "options": [
+            "guǎng fān yìng yòng",
+            "guǎng fàn yìng yōng",
+            "guǎng fàn yìng yòng",
+            "guāng fàn yìng yòng"
+          ],
+          "correct_answer": "guǎng fàn yìng yòng",
+          "word": "廣泛應用",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "35c2933b-06cc-4cdd-afc1-507405347a4d",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "guǎng fàn yìng yòng",
+        "options": [
+          "当地政府",
+          "广泛应用",
+          "应运而生",
+          "归根结底"
+        ],
+        "correct_answer": "广泛应用",
+        "word": "广泛应用",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "当地政府": "component",
+          "归根结底": "component",
+          "应运而生": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "guǎng fàn yìng yòng",
+          "options": [
+            "當地政府",
+            "廣泛應用",
+            "應運而生",
+            "歸根結底"
+          ],
+          "correct_answer": "廣泛應用",
+          "word": "廣泛應用",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "当地政府": "component",
+            "归根结底": "component",
+            "应运而生": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "4c37b54b-6426-4df9-b21a-837c6f3c95ed",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "广泛应用",
+        "toneless_pinyin": "guang fan ying yong",
+        "full_pinyin": "guǎng fàn yìng yòng",
+        "options": [
+          "3444",
+          "3443",
+          "3442",
+          "3441"
+        ],
+        "correct_answer": "3444",
+        "option_labels": {
+          "3444": "dipping (3) + falling (4) + falling (4) + falling (4)",
+          "3443": "dipping (3) + falling (4) + falling (4) + dipping (3)",
+          "3442": "dipping (3) + falling (4) + falling (4) + rising (2)",
+          "3441": "dipping (3) + falling (4) + falling (4) + high level (1)"
+        },
+        "syllable_count": 4,
+        "hant": {
+          "schema_version": 2,
+          "word": "廣泛應用",
+          "toneless_pinyin": "guang fan ying yong",
+          "full_pinyin": "guǎng fàn yìng yòng",
+          "options": [
+            "3444",
+            "3443",
+            "3442",
+            "3441"
+          ],
+          "correct_answer": "3444",
+          "option_labels": {
+            "3444": "dipping (3) + falling (4) + falling (4) + falling (4)",
+            "3443": "dipping (3) + falling (4) + falling (4) + dipping (3)",
+            "3442": "dipping (3) + falling (4) + falling (4) + rising (2)",
+            "3441": "dipping (3) + falling (4) + falling (4) + high level (1)"
+          },
+          "syllable_count": 4
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "d44fb97e-559d-4817-ab3a-ed18a2d02f3f",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "广泛应用",
+        "relation": "antonym",
+        "options": [
+          "重点试点",
+          "束之高阁",
+          "普遍采用",
+          "大力推广"
+        ],
+        "correct_answer": "束之高阁",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "在很多地方或领域里使用。",
+            "explanation": "反义：指把东西捆起来放在高架上，比喻弃置不用，与‘广泛应用’构成反义关系。"
+          }
+        },
+        "hant": {
+          "word": "廣泛應用",
+          "relation": "antonym",
+          "options": [
+            "重點試點",
+            "束之高閣",
+            "普遍採用",
+            "大力推廣"
+          ],
+          "correct_answer": "束之高閣",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "在很多地方或領域裡使用。",
+              "explanation": "反義：指把東西捆起來放在高架上，比喻棄置不用，與‘廣泛應用’構成反義關係。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "23db2e04-ca0f-4c42-b632-59b8de7527fb",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "我们要把新技术广泛应用着在实验室里。",
+            "is_correct": false
+          },
+          {
+            "text": "我们要把新技术广泛应用得在多个领域。",
+            "is_correct": false
+          },
+          {
+            "text": "我们要把新技术广泛应用起来。",
+            "is_correct": true
+          },
+          {
+            "text": "我们要把新技术广泛应用在起来。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "语序/结构错误：趋向补语'起来'应紧跟动词'应用'之后，构成'应用起来'，介词短语'在...'不能插入动词和补语之间。 结构错误：'得'后通常接程度或状态补语（如'很广泛'），不能直接接介词短语'在多个领域'来引出地点。 体貌错误：'着'表示持续状态，通常不与表示起始或展开动作的'起来'或此类祈使句中的动态过程自然搭配，且'应用着在...'结构生硬，不符合汉语习惯。",
+        "target_word": "广泛应用",
+        "hant": {
+          "sentences": [
+            {
+              "text": "我們要把新技術廣泛應用著在實驗室裡。",
+              "is_correct": false
+            },
+            {
+              "text": "我們要把新技術廣泛應用得在多個領域。",
+              "is_correct": false
+            },
+            {
+              "text": "我們要把新技術廣泛應用起來。",
+              "is_correct": true
+            },
+            {
+              "text": "我們要把新技術廣泛應用在起來。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "語序/結構錯誤：趨向補語'起來'應緊跟動詞'應用'之後，構成'應用起來'，介詞短語'在...'不能插入動詞和補語之間。 結構錯誤：'得'後通常接程度或狀態補語（如'很廣泛'），不能直接接介詞短語'在多個領域'來引出地點。 體貌錯誤：'著'表示持續狀態，通常不與表示起始或展開動作的'起來'或此類祈使句中的動態過程自然搭配，且'應用著在...'結構生硬，不符合漢語習慣。",
+          "target_word": "廣泛應用"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "59c35f84-2fd9-4da4-9be6-6c3a14801ca1",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "老师把这种方法广泛应用在教学中。",
+        "hant": {
+          "original_sentence": "老師把這種方法廣泛應用在教學中。"
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1d9e2111-03b4-4151-a0be-ec23b66de621",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "互联网技术已在教育领域得到___。",
+        "original_sentence": "互联网技术已在教育领域得到广泛应用。",
+        "target_word": "广泛应用",
+        "word": "广泛应用",
+        "answer": {
+          "accepted": [
+            "广泛应用",
+            "广泛地应用",
+            "应用了",
+            "应用过",
+            "應用"
+          ],
+          "accepted_normalized": [
+            "广泛应用",
+            "广泛地应用",
+            "应用了",
+            "应用过",
+            "应用"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "網際網路技術已在教育領域得到___。",
+          "original_sentence": "網際網路技術已在教育領域得到廣泛應用。",
+          "target_word": "廣泛應用",
+          "word": "廣泛應用",
+          "answer": {
+            "accepted": [
+              "廣泛應用",
+              "廣泛地應用",
+              "應用了",
+              "應用過",
+              "應用"
+            ],
+            "accepted_normalized": [
+              "廣泛應用",
+              "廣泛地應用",
+              "應用了",
+              "應用過",
+              "應用"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b037d489-b263-44e0-abdb-090cbf9d1cf1",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "广泛应用",
+        "relation": "antonym",
+        "options": [
+          "束之高阁",
+          "普遍使用",
+          "大力推广",
+          "重点试点"
+        ],
+        "correct_answer": "束之高阁",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "在很多地方或领域里使用。",
+            "explanation": "指把东西捆起来放在高架上，比喻弃置不用，与‘广泛应用’构成反义关系"
+          }
+        },
+        "hant": {
+          "word": "廣泛應用",
+          "relation": "antonym",
+          "options": [
+            "束之高閣",
+            "普遍使用",
+            "大力推廣",
+            "重點試點"
+          ],
+          "correct_answer": "束之高閣",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "在很多地方或領域裡使用。",
+              "explanation": "指把東西捆起來放在高架上，比喻棄置不用，與‘廣泛應用’構成反義關係"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 10105,
+      "word_asset_id": "shadow-10105-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '广泛应用' is fused into a neighbouring chunk — chunks=['智能手机', '在生活中', '得到了广泛应用']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '广泛应用' is fused into a neighbouring chunk — chunks=['老师', '把这种方法广泛应用', '在教学中']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175776,
+      "prompt_tokens": 2477,
+      "completion_tokens": 754,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 13997
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00045536,
+      "prompt_tokens": 683,
+      "completion_tokens": 185,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4356
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00010592,
+      "prompt_tokens": 207,
+      "completion_tokens": 31,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1295
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00021856,
+      "prompt_tokens": 535,
+      "completion_tokens": 37,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1756
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00062752,
+      "prompt_tokens": 1521,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 3147
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00040256,
+      "prompt_tokens": 630,
+      "completion_tokens": 157,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 3999
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00046272,
+      "prompt_tokens": 630,
+      "completion_tokens": 204,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4570
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00073632,
+      "prompt_tokens": 1521,
+      "completion_tokens": 195,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4620
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00153536,
+      "prompt_tokens": 1698,
+      "completion_tokens": 775,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 14392
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00153152,
+      "prompt_tokens": 1698,
+      "completion_tokens": 772,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 14520
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00021824,
+      "prompt_tokens": 426,
+      "completion_tokens": 64,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2189
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001788363,
+      "prompt_tokens": 443,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2021
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027232,
+      "prompt_tokens": 571,
+      "completion_tokens": 70,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2546
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00016384,
+      "prompt_tokens": 436,
+      "completion_tokens": 19,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1773
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00024864,
+      "prompt_tokens": 545,
+      "completion_tokens": 58,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1980
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00021824,
+      "prompt_tokens": 426,
+      "completion_tokens": 64,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2086
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001731681,
+      "prompt_tokens": 397,
+      "completion_tokens": 69,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2677
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00026048,
+      "prompt_tokens": 574,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1920
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0001968,
+      "prompt_tokens": 523,
+      "completion_tokens": 23,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 1359
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00025504,
+      "prompt_tokens": 545,
+      "completion_tokens": 63,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10105,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 2223
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.010019204399999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 58.79599999997299,
+  "finished_at": "2026-10-04T05:06:02.587075+00:00"
+}

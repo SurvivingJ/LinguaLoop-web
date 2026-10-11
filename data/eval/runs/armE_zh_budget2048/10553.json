@@ -1,0 +1,1394 @@
+{
+  "sense_id": 10553,
+  "language_id": 1,
+  "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+  "started_at": "2026-10-08T10:23:05.864973+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[4] flagged (rating 3): 语域偏口语，且矛盾频发搭配略生硬",
+    "P1 sentence[6] flagged (rating 3): 语域偏口语，且误会频发搭配略生硬",
+    "P1 sentence[8] flagged (rating 3): 语域偏口语，且尴尬频发搭配不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.26592135429382324,
+    "p1_generate": 48.68972206115723,
+    "tier_gate": 0.0,
+    "p1_judge": 42.02343440055847,
+    "collocate_grounding": 0.0,
+    "fan_out": 48.52930545806885
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[4] flagged (rating 3): 语域偏口语，且矛盾频发搭配略生硬",
+        "P1 sentence[6] flagged (rating 3): 语域偏口语，且误会频发搭配略生硬",
+        "P1 sentence[8] flagged (rating 3): 语域偏口语，且尴尬频发搭配不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[pʰin˧˥ fa˥˥]",
+        "morphological_forms": [
+          {
+            "form": "频发现",
+            "label": "复合"
+          },
+          {
+            "form": "頻發",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "pín fā",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10553
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "cf22cd88-7bb0-46c8-92b8-918f0d1f0f4f",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "频发",
+        "pronunciation": "pín fā",
+        "correct_definition": "指在较短的时间内多次发生。",
+        "options": [
+          "违背、违反或脱离（原则、路线等）。",
+          "指在较短的时间内多次发生。",
+          "T恤是一种短袖上衣，通常由棉布制成，穿着舒适。",
+          "动词，指视线接触某人或某物。"
+        ],
+        "hant": {
+          "word": "頻發",
+          "pronunciation": "pín fā",
+          "correct_definition": "指在較短的時間內多次發生。",
+          "options": [
+            "違背、違反或脫離（原則、路線等）。",
+            "指在較短的時間內多次發生。",
+            "T恤是一種短袖上衣，通常由棉布製成，穿著舒適。",
+            "動詞，指視線接觸某人或某物。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "45cd5713-0d19-4643-843a-a51a69cfba92",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "错误频发让他很伤心。",
+            "is_correct": true
+          },
+          {
+            "text": "让他很伤心错误频发。",
+            "is_correct": false
+          },
+          {
+            "text": "错误频发了让他很伤心。",
+            "is_correct": false
+          },
+          {
+            "text": "频发错误让他很伤心。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置错误。“频发”表示一种持续或反复的状态，通常不加动态助词“了”，加“了”会破坏状态动词的自然体貌。 语序错误。“频发”是不及物状态动词，主语应为发生的事物（错误），不能带宾语，此处错误地将“错误”放在了宾语位置。 语序错误。因果复句中，原因分句“错误频发”应放在结果分句“让他很伤心”之前，当前语序破坏了正常的逻辑与主题评论结构。",
+        "target_word": "频发",
+        "hant": {
+          "sentences": [
+            {
+              "text": "錯誤頻發讓他很傷心。",
+              "is_correct": true
+            },
+            {
+              "text": "讓他很傷心錯誤頻發。",
+              "is_correct": false
+            },
+            {
+              "text": "錯誤頻發了讓他很傷心。",
+              "is_correct": false
+            },
+            {
+              "text": "頻發錯誤讓他很傷心。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置錯誤。“頻發”表示一種持續或反覆的狀態，通常不加動態助詞“了”，加“了”會破壞狀態動詞的自然體貌。 語序錯誤。“頻發”是不及物狀態動詞，主語應為發生的事物（錯誤），不能帶賓語，此處錯誤地將“錯誤”放在了賓語位置。 語序錯誤。因果複句中，原因分句“錯誤頻發”應放在結果分句“讓他很傷心”之前，當前語序破壞了正常的邏輯與主題評論結構。",
+          "target_word": "頻發"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "94ddba25-7a46-4290-b226-f07ecb4ee778",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "气候变化导致适宜种植区收缩，极端天气频发影响产量稳定性；全球航运成本波动、地缘政治紧张以及关税政策调整均可能扰乱贸易流向；同时，小农户在面对市场风险时普遍缺乏金融工具与信息支持。",
+            "is_correct": true
+          },
+          {
+            "text": "当极端气候频发导致主粮产区波动时，分布式的城市食品生产网络展现出显著的风险对冲能力，使地方政府将此类项目纳入关键基础设施的应急规划范畴。",
+            "is_correct": true
+          },
+          {
+            "text": "在某些干旱频发的地区，纺织工业甚至成为加剧水资源短缺的关键因素，挤占了农业、饮用水与生态系统所需的水量。",
+            "is_correct": true
+          },
+          {
+            "text": "频发极端天气影响了农作物的产量。",
+            "is_correct": false,
+            "error_description": "语序错误。“频发”的主语是发生的事件，应将“极端天气”放在“频发”前面作主语。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "氣候變化導致適宜種植區收縮，極端天氣頻發影響產量穩定性；全球航運成本波動、地緣政治緊張以及關稅政策調整均可能擾亂貿易流向；同時，小農戶在面對市場風險時普遍缺乏金融工具與資訊支援。",
+              "is_correct": true
+            },
+            {
+              "text": "當極端氣候頻發導致主糧產區波動時，分散式的城市食品生產網路展現出顯著的風險對沖能力，使地方政府將此類專案納入關鍵基礎設施的應急規劃範疇。",
+              "is_correct": true
+            },
+            {
+              "text": "在某些乾旱頻發的地區，紡織工業甚至成為加劇水資源短缺的關鍵因素，擠佔了農業、飲用水與生態系統所需的水量。",
+              "is_correct": true
+            },
+            {
+              "text": "頻發極端天氣影響了農作物的產量。",
+              "is_correct": false,
+              "error_description": "語序錯誤。“頻發”的主語是發生的事件，應將“極端天氣”放在“頻發”前面作主語。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "4ee082f3-dc03-4b54-882b-53d7452b9d58",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "频发",
+        "pronunciation": "pín fā",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "農民",
+              "指在较短的时间内多次发生。",
+              "to capture; to catch something that is moving",
+              "very good"
+            ],
+            "correct_answer": "指在较短的时间内多次发生。"
+          }
+        },
+        "hant": {
+          "word": "頻發",
+          "pronunciation": "pín fā",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "農民",
+                "指在較短的時間內多次發生。",
+                "to capture; to catch something that is moving",
+                "very good"
+              ],
+              "correct_answer": "指在較短的時間內多次發生。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "d7c66882-501e-4ec8-b144-d3ae8d5cfb41",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "气候变化导致适宜种植区收缩，极端天气___影响产量稳定性；全球航运成本波动、地缘政治紧张以及关税政策调整均可能扰乱贸易流向；同时，小农户在面对市场风险时普遍缺乏金融工具与信息支持。",
+        "original_sentence": "气候变化导致适宜种植区收缩，极端天气频发影响产量稳定性；全球航运成本波动、地缘政治紧张以及关税政策调整均可能扰乱贸易流向；同时，小农户在面对市场风险时普遍缺乏金融工具与信息支持。",
+        "target_word": "频发",
+        "word": "频发",
+        "answer": {
+          "accepted": [
+            "频发",
+            "频发现"
+          ],
+          "accepted_normalized": [
+            "频发",
+            "频发现"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "氣候變化導致適宜種植區收縮，極端天氣___影響產量穩定性；全球航運成本波動、地緣政治緊張以及關稅政策調整均可能擾亂貿易流向；同時，小農戶在面對市場風險時普遍缺乏金融工具與資訊支援。",
+          "original_sentence": "氣候變化導致適宜種植區收縮，極端天氣頻發影響產量穩定性；全球航運成本波動、地緣政治緊張以及關稅政策調整均可能擾亂貿易流向；同時，小農戶在面對市場風險時普遍缺乏金融工具與資訊支援。",
+          "target_word": "頻發",
+          "word": "頻發",
+          "answer": {
+            "accepted": [
+              "頻發",
+              "頻發現"
+            ],
+            "accepted_normalized": [
+              "頻發",
+              "頻發現"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "8332128b-116f-416e-833f-1ec8f2a030c8",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "频发",
+        "options": [
+          "pín fā",
+          "pín fǎ",
+          "pīn fā",
+          "pín fá"
+        ],
+        "correct_answer": "pín fā",
+        "word": "频发",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "頻發",
+          "options": [
+            "pín fā",
+            "pín fǎ",
+            "pīn fā",
+            "pín fá"
+          ],
+          "correct_answer": "pín fā",
+          "word": "頻發",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "2768242c-1417-49d4-baf9-76d6a52121b1",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "pín fā",
+        "options": [
+          "频谱",
+          "频发",
+          "频繁",
+          "频率"
+        ],
+        "correct_answer": "频发",
+        "word": "频发",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "频繁": "component",
+          "频率": "component",
+          "频谱": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "pín fā",
+          "options": [
+            "頻譜",
+            "頻發",
+            "頻繁",
+            "頻率"
+          ],
+          "correct_answer": "頻發",
+          "word": "頻發",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "频繁": "component",
+            "频率": "component",
+            "频谱": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7b193888-edf8-494f-b83f-6a6f5d75ab3c",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "频发",
+        "toneless_pinyin": "pin fa",
+        "full_pinyin": "pín fā",
+        "options": [
+          "22",
+          "21",
+          "24",
+          "23"
+        ],
+        "correct_answer": "21",
+        "option_labels": {
+          "22": "rising (2) + rising (2)",
+          "21": "rising (2) + high level (1)",
+          "24": "rising (2) + falling (4)",
+          "23": "rising (2) + dipping (3)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "頻發",
+          "toneless_pinyin": "pin fa",
+          "full_pinyin": "pín fā",
+          "options": [
+            "22",
+            "21",
+            "24",
+            "23"
+          ],
+          "correct_answer": "21",
+          "option_labels": {
+            "22": "rising (2) + rising (2)",
+            "21": "rising (2) + high level (1)",
+            "24": "rising (2) + falling (4)",
+            "23": "rising (2) + dipping (3)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "075cd61a-a65c-4737-92b4-79232d78db04",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "频发",
+        "relation": "antonym",
+        "options": [
+          "突发",
+          "并发",
+          "偶发",
+          "易发"
+        ],
+        "correct_answer": "偶发",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指在较短的时间内多次发生。",
+            "explanation": "反义：频发指短时间内多次发生，偶发指偶尔发生，二者在发生频率上构成反义"
+          }
+        },
+        "hant": {
+          "word": "頻發",
+          "relation": "antonym",
+          "options": [
+            "突發",
+            "併發",
+            "偶發",
+            "易發"
+          ],
+          "correct_answer": "偶發",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指在較短的時間內多次發生。",
+              "explanation": "反義：頻髮指短時間內多次發生，偶發指偶爾發生，二者在發生頻率上構成反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "状态动词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "d27e5e4d-68d7-4d19-94ea-fc3ef23a04f9",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "小错误频发着，说明你没用过心。",
+            "is_correct": false
+          },
+          {
+            "text": "频发小错误，说明你没用过心。",
+            "is_correct": false
+          },
+          {
+            "text": "小错误频发起来，说明你没用过心。",
+            "is_correct": false
+          },
+          {
+            "text": "小错误频发，说明你没用过心。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标选用错误：'频发'表示多次发生的状态，不能加表示动作持续的动态助词'着'。 语序错误：'频发'在此处作谓语，主语'小错误'应置于谓语之前，构成'主语+谓语'的主谓结构。 结果补语误用：'起来'表示动作开始，但'频发'本身已包含反复多次的意义，两者连用导致语义重复且搭配不当。",
+        "target_word": "频发",
+        "hant": {
+          "sentences": [
+            {
+              "text": "小錯誤頻發著，說明你沒用過心。",
+              "is_correct": false
+            },
+            {
+              "text": "頻發小錯誤，說明你沒用過心。",
+              "is_correct": false
+            },
+            {
+              "text": "小錯誤頻發起來，說明你沒用過心。",
+              "is_correct": false
+            },
+            {
+              "text": "小錯誤頻發，說明你沒用過心。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標選用錯誤：'頻發'表示多次發生的狀態，不能加表示動作持續的動態助詞'著'。 語序錯誤：'頻發'在此處作謂語，主語'小錯誤'應置於謂語之前，構成'主語+謂語'的主謂結構。 結果補語誤用：'起來'表示動作開始，但'頻發'本身已包含反覆多次的意義，兩者連用導致語義重複且搭配不當。",
+          "target_word": "頻發"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "状态动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "6fc050c1-ae27-4af9-a28e-c6cb202e31be",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "小错误频发，说明你没用过心。",
+            "is_correct": true
+          },
+          {
+            "text": "最近误会频发，我们得聊聊。",
+            "is_correct": true
+          },
+          {
+            "text": "最近误会频发了，我们得聊聊。",
+            "is_correct": false,
+            "error_description": "“频发”表示频繁发生的状态，通常不与表示动作完成的动态助词“了”连用，应去掉“了”。"
+          },
+          {
+            "text": "争吵频发，感情变淡了。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "小錯誤頻發，說明你沒用過心。",
+              "is_correct": true
+            },
+            {
+              "text": "最近誤會頻發，我們得聊聊。",
+              "is_correct": true
+            },
+            {
+              "text": "最近誤會頻發了，我們得聊聊。",
+              "is_correct": false,
+              "error_description": "“頻發”表示頻繁發生的狀態，通常不與表示動作完成的動態助詞“了”連用，應去掉“了”。"
+            },
+            {
+              "text": "爭吵頻發，感情變淡了。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "状态动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "flag",
+          "confidence": 3.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "d12c8247-c81b-4937-905a-c58ddf59015e",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "争吵___，感情变淡了。",
+        "original_sentence": "争吵频发，感情变淡了。",
+        "target_word": "频发",
+        "word": "频发",
+        "answer": {
+          "accepted": [
+            "频发",
+            "频发现"
+          ],
+          "accepted_normalized": [
+            "频发",
+            "频发现"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "爭吵___，感情變淡了。",
+          "original_sentence": "爭吵頻發，感情變淡了。",
+          "target_word": "頻發",
+          "word": "頻發",
+          "answer": {
+            "accepted": [
+              "頻發",
+              "頻發現"
+            ],
+            "accepted_normalized": [
+              "頻發",
+              "頻發現"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "状态动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "302f20b7-8234-4b68-bf00-b9acaab0c108",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "频发",
+        "relation": "antonym",
+        "options": [
+          "突发",
+          "发生",
+          "并发",
+          "偶发"
+        ],
+        "correct_answer": "偶发",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指在较短的时间内多次发生。",
+            "explanation": "反义项：指偶尔发生，与频发在发生频率上构成反义"
+          }
+        },
+        "hant": {
+          "word": "頻發",
+          "relation": "antonym",
+          "options": [
+            "突發",
+            "發生",
+            "併發",
+            "偶發"
+          ],
+          "correct_answer": "偶發",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指在較短的時間內多次發生。",
+              "explanation": "反義項：指偶爾發生，與頻發在發生頻率上構成反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "状态动词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "发生": 0.45656
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10553,
+      "word_asset_id": "shadow-10553-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '频发' is fused into a neighbouring chunk — chunks=['他把', '频发的', '问题记下来了']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '频发' is fused into a neighbouring chunk — chunks=['错误', '频发让他', '很伤心']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00435264,
+      "prompt_tokens": 2526,
+      "completion_tokens": 2769,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48378
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00330528,
+      "prompt_tokens": 717,
+      "completion_tokens": 2403,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 41697
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002464,
+      "prompt_tokens": 632,
+      "completion_tokens": 1767,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1575,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 31143
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0026176,
+      "prompt_tokens": 628,
+      "completion_tokens": 1888,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1680,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 32911
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00292736,
+      "prompt_tokens": 1528,
+      "completion_tokens": 1905,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1805,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 33880
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00311264,
+      "prompt_tokens": 1527,
+      "completion_tokens": 2050,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1956,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 35873
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00407232,
+      "prompt_tokens": 1730,
+      "completion_tokens": 2749,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47957
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00408128,
+      "prompt_tokens": 1730,
+      "completion_tokens": 2756,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48245
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182048,
+      "prompt_tokens": 421,
+      "completion_tokens": 1317,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1237,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 23276
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001726596,
+      "prompt_tokens": 423,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2333
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00288768,
+      "prompt_tokens": 548,
+      "completion_tokens": 2119,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 36859
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00088544,
+      "prompt_tokens": 423,
+      "completion_tokens": 586,
+      "cached_tokens": 0,
+      "reasoning_tokens": 562,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 10930
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00171392,
+      "prompt_tokens": 540,
+      "completion_tokens": 1204,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1104,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 21243
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00284192,
+      "prompt_tokens": 421,
+      "completion_tokens": 2115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 36910
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.000163395,
+      "prompt_tokens": 395,
+      "completion_tokens": 60,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 2834
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.002104,
+      "prompt_tokens": 547,
+      "completion_tokens": 1507,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1433,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 26488
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00279072,
+      "prompt_tokens": 425,
+      "completion_tokens": 2074,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 36309
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00170464,
+      "prompt_tokens": 539,
+      "completion_tokens": 1197,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1098,
+      "call_role": "primary",
+      "sense_id": 10553,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 21258
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.04401797459999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 361.5,
+  "finished_at": "2026-10-08T10:29:07.369382+00:00"
+}

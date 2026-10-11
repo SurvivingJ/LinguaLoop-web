@@ -1,0 +1,1314 @@
+{
+  "sense_id": 35157,
+  "language_id": 3,
+  "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+  "started_at": "2026-10-04T04:39:02.440210+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[1] flagged (rating 3): 語域：不自然な用法",
+    "P1 sentence[2] rejected (rating 2): 全単語：誤字（通じて）",
+    "P1 sentence[5] flagged (rating 3): 語域：やや不自然"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.9998214244842529,
+    "p1_generate": 24.462180376052856,
+    "tier_gate": 2.066664695739746,
+    "p1_judge": 10.46209454536438,
+    "collocate_grounding": 0.0,
+    "fan_out": 32.492098808288574
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] flagged (rating 3): 語域：不自然な用法",
+        "P1 sentence[2] rejected (rating 2): 全単語：誤字（通じて）",
+        "P1 sentence[5] flagged (rating 3): 語域：やや不自然"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "tsuːdʑiɾu",
+        "morphological_forms": [
+          {
+            "form": "通じた",
+            "label": "活用"
+          },
+          {
+            "form": "通じて",
+            "label": "活用"
+          },
+          {
+            "form": "通じない",
+            "label": "活用"
+          },
+          {
+            "form": "通じる",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "つうじる",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35157
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "4148e357-8b28-4b0a-833a-f25f5414dfe5",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "通ずる",
+        "pronunciation": "つうじる",
+        "ipa": "tsuːdʑiɾu",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "通ずる",
+          "封じる",
+          "乗じる",
+          "動じる"
+        ],
+        "correct_answer": "通ずる",
+        "explanation": "正解です。「通ずる」は「あるものが、離れた別のものと、つながり合う。また、広く行き渡る。」という意味です。",
+        "distractor_explanations": {
+          "動じる": "「動じる」は「通ずる」と一モーラだけ異なる実在語です（1モーラ目: 「つ」→「ど」、一部の音の違い）。",
+          "乗じる": "「乗じる」は「通ずる」と一モーラだけ異なる実在語です（1モーラ目: 「つ」→「じょ」、一部の音の違い）。",
+          "封じる": "「封じる」は「通ずる」と一モーラだけ異なる実在語です（1モーラ目: 「つ」→「ふ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "l1_distractor_judge": {
+          "rejected": 2,
+          "kept": 8,
+          "rejected_items": [
+            "同じる",
+            "通じて"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "4af3bf3f-c826-4ef4-845c-441b8e4c03ce",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "通じ",
+        "pronunciation": "つうじる",
+        "correct_definition": "あるものが、離れた別のものと、つながり合う。また、広く行き渡る。",
+        "options": [
+          "利益を得ることを目的とした、商品やサービスを売買する活動や組織のこと。",
+          "同じ目的や活動をともにする人。グループの一員。",
+          "あるものが、離れた別のものと、つながり合う。また、広く行き渡る。",
+          "物や場所をいくつかの部分に分けること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "5cd67fea-2790-485d-be81-ab88b46659d8",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この小道は、隣の村へと___ています。",
+        "original_sentence": "この小道は、隣の村へと通じています。",
+        "correct_answer": "通じ",
+        "options": [
+          "続き",
+          "伸び",
+          "通じ",
+          "届き"
+        ],
+        "explanation": "正解です。文脈「この小道は、隣の村へと____ています」には、物理的な経路がつながっていることを示す「通じ」が適切です。",
+        "distractor_tags": {},
+        "word_definition": "あるものが、離れた別のものと、つながり合う。また、広く行き渡る。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "70930424-ab45-4269-afed-9cf7567fd59e",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "彼の意見は、社内ですべての部門に___ています。",
+        "original_sentence": "彼の意見は、社内ですべての部門に通じています。",
+        "correct_answer": "通じ",
+        "base_form": "通じる",
+        "form_label": "連用形（ます形の語幹）",
+        "options": [
+          "通じた",
+          "通じて",
+          "通じ",
+          "通じる"
+        ],
+        "explanation": "「～ています」に接続する連用形（ます形）の語幹として正しい",
+        "word_definition": "あるものが、離れた別のものと、つながり合う。また、広く行き渡る。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "277d6e0f-34ed-4aa1-8ac5-677fd5d7fa3c",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "その噂は、あっという間に町中に通じました。",
+            "is_correct": true
+          },
+          {
+            "text": "その噂は、あっという間に町中へ通じられています。",
+            "is_correct": false
+          },
+          {
+            "text": "あっという間に、その噂は町中に通じましたこと。",
+            "is_correct": false
+          },
+          {
+            "text": "その噂は、あっという間に町中を通じました。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「通じる」が「行き渡る」という自動詞的な意味で使われる場合、到達点や範囲を示すのは「に」や「まで」であり、経由点を示す「を」を使うと不自然です。 活用・アスペクトの誤り：「通じる」はこの文脈では自発的・自然的に広がる様子を表すため、受身形「通じられている」や他動的なニュアンスを含む表現は不自然です。 語順・係り受けの誤り：文末を名詞止め「こと」で結ぶことは、通常の叙述文としては文法的に不完全であり、不自然な表現です。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "その噂は、あっという間に町中に通じました。"
+          ]
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "0b544ddf-dd7b-4db8-b390-c965a6cf7862",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "彼の名声は、業界全体に通じています。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "09dff171-422b-4d95-a245-b78b26967b28",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "通じ",
+        "pronunciation": "つうじる",
+        "tier": "T5",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "地面からまっすぐにのびて、上に枝や葉がある、大きい植物です。",
+              "あるものが、離れた別のものと、つながり合う。また、広く行き渡る。",
+              "clear; obvious — leaving no room for doubt, very plain",
+              "a limit"
+            ],
+            "correct_answer": "あるものが、離れた別のものと、つながり合う。また、広く行き渡る。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "97110d96-88ce-4419-a3ff-8113901ef7da",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "彼の意見は、社内ですべての部門に___ています。",
+        "original_sentence": "彼の意見は、社内ですべての部門に通じています。",
+        "target_word": "通じ",
+        "word": "通じ",
+        "answer": {
+          "accepted": [
+            "通じ"
+          ],
+          "accepted_normalized": [
+            "通じ"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ea1a75b7-c2cb-48ea-919b-309046250fbd",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "通ずる",
+        "options": [
+          "つうしる",
+          "つうじる",
+          "づうじる",
+          "つじる"
+        ],
+        "correct_answer": "つうじる",
+        "word": "通ずる",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "dfedfa41-a062-44f9-ba97-aaca8dca5d15",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "つうじる",
+        "options": [
+          "迎え角",
+          "間違い",
+          "風通し",
+          "通ずる"
+        ],
+        "correct_answer": "通ずる",
+        "word": "通ずる",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "風通し": "component",
+          "迎え角": "component",
+          "間違い": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6a40072e-dbd9-44ce-978a-47c14cf95c39",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この道は山を越えて、隣の町まで___ています。",
+        "original_sentence": "この道は山を越えて、隣の町まで通じています。",
+        "correct_answer": "通じ",
+        "options": [
+          "続き",
+          "走り",
+          "届き",
+          "通じ"
+        ],
+        "explanation": "正解です。文脈「この道は山を越えて、隣の町まで____ています」において、物理的な経路がつながっていることを表す「通じ」が適切です。",
+        "distractor_tags": {},
+        "word_definition": "あるものが、離れた別のものと、つながり合う。また、広く行き渡る。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "67399ad0-1917-4d6f-9803-1d2caa797bf6",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この道は山の中腹まで___ています。",
+        "original_sentence": "この道は山の中腹まで通じています。",
+        "correct_answer": "通じ",
+        "base_form": "通じる",
+        "form_label": "連用形",
+        "options": [
+          "通じ",
+          "通じた",
+          "通じる",
+          "通じて"
+        ],
+        "explanation": "「ています」に接続する連用形（ます形）の語幹として正しい",
+        "word_definition": "あるものが、離れた別のものと、つながり合う。また、広く行き渡る。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "17fe0265-4cf0-4171-b208-e2342ed4a9b0",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "窓を開けると、外の音が部屋に通じています。",
+            "is_correct": false
+          },
+          {
+            "text": "窓を開けると、外の音が部屋に通じました。",
+            "is_correct": false
+          },
+          {
+            "text": "窓を開けると、外の音が部屋に通じること。",
+            "is_correct": false
+          },
+          {
+            "text": "窓を開けると、外の音が部屋に通じます。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "アスペクトの誤り：元の文は現在の習慣や一般的な事実を表す現在形「通じます」ですが、これを過去形「通じました」にすると、特定の過去の一回の出来事を指すことになります。文脈「窓を開けると（毎回／一般的に）」との整合性が悪くなります。 アスペクトの誤り：「通じています」は状態の継続を表しますが、「窓を開けると」という条件節と共に用いる場合、瞬間的な結果や反復的な事実を表す単純現在形「通じます」の方が自然的です。「通じています」を使うなら、「窓を開けている間、外の音が部屋に通じています」などの文脈が必要です。 語順・係り受けの誤り：文末が名詞節「〜こと」で終わっており、述語が欠落しています。これでは文として成立しません。",
+        "target_word": "通じ"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "窓を開けると、外の音が部屋に通じます。"
+          ]
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b069d048-33e8-4d2f-ab65-e7e73a9a1557",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "その噂は、あっという間に町中に通じました。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "bbbdcede-5ea3-4b84-bef6-04c082e597af",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "この道は山の中腹まで___ています。",
+        "original_sentence": "この道は山の中腹まで通じています。",
+        "target_word": "通じ",
+        "word": "通じ",
+        "answer": {
+          "accepted": [
+            "通じ"
+          ],
+          "accepted_normalized": [
+            "通じ"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 7,
+          "generated_count": 3
+        }
+      },
+      "complexity_tier": "T5",
+      "is_active": true,
+      "word_sense_id": 35157,
+      "word_asset_id": "shadow-35157-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 2,
+      "kept": 8
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 2,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '通じ' is fused into a neighbouring chunk — chunks=['彼の', '名声は', '業界全体に', '通じて', 'います']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '通じ' is fused into a neighbouring chunk — chunks=['その噂は', 'あっと', 'いう間に', '町中に', '通じました']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00266176,
+      "prompt_tokens": 2986,
+      "completion_tokens": 1333,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 23939
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002224,
+      "prompt_tokens": 459,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2025
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0005136,
+      "prompt_tokens": 881,
+      "completion_tokens": 181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4061
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002944,
+      "prompt_tokens": 460,
+      "completion_tokens": 115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2975
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00036128,
+      "prompt_tokens": 693,
+      "completion_tokens": 109,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2995
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00045824,
+      "prompt_tokens": 820,
+      "completion_tokens": 153,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3615
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00073984,
+      "prompt_tokens": 1680,
+      "completion_tokens": 158,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3908
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00047296,
+      "prompt_tokens": 822,
+      "completion_tokens": 164,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3963
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00070944,
+      "prompt_tokens": 1685,
+      "completion_tokens": 133,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3971
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006192,
+      "prompt_tokens": 1035,
+      "completion_tokens": 225,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4883
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00066016,
+      "prompt_tokens": 1063,
+      "completion_tokens": 250,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 5514
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00042528,
+      "prompt_tokens": 753,
+      "completion_tokens": 144,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3415
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00040704,
+      "prompt_tokens": 756,
+      "completion_tokens": 129,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3025
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00298816,
+      "prompt_tokens": 2694,
+      "completion_tokens": 1661,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 30081
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00316352,
+      "prompt_tokens": 2694,
+      "completion_tokens": 1798,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 32332
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00056384,
+      "prompt_tokens": 826,
+      "completion_tokens": 234,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 5054
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00035168,
+      "prompt_tokens": 747,
+      "completion_tokens": 88,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2491
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00019936,
+      "prompt_tokens": 543,
+      "completion_tokens": 20,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1250
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002832,
+      "prompt_tokens": 597,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2244
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002848,
+      "prompt_tokens": 630,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2121
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0005552,
+      "prompt_tokens": 827,
+      "completion_tokens": 227,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 5169
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00036192,
+      "prompt_tokens": 783,
+      "completion_tokens": 87,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2412
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00020864,
+      "prompt_tokens": 568,
+      "completion_tokens": 21,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1751
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00031392,
+      "prompt_tokens": 593,
+      "completion_tokens": 97,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2657
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00024864,
+      "prompt_tokens": 625,
+      "completion_tokens": 38,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1843
+    }
+  ],
+  "llm_calls_observed": 25,
+  "llm_cost_observed_usd": 0.018068479999999998,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 3,
+    "repaired": 3,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 99.125,
+  "finished_at": "2026-10-04T04:40:41.574420+00:00"
+}

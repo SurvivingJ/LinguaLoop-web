@@ -1,0 +1,41 @@
+=== 2026-10-08T20:25:02+11:00 START en B limit=0
+[plan] L2=en L1=zh fixture-set=v6 items=31 (clean 10 / single 16 / multi 5) framework=v2
+[taxonomy] candidate v6 parsed from migrations/dt_taxonomy_v6_seed.sql: 9 pair keys; baseline subtypes en=20 ja=23 zh=20
+[taxonomy] candidate v6 pre-seeded into the config cache (live DB taxonomy untouched)
+[resume] loaded 0 graded + 0 skipped from data/eval/dt_v6_gate_2026-10-08/en_B.ckpt.jsonl
+[1/31] en_clean_01 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[2/31] en_clean_02 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[3/31] en_clean_03 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[4/31] en_clean_04 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[5/31] en_clean_05 kind=clean pred_errors=0 tier=tier0 fell_open=None
+[6/31] en_clean_06 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[7/31] en_clean_07 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[8/31] en_clean_08 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[9/31] en_clean_09 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[10/31] en_clean_10 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[11/31] en_seed_01 kind=single pred_errors=1 tier=tier2 fell_open=False
+[12/31] en_seed_02 kind=single pred_errors=1 tier=tier2 fell_open=False
+[13/31] en_seed_03 kind=single pred_errors=1 tier=tier2 fell_open=False
+[14/31] en_seed_04 kind=single pred_errors=1 tier=tier2 fell_open=False
+[15/31] en_seed_05 kind=single pred_errors=1 tier=tier2 fell_open=False
+[16/31] en_seed_06 kind=single pred_errors=0 tier=tier2 fell_open=False
+[17/31] en_seed_07 kind=single pred_errors=1 tier=tier2 fell_open=False
+[18/31] en_seed_08 kind=single pred_errors=1 tier=tier2 fell_open=False
+[19/31] en_seed_09 kind=single pred_errors=1 tier=tier2 fell_open=False
+[20/31] en_seed_10 kind=single pred_errors=1 tier=tier2 fell_open=False
+[21/31] en_seed_11 kind=single pred_errors=1 tier=tier2 fell_open=False
+[22/31] en_seed_12 kind=single pred_errors=1 tier=tier2 fell_open=False
+[23/31] en_seed_13 kind=single pred_errors=1 tier=tier2 fell_open=False
+[24/31] en_seed_14 kind=single pred_errors=1 tier=tier2 fell_open=False
+[25/31] en_seed_15 kind=single pred_errors=1 tier=tier2 fell_open=False
+[26/31] en_multi_01 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[27/31] en_multi_02 kind=multi pred_errors=3 tier=tier2 fell_open=False
+[28/31] en_multi_03 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[29/31] en_multi_04 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[30/31] en_multi_05 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[31/31] en_v6_ws_02 kind=single pred_errors=1 tier=tier2 fell_open=False
+
+[done] wrote data/eval/dt_v6_gate_2026-10-08/en_B.md
+  span F1=0.963  clean FP rate=0.000  overall QWK=0.431  cost=$0.0629
+  meaning_inversion recall=1.000  exemplar drops=0  no-template lines=0
+=== 2026-10-08T20:26:57+11:00 END en B rc=0

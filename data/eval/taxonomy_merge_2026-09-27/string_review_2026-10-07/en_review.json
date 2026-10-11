@@ -1,0 +1,636 @@
+[
+  {
+    "location": "v6_strings.json subtype_glosses.omission.en",
+    "provenance": "ai_draft",
+    "current": "omission — a required word or element is missing, so content is lost without the meaning being reversed (if dropping it reverses the meaning, e.g. a lost negation, that is a meaning inversion, not an omission)",
+    "verdict": "ok",
+    "reason": "Matches the definition and the user ruling (a reversing drop is meaning_inversion, not omission); refers to the other type by its label, per convention."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.addition.en",
+    "provenance": "v5_verbatim",
+    "current": "addition — extra words or information not present in the reference (padding, redundant repetition, or an inserted element)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.word_choice.en",
+    "provenance": "v5_verbatim",
+    "current": "word choice — a wrong or unnatural lexical choice (right idea, wrong word)",
+    "verdict": "fix",
+    "proposed": "word choice — a wrong or unnatural choice of word: a word that does not fit the idea, the right word used in the wrong one of its senses, or a word that shares a translation with the right one but is used differently",
+    "reason": "v5 verbatim, but wrong for v6: '(right idea, wrong word)' contradicts two of the three v6 variants — wrong_word is 'a word that does not fit the intended idea' (not the right idea), and wrong_sense is the SAME word in a different sense (not a wrong word). This gloss is the en Detector/Verifier label and the explainer's `type` for L1=en, so it should cover all three variants (ADR-031 Decision A)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.collocation.en",
+    "provenance": "v5_verbatim",
+    "current": "collocation — the words are individually correct but do not naturally combine (e.g. “make a decision”, not “do a decision”)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.word_order.en",
+    "provenance": "ai_draft",
+    "current": "word order — words or phrases in an unnatural or ungrammatical sequence (e.g. question or embedded-question order, adjective order, an adverb placed between the verb and its object)",
+    "verdict": "fix",
+    "proposed": "word order — words or phrases in an unnatural or ungrammatical sequence for the language (in English, e.g. question or embedded-question order, adjective order, an adverb placed between the verb and its object)",
+    "reason": "word_order is a shared type: this en gloss is also the explainer's `type` for an English-speaking learner's zh/ja word-order error. Its examples are English-only (question order, adjective order, adverb between verb and object), so an explainer reading it for a Chinese/Japanese error is primed with irrelevant English rules. Marking the examples as English keeps the en grader label intact."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.register.en",
+    "provenance": "v5_verbatim",
+    "current": "register — wrong level of formality or tone for the context",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.orthography.en",
+    "provenance": "v5_verbatim",
+    "current": "orthography — a spelling, capitalisation, or basic writing-form error (the intended word is clear)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.cohesion_connective.en",
+    "provenance": "v5_verbatim",
+    "current": "cohesion/connective — a missing, wrong, or misused linking word (however, therefore, so, but) that weakens how sentences connect",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.article_determiner.en",
+    "provenance": "ai_draft",
+    "current": "articles & determiners — a wrong, missing or extra article (a/an/the) or determiner (some, many, much, this …), including definiteness and a countability clash such as “an advice” or “many information”",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.preposition.en",
+    "provenance": "v5_verbatim",
+    "current": "preposition — wrong, missing, or extra preposition (in/on/at/to/for/of ...); usually governed by the specific verb, noun, or fixed expression, not by literal translation",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.verb_form_tense.en",
+    "provenance": "ai_draft",
+    "current": "verb form & tense — a wrong tense or aspect for the time frame, or a wrong irregular or participle form (e.g. “goed”, “have went”)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.complementation.en",
+    "provenance": "ai_draft",
+    "current": "verb pattern — the wrong kind of complement after a verb: to-infinitive, -ing form, bare infinitive or that-clause (e.g. “enjoy to swim” → “enjoy swimming”)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.agreement.en",
+    "provenance": "v5_verbatim",
+    "current": "subject-verb agreement — verb does not agree with its subject in number/person",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.pronoun.en",
+    "provenance": "ai_draft",
+    "current": "pronoun — a wrong pronoun form or binding: wrong case (“him and me went”), a reflexive without an antecedent in its own clause, “which” for a person, or a resumptive pronoun (“the man that I met him”)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.plural_number.en",
+    "provenance": "v5_verbatim",
+    "current": "plural/number — wrong singular/plural form or countability (e.g. a missing -s, or a plural on an uncountable noun)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.phrasal_verb.en",
+    "provenance": "v5_verbatim",
+    "current": "phrasal verb — wrong particle or wrong/avoided phrasal-verb form",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.lexical_form.en",
+    "provenance": "ai_draft",
+    "current": "word-family form — the wrong member of the right word family (e.g. “success” for “successful”, “economic” for “economical”)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.semantic_anomaly.en",
+    "provenance": "ai_draft",
+    "current": "semantic anomaly — grammatical, but the event described is impossible or absurd (a verb with a subject or object it cannot take), so the translation no longer describes what the source describes; personification, conventional metaphor and hyperbole are not errors",
+    "verdict": "ok",
+    "reason": "Matches the definition; the personification/metaphor/hyperbole carve-out is useful for the grader."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.contradiction.en",
+    "provenance": "ai_draft",
+    "current": "contradiction / logic — grammatical, but the sentence contradicts itself (a time clash, an impossible relationship, a world-knowledge clash) or a connective asserts the wrong logical relation (because/although, before/after); visible from the translation alone",
+    "verdict": "ok",
+    "reason": "Matches the merged definition incl. the wrong-logical-relation connective clause and the 'visible from the translation alone' boundary."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.meaning_inversion.en",
+    "provenance": "ai_draft",
+    "current": "meaning inversion — compared with the reference, the core claim is reversed in polarity, direction, quantity or who-does-what-to-whom (a dropped or added negation, an antonym, a reversed direction, a flipped comparison, swapped agent and patient; e.g. “with” → “without”). Judge by effect, not surface form: if a preposition swap, a word swap or a dropped negator reverses the meaning, it is a meaning inversion, not an omission or word-choice error — never tag both",
+    "verdict": "fix",
+    "proposed": "meaning inversion — compared with the reference, the core claim is reversed in polarity, direction, quantity or who-does-what-to-whom (a dropped or added negation, an opposite word, a reversed direction, a flipped comparison, or swapped doer and receiver; e.g. “with” → “without”), whatever the surface form of the change",
+    "reason": "Accurate, but far too long for a label: _precedence_block inserts the FULL gloss for every {mi} reference, and the rendered en Verifier block is ~750 words with this 80-word gloss (nested parentheses and em dashes) repeated 6 times. The 'judge by effect … never tag both' instruction already lives in the TASK-843 precedence block, which renders whenever this type exists, so it can leave the gloss. Also 'antonym'/'agent and patient' → plainer 'opposite word'/'doer and receiver' since the explainer sees this gloss for L1=en. (Better still, also fix ref() — see the prompts.py _precedence_block entry.)"
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.wa_ga.en",
+    "provenance": "ai_draft",
+    "current": "は/が (structural) — は used where a structural rule requires が: a question-word subject (誰が), the subject inside a relative clause, or the subject of a subordinate clause that differs from the main-clause subject; an ordinary main-clause は/が choice is not an error",
+    "verdict": "ok",
+    "reason": "Matches the narrowed definition exactly, including the main-clause carve-out."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.case_particle.en",
+    "provenance": "ai_draft",
+    "current": "case particle — a wrong Japanese case particle for the verb or predicate (が, を object, に goal/time/recipient, で place/means, へ direction, と, から)",
+    "verdict": "fix",
+    "proposed": "case particle — a wrong Japanese case particle for the verb or predicate (を object, に goal/time/recipient, で place/means, へ direction, と partner, から starting point); a は/が choice belongs to the separate は/が type",
+    "reason": "Includes が, but the merged_taxonomy ja.case_particle definition lists only を, に, で, へ, と, から, and the ja gloss also omits が. Listing が invites は/が confusions into this type instead of wa_ga. Also inconsistent formatting: が/と/から had no role label while the others did."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.particle_other.en",
+    "provenance": "ai_draft",
+    "current": "other particles — a Japanese listing particle (や・と・か), focus particle (も・だけ・しか) or sentence-final particle used incorrectly (any particle other than a case particle)",
+    "verdict": "ok",
+    "reason": "Accurate. Lists か beyond the definition's や・と, which is a reasonable listing particle and harmless."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.conjugation.en",
+    "provenance": "ai_draft",
+    "current": "conjugation — a wrong inflected form of a Japanese verb, i-adjective or na-adjective, including treating a verb as the wrong class (godan as ichidan); ら-dropping (見れる) is tolerated, not an error",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.tam.en",
+    "provenance": "ai_draft",
+    "current": "tense, aspect & modality — a wrong Japanese tense for the time frame, wrong ている/てある/ておく, a relative-tense error in a 前に/後で clause (non-past before 前に, past before 後で), or the wrong form with まだ + negative (まだ食べていない)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.keigo.en",
+    "provenance": "ai_draft",
+    "current": "keigo direction — Japanese honorific language pointed the wrong way: respectful language (尊敬語) used for your own or your in-group’s actions, or humble language (謙譲語) used for a superior’s actions; the overall politeness level (です/ます) is register, not this type",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.counter.en",
+    "provenance": "ai_draft",
+    "current": "counter — a wrong Japanese counter word for the noun being counted (e.g. 本 for long thin objects, 枚 for flat ones, 冊 for books), including confusing homophonous counters (軒/件)",
+    "verdict": "fix",
+    "proposed": "counter — a wrong Japanese counter word for the noun being counted (e.g. 本 for long thin objects, 枚 for flat ones, 冊 for books), including mixing up counters that sound the same (軒/件)",
+    "reason": "'including confusing homophonous counters' is ambiguous (is 'confusing' a verb or an adjective?) and 'homophonous' is jargon for the explainer's L1=en `type` field. Meaning is unchanged."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.transitivity_voice.en",
+    "provenance": "ai_draft",
+    "current": "transitivity & voice — the wrong member of a Japanese transitive/intransitive verb pair (開ける/開く, 始める/始まる), or a passive/causative form that does not match its particles",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.modification.en",
+    "provenance": "ai_draft",
+    "current": "noun-modification form — the wrong Japanese linking form before a noun (い, な or の: 静かな部屋, not 静かい部屋), or a modifier that does not come before the noun it describes",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.clause_linkage.en",
+    "provenance": "ai_draft",
+    "current": "clause linkage — the wrong Japanese connector or conditional between clauses: から/ので vs のに, と/たら/ば/なら (と cannot be followed by a request or command), or ために vs ように",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.kanji_choice.en",
+    "provenance": "ai_draft",
+    "current": "kanji choice (homophones) — a real, correctly written Japanese word, but the wrong kanji for the meaning among words with the same reading (計る/測る/量る, 暑い/熱い); writing a word in kana instead of kanji is not an error",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.topic_comment.en",
+    "provenance": "ai_draft",
+    "current": "topic–comment structure — the topic/subject–comment structure is used inappropriately (often a structure carried over from the learner’s first language)",
+    "verdict": "ok",
+    "reason": "Matches the v5-retained definition; general enough to cover both zh and ja."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.measure_word.en",
+    "provenance": "ai_draft",
+    "current": "classifier phrase — a wrong or missing Chinese classifier (measure word) in a number/demonstrative + classifier + noun phrase, or 们 after a number (三个学生们); the general classifier 个 is acceptable and is not an error",
+    "verdict": "ok",
+    "reason": "Accurate; the 个 carve-out matches the classifier-drill policy."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.aspect_negation.en",
+    "provenance": "ai_draft",
+    "current": "aspect & negation — misuse of the Chinese aspect markers 了/过/着/正在, or 不 vs 没 chosen in a way that clashes with the aspect (Chinese marks aspect, not tense)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.de_particle.en",
+    "provenance": "ai_draft",
+    "current": "的/地/得 (structural particle) — any confusion among Chinese 的, 地 and 得 (的 links a modifier to a noun, 地 marks an adverbial before a verb, 得 introduces a complement after a verb), or an obligatory 得 missing; every such misuse counts as an error",
+    "verdict": "ok",
+    "reason": "Matches the user ruling: any 的/地/得 misuse is an error."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.complement.en",
+    "provenance": "ai_draft",
+    "current": "verb complement — a wrong form or position of a Chinese resultative, directional, potential or degree complement (e.g. 看完, 走进来, 听不懂, 跑得快)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.ba_bei.en",
+    "provenance": "ai_draft",
+    "current": "把/被 construction — a malformed or missing Chinese 把 or 被 sentence: 把 with a bare verb, an indefinite object, a non-disposal verb or a potential complement, a negator placed after 把, or a malformed or missing 被-passive",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.separable_verb.en",
+    "provenance": "ai_draft",
+    "current": "separable verb (离合词) — an object or aspect marker placed after a Chinese separable verb instead of inside it or before it (见面他 → 跟他见面, 帮忙他 → 帮他的忙)",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.coverb.en",
+    "provenance": "ai_draft",
+    "current": "coverb (Chinese preposition) — a wrong coverb such as 对, 给, 跟, 向, 离, 从 or 在, or a broken fixed frame such as 对…来说",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json subtype_glosses.connective.en",
+    "provenance": "ai_draft",
+    "current": "paired connective — mismatched or misplaced Chinese paired connectives (虽然…但是, 只要…就, 只有…才, 不但…而且); using only one half of a pair is not an error",
+    "verdict": "ok",
+    "reason": "Accurate against merged_taxonomy.json; clear; no placeholders (correct for a gloss)."
+  },
+  {
+    "location": "v6_strings.json templates.omission.en",
+    "provenance": "v5_verbatim",
+    "current": "Something required is missing: you wrote “{learner_form}” where the reference has “{corrected_form}”.",
+    "verdict": "fix",
+    "proposed": "Something required is missing here: the reference has “{corrected_form}”, and part or all of it is missing from your sentence.",
+    "reason": "v5 verbatim, but it renders badly: an omission is usually a zero-width point in the learner text, so learner_form is empty (grader_cascade keeps empty-form omission points) and the learner sees 'you wrote “” where the reference has …'. render_explanation only guards an empty corrected_form, not an empty learner_form. The proposed text needs only {corrected_form} (allowed — the addition template already uses just one placeholder). v6 makes this more visible because dropped-content cases that are NOT inversions now stay omission."
+  },
+  {
+    "location": "v6_strings.json templates.addition.en",
+    "provenance": "v5_verbatim",
+    "current": "Extra material: you added “{learner_form}”, which the reference does not include. Keep only what the original says — don’t pad or repeat.",
+    "verdict": "ok",
+    "reason": "Accurate, encouraging, plain. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.word_choice.en",
+    "provenance": "v5_verbatim",
+    "current": "“{learner_form}” isn’t the right word here — the reference uses “{corrected_form}”. The meaning is close, but this isn’t how it’s normally expressed.",
+    "verdict": "fix",
+    "proposed": "“{learner_form}” isn’t the right word here — the reference uses “{corrected_form}”. Check what each word means and which one fits this sentence.",
+    "reason": "v5 verbatim, but under v6 it is the variant-less fallback, used whenever the model omits explanation_variant (the TASK-845 prompt calls the field 'optional'). 'The meaning is close' is false for wrong_word ('a word that does not fit the intended idea') and doesn't describe wrong_sense either. A neutral fallback stays true for all three variants."
+  },
+  {
+    "location": "v6_strings.json templates.collocation.en",
+    "provenance": "v5_verbatim",
+    "current": "Collocation: “{learner_form}” isn’t how these words naturally combine — use “{corrected_form}”. Each word is fine alone, but the pairing sounds unnatural to a native speaker.",
+    "verdict": "ok",
+    "reason": "Accurate; one 'native speaker' framing is fine. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.word_order.en",
+    "provenance": "v5_verbatim",
+    "current": "You wrote “{learner_form}”, but the natural order here is “{corrected_form}”. The target language orders these elements differently from a word-for-word rendering.",
+    "verdict": "ok",
+    "reason": "Accurate and language-neutral (works for zh/ja L2). v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.register.en",
+    "provenance": "v5_verbatim",
+    "current": "“{learner_form}” is at the wrong level of formality. “{corrected_form}” matches the register (tone/politeness) of the original.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.orthography.en",
+    "provenance": "v5_verbatim",
+    "current": "Spelling/writing error: “{learner_form}” should be “{corrected_form}”. The word is right, but it’s written incorrectly.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.cohesion_connective.en",
+    "provenance": "v5_verbatim",
+    "current": "Connective error: “{learner_form}” should be “{corrected_form}”. The linking word signals how this idea relates to the previous one — the wrong one breaks the flow.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.article_determiner.en",
+    "provenance": "ai_draft",
+    "current": "Article/determiner error: “{learner_form}” should be “{corrected_form}”. English marks nouns for definiteness and countability — “the” for something specific or already known, “a/an” for one non-specific countable thing, no article for general plurals or uncountables — and determiners must match the noun too (many / few with countables, much / little with uncountables).",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway."
+  },
+  {
+    "location": "v6_strings.json templates.preposition.en",
+    "provenance": "v5_verbatim",
+    "current": "Preposition error: “{learner_form}” should be “{corrected_form}”. The preposition here is fixed by the verb, noun, or set phrase (e.g. depend on, interested in, arrive at) — it isn’t chosen by literal translation.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.verb_form_tense.en",
+    "provenance": "ai_draft",
+    "current": "Verb-form/tense error: “{learner_form}” should be “{corrected_form}”. Check two things: the tense or aspect that fits the time of the action, and the verb’s correct form — irregular past and participle forms (went / gone, wrote / written) have to be learned.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway."
+  },
+  {
+    "location": "v6_strings.json templates.complementation.en",
+    "provenance": "ai_draft",
+    "current": "Verb-pattern error: “{learner_form}” should be “{corrected_form}”. Each English verb fixes the form of what follows it — a to-infinitive (decide to go), an -ing form (enjoy going), a bare infinitive (make him go) or a that-clause — so learn the pattern together with the verb.",
+    "verdict": "fix",
+    "proposed": "Verb-pattern error: “{learner_form}” should be “{corrected_form}”. Many English verbs fix the form of what follows them — a to-infinitive (decide to go), an -ing form (enjoy going), a bare infinitive (make him go) or a that-clause — so learn the pattern together with the verb.",
+    "reason": "'Each English verb fixes the form of what follows it' overclaims (many verbs take no complement or allow several). 'Many … fix' is accurate. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway."
+  },
+  {
+    "location": "v6_strings.json templates.agreement.en",
+    "provenance": "v5_verbatim",
+    "current": "Agreement error: “{learner_form}” doesn’t agree with its subject. Use “{corrected_form}” to match the subject in number and person.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.pronoun.en",
+    "provenance": "ai_draft",
+    "current": "Pronoun error: “{learner_form}” should be “{corrected_form}”. Use the subject or object form the position needs (I / me, he / him), a reflexive (himself) only when what it refers to is in the same clause, “who” rather than “which” for people, and no extra pronoun inside a relative clause.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway."
+  },
+  {
+    "location": "v6_strings.json templates.plural_number.en",
+    "provenance": "v5_verbatim",
+    "current": "Number error: “{learner_form}” should be “{corrected_form}”. Check whether the noun is singular or plural here — English marks countable nouns for number.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.phrasal_verb.en",
+    "provenance": "v5_verbatim",
+    "current": "Phrasal-verb error: “{learner_form}” should be “{corrected_form}”. The particle (up/out/in …) changes the meaning, so it isn’t interchangeable.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.lexical_form.en",
+    "provenance": "ai_draft",
+    "current": "Word-form error: “{learner_form}” should be “{corrected_form}”. You chose the right word family but the wrong member of it — check whether the sentence needs a noun, verb, adjective or adverb here (success / succeed / successful), or which of two related adjectives fits (economic / economical).",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. Note: en-only type, so this L1=en template is currently unreachable (no L1=en/L2=en pair); reviewed for quality anyway."
+  },
+  {
+    "location": "v6_strings.json templates.semantic_anomaly.en",
+    "provenance": "ai_draft",
+    "current": "Meaning problem: “{learner_form}” is grammatical, but it describes something impossible or absurd — the words can’t combine that way in meaning. The reference says “{corrected_form}”, which is what the original describes.",
+    "verdict": "fix",
+    "proposed": "Meaning problem: “{learner_form}” is grammatically fine, but it describes something impossible or absurd — these words don’t make sense together. The reference has “{corrected_form}”, which matches what the original describes.",
+    "reason": "Accurate but clunky: 'the words can’t combine that way in meaning' is hard to parse for a teen reader, and 'The reference says X, which is what the original describes' is circular-sounding. Same meaning, plainer wording."
+  },
+  {
+    "location": "v6_strings.json templates.contradiction.en",
+    "provenance": "ai_draft",
+    "current": "Logic error: “{learner_form}” makes the sentence contradict itself — the time, the relationship or the logic doesn’t add up. “{corrected_form}” keeps the sentence consistent with what the original says.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.meaning_inversion.en",
+    "provenance": "ai_draft",
+    "current": "Meaning reversed: “{learner_form}” says the opposite of the original — the reference has “{corrected_form}”. A small change such as a dropped “not”, an opposite word or a reversed direction flips the meaning, so this is a serious error even if the sentence looks almost right.",
+    "verdict": "fix",
+    "proposed": "Meaning reversed: here your sentence says the opposite of the original — the reference has “{corrected_form}”. A small change such as a dropped “not”, an opposite word or a reversed direction can flip the meaning, so this is a serious error even when the sentence looks almost right.",
+    "reason": "The commonest inversion is a dropped negator, which is a zero-width point in the learner text, so learner_form is often empty and the current text renders '“” says the opposite of the original'. Dropping {learner_form} avoids that. (For an ADDED negator corrected_form is empty and render_explanation falls back to 'remove: …' either way, so nothing is lost.) Also 'flips' → 'can flip' (not every small change flips meaning)."
+  },
+  {
+    "location": "v6_strings.json templates.wa_ga.en",
+    "provenance": "ai_draft",
+    "current": "は/が error: you used “{learner_form}”, but “{corrected_form}” is required. が is required for a question-word subject (誰が, 何が), for the subject inside a clause that modifies a noun, and for the subject of a subordinate clause that differs from the main subject — は can’t be used in these positions.",
+    "verdict": "ok",
+    "reason": "Accurate to the narrowed は-for-が definition; 'a clause that modifies a noun' is a good plain rendering of 'relative clause'."
+  },
+  {
+    "location": "v6_strings.json templates.case_particle.en",
+    "provenance": "v5_verbatim",
+    "current": "Case-particle error: you used “{learner_form}”, but “{corrected_form}” is required. Particles を (object), に (goal/time), で (location/means), へ (direction) assign grammatical roles — the wrong one changes who does what to what.",
+    "verdict": "ok",
+    "reason": "v5 verbatim (from particle_case); still accurate for v6."
+  },
+  {
+    "location": "v6_strings.json templates.particle_other.en",
+    "provenance": "v5_verbatim",
+    "current": "Particle error: “{learner_form}” should be “{corrected_form}”. This is a linking or focus particle (や/と listing, も/だけ/しか focus, or a sentence-final particle) — the wrong one shifts the nuance.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.conjugation.en",
+    "provenance": "ai_draft",
+    "current": "Conjugation error: “{learner_form}” should be “{corrected_form}”. Japanese verbs and adjectives change form by rule (て-form, negative, past, potential …), and the rule depends on the word’s class — godan vs ichidan verbs, い- vs な-adjectives — so check which class the word belongs to.",
+    "verdict": "fix",
+    "proposed": "Conjugation error: “{learner_form}” should be “{corrected_form}”. Japanese verbs and adjectives change form by rule (て-form, negative, past, potential …), and the rule depends on the word’s class — godan (u-) vs ichidan (ru-) verbs, い- vs な-adjectives — so check which class the word belongs to.",
+    "reason": "Accurate; 'godan vs ichidan' alone is unfamiliar to many English-speaking learners, who often learned them as u-verbs/ru-verbs. Adding the common names in brackets helps without dropping the standard terms."
+  },
+  {
+    "location": "v6_strings.json templates.tam.en",
+    "provenance": "ai_draft",
+    "current": "Tense/aspect error: “{learner_form}” should be “{corrected_form}”. In Japanese, た marks completion or the past and ている an ongoing action or resulting state; a verb before 前に takes the non-past and a verb before 後で takes the past, whatever the tense of the main clause.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.keigo.en",
+    "provenance": "ai_draft",
+    "current": "Keigo error: “{learner_form}” points the honorific the wrong way; the reference uses “{corrected_form}”. Use respectful language (尊敬語) to raise other people’s actions, especially a superior’s, and humble language (謙譲語) to lower your own or your group’s — never the reverse.",
+    "verdict": "fix",
+    "proposed": "Keigo error: “{learner_form}” points the honorific the wrong way; the reference uses “{corrected_form}”. Use respectful language (尊敬語) for what other people do, especially people above you, and humble language (謙譲語) for what you or your own group do — never the other way round.",
+    "reason": "'to raise other people’s actions … to lower your own' is a figurative textbook metaphor that reads oddly to a teen learner; 'for what other people do / for what you do' says the same rule plainly and matches the gloss."
+  },
+  {
+    "location": "v6_strings.json templates.counter.en",
+    "provenance": "v5_verbatim",
+    "current": "Counter error: “{learner_form}” is the wrong counter. Use “{corrected_form}”, the counter that goes with this kind of noun.",
+    "verdict": "ok",
+    "reason": "v5 verbatim (from counter_classifier); still accurate."
+  },
+  {
+    "location": "v6_strings.json templates.transitivity_voice.en",
+    "provenance": "ai_draft",
+    "current": "Transitive/intransitive error: “{learner_form}” should be “{corrected_form}”. Many Japanese verbs come in pairs — a transitive one used with を (開ける, 始める) and an intransitive one used with が (開く, 始まる) — and passive or causative forms change which particles the sentence needs.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.modification.en",
+    "provenance": "ai_draft",
+    "current": "Noun-modifier error: “{learner_form}” should be “{corrected_form}”. Before a noun, Japanese い-adjectives attach directly (高い山), な-adjectives need な (静かな部屋) and nouns need の (日本の車) — and the modifier always comes before the noun.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.clause_linkage.en",
+    "provenance": "ai_draft",
+    "current": "Clause-linking error: “{learner_form}” should be “{corrected_form}”. Japanese connectors carry fixed meanings and limits: から / ので give a reason but のに means “even though”; と can’t be followed by a request or command (use たら); ために states a purpose you control, ように one you don’t.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.kanji_choice.en",
+    "provenance": "ai_draft",
+    "current": "Kanji error: “{learner_form}” should be “{corrected_form}”. Both are real words with the same reading, but each kanji carries a different meaning (計る for time, 測る for length, 量る for weight), so pick the one that matches what you mean.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.topic_comment.en",
+    "provenance": "v5_verbatim",
+    "current": "Topic–comment error: you structured this as “{learner_form}”, but “{corrected_form}” presents the topic and comment the way the target language does.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct. v5 verbatim — no v6 reason to change."
+  },
+  {
+    "location": "v6_strings.json templates.measure_word.en",
+    "provenance": "ai_draft",
+    "current": "Classifier error: “{learner_form}” should be “{corrected_form}”. In Chinese a number or demonstrative needs a classifier that matches the noun (本 for books, 件 for clothing, 只 for small animals), and 们 is not added after a number. If you are unsure, the general classifier 个 is usually acceptable.",
+    "verdict": "ok",
+    "reason": "Accurate; the 个 reassurance is consistent with the gloss carve-out."
+  },
+  {
+    "location": "v6_strings.json templates.aspect_negation.en",
+    "provenance": "ai_draft",
+    "current": "Aspect/negation error: “{learner_form}” should be “{corrected_form}”. Chinese marks aspect, not tense: 了 = completed action, 过 = past experience, 着 / 正在 = ongoing state or action. Negate a past or completed action with 没, and habits, wishes or future actions with 不.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.de_particle.en",
+    "provenance": "ai_draft",
+    "current": "的/地/得 error: “{learner_form}” should be “{corrected_form}”. The three de are not interchangeable — 的 links a modifier to a noun, 地 marks an adverbial before a verb, 得 introduces a complement after a verb — and mixing them up always counts as an error.",
+    "verdict": "fix",
+    "proposed": "的/地/得 error: “{learner_form}” should be “{corrected_form}”. The three “de” particles are not interchangeable: 的 links a describing word to a noun, 地 links a describing word to the verb after it, and 得 adds a result or degree after a verb (跑得快). Mixing them up always counts as an error.",
+    "reason": "Matches the user ruling (any 的/地/得 misuse is an error). Two clarity issues: 'The three de' reads as a typo without 'particles', and 'marks an adverbial' / 'introduces a complement' are grammar jargon for a teen reader."
+  },
+  {
+    "location": "v6_strings.json templates.complement.en",
+    "provenance": "ai_draft",
+    "current": "Complement error: “{learner_form}” should be “{corrected_form}”. Chinese attaches the result, direction, possibility or degree of an action to the verb as a complement (看完, 走进来, 听不懂, 跑得快), and both its form and its position relative to the object matter.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.ba_bei.en",
+    "provenance": "ai_draft",
+    "current": "把/被 error: “{learner_form}” should be “{corrected_form}”. A 把 sentence moves a specific object before the verb to show what is done to it, so the verb needs something after it (a result, a direction or 了) and cannot take a potential complement; a 被 sentence makes the receiver of the action the subject (被 + doer + verb).",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.separable_verb.en",
+    "provenance": "ai_draft",
+    "current": "Separable-verb error: “{learner_form}” should be “{corrected_form}”. Verbs like 见面, 帮忙 and 睡觉 are already verb + object, so they can’t take another object after them: put the object inside (帮他的忙) or before the verb with a coverb (跟他见面), and put 了 / 过 inside too (见了面).",
+    "verdict": "ok",
+    "reason": "Accurate. 'coverb' is jargon, but it is also the visible name of a sibling type, so acceptable."
+  },
+  {
+    "location": "v6_strings.json templates.coverb.en",
+    "provenance": "ai_draft",
+    "current": "Coverb error: “{learner_form}” should be “{corrected_form}”. Chinese coverbs (对, 给, 跟, 向, 离, 从, 在) come before the verb, and which one you need is fixed by the meaning or by a set frame (对…来说, 离…很远) — they don’t map one-to-one onto English prepositions.",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json templates.connective.en",
+    "provenance": "ai_draft",
+    "current": "Paired-connective error: “{learner_form}” should be “{corrected_form}”. Chinese connectives come in fixed pairs (虽然…但是, 只要…就, 只有…才, 不但…而且): the second half must be the matching partner and sit in its proper place (但是 / 而且 begin their clause; 就 / 才 come right before the verb).",
+    "verdict": "ok",
+    "reason": "Accurate against the definition; plain, consistent 'Label: “{learner_form}” should be “{corrected_form}”.' pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json variant_templates.word_choice.wrong_word.en",
+    "provenance": "ai_draft",
+    "current": "Word choice: “{learner_form}” doesn’t express the idea needed here — the reference uses “{corrected_form}”. It is a different word with a different meaning, so learn “{corrected_form}” as the word for this idea.",
+    "verdict": "ok",
+    "reason": "Accurate to the wrong_word definition (vocabulary gap); 'Word choice:' prefix matches the house pattern; placeholders correct."
+  },
+  {
+    "location": "v6_strings.json variant_templates.word_choice.wrong_sense.en",
+    "provenance": "ai_draft",
+    "current": "Word sense: “{learner_form}” and “{corrected_form}” are the same word, but it has more than one meaning, and the way you used it here calls up a different meaning from the one this sentence needs. Check which sense the context calls for.",
+    "verdict": "fix",
+    "proposed": "Word sense: the word in “{learner_form}” has more than one meaning, and the way you used it here brings out a different meaning from the one this sentence needs — the reference has “{corrected_form}”. Check which sense the context calls for.",
+    "reason": "Matches the narrow ADR-031 definition, but asserting '“X” and “Y” are the same word' renders badly: under the same-lemma rule the two forms are often identical ('“意思” and “意思” are the same word') or are spans with extra words around the shared lemma, so the sentence is either redundant or literally false. The proposal states the same idea without claiming the two quoted strings are the same word. 'calls up' → 'brings out' (plainer)."
+  },
+  {
+    "location": "v6_strings.json variant_templates.word_choice.false_synonym.en",
+    "provenance": "ai_draft",
+    "current": "“{learner_form}” and “{corrected_form}” can both translate to the same word in your language, but they are used differently: here only “{corrected_form}” fits.",
+    "verdict": "fix",
+    "proposed": "Easily confused words: “{learner_form}” and “{corrected_form}” can both be translated by the same English word, but they are used differently — here only “{corrected_form}” fits.",
+    "reason": "Accurate to the definition, but (a) it is the only variant with no 'Label:' prefix, unlike 'Word choice:' / 'Word sense:' and every other template; (b) this template is filed for L1=en, so 'the same word in your language' can say 'the same English word', which is concrete for the learner; (c) colon → em dash to match house style."
+  },
+  {
+    "location": "services/dual_translation/prompts.py _PRECEDENCE_V6['en'] (TASK-843)",
+    "provenance": "ai_draft (uncommitted)",
+    "current": "Meaning inversion — label by EFFECT, not by surface form. If an error's effect is to reverse the reference's polarity (negation), direction, quantity or degree, or agent/recipient (who does what to whom), report it as subtype {mi}, whatever its surface form: a preposition swap, a word-choice swap or a dropped word. A negator (not, no, never…) that the learner dropped or added so that the polarity reverses is {mi}, not {om} or {ad}. Content that is lost without any such reversal stays {om}. A change of degree that does not reverse it (very → quite) is not an inversion. {co} is only for a sentence that contradicts itself, visible from the learner text alone without the reference; a clash with the reference is {mi}. The severity of {mi} is always critical (2).",
+    "verdict": "fix",
+    "proposed": "Meaning inversion — label by EFFECT, not by surface form. Use subtype {mi} for any error whose effect is to reverse the reference's polarity (negation), direction, quantity or degree (more → less, always → never), or who does what to whom — whatever its surface form: a preposition swap, a different word, or a dropped or added word. In particular, a negator (not, no, never …) that the learner dropped or added so that the polarity reverses belongs here, not under {om} or {ad}. Report such an error once, under this subtype only — never also under its surface-form type. Content that is lost without any reversal stays an omission, and a change of degree that does not reverse it (very → quite) is not an inversion. {co} is only for a sentence that contradicts itself or links its clauses illogically, visible from the learner text alone; a reversal that only shows when compared with the reference is a meaning inversion. A meaning inversion is always severity critical (2).",
+    "reason": "Three problems. (1) 'a clash with the reference is {mi}' is far too broad: almost every error is a clash with the reference, so a literal-minded grader could file wrong words, omissions etc. as inversions. It must say a REVERSAL visible only against the reference. (2) The {co} sentence drops the definition's second limb (a connective asserting the wrong logical relation, because/although), so it now contradicts the contradiction gloss shown in the same prompt. (3) Each placeholder expands to its full gloss: {mi} appears 4x, {om} 2x, and the rendered en Verifier block is ~750 words of nested parentheses. The rewrite uses each placeholder exactly once (still fills {mi}/{om}/{ad}/{co}; no new fields) and adds the definition's 'never tag both' rule, which the en block lacked. Severity index 2 = critical is correct (SEVERITY_ENUM). zh/ja blocks likely share issue (1)/(3) — native reviewers should check."
+  },
+  {
+    "location": "services/dual_translation/prompts.py _precedence_block.ref() (code, affects every TASK-843/845 reference)",
+    "provenance": "ai_draft (uncommitted)",
+    "current": "ref(slug) -> ref_fmt.format(i=idx, label=labels[idx]) where labels[idx] is the FULL subtype gloss",
+    "verdict": "fix",
+    "proposed": "Use only the gloss's short name for the inline reference, e.g. label=labels[idx].split(' — ', 1)[0] (en/zh/ja glosses all use ' — ' or '——' after the name; split on both), so '19 (meaning inversion)' instead of the 80-word gloss. Same for _variant_block's {wc}.",
+    "reason": "Not English text, but it is why the English prompt text above is unreadable once rendered: the full definition list already appears earlier in the prompt, so references only need the index and name. Fixing this makes the gloss-length fixes optional rather than required. Check the zh separator ('——') when implementing."
+  },
+  {
+    "location": "services/dual_translation/prompts.py _PRECEDENCE_V6_VERIFIER['en'] (TASK-843)",
+    "provenance": "ai_draft (uncommitted)",
+    "current": "If a proposed error's effect is such an inversion but it was typed as {surface}, adjust it (verdict 2) to subtype {mi} with severity critical (2).",
+    "verdict": "ok",
+    "reason": "Unambiguous; verdict index 2 = adjust and severity index 2 = critical both match VERDICT_ENUM/SEVERITY_ENUM. 'such an inversion' resolves correctly to the block above it. Readability depends on the ref() short-label fix ({surface} currently expands four full glosses)."
+  },
+  {
+    "location": "services/dual_translation/prompts.py _VARIANT_BLOCK['en'] (TASK-845)",
+    "provenance": "ai_draft (uncommitted)",
+    "current": "explanation_variant (optional; only on errors of subtype {wc}, omit it otherwise): 0 = wrong word — a different word that does not mean what the reference word means; 1 = wrong sense — the reference's own word, but used in a different one of its dictionary senses; 2 = false synonym — a different word that the learner's native language translates the same way as the reference word, but whose meaning or usage differs (e.g. borrow / lend).",
+    "verdict": "fix",
+    "proposed": "explanation_variant (only on errors of subtype {wc}; include it on every such error and omit it on all others). Decide in this order: 1 = wrong sense — the learner used the same word (same lemma) as the reference, but in a different one of its dictionary senses; otherwise 2 = false synonym — a different word that the learner's native language (Chinese or Japanese for learners of English) would translate the same way as the reference word, but whose meaning or usage differs (e.g. borrow / lend, both 借 in Chinese); otherwise 0 = wrong word — a different word that does not mean what the reference word means.",
+    "reason": "(1) The grader prompt deliberately excludes the learner's L1 (prompts.py module docstring), yet variant 2 asks about 'the learner's native language' — the model cannot know it. For en L2 the variant is a pure grader judgement (ADR-031: no en→zh/ja glosses, so no deterministic lookup), so the prompt must name the candidate L1s. (2) 'borrow / lend' is a false synonym for Chinese speakers (借) but NOT for Japanese speakers (借りる/貸す), so the example needs its language tag. (3) merged_taxonomy marks explanation_variant required:true and gives a precedence (same lemma → wrong_sense; shared L1 gloss → false_synonym; else wrong_word); the prompt says 'optional' and gives no order, so overlap cases are left to chance and omissions fall back to the variant-less template. If the decoder must keep treating the key as optional, keep the schema as is and just say 'always include it'. Indices 0/1/2 are unchanged."
+  },
+  {
+    "location": "services/dual_translation/prompts.py _EXPLAINER_VARIANT_GUIDANCE['en'] (TASK-846 explainer variant sentence)",
+    "provenance": "ai_draft (uncommitted)",
+    "current": " Some word-choice errors carry a \"variant\". wrong_word: the learner used a different word with a different meaning — say what each word means here. wrong_sense: it is the same word used in a sense this sentence does not need — say which sense the context calls for. false_synonym: the two words can share one English translation but are not interchangeable — contrast the two words and say how their usage differs.",
+    "verdict": "ok",
+    "reason": "Accurate to all three ADR-031 definitions; 'one English translation' is correct because this is the L1=en explainer; slugs match the `variant` values the explainer receives; the instructions to contrast the words/say which sense fits complement (not restate) the Rule templates, as the header requires. The leading space concatenates cleanly onto _EXPLAINER_HEADER['en']."
+  }
+]

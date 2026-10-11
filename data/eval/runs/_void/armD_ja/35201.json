@@ -1,0 +1,1206 @@
+{
+  "sense_id": 35201,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T13:11:11.966659+00:00",
+  "status": "partial",
+  "errors": [
+    "[B] Level 1: expected 4-8 options, got 2"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.45139336585998535,
+    "p1_generate": 42.70326805114746,
+    "p1_sentence_repair": 20.068819761276245,
+    "p1_repair": 44.98573064804077,
+    "tier_gate": 20.441584587097168,
+    "p1_judge": 90.3179829120636,
+    "collocate_grounding": 0.0,
+    "fan_out": 47.68510699272156
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/motarasu/",
+        "morphological_forms": [
+          {
+            "form": "もたらした",
+            "label": "活用"
+          },
+          {
+            "form": "もたらして",
+            "label": "活用"
+          },
+          {
+            "form": "もたらさない",
+            "label": "活用"
+          },
+          {
+            "form": "もたらせる",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "もたらす",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35201
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "82c00b35-3438-4fb2-8a4a-f6de419299ea",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "もたらして",
+        "pronunciation": "もたらす",
+        "ipa": "/motarasu/",
+        "syllable_count": 5,
+        "audio_url": null,
+        "options": [
+          "足して",
+          "もたらして",
+          "足らして",
+          "働いて"
+        ],
+        "correct_answer": "もたらして",
+        "explanation": "正解です。「もたらして」は、良い結果や状態を引き起こすことを意味します。",
+        "distractor_explanations": {
+          "働いて": "読み：はたらいて。最初のモーラ「も」が「は」に変わっています。意味は「労働する」です。",
+          "足らして": "読み：たらして。最初のモーラ「も」が脱落し、モーラ数が一つ減っています。「足りる」の連用形に「して」が付いた形です。",
+          "足して": "読み：たして。最初の2モーラ「もた」が「た」に変わっています。「加算する」という意味の動詞のて形です。"
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f5e9938e-9537-4d4d-8052-32eb7869751f",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "もたらして",
+        "pronunciation": "もたらす",
+        "correct_definition": "ある物事や状態を、他の場所や人に持って来て、与えたり引き起こしたりすること。",
+        "options": [
+          "人間という生物の種全体を指す言葉。",
+          "ある物事や状態を、他の場所や人に持って来て、与えたり引き起こしたりすること。",
+          "自分が働いている会社や、自分が経営している会社",
+          "何度も経験したり繰り返したりすることで、違和感や抵抗がなくなり、自然に感じられるようになること。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "8a823407-d365-434c-98b5-133940289531",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "甘味と塩気のバランスが絶妙で、短時間で体力を回復する効果をもたらして、忙しい現代人にとって理にかなった便利な食事となっています。",
+            "is_correct": false
+          },
+          {
+            "text": "甘味と塩気のバランスが絶妙で、短時間で体力を回復する効果をもたらして、忙しい現代人にとって理にかなった便利な食事となっています。",
+            "is_correct": false
+          },
+          {
+            "text": "甘味と塩気のバランスが絶妙で、短時間で体力を回復する効果をもたらして、忙しい現代人にとって理にかなった便利な食事となっています。",
+            "is_correct": false
+          },
+          {
+            "text": "甘味と塩気のバランスが絶妙で、短時間で体力を回復する効果をもたらして、忙しい現代人にとって理にかなった便利な食事となっています。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "誤り：「効果をもたらして」の後に続く「忙しい現代人にとって」への接続が不自然です。「もたらして」は他動詞のて形であり、直後に「効果を」という目的語を既に取っているため、続けて「〜にとって（は）」という評価の枠組みを提示する文型にはスムーズに繋がりません。 誤り：「効果をもたらして」の後に続く「忙しい現代人にとって」への接続が不自然です。「もたらして」は他動詞のて形であり、直後に「効果を」という目的語を既に取っているため、続けて「〜にとって（は）」という評価の枠組みを提示する文型にはスムーズに繋がりません。 誤り：「効果をもたらして」の後に続く「忙しい現代人にとって」への接続が不自然です。「もたらして」は他動詞のて形であり、直後に「効果を」という目的語を既に取っているため、続けて「〜にとって（は）」という評価の枠組みを提示する文型にはスムーズに繋がりません。",
+        "target_word": "もたらし"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "35bce745-4aec-424a-9da4-1c7b03e4d996",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "しかし、産業革命以降の急激な人間活動、とりわけ化石燃料の大量消費と森林破壊は、この循環に深刻な破綻をもたらして、地球環境を脅かしています。",
+            "is_correct": true
+          },
+          {
+            "text": "多くの要素が様々に影響し合うことで、思いがけない新しい結果をもたらして、私たちの社会はさらに豊かに発展していくのです。",
+            "is_correct": true
+          },
+          {
+            "text": "近年、精密農業の導入が小規模農家の経営に新たな可能性をもたらしています。",
+            "is_correct": true
+          },
+          {
+            "text": "多くの要素が様々に影響し合うことで、思いがけない新しい結果をもたらして、私たちの社会はさらに豊かに発展していくのです。",
+            "is_correct": false,
+            "error_description": "「もたらす」の連用形は「もたらして」ではなく「もたらし」です。書き言葉では「もたらして」ではなく「もたらし」を用いるのが適切です。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "fa86d626-d169-469f-a35c-e24ab398c659",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "もたらして",
+        "pronunciation": "もたらす",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "白色に塗られた壁。特に、内装や外壁で白く仕上げた壁を指す。",
+              "便利",
+              "rope — a long, thin tool made by twisting fibers together, used to tie or pull things",
+              "ある物事や状態を、他の場所や人に持って来て、与えたり引き起こしたりすること。"
+            ],
+            "correct_answer": "ある物事や状態を、他の場所や人に持って来て、与えたり引き起こしたりすること。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "e1d86aab-c864-434e-ad15-1eeaee45df18",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "齎す",
+        "options": [
+          "もたらず",
+          "もたらす",
+          "もうたらす",
+          "もだらす"
+        ],
+        "correct_answer": "もたらす",
+        "word": "齎す",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3fda5b05-4da6-4deb-8967-b9e4b786b379",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "もたらす",
+        "options": [
+          "齎す",
+          "貿易",
+          "貯留",
+          "購買"
+        ],
+        "correct_answer": "齎す",
+        "word": "齎す",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "購買": "component",
+          "貿易": "component",
+          "貯留": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "140b3e5a-b3de-47e3-8866-6700a4777696",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "多くの要素が様々に影響し合うことで、思いがけない新しい結果___もたらして、私たちの社会はさらに豊かに発展していくのです。",
+        "original_sentence": "多くの要素が様々に影響し合うことで、思いがけない新しい結果をもたらして、私たちの社会はさらに豊かに発展していくのです。",
+        "options": [
+          "で",
+          "が",
+          "に",
+          "を"
+        ],
+        "correct_answer": "を",
+        "target_word": "もたらす",
+        "error_tags": {
+          "が": "topic_vs_subject",
+          "に": "location_vs_target",
+          "で": "instrument"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "他動詞「もたらす」の直接目的語「結果」を標示する格助詞"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "7bb58185-585d-4506-8751-449495a1012f",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "もたらして",
+        "relation": "antonym",
+        "options": [
+          "与える",
+          "生み出す",
+          "届ける",
+          "奪う"
+        ],
+        "correct_answer": "奪う",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "ある物事や状態を、他の場所や人に持って来て、与えたり引き起こしたりすること。",
+            "explanation": "与えたり生じさせたりする「もたらす」に対し、既にあるものを取り上げてなくさせる点で対義関係にある"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "与える": 0.613845,
+            "生み出す": 0.481379,
+            "届ける": 0.584845
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "3c8d1f94-f64f-47de-bdaa-8fe585a4dfcf",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "運動は健康を良い結果をもたらす。",
+            "is_correct": false
+          },
+          {
+            "text": "ボランティア活動は社会に大きな変化をもたらして、多くの人々を勇気づけています。",
+            "is_correct": true
+          },
+          {
+            "text": "運動は昨日健康に良い結果をもたらす。",
+            "is_correct": false
+          },
+          {
+            "text": "運動は健康に良い結果をもたらしてある。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：影響を受ける先は「に」で示し、「健康に良い」が正しい。 活用・アスペクトの誤り：過去の「昨日」に非過去形は合わない。 アスペクトの誤り：「てある」は意図的な動作の結果に使い、この文には合わない。",
+        "target_word": "もたらす"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2e6251c0-a90f-42c8-9920-9f4a837c6f33",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "新しい技術は生活に便利さをもたらして、私たちの毎日をより豊かなものにしています。",
+            "is_correct": true
+          },
+          {
+            "text": "ボランティア活動は社会に大きな変化をもたらして、多くの人々を勇気づけています。",
+            "is_correct": true
+          },
+          {
+            "text": "日々の努力がよい結果をもたらして、目標を達成できると思います。",
+            "is_correct": true
+          },
+          {
+            "text": "新しい技術は生活に便利さをもたらして、私たちの毎日をより豊かなものにする。",
+            "is_correct": false,
+            "error_description": "「もたらして」は接続助詞の「て形」であり、前後の文をつなぐ役割を持ちます。後ろの文が「しています」という現在の状態・継続を表す表現であるため、それに続く形として「する」ではなく「しています」とするのが自然な文脈のつながりです。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "9d9bafa5-52c9-4bae-8eb4-b67c818b8a0f",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "新しい技術は生活___便利さをもたらして、私たちの毎日をより豊かなものにしています。",
+        "original_sentence": "新しい技術は生活に便利さをもたらして、私たちの毎日をより豊かなものにしています。",
+        "options": [
+          "が",
+          "に",
+          "で",
+          "を"
+        ],
+        "correct_answer": "に",
+        "target_word": "もたらす",
+        "error_tags": {
+          "を": "object_marking",
+          "で": "instrument",
+          "が": "topic_vs_subject"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "利益や影響の及ぶ対象（着点）を標示する格助詞「に」が適切である。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f9e72cd2-8f3a-4d7b-be77-8c28d8ae2d96",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "もたらして",
+        "relation": "antonym",
+        "options": [
+          "与える",
+          "生み出す",
+          "奪う",
+          "届ける"
+        ],
+        "correct_answer": "奪う",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "ある物事や状態を、他の場所や人に持って来て、与えたり引き起こしたりすること。",
+            "explanation": "対象となる物事や状態を無理やり取り上げて失わせる点で、与え引き起こす「もたらす」の対義語となる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "与える": 0.613845,
+            "生み出す": 0.481379,
+            "届ける": 0.584845
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35201,
+      "word_asset_id": "shadow-35201-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "particle": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'もたらす' has no clean word-boundary occurrence in its own sentence"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word 'もたらします' is fused into a neighbouring chunk — chunks=['この活動は', '地域に笑顔を', 'もたらして', '人々の心を', '温かくして', 'います']"
+    },
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'もたらす' has no clean word-boundary occurrence in its own sentence"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word 'もたらし' is fused into a neighbouring chunk — chunks=['甘味と塩気のバランスが', '絶妙で短時間で体力を', '回復する効果をもたらして', '忙しい現代人にとって理に', 'かなった便利な食事と', 'なっています']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00404288,
+      "prompt_tokens": 2890,
+      "completion_tokens": 2436,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 42474
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00149824,
+      "prompt_tokens": 298,
+      "completion_tokens": 1096,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 19880
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0038256,
+      "prompt_tokens": 1643,
+      "completion_tokens": 2578,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 44836
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00156896,
+      "prompt_tokens": 463,
+      "completion_tokens": 1110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 19882
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018288,
+      "prompt_tokens": 823,
+      "completion_tokens": 1223,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21577
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182272,
+      "prompt_tokens": 472,
+      "completion_tokens": 1306,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 46495
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175904,
+      "prompt_tokens": 849,
+      "completion_tokens": 1162,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20712
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00209664,
+      "prompt_tokens": 1816,
+      "completion_tokens": 1184,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21444
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018896,
+      "prompt_tokens": 1113,
+      "completion_tokens": 1198,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21662
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186688,
+      "prompt_tokens": 838,
+      "completion_tokens": 1249,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22374
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00178944,
+      "prompt_tokens": 848,
+      "completion_tokens": 1186,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22402
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00209856,
+      "prompt_tokens": 1826,
+      "completion_tokens": 1183,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23079
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00202752,
+      "prompt_tokens": 1116,
+      "completion_tokens": 1305,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23648
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00325472,
+      "prompt_tokens": 2819,
+      "completion_tokens": 1838,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 33742
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00339936,
+      "prompt_tokens": 2819,
+      "completion_tokens": 1951,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 34050
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185824,
+      "prompt_tokens": 783,
+      "completion_tokens": 1256,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22139
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186016,
+      "prompt_tokens": 769,
+      "completion_tokens": 1261,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23450
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00017902,
+      "prompt_tokens": 389,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 16369
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00159936,
+      "prompt_tokens": 610,
+      "completion_tokens": 1097,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 19490
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00165312,
+      "prompt_tokens": 598,
+      "completion_tokens": 1142,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35201,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20665
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.04191886,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 2,
+    "repaired": 2,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 328.31200000003446,
+  "finished_at": "2026-10-05T13:16:40.275929+00:00"
+}

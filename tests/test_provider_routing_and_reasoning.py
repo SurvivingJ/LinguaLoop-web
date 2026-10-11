@@ -137,13 +137,13 @@ def test_reasoning_excluded_by_default(monkeypatch):
 
 
 def test_reasoning_excluded_by_default_for_any_pipeline(monkeypatch):
-    """disable_reasoning defaults True everywhere, not just vocab_ladder --
-    a reasoning mode silently engaging is a cross-pipeline risk."""
+    """Despite the name (kept for history): the reasoning payload is an
+    ADR-028 change scoped to vocab_ladder; other pipelines keep the
+    pre-ADR-028 behaviour of sending no `reasoning` key."""
     client = _Client()
     _call(monkeypatch, client, pipeline='test_gen')
 
-    assert client.chat.completions.last_payload['extra_body']['reasoning'] == {
-        'exclude': True}
+    assert 'reasoning' not in client.chat.completions.last_payload['extra_body']
 
 
 def test_reasoning_not_sent_to_a_reasoning_only_model(monkeypatch):
@@ -183,6 +183,9 @@ def test_reasoning_and_routing_absent_for_a_non_openrouter_client(monkeypatch):
 # ---------------------------------------------------------------------------
 
 def test_reasoning_disabled_via_enabled_false_for_a_price_routed_qwen_model(monkeypatch):
+    """LADDER_QWEN_REASONING=off selects the current (2026-10-03) cost-fix
+    behaviour -- see the on/off tests further below for the default."""
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'off')
     client = _Client()
     _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder')
 
@@ -197,9 +200,12 @@ def test_reasoning_disabled_via_enabled_false_for_a_price_routed_qwen_model(monk
 def test_reasoning_disabled_via_enabled_false_for_qwen_without_price_routing(monkeypatch):
     """`enabled: False` is the validated qwen payload regardless of price
     routing -- only `require_parameters` is conditional on a provider dict
-    existing to add it to."""
+    existing to add it to. Requires LADDER_QWEN_REASONING=off; see the on/off
+    tests further below for the default ('on')."""
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'off')
+    monkeypatch.setenv('LLM_AB_NO_PRICE_ROUTING', '1')
     client = _Client()
-    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='test_gen')
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder')
 
     extra_body = client.chat.completions.last_payload['extra_body']
     assert extra_body['reasoning'] == {'enabled': False}
@@ -222,7 +228,10 @@ def test_reasoning_still_excluded_for_non_qwen_model_with_price_routing(monkeypa
 def test_provider_routing_dict_is_not_mutated_in_place(monkeypatch):
     """`require_parameters` is added to a copy -- a caller-supplied
     provider_routing dict must come back untouched, since it may be a
-    literal reused across calls for different models."""
+    literal reused across calls for different models. Only happens under
+    LADDER_QWEN_REASONING=off (the enabled:False path); under the 'on'
+    default no provider mutation happens at all for a qwen call."""
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'off')
     client = _Client()
     shared_routing = {'sort': 'price'}
     _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
@@ -231,6 +240,312 @@ def test_provider_routing_dict_is_not_mutated_in_place(monkeypatch):
     assert shared_routing == {'sort': 'price'}
     extra_body = client.chat.completions.last_payload['extra_body']
     assert extra_body['provider'] == {'sort': 'price', 'require_parameters': True}
+
+
+# ---------------------------------------------------------------------------
+# LADDER_QWEN_REASONING (ADR-028 Phase-2 attribution flag, 2026-10-03)
+# ---------------------------------------------------------------------------
+
+def test_ladder_qwen_reasoning_defaults_to_budget(monkeypatch):
+    # TASK-857 (2026-10-09): production default flipped on -> budget.
+    monkeypatch.delenv('LADDER_QWEN_REASONING', raising=False)
+    assert svc.ladder_qwen_reasoning_mode() == 'budget'
+
+
+@pytest.mark.parametrize('value', ['off', 'OFF', 'Off', ' off '])
+def test_ladder_qwen_reasoning_off_is_case_and_whitespace_insensitive(monkeypatch, value):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', value)
+    assert svc.ladder_qwen_reasoning_mode() == 'off'
+
+
+@pytest.mark.parametrize('value', ['on', 'ON', ' on '])
+def test_ladder_qwen_reasoning_on_is_selectable_for_rollback(monkeypatch, value):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', value)
+    assert svc.ladder_qwen_reasoning_mode() == 'on'
+
+
+@pytest.mark.parametrize('value', ['banana', ''])
+def test_ladder_qwen_reasoning_unknown_values_fall_back_to_default_budget(monkeypatch, value):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', value)
+    assert svc.ladder_qwen_reasoning_mode() == 'budget'
+
+
+def test_ladder_qwen_reasoning_on_skips_reasoning_param_entirely_for_qwen(monkeypatch):
+    """The rollback value (LADDER_QWEN_REASONING=on): restores the Phase-1-measured state for a price-routed
+    qwen vocab_ladder call -- no `reasoning` key sent at all (not
+    `exclude: True`, which Phase 1's own 2026-09-27 finding showed
+    reproducibly empties the response when combined with price routing --
+    see `_unsafe_to_disable_reasoning_when_price_routed`'s docstring).
+    `require_parameters` is also not added -- that only exists to support
+    the `enabled: False` payload the 'off' mode sends."""
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'on')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder')
+
+    extra_body = client.chat.completions.last_payload['extra_body']
+    assert 'reasoning' not in extra_body
+    assert extra_body['provider'] == {'sort': 'price'}
+
+
+@pytest.mark.parametrize('value', ['low', 'LOW', 'Low', ' low '])
+def test_ladder_qwen_reasoning_low_is_case_and_whitespace_insensitive(monkeypatch, value):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', value)
+    assert svc.ladder_qwen_reasoning_mode() == 'low'
+
+
+@pytest.mark.parametrize('value', ['budget', 'BUDGET', 'Budget', ' budget '])
+def test_ladder_qwen_reasoning_budget_is_case_and_whitespace_insensitive(monkeypatch, value):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', value)
+    assert svc.ladder_qwen_reasoning_mode() == 'budget'
+
+
+def test_ladder_qwen_reasoning_budget_tokens_defaults_to_1024(monkeypatch):
+    monkeypatch.delenv('LADDER_QWEN_REASONING_BUDGET', raising=False)
+    assert svc.ladder_qwen_reasoning_budget_tokens() == 1024
+
+
+def test_ladder_qwen_reasoning_budget_tokens_reads_env(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET', '2048')
+    assert svc.ladder_qwen_reasoning_budget_tokens() == 2048
+
+
+@pytest.mark.parametrize('value', ['banana', '', '0', '-5', '  '])
+def test_ladder_qwen_reasoning_budget_tokens_falls_back_on_bad_value(monkeypatch, value):
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET', value)
+    assert svc.ladder_qwen_reasoning_budget_tokens() == 1024
+
+
+# Per-language budget overrides (ADR-028 Outcome 2026-10-08).
+def _clear_budget_env(monkeypatch):
+    for n in ('LADDER_QWEN_REASONING_BUDGET', 'LADDER_QWEN_REASONING_BUDGET_ZH',
+              'LADDER_QWEN_REASONING_BUDGET_JA', 'LADDER_QWEN_REASONING_BUDGET_EN'):
+        monkeypatch.delenv(n, raising=False)
+
+
+def test_budget_per_language_override_wins_over_global(monkeypatch):
+    _clear_budget_env(monkeypatch)
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET', '1500')
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET_ZH', '2048')
+    assert svc.ladder_qwen_reasoning_budget_tokens('zh') == 2048
+    assert svc.ladder_qwen_reasoning_budget_tokens('ZH') == 2048
+    assert svc.ladder_qwen_reasoning_budget_tokens('ja') == 1500
+    assert svc.ladder_qwen_reasoning_budget_tokens(None) == 1500
+    assert svc.ladder_qwen_reasoning_budget_tokens() == 1500
+
+
+def test_budget_per_language_falls_back_to_default_1024(monkeypatch):
+    _clear_budget_env(monkeypatch)
+    assert svc.ladder_qwen_reasoning_budget_tokens('en') == 1024
+
+
+@pytest.mark.parametrize('value', ['banana', '', '0', '-5'])
+def test_budget_bad_per_language_value_falls_through_to_global(monkeypatch, value):
+    _clear_budget_env(monkeypatch)
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET', '1200')
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET_JA', value)
+    assert svc.ladder_qwen_reasoning_budget_tokens('ja') == 1200
+
+
+def test_budget_mode_call_uses_language_code_override(monkeypatch):
+    _clear_budget_env(monkeypatch)
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'budget')
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET_ZH', '2048')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          language_code='zh')
+    assert client.chat.completions.last_payload['extra_body']['reasoning'] == {'max_tokens': 2048}
+
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          language_code='ja')
+    assert client.chat.completions.last_payload['extra_body']['reasoning'] == {'max_tokens': 1024}
+
+
+def test_budget_env_alone_does_not_change_mode(monkeypatch):
+    monkeypatch.delenv('LADDER_QWEN_REASONING', raising=False)
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET_ZH', '2048')
+    assert svc.ladder_qwen_reasoning_mode() == 'budget'
+
+
+def test_budget_per_language_production_defaults(monkeypatch):
+    _clear_budget_env(monkeypatch)
+    assert svc.ladder_qwen_reasoning_budget_tokens('ja') == 1024
+    assert svc.ladder_qwen_reasoning_budget_tokens('en') == 1024
+    assert svc.ladder_qwen_reasoning_budget_tokens('zh') == 2048
+    assert svc.ladder_qwen_reasoning_budget_tokens('ZH') == 2048
+    # No / unknown language -> safe 1024 fallback.
+    assert svc.ladder_qwen_reasoning_budget_tokens(None) == 1024
+    assert svc.ladder_qwen_reasoning_budget_tokens('xx') == 1024
+
+
+def test_budget_env_overrides_beat_per_language_defaults(monkeypatch):
+    _clear_budget_env(monkeypatch)
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET', '3000')
+    assert svc.ladder_qwen_reasoning_budget_tokens('zh') == 3000
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET_ZH', '512')
+    assert svc.ladder_qwen_reasoning_budget_tokens('zh') == 512
+
+
+def test_default_call_sends_per_language_budget_and_bumps_max_tokens(monkeypatch):
+    monkeypatch.delenv('LADDER_QWEN_REASONING', raising=False)
+    _clear_budget_env(monkeypatch)
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          max_tokens=250, language_code='zh')
+    payload = client.chat.completions.last_payload
+    assert payload['extra_body']['reasoning'] == {'max_tokens': 2048}
+    assert payload['max_tokens'] == 250 + 2048
+
+
+def test_rollback_env_on_restores_unbounded_reasoning(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'on')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          max_tokens=250, language_code='zh')
+    payload = client.chat.completions.last_payload
+    assert 'reasoning' not in payload['extra_body']
+    assert payload['max_tokens'] == 250
+
+
+def test_ladder_qwen_reasoning_low_sends_effort_low_for_a_price_routed_qwen_model(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'low')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder')
+
+    extra_body = client.chat.completions.last_payload['extra_body']
+    assert extra_body['reasoning'] == {'effort': 'low'}
+    assert extra_body['provider'] == {'sort': 'price', 'require_parameters': True}
+
+
+def test_ladder_qwen_reasoning_budget_sends_max_tokens_for_a_price_routed_qwen_model(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'budget')
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET', '2048')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder')
+
+    extra_body = client.chat.completions.last_payload['extra_body']
+    assert extra_body['reasoning'] == {'max_tokens': 2048}
+    assert extra_body['provider'] == {'sort': 'price', 'require_parameters': True}
+
+
+def test_ladder_qwen_reasoning_budget_defaults_to_1024_tokens(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'budget')
+    monkeypatch.delenv('LADDER_QWEN_REASONING_BUDGET', raising=False)
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder')
+
+    extra_body = client.chat.completions.last_payload['extra_body']
+    assert extra_body['reasoning'] == {'max_tokens': 1024}
+    assert extra_body['provider']['sort'] == 'price'
+
+
+# ---------------------------------------------------------------------------
+# armD incident (2026-10-05): a right-sized judge max_tokens (250-300) sits
+# below the default 1024-token LADDER_QWEN_REASONING=budget reasoning budget,
+# and OpenRouter 400s ("max_completion_tokens must be greater than
+# thinking_budget") rather than truncating -- 160x ja + 226x zh across
+# ladder_l1_distractor_judge / ladder_sentence_validity_judge /
+# ladder_relation_judge, all failing open (safe_accept) instead of judging.
+# `_make_one_call` now bumps the request's max_tokens to cover the reasoning
+# budget whenever one is sent.
+# ---------------------------------------------------------------------------
+
+def test_budget_mode_bumps_max_tokens_above_the_reasoning_budget(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'budget')
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET', '1024')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          max_tokens=250)
+
+    payload = client.chat.completions.last_payload
+    assert payload['extra_body']['reasoning'] == {'max_tokens': 1024}
+    # 250 (caller's output cap) + 1024 (reasoning budget) -- strictly greater
+    # than the budget alone, so the provider's `max_completion_tokens >
+    # thinking_budget` check can never fail.
+    assert payload['max_tokens'] == 1274
+
+
+def test_budget_mode_with_a_custom_budget_still_sums_correctly(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'budget')
+    monkeypatch.setenv('LADDER_QWEN_REASONING_BUDGET', '2048')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          max_tokens=300)
+
+    payload = client.chat.completions.last_payload
+    assert payload['max_tokens'] == 2348
+
+
+def test_budget_mode_leaves_max_tokens_alone_when_caller_sent_none(monkeypatch):
+    """No output cap means nothing for the reasoning budget to collide with
+    -- `max_tokens` must stay absent from the payload, not become the bare
+    budget value."""
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'budget')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder')
+
+    payload = client.chat.completions.last_payload
+    assert 'max_tokens' not in payload
+
+
+def test_low_mode_does_not_touch_max_tokens(monkeypatch):
+    """`effort: 'low'` has no `reasoning.max_tokens` key for this fix to key
+    off -- OpenRouter converts effort to a max_tokens percentage itself, so
+    the caller's cap must pass through unchanged."""
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'low')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          max_tokens=250)
+
+    payload = client.chat.completions.last_payload
+    assert payload['max_tokens'] == 250
+
+
+def test_on_mode_does_not_touch_max_tokens(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'on')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          max_tokens=250)
+
+    payload = client.chat.completions.last_payload
+    assert payload['max_tokens'] == 250
+
+
+def test_budget_bump_does_not_affect_non_qwen_models(monkeypatch):
+    """Only the qwen `enabled_false`/budget path ever sets
+    `reasoning.max_tokens` -- a non-qwen model's `exclude: True` payload has
+    no such key, so its max_tokens must be untouched."""
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'budget')
+    client = _Client()
+    _call(monkeypatch, client, model='google/gemini-3.5-flash-lite',
+          pipeline='vocab_ladder', max_tokens=250)
+
+    payload = client.chat.completions.last_payload
+    assert payload['max_tokens'] == 250
+    assert payload['extra_body']['reasoning'] == {'exclude': True}
+
+
+def test_ladder_qwen_reasoning_low_and_budget_do_not_affect_non_qwen_models(monkeypatch):
+    for mode in ('low', 'budget'):
+        monkeypatch.setenv('LADDER_QWEN_REASONING', mode)
+        client = _Client()
+        _call(monkeypatch, client, model='google/gemini-3.5-flash-lite',
+              pipeline='vocab_ladder')
+
+        extra_body = client.chat.completions.last_payload['extra_body']
+        assert extra_body['reasoning'] == {'exclude': True}
+
+
+def test_ladder_qwen_reasoning_on_does_not_affect_non_qwen_models(monkeypatch):
+    """The flag is scoped to the qwen pattern -- a non-qwen model keeps
+    getting `exclude: True` regardless of LADDER_QWEN_REASONING."""
+    monkeypatch.delenv('LADDER_QWEN_REASONING', raising=False)
+    client = _Client()
+    _call(monkeypatch, client, model='google/gemini-3.5-flash-lite',
+          pipeline='vocab_ladder')
+
+    extra_body = client.chat.completions.last_payload['extra_body']
+    assert extra_body['reasoning'] == {'exclude': True}
 
 
 @pytest.mark.parametrize('model', [
@@ -338,3 +653,155 @@ def test_no_active_vocab_ladder_model_resolves_to_a_reasoning_class_model():
         f'model, which would silently break under disable_reasoning=True '
         f'if this gate is ever bypassed: {offending}'
     )
+
+
+# ---------------------------------------------------------------------------
+# 2026-10-04 armB_ja incident: `provider.require_parameters` + `reasoning:
+# {'enabled': False}` 404'd ("no endpoints found ... Filter by Parameters")
+# for cloze_distractor_judge/ja, whose prompt_templates row was pinned to a
+# stale `qwen/qwen-2.5-72b-instruct` slug that still matched the `^qwen/`
+# pattern but could not actually serve the reasoning override on either of
+# its 2 OpenRouter endpoints. `_make_one_call` now retries once with the
+# routing/reasoning overrides stripped instead of failing outright.
+# ---------------------------------------------------------------------------
+
+import httpx
+from openai import NotFoundError
+
+
+def _not_found(message: str) -> NotFoundError:
+    req = httpx.Request('POST', 'https://openrouter.ai/api/v1/chat/completions')
+    resp = httpx.Response(404, request=req, json={'error': {'message': message}})
+    return NotFoundError(message, response=resp, body=None)
+
+
+class _FlakyCompletions:
+    """Raises `error` on the first call, then serves `response` normally."""
+
+    def __init__(self, error: Exception, response):
+        self._error = error
+        self._response = response
+        self.payloads: list[dict] = []
+        self.calls = 0
+
+    def create(self, **payload):
+        self.payloads.append(payload)
+        self.calls += 1
+        if self.calls == 1:
+            raise self._error
+        return self._response
+
+
+class _AlwaysFailCompletions:
+    def __init__(self, error: Exception):
+        self._error = error
+        self.payloads: list[dict] = []
+
+    def create(self, **payload):
+        self.payloads.append(payload)
+        raise self._error
+
+
+def _flaky_client(error):
+    client = _Client()
+    client.chat.completions = _FlakyCompletions(error, _Response())
+    return client
+
+
+def _always_fail_client(error):
+    client = _Client()
+    client.chat.completions = _AlwaysFailCompletions(error)
+    return client
+
+
+def test_no_endpoints_404_retries_once_without_routing_overrides(monkeypatch):
+    client = _flaky_client(_not_found(
+        'No endpoints found that can handle the requested parameters.'
+    ))
+    result = _call(
+        monkeypatch, client, model='qwen/qwen-2.5-72b-instruct',
+        pipeline='vocab_ladder',
+    )
+
+    assert result == {'ok': True}
+    assert client.chat.completions.calls == 2
+    first, second = client.chat.completions.payloads
+    # First attempt carried the normal vocab_ladder overrides...
+    assert 'reasoning' in first['extra_body'] or 'provider' in first['extra_body']
+    # ...the retry dropped both, rather than repeating the same request.
+    assert 'reasoning' not in second['extra_body']
+    assert 'provider' not in second['extra_body']
+    # Unrelated extra_body fields (cost accounting) survive the strip.
+    assert second['extra_body'].get('usage') == {'include': True}
+
+
+def test_unrelated_404_is_not_retried(monkeypatch):
+    """A 404 for a different reason (e.g. a genuinely delisted model) must
+    propagate immediately -- stripping routing overrides would not fix it,
+    and silently retrying would hide the real failure."""
+    client = _always_fail_client(_not_found('The model does not exist.'))
+
+    with pytest.raises(NotFoundError):
+        _call(monkeypatch, client, pipeline='vocab_ladder')
+
+    assert client.chat.completions.payloads  # only the one attempt was made
+    assert len(client.chat.completions.payloads) == 1
+
+
+def test_no_endpoints_404_without_routing_overrides_is_not_retried(monkeypatch):
+    """When the call never sent reasoning/provider overrides in the first
+    place, stripping them is a no-op -- retry would just 404 again, so the
+    original error propagates instead of spending a second call."""
+    client = _always_fail_client(_not_found(
+        'No endpoints found that can handle the requested parameters.'
+    ))
+
+    with pytest.raises(NotFoundError):
+        _call(
+            monkeypatch, client, pipeline='test_gen',
+            disable_reasoning=False,
+        )
+
+    assert len(client.chat.completions.payloads) == 1
+
+
+# ---------------------------------------------------------------------------
+# TASK-857 follow-up: LADDER_QWEN_REASONING modes are vocab_ladder-only
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize('lang,expected', [('ja', 1024), ('en', 1024), ('zh', 2048)])
+def test_ladder_qwen_call_gets_per_language_budget_payload(monkeypatch, lang, expected):
+    monkeypatch.delenv('LADDER_QWEN_REASONING', raising=False)
+    for k in ('LADDER_QWEN_REASONING_BUDGET', 'LADDER_QWEN_REASONING_BUDGET_' + lang.upper()):
+        monkeypatch.delenv(k, raising=False)
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          language_code=lang)
+    extra_body = client.chat.completions.last_payload['extra_body']
+    assert extra_body['reasoning'] == {'max_tokens': expected}
+    assert extra_body['provider'] == {'sort': 'price', 'require_parameters': True}
+
+
+@pytest.mark.parametrize('pipeline', ['test_gen', 'dual_translation', None])
+@pytest.mark.parametrize('mode', [None, 'on', 'off', 'low', 'budget'])
+def test_non_ladder_qwen_call_sends_no_reasoning_key(monkeypatch, pipeline, mode):
+    """Pre-ADR-028 baseline (ffb0afe7): non-ladder calls send no `reasoning`
+    key, no price routing, no require_parameters, whatever the ladder mode."""
+    if mode is None:
+        monkeypatch.delenv('LADDER_QWEN_REASONING', raising=False)
+    else:
+        monkeypatch.setenv('LADDER_QWEN_REASONING', mode)
+    client = _Client()
+    kwargs = {'pipeline': pipeline} if pipeline else {}
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', language_code='zh', **kwargs)
+    extra_body = client.chat.completions.last_payload['extra_body']
+    assert 'reasoning' not in extra_body
+    assert 'provider' not in extra_body
+
+
+def test_ladder_rollback_env_on_still_sends_no_reasoning_key(monkeypatch):
+    monkeypatch.setenv('LADDER_QWEN_REASONING', 'on')
+    client = _Client()
+    _call(monkeypatch, client, model='qwen/qwen3.7-plus', pipeline='vocab_ladder',
+          language_code='zh')
+    assert 'reasoning' not in client.chat.completions.last_payload['extra_body']

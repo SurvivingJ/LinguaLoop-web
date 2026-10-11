@@ -1,0 +1,126 @@
+{
+  "sense_id": 10803,
+  "language_id": 1,
+  "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+  "started_at": "2026-10-04T05:21:39.423036+00:00",
+  "status": "failed",
+  "errors": [
+    "P1 sentence judge: too few acceptable sentences after repair"
+  ],
+  "warnings": [
+    "P1 sentence[0] rejected (rating 2): 目标词缺失，未出现'将'",
+    "P1 sentence[3] rejected (rating 2): 义项：'将'作将来时助动词",
+    "P1 sentence[4] rejected (rating 2): 目标词缺失，使用'把'而非'将'",
+    "P1 sentence[6] rejected (rating 2): 义项：'将'作将来时助动词",
+    "P1 sentence[7] flagged (rating 3): 语域：口语化，不符正式声明",
+    "P1 sentence[8] rejected (rating 2): 语域：口语化，且用'把'非'将'",
+    "P1 sentence[9] rejected (rating 2): 语域：祈使句偏口语，非正式书面",
+    "P1 sentence judge: only 4 acceptable sentences (< 6) after repair — asset blocked."
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.3694732189178467,
+    "p1_generate": 15.968599557876587,
+    "tier_gate": 0.0,
+    "p1_judge": 14.819981336593628
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": false,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": [
+        "P1 sentence judge: too few acceptable sentences after repair"
+      ],
+      "validation_warnings": [
+        "P1 sentence[0] rejected (rating 2): 目标词缺失，未出现'将'",
+        "P1 sentence[3] rejected (rating 2): 义项：'将'作将来时助动词",
+        "P1 sentence[4] rejected (rating 2): 目标词缺失，使用'把'而非'将'",
+        "P1 sentence[6] rejected (rating 2): 义项：'将'作将来时助动词",
+        "P1 sentence[7] flagged (rating 3): 语域：口语化，不符正式声明",
+        "P1 sentence[8] rejected (rating 2): 语域：口语化，且用'把'非'将'",
+        "P1 sentence[9] rejected (rating 2): 语域：祈使句偏口语，非正式书面",
+        "P1 sentence judge: only 4 acceptable sentences (< 6) after repair — asset blocked."
+      ]
+    }
+  ],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019152,
+      "prompt_tokens": 2701,
+      "completion_tokens": 821,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 15575
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00055648,
+      "prompt_tokens": 803,
+      "completion_tokens": 234,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 5095
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004416,
+      "prompt_tokens": 488,
+      "completion_tokens": 223,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 10803,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4632
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004496,
+      "prompt_tokens": 729,
+      "completion_tokens": 169,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10803,
+      "generation_batch_id": "b539e97f-c633-4192-ad1c-ec2123b964da",
+      "language_code": "zh",
+      "latency_ms": 4096
+    }
+  ],
+  "llm_calls_observed": 4,
+  "llm_cost_observed_usd": 0.00336288,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": null,
+  "wall_clock_s": 31.31299999996554,
+  "finished_at": "2026-10-04T05:22:10.748608+00:00"
+}

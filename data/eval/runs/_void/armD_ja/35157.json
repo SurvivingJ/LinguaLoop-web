@@ -1,0 +1,122 @@
+{
+  "sense_id": 35157,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T13:08:51.155480+00:00",
+  "status": "failed",
+  "errors": [
+    "P1 sentence judge: too few acceptable sentences after repair"
+  ],
+  "warnings": [
+    "P1 sentence[0] rejected (rating 1): 義項：化学反応に不自然",
+    "P1 sentence[1] rejected (rating 1): 義項：資金と通じるは誤用",
+    "P1 sentence[2] rejected (rating 1): 義項：需給と通じないは誤用",
+    "P1 sentence[4] rejected (rating 1): 義項：特性と通じるは誤用",
+    "P1 sentence[5] rejected (rating 2): 義項：仕組みと通じるは不自然",
+    "P1 sentence[6] rejected (rating 1): 全義：関係を通じるは誤用",
+    "P1 sentence[9] rejected (rating 2): 語域：を通じてが重複し冗長",
+    "P1 sentence judge: only 3 acceptable sentences (< 6) after repair — asset blocked."
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.5710809230804443,
+    "p1_generate": 47.71000123023987,
+    "tier_gate": 21.249597549438477,
+    "p1_judge": 70.86681413650513
+  },
+  "assets": [],
+  "metadata_updates": [],
+  "exercise_rows": [],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0044352,
+      "prompt_tokens": 2984,
+      "completion_tokens": 2719,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 47441
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00161888,
+      "prompt_tokens": 455,
+      "completion_tokens": 1151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35157,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21080
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00200768,
+      "prompt_tokens": 938,
+      "completion_tokens": 1334,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23477
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019024,
+      "prompt_tokens": 565,
+      "completion_tokens": 1345,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35157,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 24963
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018272,
+      "prompt_tokens": 878,
+      "completion_tokens": 1208,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35157,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21450
+    }
+  ],
+  "llm_calls_observed": 5,
+  "llm_cost_observed_usd": 0.011791359999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 3,
+    "repaired": 3,
+    "still_failing": 0
+  },
+  "collocate_grounding": null,
+  "wall_clock_s": 140.51600000006147,
+  "finished_at": "2026-10-05T13:11:11.661908+00:00"
+}

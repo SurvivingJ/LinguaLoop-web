@@ -78,6 +78,22 @@ class SenseContext:
     tier: str | None = None
     pronunciation: str | None = None
     definition: str | None = None
+    # TASK-8xx (item 4): `lemma` is a sentence's *target* — for a ja verb or
+    # adjective that's the inflected surface form as it appears in whichever
+    # sentence happens to be first (超え, かけ, よって), not the dictionary
+    # headword (超える, かける, 因る). `exercise_renderer._headword` already
+    # exists and is already used for L1 phonetic matching for exactly this
+    # reason (TASK-803's docstring on `_headword` explains the same class of
+    # bug). `headword` carries that same dictionary form for builders that
+    # need "does this WORD have kanji" / "what IS this word" rather than
+    # "what surface form is in this particular sentence" — readings.py's
+    # `kanji_to_reading`/`reading_to_kanji` is the first consumer (fixes a
+    # false-negative `has_kanji` skip on ja sense 35111, lemma 因る, whose
+    # first sentence's target happened to be a kana-only inflected form).
+    # Defaults to None (and callers fall back to `.lemma`) so every existing
+    # SenseContext construction — including every test fixture — keeps
+    # working unchanged.
+    headword: str | None = None
     db: object | None = None
     nl_language_code: str = 'en'
     # Per-variant sentence assignment, so A and B draw different sentences.

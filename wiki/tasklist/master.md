@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-09-28
+last_updated: 2026-10-09
 ---
 
 # Master Task List
@@ -19,12 +19,98 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 39 |
+| Not Started | 21 |
 | In Progress (`[~]`) | 10 |
-| Blocked / Deferred / Awaiting decision (numbered tasks) | 12 |
+| Blocked / Deferred / Awaiting decision (numbered tasks) | 18 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 191 |
+| Done (cumulative, not listed here) | 210 |
+
+*2026-10-09 (TASK-850 re-run BLOCKED — OpenRouter credit exhausted, $89.92 of $90):* every call returned 402 and
+there are no results. The invalid outputs are quarantined in `data/eval/dt_v6_gate_2026-10-09/invalid_402_credit_exhausted/`.
+The re-run needs a top-up, and TASK-853 stays blocked. Counts unchanged.
+
+*2026-10-09 (TASK-862 done — DT decode fix, local only, NOT deployed):* `_decode_error` no longer drops an error whose `category` index is invalid (qwen copies the subtype index into it, e.g. `category: 8, subtype: 8`); the category is derived from the subtype's `subtype_meta` and a WARNING logs the raw value. Undecodable subtypes still drop. Recovers the zh 2 / ja 3 gate drops. Once deployed this changes live v5 behaviour (errors previously dropped are kept). Tests: `tests/test_dt_decode_category_repair.py` 20 passed. Counts: Done 209→210.
+
+*2026-10-08 (TASK-856 done — ADR-028 wrap-up; target not met):* reasoning-off is the cause of the Phase 2 regression. Best validated config (`LADDER_QWEN_REASONING=budget`, JA/EN 1024, ZH 2048, bundle off) costs ja $0.034 / zh $0.039 / en $0.022 per sense (~45-50% below Phase 1); <$0.01 is not reachable at non-inferior quality. Per-language budget env overrides shipped (code defaults unchanged). New: TASK-857 (flip prod, awaiting approval), 858 (arm F re-run, blocked on credit), 859 (bundle re-test), 860 (coverage variance), 861 (user applies 3 migrations). See [[decisions/ADR-028-exercise-gen-cost-under-1c]] and [[evaluations/exercise-gen-phase2-2026-10]]. Counts: Not Started 19→21, Blocked 16→18, Done 208→209.
+
+*2026-10-08 (TASK-850 done — DT taxonomy v6 acceptance gate ran; verdict **NO-GO**):*
+- **Run.** 9 paid arms (en/zh/ja × v5 control / v6 gold / v6 silver), 282 items, $2.20 harness cost
+  (key delta $3.21), ~2 h. No DB writes, no migrations, no code changes.
+- **Results.** EN fails subtype (.769) and overall QWK (.431 vs .695). ZH fails span F1 (.826 vs .898) and subtype
+  (.789). JA fails subtype by one item (.810 vs a .814 minimum).
+- **v6 behaviour.** meaning_inversion recall is ≥ .90 in every L2. All de_particle probes pass, and en/zh have 0
+  warnings.
+- **Causes.** The v6 gold contradicts the v6 glosses (ja keigo だ/です → register; zh 个 acceptable; en it→them
+  pronoun vs word_choice). A decode bug from before v6 drops errors whose `category` index is out of range.
+- **Owed.** Gold rulings, a decode fallback task and the ja exemplar swap, then a re-run. TASK-853 stays blocked.
+  See [[evaluations/dt-taxonomy-v6-gate-2026-10-08]]. Counts: Not Started 20→19, Done 207→208.
+
+*2026-10-08 (TASK-840 done — AI review (Opus) at the developer's direction 2026-10-08, not a native-speaker review):*
+- **Review.** The ja string review (125 entries: 93 ok, 32 fix) is `data/eval/taxonomy_merge_2026-09-27/string_review_2026-10-07/ja_review.json`.
+  All fixes were applied: 23 strings in `v6_strings.json`, 4 ja `native_name`s and 5 `prompts.py` blocks. Revised strings stay `ai_draft`.
+- **Prompts.** The ja precedence block and ja variant block now match the en/zh structure: reversal-only, required,
+  decision-ordered, L1 named, with per-L1 examples. ja `{co}` has no connective limb (ja connectives are `clause_linkage`).
+- **Exemplar.** The live ja rubric exemplar (main-clause は/が) is not an error under the narrowed `wa_ga`. A replacement
+  is proposed in ADR-031 (2026-10-08 note) for the optional rubric v7 re-slug; the SQL is not edited.
+- **Unchanged.** No type judgement changed. v5 sha256 pins are unchanged. Seed regenerated, `--check` OK.
+  No DB writes, no paid calls. DT selection 997 passed. Counts: Not Started 21→20, Done 206→207.
+
+*2026-10-07 (TASK-839 done — AI review (Opus) at the developer's direction 2026-10-07, not a native-speaker review; en string review applied under TASK-838):*
+- **Reviews.** AI string reviews of the en strings (88 entries, 18 fixes) and the zh strings (109 entries,
+  39 fixes) are in `data/eval/taxonomy_merge_2026-09-27/string_review_2026-10-07/`. Every fix was applied;
+  one zh template was modified to keep the ruling's 一律算作错误. Revised strings stay `ai_draft`.
+- **Precedence.** The en and zh precedence blocks were rewritten: each placeholder is used once, the
+  inversion rule is narrowed to a reversal visible only against the reference, and `{co}` has both limbs.
+  Every `index (label)` reference now renders the gloss short name (`prompts._short_label`) in all 3 L2s.
+- **Variant block.** In en and zh, `explanation_variant` is required, the decision order is given, and
+  the learner's L1 is named: the builders take `l1_code=`, so the v6 cached prefix is per-(L1, L2). Examples
+  are per-L1.
+- **Empty quotes.** A v6 template that quotes an empty form now renders L1 fallback phrasing
+  (`explainer.empty_form_explanation`) instead of “”.
+- **zh boundary (pending user confirmation).** 跑快 → 跑得快 is `de_particle`. A new ADR-031 Open Question
+  covers `separable_verb` duration scope.
+- **Gold.** The developer approved `en_v6_ws_02` for v6 gold.
+- **Unchanged.** v5 prompt hashes are unchanged and the seed was regenerated. Nothing applied, no DB
+  writes, no paid calls.
+- **Still open.** TASK-840 (ja): its AI review was blocked and is pending.
+- **Tests.** DT selection 994 passed. Counts: Not Started 22→21, Done 205→206.
+
+*2026-10-03 (exercise-gen-cost Phase 2 pairwise review failed non-inferiority):* TASK-814/815/816
+moved Not Started → `[?]` Blocked — the Phase 2 blind pairwise review (bundle mode on, qwen
+reasoning off) failed non-inferiority vs. Phase 1 in all three languages, but the eval couldn't
+separate bundling from qwen's reasoning state (both changed vs. Phase 1 at once), so attribution
+is pending a clean eval. New TASK-856 filed for that clean eval (blocked on OpenRouter credit —
+account has ~$0.04 left of $80). See [[evaluations/exercise-gen-phase2-2026-10]] "Pairwise quality
+(blind)" and [[tasklist/exercise-gen-cost.tasks]]. Counts: Not Started 39→36, Blocked 12→16.
+
+*2026-10-04 (TASK-836 done — live DT data inventory):* operator-approved read-only pass against Supabase project `kpfqrjtfxmujzolwsvdq`. Live DT data is tiny: 4 `dt_submission` rows (one user/L1), 16 `dt_error_instance`, 4 `dt_error_profile_entry`, 4 `dt_card`, 5 `dt_card_review` — **all zh**; ja/en have zero rows despite 67 `dt_passage` rows across all 3 languages. Zero collisions, zero `script_choice` rows, exactly 3 subtype-bearing columns (all already covered by TASK-842), FK confdeltype confirmed NO ACTION. Full results: [[evaluations/dt-taxonomy-v6-inventory-2026-10-04]]. Counts: Not Started 36→35, Done 191→192.
+
+*2026-10-04 (TASK-837 done — v6 builder + inactive seed, NOT applied):* `scripts/build_dt_taxonomy_v6.py` generates `migrations/dt_taxonomy_v6_seed.sql` (v6 inserted `is_active = false`, no other row touched; byte-identical on re-run, `--check` mode) from `merged_taxonomy.json` + `v5_to_merged.csv` (+ `v6_strings.json` once TASK-838 lands). `subtype_meta` = 40 v6 slugs + 20 v5 `historical_alias` entries; `legacy_aliases` = 33 v5 slugs. Seed glosses/templates are EMPTY until TASK-838 — do not activate before. Not applied to any database (applies at TASK-853). Tests: `tests/test_dual_translation_taxonomy_v6.py` (45 passed) + v5 (28 passed). Counts: Not Started 35→34, Done 192→193.
+
+*2026-10-04 (TASK-842 done — v6 columns + snapshot tables, NOT applied):* `migrations/dt_taxonomy_v6_columns.sql` adds nullable `taxonomy_version` (dt_error_instance / dt_error_profile_entry / dt_card), `explanation_variant` (word_choice-only CHECK) and `remap_flag` CHECKs, plus 5 empty RLS-locked `dt_v5_snapshot_*` tables for TASK-852. Code side (insert whitelist, `_cached_grade` read-back, `_grade_v2` stamp) is gated on new `DT_TAXONOMY_COLUMNS` env (default OFF → behaviour unchanged) because PostgREST would reject the new columns before the migration is applied; TASK-853 runbook now sets it after applying. Tests: routes + grader cascade 108 passed. Counts: Not Started 34→33, Done 193→194.
+
+*2026-10-04 (TASK-843 done — meaning_inversion by-effect precedence block, v6-gated):* `services/dual_translation/prompts.py` gains `_PRECEDENCE_V6` (en/zh/ja, each in its L2) + a Verifier re-type addendum, appended after the subtype list in both Detector and Verifier prompts only when the resolved subtype list contains `meaning_inversion` — i.e. only under the v6 taxonomy row the grader resolves at runtime (active or, after TASK-841, pinned). v5 prompts byte-identical (pre-change sha256 snapshot in tests). Subtypes are referenced as live `index (label)`, not bare slugs. Tests: prompts 53 passed (+15 new); all DT tests 707 passed. Counts: Not Started 33→32, Done 194→195.
+
+*2026-10-04 (TASK-847 done — v6 gold/silver fixtures + taxonomy-aware seed helper):* `scripts/build_dt_gold_v6.py` writes `tests/fixtures/dt_gold_v6/{zh,ja,en}.json` (30 items each, v5 ids/order) and `tests/fixtures/dt_silver_v6/{zh,ja,en}.json` (34/32/34 items) from `v6_label_overlay.json` — all 175 labels consumed, every item passes `verify_item`. `derive_bands(..., taxonomy_version=5|6)` (default 5; `V6_DIMENSION` read from `merged_taxonomy.json`). v5 fixtures byte-identical. Band changes: 11, not 12 — `overlay_band_changes.json`'s en_silver_24 entry predates its 2026-09-28 repair. Counts are 22 meaning_inversion (spec said 21; +1 = repaired en_silver_24) and 28 word_choice (20/0/8). **en_silver_26 held out** of v6 silver: kind=single with 0 errors (merge dropped its 90→9 error, no severity majority) — needs a tie-break label. Tests: 41 passed (+22). Counts: Not Started 32→31, Done 195→196.
+
+*2026-10-04 (TASK-851 done — remediation writers stamp taxonomy_version + legacy-slug guard):* reuses TASK-842's `DT_TAXONOMY_COLUMNS` flag (default OFF → no new DB reads, no new keys, writes byte-identical). Flag ON: `scripts/dt_nightly_synthesis.upsert_profile_rows` and `cards.generate_cards_for_queued_entries` stamp `taxonomy_version = grader_cascade.get_active_taxonomy_version(db)` (omitted, with a WARNING, if the version read fails — never overwrites with NULL); `fetch_error_records` logs ONE WARNING per run listing slugs outside the union of the active taxonomy's pair lists, still clustering them as-is (skipped with a WARNING if the taxonomy is unreadable). No DB writes, nothing applied. Tests: synthesis + cards + remediation infra 80 passed (+11); routes + grader cascade 108 passed. Counts: Not Started 31→30, Done 196→197.
+
+*2026-10-06 (TASK-848 done, short: 1 of 6 wrong_sense items):* one item kept, `en_v6_ws_02` ("This is like a hand" → "This likes a hand", headword `like`, verb sense used where the preposition sense is needed) = `word_choice`/`wrong_sense`/major, appended to `dt_gold_v6/en.json` only. `scripts/build_dt_gold_v6.py` now also builds v6-only specs from `data/eval/taxonomy_merge_2026-09-27/v6_only_gold_items.json`. Author/blind-reviewer pairing (opus): `en_v6_ws_01` pick up→pick dropped, because the reviewer read it as `phrasal_verb`. zh and ja have none, so the variant stays a grader judgement there. zh has no inflection, so any same-lemma diff is a function-word change that another type claims, and the 工作 probe is swallowed by Tier 0. ja has only 20 of 3,439 lemmas with ≥2 senses, and none occurs in the passages. word_choice is now 29 = 20/1/8. Tests: 153 passed; DT selection 961. No DB writes. Counts: Not Started 23→22, Done 204→205.
+
+*2026-10-05 (TASK-852 done — v5→v6 history rewrite + restore, NOT applied):* `scripts/dt_rewrite_history_v6.py` (pure planner: v6 slug / split flag / merge survivor + summed count + `synthesis.severity_rank`/`build_trend` / child-first script_choice delete set) + `migrations/dt_rewrite_history_v6.sql` (`dt_rewrite_history_v6(p_plan, p_dry_run)` executes the plan in one locked transaction: snapshot first, fails closed on non-empty snapshot / stale plan, per-statement row counts = plan, post-conditions; `dt_restore_history_v5` restores parent-first with OVERRIDING SYSTEM VALUE). `--dry-run` (default, SELECT-only) / `--rehearse` (rolled back) / `--apply` (needs v6 active) / `--restore`. Empty plan → noop, so a second run is a no-op. Tests: 30 passed incl. 7 on a disposable local PG 16 (apply → noop → restore byte-equal). Never run against Supabase; inert until TASK-853. Counts: Not Started 25→24, Done 202→203.
+
+*2026-10-05 (TASK-846 done — variant-aware word_choice Rule templates + explainer context):* `grader_cascade.render_explanation(..., variant=None)` uses `variant_templates[subtype][variant][l1]` when present (else the plain `templates["word_choice"]` path, `used_fallback=False`); new `rerender_variant_explanations` runs in `_grade_v2` right after `resolve_variants`, before the explainer. Explainer items gain `"variant"` (only when set) and the explainer system prompt gains one per-L1 sentence per variant (only when some item has one). Variant templates are reachable from the taxonomy JSONB as already seeded by TASK-838 (live row and TASK-849 harness), so no loader change was needed. v5 Rule text + explainer prompts byte-identical. Tests: cascade +18, explainer +8; DT selection 953 passed, 7 skipped. Counts: Not Started 24→23, Done 203→204.
+
+*2026-10-05 (TASK-845 done — word_choice `explanation_variant`, v6-gated):* new `services/dual_translation/word_choice_variant.py` decides the variant after the Verifier/arbiter merge and before the explainer: same lemma (exact `dim_vocabulary.lemma`, else a single resolving token) → `wrong_sense`; exact shared L1 gloss term (`dim_word_senses` filtered on `definition_language_id` = learner L1) → `false_synonym`; else the model's call (new optional `explanation_variant` index in the Detector/Verifier schema + one per-L2 line). No glosses / unresolvable lemma (always the case for an en L2 today) → the model's call stands. ≤2 DB round trips per submission; DB failure → `wrong_word`/basis `default`; `grader_trace.variant_basis` counts. Gate `prompts.variants_enabled` (v6 marker `meaning_inversion` + `word_choice`) → v5 prompts byte-identical, no new keys. Tests: 33 new + 8 cascade; DT selection 904 passed. Counts: Not Started 26→25, Done 201→202.
+
+*2026-10-04 (TASK-841 done — `DT_TAXONOMY_VERSION` pin + rubric-exemplar v5 alias):* `grader_cascade.get_active_taxonomy` / `get_active_taxonomy_version` read the `DT_TAXONOMY_VERSION` env at call time: unset/blank → unchanged (highest active row, same cache key); an int → `.eq("version", N)` regardless of `is_active`, cached under `taxonomy@N`, missing row → RuntimeError, non-int → RuntimeError; the version reported (grader_trace, TASK-842/851 stamps) is the pinned one. The pinned row feeds the same `subtypes` list TASK-843's gate reads. New `alias_rubric_exemplars` (called once in `grade_submission`, so v1/v2/arbiter all see it) rewrites an exemplar `subtype_slug` missing from the subtype list via the taxonomy's `legacy_aliases` (1:1/merge only, target must be in the list); returns the same rubric object under v5 (no `legacy_aliases`) → prompts byte-identical. Under v6: en `tense_aspect`→`verb_form_tense`, zh `aspect_marker`→`aspect_negation` render; ja `particle_wa_ga` (split) still dropped with the existing warning — needs the rubric v7 re-slug after TASK-840. Deviation: no `prompts.py` change (TASK-844 owns it) — aliasing happens on the rubric before the builders. Nothing applied, no DB writes. Tests: `tests/test_dt_taxonomy_pin.py` 19 passed; all DT tests 830 passed, 2 failed (both in `test_dual_translation_taxonomy_v6.py` ja strings/builder — in-flight TASK-838 seed work, unrelated). Counts: Not Started 29→28, Done 198→199.
+
+*2026-10-04 (TASK-849 done — eval harness taxonomy candidate + v6 fixtures + v6 metrics, offline only):* `scripts/run_dt_grading_eval.py` gains `--taxonomy-file <dt_taxonomy_v*_seed.sql>` and `--fixture-set {v5,v6,v6_silver}` (default v5, so default behaviour is unchanged). `--taxonomy-file` parses the `$taxonomy$` literal offline and pre-seeds `grader_cascade._cfg_cache` (`taxonomy`, `taxonomy@<v>`, `taxonomy_version`), so v6 can be graded before its seed is applied; a conflicting `DT_TAXONOMY_VERSION` pin aborts the run. The report adds a "Taxonomy v6 metrics" section: MI confusion vs omission/word_choice/preposition/contradiction, MI recall/precision, explanation_variant accuracy + variant_basis, and exemplar-drop / no-template log counts. `aggregate_metrics`/QWK are unchanged. Tests: 82 passed (eval metrics + new harness-taxonomy + retry). No model calls, no DB writes. Counts: Not Started 27→26, Done 200→201.
+
+*2026-10-04 (TASK-838 done — v6 glosses/templates/variant templates, AI first draft, NOT applied):* new `data/eval/taxonomy_merge_2026-09-27/v6_strings.json` (gloss + template in en/ja/zh for all 40 v6 slugs, plus `variant_templates.word_choice` wrong_word/wrong_sense/false_synonym × 3 L1) with a per-string `provenance` map: 76 `v5_verbatim` (byte-identical, test-pinned), 173 `ai_draft` (native review TASK-839/840; **user EN review outstanding**). Builder gains `validate_strings` (totality, placeholders ⊆ {learner_form, corrected_form}, provenance) and lists AI-drafted slugs per language in the seed header; seed regenerated, `--check` OK. Beyond the description's rewrite list, `measure_word`/`keigo`/`conjugation`/`article_determiner`/`verb_form_tense` were redrafted because v5 text contradicts v6/jev scope (个 acceptable, 丁寧語 level → register, ら抜き tolerated, determiners, participle forms). zh `de_particle` `native_name` fixed to `结构助词“的/地/得”`. Tests: v6 taxonomy 111 passed (+66), v5 28; all DT tests 837 passed. Counts: Not Started 28→27, Done 199→200.
+
+*2026-10-04 (DT taxonomy v6 finalised):* user reviewed the draft; 841/851 shrunk, 852 became a one-time history rewrite (M→L), deps of 851/852/853 changed; variant `shared_translation` → `false_synonym`; ja `script_choice` rows deleted at cutover. Counts unchanged.
 
 *2026-09-28 (DT taxonomy v6 filed — DRAFT, awaiting user review):* TASK-836–855 added from
 [[decisions/ADR-031-dt-taxonomy-v6-merge]] — see [[tasklist/dt-taxonomy-v6.tasks]]. +18 Not Started,
@@ -741,8 +827,8 @@ TASK-717 is the entry point and is correct regardless of every downstream outcom
 | TASK-718 | comprehension-tests | Cross-model judge A/B — judge harshness vs content quality | [x] Done (2026-08-16) | S | TASK-717 (partial — not blocking) |
 | TASK-719 | comprehension-tests | Split the rating onto two axes (topical fit / confusability) | [x] Done (2026-08-20) — v7 rows staged, inactive | M | TASK-718 |
 | TASK-720 | comprehension-tests | Redefine the review band as explicit uncertainty | [x] Done (2026-08-20) — shipped with TASK-719 | S | TASK-719 |
-| TASK-721 | comprehension-tests | Give the 18 generator prompts a distractor specification | [ ] | M | TASK-717 |
-| TASK-722 | comprehension-tests | Rewrite the zh/ja `vocabulary_context` prompts natively | [ ] | M | — |
+| TASK-721 | comprehension-tests | Give the 18 generator prompts a distractor specification | [x] Done 2026-08-19 — built and measured, staged INACTIVE (not activated) | M | TASK-717 |
+| TASK-722 | comprehension-tests | Rewrite the zh/ja `vocabulary_context` prompts natively | [x] Done 2026-08-17 — applied live | M | — |
 | TASK-726 | comprehension-tests | Build the distractor-plausibility gold set | [~] | M | none — this is the blocker |
 
 **Sequencing revised 2026-08-16 by the TASK-718 result.** The zh divergence was the judge, not the
@@ -886,7 +972,7 @@ build in 348 ms where twenty singular builds cost ~38 s.
 | TASK-771 | calibration | Prefetch items into a client-side queue | [x] Done 2026-09-13 | S | TASK-770 |
 | TASK-774 | calibration | Stop revalidating every token over the network | [x] Done 2026-09-13 (app-wide) | S | — |
 | TASK-775 | calibration | Learner-paced advance after a wrong answer | [x] Done 2026-09-13 | XS | TASK-771 |
-| TASK-776 | calibration | Drop foils that share a head gloss with the right answer (synonyms) | [~] Migration written, not applied; cache rebuild pending | S | TASK-773 |
+| TASK-776 | calibration | Drop foils that share a head gloss with the right answer (synonyms) | [x] Done — guard live in `semantic_distractors()`; cache refilled, 0 head-gloss overlaps (verified 2026-10-09) | S | TASK-773 |
 | TASK-777 | calibration | Offline LLM synonym judge over the distractor cache | [?] Open question — paused by decision | M | TASK-776 |
 
 ### CSV Exercise Authoring (open tasks only)
@@ -897,7 +983,7 @@ typed upload path; 21 unit tests).
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-802 | tooling | ESLint parses `static/js/session/**` as script (`npm run check` exit 1) | [ ] Not Started (hook-blocked for agents) | XS | — |
+| TASK-802 | tooling | ESLint parses `static/js/session/**` as script (`npm run check` exit 1) | [x] Done 2026-10-09 — module override + globals added; `eslint .` 0 errors | XS | — |
 
 ### Exercise Generation Cost Reduction (new 2026-09-24)
 
@@ -937,11 +1023,16 @@ cost driver, not yet addressed by any filed task.
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
 | TASK-812 | exercise-gen-cost | Stable-prefix ordering + cache-token logging + judge `max_tokens` caps | [~] In Progress — cache-token logging done 2026-09-27, reorder deferred | M | TASK-804 |
-| TASK-814 | exercise-gen-cost | Collapse A/B variant doubling (13 of 18 sites) | [ ] Not Started — gated on baseline + Phase 1 score | L | TASK-808 |
-| TASK-815 | exercise-gen-cost | Bundle generation call (P2+P3+L4+typed) | [ ] Not Started — gated on baseline + Phase 1 score | XL | TASK-814 |
-| TASK-816 | exercise-gen-cost | Bundle judge call (7 render judges → 1; P1 sentence judge stays separate) | [ ] Not Started — gated on baseline + Phase 1 score | L | TASK-815 |
+| TASK-814 | exercise-gen-cost | Collapse A/B variant doubling (13 of 18 sites) | [?] Blocked — bundle failed non-inferiority 2026-10-03; attribution pending clean reasoning-off/bundle-off eval (needs OpenRouter credit) | L | TASK-808 |
+| TASK-815 | exercise-gen-cost | Bundle generation call (P2+P3+L4+typed) | [?] Blocked — bundle failed non-inferiority 2026-10-03; attribution pending clean reasoning-off/bundle-off eval (needs OpenRouter credit) | XL | TASK-814 |
+| TASK-816 | exercise-gen-cost | Bundle judge call (7 render judges → 1; P1 sentence judge stays separate) | [?] Blocked — bundle failed non-inferiority 2026-10-03; attribution pending clean reasoning-off/bundle-off eval (needs OpenRouter credit) | L | TASK-815 |
 | TASK-817 | exercise-gen-cost | Model bake-off — qwen arms zh/ja, any-model arms en | [?] Blocked — Phase 3, user: do not do Phase 3 | M | 806, 807 |
 | TASK-818 | exercise-gen-cost | Batch API backfill (OpenRouter Batch, ~50% off, 24h SLA) | [?] Blocked — Phase 3, user: do not do Phase 3 | M | 809, 815 |
+| TASK-857 | exercise-gen-cost | Flip production to recommended reasoning config (budget; JA/EN 1024, ZH 2048) | [x] Done (code default switched 2026-10-09; rollback `LADDER_QWEN_REASONING=on`) | XS | 856 |
+| TASK-858 | exercise-gen-cost | Re-run arm F (en on gemini-3.5-flash-lite) | [?] Blocked — OpenRouter credit | S | none |
+| TASK-859 | exercise-gen-cost | Re-test bundle mode with budget reasoning | [ ] | M | 856 |
+| TASK-860 | exercise-gen-cost | Coverage-metric variance study (control-vs-control) | [ ] | M | none |
+| TASK-861 | exercise-gen-cost | Apply llm_calls_cost_instrumentation / exercise_gen_en_p2_p3_off_sonnet / ladder_ja_cloze_judge_slug_fix migrations (user) | [x] Done | XS | none |
 
 **Open questions carried from the ADR:** (a) whether the qwen-only rule extends to zh/ja
 *judges* (current evidence says no — qwen has been the outlier judge model twice); (b) whether
@@ -965,34 +1056,21 @@ unchanged until `ENTAILMENT_JUDGE_BACKEND` is set.
 |----|---------|-------|--------|------------|------------|
 | TASK-834 | answer-entailment-judge | Human confirmation of the entailment gold (22-item sheet; model-adjudicated 300 done) | [~] | S | — |
 
-### DT Taxonomy v6 (new 2026-09-28, DRAFT — awaiting user review)
+### DT Taxonomy v6 (new 2026-09-28, finalised 2026-10-04)
 
 Full spec: [[tasklist/dt-taxonomy-v6.tasks]] · ADR: [[decisions/ADR-031-dt-taxonomy-v6-merge]] (proposed).
-Critical path 837 → 838 → 845 → 846 → 850 → 853 → 854 (joined by 841 → 849 and 836/842 → 851 → 852).
+Critical path 837 → 838 → 845 → 846 → 850 → 853 → 854 (joined by 841 → 849, 847 → 849 and 836/842 → 852 → 853). User decisions 2026-10-04: variant renamed `false_synonym`; one-time rewrite of all history to v6 at cutover (snapshot + restore); ja `script_choice` rows deleted.
 Native review (839/840) runs in parallel and does not gate cutover (v5 precedent, ADR-019).
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-836 | dt-taxonomy-v6 | Live DT data inventory (read-only) | [ ] | XS | — |
-| TASK-837 | dt-taxonomy-v6 | v6 taxonomy builder + inactive seed migration (pairs, subtype_meta, aliases) | [ ] | M | — |
-| TASK-838 | dt-taxonomy-v6 | Author v6 glosses, Rule templates, word_choice variant templates (AI draft) | [ ] | L | TASK-837 |
-| TASK-839 | dt-taxonomy-v6 | Native-speaker review — zh strings + type judgements | [ ] | M | TASK-838 |
-| TASK-840 | dt-taxonomy-v6 | Native-speaker review — ja strings + type judgements | [ ] | M | TASK-838 |
-| TASK-841 | dt-taxonomy-v6 | Taxonomy version pin (`DT_TAXONOMY_VERSION`) + alias-aware resolution | [ ] | M | TASK-837 |
-| TASK-842 | dt-taxonomy-v6 | Schema: taxonomy_version / explanation_variant / remap columns | [ ] | S | TASK-836 |
-| TASK-843 | dt-taxonomy-v6 | meaning_inversion by-effect precedence in Detector/Verifier prompts | [ ] | M | TASK-837 |
-| TASK-844 | dt-taxonomy-v6 | zh 的/地/得 rule in zh prompts | [ ] | S | TASK-843 |
-| TASK-845 | dt-taxonomy-v6 | explanation_variant: grader output + deterministic resolver | [ ] | L | TASK-838, TASK-841, TASK-842 |
-| TASK-846 | dt-taxonomy-v6 | Variant-aware Rule templates + explainer context | [ ] | S | TASK-845 |
-| TASK-847 | dt-taxonomy-v6 | Promote v6 overlay into v6 gold/silver fixtures + seed helper | [ ] | M | TASK-837 |
-| TASK-848 | dt-taxonomy-v6 | Add narrow wrong_sense gold items (coverage gap) | [ ] | S | TASK-847 |
-| TASK-849 | dt-taxonomy-v6 | Eval harness: `--taxonomy-file`, `--fixture-set`, v6 metrics | [ ] | M | TASK-841, TASK-847 |
-| TASK-850 | dt-taxonomy-v6 | Acceptance gate: v6 vs same-day v5 control | [ ] | M | TASK-843, TASK-844, TASK-846, TASK-849 |
-| TASK-851 | dt-taxonomy-v6 | Nightly synthesis + cards v6-aware (mixed-version windows) | [ ] | M | TASK-841, TASK-842 |
-| TASK-852 | dt-taxonomy-v6 | Re-key profile history + cards to v6 (snapshot + rollback) | [ ] | M | TASK-836, TASK-842, TASK-851 |
-| TASK-853 | dt-taxonomy-v6 | Cutover: activate v6 (runbook, activation + rollback SQL) | [?] | S | TASK-850, TASK-852; ADR-031 acceptance; operator approval |
-| TASK-854 | dt-taxonomy-v6 | Post-cutover verification (1 week) | [ ] | S | TASK-853 |
+| TASK-838 | dt-taxonomy-v6 | Author v6 glosses, Rule templates, word_choice variant templates (AI draft) | [x] (EN user review pending) | L | TASK-837 |
+| TASK-841 | dt-taxonomy-v6 | Taxonomy version pin (`DT_TAXONOMY_VERSION`) + grader-side v5 alias for rubric exemplars | [x] | S | TASK-837 |
+| TASK-846 | dt-taxonomy-v6 | Variant-aware Rule templates + explainer context | [x] | S | TASK-845 |
+| TASK-853 | dt-taxonomy-v6 | Cutover: activate v6 + run history rewrite (runbook, activation/rollback SQL) | [?] | S | TASK-850, TASK-851, TASK-852; ADR-031 acceptance; operator approval |
+| TASK-854 | dt-taxonomy-v6 | Post-cutover verification (1 week) + snapshot retirement | [ ] | S | TASK-853 |
 | TASK-855 | dt-taxonomy-v6 | (Optional) jev bucket question flow for DT grading | [?] | XL | TASK-853; jev porting of `pending` buckets; new ADR |
+| TASK-862 | dt-taxonomy-v6 | Bug: `_decode_error` drops errors with an invalid `category` index (derive from subtype) | [x] (local; not deployed) | S | none |
 
 ### Language Packs (existing — unchanged)
 

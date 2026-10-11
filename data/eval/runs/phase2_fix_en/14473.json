@@ -1,0 +1,950 @@
+{
+  "sense_id": 14473,
+  "language_id": 2,
+  "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+  "started_at": "2026-10-03T01:14:14.927108+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "Expected at least 2 morphological_forms, got 1"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.30859375,
+    "p1_generate": 3.1851682662963867,
+    "tier_gate": 0.0,
+    "p1_judge": 1.6568710803985596,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "Expected at least 2 morphological_forms, got 1"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈoʊvər taɪm/",
+        "morphological_forms": [
+          {
+            "form": "over time",
+            "label": "base form"
+          }
+        ],
+        "pronunciation": "oh-ver tahym",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14473
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a9e1da4b-fd02-40cb-b27b-bee460d806cb",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "over time",
+        "pronunciation": "oh-ver tahym",
+        "correct_definition": "Gradually, as time goes by.",
+        "options": [
+          "Gradually, as time goes by.",
+          "Having a hard, crisp outer layer, especially of bread.",
+          "A dark area or shape that is made when something blocks light.",
+          "A person who pays taxes to the government."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "af8d0126-0698-44dd-9de0-5f5216bbcbce",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Over time, it got better.",
+        "original_sentence": "Over time, it got better.",
+        "correct_answer": "Over time, it got better.",
+        "options": [
+          "Over time, it got better.",
+          "Suddenly, it got better.",
+          "Yesterday, it got better.",
+          "Quickly, it got better."
+        ],
+        "explanation": "Correct. 'Over time' fits the context of gradual improvement.",
+        "distractor_tags": {},
+        "word_definition": "Gradually, as time goes by.",
+        "target_word": "over time"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "88246c35-3d27-46ba-b503-9a1e74a8af9d",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "We realized the truth over time yesterday.",
+            "is_correct": false
+          },
+          {
+            "text": "We realized the truth over time instantly.",
+            "is_correct": false
+          },
+          {
+            "text": "We realized the truth over time.",
+            "is_correct": true
+          },
+          {
+            "text": "We realized the truth over time at 5 PM.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Incorrect. 'Over time' implies a duration, which conflicts with the specific point-in-time marker 'yesterday'. Incorrect. 'Instantly' contradicts the gradual nature of 'over time'. Incorrect. 'At 5 PM' specifies a precise moment, incompatible with the extended period implied by 'over time'.",
+        "target_word": "over time"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "5541dbe8-b200-4590-b2e2-73f10e3bf5af",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Over time, the situation improve.",
+            "is_correct": false,
+            "error_description": "structural"
+          },
+          {
+            "text": "Over time, it got better.",
+            "is_correct": true
+          },
+          {
+            "text": "Things can change a lot over time.",
+            "is_correct": true
+          },
+          {
+            "text": "Her confidence has grown over time.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "8b58f1da-75d3-44fd-b1f0-bcabed8d2fb0",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "His feelings about the movie shifted over time."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "68ad27d6-5e65-4fe0-9575-fdd4bfce9a22",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "over time",
+        "pronunciation": "oh-ver tahym",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "A place where children go to learn.",
+              "Not the same as another or each other; unlike.",
+              "Gradually, as time goes by.",
+              "A place where old papers and things are kept."
+            ],
+            "correct_answer": "Gradually, as time goes by."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "58bc17c3-ac3c-4788-8adb-952cb520116d",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Her confidence has grown ___.",
+        "original_sentence": "Her confidence has grown over time.",
+        "target_word": "over time",
+        "word": "over time",
+        "answer": {
+          "accepted": [
+            "over time"
+          ],
+          "accepted_normalized": [
+            "over time"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "b0507d3a-2d61-4be1-a28c-41c4934f8067",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "His feelings about the movie shifted over time.",
+        "chunks": [
+          "His feelings about the movie",
+          "shifted",
+          "over time"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "shifted",
+          "His feelings about the movie",
+          "over time"
+        ],
+        "target_word": "over time",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "0106db18-b9aa-4d61-add7-e5b5ba4ee97a",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Languages evolve and develop new words over time.",
+            "is_correct": true
+          },
+          {
+            "text": "Languages evolve and develop new words over time right now.",
+            "is_correct": false
+          },
+          {
+            "text": "Languages evolve and develop new words over time in one second.",
+            "is_correct": false
+          },
+          {
+            "text": "Languages evolve and develop new words over time at midnight.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Incorrect. 'Right now' indicates the present moment, conflicting with the extended duration of 'over time'. Incorrect. 'In one second' is too short a duration for the gradual process implied by 'over time'. Incorrect. 'At midnight' is a specific point in time, not a period.",
+        "target_word": "over time"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "6ec248e8-56bf-4e82-b82c-2aad29947c71",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "We realized the truth over time."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "fd2b60dd-75e7-4ba8-97dc-f636a11f2a20",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The heavy rain eroded the soil ___.",
+        "original_sentence": "The heavy rain eroded the soil over time.",
+        "target_word": "over time",
+        "word": "over time",
+        "answer": {
+          "accepted": [
+            "over time"
+          ],
+          "accepted_normalized": [
+            "over time"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "595b739c-571b-4150-bf3a-bc4833771b13",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "We realized the truth over time.",
+        "chunks": [
+          "We realized",
+          "the truth",
+          "over time"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "the truth",
+          "over time",
+          "We realized"
+        ],
+        "target_word": "over time",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14473,
+      "word_asset_id": "shadow-14473-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 7
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0019836,
+      "prompt_tokens": 1912,
+      "completion_tokens": 564,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 2991
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000615,
+      "prompt_tokens": 600,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1563
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00474336,
+      "prompt_tokens": 2095,
+      "completion_tokens": 3182,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 55744
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003702,
+      "prompt_tokens": 459,
+      "completion_tokens": 93,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1254
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001694,
+      "prompt_tokens": 348,
+      "completion_tokens": 26,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1141
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003811,
+      "prompt_tokens": 462,
+      "completion_tokens": 97,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1279
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001703,
+      "prompt_tokens": 351,
+      "completion_tokens": 26,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1010
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003487,
+      "prompt_tokens": 404,
+      "completion_tokens": 91,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1250
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003939,
+      "prompt_tokens": 413,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1307
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003242,
+      "prompt_tokens": 414,
+      "completion_tokens": 80,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1321
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003042,
+      "prompt_tokens": 414,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1358
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004308,
+      "prompt_tokens": 511,
+      "completion_tokens": 111,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1407
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002733,
+      "prompt_tokens": 511,
+      "completion_tokens": 48,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14473,
+      "generation_batch_id": "146695b3-1891-40b4-83e3-230f99ad8e85",
+      "language_code": "en",
+      "latency_ms": 1051
+    }
+  ],
+  "llm_calls_observed": 13,
+  "llm_cost_observed_usd": 0.01050806,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 87.40700000000652,
+  "finished_at": "2026-10-03T01:15:42.334875+00:00"
+}

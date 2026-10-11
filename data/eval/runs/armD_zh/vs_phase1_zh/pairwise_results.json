@@ -1,0 +1,658 @@
+{
+  "total_pairs_in_key": 76,
+  "total_judged": 76,
+  "unmatched_verdicts": [],
+  "missing_verdicts": [],
+  "candidate_wins": 3,
+  "reference_wins": 10,
+  "ties": 63,
+  "win_rate_pct": 3.95,
+  "loss_rate_pct": 13.16,
+  "tie_rate_pct": 82.89,
+  "major_defect_rate_candidate": 14.47,
+  "major_defect_rate_reference": 7.89,
+  "per_sense": [
+    {
+      "sense_id": "10103",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Same word and distractor set (糟/凿/灶 by tone), both valid audio-confusable tone distractors, just reordered."
+    },
+    {
+      "sense_id": "10103",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both cloze sentences are natural with exactly one defensible answer."
+    },
+    {
+      "sense_id": "10103",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A gives one correct antonym-match item; B gives two correct grammar-discrimination items; quantity difference is cosmetic and no defects found on either side."
+    },
+    {
+      "sense_id": "10103",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both spot-the-error sets are natural with a single clearly identifiable error."
+    },
+    {
+      "sense_id": "10104",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Identical distractor set (边/编/扁) just reordered; 边/编 are mutual homophones but neither matches the target's tone so no target-homophone violation."
+    },
+    {
+      "sense_id": "10104",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A offers three correct items (discrimination x2 + antonym-match), B offers one correct antonym-match item; no defects on either, quantity difference is cosmetic."
+    },
+    {
+      "sense_id": "10104",
+      "level": 7,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "unnatural collocation (\"随叫便到\" deviates from fixed idiom 随叫随到, marked is_correct:true)"
+      ],
+      "major_defects_reference": [],
+      "notes": "B's first sentence substitutes into a fixed idiom in a way a native speaker would not say, risking teaching a wrong collocation as valid."
+    },
+    {
+      "sense_id": "10106",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Identical distractor set (笔/鼻/逼) just reordered, all valid tone-confusable distractors."
+    },
+    {
+      "sense_id": "10106",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "compound-word anchoring (blank only completes the two-character word 毕业, testing the compound rather than standalone 毕)"
+      ],
+      "major_defects_reference": [
+        "also-correct distractor (停/散 are plausible alternative completions for \"已___\")"
+      ],
+      "notes": "Each side carries one major defect of comparable severity."
+    },
+    {
+      "sense_id": "10106",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A gives one correct resultative-complement item; B gives three correct items (discrimination x2 + antonym-match); no defects found, quantity difference cosmetic."
+    },
+    {
+      "sense_id": "10106",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets use 毕 correctly in literary resultative constructions (看毕/画毕/已毕/完毕) with a single clear error each."
+    },
+    {
+      "sense_id": "10107",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A gives one correct discrimination item; B gives a discrimination item plus a clean antonym-match (模仿) and a second discrimination item; no defects either side, quantity cosmetic."
+    },
+    {
+      "sense_id": "10107",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets are natural with single clear errors; same canonical example sentence (毕昇首创泥活字) reused on both sides."
+    },
+    {
+      "sense_id": "10110",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A's distractor set (克/客) contains a mutual homophone pair (both kè) which is slightly redundant; B's distractors (科/客/壳) cover three distinct tones with no redundancy; neither contains a homophone of the target so no major L1 defect."
+    },
+    {
+      "sense_id": "10110",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A's first item blanks only the initial 可 while a second 可 remains visible later in the same sentence (可去可不去), making the answer easy to infer by parallelism; not a correctness defect but a design weakness. B's two cloze items are clean."
+    },
+    {
+      "sense_id": "10110",
+      "level": 6,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "compound-word anchoring (sentences use bisyllabic 可以 throughout, not the standalone monosyllabic 可 sense being tested)"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's discrimination set never uses bare 可 on its own, so it is really testing 可以 rather than the target literary sense; B correctly uses standalone 可 (可直接喝)."
+    },
+    {
+      "sense_id": "10110",
+      "level": 7,
+      "outcome": "reference_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A's sentences consistently and naturally use bare 可; B includes two oddly technical/AI-themed filler sentences that are grammatical but stylistically out of place for a vocabulary exercise, and reuses a 可以-based (not bare 可) sentence as a positive example."
+    },
+    {
+      "sense_id": "10111",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [
+        "also-correct distractor (重演/重现 both plausible for \"这种错误我们不能再___了\")"
+      ],
+      "major_defects_reference": [
+        "also-correct distractor (复杂 also fits \"我不喜欢这种___的游戏\" as well as 重复)"
+      ],
+      "notes": "Each side has one cloze item where a non-target option is an equally natural fit."
+    },
+    {
+      "sense_id": "10111",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 重复 with clean antonym-match and discrimination items; A has one more item (antonym-match), a cosmetic quantity difference."
+    },
+    {
+      "sense_id": "10111",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error items are natural with a single clear error; A has two item sets vs B's one, a cosmetic quantity difference."
+    },
+    {
+      "sense_id": "10112",
+      "level": 3,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "unnatural/inconsistent grammar in template sentence (\"他正排版着校刊封面\" attaches 着 after the whole V-O word; this pack's own level-6 content treats 排版 as a separable word requiring 排着版, so this 'correct' example contradicts that rule)"
+      ],
+      "notes": "A's second cloze sentence embeds a questionable aspect-marker placement as the 'correct' template; B's single item is clean."
+    },
+    {
+      "sense_id": "10112",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 排版 (antonym 打乱, discrimination items); B additionally and correctly tests the 排着版 separable-verb rule."
+    },
+    {
+      "sense_id": "10112",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both single spot-the-error items are natural with one clear defect and otherwise standalone correct uses of 排版."
+    },
+    {
+      "sense_id": "10113",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A gives one clean discrimination item; B gives two antonym-match items (末流, with synonym-trap 滥觞 correctly excluded) plus a discrimination item; no defects, quantity cosmetic."
+    },
+    {
+      "sense_id": "10113",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets are natural with single clear errors; A has two item sets vs B's one, cosmetic."
+    },
+    {
+      "sense_id": "10117",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly use 微小 as antonym of 庞大 and/or clean discrimination items; no defects found."
+    },
+    {
+      "sense_id": "10117",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both single spot-the-error items are natural with the same error type (misplaced 十分) and standalone correct uses of 庞大."
+    },
+    {
+      "sense_id": "10119",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A gives three clean items (discrimination x2 + antonym 个人); B gives one clean antonym item using a different valid pairing (自然); no defects, quantity cosmetic."
+    },
+    {
+      "sense_id": "10119",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets are natural with single clear errors; heavy reuse of the same abstract source sentences across both sides."
+    },
+    {
+      "sense_id": "10125",
+      "level": 6,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "mislabeled sentence (\"两人真正能建立感情\" is marked incorrect, but 真正能+V is a standard, grammatical Mandarin word order, not clearly an error)"
+      ],
+      "notes": "B's second discrimination item appears to wrongly mark a grammatical sentence as an error, which could unfairly penalize a learner."
+    },
+    {
+      "sense_id": "10125",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets are natural with a single clear aspect-marker or word-order error."
+    },
+    {
+      "sense_id": "10131",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A gives two clean discrimination items; B gives one clean discrimination item; no defects, quantity cosmetic."
+    },
+    {
+      "sense_id": "10131",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets are natural with clear single errors (misplaced 在-phrase, reduplicated 个个 measure word)."
+    },
+    {
+      "sense_id": "10137",
+      "level": 3,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "also-correct distractor (\"同学们很喜欢___这种手工\" gives no context that disambiguates 压印 from 描绘/雕刻/编织, which would all fit equally well)"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's second cloze sentence is too generic to uniquely pick out 压印; B's two cloze sentences both have enough specific context (螺旋装置, 好看的图案) to narrow to one answer."
+    },
+    {
+      "sense_id": "10137",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly use near-synonym traps (拓印/按压/压制) in antonym-match and clean discrimination items for 压印; no defects."
+    },
+    {
+      "sense_id": "10137",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets are natural with clear single errors; B additionally catches a measure-word error (本 vs 张) for 贺卡."
+    },
+    {
+      "sense_id": "10156",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly use near-synonym traps (史无前例/闻所未闻/绝无仅有/昙花一现) in antonym-match items; B's 平淡无奇 distractor is a softer, debatable alternative to 司空见惯 but not clearly also-correct; no major defects."
+    },
+    {
+      "sense_id": "10156",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets are natural, testing different valid grammar points (了-misuse vs 地/的 confusion)."
+    },
+    {
+      "sense_id": "10300",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Identical distractor set (厂/昌/唱) just reordered, all valid tone-confusable distractors."
+    },
+    {
+      "sense_id": "10300",
+      "level": 3,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "compound-word anchoring (sole item blanks the fixed proper noun 长城, not a standalone use of 长)"
+      ],
+      "major_defects_reference": [
+        "compound-word anchoring (first item shares the same 长城 blank as A)"
+      ],
+      "notes": "A's only cloze item tests the proper noun 长城 rather than the standalone adjective sense; B shares that same item but adds a second cloze that correctly anchors the standalone duration sense (讲得很长), giving broader coverage despite a softer also-correct risk with 深 there."
+    },
+    {
+      "sense_id": "10300",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets are natural with clear single errors and good standalone uses of 长."
+    },
+    {
+      "sense_id": "10353",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Each side's distractor set contains one mutual-homophone pair (A: 栽/灾 both zāi; B: 宰/崽 both zǎi), a minor redundancy but neither matches the target's tone so no major L1 defect."
+    },
+    {
+      "sense_id": "10353",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A's antonym item pairing 再 with 已 is a more literary/classical reading (已 as \"cease\") than B's transparent 不再; A also includes a second, cleaner antonym item (不再) plus a clean discrimination item; B offers one clean discrimination item; no clear major defects, quantity cosmetic."
+    },
+    {
+      "sense_id": "10353",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both single spot-the-error items are natural with a single clear word-order error."
+    },
+    {
+      "sense_id": "10382",
+      "level": 6,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "target-word anchoring failure (one discrimination item varies only the separable verb 见面's aspect marking across all four options; 不同 is held fixed and never actually tested)"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's first discrimination item is really testing 见面, not 不同; B's items keep 不同 as the varying, tested element throughout."
+    },
+    {
+      "sense_id": "10382",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error items correctly test 不同's modifier position and are natural."
+    },
+    {
+      "sense_id": "10525",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets correctly test 愈发's position relative to 得-complements and subjects, with single clear errors."
+    },
+    {
+      "sense_id": "10553",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides use non-ambiguous frequency-unrelated distractors (突发/爆发/并发/连发) for the 偶发 antonym and have clean discrimination items; no defects, quantity cosmetic."
+    },
+    {
+      "sense_id": "10553",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both single spot-the-error items are natural with a single clear error and well-anchored standalone uses of 频发."
+    },
+    {
+      "sense_id": "10803",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly anchor to 将's syntactic position (relative to 能, aspect markers, and fronted objects) with clear single errors per item."
+    },
+    {
+      "sense_id": "10803",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides' spot-the-error sets correctly test 将's object-fronting position with natural standalone uses; A has two item sets vs B's one, cosmetic."
+    },
+    {
+      "sense_id": "11315",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 拮抗剂's measure-word and modifier-position behavior with clean, well-anchored items."
+    },
+    {
+      "sense_id": "11315",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly flag measure-word and aspect-marker errors for 拮抗剂 with natural standalone correct examples."
+    },
+    {
+      "sense_id": "11319",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both use the same source sentence with distinct, non-plausible distractors; single defensible answer on both sides."
+    },
+    {
+      "sense_id": "11319",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides use non-ambiguous distractors (speed/duration axis: 速效/长效/缓效, vs strength axis 弱效) and clean discrimination items; A has one more item, cosmetic."
+    },
+    {
+      "sense_id": "11531",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A reuses the shared compost sentence; B reuses it too plus adds a second, well-anchored cloze in a different context (布条); no defects, B's extra coverage is cosmetic."
+    },
+    {
+      "sense_id": "11531",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A gives a clean discrimination item plus a clean antonym-match (完整, with synonym-traps 琐碎/细微 correctly excluded); B gives one clean discrimination item; no defects, quantity cosmetic."
+    },
+    {
+      "sense_id": "11531",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly flag a measure-word error and give natural standalone uses of 细碎 across different contexts."
+    },
+    {
+      "sense_id": "12012",
+      "level": 6,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "mislabeled sentence (\"双方都不肯退让一步，谈判桌上剑拔弩张\" is marked incorrect for clause-ordering/narrative-logic reasons, but both clause orders are grammatically valid Mandarin)"
+      ],
+      "major_defects_reference": [],
+      "notes": "B's discrimination item treats a pragmatic/narrative-order preference as a hard grammar error, which could unfairly mark a learner wrong; A's two discrimination items are both clean."
+    },
+    {
+      "sense_id": "12012",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 剑拔弩张's syntactic restrictions (aspect markers, 把-sentence predicate) with natural standalone uses."
+    },
+    {
+      "sense_id": "19859",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both distractor sets (摇/妖/咬 vs 摇/腰/咬) cover three distinct tones with no redundancy and no target-homophones."
+    },
+    {
+      "sense_id": "19859",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A gives one clean cloze item; B gives two clean cloze items in different contexts; no defects, quantity cosmetic."
+    },
+    {
+      "sense_id": "19859",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both single spot-the-error items are natural with a single clear error (time-adverb placement vs measure word)."
+    },
+    {
+      "sense_id": "19860",
+      "level": 1,
+      "outcome": "candidate_win",
+      "major_defects_candidate": [],
+      "major_defects_reference": [
+        "factually incorrect distractor pronunciation (栾 is stated as luān/1st tone, but it is actually luán/2nd tone)"
+      ],
+      "notes": "A and B use the same distractor set (峦/卵/栾); B's explanation for 栾 states the wrong tone, teaching incorrect phonetic information even though the correct answer itself is unaffected."
+    },
+    {
+      "sense_id": "19860",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A's second antonym item (已经) is weaker than its own first item's 就, since 马上 (a near-synonym of 就, A's own established antonym) looks like a plausible alternative pick; B's two discrimination sets are clean; not flagged as major since 已经 remains the more conventionally taught answer, but notably softer."
+    },
+    {
+      "sense_id": "19860",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 乱's position as a 把-sentence result complement with natural standalone uses."
+    },
+    {
+      "sense_id": "19867",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Identical distractor set (菜/采/猜) just reordered, all valid tone-confusable distractors."
+    },
+    {
+      "sense_id": "19867",
+      "level": 6,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "also-correct distractor risk (马上 \"immediately/soon\" is a near-synonym of 就, A's own established antonym of 才 in its first item, making it a plausible alternative to the designated answer 已经)"
+      ],
+      "major_defects_reference": [],
+      "notes": "A's second antonym item risks ambiguity given its first item's own antonym choice; B's two discrimination items are clean and well-anchored."
+    },
+    {
+      "sense_id": "19867",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 才's position relative to time adverbials with a single clear error each."
+    },
+    {
+      "sense_id": "19870",
+      "level": 1,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "A's distractor set (耶/爷/夜) has three distinct tones; B's (爷/叶/夜) has a minor mutual-homophone pair (叶/夜 both yè), neither matching the target, so no major L1 defect."
+    },
+    {
+      "sense_id": "19870",
+      "level": 3,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both single cloze items have a single defensible answer with non-plausible distractors."
+    },
+    {
+      "sense_id": "19870",
+      "level": 6,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 也's position and the 连...也... construction with clean items; A adds a clean antonym-match (只); no defects, quantity cosmetic."
+    },
+    {
+      "sense_id": "19870",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 也's required post-subject position with natural standalone uses."
+    },
+    {
+      "sense_id": "19882",
+      "level": 3,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "also-correct distractor (聪明 \"smart\" is just as plausible as 诚实 for \"说清楚，才能让别人觉得你很___\", since speaking clearly can equally suggest intelligence)"
+      ],
+      "major_defects_reference": [],
+      "notes": "B's first cloze item lacks enough context to rule out 聪明; its second item and A's single item are both well-constrained."
+    },
+    {
+      "sense_id": "19882",
+      "level": 6,
+      "outcome": "reference_win",
+      "major_defects_candidate": [
+        "mislabeled sentence (\"朋友之间最重要的是很诚实\" is marked incorrect even though the explanation itself concedes it is grammatically valid, just less idiomatic)"
+      ],
+      "major_defects_reference": [],
+      "notes": "B's first discrimination item treats a pragmatic style preference as a hard error, risking unfairly marking a learner wrong; A's items are all clean."
+    },
+    {
+      "sense_id": "19882",
+      "level": 7,
+      "outcome": "tie",
+      "major_defects_candidate": [],
+      "major_defects_reference": [],
+      "notes": "Both sides correctly test 诚实's aspect-marker restrictions (了 vs 地) with natural standalone uses, including abstract-noun usage."
+    }
+  ]
+}

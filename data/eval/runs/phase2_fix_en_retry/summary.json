@@ -1,0 +1,330 @@
+{
+  "batch_id": "20eab014-cfb8-432c-94c6-3024acfde913",
+  "requested_senses": 2,
+  "attempted_senses": 2,
+  "status_counts": {
+    "success": 2
+  },
+  "run_wall_clock_s": 220.0,
+  "per_sense_wall_clock_s": {
+    "13902": 124.01500000001397,
+    "15328": 94.90700000000652
+  },
+  "assets_per_sense": {
+    "13902": 7,
+    "15328": 7
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_A": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_B": {
+      "valid": 2,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "13902": {
+      "total": 18,
+      "by_type": {
+        "definition_match": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "collocation_repair": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "word_family": 2,
+        "cloze_completion": 1
+      },
+      "by_level": {
+        "2": 2,
+        "4": 6,
+        "6": 2,
+        "7": 1,
+        "8": 2,
+        "9": 4,
+        "3": 1
+      }
+    },
+    "15328": {
+      "total": 11,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "spot_incorrect_sentence": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "9": 4,
+        "4": 2,
+        "7": 1
+      }
+    }
+  },
+  "judge_reject_counts": {
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 2,
+      "kept": 8
+    },
+    "collocation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 2
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "cost_usd_total_observed": 0.028029,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 40,
+  "llm_calls_cost_breakdown": [
+    {
+      "task_name": "vocab_bundle_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 2,
+      "total_cost_usd": 0.0108528,
+      "avg_cost_usd": 0.0054264
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 2,
+      "total_cost_usd": 0.003836,
+      "avg_cost_usd": 0.001918
+    },
+    {
+      "task_name": "judge_ladder_sentence_validity",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 8,
+      "total_cost_usd": 0.0023457000000000005,
+      "avg_cost_usd": 0.00029321250000000006
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 4,
+      "total_cost_usd": 0.00204064,
+      "avg_cost_usd": 0.00051016
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0019744,
+      "avg_cost_usd": 0.0004936
+    },
+    {
+      "task_name": "cloze_distractor_judge",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0016283,
+      "avg_cost_usd": 0.000407075
+    },
+    {
+      "task_name": "judge_ladder_relation",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0014347,
+      "avg_cost_usd": 0.000358675
+    },
+    {
+      "task_name": "judge_ladder_l1_distractor",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 4,
+      "total_cost_usd": 0.0013681,
+      "avg_cost_usd": 0.000342025
+    },
+    {
+      "task_name": "ladder_l4_morphology_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 2,
+      "total_cost_usd": 0.0009184,
+      "avg_cost_usd": 0.0004592
+    },
+    {
+      "task_name": "judge_ladder_word_family",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 2,
+      "total_cost_usd": 0.0008981,
+      "avg_cost_usd": 0.00044905
+    },
+    {
+      "task_name": "judge_ladder_collocation",
+      "call_role": "primary",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 2,
+      "total_cost_usd": 0.0003906,
+      "avg_cost_usd": 0.0001953
+    },
+    {
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "call_role": "repair",
+      "model": "google/gemini-3.5-flash-lite",
+      "calls": 2,
+      "total_cost_usd": 0.0003398,
+      "avg_cost_usd": 0.0001699
+    }
+  ],
+  "unattributed_writes_count": 2,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14561
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            15630
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = '20eab014-cfb8-432c-94c6-3024acfde913'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n",
+  "model_overrides_applied": [
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    },
+    {
+      "task_name": "ladder_syn_ant_generation",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    },
+    {
+      "task_name": "ladder_word_family_generation",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    },
+    {
+      "task_name": "ladder_l4_morphology_generation",
+      "language": "en",
+      "model": "qwen/qwen3.7-plus"
+    }
+  ],
+  "prompt_overrides_applied": [
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "zh",
+      "language_id": 1,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "ja",
+      "language_id": 3,
+      "version": 3,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "en",
+      "language_id": 2,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "zh",
+      "language_id": 1,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "ja",
+      "language_id": 3,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "en",
+      "language_id": 2,
+      "version": 1,
+      "model": "google/gemini-3.5-flash-lite",
+      "provider": "openrouter"
+    }
+  ],
+  "prompt_override_file": "migrations/exercise_gen_bundle_prompts_draft.sql",
+  "senses_from": null
+}

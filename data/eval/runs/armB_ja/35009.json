@@ -1,0 +1,764 @@
+{
+  "sense_id": 35009,
+  "language_id": 3,
+  "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+  "started_at": "2026-10-04T04:26:56.518085+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[4] flagged (rating 3): 語域：不自然な敬称"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.605910062789917,
+    "p1_generate": 14.910958766937256,
+    "tier_gate": 0.0,
+    "p1_judge": 8.097495555877686,
+    "collocate_grounding": 0.0,
+    "fan_out": 23.367734909057617
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[4] flagged (rating 3): 語域：不自然な敬称"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "sama",
+        "pronunciation": "さま",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35009
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "5e8ff13c-8aca-46bb-925c-e263999dd97b",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "様",
+        "pronunciation": "さま",
+        "ipa": "sama",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "様",
+          "サス",
+          "さす",
+          "サー"
+        ],
+        "correct_answer": "様",
+        "explanation": "正解です。「様」は「「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。」という意味です。",
+        "distractor_explanations": {
+          "サス": "「サス」は「様」と一モーラだけ異なる実在語です（2モーラ目: 「ま」→「す」、一部の音の違い）。",
+          "サー": "「サー」は「様」と一モーラだけ異なる実在語です（2モーラ目: 「ま」→「ー」、長音（のばす音）の有無）。",
+          "さす": "「さす」は「様」と一モーラだけ異なる実在語です（2モーラ目: 「ま」→「す」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 7,
+          "kept": 3,
+          "rejected_items": [
+            "指し",
+            "檫",
+            "避く",
+            "篷",
+            "最",
+            "ロマ",
+            "鷺"
+          ],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "e64489ba-28f5-4d3c-ae1f-a5a6eb13e8ff",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よう",
+        "pronunciation": "さま",
+        "correct_definition": "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。",
+        "options": [
+          "物の量や大きさを数字で表したもの。",
+          "田舎の小さな集落。市町村より小さい地域社会。",
+          "インターネットを通じて、多くのプレイヤーが同時に参加し、それぞれの役割を演じながら進めるゲーム。",
+          "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "53ab3e0c-4c3d-40d5-8a70-57ce17c259cd",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "田中様は、本日の会議に出席されようか。",
+            "is_correct": false,
+            "error_description": "尊敬語の誤りです。相手（田中様）の動作を高める場合は、動詞の連用形＋「ます」または「～られる」を用います。「よう」は意志や推量を表す助動詞であり、ここでの丁寧な質問文としては不適切です。"
+          },
+          {
+            "text": "田中様は、本日の会議に出席されますか。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "34f3419b-c66c-4ea3-80ad-5e006924154a",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "よう",
+        "pronunciation": "さま",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "たくさんの木が集まっているところ。",
+              "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。",
+              "人の口から発せられる言葉。また、その表現。",
+              "グローバリズムとは、経済や文化など、国境を越えて世界全体がひとつに統合されていく考え方や動きのことです。"
+            ],
+            "correct_answer": "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "266c9c77-f278-4755-a9ef-6037fa358def",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "様",
+        "options": [
+          "さま",
+          "さまあ",
+          "ざま",
+          "さあま"
+        ],
+        "correct_answer": "さま",
+        "word": "様",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "4e233217-cd04-4bba-b838-106006492aa5",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "さま",
+        "options": [
+          "差",
+          "美",
+          "線",
+          "様"
+        ],
+        "correct_answer": "様",
+        "word": "様",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "線": "component",
+          "美": "component",
+          "差": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "eb829e6e-3228-449b-84ed-148b95690707",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "鈴木___はもうお帰りになりましたか。",
+        "original_sentence": "鈴木様はもうお帰りになりましたか。",
+        "correct_answer": "様",
+        "options": [
+          "さん",
+          "殿",
+          "君",
+          "様"
+        ],
+        "explanation": "正解です。文脈「鈴木様はもうお帰りになりましたか」では、相手への敬意を示すために「様」を使います。",
+        "distractor_tags": {},
+        "word_definition": "「様（さま）」は、相手を敬って呼ぶときの接尾語です。「お客様」のように使います。",
+        "target_word": "様"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "6df5cfc7-4e7f-4778-9dcb-79d672a1a2d9",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "高橋様はメールを今読まれました。",
+            "is_correct": false
+          },
+          {
+            "text": "高橋様的メールを今読みました。",
+            "is_correct": false
+          },
+          {
+            "text": "高橋様へメールを今読みました。",
+            "is_correct": false
+          },
+          {
+            "text": "高橋様からのメールを今読みました。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "助詞の混同：「読む」という行為の対象を示す助詞は「を」です。「へ」は方向や相手を示すため、この文では意味が通りません。「高橋様からのメール」または「高橋様宛てのメール」を読む、とする必要があります。 活用・アスペクトの誤り：尊敬語「読まれる」を使う場合、主語が高橋様であることは正しいですが、元の文「高橋様からのメールを今読みました」は「私が高橋様からのメールを読んだ」という意味です。この誤り文は「高橋様がメールを読んだ」という意味になり、主体が変わってしまいます。文脈（私が受信したことを報告する）と合いません。 語域・形態の誤り：「様」は接尾辞であり、名詞に直接付いて複合名詞を作る際に「〜的」のような形容動詞的な接続はしません。「高橋様風」や「高橋様宛て」などはありえますが、「高橋様的」は造語的で不自然です。",
+        "target_word": "様"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "高橋様のメールを今読みました。"
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35009,
+      "word_asset_id": "shadow-35009-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 7,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 1,
+      "kept": 4
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186816,
+      "prompt_tokens": 2706,
+      "completion_tokens": 783,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 14738
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00046816,
+      "prompt_tokens": 771,
+      "completion_tokens": 173,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3964
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00016,
+      "prompt_tokens": 276,
+      "completion_tokens": 56,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2011
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00026656,
+      "prompt_tokens": 653,
+      "completion_tokens": 45,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1876
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00068384,
+      "prompt_tokens": 1597,
+      "completion_tokens": 135,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 3644
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00070912,
+      "prompt_tokens": 1596,
+      "completion_tokens": 155,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4241
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174304,
+      "prompt_tokens": 2675,
+      "completion_tokens": 693,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 12919
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00250336,
+      "prompt_tokens": 2675,
+      "completion_tokens": 1287,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 23165
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00055104,
+      "prompt_tokens": 818,
+      "completion_tokens": 226,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4863
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0002832,
+      "prompt_tokens": 637,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2027
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00020736,
+      "prompt_tokens": 552,
+      "completion_tokens": 24,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1398
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00054528,
+      "prompt_tokens": 816,
+      "completion_tokens": 222,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 4687
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00040992,
+      "prompt_tokens": 945,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 2383
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00020384,
+      "prompt_tokens": 565,
+      "completion_tokens": 18,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35009,
+      "generation_batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+      "language_code": "ja",
+      "latency_ms": 1317
+    }
+  ],
+  "llm_calls_observed": 14,
+  "llm_cost_observed_usd": 0.010602880000000002,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 64.67199999990407,
+  "finished_at": "2026-10-04T04:28:01.187934+00:00"
+}

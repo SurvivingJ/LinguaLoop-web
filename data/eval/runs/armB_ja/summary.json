@@ -1,0 +1,1189 @@
+{
+  "batch_id": "230dccfa-2b2c-465e-b850-b8e3ef5422b3",
+  "requested_senses": 30,
+  "attempted_senses": 30,
+  "status_counts": {
+    "success": 23,
+    "failed": 1,
+    "partial": 6
+  },
+  "run_wall_clock_s": 2326.4839999999385,
+  "per_sense_wall_clock_s": {
+    "34998": 71.67200000002049,
+    "34999": 56.15599999995902,
+    "35001": 59.57799999997951,
+    "35009": 64.67199999990407,
+    "35011": 95.90600000007544,
+    "35017": 62.01600000006147,
+    "35033": 35.436999999918044,
+    "35039": 82.20299999997951,
+    "35055": 63.71899999992456,
+    "35093": 66.21899999992456,
+    "35111": 102.15600000007544,
+    "35127": 85.5,
+    "35147": 67.10899999993853,
+    "35157": 99.125,
+    "35201": 68.04700000002049,
+    "35211": 70.56299999996554,
+    "35227": 62.51600000006147,
+    "35293": 115.32799999997951,
+    "35311": 109.45299999997951,
+    "35331": 53.21900000004098,
+    "35341": 86.45300000009593,
+    "35419": 61.56200000003446,
+    "35525": 56.26599999994505,
+    "35615": 75.98399999993853,
+    "36181": 113.03100000007544,
+    "36191": 68.64099999994505,
+    "38099": 105.89099999994505,
+    "39187": 100.40599999995902,
+    "39661": 81.45299999997951,
+    "53352": 81.375
+  },
+  "assets_per_sense": {
+    "34998": 7,
+    "34999": 7,
+    "35001": 7,
+    "35009": 7,
+    "35011": 7,
+    "35017": 7,
+    "35033": 0,
+    "35039": 6,
+    "35055": 7,
+    "35093": 7,
+    "35111": 7,
+    "35127": 7,
+    "35147": 7,
+    "35157": 7,
+    "35201": 7,
+    "35211": 7,
+    "35227": 7,
+    "35293": 6,
+    "35311": 7,
+    "35331": 7,
+    "35341": 7,
+    "35419": 7,
+    "35525": 7,
+    "35615": 7,
+    "36181": 7,
+    "36191": 7,
+    "38099": 5,
+    "39187": 6,
+    "39661": 6,
+    "53352": 6
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 29,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 28,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 28,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_A": {
+      "valid": 29,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 27,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 26,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_B": {
+      "valid": 29,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "34998": {
+      "total": 16,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "7": 2,
+        "9": 2,
+        "4": 3
+      }
+    },
+    "34999": {
+      "total": 9,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 1,
+        "spot_incorrect_sentence": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 1,
+        "7": 2,
+        "1": 2
+      }
+    },
+    "35001": {
+      "total": 16,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 2
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "7": 1,
+        "9": 2,
+        "4": 4
+      }
+    },
+    "35009": {
+      "total": 8,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "spot_incorrect_sentence": 1,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "cloze_completion": 1,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "7": 1,
+        "3": 1,
+        "6": 1
+      }
+    },
+    "35011": {
+      "total": 15,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "7": 2,
+        "9": 2,
+        "4": 2
+      }
+    },
+    "35017": {
+      "total": 20,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 2,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "4": 6,
+        "6": 4,
+        "7": 1,
+        "9": 2
+      }
+    },
+    "35033": {
+      "total": 0,
+      "by_type": {},
+      "by_level": {}
+    },
+    "35039": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "semantic_discrimination": 1,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 2,
+        "synonym_antonym_match": 2,
+        "phonetic_recognition": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 1,
+        "6": 3,
+        "7": 1,
+        "9": 2,
+        "1": 3,
+        "4": 2
+      }
+    },
+    "35055": {
+      "total": 14,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 2
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "6": 1,
+        "9": 2,
+        "4": 4
+      }
+    },
+    "35093": {
+      "total": 16,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "6": 4,
+        "9": 2,
+        "4": 3
+      }
+    },
+    "35111": {
+      "total": 9,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 2,
+        "reading_to_kanji": 1,
+        "particle_selection": 2
+      },
+      "by_level": {
+        "1": 2,
+        "2": 2,
+        "6": 1,
+        "9": 2,
+        "4": 2
+      }
+    },
+    "35127": {
+      "total": 12,
+      "by_type": {
+        "definition_match": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 2,
+        "reading_to_kanji": 1,
+        "synonym_antonym_match": 2,
+        "phonetic_recognition": 1,
+        "morphology_slot": 1,
+        "cloze_typed": 1
+      },
+      "by_level": {
+        "2": 2,
+        "7": 2,
+        "9": 2,
+        "1": 2,
+        "6": 2,
+        "4": 2
+      }
+    },
+    "35147": {
+      "total": 12,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "morphology_slot": 1,
+        "semantic_discrimination": 1,
+        "cloze_typed": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 1,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "6": 1
+      }
+    },
+    "35157": {
+      "total": 15,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "4": 4,
+        "6": 2,
+        "9": 2
+      }
+    },
+    "35201": {
+      "total": 17,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 3,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "4": 5,
+        "6": 3,
+        "9": 3,
+        "1": 2
+      }
+    },
+    "35211": {
+      "total": 8,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 1,
+        "spot_incorrect_sentence": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 1,
+        "7": 2
+      }
+    },
+    "35227": {
+      "total": 12,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "particle_selection": 2,
+        "synonym_antonym_match": 1,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "9": 2,
+        "4": 4,
+        "6": 2
+      }
+    },
+    "35293": {
+      "total": 7,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "spot_incorrect_sentence": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "1": 2,
+        "7": 1
+      }
+    },
+    "35311": {
+      "total": 15,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "6": 4,
+        "9": 2,
+        "4": 2
+      }
+    },
+    "35331": {
+      "total": 8,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "spot_incorrect_sentence": 1,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "7": 1
+      }
+    },
+    "35341": {
+      "total": 12,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "morphology_slot": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 1,
+        "9": 2,
+        "4": 3,
+        "1": 2
+      }
+    },
+    "35419": {
+      "total": 9,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "6": 2
+      }
+    },
+    "35525": {
+      "total": 9,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "7": 1,
+        "1": 2
+      }
+    },
+    "35615": {
+      "total": 16,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "phonetic_recognition": 1,
+        "semantic_discrimination": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "4": 4,
+        "7": 2,
+        "9": 2,
+        "1": 3,
+        "6": 1
+      }
+    },
+    "36181": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 4,
+        "9": 2,
+        "4": 2,
+        "1": 2
+      }
+    },
+    "36191": {
+      "total": 18,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 3,
+        "cloze_typed": 2,
+        "reading_to_kanji": 1,
+        "particle_selection": 1,
+        "synonym_antonym_match": 1
+      },
+      "by_level": {
+        "1": 2,
+        "2": 2,
+        "3": 2,
+        "4": 5,
+        "6": 3,
+        "7": 1,
+        "9": 3
+      }
+    },
+    "38099": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "spot_incorrect_sentence": 1,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "phonetic_recognition": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "7": 1,
+        "9": 2,
+        "4": 2,
+        "1": 3
+      }
+    },
+    "39187": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 2,
+        "spot_incorrect_sentence": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "9": 2,
+        "4": 4,
+        "1": 2,
+        "7": 1
+      }
+    },
+    "39661": {
+      "total": 14,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 1,
+        "synonym_antonym_match": 1,
+        "semantic_discrimination": 1,
+        "spot_incorrect_sentence": 1
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "9": 2,
+        "4": 3,
+        "1": 2,
+        "6": 2,
+        "7": 1
+      }
+    },
+    "53352": {
+      "total": 17,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 2,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "spot_incorrect_sentence": 1,
+        "particle_selection": 1
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "4": 5,
+        "6": 2,
+        "9": 2,
+        "7": 1
+      }
+    }
+  },
+  "judge_reject_counts": {
+    "l1_distractor": {
+      "ran": 20,
+      "rejected": 99,
+      "kept": 98
+    },
+    "cloze": {
+      "ran": 50,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 63,
+      "rejected": 15,
+      "kept": 139
+    },
+    "particle": {
+      "ran": 20,
+      "rejected": 0,
+      "kept": 60
+    },
+    "relation": {
+      "ran": 16,
+      "rejected": 0,
+      "kept": 48
+    }
+  },
+  "cost_usd_total_observed": 0.38653899999999985,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 569,
+  "llm_calls_cost_breakdown": [
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 53,
+      "total_cost_usd": 0.10774400000000002,
+      "avg_cost_usd": 0.002032905660377359
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 30,
+      "total_cost_usd": 0.064088,
+      "avg_cost_usd": 0.0021362666666666667
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 57,
+      "total_cost_usd": 0.04215424,
+      "avg_cost_usd": 0.0007395480701754386
+    },
+    {
+      "task_name": "judge_ladder_sentence_validity",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 116,
+      "total_cost_usd": 0.030583040000000002,
+      "avg_cost_usd": 0.00026364689655172417
+    },
+    {
+      "task_name": "judge_ladder_l1_distractor",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 58,
+      "total_cost_usd": 0.029994879999999998,
+      "avg_cost_usd": 0.0005171531034482758
+    },
+    {
+      "task_name": "ladder_particle_selection_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 36,
+      "total_cost_usd": 0.021305599999999997,
+      "avg_cost_usd": 0.0005918222222222222
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 47,
+      "total_cost_usd": 0.019347199999999995,
+      "avg_cost_usd": 0.00041164255319148924
+    },
+    {
+      "task_name": "ladder_syn_ant_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 40,
+      "total_cost_usd": 0.017302400000000003,
+      "avg_cost_usd": 0.0004325600000000001
+    },
+    {
+      "task_name": "ladder_l4_morphology_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 24,
+      "total_cost_usd": 0.011376959999999998,
+      "avg_cost_usd": 0.00047403999999999995
+    },
+    {
+      "task_name": "judge_ladder_relation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 40,
+      "total_cost_usd": 0.011056,
+      "avg_cost_usd": 0.0002764
+    },
+    {
+      "task_name": "vocab_prompt1_core_repair",
+      "call_role": "repair",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 5,
+      "total_cost_usd": 0.0101008,
+      "avg_cost_usd": 0.00202016
+    },
+    {
+      "task_name": "judge_ladder_particle",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 31,
+      "total_cost_usd": 0.008771519999999998,
+      "avg_cost_usd": 0.00028295225806451604
+    },
+    {
+      "task_name": "vocab_prompt2_exercises",
+      "call_role": "retry",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 4,
+      "total_cost_usd": 0.006061056,
+      "avg_cost_usd": 0.001515264
+    },
+    {
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "call_role": "repair",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 26,
+      "total_cost_usd": 0.00567136,
+      "avg_cost_usd": 0.00021812923076923078
+    },
+    {
+      "task_name": "ladder_particle_selection_generation",
+      "call_role": "retry",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 1,
+      "total_cost_usd": 0.00055936,
+      "avg_cost_usd": 0.00055936
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "retry",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 1,
+      "total_cost_usd": 0.000417856,
+      "avg_cost_usd": 0.000417856
+    }
+  ],
+  "unattributed_writes_count": 29,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20698
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20698
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20699
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20703
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20704
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20707
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20718
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20726
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20746
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20755
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20763
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20773
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20778
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20800
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20805
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            24953
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20845
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20854
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20864
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20869
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = '230dccfa-2b2c-465e-b850-b8e3ef5422b3'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n",
+  "model_overrides_applied": [],
+  "prompt_overrides_applied": [],
+  "prompt_override_file": null,
+  "senses_from": "data/eval/runs/phase1_ja",
+  "ladder_qwen_reasoning": "off"
+}

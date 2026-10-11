@@ -1,0 +1,1261 @@
+{
+  "sense_id": 10131,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T14:28:55.337579+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.20273423194885254,
+    "p1_generate": 30.49173092842102,
+    "tier_gate": 0.002966165542602539,
+    "p1_judge": 22.841604232788086,
+    "collocate_grounding": 0.0,
+    "fan_out": 30.819968461990356
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ti˥˩ tɕʰy˥˥]",
+        "morphological_forms": [
+          {
+            "form": "地區",
+            "label": "繁体"
+          },
+          {
+            "form": "个",
+            "label": "量词"
+          },
+          {
+            "form": "片",
+            "label": "量词"
+          },
+          {
+            "form": "地区性",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "dì qū",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10131
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "6d5e670b-59b1-42ba-9034-ecd6402a4d59",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "地区",
+        "pronunciation": "dì qū",
+        "ipa": "[ti˥˩ tɕʰy˥˥]",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "底区",
+          "笛曲",
+          "地区",
+          "敌区"
+        ],
+        "correct_answer": "地区",
+        "explanation": "正确。读音为 dì qū，指地球表面的某个区域。",
+        "distractor_explanations": {
+          "敌区": "声调错误。“地”读第四声 dì，而“敌”读第二声 dí。“敌区”指敌方控制的区域，与目标词意义不同。",
+          "笛曲": "声调错误。“地”为第四声 dì，“笛”为第二声 dí；“区”为第一声 qū，“曲”为第三声 qǔ。“笛曲”指笛子演奏的乐曲。",
+          "底区": "声调错误。“地”读第四声 dì，而“底”读第三声 dǐ。“底区”通常指底部区域，与目标词意义不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "地區",
+          "pronunciation": "dì qū",
+          "ipa": "[ti˥˩ tɕʰy˥˥]",
+          "syllable_count": 2,
+          "audio_url": null,
+          "options": [
+            "底區",
+            "笛曲",
+            "地區",
+            "敵區"
+          ],
+          "correct_answer": "地區",
+          "explanation": "正確。讀音為 dì qū，指地球表面的某個區域。",
+          "distractor_explanations": {
+            "敌区": "聲調錯誤。“地”讀第四聲 dì，而“敵”讀第二聲 dí。“敵區”指敵方控制的區域，與目標詞意義不同。",
+            "笛曲": "聲調錯誤。“地”為第四聲 dì，“笛”為第二聲 dí；“區”為第一聲 qū，“曲”為第三聲 qǔ。“笛曲”指笛子演奏的樂曲。",
+            "底区": "聲調錯誤。“地”讀第四聲 dì，而“底”讀第三聲 dǐ。“底區”通常指底部區域，與目標詞意義不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6a136ae5-4f2f-49a1-a423-fe2ac99233c1",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "地区",
+        "pronunciation": "dì qū",
+        "correct_definition": "指地球表面上的某个范围或区域。",
+        "options": [
+          "指地球表面上的某个范围或区域。",
+          "生活在海洋中的各种生物的总称，包括鱼、虾、贝、海藻等。",
+          "形容光线充足，天气好；也指心情愉快、没有烦恼。",
+          "指距离很远，或通过电子设备连接远处。"
+        ],
+        "hant": {
+          "word": "地區",
+          "pronunciation": "dì qū",
+          "correct_definition": "指地球表面上的某個範圍或區域。",
+          "options": [
+            "指地球表面上的某個範圍或區域。",
+            "生活在海洋中的各種生物的總稱，包括魚、蝦、貝、海藻等。",
+            "形容光線充足，天氣好；也指心情愉快、沒有煩惱。",
+            "指距離很遠，或通過電子裝置連線遠處。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "27b19a21-94cb-482d-a38b-ec258235a854",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "冬天这个地区的总是下着大雪。",
+            "is_correct": false
+          },
+          {
+            "text": "这个地区们的冬天总是下着大雪。",
+            "is_correct": false
+          },
+          {
+            "text": "这个地区的冬天总是下着大雪。",
+            "is_correct": true
+          },
+          {
+            "text": "这个地区了冬天总是下着大雪。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "量词使用错误：“地区”是表示范围的名词，不能用复数后缀“们”来修饰。 体标位置错误：动态助词“了”不能直接加在表示空间范围的名词“地区”后面。 语序错误：时间状语“冬天”应放在句首或主语之后，且“的”字结构破坏了“这个地区的冬天”这一主语的整体性。",
+        "target_word": "地区",
+        "hant": {
+          "sentences": [
+            {
+              "text": "冬天這個地區的總是下著大雪。",
+              "is_correct": false
+            },
+            {
+              "text": "這個地區們的冬天總是下著大雪。",
+              "is_correct": false
+            },
+            {
+              "text": "這個地區的冬天總是下著大雪。",
+              "is_correct": true
+            },
+            {
+              "text": "這個地區了冬天總是下著大雪。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "量詞使用錯誤：“地區”是表示範圍的名詞，不能用複數字尾“們”來修飾。 體標位置錯誤：動態助詞“了”不能直接加在表示空間範圍的名詞“地區”後面。 語序錯誤：時間狀語“冬天”應放在句首或主語之後，且“的”字結構破壞了“這個地區的冬天”這一主語的整體性。",
+          "target_word": "地區"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a3c4cb7e-0299-4f08-8ae2-5bfb9e2e7ba7",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这种记谱法被很多作曲家使用，也传到了其他地区。",
+            "is_correct": true
+          },
+          {
+            "text": "我们把这个地区的风景都拍下来了。",
+            "is_correct": true
+          },
+          {
+            "text": "在一些干旱的地区，人们很早就学会了如何节约用水。",
+            "is_correct": true
+          },
+          {
+            "text": "他曾经去过那座偏远的地区旅游。",
+            "is_correct": false,
+            "error_description": "量词使用错误。'地区'表示一定的空间或区域，不能用'座'（通常用于山、城市或大型建筑）来修饰，应使用量词'个'或'片'。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這種記譜法被很多作曲家使用，也傳到了其他地區。",
+              "is_correct": true
+            },
+            {
+              "text": "我們把這個地區的風景都拍下來了。",
+              "is_correct": true
+            },
+            {
+              "text": "在一些乾旱的地區，人們很早就學會了如何節約用水。",
+              "is_correct": true
+            },
+            {
+              "text": "他曾經去過那座偏遠的地區旅遊。",
+              "is_correct": false,
+              "error_description": "量詞使用錯誤。'地區'表示一定的空間或區域，不能用'座'（通常用於山、城市或大型建築）來修飾，應使用量詞'個'或'片'。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "5be378ab-a1f7-468b-95a0-a4a0a93345ca",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "地区",
+        "pronunciation": "dì qū",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "不让超过某个范围。",
+              "指地球表面上的某个范围或区域。",
+              "成人；大人になった、もう子供ではない人",
+              "応答する；誰かに何か聞かれたときに答えること"
+            ],
+            "correct_answer": "指地球表面上的某个范围或区域。"
+          }
+        },
+        "hant": {
+          "word": "地區",
+          "pronunciation": "dì qū",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "不讓超過某個範圍。",
+                "指地球表面上的某個範圍或區域。",
+                "成人；大人になった、もう子供ではない人",
+                "応答する；誰かに何か聞かれたときに答えること"
+              ],
+              "correct_answer": "指地球表面上的某個範圍或區域。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "722ac988-80ba-4861-9d1f-9fa5fe50cef3",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "在一些干旱的___，人们很早就学会了如何节约用水。",
+        "original_sentence": "在一些干旱的地区，人们很早就学会了如何节约用水。",
+        "target_word": "地区",
+        "word": "地区",
+        "answer": {
+          "accepted": [
+            "地区",
+            "个",
+            "片",
+            "地区性"
+          ],
+          "accepted_normalized": [
+            "地区",
+            "个",
+            "片",
+            "地区性"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "在一些乾旱的___，人們很早就學會了如何節約用水。",
+          "original_sentence": "在一些乾旱的地區，人們很早就學會了如何節約用水。",
+          "target_word": "地區",
+          "word": "地區",
+          "answer": {
+            "accepted": [
+              "地區",
+              "個",
+              "片",
+              "地區性"
+            ],
+            "accepted_normalized": [
+              "地區",
+              "個",
+              "片",
+              "地區性"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "ed532ef6-df2b-49f4-b2dd-f35a6a75dbe3",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "地区",
+        "options": [
+          "dí qū",
+          "dī qū",
+          "dì qú",
+          "dì qū"
+        ],
+        "correct_answer": "dì qū",
+        "word": "地区",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "地區",
+          "options": [
+            "dí qū",
+            "dī qū",
+            "dì qú",
+            "dì qū"
+          ],
+          "correct_answer": "dì qū",
+          "word": "地區",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "5b885dce-536f-4ee9-9ecd-4e54c233ab54",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "dì qū",
+        "options": [
+          "致使",
+          "爸爸",
+          "修改",
+          "地区"
+        ],
+        "correct_answer": "地区",
+        "word": "地区",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "修改": "component",
+          "爸爸": "component",
+          "致使": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "dì qū",
+          "options": [
+            "致使",
+            "爸爸",
+            "修改",
+            "地區"
+          ],
+          "correct_answer": "地區",
+          "word": "地區",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "修改": "component",
+            "爸爸": "component",
+            "致使": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7daa2654-5a1b-4b75-96d2-a7d6748f8755",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "地区",
+        "toneless_pinyin": "di qu",
+        "full_pinyin": "dì qū",
+        "options": [
+          "43",
+          "41",
+          "44",
+          "42"
+        ],
+        "correct_answer": "41",
+        "option_labels": {
+          "43": "falling (4) + dipping (3)",
+          "41": "falling (4) + high level (1)",
+          "44": "falling (4) + falling (4)",
+          "42": "falling (4) + rising (2)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "地區",
+          "toneless_pinyin": "di qu",
+          "full_pinyin": "dì qū",
+          "options": [
+            "43",
+            "41",
+            "44",
+            "42"
+          ],
+          "correct_answer": "41",
+          "option_labels": {
+            "43": "falling (4) + dipping (3)",
+            "41": "falling (4) + high level (1)",
+            "44": "falling (4) + falling (4)",
+            "42": "falling (4) + rising (2)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "具体名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "7f8c502f-3366-460b-b833-c5504f66e1c1",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "那个___的人们一直保持着热情。",
+        "original_sentence": "那个地区的人们一直保持着热情。",
+        "correct_answer": "地区",
+        "options": [
+          "地区",
+          "时刻",
+          "时代",
+          "领域"
+        ],
+        "explanation": "正确。'地区'指某个区域，符合句中'人们保持着热情'的语境。",
+        "distractor_tags": {},
+        "word_definition": "指地球表面上的某个范围或区域。",
+        "target_word": "地区",
+        "hant": {
+          "sentence_with_blank": "那個___的人們一直保持著熱情。",
+          "original_sentence": "那個地區的人們一直保持著熱情。",
+          "correct_answer": "地區",
+          "options": [
+            "地區",
+            "時刻",
+            "時代",
+            "領域"
+          ],
+          "explanation": "正確。'地區'指某個區域，符合句中'人們保持著熱情'的語境。",
+          "distractor_tags": {},
+          "word_definition": "指地球表面上的某個範圍或區域。",
+          "target_word": "地區"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "455f629e-fed0-49bf-9dcc-41b667e59519",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "那个地区们的发展速度让人惊讶。",
+            "is_correct": false
+          },
+          {
+            "text": "发展速度那个地区的让人惊讶。",
+            "is_correct": false
+          },
+          {
+            "text": "那个地区着了的发展速度让人惊讶。",
+            "is_correct": false
+          },
+          {
+            "text": "那个地区的发展速度让人惊讶。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "量词使用错误：'地区'是表示地理范围的具体名词，不能加表示人的复数后缀'们'。 体标位置/选用错误：'着'表示动作进行或状态持续，不能用在名词'地区'之后，且不符合表达发展速度的语境。 语序错误：定语'那个地区'应该放在中心语'发展速度'之前，原句语序错乱导致结构破坏。",
+        "target_word": "地区",
+        "hant": {
+          "sentences": [
+            {
+              "text": "那個地區們的發展速度讓人驚訝。",
+              "is_correct": false
+            },
+            {
+              "text": "發展速度那個地區的讓人驚訝。",
+              "is_correct": false
+            },
+            {
+              "text": "那個地區著了的發展速度讓人驚訝。",
+              "is_correct": false
+            },
+            {
+              "text": "那個地區的發展速度讓人驚訝。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "量詞使用錯誤：'地區'是表示地理範圍的具體名詞，不能加表示人的複數字尾'們'。 體標位置/選用錯誤：'著'表示動作進行或狀態持續，不能用在名詞'地區'之後，且不符合表達發展速度的語境。 語序錯誤：定語'那個地區'應該放在中心語'發展速度'之前，原句語序錯亂導致結構破壞。",
+          "target_word": "地區"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f9bace74-3395-4534-a6d0-35059ce64482",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "那个地区的发展速度让人惊讶。",
+            "is_correct": true
+          },
+          {
+            "text": "那个地区的人们一直保持着热情。",
+            "is_correct": true
+          },
+          {
+            "text": "我在这个地区交到了很多好朋友。",
+            "is_correct": true
+          },
+          {
+            "text": "我交到了很多好朋友在这个地区。",
+            "is_correct": false,
+            "error_description": "语序错误。表示地点的状语“在这个地区”应该放在动词“交到”之前，而不是句末。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "那個地區的發展速度讓人驚訝。",
+              "is_correct": true
+            },
+            {
+              "text": "那個地區的人們一直保持著熱情。",
+              "is_correct": true
+            },
+            {
+              "text": "我在這個地區交到了很多好朋友。",
+              "is_correct": true
+            },
+            {
+              "text": "我交到了很多好朋友在這個地區。",
+              "is_correct": false,
+              "error_description": "語序錯誤。表示地點的狀語“在這個地區”應該放在動詞“交到”之前，而不是句末。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "c39bf9e5-3e7e-4d28-bb9b-39e44dd10f8d",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "我在这个___交到了很多好朋友。",
+        "original_sentence": "我在这个地区交到了很多好朋友。",
+        "target_word": "地区",
+        "word": "地区",
+        "answer": {
+          "accepted": [
+            "地区",
+            "个",
+            "片",
+            "地区性"
+          ],
+          "accepted_normalized": [
+            "地区",
+            "个",
+            "片",
+            "地区性"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "我在這個___交到了很多好朋友。",
+          "original_sentence": "我在這個地區交到了很多好朋友。",
+          "target_word": "地區",
+          "word": "地區",
+          "answer": {
+            "accepted": [
+              "地區",
+              "個",
+              "片",
+              "地區性"
+            ],
+            "accepted_normalized": [
+              "地區",
+              "個",
+              "片",
+              "地區性"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "具体名词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 2,
+          "generated_count": 8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10131,
+      "word_asset_id": "shadow-10131-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "classifier_match",
+      "reason": "'地区' is not in the classifier dictionary"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '地区' is fused into a neighbouring chunk — chunks=['不同地区', '的同学', '们有着', '不同的爱好']"
+    },
+    {
+      "type_code": "classifier_match",
+      "reason": "'地区' is not in the classifier dictionary"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '地区' is fused into a neighbouring chunk — chunks=['这个地区', '的冬天', '总是下', '着大雪']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0029904,
+      "prompt_tokens": 2489,
+      "completion_tokens": 1714,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30270
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184448,
+      "prompt_tokens": 640,
+      "completion_tokens": 1281,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 22587
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00193696,
+      "prompt_tokens": 1473,
+      "completion_tokens": 1145,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20220
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00190944,
+      "prompt_tokens": 1471,
+      "completion_tokens": 1124,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 20311
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00270464,
+      "prompt_tokens": 1652,
+      "completion_tokens": 1700,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30213
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00271232,
+      "prompt_tokens": 1652,
+      "completion_tokens": 1706,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30611
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001711116,
+      "prompt_tokens": 401,
+      "completion_tokens": 66,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2222
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.00017528,
+      "prompt_tokens": 392,
+      "completion_tokens": 56,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10131,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 5072
+    }
+  ],
+  "llm_calls_observed": 8,
+  "llm_cost_observed_usd": 0.014444631599999997,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 94.28100000007544,
+  "finished_at": "2026-10-05T14:30:29.625216+00:00"
+}

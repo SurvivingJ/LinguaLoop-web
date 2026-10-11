@@ -1,0 +1,1394 @@
+{
+  "sense_id": 14390,
+  "language_id": 2,
+  "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+  "started_at": "2026-10-05T15:33:49.777114+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.33982086181640625,
+    "p1_generate": 2.8735246658325195,
+    "tier_gate": 0.0040090084075927734,
+    "p1_judge": 1.207467794418335,
+    "collocate_grounding": 0.0,
+    "fan_out": 44.42581057548523
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ɪˈnɔːrməsli/",
+        "morphological_forms": [
+          {
+            "form": "enormous",
+            "label": "base adjective"
+          },
+          {
+            "form": "enormously",
+            "label": "adverb form"
+          },
+          {
+            "form": "enormity",
+            "label": "noun form"
+          }
+        ],
+        "pronunciation": "en-OR-mus-lee",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14390
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "7f3a2ad8-6f14-4248-a103-9708a86fedf6",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "enormously",
+        "pronunciation": "en-OR-mus-lee",
+        "correct_definition": "To a very great degree or extent.",
+        "options": [
+          "To push suddenly or with force.",
+          "Of great value; highly cherished.",
+          "Relating to the atmosphere of a place, especially creating a particular mood or feeling.",
+          "To a very great degree or extent."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1350f747-0564-41dd-b4f5-463b481bf6b0",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The way coffee is prepared and consumed varies ___ across cultures and regions, from strong, espresso-based drinks in Southern Europe to filter coffee in North America and functional beverages in various markets.",
+        "original_sentence": "The way coffee is prepared and consumed varies enormously across cultures and regions, from strong, espresso-based drinks in Southern Europe to filter coffee in North America and functional beverages in various markets.",
+        "correct_answer": "enormously",
+        "options": [
+          "loudly",
+          "enormously",
+          "slightly",
+          "temporarily"
+        ],
+        "explanation": "Correct: Fits perfectly to modify the verb 'varies', indicating a very great degree of difference.",
+        "distractor_tags": {},
+        "word_definition": "To a very great degree or extent.",
+        "target_word": "enormously"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "37a8d7fc-0e5d-4920-85cd-74861399dcd7",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Her performance in the school play improved ___ after she practiced every single afternoon.",
+        "original_sentence": "Her performance in the school play improved enormously after she practiced every single afternoon.",
+        "correct_answer": "enormously",
+        "base_form": "enormous",
+        "form_label": "adverb",
+        "options": [
+          "enormously",
+          "enormity",
+          "enormousness",
+          "enormous"
+        ],
+        "explanation": "adverb form required to modify the verb 'improved'",
+        "word_definition": "To a very great degree or extent.",
+        "target_word": "enormously"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "90aa15b6-5ed6-4286-aaf2-b139c0ae76f1",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She enormously forgot her keys on the kitchen counter before leaving for work.",
+            "is_correct": false
+          },
+          {
+            "text": "He felt enormously proud when his team finally won the regional debate championship.",
+            "is_correct": true
+          },
+          {
+            "text": "The tiny ant carried the crumb enormously across the sidewalk.",
+            "is_correct": false
+          },
+          {
+            "text": "He was enormously the same height as his brother, so they had to buy identical suits.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'Enormously' means to a very great degree, which contradicts 'the same' and makes no logical sense when describing exact equality. Semantically inappropriate: 'Enormously' modifies the degree or extent of an action, but forgetting is a binary event that cannot be done to a 'great extent'. Pragmatically inappropriate: 'Enormously' describes degree or extent, not physical size or the physical manner of carrying an object; 'carefully' or 'slowly' would be appropriate here.",
+        "target_word": "enormously"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "644e9b54-1de2-4f77-bbd6-64b5d8e928bc",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The way coffee is prepared and consumed varies enormously across cultures and regions, from strong, espresso-based drinks in Southern Europe to filter coffee in North America and functional beverages in various markets.",
+            "is_correct": true
+          },
+          {
+            "text": "The cost of living has increased enormously over the past few years, worrying many families.",
+            "is_correct": true
+          },
+          {
+            "text": "Her performance in the school play improved enormously after she practiced every single afternoon.",
+            "is_correct": true
+          },
+          {
+            "text": "The enormously crowd at the concert made it difficult to see the stage.",
+            "is_correct": false,
+            "error_description": "The word 'enormously' is an adverb and cannot be used to directly modify a noun such as 'crowd'. The adjective form 'enormous' must be used instead."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "9d776233-b467-4dd9-88b2-2cff81188b32",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "enormously",
+        "pronunciation": "en-OR-mus-lee",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "To a very great degree or extent.",
+              "Willingness is the quality of being ready and eager to do something.",
+              "easy for people with physical challenges to use",
+              "A cold pack is a bag or cloth filled with ice or gel that is applied to an injury to reduce swelling and pain."
+            ],
+            "correct_answer": "To a very great degree or extent."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "a2620e2d-df67-4614-951e-c5614ccbdc5c",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Her performance in the school play improved ___ after she practiced every single afternoon.",
+        "original_sentence": "Her performance in the school play improved enormously after she practiced every single afternoon.",
+        "target_word": "enormously",
+        "word": "enormously",
+        "answer": {
+          "accepted": [
+            "enormously",
+            "enormous",
+            "enormity"
+          ],
+          "accepted_normalized": [
+            "enormously",
+            "enormous",
+            "enormity"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "13f32a1a-f5ef-4005-9c0a-55f1caa90cab",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The new video game was enormously popular among students during the winter break.",
+        "chunks": [
+          "The new video game",
+          "was",
+          "enormously popular among students",
+          "during the winter break"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "was",
+          "during the winter break",
+          "enormously popular among students",
+          "The new video game"
+        ],
+        "target_word": "enormously",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "44a5bbde-72da-43db-862e-dea7eefc4669",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "enormous",
+        "sentence_with_blank": "Her performance in the school play improved ___ after she practiced every single afternoon.",
+        "original_sentence": "Her performance in the school play improved enormously after she practiced every single afternoon.",
+        "required_pos": "adverb",
+        "options": [
+          "enormousment",
+          "enormously",
+          "enormousive",
+          "enormousation"
+        ],
+        "correct_answer": "enormously",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adverbial form modifying the verb 'improved'"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3085b5f6-fdff-4c72-a51d-141830741d9f",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "She has grown ___ as a musician since joining the local youth orchestra last year.",
+        "original_sentence": "She has grown enormously as a musician since joining the local youth orchestra last year.",
+        "correct_answer": "enormously",
+        "options": [
+          "enormously",
+          "slightly",
+          "permanently",
+          "loudly"
+        ],
+        "explanation": "Correct: adverb meaning 'to a very great degree,' appropriately modifies 'grown' to indicate significant development as a musician",
+        "distractor_tags": {},
+        "word_definition": "To a very great degree or extent.",
+        "target_word": "enormously"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "1f88a391-4d08-4b4a-8c98-abeae9523637",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The weather changed ___ within minutes, turning from bright sunshine to heavy rain.",
+        "original_sentence": "The weather changed enormously within minutes, turning from bright sunshine to heavy rain.",
+        "correct_answer": "enormously",
+        "base_form": "enormous",
+        "form_label": "adverb",
+        "options": [
+          "enormously",
+          "more enormously",
+          "enormity",
+          "enormous"
+        ],
+        "explanation": "adverb form required to modify the verb 'changed'",
+        "word_definition": "To a very great degree or extent.",
+        "target_word": "enormously"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "50d8cc09-11e3-43f1-b6b6-32b5206070ea",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The city has expanded enormously since my grandparents moved there as young adults.",
+            "is_correct": true
+          },
+          {
+            "text": "The tiny ant carried the crumb enormously across the kitchen floor without stopping.",
+            "is_correct": false
+          },
+          {
+            "text": "She knew enormously that the answer was correct before checking her work.",
+            "is_correct": false
+          },
+          {
+            "text": "The whisper echoed enormously through the silent library, disturbing everyone's concentration.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'enormously' modifies manner of carrying, but ants carry things in a small, precise way; the adverb contradicts the physical reality of the subject Semantically inappropriate: 'knew' is a stative cognitive verb that does not accept degree modification by 'enormously'; one either knows or doesn't know Pragmatically contradictory: whispers are by definition quiet and cannot echo 'enormously'; the adverb directly conflicts with the noun it describes",
+        "target_word": "enormously"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "e14dde9c-22b0-404f-bd2b-83aa5347d3d5",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She has grown enormously as a musician since joining the local youth orchestra last year.",
+            "is_correct": true
+          },
+          {
+            "text": "The weather changed enormously within minutes, turning from bright sunshine to heavy rain.",
+            "is_correct": true
+          },
+          {
+            "text": "The team was enormously success in completing the project ahead of schedule.",
+            "is_correct": false,
+            "error_description": "The adverb 'enormously' cannot directly modify a noun ('success'). It must modify an adjective, such as 'successful', or the noun must be changed to its adjective form."
+          },
+          {
+            "text": "The city has expanded enormously since my grandparents moved there as young adults.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "a0b8e7fa-71f6-4b35-b392-167f0af2515a",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The weather changed ___ within minutes, turning from bright sunshine to heavy rain.",
+        "original_sentence": "The weather changed enormously within minutes, turning from bright sunshine to heavy rain.",
+        "target_word": "enormously",
+        "word": "enormously",
+        "answer": {
+          "accepted": [
+            "enormously",
+            "enormous",
+            "enormity"
+          ],
+          "accepted_normalized": [
+            "enormously",
+            "enormous",
+            "enormity"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "529736d2-5171-4661-876a-cd80d35996d5",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "He felt enormously proud when his team finally won the regional debate championship.",
+        "chunks": [
+          "He felt",
+          "enormously proud",
+          "when his team finally won the regional debate championship"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "enormously proud",
+          "He felt",
+          "when his team finally won the regional debate championship"
+        ],
+        "target_word": "enormously",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "227c4ec9-e67c-49b2-8f23-e44b55594a55",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "enormous",
+        "sentence_with_blank": "The weather changed ___ within minutes, turning from bright sunshine to heavy rain.",
+        "original_sentence": "The weather changed enormously within minutes, turning from bright sunshine to heavy rain.",
+        "required_pos": "adverb",
+        "options": [
+          "enormousive",
+          "enormousment",
+          "enormousity",
+          "enormously"
+        ],
+        "correct_answer": "enormously",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the standard adverbial derivation formed by adding -ly to the adjective"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adverb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14390,
+      "word_asset_id": "shadow-14390-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0023688,
+      "prompt_tokens": 1946,
+      "completion_tokens": 714,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 2738
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0005833,
+      "prompt_tokens": 686,
+      "completion_tokens": 151,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1125
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185216,
+      "prompt_tokens": 1212,
+      "completion_tokens": 1144,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20841
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185568,
+      "prompt_tokens": 1211,
+      "completion_tokens": 1147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20894
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00182976,
+      "prompt_tokens": 838,
+      "completion_tokens": 1220,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21691
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181952,
+      "prompt_tokens": 838,
+      "completion_tokens": 1212,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21788
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017824,
+      "prompt_tokens": 654,
+      "completion_tokens": 1229,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21868
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00168512,
+      "prompt_tokens": 654,
+      "completion_tokens": 1153,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21979
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00265312,
+      "prompt_tokens": 1635,
+      "completion_tokens": 1664,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 29909
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00271712,
+      "prompt_tokens": 1635,
+      "completion_tokens": 1714,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 30598
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0018592,
+      "prompt_tokens": 802,
+      "completion_tokens": 1252,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 22015
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001872,
+      "prompt_tokens": 802,
+      "completion_tokens": 1262,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 22357
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003086,
+      "prompt_tokens": 412,
+      "completion_tokens": 74,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 889
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003489,
+      "prompt_tokens": 413,
+      "completion_tokens": 90,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 831
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004298,
+      "prompt_tokens": 516,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 891
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000222,
+      "prompt_tokens": 390,
+      "completion_tokens": 42,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 862
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003429,
+      "prompt_tokens": 518,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 839
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004275,
+      "prompt_tokens": 500,
+      "completion_tokens": 111,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 993
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003036,
+      "prompt_tokens": 412,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 964
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003126,
+      "prompt_tokens": 392,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1170
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004459,
+      "prompt_tokens": 503,
+      "completion_tokens": 118,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1042
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002142,
+      "prompt_tokens": 389,
+      "completion_tokens": 39,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 835
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003354,
+      "prompt_tokens": 518,
+      "completion_tokens": 72,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 944
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.00042,
+      "prompt_tokens": 500,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14390,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 898
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.02698958,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 61.28200000000652,
+  "finished_at": "2026-10-05T15:34:51.066405+00:00"
+}

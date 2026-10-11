@@ -25,6 +25,8 @@ export default [
       },
     },
     rules: {
+      // Best-effort cleanup (audio.pause, storage, etc.) deliberately swallows errors.
+      'no-empty': ['error', { allowEmptyCatch: true }],
       'no-var': 'error',
       'prefer-const': 'error',
       // debugLog() wraps console; allow intentional warn/error, flag stray log/debug/info.
@@ -36,6 +38,16 @@ export default [
   {
     // ES modules (import/export) — everything else in static/js is a classic script.
     files: ['static/js/session/**/*.js'],
-    languageOptions: { sourceType: 'module' },
+    // LinguaI18n is declared by dt-error-card.js / exercise-renderers.js; the session modules read it as a global.
+    languageOptions: { sourceType: 'module', globals: { LinguaI18n: 'readonly' } },
+  },
+  {
+    // Tooling and tests run under Node / vitest (jsdom), not the browser-script environment.
+    files: ['playwright.config.js', 'tests/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: { ...globals.node, ...globals.browser, ...globals.vitest },
+    },
   },
 ];

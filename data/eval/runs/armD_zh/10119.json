@@ -1,0 +1,1273 @@
+{
+  "sense_id": 10119,
+  "language_id": 1,
+  "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+  "started_at": "2026-10-05T21:19:21.042029+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.39879274368286133,
+    "p1_generate": 33.1416335105896,
+    "tier_gate": 0.0,
+    "p1_judge": 21.347445011138916,
+    "collocate_grounding": 0.0,
+    "fan_out": 32.03243279457092
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[ʂɤ˥˩ xueɪ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "个",
+            "label": "量词"
+          },
+          {
+            "label": "复合",
+            "form": "社会主义"
+          },
+          {
+            "label": "复合",
+            "form": "社会关系"
+          },
+          {
+            "label": "复合",
+            "form": "社会活动"
+          },
+          {
+            "label": "繁体",
+            "form": "社會"
+          }
+        ],
+        "pronunciation": "shè huì",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10119
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "6f612af5-36b6-4459-aa83-bb34cc344a14",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "社会",
+        "pronunciation": "shè huì",
+        "correct_definition": "指由共同利益、文化或制度联系起来的人群整体。",
+        "options": [
+          "指两个或两个以上的系统、事物之间相互影响、相互作用的关系。",
+          "表示将原有的内容或形式改变为另一种。",
+          "指事物向好的方向发展，质量或状况得到改善。",
+          "指由共同利益、文化或制度联系起来的人群整体。"
+        ],
+        "hant": {
+          "word": "社會",
+          "pronunciation": "shè huì",
+          "correct_definition": "指由共同利益、文化或制度聯絡起來的人群整體。",
+          "options": [
+            "指兩個或兩個以上的系統、事物之間相互影響、相互作用的關係。",
+            "表示將原有的內容或形式改變為另一種。",
+            "指事物向好的方向發展，質量或狀況得到改善。",
+            "指由共同利益、文化或制度聯絡起來的人群整體。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "63836f26-abb6-412e-bafa-4b6aa21956d1",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他大学毕业后，终于成功地走进入社会了。",
+            "is_correct": false,
+            "error_description": "方向补语误用。“进入”本身已包含“入”的方向意义，不能再叠加“入”构成“走进入”，应改为“走入”或“走进”。"
+          },
+          {
+            "text": "这些水利系统背后所蕴藏的，是一整套关于水权、劳动组织与社会协作的文化制度。",
+            "is_correct": true
+          },
+          {
+            "text": "这种基于绩效的认可机制，与现实社会的成就导向形成镜像。",
+            "is_correct": true
+          },
+          {
+            "text": "这表明，基层环保实践正逐步演进为公民参与社会治理的有效路径。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他大學畢業後，終於成功地走進入社會了。",
+              "is_correct": false,
+              "error_description": "方向補語誤用。“進入”本身已包含“入”的方向意義，不能再疊加“入”構成“走進入”，應改為“走入”或“走進”。"
+            },
+            {
+              "text": "這些水利系統背後所蘊藏的，是一整套關於水權、勞動組織與社會協作的文化制度。",
+              "is_correct": true
+            },
+            {
+              "text": "這種基於績效的認可機制，與現實社會的成就導向形成映象。",
+              "is_correct": true
+            },
+            {
+              "text": "這表明，基層環保實踐正逐步演進為公民參與社會治理的有效路徑。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "f2bdbf1e-b309-46b2-9ca5-2d20364cd400",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "社会",
+        "pronunciation": "shè huì",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "湿った；水分を含んでいること",
+              "近づいている",
+              "启发指示，使人领悟道理。",
+              "指由共同利益、文化或制度联系起来的人群整体。"
+            ],
+            "correct_answer": "指由共同利益、文化或制度联系起来的人群整体。"
+          }
+        },
+        "hant": {
+          "word": "社會",
+          "pronunciation": "shè huì",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "溼った；水分を含んでいること",
+                "近づいている",
+                "啟發指示，使人領悟道理。",
+                "指由共同利益、文化或制度聯絡起來的人群整體。"
+              ],
+              "correct_answer": "指由共同利益、文化或制度聯絡起來的人群整體。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "a216183f-8657-4fb7-a68c-7e85ed516ea1",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这表明，基层环保实践正逐步演进为公民参与___治理的有效路径。",
+        "original_sentence": "这表明，基层环保实践正逐步演进为公民参与社会治理的有效路径。",
+        "target_word": "社会",
+        "word": "社会",
+        "answer": {
+          "accepted": [
+            "社会",
+            "个",
+            "社会主义",
+            "社会关系",
+            "社会活动"
+          ],
+          "accepted_normalized": [
+            "社会",
+            "个",
+            "社会主义",
+            "社会关系",
+            "社会活动"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這表明，基層環保實踐正逐步演進為公民參與___治理的有效路徑。",
+          "original_sentence": "這表明，基層環保實踐正逐步演進為公民參與社會治理的有效路徑。",
+          "target_word": "社會",
+          "word": "社會",
+          "answer": {
+            "accepted": [
+              "社會",
+              "個",
+              "社會主義",
+              "社會關係",
+              "社會活動"
+            ],
+            "accepted_normalized": [
+              "社會",
+              "個",
+              "社會主義",
+              "社會關係",
+              "社會活動"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3ab29ad7-537a-4f84-adcc-5f2c32502a71",
+      "language_id": 1,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "专家提醒，社会必须提前准备，否则贫富差距可能会变得更大。",
+        "chunks": [
+          "专家",
+          "提醒",
+          "社会",
+          "必须提前准备",
+          "否则贫富差距",
+          "可能会变得更大"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "可能会变得更大",
+          "专家",
+          "提醒",
+          "必须提前准备",
+          "社会",
+          "否则贫富差距"
+        ],
+        "target_word": "社会",
+        "chunk_count": 6,
+        "hant": {
+          "schema_version": 2,
+          "original_sentence": "專家提醒，社會必須提前準備，否則貧富差距可能會變得更大。",
+          "chunks": [
+            "專家",
+            "提醒",
+            "社會",
+            "必須提前準備",
+            "否則貧富差距",
+            "可能會變得更大"
+          ],
+          "correct_ordering": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "shuffled_chunks": [
+            "可能會變得更大",
+            "專家",
+            "提醒",
+            "必須提前準備",
+            "社會",
+            "否則貧富差距"
+          ],
+          "target_word": "社會",
+          "chunk_count": 6
+        }
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "dd3d0e1e-d0ca-4e3e-9ee7-2f022f3b18d4",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "社会",
+        "options": [
+          "shè huí",
+          "shè huì",
+          "shē huì",
+          "shè huī"
+        ],
+        "correct_answer": "shè huì",
+        "word": "社会",
+        "direction": "hanzi_to_pinyin",
+        "context_sentence": "这种基于绩效的认可机制，与现实社会的成就导向形成镜像。",
+        "context_target": "社会",
+        "is_polyphonic": true,
+        "hant": {
+          "schema_version": 2,
+          "prompt": "社會",
+          "options": [
+            "shè huí",
+            "shè huì",
+            "shē huì",
+            "shè huī"
+          ],
+          "correct_answer": "shè huì",
+          "word": "社會",
+          "direction": "hanzi_to_pinyin",
+          "context_sentence": "這種基於績效的認可機制，與現實社會的成就導向形成映象。",
+          "context_target": "社會",
+          "is_polyphonic": true
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f62819fc-229a-4314-a2b8-70cec4b0e024",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "shè huì",
+        "options": [
+          "不会",
+          "福祉",
+          "社会",
+          "神经"
+        ],
+        "correct_answer": "社会",
+        "word": "社会",
+        "direction": "pinyin_to_hanzi",
+        "context_sentence": "这种基于绩效的认可机制，与现实社会的成就导向形成镜像。",
+        "context_target": "社会",
+        "is_polyphonic": true,
+        "distractor_sources": {
+          "福祉": "component",
+          "神经": "component",
+          "不会": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "shè huì",
+          "options": [
+            "不會",
+            "福祉",
+            "社會",
+            "神經"
+          ],
+          "correct_answer": "社會",
+          "word": "社會",
+          "direction": "pinyin_to_hanzi",
+          "context_sentence": "這種基於績效的認可機制，與現實社會的成就導向形成映象。",
+          "context_target": "社會",
+          "is_polyphonic": true,
+          "distractor_sources": {
+            "福祉": "component",
+            "神经": "component",
+            "不会": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "427408a6-8e2d-4b69-bdf8-001d95c8354e",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "社会",
+        "toneless_pinyin": "she hui",
+        "full_pinyin": "shè huì",
+        "options": [
+          "41",
+          "42",
+          "43",
+          "44"
+        ],
+        "correct_answer": "44",
+        "option_labels": {
+          "41": "falling (4) + high level (1)",
+          "42": "falling (4) + rising (2)",
+          "43": "falling (4) + dipping (3)",
+          "44": "falling (4) + falling (4)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "社會",
+          "toneless_pinyin": "she hui",
+          "full_pinyin": "shè huì",
+          "options": [
+            "41",
+            "42",
+            "43",
+            "44"
+          ],
+          "correct_answer": "44",
+          "option_labels": {
+            "41": "falling (4) + high level (1)",
+            "42": "falling (4) + rising (2)",
+            "43": "falling (4) + dipping (3)",
+            "44": "falling (4) + falling (4)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ceaef957-4a36-4793-800d-3bc8d41831d4",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "社会",
+        "relation": "antonym",
+        "options": [
+          "国家",
+          "群体",
+          "世界",
+          "自然"
+        ],
+        "correct_answer": "自然",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指由共同利益、文化或制度联系起来的人群整体。",
+            "explanation": "反义：指与人类社会相对的自然界"
+          }
+        },
+        "hant": {
+          "word": "社會",
+          "relation": "antonym",
+          "options": [
+            "國家",
+            "群體",
+            "世界",
+            "自然"
+          ],
+          "correct_answer": "自然",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指由共同利益、文化或制度聯絡起來的人群整體。",
+              "explanation": "反義：指與人類社會相對的自然界"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "抽象名词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "国家": 0.6572,
+            "群体": 0.526407,
+            "世界": 0.475098
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2b1ea40d-7984-4221-835e-0b04723e5e8d",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "未来可能会有更严格的法律出台，推动社会向更可持续的方向发展。",
+            "is_correct": true
+          },
+          {
+            "text": "每一次突破都非孤立发明，而是基础科学、工程实践与社会需求共振的产物。",
+            "is_correct": true
+          },
+          {
+            "text": "大学毕业生在离开学校后，需要尽快融入一条新的社会。",
+            "is_correct": false,
+            "error_description": "量词使用错误。“社会”是抽象名词，不能用修饰长条形事物的量词“条”，应使用“个”或直接省略量词说“融入社会”。"
+          },
+          {
+            "text": "技术进步是好事，但如果管理不好，也可能带来新的社会问题。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "未來可能會有更嚴格的法律出臺，推動社會向更可持續的方向發展。",
+              "is_correct": true
+            },
+            {
+              "text": "每一次突破都非孤立發明，而是基礎科學、工程實踐與社會需求共振的產物。",
+              "is_correct": true
+            },
+            {
+              "text": "大學畢業生在離開學校後，需要儘快融入一條新的社會。",
+              "is_correct": false,
+              "error_description": "量詞使用錯誤。“社會”是抽象名詞，不能用修飾長條形事物的量詞“條”，應使用“個”或直接省略量詞說“融入社會”。"
+            },
+            {
+              "text": "技術進步是好事，但如果管理不好，也可能帶來新的社會問題。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "抽象名词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "99544da0-615c-4b0b-94a4-fefa81bd88b1",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "未来可能会有更严格的法律出台，推动___向更可持续的方向发展。",
+        "original_sentence": "未来可能会有更严格的法律出台，推动社会向更可持续的方向发展。",
+        "target_word": "社会",
+        "word": "社会",
+        "answer": {
+          "accepted": [
+            "社会",
+            "个",
+            "社会主义",
+            "社会关系",
+            "社会活动"
+          ],
+          "accepted_normalized": [
+            "社会",
+            "个",
+            "社会主义",
+            "社会关系",
+            "社会活动"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "未來可能會有更嚴格的法律出臺，推動___向更可持續的方向發展。",
+          "original_sentence": "未來可能會有更嚴格的法律出臺，推動社會向更可持續的方向發展。",
+          "target_word": "社會",
+          "word": "社會",
+          "answer": {
+            "accepted": [
+              "社會",
+              "個",
+              "社會主義",
+              "社會關係",
+              "社會活動"
+            ],
+            "accepted_normalized": [
+              "社會",
+              "個",
+              "社會主義",
+              "社會關係",
+              "社會活動"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "抽象名词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10119,
+      "word_asset_id": "shadow-10119-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 2
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '社会' is fused into a neighbouring chunk — chunks=['这种对水资源的社会', '调控机制本质上', '是一种非市场化的治理模式', '其合法性', '源于共同体内部的文化共识', '而非现代法律条文']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00322976,
+      "prompt_tokens": 2697,
+      "completion_tokens": 1849,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 32789
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00174592,
+      "prompt_tokens": 744,
+      "completion_tokens": 1178,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21036
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015312,
+      "prompt_tokens": 649,
+      "completion_tokens": 1034,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 18597
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00168128,
+      "prompt_tokens": 658,
+      "completion_tokens": 1149,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21240
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00196992,
+      "prompt_tokens": 1596,
+      "completion_tokens": 1140,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 22097
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00197696,
+      "prompt_tokens": 1598,
+      "completion_tokens": 1145,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 22141
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00267712,
+      "prompt_tokens": 1754,
+      "completion_tokens": 1653,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 29341
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00279488,
+      "prompt_tokens": 1754,
+      "completion_tokens": 1745,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 31754
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00157344,
+      "prompt_tokens": 421,
+      "completion_tokens": 1124,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20155
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001639107,
+      "prompt_tokens": 401,
+      "completion_tokens": 59,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 1615
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00159232,
+      "prompt_tokens": 544,
+      "completion_tokens": 1108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19523
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00097312,
+      "prompt_tokens": 437,
+      "completion_tokens": 651,
+      "cached_tokens": 0,
+      "reasoning_tokens": 626,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 12403
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00160736,
+      "prompt_tokens": 543,
+      "completion_tokens": 1120,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20090
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00152224,
+      "prompt_tokens": 421,
+      "completion_tokens": 1084,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19536
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001708542,
+      "prompt_tokens": 400,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 2269
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016256,
+      "prompt_tokens": 580,
+      "completion_tokens": 1125,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20130
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0006192,
+      "prompt_tokens": 439,
+      "completion_tokens": 374,
+      "cached_tokens": 0,
+      "reasoning_tokens": 336,
+      "call_role": "primary",
+      "sense_id": 10119,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 7311
+    }
+  ],
+  "llm_calls_observed": 17,
+  "llm_cost_observed_usd": 0.027455084900000003,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 214.5,
+  "finished_at": "2026-10-05T21:22:55.549604+00:00"
+}

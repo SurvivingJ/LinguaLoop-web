@@ -1,0 +1,1526 @@
+{
+  "sense_id": 10106,
+  "language_id": 1,
+  "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+  "started_at": "2026-10-07T12:01:44.816060+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[9] flagged (rating 3): 整词：'完毕'为双音词，'毕'非独立承担义项"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.13113880157470703,
+    "p1_generate": 370.73801255226135,
+    "tier_gate": 0.007029056549072266,
+    "p1_judge": 84.22572946548462,
+    "collocate_grounding": 0.0,
+    "fan_out": 48.18621110916138
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[9] flagged (rating 3): 整词：'完毕'为双音词，'毕'非独立承担义项"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[pi˥˩]",
+        "morphological_forms": [
+          {
+            "form": "畢",
+            "label": "繁体"
+          },
+          {
+            "form": "毕业",
+            "label": "复合"
+          },
+          {
+            "form": "完毕",
+            "label": "复合"
+          },
+          {
+            "form": "礼毕",
+            "label": "复合"
+          }
+        ],
+        "pronunciation": "bì",
+        "register": "正式（书面）"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10106
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "311eaaed-3f77-4034-b606-0a33559ebdf1",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "毕",
+        "pronunciation": "bì",
+        "ipa": "[pi˥˩]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "鼻",
+          "笔",
+          "逼",
+          "毕"
+        ],
+        "correct_answer": "毕",
+        "explanation": "正确选项。“毕”读第四声（bì），在此处表示完成、结束。",
+        "distractor_explanations": {
+          "逼": "声调混淆。“逼”读第一声（bī），意为强迫，与第四声（bì）的“毕”意义完全不同。",
+          "鼻": "声调混淆。“鼻”读第二声（bí），指鼻子，与第四声（bì）的“毕”意义完全不同。",
+          "笔": "声调混淆。“笔”读第三声（bǐ），指书写工具，与第四声（bì）的“毕”意义完全不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "畢",
+          "pronunciation": "bì",
+          "ipa": "[pi˥˩]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "鼻",
+            "筆",
+            "逼",
+            "畢"
+          ],
+          "correct_answer": "畢",
+          "explanation": "正確選項。“畢”讀第四聲（bì），在此處表示完成、結束。",
+          "distractor_explanations": {
+            "逼": "聲調混淆。“逼”讀第一聲（bī），意為強迫，與第四聲（bì）的“畢”意義完全不同。",
+            "鼻": "聲調混淆。“鼻”讀第二聲（bí），指鼻子，與第四聲（bì）的“畢”意義完全不同。",
+            "笔": "聲調混淆。“筆”讀第三聲（bǐ），指書寫工具，與第四聲（bì）的“畢”意義完全不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "abdaf9a6-98d1-41cd-bc6d-d6f4060635fc",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "毕",
+        "pronunciation": "bì",
+        "correct_definition": "完成；结束。",
+        "options": [
+          "完成；结束。",
+          "特权指个人或群体在特定范围内享有的、超出一般法律或规则的特殊权利或待遇。",
+          "将文字、图画等制成印版，上面涂上油墨，再压印到纸张或其他材料上。",
+          "电池板是把太阳能转化为电能的装置，通常由多个光伏电池组成。"
+        ],
+        "hant": {
+          "word": "畢",
+          "pronunciation": "bì",
+          "correct_definition": "完成；結束。",
+          "options": [
+            "完成；結束。",
+            "特權指個人或群體在特定範圍內享有的、超出一般法律或規則的特殊權利或待遇。",
+            "將文字、圖畫等製成印版，上面塗上油墨，再壓印到紙張或其他材料上。",
+            "電池板是把太陽能轉化為電能的裝置，通常由多個光伏電池組成。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1f104795-9e3d-4ed2-b144-51081048b094",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "老师言毕起来，同学们立刻举手发表自己的观点。",
+            "is_correct": false
+          },
+          {
+            "text": "老师言毕，同学们立刻举手发表自己的观点。",
+            "is_correct": true
+          },
+          {
+            "text": "老师言了毕，同学们立刻举手发表自己的观点。",
+            "is_correct": false
+          },
+          {
+            "text": "老师毕言，同学们立刻举手发表自己的观点。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标选用错误。“毕”本身已包含动作完成的语义，前面再加完成体标记“了”会造成语义重复与结构冗余。 语序错误。“毕”作为表示完成的动词或补语，应置于核心动词“言”之后，置于句首破坏了正常的动补或连动语序。 方向/结果补语误用。“起来”表示动作开始或向上，与“毕”表示动作结束、完成的语义完全相反，导致逻辑不通。",
+        "target_word": "毕",
+        "hant": {
+          "sentences": [
+            {
+              "text": "老師言畢起來，同學們立刻舉手發表自己的觀點。",
+              "is_correct": false
+            },
+            {
+              "text": "老師言畢，同學們立刻舉手發表自己的觀點。",
+              "is_correct": true
+            },
+            {
+              "text": "老師言了畢，同學們立刻舉手發表自己的觀點。",
+              "is_correct": false
+            },
+            {
+              "text": "老師畢言，同學們立刻舉手發表自己的觀點。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標選用錯誤。“畢”本身已包含動作完成的語義，前面再加完成體標記“了”會造成語義重複與結構冗餘。 語序錯誤。“畢”作為表示完成的動詞或補語，應置於核心動詞“言”之後，置於句首破壞了正常的動補或連動語序。 方向/結果補語誤用。“起來”表示動作開始或向上，與“畢”表示動作結束、完成的語義完全相反，導致邏輯不通。",
+          "target_word": "畢"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "69f077f5-4d8f-42b1-a4b8-4a2a42dbdcd6",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "他把这本有趣的小说读毕了，心里觉得非常感动。",
+            "is_correct": true
+          },
+          {
+            "text": "待各项议程悉数陈述毕，大会主席随即宣布本次国际高峰论坛正式结束，与会代表纷纷离席。",
+            "is_correct": true
+          },
+          {
+            "text": "校长宣布运动会开幕，全体师生敬礼，礼毕后大家开始比赛。",
+            "is_correct": true
+          },
+          {
+            "text": "他正在写毕那篇作文，请不要打扰他。",
+            "is_correct": false,
+            "error_description": "“毕”表示动作的完成或结束，不能与表示动作进行的“正在”连用。应删去“毕”，改为“正在写”。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "他把這本有趣的小說讀畢了，心裡覺得非常感動。",
+              "is_correct": true
+            },
+            {
+              "text": "待各項議程悉數陳述畢，大會主席隨即宣佈本次國際高峰論壇正式結束，與會代表紛紛離席。",
+              "is_correct": true
+            },
+            {
+              "text": "校長宣佈運動會開幕，全體師生敬禮，禮畢後大家開始比賽。",
+              "is_correct": true
+            },
+            {
+              "text": "他正在寫畢那篇作文，請不要打擾他。",
+              "is_correct": false,
+              "error_description": "“畢”表示動作的完成或結束，不能與表示動作進行的“正在”連用。應刪去“畢”，改為“正在寫”。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "d36ca93a-87af-4e9b-91b9-37367f9a5c83",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "毕",
+        "pronunciation": "bì",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "完成；结束。",
+              "terraced field; farmland on a mountainside that looks like stairs",
+              "teaching; a teacher instructing and students learning",
+              "築く；何かを組み立てて作ること"
+            ],
+            "correct_answer": "完成；结束。"
+          }
+        },
+        "hant": {
+          "word": "畢",
+          "pronunciation": "bì",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "完成；結束。",
+                "terraced field; farmland on a mountainside that looks like stairs",
+                "teaching; a teacher instructing and students learning",
+                "築く；何かを組み立てて作ること"
+              ],
+              "correct_answer": "完成；結束。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "30634439-af5f-406a-8d2e-e6eba621e574",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "校长宣布运动会开幕，全体师生敬礼，礼___后大家开始比赛。",
+        "original_sentence": "校长宣布运动会开幕，全体师生敬礼，礼毕后大家开始比赛。",
+        "target_word": "毕",
+        "word": "毕",
+        "answer": {
+          "accepted": [
+            "毕",
+            "毕业",
+            "完毕",
+            "礼毕"
+          ],
+          "accepted_normalized": [
+            "毕",
+            "毕业",
+            "完毕",
+            "礼毕"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "校長宣佈運動會開幕，全體師生敬禮，禮___後大家開始比賽。",
+          "original_sentence": "校長宣佈運動會開幕，全體師生敬禮，禮畢後大家開始比賽。",
+          "target_word": "畢",
+          "word": "畢",
+          "answer": {
+            "accepted": [
+              "畢",
+              "畢業",
+              "完畢",
+              "禮畢"
+            ],
+            "accepted_normalized": [
+              "畢",
+              "畢業",
+              "完畢",
+              "禮畢"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d296dfbf-a081-4e3a-bdb1-87ec7fd75397",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "毕",
+        "options": [
+          "bī",
+          "bì",
+          "bí",
+          "bǐ"
+        ],
+        "correct_answer": "bì",
+        "word": "毕",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "畢",
+          "options": [
+            "bī",
+            "bì",
+            "bí",
+            "bǐ"
+          ],
+          "correct_answer": "bì",
+          "word": "畢",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "23be7bf5-d431-4ffd-929b-dee0643846e4",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "bì",
+        "options": [
+          "皆",
+          "能",
+          "比",
+          "毕"
+        ],
+        "correct_answer": "毕",
+        "word": "毕",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "皆": "component",
+          "能": "component",
+          "比": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "bì",
+          "options": [
+            "皆",
+            "能",
+            "比",
+            "畢"
+          ],
+          "correct_answer": "畢",
+          "word": "畢",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "皆": "component",
+            "能": "component",
+            "比": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "970860e7-c6ba-4846-bc24-ea3c0e75b003",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "毕",
+        "toneless_pinyin": "bi",
+        "full_pinyin": "bì",
+        "options": [
+          "2",
+          "1",
+          "3",
+          "4"
+        ],
+        "correct_answer": "4",
+        "option_labels": {
+          "2": "rising (2)",
+          "1": "high level (1)",
+          "3": "dipping (3)",
+          "4": "falling (4)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "畢",
+          "toneless_pinyin": "bi",
+          "full_pinyin": "bì",
+          "options": [
+            "2",
+            "1",
+            "3",
+            "4"
+          ],
+          "correct_answer": "4",
+          "option_labels": {
+            "2": "rising (2)",
+            "1": "high level (1)",
+            "3": "dipping (3)",
+            "4": "falling (4)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6d19b576-9eb5-4589-bef3-5da5b4dd60a0",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "毕",
+        "relation": "antonym",
+        "options": [
+          "罢",
+          "终",
+          "延",
+          "始"
+        ],
+        "correct_answer": "始",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "完成；结束。",
+            "explanation": "表示动作的开端，与目标词“完成、结束”的义项构成反义关系。"
+          }
+        },
+        "hant": {
+          "word": "畢",
+          "relation": "antonym",
+          "options": [
+            "罷",
+            "終",
+            "延",
+            "始"
+          ],
+          "correct_answer": "始",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "完成；結束。",
+              "explanation": "表示動作的開端，與目標詞“完成、結束”的義項構成反義關係。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "6739ac44-c07c-4de9-b439-15ea6c6c7f76",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "考试终于考___了，学生们都松了一口气。",
+        "original_sentence": "考试终于考毕了，学生们都松了一口气。",
+        "correct_answer": "毕",
+        "options": [
+          "罢",
+          "散",
+          "毕",
+          "停"
+        ],
+        "explanation": "“毕”在此处作结果补语，表示考试这一动作已经完成、结束，符合语境。",
+        "distractor_tags": {},
+        "word_definition": "完成；结束。",
+        "target_word": "毕",
+        "hant": {
+          "sentence_with_blank": "考試終於考___了，學生們都鬆了一口氣。",
+          "original_sentence": "考試終於考畢了，學生們都鬆了一口氣。",
+          "correct_answer": "畢",
+          "options": [
+            "罷",
+            "散",
+            "畢",
+            "停"
+          ],
+          "explanation": "“畢”在此處作結果補語，表示考試這一動作已經完成、結束，符合語境。",
+          "distractor_tags": {},
+          "word_definition": "完成；結束。",
+          "target_word": "畢"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "b80f6253-57f7-460c-9244-897e079d19e4",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这项任务终于毕完了，我们都可以休息了。",
+            "is_correct": false
+          },
+          {
+            "text": "这项任务终于毕着，我们都可以休息了。",
+            "is_correct": false
+          },
+          {
+            "text": "这项任务终于完毕，我们都可以休息了。",
+            "is_correct": true
+          },
+          {
+            "text": "终于毕这项任务了，我们都可以休息了。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标位置/选用错误：“毕”本身已包含“完成”之意，后面再加“完”造成语义重复，且“毕完”不是合法的汉语词汇组合。 语序错误：“毕”作为及物动词或结果补语，不能直接带宾语放在句首，正确的语序应为“这项任务终于完毕”或“终于完成了这项任务”。 体标位置/选用错误：“着”表示动作的持续或状态的保持，而“毕”表示动作的完成与结束，两者在体貌上相互矛盾，不能连用。",
+        "target_word": "毕",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這項任務終於畢完了，我們都可以休息了。",
+              "is_correct": false
+            },
+            {
+              "text": "這項任務終於畢著，我們都可以休息了。",
+              "is_correct": false
+            },
+            {
+              "text": "這項任務終於完畢，我們都可以休息了。",
+              "is_correct": true
+            },
+            {
+              "text": "終於畢這項任務了，我們都可以休息了。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標位置/選用錯誤：“畢”本身已包含“完成”之意，後面再加“完”造成語義重複，且“畢完”不是合法的漢語詞彙組合。 語序錯誤：“畢”作為及物動詞或結果補語，不能直接帶賓語放在句首，正確的語序應為“這項任務終於完畢”或“終於完成了這項任務”。 體標位置/選用錯誤：“著”表示動作的持續或狀態的保持，而“畢”表示動作的完成與結束，兩者在體貌上相互矛盾，不能連用。",
+          "target_word": "畢"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c2934c0b-fbda-4957-a708-7a53bcc23fef",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这项任务终于完毕，我们都可以休息了。",
+            "is_correct": true
+          },
+          {
+            "text": "考试终于考了毕，学生们都松了一口气。",
+            "is_correct": false,
+            "error_description": "“了”作为动态助词，在带有结果补语的句子中，应放在结果补语之后，而不是动词和补语之间。正确写法为“考毕了”。"
+          },
+          {
+            "text": "考试终于考毕了，学生们都松了一口气。",
+            "is_correct": true
+          },
+          {
+            "text": "他把这篇作文写毕，交给了语文老师。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這項任務終於完畢，我們都可以休息了。",
+              "is_correct": true
+            },
+            {
+              "text": "考試終於考了畢，學生們都鬆了一口氣。",
+              "is_correct": false,
+              "error_description": "“了”作為動態助詞，在帶有結果補語的句子中，應放在結果補語之後，而不是動詞和補語之間。正確寫法為“考畢了”。"
+            },
+            {
+              "text": "考試終於考畢了，學生們都鬆了一口氣。",
+              "is_correct": true
+            },
+            {
+              "text": "他把這篇作文寫畢，交給了語文老師。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "a1e0b8ef-1867-457b-86ad-72869715966b",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "他把这篇作文写___，交给了语文老师。",
+        "original_sentence": "他把这篇作文写毕，交给了语文老师。",
+        "target_word": "毕",
+        "word": "毕",
+        "answer": {
+          "accepted": [
+            "毕",
+            "毕业",
+            "完毕",
+            "礼毕"
+          ],
+          "accepted_normalized": [
+            "毕",
+            "毕业",
+            "完毕",
+            "礼毕"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "他把這篇作文寫___，交給了語文老師。",
+          "original_sentence": "他把這篇作文寫畢，交給了語文老師。",
+          "target_word": "畢",
+          "word": "畢",
+          "answer": {
+            "accepted": [
+              "畢",
+              "畢業",
+              "完畢",
+              "禮畢"
+            ],
+            "accepted_normalized": [
+              "畢",
+              "畢業",
+              "完畢",
+              "禮畢"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "动作动词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10106,
+      "word_asset_id": "shadow-10106-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '毕' is fused into a neighbouring chunk — chunks=['大家', '吃毕晚饭', '一起', '走到公园里散步聊天']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '毕' is fused into a neighbouring chunk — chunks=['老师', '言毕', '同学们立刻举手发表自己的观点']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0043088,
+      "prompt_tokens": 2409,
+      "completion_tokens": 2764,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 370123
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00311456,
+      "prompt_tokens": 681,
+      "completion_tokens": 2263,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 39958
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00247232,
+      "prompt_tokens": 214,
+      "completion_tokens": 1878,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1842,
+      "call_role": "repair",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 33869
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00078304,
+      "prompt_tokens": 539,
+      "completion_tokens": 477,
+      "cached_tokens": 0,
+      "reasoning_tokens": 459,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 9840
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00324192,
+      "prompt_tokens": 1511,
+      "completion_tokens": 2155,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 37884
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00302016,
+      "prompt_tokens": 634,
+      "completion_tokens": 2201,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 38588
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00325152,
+      "prompt_tokens": 1513,
+      "completion_tokens": 2162,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 38949
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00301984,
+      "prompt_tokens": 633,
+      "completion_tokens": 2201,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 39387
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00403904,
+      "prompt_tokens": 1686,
+      "completion_tokens": 2734,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 47739
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0040416,
+      "prompt_tokens": 1686,
+      "completion_tokens": 2736,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 47944
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00249664,
+      "prompt_tokens": 418,
+      "completion_tokens": 1846,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1744,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 32481
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001695708,
+      "prompt_tokens": 411,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 3235
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017616,
+      "prompt_tokens": 557,
+      "completion_tokens": 1237,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1161,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 22610
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00077984,
+      "prompt_tokens": 433,
+      "completion_tokens": 501,
+      "cached_tokens": 0,
+      "reasoning_tokens": 477,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 10115
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0028784,
+      "prompt_tokens": 535,
+      "completion_tokens": 2115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 37093
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00078528,
+      "prompt_tokens": 418,
+      "completion_tokens": 509,
+      "cached_tokens": 0,
+      "reasoning_tokens": 425,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 9837
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.00017891,
+      "prompt_tokens": 395,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 8385
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001232,
+      "prompt_tokens": 574,
+      "completion_tokens": 819,
+      "cached_tokens": 0,
+      "reasoning_tokens": 739,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 14682
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00077568,
+      "prompt_tokens": 436,
+      "completion_tokens": 497,
+      "cached_tokens": 0,
+      "reasoning_tokens": 471,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 9748
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00133856,
+      "prompt_tokens": 535,
+      "completion_tokens": 912,
+      "cached_tokens": 0,
+      "reasoning_tokens": 809,
+      "call_role": "primary",
+      "sense_id": 10106,
+      "generation_batch_id": "306d35e9-41ff-4809-8d12-48854811519f",
+      "language_code": "zh",
+      "latency_ms": 29814
+    }
+  ],
+  "llm_calls_observed": 20,
+  "llm_cost_observed_usd": 0.0436892808,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 685.281,
+  "finished_at": "2026-10-07T12:13:10.095988+00:00"
+}

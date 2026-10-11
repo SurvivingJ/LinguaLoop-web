@@ -146,6 +146,11 @@ export function mount(container, ctx) {
 
     const c = ex.content || {};
 
+    // Surfaced on every render (including the error fallback below) so a
+    // broken exercise can be reported by ID instead of by vague description.
+    const idBadge = ex.exercise_id
+      ? `<div class="exercise-id-badge">${escHtml(ex.exercise_id)}</div>`
+      : '';
     let ribbon = '';
     if (ex.lemma) {
       ribbon = `<div class="word-ribbon"><strong>${escHtml(ex.lemma)}</strong>`;
@@ -158,7 +163,7 @@ export function mount(container, ctx) {
     if (ex.ladder_level) {
       ladderBadge = `<div class="ladder-badge"><span class="ladder-level">L${ex.ladder_level}</span> ${escHtml(ex.ladder_name || '')}</div>`;
     }
-    const w = ribbon + ladderBadge;
+    const w = idBadge + ribbon + ladderBadge;
 
     // Start the per-item timer as the exercise becomes visible (TASK-701).
     state.renderedAt = window.performance && performance.now ? performance.now() : Date.now();
@@ -166,7 +171,7 @@ export function mount(container, ctx) {
     try {
       ER.dispatch(ex.exercise_type, ex, c, w);
     } catch (e) {
-      console.error('Render error for', ex.exercise_type, e);
+      console.error('Render error for', ex.exercise_type, ex.exercise_id, e);
       q('exerciseCard').innerHTML =
         w +
         `<p style="color:var(--danger)">Error rendering exercise: ${escHtml(ex.exercise_type)}</p>`;
@@ -352,6 +357,7 @@ const MARKUP = `
     .word-ribbon { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--bg-muted); border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
     .word-ribbon strong { font-size: 16px; color: var(--primary); }
     .word-ribbon .sep { color: var(--border-default); }
+    .exercise-id-badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--text-secondary); opacity: .55; margin-bottom: 6px; user-select: all; cursor: text; }
     .ladder-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-muted); border: 1px solid var(--border-default); border-radius: 8px; padding: 4px 12px; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
     .ladder-level { color: var(--primary); font-weight: 700; }
     .js-bank, .js-answer { min-height: 52px; padding: 12px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 8px; }

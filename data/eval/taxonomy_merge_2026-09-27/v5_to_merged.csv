@@ -15,7 +15,7 @@ zh,bei_passive,ba_bei,merge,merges with ba_construction into one jev-aligned typ
 zh,resultative_complement,complement,merge,merges with directional_complement into jev's single `complement` type
 zh,directional_complement,complement,merge,merges with resultative_complement into jev's single `complement` type
 zh,adverbial_order,word_order,merge,folded into the general word_order type (jev has no standalone adverbial-order type)
-zh,topic_comment,topic_comment,1:1,retained verbatim; jev has no zh equivalent
+zh,topic_comment,topic_comment,1:1,"REVISED 2026-09-28/10-04 (stale note): jev now has a zh.topic_comment, folded via taxonomy_addendum_2026-09-27.md §8.2 into taxonomy.md §1.2. jev authors only Z1 (expletive 它 as the subject of a closed-list weather verb), a capped diagnostic slice; v5's central case (topic-structure over-transfer) is the reverse of Z1 and is not covered. v5->v6 is 1:1 (same slug, same DT meaning); jev's version is narrower — see jev_grammar_to_merged.csv."
 ja,omission,omission,1:1,
 ja,addition,addition,1:1,
 ja,word_choice,word_choice,1:1,
@@ -26,13 +26,13 @@ ja,orthography,orthography,1:1,
 ja,cohesion_connective,cohesion_connective,1:1,
 ja,particle_wa_ga,wa_ga,split,"jev restricts to 3 structural rules (question-word subject, relative-clause subject, differing とき-clause subject). Ordinary main-clause は/が topic-vs-focus choice, previously taggable under this subtype, is NO LONGER an error. Historical rows need per-instance review."
 ja,particle_case,case_particle,1:1,rename only
-ja,particle_other,particle_other,1:1,retained verbatim; jev has no standalone equivalent
+ja,particle_other,particle_other,1:1,"REVISED 2026-09-28/10-04 (stale note): jev now has a ja.particle_other, folded via taxonomy_addendum_2026-09-27.md §2 into taxonomy.md §2.2 (new bucket B9). jev authors only P1-P3 (negative polarity, time-point まで/までに, closed-list や/とか) and excludes final-particle choice and stacking, which v5's gloss includes; v5 files より under particle_case, whereas jev routes より here. v5->v6 is 1:1 (same slug, same DT meaning); jev's version is narrower — see jev_grammar_to_merged.csv."
 ja,verb_conjugation,conjugation,1:1,rename only
 ja,tense_aspect_ja,tam,merge,"broadened to modality and relative-tense (前に/後で, まだ+negative) beyond v5's た/ている-only scope"
 ja,keigo_register,keigo,1:1,rename only; dimension stays fidelity per business-rules doc
 ja,counter_classifier,counter,1:1,rename only
 ja,script_choice,(none),dropped,jev: kana/kanji spelling choice for the SAME word is never an error. Historical rows need review — likely relabel to `orthography` (if the intended word is clear) or discard.
-ja,topic_comment,topic_comment,1:1,retained verbatim; jev has no ja equivalent
+ja,topic_comment,topic_comment,1:1,"REVISED 2026-09-28/10-04 (stale note): jev now has a ja.topic_comment, folded via taxonomy_addendum_2026-09-27.md §8.3 into taxonomy.md §2.2 (bucket B3). jev covers only the comment side (主述のねじれ, J1a/J1b); v5's gloss centres on は-topic presentation (expletive/doubled は-topics), which jev never edits and which remains routing-only/DT-only. v5->v6 is 1:1 (same slug, same DT meaning); jev's version is narrower — see jev_grammar_to_merged.csv."
 ja,particle (historical_alias),wa_ga|case_particle|particle_other,split,pre-v5 undifferentiated `particle` rows must be triaged by hand into wa_ga / case_particle / particle_other; cannot be resolved automatically
 en,omission,omission,1:1,
 en,addition,addition,1:1,
@@ -46,6 +46,6 @@ en,article,article_determiner,1:1,rename only
 en,preposition,preposition,1:1,
 en,tense_aspect,verb_form_tense,1:1,rename only
 en,subject_verb_agreement,agreement,1:1,rename only; jev broadens to attraction cases explicitly
-en,plural_number,plural_number,1:1,retained verbatim; jev has no standalone equivalent
-en,phrasal_verb,phrasal_verb,1:1,retained verbatim; jev only covers idiomatic phrasal verbs under the dropped target_in_idiom type
+en,plural_number,plural_number,1:1,"REVISED 2026-09-28/10-04 (stale note): jev now has an en.plural_number, folded via taxonomy_addendum_2026-09-27.md §8.1 into taxonomy.md §3.2 (bucket B4). jev covers only noun-side number against a fixed licensor (N1-N3); DT's wider scope also includes subject nouns (jev routes those to agreement) and determiner-side countability (jev routes those to article_determiner). v5->v6 is 1:1 (same slug, same DT meaning); jev's version is narrower — see jev_grammar_to_merged.csv."
+en,phrasal_verb,phrasal_verb,1:1,"REVISED 2026-09-28/10-04 (stale note): jev now has an en.phrasal_verb, folded via taxonomy_addendum_2026-09-27.md §1 into taxonomy.md §3.2 (bucket B1). jev covers only particle choice, omission and placement on idiomatic verbs (narrower than this row's old framing under the dropped target_in_idiom type); DT's wider 'avoided phrasal-verb form' stays DT-only. v5->v6 is 1:1 (same slug, same DT meaning); jev's version is narrower — see jev_grammar_to_merged.csv."
 en,pronoun_reference,pronoun,split,"jev's en.pronoun is narrower (case, which-for-person, local reflexive binding); v5's broader ambiguous-antecedent errors outside that scope have no home and need per-instance review"

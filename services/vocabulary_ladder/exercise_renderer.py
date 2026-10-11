@@ -22,7 +22,7 @@ from services.vocabulary_ladder.config import (
     PROMPT3_TYPE_FOR_LEVEL, normalize_semantic_class, type_is_available,
     capability_context_from_core,
     SENTENCE_SOURCE_GENERATED, SENTENCE_SOURCE_MINED,
-    get_sentence_target,
+    get_sentence_target, blank_target,
 )
 from services.vocabulary_ladder.bundle.flags import bundle_enabled
 from services.vocabulary_ladder.bundle.judge import (
@@ -223,12 +223,39 @@ class LadderExerciseRenderer:
         # judge call, unchanged.
         self._bundle_judge_result = None
         if bundle_enabled():
-            requests = self._gather_bundle_judge_requests(core, variant_configs, active_levels)
-            if not requests.is_empty():
-                target = self._headword(core, sense_id)
-                self._bundle_judge_result = BundleJudge(self.db, language_id).judge_bundle(
-                    sense_id, target, requests,
+            try:
+                requests = self._gather_bundle_judge_requests(
+                    core, variant_configs, active_levels, language_id,
                 )
+                if not requests.is_empty():
+                    target = self._headword(core, sense_id)
+                    self._bundle_judge_result = BundleJudge(self.db, language_id).judge_bundle(
+                        sense_id, target, requests,
+                    )
+            except Exception as exc:
+                # TASK-8xx (item 6): a bundle-judge gather/call failure must
+                # never sink the WHOLE render for this sense — it is a pure
+                # optimisation over the per-level judge calls each renderer
+                # already makes on its own (`_bundle_judge_result = None`
+                # makes every judged call site fall through to its direct
+                # call, unchanged — see the docstring above). Before this
+                # fix, an uncaught exception here (observed live: a non-int
+                # `correct_sentence_index`/`correct_sentence_indices` from a
+                # bundle-mode P2/P3 response — now coerced at the source in
+                # prompt2_exercises._remap_level_6 /
+                # prompt3_transforms._remap_level_7) propagated out of
+                # build_rows entirely, producing ZERO exercise rows for the
+                # sense with no error or skip recorded anywhere (en senses
+                # 13900/13902, phase2_smoke_en).
+                from services.vocabulary_ladder.deterministic import Skip
+                logger.error(
+                    "Bundle judge gather/call failed for sense %s — falling "
+                    "back to per-level direct judging: %s", sense_id, exc,
+                )
+                deterministic_skips.append(Skip(
+                    'bundle_judge', f'gather/call failed: {exc}',
+                ))
+                self._bundle_judge_result = None
 
         for variant in variant_configs:
             p2 = variant['p2']
@@ -404,6 +431,7 @@ class LadderExerciseRenderer:
             sense_id=sense_id,
             language_id=language_id,
             lemma=self._lemma(core, sense_id),
+            headword=self._headword(core, sense_id),
             core=core,
             semantic_class=gate_class,
             tier=tier,
@@ -605,6 +633,7 @@ class LadderExerciseRenderer:
 
     def _gather_bundle_judge_requests(
         self, core: dict, variant_configs: list[dict], active_levels: list[int],
+        language_id: int,
     ) -> BundleJudgeRequests:
         """Every candidate the render loop's 6 direct judge calls would need,
         across every (variant, level), collected up front for ONE
@@ -653,11 +682,12 @@ class LadderExerciseRenderer:
                         if not o.get('is_correct') and o.get('text')
                     ][:3]
                     if text and target and distractors:
-                        blanked = text.replace(target, '___', 1)
-                        requests.cloze.append(DistractorRequest(
-                            self._bundle_request_id(vk, 3), distractors, 'L3 cloze candidate',
-                            {'sentence_with_blank': blanked, 'correct_answer': correct},
-                        ))
+                        blanked = blank_target(text, target, language_id)
+                        if blanked is not None:
+                            requests.cloze.append(DistractorRequest(
+                                self._bundle_request_id(vk, 3), distractors, 'L3 cloze candidate',
+                                {'sentence_with_blank': blanked, 'correct_answer': correct},
+                            ))
 
             if 5 in active_levels:
                 level_data = p2.get('level_5')
@@ -672,12 +702,13 @@ class LadderExerciseRenderer:
                             o.get('text', '') for o in level_data.get('options', [])
                             if not o.get('is_correct') and o.get('text')
                         ]
-                        if text and collocate and '___' in text.replace(collocate, '___', 1):
-                            blanked = text.replace(collocate, '___', 1)
-                            requests.collocation_filter.append(DistractorRequest(
-                                self._bundle_request_id(vk, 5), distractors, 'L5 collocation candidate',
-                                {'sentence': blanked, 'target': target_word, 'correct_collocate': collocate},
-                            ))
+                        if text and collocate:
+                            blanked = blank_target(text, collocate, language_id)
+                            if blanked is not None:
+                                requests.collocation_filter.append(DistractorRequest(
+                                    self._bundle_request_id(vk, 5), distractors, 'L5 collocation candidate',
+                                    {'sentence': blanked, 'target': target_word, 'correct_collocate': collocate},
+                                ))
 
             if 6 in active_levels:
                 level_data = p2.get('level_6') or {}
@@ -740,7 +771,19 @@ class LadderExerciseRenderer:
             6: self._render_semantic_discrimination,
             7: self._render_spot_incorrect,
             8: self._render_collocation_repair,
-            9: self._render_jumbled,
+            # L9 (jumbled_sentence) is NOT dispatched here. It is a
+            # capability-matrix 'deterministic' type (config.py's
+            # CAPABILITY_MATRIX row for 'jumbled_sentence') and is produced
+            # exclusively by `_render_deterministic` -> `deterministic.generate()`
+            # -> services/vocabulary_ladder/deterministic/jumbled.py, which
+            # chunks the sentence and verifies the chunks reconstruct it
+            # before returning anything. A legacy `_render_jumbled` stub used
+            # to be dispatched here too, emitting a second, chunkless
+            # jumbled_sentence row (`{'original_sentence': text}` with no
+            # `chunks`/`shuffled_chunks`) for every sense alongside the real
+            # one — removed rather than fixed, since the real generator
+            # already covers this level correctly and nothing should emit a
+            # second, unverified copy of the same exercise type.
         }
         renderer = renderers.get(level)
         if not renderer:
@@ -928,10 +971,23 @@ class LadderExerciseRenderer:
         if not text or not target:
             return None
 
-        blanked = text.replace(target, '___', 1)
-
         options_data = level_data.get('options', [])
         correct = level_data.get('correct_answer', target)
+
+        # TASK follow-up bug #3: a naive `text.replace(target, '___', 1)`
+        # blanks only a word-boundary-clean occurrence of `target` now — see
+        # `blank_target`'s docstring. Without it, `target` being a prefix of
+        # the sentence's actual inflected word (e.g. 'work' inside 'works')
+        # left a dangling suffix glued to the blank marker ('Marcus ___s'),
+        # which then rendered as 'workss' once `correct` was spliced back in.
+        blanked = blank_target(text, target, language_id)
+        if blanked is None:
+            logger.info(
+                "L3 cloze target %r has no clean word-boundary occurrence in "
+                "its own sentence for sense %s; skipping variant",
+                target, sense_id,
+            )
+            return None
         distractors = [
             o.get('text', '') for o in options_data
             if not o.get('is_correct') and o.get('text')
@@ -993,11 +1049,37 @@ class LadderExerciseRenderer:
         if not text or not target:
             return None
 
-        blanked = text.replace(target, '___', 1)
-
         correct_form = level_data.get('correct_form', target)
         base_form = level_data.get('base_form', '')
         form_label = level_data.get('form_label', '')
+
+        # TASK follow-up bug #3: the blank is cut at `target`'s own position
+        # in the sentence, so `correct_form` — what the model names as the
+        # right answer for that same slot — must be the identical string, or
+        # the item is internally inconsistent: splicing `correct_form` back
+        # into a blank cut for a *different* span either leaves a stray
+        # suffix behind or glues one on. The named repro is '複雑' blanking
+        # '複雑すぎ' out of a sentence, leaving template '___て', so the
+        # "correct" option '複雑' renders as '複雑て' instead of '複雑すぎて'.
+        # Observed live in ~1/4 of this sample's morphology_slot rows,
+        # including doubled-suffix cases ('可能' blanked, correct_form
+        # '可能です' spliced into '___です' -> '可能ですです').
+        if correct_form.strip() != target.strip():
+            logger.info(
+                "L4 morphology_slot correct_form %r disagrees with the "
+                "sentence's own target %r for sense %s; skipping variant",
+                correct_form, target, sense_id,
+            )
+            return None
+
+        blanked = blank_target(text, target, language_id)
+        if blanked is None:
+            logger.info(
+                "L4 morphology_slot target %r has no clean word-boundary "
+                "occurrence in its own sentence for sense %s; skipping variant",
+                target, sense_id,
+            )
+            return None
 
         options_data = level_data.get('options', [])
         distractors = [
@@ -1042,9 +1124,12 @@ class LadderExerciseRenderer:
         if not text or not collocate:
             return None
 
-        blanked = text.replace(collocate, '___', 1)
-        if '___' not in blanked:
-            # Collocate not found in sentence — skip
+        # TASK follow-up bug #3: boundary-safe blank — a naive
+        # `str.replace` would blank only a prefix/suffix-unsafe substring of
+        # the collocate actually present (same class of bug as L3/L4).
+        blanked = blank_target(text, collocate, language_id)
+        if blanked is None:
+            # Collocate has no clean occurrence in sentence — skip
             return None
 
         target_word = get_sentence_target(sentence)
@@ -1293,28 +1378,6 @@ class LadderExerciseRenderer:
             'correct_word': correct_collocate,
             'explanation': explanations.get(correct_collocate, ''),
             '__judge_metas': {'collocation': judge_meta},
-        }
-
-    def _render_jumbled(self, core, p2, p3, sense_id, language_id, sa) -> dict | None:
-        """L9: Jumbled sentence via local chunking.
-
-        Uses the sentence specified by sentence_assignments for this variant.
-        """
-        sentences = core.get('sentences', [])
-        sent_idx = sa.get(9, 5)
-        if sent_idx >= len(sentences):
-            sent_idx = len(sentences) - 1
-        if sent_idx < 0:
-            return None
-
-        sentence = sentences[sent_idx]
-        text = sentence.get('text', '')
-        if not text:
-            return None
-
-        # Store minimal content; chunking happens at serve time
-        return {
-            'original_sentence': text,
         }
 
     # ------------------------------------------------------------------

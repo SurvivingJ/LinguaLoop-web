@@ -40,7 +40,7 @@ import logging
 from services.exercise_generation.schemas import (
     JUDGE_RATING_KEY, JUDGE_REASON_KEY, read_index,
 )
-from services.llm_service import call_llm
+from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.test_generation.schemas import likert_to_verdict
 
@@ -55,6 +55,21 @@ _PIPELINE = 'vocab_ladder'
 _cfg_cache: dict[int, dict] = {}
 
 _KEEP_RATING = 5.0
+
+# RE-DERIVED 2026-10-03 (ADR-028 cost work): see the right-sized value (200)
+# at the call site below. This judge runs on qwen3.7-plus (ja-only), unlike
+# the other ladder judges in this package (gemini -- unaffected by reasoning
+# state). When `LADDER_QWEN_REASONING=on` (the default) restores Phase-1
+# reasoning-left-on behaviour for qwen, reasoning tokens count toward
+# `max_tokens` and the right-sized cap would truncate; 9000 was this task's
+# own TASK-812 cap before the 2026-10-03 re-derivation.
+_MAX_TOKENS_REASONING_SAFE = 9000
+_MAX_TOKENS_RIGHTSIZED = 200
+
+
+def _max_tokens() -> int:
+    return (_MAX_TOKENS_REASONING_SAFE if ladder_qwen_reasoning_mode() != 'off'
+            else _MAX_TOKENS_RIGHTSIZED)
 
 # language_id → llm_calls.language_code — see answer_entailment.py.
 _LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
@@ -153,12 +168,18 @@ def _judge_candidates(
             prompt,
             model=model,
             temperature=0.0,
-            # TASK-812: was 3000. TASK-808's baseline (ja-only, low volume:
-            # n=6) shows this judge's own completion_tokens max at 2857 --
-            # within 5% of the old cap, a real truncation risk for a slightly
-            # larger candidate set. 9000 (>=3x the observed p99/max) removes
-            # that risk; re-derive from a larger ja sample once one exists.
-            max_tokens=9000,
+            # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 9000 was
+            # sized against a ja-only n=6 sample inflated by reasoning tokens
+            # (qwen reasoning is now OFF), and the larger ja sample TASK-812
+            # asked for now exists. data/eval/runs/phase2_bundle_ja/ +
+            # phase2_fix_ja/ + phase2_smoke_ja_v3/ *.json llm_calls for
+            # judge_ladder_particle (ja-only task): n=32, p99=87.5, max=90.
+            # cap = max(ceil(p99*2), ceil(max*1.25)) = 176, rounded up to
+            # 200. At qwen3.7-plus's $1.28/M completion price this cuts the
+            # worst-case reservation from ~$0.012/request to
+            # ~$0.0005/request. See `_max_tokens()` above for the
+            # LADDER_QWEN_REASONING=on fallback to the old 9000.
+            max_tokens=_max_tokens(),
             # Provider-enforced JSON: a prose answer fails open and keeps every
             # candidate, which is the expensive failure for a uniqueness judge.
             response_format='json_object',

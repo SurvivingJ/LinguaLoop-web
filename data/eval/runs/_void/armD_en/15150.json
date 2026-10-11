@@ -1,0 +1,1467 @@
+{
+  "sense_id": 15150,
+  "language_id": 2,
+  "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+  "started_at": "2026-10-05T15:36:19.929083+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.23392534255981445,
+    "p1_generate": 2.9641106128692627,
+    "tier_gate": 0.0020003318786621094,
+    "p1_judge": 1.2896053791046143,
+    "collocate_grounding": 0.0,
+    "fan_out": 43.99428129196167
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˌpɒliˈkrɒnɪk/",
+        "morphological_forms": [
+          {
+            "form": "polychronic",
+            "label": "base form"
+          },
+          {
+            "form": "polychronically",
+            "label": "adverb"
+          },
+          {
+            "form": "polychronicity",
+            "label": "noun"
+          }
+        ],
+        "pronunciation": "pol-ee-KRON-ik",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            15150
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "a8d33d1a-a002-4e2b-85b7-392e79b53b12",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "polychronic",
+        "pronunciation": "pol-ee-KRON-ik",
+        "correct_definition": "Describing a way of doing several things at once, not following a strict schedule.",
+        "options": [
+          "Describing a way of doing several things at once, not following a strict schedule.",
+          "The act of refilling or restocking something that has been partly or completely used up.",
+          "in a way that is appropriate or fitting for a particular situation",
+          "something that shows or points to a fact or situation"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "c68f5a26-a0e3-4637-8f33-e775bede3be8",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Conversely, numerous ___ cultures, prevalent in parts of Latin America, the Middle East, and Africa, embrace a more fluid and multi-layered approach to time.",
+        "original_sentence": "Conversely, numerous polychronic cultures, prevalent in parts of Latin America, the Middle East, and Africa, embrace a more fluid and multi-layered approach to time.",
+        "correct_answer": "polychronic",
+        "options": [
+          "chronological",
+          "synchronous",
+          "polychronic",
+          "punctual"
+        ],
+        "explanation": "Correct: Fits the context of cultures that embrace a fluid, multi-layered approach to time.",
+        "distractor_tags": {},
+        "word_definition": "Describing a way of doing several things at once, not following a strict schedule.",
+        "target_word": "polychronic"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "d3df1385-fb4d-427d-acb4-d02b50a0dfe1",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "She found it difficult to work in a ___ environment where colleagues constantly switched between multiple tasks.",
+        "original_sentence": "She found it difficult to work in a polychronic environment where colleagues constantly switched between multiple tasks.",
+        "correct_answer": "polychronic",
+        "base_form": "polychronic",
+        "form_label": "base form",
+        "options": [
+          "polychronically",
+          "polychronic",
+          "polychronicity",
+          "polychronics"
+        ],
+        "explanation": "base adjective form correctly modifies the noun 'environment'",
+        "word_definition": "Describing a way of doing several things at once, not following a strict schedule.",
+        "target_word": "polychronic"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "6cbb706e-2de8-4c99-9c39-190d97aef529",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "People with a polychronic lifestyle often feel comfortable handling several conversations at the same time.",
+            "is_correct": true
+          },
+          {
+            "text": "He took a polychronic pill that cured his headache instantly and lasted for exactly twenty-four hours.",
+            "is_correct": false
+          },
+          {
+            "text": "The polychronic bridge was built using a highly durable alloy that resisted rust and corrosion for decades.",
+            "is_correct": false
+          },
+          {
+            "text": "The polychronic painting featured a single, solid color applied uniformly across the entire canvas.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatic error: 'polychronic' refers to time management, not visual art or color palettes (which would use 'polychromatic'). Semantic error: 'polychronic' describes a behavioral approach to time, not a medical treatment or pharmacological property. Semantic error: 'polychronic' applies to human behavior and cultural attitudes toward time, not physical engineering materials.",
+        "target_word": "polychronic"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "47da2d64-14be-4c15-8c88-20725521b36a",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Conversely, numerous polychronic cultures, prevalent in parts of Latin America, the Middle East, and Africa, embrace a more fluid and multi-layered approach to time.",
+            "is_correct": true
+          },
+          {
+            "text": "She found it difficult to work in a polychronic environment where colleagues constantly switched between multiple tasks.",
+            "is_correct": true
+          },
+          {
+            "text": "Her polychronic makes it difficult for her to stick to a strict schedule and finish tasks on time.",
+            "is_correct": false,
+            "error_description": "The adjective 'polychronic' cannot function as a noun in this context; the noun form 'polychronicity' (or a noun phrase like 'polychronic nature') is required to serve as the subject of the sentence."
+          },
+          {
+            "text": "Many managers prefer a polychronic approach because it allows teams to adapt quickly to changing project needs.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "b7222107-e03b-44ea-aefc-61de48656e4c",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "polychronic",
+        "pronunciation": "pol-ee-KRON-ik",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "the ability to learn and understand things",
+              "Your body uses food to make energy.",
+              "Describing a way of doing several things at once, not following a strict schedule.",
+              "The climate of a place is the general weather conditions that are typical of it."
+            ],
+            "correct_answer": "Describing a way of doing several things at once, not following a strict schedule."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "934cd992-9ffc-44ae-817a-0eb45268a892",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "She found it difficult to work in a ___ environment where colleagues constantly switched between multiple tasks.",
+        "original_sentence": "She found it difficult to work in a polychronic environment where colleagues constantly switched between multiple tasks.",
+        "target_word": "polychronic",
+        "word": "polychronic",
+        "answer": {
+          "accepted": [
+            "polychronic",
+            "polychronically",
+            "polychronicity"
+          ],
+          "accepted_normalized": [
+            "polychronic",
+            "polychronically",
+            "polychronicity"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "2968aefe-a874-4a33-9b7f-81eeba9718a1",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "During the meeting, their polychronic habits became clear as they discussed three different topics simultaneously.",
+        "chunks": [
+          "During the meeting",
+          "their polychronic habits",
+          "became",
+          "clear",
+          "as they discussed three different topics simultaneously"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "their polychronic habits",
+          "became",
+          "as they discussed three different topics simultaneously",
+          "During the meeting",
+          "clear"
+        ],
+        "target_word": "polychronic",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "42740901-ea57-4a1c-a181-007b3a158ba8",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "polychronic",
+        "relation": "antonym",
+        "options": [
+          "synchronous",
+          "monochronic",
+          "chronic",
+          "episodic"
+        ],
+        "correct_answer": "monochronic",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Describing a way of doing several things at once, not following a strict schedule.",
+            "explanation": "antonym: describes doing one thing at a time on a strict schedule, the direct opposite of polychronic"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "039916ed-c0ba-4e91-8d16-183b41bc429b",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "polychronic",
+        "pronunciation": "pol-ee-KRON-ik",
+        "ipa": "/ˌpɒliˈkrɒnɪk/",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "polychromic",
+          "polyclinic",
+          "polytechnic",
+          "polychronic"
+        ],
+        "correct_answer": "polychronic",
+        "explanation": "Correct: This is the exact target word.",
+        "distractor_explanations": {
+          "polychromic": "Near-homophone: differs only in the middle syllable sounds (/krɒn/ vs /krəʊm/).",
+          "polyclinic": "Minimal pair: differs in the consonant cluster and vowel of the stressed syllable (/krɒn/ vs /klɪn/).",
+          "polytechnic": "Structural rhyme: shares the same stress pattern and syllable count, but differs in the middle syllable (/krɒn/ vs /tek/)."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "d7f5ba2b-df2e-4a09-8e84-bb3354faa63d",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "He prefers a ___ workflow instead of focusing on just one assignment from morning until evening.",
+        "original_sentence": "He prefers a polychronic workflow instead of focusing on just one assignment from morning until evening.",
+        "correct_answer": "polychronic",
+        "options": [
+          "monochronic",
+          "synchronous",
+          "polychronic",
+          "sporadic"
+        ],
+        "explanation": "Correct: Fits the context of handling multiple tasks simultaneously rather than sequentially.",
+        "distractor_tags": {},
+        "word_definition": "Describing a way of doing several things at once, not following a strict schedule.",
+        "target_word": "polychronic"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "8d7d91d9-b7e4-499e-ab90-f2bd17d82b61",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Sociologists often contrast ___ societies with monochronic cultures that value rigid schedules.",
+        "original_sentence": "Sociologists often contrast polychronic societies with monochronic cultures that value rigid schedules.",
+        "correct_answer": "polychronic",
+        "base_form": "polychronic",
+        "form_label": "positive adjective",
+        "options": [
+          "polychronically",
+          "polychronicity",
+          "more polychronic",
+          "polychronic"
+        ],
+        "explanation": "positive adjective correctly modifies the noun 'societies'",
+        "word_definition": "Describing a way of doing several things at once, not following a strict schedule.",
+        "target_word": "polychronic"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "84299f96-914a-42f0-ba46-b27bf6012464",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The polychronic sculpture was painted in vibrant shades of red, blue, and gold to represent different historical eras.",
+            "is_correct": false
+          },
+          {
+            "text": "He took a polychronic nap, sleeping for exactly twenty minutes before his alarm went off.",
+            "is_correct": false
+          },
+          {
+            "text": "The polychronic diet requires you to eat only one type of food group per day to improve digestion.",
+            "is_correct": false
+          },
+          {
+            "text": "They adapted to the polychronic routine by keeping their minds open to sudden changes.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Incorrect: Uses the word to mean 'multicolored' (confusing it with polychromatic), rather than relating to time management. Incorrect: Misapplies the term to a brief, strictly timed physical rest, ignoring its definition regarding multitasking and fluid schedules. Incorrect: Uses the word to mean 'single-focus' or 'restricted', which is the exact opposite of doing several things at once.",
+        "target_word": "polychronic"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "dd111532-0d0c-4ef0-8b11-0433e8c3c0d7",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "They adapted to the polychronic routine by keeping their minds open to sudden changes.",
+            "is_correct": true
+          },
+          {
+            "text": "Sociologists often contrast polychronic societies with monochronic cultures that value rigid schedules.",
+            "is_correct": true
+          },
+          {
+            "text": "He prefers a polychronic workflow instead of focusing on just one assignment from morning until evening.",
+            "is_correct": true
+          },
+          {
+            "text": "She works very polychronic, handling multiple tasks at the same time without getting stressed.",
+            "is_correct": false,
+            "error_description": "The adjective 'polychronic' is incorrectly used to modify the verb 'works'. It should be replaced with the adverb 'polychronically'."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "6765bcd2-0c76-44b1-9ae1-ff16a9efddf3",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Sociologists often contrast ___ societies with monochronic cultures that value rigid schedules.",
+        "original_sentence": "Sociologists often contrast polychronic societies with monochronic cultures that value rigid schedules.",
+        "target_word": "polychronic",
+        "word": "polychronic",
+        "answer": {
+          "accepted": [
+            "polychronic",
+            "polychronically",
+            "polychronicity"
+          ],
+          "accepted_normalized": [
+            "polychronic",
+            "polychronically",
+            "polychronicity"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "2da3430f-4726-487a-98fd-4c7d65ed2946",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "People with a polychronic lifestyle often feel comfortable handling several conversations at the same time.",
+        "chunks": [
+          "People with a polychronic lifestyle",
+          "often",
+          "feel",
+          "comfortable handling several conversations at the same time"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "feel",
+          "often",
+          "People with a polychronic lifestyle",
+          "comfortable handling several conversations at the same time"
+        ],
+        "target_word": "polychronic",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "0cc91098-0b59-40ab-ac4d-cd07a0504ea8",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "polychronic",
+        "relation": "antonym",
+        "options": [
+          "monochronic",
+          "diachronic",
+          "chronic",
+          "synchronous"
+        ],
+        "correct_answer": "monochronic",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "Describing a way of doing several things at once, not following a strict schedule.",
+            "explanation": "genuine antonym: describes doing one thing at a time on a strict schedule"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "adjective",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 15150,
+      "word_asset_id": "shadow-15150-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "word_family",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0023912,
+      "prompt_tokens": 1979,
+      "completion_tokens": 719,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 2849
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006498,
+      "prompt_tokens": 716,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1210
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00187008,
+      "prompt_tokens": 1248,
+      "completion_tokens": 1149,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20513
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00170176,
+      "prompt_tokens": 666,
+      "completion_tokens": 1163,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20621
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176064,
+      "prompt_tokens": 854,
+      "completion_tokens": 1162,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 20771
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00189888,
+      "prompt_tokens": 1250,
+      "completion_tokens": 1171,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21089
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183584,
+      "prompt_tokens": 853,
+      "completion_tokens": 1221,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21533
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176864,
+      "prompt_tokens": 667,
+      "completion_tokens": 1215,
+      "cached_tokens": 0,
+      "reasoning_tokens": 990,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21715
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00269888,
+      "prompt_tokens": 1678,
+      "completion_tokens": 1689,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 29788
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00268736,
+      "prompt_tokens": 1678,
+      "completion_tokens": 1680,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 30156
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00184864,
+      "prompt_tokens": 817,
+      "completion_tokens": 1240,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 21735
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185792,
+      "prompt_tokens": 818,
+      "completion_tokens": 1247,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 22111
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003251,
+      "prompt_tokens": 417,
+      "completion_tokens": 80,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 965
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003827,
+      "prompt_tokens": 409,
+      "completion_tokens": 104,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 1071
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003647,
+      "prompt_tokens": 499,
+      "completion_tokens": 86,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 842
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001999,
+      "prompt_tokens": 408,
+      "completion_tokens": 31,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 683
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004299,
+      "prompt_tokens": 533,
+      "completion_tokens": 108,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 995
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004462,
+      "prompt_tokens": 504,
+      "completion_tokens": 118,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 927
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003126,
+      "prompt_tokens": 417,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 858
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000321,
+      "prompt_tokens": 395,
+      "completion_tokens": 81,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 916
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003671,
+      "prompt_tokens": 507,
+      "completion_tokens": 86,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 840
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001911,
+      "prompt_tokens": 387,
+      "completion_tokens": 30,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 702
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000373,
+      "prompt_tokens": 535,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 871
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004265,
+      "prompt_tokens": 505,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 15150,
+      "generation_batch_id": "cf3bff73-99df-4573-8660-b750d4a57ac4",
+      "language_code": "en",
+      "latency_ms": 913
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.027109439999999988,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 60.28099999995902,
+  "finished_at": "2026-10-05T15:37:20.212075+00:00"
+}

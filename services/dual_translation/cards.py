@@ -25,6 +25,8 @@ import os
 import re
 from datetime import date
 
+from config import Config
+
 logger = logging.getLogger(__name__)
 
 CARD_TYPE_CLOZE = "cloze"
@@ -379,6 +381,22 @@ def _source_texts(db, submission_id: int) -> tuple[str | None, str]:
     return gold_l2, l1_text
 
 
+def _taxonomy_stamp(db) -> dict:
+    """TASK-851: ``{"taxonomy_version": <active version>}`` for every new
+    ``dt_card``, or ``{}``. Empty while ``Config.DT_TAXONOMY_COLUMNS`` is off
+    (``dt_card.taxonomy_version`` may not exist yet — PostgREST would reject the
+    insert) and when the version read fails (NULL = unstamped, by design)."""
+    if not Config.DT_TAXONOMY_COLUMNS:
+        return {}
+    from services.dual_translation import grader_cascade  # lazy: flag-on path only
+
+    version = grader_cascade.get_active_taxonomy_version(db)
+    if version is None:
+        logger.warning("dual_translation.cards: active taxonomy version unreadable — cards written unstamped")
+        return {}
+    return {"taxonomy_version": version}
+
+
 def generate_cards_for_queued_entries(db, user_id: str) -> int:
     """Materialise ``dt_card`` rows for this user's promoted (``queued``)
     ``dt_error_profile_entry`` clusters that don't have cards yet, then flip
@@ -413,6 +431,7 @@ def generate_cards_for_queued_entries(db, user_id: str) -> int:
     )
     already_carded = {row["profile_entry_id"] for row in existing}
 
+    stamp = _taxonomy_stamp(db)
     carded = 0
     for entry in queued:
         if entry["id"] in already_carded:
@@ -434,6 +453,7 @@ def generate_cards_for_queued_entries(db, user_id: str) -> int:
                 "profile_entry_id": entry["id"],
                 "origin_error_id": error["id"],
                 "state": "new",
+                **stamp,
             }
             for payload in payloads
         ]

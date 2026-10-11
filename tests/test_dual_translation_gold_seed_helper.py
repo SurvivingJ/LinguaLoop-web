@@ -241,3 +241,168 @@ def test_offline_config_covers_every_severity_and_dimension():
         assert dim in OFFLINE_SCORING_CONFIG["band_thresholds"]
     for key in ("severity_weights", "understandability_weights"):
         assert set(OFFLINE_SCORING_CONFIG[key]) == set(SEVERITIES)
+
+
+# ---------------------------------------------------------------------------
+# taxonomy v6 (TASK-847): derive_bands(taxonomy_version=6) + the v6 fixtures
+# ---------------------------------------------------------------------------
+
+from scripts.dt_gold_seed_helper import V6_DIMENSION, verify_item  # noqa: E402
+
+GOLD_V6_DIR = REPO / "tests" / "fixtures" / "dt_gold_v6"
+SILVER_V6_DIR = REPO / "tests" / "fixtures" / "dt_silver_v6"
+OVERLAY_DIR = REPO / "data" / "eval" / "taxonomy_merge_2026-09-27"
+V6_FIXTURES = [(d, l) for d in (GOLD_V6_DIR, SILVER_V6_DIR) for l in L2_CODES]
+
+
+def _v6_items(fixture_dir, l2_code):
+    return json.loads((fixture_dir / f"{l2_code}.json").read_text(encoding="utf-8"))
+
+
+def _all_v6_errors():
+    return [e for d, l in V6_FIXTURES for i in _v6_items(d, l) for e in i["expected_errors"]]
+
+
+def test_derive_bands_defaults_to_v5():
+    """Same error, labelled differently per taxonomy: the default must read v5."""
+    errors = [{"subtype_v5_target": "article", "subtype_v6_target": "meaning_inversion",
+               "severity_v2": "critical"}]
+    v5 = derive_bands(errors, offline=True)
+    assert (v5["accuracy"], v5["fidelity"]) == (1, 4)
+    assert derive_bands(errors, offline=True, taxonomy_version=5) == v5
+    v6 = derive_bands(errors, offline=True, taxonomy_version=6)
+    assert (v6["accuracy"], v6["fidelity"]) == (4, 1)
+
+
+def test_derive_bands_rejects_unknown_taxonomy_version():
+    with pytest.raises(ValueError, match="taxonomy_version"):
+        derive_bands([], offline=True, taxonomy_version=4)
+
+
+def test_v6_dimension_matches_merged_taxonomy():
+    taxonomy = json.loads((OVERLAY_DIR / "merged_taxonomy.json").read_text(encoding="utf-8"))
+    for subtypes in taxonomy.values():
+        for st in subtypes:
+            assert V6_DIMENSION[st["id"]] == st["dimension"]
+    assert V6_DIMENSION["meaning_inversion"] == "fidelity"
+    assert V6_DIMENSION["word_choice"] == "fidelity"
+
+
+@pytest.mark.parametrize("fixture_dir, l2_code", V6_FIXTURES)
+def test_v6_fixture_bands_derive_under_v6(fixture_dir, l2_code):
+    for item in _v6_items(fixture_dir, l2_code):
+        derived = derive_bands(item["expected_errors"], offline=True, taxonomy_version=6)
+        for dim in DERIVED_DIMENSIONS:
+            assert derived[dim] == item["expected_bands"][dim], (
+                fixture_dir.name, l2_code, item["id"], dim, derived, item["expected_bands"]
+            )
+
+
+@pytest.mark.parametrize("fixture_dir, l2_code", V6_FIXTURES)
+def test_v6_fixture_items_verify(fixture_dir, l2_code):
+    for item in _v6_items(fixture_dir, l2_code):
+        assert verify_item(item, l2_code) == []
+        for err in item["expected_errors"]:
+            assert err["subtype"] == err["subtype_v6_target"] in V6_DIMENSION
+            assert err["severity_v2"] in SEVERITIES
+            assert "subtype_v5_target" in err
+            assert ("explanation_variant" in err) == (err["subtype"] == "word_choice")
+
+
+@pytest.mark.parametrize("l2_code", L2_CODES)
+def test_v6_gold_keeps_v5_ids_and_order(l2_code):
+    """v5 ids/order are kept as a prefix; anything after is a v6-only item (TASK-848)
+    from v6_only_gold_items.json, in file order."""
+    v5 = json.loads((FIXTURE_DIR / f"{l2_code}.json").read_text(encoding="utf-8"))
+    v6 = _v6_items(GOLD_V6_DIR, l2_code)
+    assert [i["id"] for i in v6[:30]] == [i["id"] for i in v5]
+    assert len(v5) == 30
+    only = json.loads((OVERLAY_DIR / "v6_only_gold_items.json").read_text(encoding="utf-8"))
+    assert [i["id"] for i in v6[30:]] == [s["id"] for s in only["items"][l2_code]]
+    assert all(i["id"].startswith(f"{l2_code}_v6_") for i in v6[30:])
+
+
+def test_v6_label_counts():
+    """177 overlay labels; 23 meaning_inversion (21 + the repaired en_silver_24 +
+    the repaired en_silver_26, a quantity/degree flip) and 25 word_choice split
+    17 wrong_word / 0 wrong_sense / 8 false_synonym. (en_silver_34's repaired
+    error is 'register', which does not move either count.) Plus 1 v6-only error
+    (TASK-848, en_v6_ws_02 like/likes), the only narrow wrong_sense: 178 errors,
+    26 word_choice = 17 / 1 / 8.
+
+    Developer decision 2026-10-09 (ADR-031): the three it/him-for-them errors
+    (en_seed_10#0, en_multi_03#2, en_silver_13#0) moved word_choice/wrong_word ->
+    pronoun; the four ja だ/です politeness-level keigo errors stay keigo and the two
+    silver plain->polite items labelled register (ja_silver_30#0, ja_silver_32#1)
+    move to keigo (4 + 2 = 6). The 4 zh 个-for-specific-classifier swaps stay
+    measure_word errors (plus the reverse 只-for-个 zh_silver_23 = 5)."""
+    errors = _all_v6_errors()
+    assert len(errors) == 178
+    assert sum(e["subtype"] == "meaning_inversion" for e in errors) == 23
+    wc = [e["explanation_variant"] for e in errors if e["subtype"] == "word_choice"]
+    assert len(wc) == 26
+    assert (wc.count("wrong_word"), wc.count("wrong_sense"), wc.count("false_synonym")) == (17, 1, 8)
+    assert sum(e["subtype"] == "pronoun" for e in errors) == 3
+    assert sum(e["subtype"] == "keigo" for e in errors) == 6
+    assert sum(e["subtype"] == "measure_word" for e in errors) == 5
+
+
+def test_v6_only_wrong_sense_item():
+    """TASK-848: the one reviewed narrow wrong_sense item (same headword 'like',
+    verb 'enjoy' sense where the preposition 'similar to' sense is needed)."""
+    item = next(i for i in _v6_items(GOLD_V6_DIR, "en") if i["id"] == "en_v6_ws_02")
+    (err,) = item["expected_errors"]
+    assert (err["subtype"], err["explanation_variant"], err["severity_v2"]) == (
+        "word_choice", "wrong_sense", "major")
+    assert (err["learner_form"], err["corrected_form"]) == ("likes", "is like")
+    assert item["expected_bands"] == {"accuracy": 4, "understandability": 4, "fidelity": 3,
+                                      "range": 4, "naturalness": 4}
+    assert not any(i["id"].startswith("en_v6_") for i in _v6_items(SILVER_V6_DIR, "en"))
+
+
+def test_en_silver_24_carries_its_meaning_inversion():
+    item = next(i for i in _v6_items(SILVER_V6_DIR, "en") if i["id"] == "en_silver_24")
+    (err,) = item["expected_errors"]
+    assert (err["subtype"], err["severity_v2"]) == ("meaning_inversion", "critical")
+    assert item["expected_bands"]["understandability"] == 2
+    assert item["expected_bands"]["fidelity"] == 1
+
+
+def test_v6_band_changes_match_overlay_report():
+    """The v6 bands differ from v5 on exactly the items overlay_band_changes.json lists,
+    except en_silver_24 — that report predates its 2026-09-28 repair (it had no error,
+    hence 'understandability 2->4'); restored, meaning_inversion/critical derives the
+    same bands as the v5 word_choice/critical label."""
+    report = json.loads((OVERLAY_DIR / "overlay_band_changes.json").read_text(encoding="utf-8"))
+    expected = {c["item_id"]: c["changed"] for c in report["changes"] if c["item_id"] != "en_silver_24"}
+    v5_src = {
+        **{i["id"]: i for l in L2_CODES
+           for i in json.loads((FIXTURE_DIR / f"{l}.json").read_text(encoding="utf-8"))},
+        **{i["id"]: i for l in L2_CODES
+           for i in json.loads((REPO / "data" / "eval" / "jev_dt_2026-09-26" / "silver"
+                                / f"{l}_final3.json").read_text(encoding="utf-8"))},
+    }
+    got = {}
+    for d, l in V6_FIXTURES:
+        for item in _v6_items(d, l):
+            if item["id"] not in v5_src:  # v6-only item (TASK-848): no v5 bands to compare
+                continue
+            old = v5_src[item["id"]]["expected_bands"]
+            changed = {dim: [old[dim], item["expected_bands"][dim]]
+                       for dim in DERIVED_DIMENSIONS if old[dim] != item["expected_bands"][dim]}
+            if changed:
+                got[item["id"]] = changed
+    assert got == expected
+    # 11 -> 8 on 2026-10-09: the three it/him-for-them items are pronoun (accuracy) again,
+    # which derives the same bands as v5 pronoun_reference.
+    assert len(got) == 8
+
+
+def test_v6_fixtures_are_fresh():
+    """The committed v6 files are exactly what build_dt_gold_v6.py produces."""
+    from scripts.build_dt_gold_v6 import _serialise, build
+
+    for path, items in build()["outputs"].items():
+        assert path.read_text(encoding="utf-8") == _serialise(items), (
+            f"{path.name} is stale — run scripts/build_dt_gold_v6.py"
+        )

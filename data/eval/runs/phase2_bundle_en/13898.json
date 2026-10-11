@@ -1,0 +1,1176 @@
+{
+  "sense_id": 13898,
+  "language_id": 2,
+  "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+  "started_at": "2026-10-03T01:28:37.289070+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[0] flagged (rating 3): too simple and uninformative for effective vocabulary learning"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 1.3300859928131104,
+    "p1_generate": 3.0303945541381836,
+    "tier_gate": 0.0020051002502441406,
+    "p1_judge": 1.7371721267700195,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[0] flagged (rating 3): too simple and uninformative for effective vocabulary learning"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈkɒfi biːn/",
+        "morphological_forms": [
+          {
+            "form": "coffee bean",
+            "label": "singular"
+          },
+          {
+            "form": "coffee beans",
+            "label": "plural"
+          }
+        ],
+        "pronunciation": "ko-fee been",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            13898
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "775847c7-9473-4932-8257-714dff8f9a2b",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "coffee bean",
+        "pronunciation": "ko-fee been",
+        "ipa": "/ˈkɒfi biːn/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "copy bean",
+          "coffee been",
+          "coffee bean",
+          "coffin bin"
+        ],
+        "correct_answer": "coffee bean",
+        "explanation": "Correct target word.",
+        "distractor_explanations": {
+          "coffin bin": "Phonetically similar distractor (confusable vowels/consonants).",
+          "coffee been": "Homophone distractor (grammatically incorrect noun phrase).",
+          "copy bean": "Phonetically similar distractor (initial consonant cluster)."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "91e03d76-e091-4a24-bab2-863091ecdc68",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "coffee bean",
+        "pronunciation": "ko-fee been",
+        "correct_definition": "A coffee bean is the seed of the coffee plant, which is roasted and ground to make coffee.",
+        "options": [
+          "Made smaller in amount, size, or degree.",
+          "A word or phrase used to describe a specific idea, especially in a particular field or subject.",
+          "The ability to grasp the meaning or significance of something.",
+          "A coffee bean is the seed of the coffee plant, which is roasted and ground to make coffee."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "02bc136d-7363-466e-bbfb-135165ff8f7a",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "This is a ___.",
+        "original_sentence": "This is a coffee bean.",
+        "correct_answer": "This is a coffee bean.",
+        "options": [
+          "This is a coffee drink.",
+          "This is a coffee leaf.",
+          "This is a coffee bean.",
+          "This is a coffee cup."
+        ],
+        "explanation": "Correct usage identifying the object.",
+        "distractor_tags": {},
+        "word_definition": "A coffee bean is the seed of the coffee plant, which is roasted and ground to make coffee.",
+        "target_word": "coffee bean"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "7b6a0e2c-3cf8-4e1c-92fd-7f656b9464d8",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "She examined the raw ___ carefully before putting it into the small grinder.",
+        "original_sentence": "She examined the raw coffee bean carefully before putting it into the small grinder.",
+        "correct_answer": "coffee bean",
+        "base_form": "coffee bean",
+        "form_label": "singular",
+        "options": [
+          "coffee beanning",
+          "coffee beans",
+          "coffee beaned",
+          "coffee bean"
+        ],
+        "explanation": "singular",
+        "word_definition": "A coffee bean is the seed of the coffee plant, which is roasted and ground to make coffee.",
+        "target_word": "coffee bean"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "08df03cc-4514-4f10-b7ac-b03d80cbfef0",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "They dropped a single coffee bean onto the wooden table to see how it looked.",
+            "is_correct": true
+          },
+          {
+            "text": "They dropped a single coffee bean onto the floor to plant a forest instantly.",
+            "is_correct": false
+          },
+          {
+            "text": "They dropped a single coffee bean into the ocean to feed the fish.",
+            "is_correct": false
+          },
+          {
+            "text": "They dropped a single coffee bean onto the page to write a letter with it.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatic error: Coffee beans are not used as fish food; this violates real-world knowledge. Functional error: Coffee beans cannot be used as writing instruments. Causal error: Dropping a bean does not instantly create a forest.",
+        "target_word": "coffee bean"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "They dropped a single coffee bean onto the wooden table to see how it looked."
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "81f74765-572e-4cde-a6d5-d6c52a585a56",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Each single coffee bean holds a rich and deep flavor inside its hard shell.",
+            "is_correct": true
+          },
+          {
+            "text": "This is a coffee bean.",
+            "is_correct": true
+          },
+          {
+            "text": "She examined the raw coffee bean carefully before putting it into the small grinder.",
+            "is_correct": true
+          },
+          {
+            "text": "She bought a bag of coffee beans from the store, but she forgot to grind the coffee bean before brewing.",
+            "is_correct": false,
+            "error_description": "The sentence shifts from plural 'coffee beans' in the first clause to singular 'coffee bean' in the second clause without justification. Since she is grinding the contents of the bag, the plural form should be maintained for consistency and logical agreement."
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "d6fadb89-a18a-4f89-8c58-5bfd0c3c2724",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "He picked up a roasted coffee bean and tasted it to check the overall quality."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "0a017b55-bf79-420c-9f9b-701a8a28b552",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "coffee bean",
+        "pronunciation": "ko-fee been",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "To cause something to spread, increase, or be transmitted, especially widely.",
+              "To attempt to deal with a problem or difficult task.",
+              "To make something by heating and hitting metal.",
+              "A coffee bean is the seed of the coffee plant, which is roasted and ground to make coffee."
+            ],
+            "correct_answer": "A coffee bean is the seed of the coffee plant, which is roasted and ground to make coffee."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "45620f72-ef35-4bf7-bb9a-d6159fa70eec",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "She examined the raw ___ carefully before putting it into the small grinder.",
+        "original_sentence": "She examined the raw coffee bean carefully before putting it into the small grinder.",
+        "target_word": "coffee bean",
+        "word": "coffee bean",
+        "answer": {
+          "accepted": [
+            "coffee bean",
+            "coffee beans"
+          ],
+          "accepted_normalized": [
+            "coffee bean",
+            "coffee beans"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "1740059a-d398-427a-89d9-959be87cb027",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "He picked up a roasted coffee bean and tasted it to check the overall quality.",
+        "chunks": [
+          "He picked up",
+          "a roasted coffee bean",
+          "and tasted it to check the overall quality"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "and tasted it to check the overall quality",
+          "a roasted coffee bean",
+          "He picked up"
+        ],
+        "target_word": "coffee bean",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "5285ace9-f2ee-43eb-902e-ed7b542a88d6",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "After grinding every ___, she poured hot water over the brown powder.",
+        "original_sentence": "After grinding every coffee bean, she poured hot water over the brown powder.",
+        "correct_answer": "coffee bean",
+        "base_form": "coffee bean",
+        "form_label": "singular",
+        "options": [
+          "coffee beans",
+          "coffee beaned",
+          "coffee bean",
+          "coffee beaning"
+        ],
+        "explanation": "singular",
+        "word_definition": "A coffee bean is the seed of the coffee plant, which is roasted and ground to make coffee.",
+        "target_word": "coffee bean"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3a9ea179-d871-4444-8c74-290efd722549",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Holding a small coffee bean in his palm, he wondered how it became a hot drink.",
+            "is_correct": true
+          },
+          {
+            "text": "Holding a small coffee bean in his palm, he used it to unlock his door.",
+            "is_correct": false
+          },
+          {
+            "text": "Holding a small coffee bean in his palm, he threw it into space.",
+            "is_correct": false
+          },
+          {
+            "text": "Holding a small coffee bean in his palm, he ate it like a grape.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatic error: Raw or roasted beans are not typically eaten whole like fruit due to hardness and bitterness. Pragmatic/Scale error: Highly unlikely action for a casual observer. Functional error: A bean cannot function as a key.",
+        "target_word": "coffee bean"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 1,
+          "kept": 3,
+          "rejected_items": [
+            "Holding a small coffee bean in his palm, he wondered how it became a hot drink."
+          ]
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "739c21be-a5f6-404b-ade6-ee15c529f06d",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "Finding a rare coffee bean from another country was exciting for the young collector.",
+            "is_correct": true
+          },
+          {
+            "text": "Holding a small coffee bean in his palm, he wondered how it became a hot drink.",
+            "is_correct": true
+          },
+          {
+            "text": "The farmer picked many coffee beans from the tree and put it in a basket.",
+            "is_correct": false,
+            "error_description": "Pronoun agreement error: The plural noun phrase 'coffee beans' requires the plural object pronoun 'them', not the singular 'it'."
+          },
+          {
+            "text": "After grinding every coffee bean, she poured hot water over the brown powder.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "d70fe3ae-9f30-48a1-94b1-9d14f53cb527",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "They dropped a single coffee bean onto the wooden table to see how it looked."
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "756e8ebd-6d86-48e2-97db-cf83ad3a1519",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "After grinding every ___, she poured hot water over the brown powder.",
+        "original_sentence": "After grinding every coffee bean, she poured hot water over the brown powder.",
+        "target_word": "coffee bean",
+        "word": "coffee bean",
+        "answer": {
+          "accepted": [
+            "coffee bean",
+            "coffee beans"
+          ],
+          "accepted_normalized": [
+            "coffee bean",
+            "coffee beans"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "fd03bd93-c01b-428b-a647-cf4783d4dbc2",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "They dropped a single coffee bean onto the wooden table to see how it looked.",
+        "chunks": [
+          "They dropped",
+          "a single coffee bean",
+          "onto the wooden table",
+          "to see how it looked"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "They dropped",
+          "onto the wooden table",
+          "to see how it looked",
+          "a single coffee bean"
+        ],
+        "target_word": "coffee bean",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 13898,
+      "word_asset_id": "shadow-13898-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 2,
+      "kept": 8
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0018239,
+      "prompt_tokens": 1963,
+      "completion_tokens": 494,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 2865
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006656,
+      "prompt_tokens": 677,
+      "completion_tokens": 185,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1611
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00441504,
+      "prompt_tokens": 2257,
+      "completion_tokens": 2885,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 50639
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.000262848,
+      "prompt_tokens": 1163,
+      "completion_tokens": 145,
+      "cached_tokens": 1152,
+      "reasoning_tokens": 0,
+      "call_role": "retry",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 3781
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00051936,
+      "prompt_tokens": 1163,
+      "completion_tokens": 115,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 3919
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004334,
+      "prompt_tokens": 503,
+      "completion_tokens": 113,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1261
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000203,
+      "prompt_tokens": 410,
+      "completion_tokens": 32,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 994
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004271,
+      "prompt_tokens": 507,
+      "completion_tokens": 110,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1271
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001849,
+      "prompt_tokens": 383,
+      "completion_tokens": 28,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1058
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003303,
+      "prompt_tokens": 401,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1208
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003463,
+      "prompt_tokens": 446,
+      "completion_tokens": 85,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1343
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000427,
+      "prompt_tokens": 415,
+      "completion_tokens": 121,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1343
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003201,
+      "prompt_tokens": 417,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 13898,
+      "generation_batch_id": "7e18844b-1d9f-474c-ba09-d9041d64a822",
+      "language_code": "en",
+      "latency_ms": 1208
+    }
+  ],
+  "llm_calls_observed": 13,
+  "llm_cost_observed_usd": 0.010358848000000002,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T3",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 100.125,
+  "finished_at": "2026-10-03T01:30:17.418831+00:00"
+}

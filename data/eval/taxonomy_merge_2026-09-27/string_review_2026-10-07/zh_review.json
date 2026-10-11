@@ -1,0 +1,874 @@
+[
+ {
+  "location": "v6_strings.json subtype_glosses.omission.zh",
+  "provenance": "ai_draft",
+  "current": "成分缺失——缺少必要的词或成分，导致内容丢失但意思并未反转（若因漏掉否定词等使意思反转，应标为“语义反转”，而非成分缺失）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; boundary with 语义反转 stated by effect, consistent with the meaning_inversion ruling; refers to the other type by its gloss label."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.addition.zh",
+  "provenance": "v5_verbatim",
+  "current": "多余添加——加入了参考译文中没有的词或信息（冗余重复或不必要的插入）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate and natural."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.word_choice.zh",
+  "provenance": "v5_verbatim",
+  "current": "词语选择——用词错误或不自然（意思接近但用词不当）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate (v5 text; matches en gloss 'right idea, wrong word'). Variant split is carried by the variant templates."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.collocation.zh",
+  "provenance": "v5_verbatim",
+  "current": "词语搭配——单个词都对，但搭配不自然（不符合习惯的固定搭配）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate and natural."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.word_order.zh",
+  "provenance": "ai_draft",
+  "current": "语序——词语或成分的排列顺序不自然或不合语法，包括状语（时间、地点、方式）、介词短语或“比”字比较句的位置错误（汉语状语一般在动词之前）",
+  "verdict": "fix",
+  "proposed": "语序——词语或成分的排列顺序不自然或不合语法，例如状语（时间、地点、方式）、介词短语或比较结构的位置错误（汉语中状语一般放在动词之前），以及英语疑问句、形容词等的语序错误",
+  "reason": "The zh gloss is also the explainer's type label for zh-L1 learners of en/ja (explainer._subtype_gloss). The current text is Chinese-only ('汉语状语一般在动词之前'), so it misdescribes an English word-order error. The proposal keeps the zh detector cue and adds the en cases from the en gloss."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.register.zh",
+  "provenance": "v5_verbatim",
+  "current": "语域——正式程度或语气与语境不符",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.orthography.zh",
+  "provenance": "v5_verbatim",
+  "current": "拼写／书写——拼写、大小写或书写形式的错误（想表达的词是清楚的）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate. '大小写' is irrelevant for zh L2 but harmless; it serves zh-L1 learners of en."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.cohesion_connective.zh",
+  "provenance": "v5_verbatim",
+  "current": "衔接／连接词——连接词（然而、因此、所以、但是等）缺失或误用，导致句子衔接不畅",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate. Distinct from 关联词搭配 (connective): this is single-connective choice, that is paired-structure."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.article_determiner.zh",
+  "provenance": "ai_draft",
+  "current": "冠词与限定词——英语冠词（a/an/the）或限定词（some、many、much、this 等）用错、缺失或多余，包括定指／泛指的区分，以及 an advice、many information 这类与可数性不符的用法",
+  "verdict": "fix",
+  "proposed": "冠词与限定词——英语冠词（a/an/the）或限定词（some、many、much、this 等）用错、缺失或多余，包括定指与不定指的区分，以及 an advice、many information 这类与可数性不符的用法",
+  "reason": "Terminology: the a/the contrast is 定指／不定指 (definite/indefinite). 泛指 means generic reference, which is a different notion (and generic plurals take no article)."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.preposition.zh",
+  "provenance": "ai_draft",
+  "current": "介词——英语介词（in/on/at/to/for/of 等）用错、缺失或多余；通常由具体的动词、名词、形容词或固定搭配决定，不能按字面直译选择",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; '介词' is the standard term. It shares its label with the zh coverb gloss, but the two never appear in the same subtype list."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.verb_form_tense.zh",
+  "provenance": "ai_draft",
+  "current": "动词形式与时态——英语时态或体与时间框架不符，或不规则动词、分词形式错误（如 goed、have went）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; goed / have went examples correct."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.complementation.zh",
+  "provenance": "ai_draft",
+  "current": "动词句型——英语动词后所接补足成分的类型错误：to 不定式、-ing 形式、不带 to 的不定式或 that 从句（如 enjoy to swim 应为 enjoy swimming）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate. The label 动词句型 avoids a clash with Chinese 补语 (zh complement type), which is good."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.agreement.zh",
+  "provenance": "ai_draft",
+  "current": "主谓一致——英语动词与主语在数或人称上不一致（包括受中间插入名词影响而造成的不一致）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; includes attraction case per merged definition."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.pronoun.zh",
+  "provenance": "ai_draft",
+  "current": "代词——英语代词形式或照应错误：格用错（him and me went）、反身代词在同一分句中没有先行词、用 which 指人，或关系从句中多余的复指代词（the man that I met him）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; 复指代词 is the correct term for resumptive pronoun."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.plural_number.zh",
+  "provenance": "ai_draft",
+  "current": "单复数——英语名词单复数或可数性错误（如漏掉复数词尾 -s，或给不可数名词加复数）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.phrasal_verb.zh",
+  "provenance": "ai_draft",
+  "current": "短语动词——英语短语动词的小品词（up/out/in 等）用错，或短语动词形式错误、回避使用",
+  "verdict": "fix",
+  "proposed": "短语动词——英语短语动词的小品词（up/out/in 等）用错，或短语动词形式错误，或该用短语动词时却回避不用",
+  "reason": "'回避使用' standing alone reads like an instruction ('avoid using') rather than the error 'avoided the phrasal verb'."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.lexical_form.zh",
+  "provenance": "ai_draft",
+  "current": "词形（同族词）——英语同一词族中用错了词形（如把 successful 写成 success，把 economical 写成 economic）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; the direction of the examples (successful written as success) matches the en gloss."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.semantic_anomaly.zh",
+  "provenance": "ai_draft",
+  "current": "语义反常——语法正确，但所描述的事件不可能或荒谬（动词搭配了它不能带的主语或宾语），译文已不再表达原文的内容。拟人、惯用比喻和夸张不算错误",
+  "verdict": "fix",
+  "proposed": "语义反常——语法正确，但所描述的事件不可能或荒谬（动词带了在语义上与之不相容的主语或宾语），译文已不再表达原文的内容。拟人、惯用比喻和夸张不算错误",
+  "reason": "'动词搭配了…' uses 搭配, the head word of the 词语搭配 (collocation) label. A grader could route a selectional violation to collocation. Rephrase without 搭配. Otherwise accurate, and the 拟人/比喻/夸张 carve-out is correct."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.contradiction.zh",
+  "provenance": "ai_draft",
+  "current": "矛盾／逻辑冲突——语法正确，但句子自相矛盾（时间冲突、亲属辈分等不可能的关系、与常识相悖），仅看译文本身即可发现",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Matches the zh merged definition (time / kinship / world-knowledge, from the translation alone). The en gloss also lists connective logic (because/although), which zh deliberately leaves to 关联词搭配/衔接. Because this zh gloss is also the explainer label for zh-L1 learners of en, consider appending '，或连接词表达了错误的逻辑关系（如因果、让步、先后）' if the en-side scope matters to the explainer."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.meaning_inversion.zh",
+  "provenance": "ai_draft",
+  "current": "语义反转——与参考译文相比，核心主张在极性、方向、数量或施受关系上相反（否定词被删除或添加、反义词替换、方向颠倒、比较或数量反转、施事与受事互换，如 with→without）。按效果而非表面形式判断：即使表面上是换了介词、换了词或漏了否定词，只要使意思反转，就标为语义反转，而不是“成分缺失”或“词语选择”，两者不要同时标",
+  "verdict": "fix",
+  "proposed": "语义反转——与参考译文相比，核心意思在极性（肯定／否定）、方向、数量或施受关系上正好相反（漏掉或多加否定词、换成反义词、方向颠倒、比较或数量反转、施事与受事互换，如 with→without、“有”→“没有”）。按效果而非表面形式判断：即使表面上只是换了介词、换了词或漏了否定词，只要使意思反转，就标为“语义反转”，而不标“成分缺失”“词语选择”或“介词”，两者不要同时标",
+  "reason": "Faithful to the by-effect ruling. Polish: '核心主张' is a calque of 'core claim' (use 核心意思); '否定词被删除或添加' describes an editing operation (use 漏掉或多加). The zh detector reads this gloss, so add a Chinese example (“有”→“没有”). Also name 介词 (coverb/preposition, the main surface mis-filing listed in _INVERSION_SURFACE_SUBTYPES) in the not-list."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.wa_ga.zh",
+  "provenance": "ai_draft",
+  "current": "「は」「が」（结构规则）——在结构上必须用「が」的地方用了「は」：疑问词作主语（誰が）、关系从句（连体修饰节）内的主语、与主句主语不同的从属句主语。主句中一般的「は」「が」选择不算错误",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate and matches the narrowed definition. 连体修饰节 is understandable; '定语从句' would also work."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.case_particle.zh",
+  "provenance": "ai_draft",
+  "current": "格助词——日语格助词用错，与动词或谓语不匹配（が、を（对象）、に（到达点／时间／对象）、で（地点／手段）、へ（方向）、と、から）",
+  "verdict": "fix",
+  "proposed": "格助词——日语格助词用错，与动词或谓语不匹配，如が、を（宾语）、に（到达点、时间、接受者）、で（地点、手段）、へ（方向）、と、から",
+  "reason": "'对象' is used for both を (object) and に (recipient), which is ambiguous. Use 宾语 / 接受者, and remove the nested parentheses inside parentheses."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.particle_other.zh",
+  "provenance": "ai_draft",
+  "current": "其他助词——日语并列助词（や・と・か）、提示助词（も・だけ・しか）或终助词等格助词以外的助词使用错误",
+  "verdict": "fix",
+  "proposed": "其他助词——日语并列助词（や・と・か）、提示助词或副助词（も・だけ・しか）、终助词等格助词以外的助词使用错误",
+  "reason": "In Chinese-medium Japanese grammar, だけ/しか are 副助词; 提示助词 alone covers only は/も. The en gloss's 'focus particle' spans both."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.conjugation.zh",
+  "provenance": "ai_draft",
+  "current": "活用——日语动词、い形容词或な形容词的活用形式错误，包括弄错动词类型（把五段动词当作一段动词活用）。「ら抜き」说法（見れる）可以接受，不算错误",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; the ら抜き carve-out is stated clearly."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.tam.zh",
+  "provenance": "ai_draft",
+  "current": "时、体、情态——日语时态与时间框架不符，「ている／てある／ておく」用错，「前に／後で」从句中的相对时态错误（「前に」前用非过去形，「後で」前用过去形），或「まだ＋否定」形式错误（まだ食べていない）",
+  "verdict": "fix",
+  "proposed": "时态、体与情态——日语时态与时间框架不符，「ている／てある／ておく」用错，「前に／後で」从句中的相对时态错误（正确用法：「前に」前用非过去形，「後で」前用过去形），或「まだ＋否定」的形式错误（正确形式如「まだ食べていない」）",
+  "reason": "As written, the parentheticals follow the word 错误 and so read as describing the error, the reverse of what is meant. Mark them as the correct usage. The label 时、体、情态 is stilted."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.keigo.zh",
+  "provenance": "ai_draft",
+  "current": "敬语（方向）——日语敬语方向用反：对自己或己方的动作用了尊敬语，或对上级的动作用了自谦语。です／ます等整体礼貌程度属于“语域”，不归此类",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; register boundary stated. 自谦语 is acceptable for 謙譲語 (谦让语 also common)."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.counter.zh",
+  "provenance": "ai_draft",
+  "current": "助数词——日语助数词用错，与所数名词不匹配（如细长物用「本」、扁平物用「枚」、书用「冊」），包括混淆同音助数词（軒／件）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; examples correct."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.transitivity_voice.zh",
+  "provenance": "ai_draft",
+  "current": "自他动词与语态——日语成对的他动词／自动词选错（開ける／開く、始める／始まる），或被动、使役形式与助词不对应",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; examples correct."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.modification.zh",
+  "provenance": "ai_draft",
+  "current": "连体修饰形式——日语名词前的连接形式（い、な、の）用错（静かい部屋→静かな部屋），或修饰语没有放在被修饰的名词之前",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; example correct."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.clause_linkage.zh",
+  "provenance": "ai_draft",
+  "current": "分句连接——日语分句之间的接续或条件形式用错：から・ので与のに，と・たら・ば・なら（「と」后面不能接请求或命令），ために与ように",
+  "verdict": "fix",
+  "proposed": "分句连接——日语分句之间的接续或条件形式用错，如混淆「から／ので」与「のに」，误用「と／たら／ば／なら」（「と」后面不能接请求或命令），或混淆「ために」与「ように」",
+  "reason": "The current text is a bare list of forms joined by 与 with no verb, which is hard to parse ('から・ので与のに，と・たら・ば・なら…'). Add the verbs 混淆 / 误用."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.kanji_choice.zh",
+  "provenance": "ai_draft",
+  "current": "汉字选择（同音异义）——日语中书写正确的真实词，但在同音词中选错了与意思相符的汉字（計る／測る／量る、暑い／熱い）。用假名代替汉字书写不算错误",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; the kana carve-out is stated."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.topic_comment.zh",
+  "provenance": "v5_verbatim",
+  "current": "话题—评论结构——话题/主语—述题结构使用不当（常为母语结构的过度迁移）",
+  "verdict": "fix",
+  "proposed": "话题—述题结构——话题（或主语）与述题的结构使用不当（常为母语结构的过度迁移）",
+  "reason": "The v5 text mixes 评论 (label) with 述题 (body), and the zh template uses a third term, 主题. The standard term is 话题—述题 (or 话题—说明); unify the label, the template and native_name."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.measure_word.zh",
+  "provenance": "ai_draft",
+  "current": "量词短语——“数词／指示代词＋量词＋名词”中量词用错或缺失，或在数量短语后加“们”（如“三个学生们”）。通用量词“个”可以接受，不算错误",
+  "verdict": "fix",
+  "proposed": "量词短语——“数词／指示代词＋量词＋名词”中量词用错或缺失，或带数量短语的名词后又加“们”（如“三个学生们”）。通用量词“个”可以接受，不算错误",
+  "reason": "们 attaches to the noun, not 'after the numeral phrase' (数量短语后). Otherwise accurate; the 个 carve-out matches the definition."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.aspect_negation.zh",
+  "provenance": "ai_draft",
+  "current": "体标记与否定——“了／过／着／正在”等体标记使用错误，或“不”与“没”的选择与动作的体不相符。汉语用体而非时态：了表示完成，过表示经历，着表示持续；否定已发生的动作用“没”，否定习惯、意愿或将来用“不”",
+  "verdict": "fix",
+  "proposed": "体标记与否定——体标记“了、过、着”或表进行的“正在”使用错误，或“不”与“没”的选择与动作的体不相符。汉语标示体而不标示时态：“了”表示完成，“过”表示经历，“着”表示持续；否定已发生的动作用“没”，否定习惯、意愿或将来用“不”",
+  "reason": "Terminology: 正在 is a progressive adverb, not an aspect particle, so '了／过／着／正在等体标记' mislabels it. Quote the bare markers. The content is otherwise correct."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.de_particle.zh",
+  "provenance": "ai_draft",
+  "current": "结构助词“的／地／得”——三者之间的任何误用：用“的”代替“地”或“得”、用“地”代替“的”（含定语位置误用“地”）、用“得”代替“的”或“地”（定语用“的”，状语用“地”，补语用“得”），或缺少必需的“得”。凡“的／地／得”用错一律算作错误，不属于可接受的变体",
+  "verdict": "fix",
+  "proposed": "结构助词“的／地／得”——定语后用“的”，状语后用“地”，动词或形容词后引出补语用“得”；三者之间的任何误用（用“的”代替“地”或“得”，用“地”代替“的”，用“得”代替“的”或“地”），或缺少必需的“得”，一律算作错误，不属于可接受的变体",
+  "reason": "The usage rule '（定语用的，状语用地，补语用得）' is attached to the third item, so it reads as qualifying only the 得 substitutions; move it to the front. '（含定语位置误用地）' is redundant, since 地-for-的 is by definition in attributive position. Scope matches the ruling: all misuse is an error, plus a missing obligatory 得."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.complement.zh",
+  "provenance": "ai_draft",
+  "current": "补语——结果补语、趋向补语、可能补语或程度补语的形式或位置错误（如“看完”“走进来”“听不懂”“跑得快”）",
+  "verdict": "fix",
+  "proposed": "补语——结果补语、趋向补语、可能补语或程度（情态）补语的形式错误，或补语与宾语的相对位置错误（如“看完”“走进来”“听不懂”“跑得快”）；仅“的／地／得”用错或缺少“得”的，归入结构助词“的／地／得”",
+  "reason": "Boundary gap: de_particle (minor) claims 'missing obligatory 得', and complement (major) covers the form of degree complements, so 跑快→跑得快 is ambiguous and the severity differs. The proposal follows the de_particle definition. If the user wants it the other way, raise an ADR-031 Open Question. Also, 跑得快 is usually called a 情态/状态补语 in TCFL texts."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.ba_bei.zh",
+  "provenance": "ai_draft",
+  "current": "把字句／被字句——“把”字句或“被”字句使用错误或缺失：“把”字句中动词为光杆动词、宾语为不定指、动词无处置义、与可能补语连用、否定词放在“把”之后，或“被”字句结构错误",
+  "verdict": "fix",
+  "proposed": "把字句／被字句——“把”字句或“被”字句结构错误，或该用而未用。“把”字句的常见错误：动词为光杆动词、宾语为不定指成分、动词没有处置义、与可能补语连用、否定词放在“把”之后",
+  "reason": "'使用错误或缺失' is ambiguous: missing what? Say 该用而未用. The list items are accurate (光杆动词, 处置义, 否定词在把前)."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.separable_verb.zh",
+  "provenance": "ai_draft",
+  "current": "离合词——把宾语或体标记放在离合词之后，而没有插入其中或移到前面（如“见面他”应为“跟他见面”，“帮忙他”应为“帮他的忙”）",
+  "verdict": "fix",
+  "proposed": "离合词——把宾语或体标记放在离合词整体之后，而没有插入中间或用介词移到前面（如“见面他”应为“跟他见面”，“帮忙他”应为“帮他的忙”，“见面过”应为“见过面”）；句末的“见面了”“睡觉了”是正确的，不算错误",
+  "reason": "Accuracy: as written, any aspect marker after a separable verb is an error, but sentence-final 了 (我们见面了 / 他睡觉了) is grammatical. Also, aspect markers go inside the verb, never 'before' it. Scope note for ADR-031 Open Questions (do not widen silently): the most frequent learner error is a duration/quantity phrase after the verb (睡觉八个小时→睡了八个小时的觉), which neither the en nor the zh definition covers."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.coverb.zh",
+  "provenance": "ai_draft",
+  "current": "介词——介词（对、给、跟、向、离、从、在等）用错，或“对……来说”等固定框架使用不完整",
+  "verdict": "fix",
+  "proposed": "介词——介词（对、给、跟、向、离、从、在等）用错，或“对……来说”等固定格式用错或不完整",
+  "reason": "A 'broken fixed frame' includes a wrong frame, not only an incomplete one. 固定格式 is the more usual TCFL term. Minor."
+ },
+ {
+  "location": "v6_strings.json subtype_glosses.connective.zh",
+  "provenance": "ai_draft",
+  "current": "关联词搭配——成对关联词（虽然……但是、只要……就、只有……才、不但……而且）搭配错误或位置不当（只用其中一半不算错误）",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; the half-pair carve-out matches the definition."
+ },
+ {
+  "location": "v6_strings.json templates.omission.zh",
+  "provenance": "v5_verbatim",
+  "current": "缺少了必要成分：你写的是“{learner_form}”，而参考译文是“{corrected_form}”。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and clear."
+ },
+ {
+  "location": "v6_strings.json templates.addition.zh",
+  "provenance": "v5_verbatim",
+  "current": "多余添加：你加入了“{learner_form}”，但参考译文中并没有。只保留原文的内容，不要添加或重复。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and clear."
+ },
+ {
+  "location": "v6_strings.json templates.word_choice.zh",
+  "provenance": "v5_verbatim",
+  "current": "“{learner_form}”用词不当——参考译文用的是“{corrected_form}”。意思接近，但通常不这样表达。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural; variant-less fallback."
+ },
+ {
+  "location": "v6_strings.json templates.collocation.zh",
+  "provenance": "v5_verbatim",
+  "current": "搭配错误：“{learner_form}”的词语搭配不自然，应为“{corrected_form}”。单个词没问题，但这样搭配在母语者听来不地道。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.word_order.zh",
+  "provenance": "v5_verbatim",
+  "current": "你写的是“{learner_form}”，但这里自然的语序是“{corrected_form}”。目标语言中这些成分的排列与逐字翻译不同。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.register.zh",
+  "provenance": "v5_verbatim",
+  "current": "“{learner_form}”的正式程度不合适。“{corrected_form}”更符合原文的语域（语气／礼貌程度）。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.orthography.zh",
+  "provenance": "v5_verbatim",
+  "current": "拼写／书写错误：“{learner_form}”应写作“{corrected_form}”。词是对的，但书写形式有误。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.cohesion_connective.zh",
+  "provenance": "v5_verbatim",
+  "current": "连接词错误：“{learner_form}”应为“{corrected_form}”。连接词表明这一句与上一句的关系，用错会打断行文的连贯。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.article_determiner.zh",
+  "provenance": "ai_draft",
+  "current": "冠词／限定词错误：“{learner_form}”应为“{corrected_form}”。英语名词要区分定指／泛指和可数／不可数——特指或已知用“the”，泛指的单数可数名词用“a/an”，泛指复数或不可数名词不用冠词；限定词也要与名词匹配（可数名词用 many／few，不可数名词用 much／little）。",
+  "verdict": "fix",
+  "proposed": "冠词／限定词错误：“{learner_form}”应为“{corrected_form}”。英语名词要区分定指与不定指、可数与不可数——特指或已知的事物用“the”，非特指的单个可数名词用“a/an”，泛指的复数名词或不可数名词不用冠词；限定词也要与名词匹配（可数名词用 many／few，不可数名词用 much／little）。",
+  "reason": "'定指／泛指' is the wrong pair (definite vs generic). Also, '泛指的单数可数名词用 a/an' mislabels the a/an case: en says 'non-specific', which is 非特指, while 泛指 (generic) is right only for the no-article plural/uncountable case."
+ },
+ {
+  "location": "v6_strings.json templates.preposition.zh",
+  "provenance": "v5_verbatim",
+  "current": "介词错误：“{learner_form}”应为“{corrected_form}”。这里的介词由动词、名词或固定搭配决定（如 depend on、interested in、arrive at），不能按字面直译选择。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.verb_form_tense.zh",
+  "provenance": "ai_draft",
+  "current": "动词形式／时态错误：“{learner_form}”应为“{corrected_form}”。请检查两点：时态或体是否符合动作发生的时间，以及动词形式是否正确——不规则动词的过去式和过去分词（went／gone、wrote／written）需要专门记住。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.complementation.zh",
+  "provenance": "ai_draft",
+  "current": "动词句型错误：“{learner_form}”应为“{corrected_form}”。英语中每个动词后面接什么形式是固定的——to 不定式（decide to go）、-ing 形式（enjoy going）、不带 to 的不定式（make him go）或 that 从句，要把动词和句型一起记。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.agreement.zh",
+  "provenance": "v5_verbatim",
+  "current": "主谓一致错误：“{learner_form}”与主语不一致。应使用“{corrected_form}”，在数和人称上与主语保持一致。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.pronoun.zh",
+  "provenance": "ai_draft",
+  "current": "代词错误：“{learner_form}”应为“{corrected_form}”。要根据位置使用主格或宾格（I／me、he／him）；反身代词（himself）只有在同一分句中有先行词时才能用；指人用 who 而不是 which；关系从句中不要再加多余的代词。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.plural_number.zh",
+  "provenance": "v5_verbatim",
+  "current": "单复数错误：“{learner_form}”应为“{corrected_form}”。请判断该名词在这里是单数还是复数——英语中可数名词要按数变化。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.phrasal_verb.zh",
+  "provenance": "v5_verbatim",
+  "current": "短语动词错误：“{learner_form}”应为“{corrected_form}”。小品词（up/out/in 等）会改变词义，不能随意替换。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.lexical_form.zh",
+  "provenance": "ai_draft",
+  "current": "词形错误：“{learner_form}”应为“{corrected_form}”。词族选对了，但用错了其中的词形——请判断这里需要名词、动词、形容词还是副词（success／succeed／successful），或者两个相关形容词中哪一个合适（economic／economical）。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.semantic_anomaly.zh",
+  "provenance": "ai_draft",
+  "current": "语义反常：“{learner_form}”语法上没有问题，但描述的是不可能或荒谬的事情（词语在意义上不能这样搭配）。参考译文是“{corrected_form}”，这才是原文的意思。",
+  "verdict": "fix",
+  "proposed": "语义反常：“{learner_form}”语法上没有问题，但描述的是不可能或荒谬的事情（词语在意义上不能这样组合）。参考译文是“{corrected_form}”，这才是原文的意思。",
+  "reason": "Avoid 搭配, which is the collocation type's label word (same reason as the gloss)."
+ },
+ {
+  "location": "v6_strings.json templates.contradiction.zh",
+  "provenance": "ai_draft",
+  "current": "逻辑矛盾：“{learner_form}”使句子自相矛盾——时间、关系或逻辑说不通。改为“{corrected_form}”，句子才与原文一致、前后不矛盾。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.meaning_inversion.zh",
+  "provenance": "ai_draft",
+  "current": "语义反转：“{learner_form}”表达的意思与原文相反，参考译文是“{corrected_form}”。漏掉否定词、用了反义词或方向颠倒等细小改动都会使意思完全相反，所以即使句子看起来几乎没错，这也是严重错误。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and faithful; conveys 'serious even if it looks almost right'. Optional polish: '漏掉或多加否定词' to cover added negation too."
+ },
+ {
+  "location": "v6_strings.json templates.wa_ga.zh",
+  "provenance": "ai_draft",
+  "current": "は／が 错误：你用的是“{learner_form}”，应为“{corrected_form}”。疑问词作主语时（誰が、何が）、修饰名词的从句内的主语，以及与主句主语不同的从属句主语，都必须用「が」，不能用「は」。",
+  "verdict": "fix",
+  "proposed": "「は」「が」错误：你用的是“{learner_form}”，应为“{corrected_form}”。疑问词作主语（誰が、何が）、修饰名词的从句中的主语，以及与主句主语不同的从属句主语，都必须用「が」，不能用「は」。",
+  "reason": "The label 'は／が 错误' has stray spaces and is inconsistent with the gloss's 「は」「が」. '疑问词作主语时（…）' breaks the parallel noun-phrase list, because 时 attaches only to the first item."
+ },
+ {
+  "location": "v6_strings.json templates.case_particle.zh",
+  "provenance": "v5_verbatim",
+  "current": "格助词错误：你用的是“{learner_form}”，应为“{corrected_form}”。を（对象）、に（到达点／时间）、で（地点／手段）、へ（方向）等格助词决定语法关系——用错会改变“谁对什么做了什么”。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural (v5). Here 对象 is used only for を, so it is unambiguous."
+ },
+ {
+  "location": "v6_strings.json templates.particle_other.zh",
+  "provenance": "v5_verbatim",
+  "current": "助词错误：“{learner_form}”应为“{corrected_form}”。这是并列助词（や／と）、提示助词（も／だけ／しか）或语气助词——用错会改变语气或细微含义。",
+  "verdict": "fix",
+  "proposed": "助词错误：“{learner_form}”应为“{corrected_form}”。这是并列助词（や／と）、提示助词或副助词（も／だけ／しか）或终助词——用错会改变语气或细微含义。",
+  "reason": "Align with the gloss: だけ/しか are 副助词, and the gloss says 终助词 where this template says 语气助词."
+ },
+ {
+  "location": "v6_strings.json templates.conjugation.zh",
+  "provenance": "ai_draft",
+  "current": "活用错误：“{learner_form}”应为“{corrected_form}”。日语动词和形容词按规则活用（て形、否定、过去、可能等），而规则取决于词的类型（五段／一段动词，い形容词／な形容词），请先确认该词属于哪一类。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.tam.zh",
+  "provenance": "ai_draft",
+  "current": "时体错误：“{learner_form}”应为“{corrected_form}”。日语「た」表示完成或过去，「ている」表示进行或结果状态；「前に」前面的动词用非过去形，「後で」前面的动词用过去形，与主句的时态无关。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.keigo.zh",
+  "provenance": "ai_draft",
+  "current": "敬语错误：“{learner_form}”的敬语方向用反了，参考译文用的是“{corrected_form}”。尊敬语用来抬高对方（尤其是上级）的动作，自谦语用来谦卑自己或己方的动作，不能反过来用。",
+  "verdict": "fix",
+  "proposed": "敬语错误：“{learner_form}”的敬语方向用反了，参考译文用的是“{corrected_form}”。尊敬语用于对方（尤其是上级）的动作，以抬高对方；自谦语用于自己或己方的动作，以压低自己、表示谦虚。不能反过来用。",
+  "reason": "'用来谦卑自己或己方的动作' is ungrammatical: 谦卑 is an adjective and cannot take an object, and the honorific raises or lowers the person, not the action."
+ },
+ {
+  "location": "v6_strings.json templates.counter.zh",
+  "provenance": "v5_verbatim",
+  "current": "助数词错误：“{learner_form}”用错了助数词。应使用“{corrected_form}”，它才是与这类名词搭配的助数词。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural."
+ },
+ {
+  "location": "v6_strings.json templates.transitivity_voice.zh",
+  "provenance": "ai_draft",
+  "current": "自他动词错误：“{learner_form}”应为“{corrected_form}”。日语许多动词成对出现：带「を」的他动词（開ける、始める）和用「が」的自动词（開く、始まる）；改为被动或使役形式时，句中需要的助词也会随之改变。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.modification.zh",
+  "provenance": "ai_draft",
+  "current": "连体修饰错误：“{learner_form}”应为“{corrected_form}”。日语名词前，い形容词直接修饰（高い山），な形容词要加「な」（静かな部屋），名词要加「の」（日本の車），而且修饰语一定放在名词之前。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.clause_linkage.zh",
+  "provenance": "ai_draft",
+  "current": "分句连接错误：“{learner_form}”应为“{corrected_form}”。日语接续形式各有固定的意义和限制：から／ので表示原因，のに表示“却、虽然”；「と」后面不能接请求或命令（应用「たら」）；自己能控制的目的用「ために」，不能控制的用「ように」。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate; のに glossed as 却/虽然 is fine."
+ },
+ {
+  "location": "v6_strings.json templates.kanji_choice.zh",
+  "provenance": "ai_draft",
+  "current": "汉字选择错误：“{learner_form}”应写作“{corrected_form}”。两者读音相同、都是真实存在的词，但汉字不同、意思也不同（計る用于时间，測る用于长度，量る用于重量），要选与意思相符的汉字。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and accurate."
+ },
+ {
+  "location": "v6_strings.json templates.topic_comment.zh",
+  "provenance": "v5_verbatim",
+  "current": "主题—评论结构错误：你写成了“{learner_form}”，而“{corrected_form}”按目标语言的方式来呈现主题与评论。",
+  "verdict": "fix",
+  "proposed": "话题—述题结构错误：你写成了“{learner_form}”，而“{corrected_form}”才符合目标语言安排话题和述题的方式。",
+  "reason": "The template says 主题—评论 while the gloss says 话题—评论/述题, so the terms should be unified. The current second clause ('而…按目标语言的方式来呈现主题与评论') is awkward and has no main predicate."
+ },
+ {
+  "location": "v6_strings.json templates.measure_word.zh",
+  "provenance": "ai_draft",
+  "current": "量词错误：“{learner_form}”应为“{corrected_form}”。数词或指示代词后要用与名词搭配的量词（如书用“本”、衣服用“件”、小动物用“只”），数量短语后也不能再加“们”。拿不准时，用通用量词“个”一般也可以。",
+  "verdict": "fix",
+  "proposed": "量词错误：“{learner_form}”应为“{corrected_form}”。数词或指示代词后要用与名词搭配的量词（如书用“本”、衣服用“件”、小动物用“只”）；名词前有数量词时，名词后不能再加“们”。拿不准时，用通用量词“个”一般也可以。",
+  "reason": "们 placement: it goes after the noun, not 'after the numeral phrase'. Low impact: this is the zh-L1 Rule template of a zh-only type, so it renders only if a zh-L1 learner studies zh; fix for consistency with the gloss."
+ },
+ {
+  "location": "v6_strings.json templates.aspect_negation.zh",
+  "provenance": "ai_draft",
+  "current": "体标记／否定错误：“{learner_form}”应为“{corrected_form}”。汉语标示的是体而非时态：了表示完成，过表示经历，着／正在表示持续或进行。否定已经发生或完成的动作用“没”，否定习惯、意愿或将来的动作用“不”。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate and natural. Low impact: this is the zh-L1 Rule template of a zh-only type, so it renders only if a zh-L1 learner studies zh."
+ },
+ {
+  "location": "v6_strings.json templates.de_particle.zh",
+  "provenance": "ai_draft",
+  "current": "“的／地／得”错误：“{learner_form}”应为“{corrected_form}”。三个 de 不能互换：“的”连接定语和名词，“地”连接状语和动词，“得”引出动词后的补语。无论用哪一个代替哪一个，三者混用一律算作错误。",
+  "verdict": "fix",
+  "proposed": "“的／地／得”错误：“{learner_form}”应为“{corrected_form}”。这三个助词都读 de，但不能互换：“的”用在定语和名词之间，“地”用在状语和动词之间，“得”用在动词或形容词后引出补语。三者之间任何一种混用都算错误。",
+  "reason": "'三个 de' (bare pinyin as a noun) is awkward. 得 also follows adjectives (好得很). Content matches the ruling. Low impact: this is the zh-L1 Rule template of a zh-only type, so it renders only if a zh-L1 learner studies zh; fix for consistency with the gloss."
+ },
+ {
+  "location": "v6_strings.json templates.complement.zh",
+  "provenance": "ai_draft",
+  "current": "补语错误：“{learner_form}”应为“{corrected_form}”。汉语用补语把动作的结果、趋向、可能或程度附在动词后（如“看完”“走进来”“听不懂”“跑得快”），补语的形式及其与宾语的位置都要正确。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate. Low impact: this is the zh-L1 Rule template of a zh-only type, so it renders only if a zh-L1 learner studies zh."
+ },
+ {
+  "location": "v6_strings.json templates.ba_bei.zh",
+  "provenance": "ai_draft",
+  "current": "把字句／被字句错误：“{learner_form}”应为“{corrected_form}”。“把”字句把确定的宾语提到动词前，说明对它做了什么，因此动词后要有结果、趋向或“了”等成分，且不能用可能补语；“被”字句则以动作的承受者作主语（被＋施事＋动词）。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate (definite object, needs post-verbal element, no potential complement, 被＋施事＋动词). Low impact: this is the zh-L1 Rule template of a zh-only type, so it renders only if a zh-L1 learner studies zh."
+ },
+ {
+  "location": "v6_strings.json templates.separable_verb.zh",
+  "provenance": "ai_draft",
+  "current": "离合词错误：“{learner_form}”应为“{corrected_form}”。“见面”“帮忙”“睡觉”等本身就是“动词＋宾语”结构，后面不能再带宾语：宾语要插入中间（帮他的忙）或用介词提到前面（跟他见面），了、过也要放在中间（见了面）。",
+  "verdict": "fix",
+  "proposed": "离合词错误：“{learner_form}”应为“{corrected_form}”。“见面”“帮忙”“睡觉”等本身就是“动词＋宾语”结构，后面不能再带宾语：宾语要插入中间（帮他的忙）或用介词提到前面（跟他见面）；“过”要放在中间（见过面），后面带时量等成分时“了”也要放在中间（睡了一个小时的觉）。",
+  "reason": "'了、过也要放在中间（见了面）' overgeneralises: sentence-final 了 (我们见面了) is correct. Low impact: this is the zh-L1 Rule template of a zh-only type, so it renders only if a zh-L1 learner studies zh; fix for consistency with the gloss."
+ },
+ {
+  "location": "v6_strings.json templates.coverb.zh",
+  "provenance": "ai_draft",
+  "current": "介词错误：“{learner_form}”应为“{corrected_form}”。汉语介词（对、给、跟、向、离、从、在）放在动词前，用哪一个由意思或固定框架决定（如“对……来说”“离……很远”），不能与外语介词一一对应。",
+  "verdict": "fix",
+  "proposed": "介词错误：“{learner_form}”应为“{corrected_form}”。汉语介词（对、给、跟、向、离、从、在）组成的介词短语一般放在动词前，用哪一个由意思或固定格式决定（如“对……来说”“离……很远”），不能与外语介词一一对应。",
+  "reason": "'介词放在动词前' is too absolute: 在/给 also follow verbs (住在北京, 送给他). Add 一般. Low impact: this is the zh-L1 Rule template of a zh-only type, so it renders only if a zh-L1 learner studies zh; fix for consistency with the gloss."
+ },
+ {
+  "location": "v6_strings.json templates.connective.zh",
+  "provenance": "ai_draft",
+  "current": "关联词搭配错误：“{learner_form}”应为“{corrected_form}”。成对关联词有固定搭配（虽然……但是、只要……就、只有……才、不但……而且），后半部分要与前半部分对应，并放在正确的位置（“但是”“而且”放在分句开头，“就”“才”放在动词前）。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Accurate; 就/才 before the verb is correct. Low impact: this is the zh-L1 Rule template of a zh-only type, so it renders only if a zh-L1 learner studies zh."
+ },
+ {
+  "location": "v6_strings.json variant_templates.word_choice.wrong_word.zh",
+  "provenance": "ai_draft",
+  "current": "用词错误：“{learner_form}”表达不了这里需要的意思，参考译文用的是“{corrected_form}”。这是意思不同的另一个词，请把“{corrected_form}”记作表达这个意思的词。",
+  "verdict": "fix",
+  "proposed": "用词错误：“{learner_form}”表达不出这里需要的意思，参考译文用的是“{corrected_form}”。这是另一个意思不同的词；表达这个意思要用“{corrected_form}”。",
+  "reason": "'请把X记作表达这个意思的词' is unnatural: 记作 means 'record as / denote'. Placeholder counts are unchanged (learner×1, corrected×2)."
+ },
+ {
+  "location": "v6_strings.json variant_templates.word_choice.wrong_sense.zh",
+  "provenance": "ai_draft",
+  "current": "词义错误：“{learner_form}”和“{corrected_form}”是同一个词，但这个词有多个意思，你在这里的用法对应的是另一个义项，而不是句子需要的意思。请确认语境需要的是哪个义项。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Natural and matches the narrow ADR definition (same word, different dictionary sense); 义项 is understood by learners."
+ },
+ {
+  "location": "v6_strings.json variant_templates.word_choice.false_synonym.zh",
+  "provenance": "ai_draft",
+  "current": "“{learner_form}”和“{corrected_form}”在你的母语里可能译成同一个词，但用法不同：这里只能用“{corrected_form}”。",
+  "verdict": "fix",
+  "proposed": "“{learner_form}”和“{corrected_form}”在中文里常常译成同一个词，但两者的意思或用法不同：这里只能用“{corrected_form}”。",
+  "reason": "This template is already the L1=zh rendering, so '在你的母语里可能' is needlessly indirect; say 在中文里. ADR-031 defines false_synonym as differing in 'meaning or usage', but the current text says only 用法. Placeholder counts are unchanged."
+ },
+ {
+  "location": "merged_taxonomy.json zh[omission].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "成分缺失",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[addition].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "多余添加",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[word_choice].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "词语选择",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[collocation].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "词语搭配",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[word_order].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "语序",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[register].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "语域",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[orthography].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "拼写／书写",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[cohesion_connective].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "衔接／连接词",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[measure_word].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "量词短语",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[aspect_negation].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "体标记与否定",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[de_particle].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "结构助词“的/地/得”",
+  "verdict": "fix",
+  "proposed": "结构助词“的／地／得”",
+  "reason": "Now correctly includes 的 (the TASK-844 flag is resolved). Only change is half-width '/' to full-width '／' to match the gloss label. Cosmetic."
+ },
+ {
+  "location": "merged_taxonomy.json zh[complement].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "补语（结果/趋向/可能/程度）",
+  "verdict": "fix",
+  "proposed": "补语（结果／趋向／可能／程度）",
+  "reason": "Full-width slash for consistency. Cosmetic."
+ },
+ {
+  "location": "merged_taxonomy.json zh[ba_bei].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "把字句/被字句",
+  "verdict": "fix",
+  "proposed": "把字句／被字句",
+  "reason": "Full-width slash to match the gloss label. Cosmetic."
+ },
+ {
+  "location": "merged_taxonomy.json zh[separable_verb].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "离合词",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[coverb].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "介词/介动词",
+  "verdict": "fix",
+  "proposed": "介词",
+  "reason": "'介动词' is not a standard Chinese grammar term (coverb is usually just 介词; 次动词/副动词 are dated). It also disagrees with the gloss label 介词. Note: native_name is not read by scripts/build_dt_taxonomy_v6.py or services/, so this is bookkeeping only."
+ },
+ {
+  "location": "merged_taxonomy.json zh[connective].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "关联词搭配",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[topic_comment].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "话题—评论结构",
+  "verdict": "fix",
+  "proposed": "话题—述题结构",
+  "reason": "Unify with the gloss/template terminology (话题—述题); 评论 is a calque."
+ },
+ {
+  "location": "merged_taxonomy.json zh[semantic_anomaly].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "语义反常",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[contradiction].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "矛盾／逻辑冲突",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Standard term; matches the gloss label."
+ },
+ {
+  "location": "merged_taxonomy.json zh[meaning_inversion].native_name",
+  "provenance": "merged_taxonomy",
+  "current": "语义反转（极性/方向/数量）",
+  "verdict": "fix",
+  "proposed": "语义反转（极性／方向／数量／施受）",
+  "reason": "Omits agent/patient (施受), which the definition includes; full-width slash for consistency with 拼写／书写 etc. Cosmetic."
+ },
+ {
+  "location": "services/dual_translation/prompts.py _PRECEDENCE_V6.zh",
+  "provenance": "ai_draft (TASK-843/844/845/846)",
+  "current": "语义反转——按效果标注，而非按表面形式。若某个错误的效果是使学习者译文相对参考译文在极性（否定）、方向、数量或程度、施事/受事（谁对谁做什么）上发生反转，无论其表面形式是介词替换、用词替换还是漏掉了某个词，一律标为子类型{mi}。学习者漏掉或添加否定词（不、没、别、无等）导致极性反转的，标{mi}，不标{om}或{ad}。只是丢失内容而没有发生上述反转的，仍标{om}。程度有变化但没有反转的（如“很”→“比较”）不算反转。{co}仅用于不看参考译文、仅凭学习者译文本身即可看出的句内自相矛盾；与参考译文相反的，标{mi}。{mi}的严重程度一律为严重（2）。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Faithful to en and to the by-effect ruling: covers polarity, direction, quantity/degree and agent/recipient, any surface form, negator drop/add → {mi} not {om}/{ad}, a degree change is not an inversion, {co} only for a self-contradiction visible without the reference. 严重（2） matches the zh severity scale labels. Placeholders {mi}{om}{ad}{co} intact."
+ },
+ {
+  "location": "services/dual_translation/prompts.py _PRECEDENCE_V6_VERIFIER.zh",
+  "provenance": "ai_draft (TASK-843/844/845/846)",
+  "current": "若某个待核错误的效果属于上述反转，却被标为{surface}，请裁定为调整（2），将子类型改为{mi}，严重程度改为严重（2）。",
+  "verdict": "fix",
+  "proposed": "若某个待核错误的效果属于上述反转，却被标为{surface}中的任一子类型，请裁定为调整（2），将子类型改为{mi}，严重程度改为严重（2）。",
+  "reason": "Ambiguity: {surface} is joined with '、' (_SUBTYPE_REF_SEP['zh']), so '被标为A、B、C、D' reads as 'tagged as all of A, B, C and D' (en uses ' / ' = or). Add 中的任一子类型. Placeholders unchanged; 调整（2） and 严重（2） match the verdict and severity enums."
+ },
+ {
+  "location": "services/dual_translation/prompts.py _ZH_DE_RULE",
+  "provenance": "ai_draft (TASK-843/844/845/846)",
+  "current": "结构助词“的、地、得”：三者之间的任何误用——包括用“的”代替“地”或“得”、用“地”代替“的”（含定语位置误用“地”）、用“得”代替“的”或“地”——一律标为子类型{de}，严重程度为轻微（0）。这类误用不属于可接受的变体，不得因“意思不受影响”而忽略；不要标为{wc}或{orth}。",
+  "verdict": "fix",
+  "proposed": "结构助词“的、地、得”：三者之间的任何误用——包括用“的”代替“地”或“得”、用“地”代替“的”、用“得”代替“的”或“地”——以及缺少必需的“得”（如“跑快”应为“跑得快”），一律标为子类型{de}，严重程度为轻微（0）。这类误用不属于可接受的变体，不得因“意思不受影响”而忽略；不要标为{wc}或{orth}。",
+  "reason": "Faithful to the ruling, and it includes 的 for 地/得 as the TASK-844 AC requires. Gap: the de_particle definition also covers a missing obligatory 得, and without it the detector may file 跑快 as 补语 (major) or skip it. The parenthetical '（含定语位置误用地）' is redundant. Placeholders {de}{wc}{orth} unchanged. Re-check the TASK-844 tests, which may pin substrings. Naming 补语 in the not-list would need a new {cp} field in _precedence_block, so it is left out."
+ },
+ {
+  "location": "services/dual_translation/prompts.py _ZH_DE_RULE_VERIFIER",
+  "provenance": "ai_draft (TASK-843/844/845/846)",
+  "current": "若待核错误是“的、地、得”误用，不得以可接受的变体为由驳回（1）；若被标为{wc}或{orth}，请裁定为调整（2），将子类型改为{de}，严重程度改为轻微（0）。",
+  "verdict": "ok",
+  "proposed": null,
+  "reason": "Clear and faithful: no rejecting（1）as variation; re-type {wc}/{orth} → 调整（2）/{de}/轻微（0）. Placeholders intact."
+ },
+ {
+  "location": "services/dual_translation/prompts.py _VARIANT_BLOCK.zh",
+  "provenance": "ai_draft (TASK-843/844/845/846)",
+  "current": "explanation_variant（可选；仅用于子类型为{wc}的错误，其他错误不填）：0＝用错词——用了一个与参考译文中的词意思不同的词；1＝错义——用的正是参考译文中的那个词，但用成了它的另一个义项；2＝假同义词——用了另一个词，它在学习者母语中的译法与参考译文中的词相同，但意思或用法不同（如“知道”与“认识”）。",
+  "verdict": "fix",
+  "proposed": "explanation_variant（可选；仅用于子类型为{wc}的错误，其他错误不填）：0＝用错词——用了一个与参考译文中的词意思不同的词（不属于1或2的情况）；1＝用错义项——用的正是参考译文中的那个词，但用成了它的另一个义项；2＝假同义词——用了另一个词，它在学习者母语中与参考译文中的词译法相同，但意思或用法不同（如“知道”与“认识”）。",
+  "reason": "'错义' is a terse coinage; 用错义项 is clearer. As written, 0's definition ('a word whose meaning differs') also covers 2, so add the exclusivity '（不属于1或2的情况）' to make the enumeration unambiguous for the grader. The key explanation_variant, the indices 0/1/2 and {wc} are unchanged. 知道/认识 is a good example for both en and ja L1."
+ },
+ {
+  "location": "services/dual_translation/prompts.py _EXPLAINER_VARIANT_GUIDANCE.zh",
+  "provenance": "ai_draft (TASK-843/844/845/846)",
+  "current": "部分用词错误带有“variant”。wrong_word：学习者用了意思不同的另一个词——说明两个词在这里各自的意思。wrong_sense：是同一个词，但用成了这个句子不需要的义项——说明语境需要哪个义项。false_synonym：两个词在中文里可以译成同一个词，但不能互换——对比这两个词，说明它们的用法有何不同。",
+  "verdict": "fix",
+  "proposed": "部分“词语选择”类错误带有“variant”字段。wrong_word：学习者用了意思不同的另一个词——说明两个词在这里各自的意思。wrong_sense：是同一个词，但用成了这个句子不需要的义项——说明语境需要的是哪个义项。false_synonym：两个词在中文里常常译成同一个词，但不能互换——对比这两个词，说明它们的用法有何不同。",
+  "reason": "The errors the explainer sees carry type = the zh gloss label 词语选择, not '用词错误', so refer to them by that label. 'variant' is a JSON key, so say 字段. Tokens variant / wrong_word / wrong_sense / false_synonym are unchanged. Otherwise faithful to en and to the ADR definitions."
+ }
+]

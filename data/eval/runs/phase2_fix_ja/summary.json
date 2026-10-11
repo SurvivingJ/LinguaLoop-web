@@ -1,0 +1,408 @@
+{
+  "batch_id": "fc0a3876-345b-4f9b-b2a3-c61b7729cc21",
+  "requested_senses": 5,
+  "attempted_senses": 5,
+  "status_counts": {
+    "success": 5
+  },
+  "run_wall_clock_s": 618.5470000000205,
+  "per_sense_wall_clock_s": {
+    "35009": 132.7970000000205,
+    "35017": 109.96900000004098,
+    "35111": 129.93699999991804,
+    "34998": 96.04599999997299,
+    "35341": 148.21900000004098
+  },
+  "assets_per_sense": {
+    "35009": 7,
+    "35017": 7,
+    "35111": 7,
+    "34998": 7,
+    "35341": 7
+  },
+  "invalid_asset_rate_by_type": {
+    "prompt1_core": {
+      "valid": 5,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_A": {
+      "valid": 5,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_A": {
+      "valid": 5,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_A": {
+      "valid": 5,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt2_exercises_B": {
+      "valid": 5,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "prompt3_transforms_B": {
+      "valid": 5,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    },
+    "llm_types_B": {
+      "valid": 5,
+      "invalid": 0,
+      "invalid_rate": 0.0
+    }
+  },
+  "exercises_per_sense": {
+    "35009": {
+      "total": 5,
+      "by_type": {
+        "definition_match": 2,
+        "spot_incorrect_sentence": 1,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1
+      },
+      "by_level": {
+        "2": 2,
+        "7": 1,
+        "1": 2
+      }
+    },
+    "35017": {
+      "total": 19,
+      "by_type": {
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 1,
+        "spot_incorrect_sentence": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 2
+      },
+      "by_level": {
+        "2": 2,
+        "3": 2,
+        "4": 6,
+        "6": 1,
+        "7": 2,
+        "9": 4,
+        "1": 2
+      }
+    },
+    "35111": {
+      "total": 13,
+      "by_type": {
+        "definition_match": 2,
+        "morphology_slot": 2,
+        "jumbled_sentence": 4,
+        "reading_to_kanji": 1,
+        "particle_selection": 2,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "2": 2,
+        "4": 4,
+        "9": 4,
+        "1": 1,
+        "6": 2
+      }
+    },
+    "34998": {
+      "total": 16,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "cloze_completion": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 3,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "particle_selection": 2
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "3": 2,
+        "6": 2,
+        "9": 3,
+        "4": 4
+      }
+    },
+    "35341": {
+      "total": 17,
+      "by_type": {
+        "phonetic_recognition": 1,
+        "definition_match": 2,
+        "morphology_slot": 2,
+        "semantic_discrimination": 2,
+        "jumbled_sentence": 4,
+        "cloze_typed": 2,
+        "kanji_to_reading": 1,
+        "reading_to_kanji": 1,
+        "synonym_antonym_match": 2
+      },
+      "by_level": {
+        "1": 3,
+        "2": 2,
+        "4": 4,
+        "6": 4,
+        "9": 4
+      }
+    }
+  },
+  "judge_reject_counts": {
+    "sentence_validity": {
+      "ran": 8,
+      "rejected": 0,
+      "kept": 18
+    },
+    "cloze": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 12
+    },
+    "particle": {
+      "ran": 6,
+      "rejected": 0,
+      "kept": 18
+    },
+    "relation": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 12
+    },
+    "l1_distractor": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "cost_usd_total_observed": 0.05838999999999999,
+  "stopped_due_to_cost_cap": false,
+  "llm_calls_observed_count": 60,
+  "llm_calls_cost_breakdown": [
+    {
+      "task_name": "vocab_bundle_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 5,
+      "total_cost_usd": 0.021291519999999998,
+      "avg_cost_usd": 0.004258303999999999
+    },
+    {
+      "task_name": "vocab_prompt1_core",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 5,
+      "total_cost_usd": 0.01085888,
+      "avg_cost_usd": 0.002171776
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 5,
+      "total_cost_usd": 0.0073664,
+      "avg_cost_usd": 0.00147328
+    },
+    {
+      "task_name": "vocab_prompt3_transforms",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 5,
+      "total_cost_usd": 0.0034729599999999998,
+      "avg_cost_usd": 0.000694592
+    },
+    {
+      "task_name": "judge_ladder_l1_distractor",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 10,
+      "total_cost_usd": 0.003368,
+      "avg_cost_usd": 0.0003368
+    },
+    {
+      "task_name": "judge_ladder_p1_sentence",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 7,
+      "total_cost_usd": 0.00294912,
+      "avg_cost_usd": 0.00042130285714285715
+    },
+    {
+      "task_name": "ladder_l4_morphology_generation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 6,
+      "total_cost_usd": 0.00293504,
+      "avg_cost_usd": 0.0004891733333333333
+    },
+    {
+      "task_name": "vocab_prompt1_core_repair",
+      "call_role": "repair",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 1,
+      "total_cost_usd": 0.0021888,
+      "avg_cost_usd": 0.0021888
+    },
+    {
+      "task_name": "judge_ladder_particle",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 6,
+      "total_cost_usd": 0.0016895999999999999,
+      "avg_cost_usd": 0.00028159999999999996
+    },
+    {
+      "task_name": "judge_ladder_relation",
+      "call_role": "primary",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 6,
+      "total_cost_usd": 0.0013007359999999998,
+      "avg_cost_usd": 0.0002167893333333333
+    },
+    {
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "call_role": "repair",
+      "model": "qwen/qwen3.7-plus",
+      "calls": 4,
+      "total_cost_usd": 0.0009622400000000001,
+      "avg_cost_usd": 0.00024056000000000001
+    }
+  ],
+  "unattributed_writes_count": 5,
+  "unattributed_writes_sample": [
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20703
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20707
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20755
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20698
+          ],
+          {}
+        ]
+      ]
+    },
+    {
+      "table": "dim_vocabulary",
+      "verb": "update",
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            20869
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "cost_query_sql": "SELECT task_name, call_role, model,\n       COUNT(*)          AS calls,\n       SUM(cost_usd)     AS total_cost_usd,\n       AVG(cost_usd)     AS avg_cost_usd\nFROM llm_calls\nWHERE generation_batch_id = 'fc0a3876-345b-4f9b-b2a3-c61b7729cc21'\nGROUP BY task_name, call_role, model\nORDER BY total_cost_usd DESC NULLS LAST;\n",
+  "model_overrides_applied": [],
+  "prompt_overrides_applied": [
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "zh",
+      "language_id": 1,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "ja",
+      "language_id": 3,
+      "version": 3,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "vocab_bundle_generation",
+      "language": "en",
+      "language_id": 2,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "zh",
+      "language_id": 1,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "ja",
+      "language_id": 3,
+      "version": 2,
+      "model": "qwen/qwen3.7-plus",
+      "provider": "openrouter"
+    },
+    {
+      "task_name": "ladder_bundle_judge",
+      "language": "en",
+      "language_id": 2,
+      "version": 1,
+      "model": "google/gemini-3.5-flash-lite",
+      "provider": "openrouter"
+    }
+  ],
+  "prompt_override_file": "migrations/exercise_gen_bundle_prompts_draft.sql",
+  "senses_from": null
+}

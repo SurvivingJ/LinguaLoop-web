@@ -13,7 +13,10 @@ Cases:
 import pytest
 
 from services.vocabulary_ladder.config import compute_active_levels
-from services.vocabulary_ladder.validators import VocabAssetValidator
+from services.vocabulary_ladder.validators import (
+    VocabAssetValidator, contains_target_whole_word, is_sentence_scoped,
+    parse_sentence_errors,
+)
 
 VALIDATOR = VocabAssetValidator()
 
@@ -229,3 +232,104 @@ def test_genuinely_invalid_semantic_class_is_still_rejected():
     is_valid, errors, _warnings = VALIDATOR.validate_prompt1(asset, language_id=2)
     assert not is_valid
     assert any('not_a_real_class' in e for e in errors)
+
+
+# ---------------------------------------------------------------------------
+# Coverage-gap fix #2: contains_target_whole_word boundary/punctuation/
+# phrasal-verb hardening + the sentence-scoped-error helpers that let the
+# pipeline route a single bad sentence through repair_sentences instead of
+# failing the whole asset.
+# ---------------------------------------------------------------------------
+
+def test_whole_word_tolerates_stray_whitespace_on_either_side():
+    assert contains_target_whole_word('They walked away.', 'away ')
+    assert contains_target_whole_word('They walked away. ', ' away')
+    assert contains_target_whole_word(' They walked away.', 'away')
+
+
+def test_whole_word_still_rejects_a_true_substring():
+    assert not contains_target_whole_word('They planned a quick getaway.', 'away')
+    assert not contains_target_whole_word('The runaway car crashed.', 'away')
+
+
+def test_whole_word_handles_curly_vs_straight_apostrophes():
+    assert contains_target_whole_word("She said she didn’t know.", "didn't")
+    assert contains_target_whole_word("She said she didn't know.", "didn’t")
+
+
+def test_whole_word_phrasal_target_allows_flexible_internal_whitespace():
+    assert contains_target_whole_word('Please put it  away carefully.', 'put it away')
+    assert contains_target_whole_word('Please\nput it away.', 'put it away')
+
+
+def test_whole_word_absent_target_still_rejected():
+    assert not contains_target_whole_word(
+        'We are counting down the days until the holiday.', 'away',
+    )
+
+
+def test_parse_sentence_errors_extracts_index_and_full_message():
+    errors = [
+        "Sentence 7: target_word 'away' is not a whole-word match in text "
+        "(substring inside another word does not count)",
+        'Sentence 2 is not a dict',
+    ]
+    parsed = parse_sentence_errors(errors)
+    assert set(parsed) == {7, 2}
+    assert 'away' in parsed[7]
+
+
+def test_parse_sentence_errors_ignores_asset_wide_messages():
+    errors = ["Missing required field: pos", "Invalid POS: 'bogus'"]
+    assert parse_sentence_errors(errors) == {}
+
+
+def test_is_sentence_scoped_true_only_when_every_error_is_per_sentence():
+    assert is_sentence_scoped(["Sentence 7: target_word 'away' is not a whole-word match"])
+    assert is_sentence_scoped([
+        "Sentence 1 has empty text", "Sentence 3: target_word 'x' is not a whole-word match",
+    ])
+    assert not is_sentence_scoped([
+        "Sentence 7: target_word 'away' is not a whole-word match", "Missing required field: pos",
+    ])
+    assert not is_sentence_scoped(["Missing required field: pos"])
+    assert not is_sentence_scoped([])
+
+
+# ---------------------------------------------------------------------------
+# Coverage-gap fix #3: a level whose value isn't a dict (most concretely an
+# explicit JSON `null`, which survives the "key present" check that used to
+# be the only gate) must fail loudly, not crash `.get()` or read as valid.
+# ---------------------------------------------------------------------------
+
+def test_prompt2_option_level_null_value_is_a_validation_error_not_a_crash():
+    is_valid, errors = VALIDATOR.validate_prompt2({'level_3': None}, active_levels=[3])
+    assert not is_valid
+    assert any('Level 3' in e and 'expected dict' in e for e in errors)
+
+
+def test_prompt2_level_6_null_value_is_a_validation_error_not_a_crash():
+    is_valid, errors = VALIDATOR.validate_prompt2({'level_6': None}, active_levels=[6])
+    assert not is_valid
+    assert any('Level 6' in e and 'expected dict' in e for e in errors)
+
+
+def test_prompt3_level_4_null_value_is_a_validation_error_not_a_crash():
+    is_valid, errors = VALIDATOR.validate_prompt3({'level_4': None}, active_levels=[4])
+    assert not is_valid
+    assert any('Level 4' in e and 'expected dict' in e for e in errors)
+
+
+def test_prompt3_level_7_non_string_fields_are_errors_not_a_crash():
+    """Regression for en senses 13902/15328 (phase2_fix_en verification run):
+    a bundle-mode response returned a bool for `corrected_sentence`, which
+    crashed `.strip()` with an unhandled AttributeError instead of a clean
+    'missing corrected_sentence' validation error."""
+    is_valid, errors = VALIDATOR.validate_prompt3(
+        {'level_7': {'incorrect_sentence': 'She run every day.',
+                     'corrected_sentence': True,
+                     'error_description': 'agreement'}},
+        active_levels=[7],
+    )
+    assert not is_valid
+    assert any('Level 7' in e and 'corrected_sentence' in e for e in errors)

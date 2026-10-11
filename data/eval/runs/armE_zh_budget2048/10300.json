@@ -1,0 +1,1615 @@
+{
+  "sense_id": 10300,
+  "language_id": 1,
+  "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+  "started_at": "2026-10-08T10:00:46.375507+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.28887009620666504,
+    "p1_generate": 48.531269788742065,
+    "tier_gate": 28.578102827072144,
+    "p1_judge": 79.67703199386597,
+    "collocate_grounding": 0.0,
+    "fan_out": 48.232511043548584
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[tʂʰɑŋ˧˥]",
+        "morphological_forms": [
+          {
+            "form": "长长",
+            "label": "重叠"
+          },
+          {
+            "form": "长短",
+            "label": "复合"
+          },
+          {
+            "form": "长久",
+            "label": "复合"
+          },
+          {
+            "form": "漫长",
+            "label": "复合"
+          },
+          {
+            "form": "長",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "cháng",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10300
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "02e63637-de78-418d-b1b6-e3752c5fdc26",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "长",
+        "pronunciation": "cháng",
+        "ipa": "[tʂʰɑŋ˧˥]",
+        "syllable_count": 1,
+        "audio_url": null,
+        "options": [
+          "场",
+          "长",
+          "唱",
+          "昌"
+        ],
+        "correct_answer": "长",
+        "explanation": "正确。“长”读第二声（cháng），符合目标词的读音和“距离大”的释义。",
+        "distractor_explanations": {
+          "场": "声调错误。“场”读第三声（chǎng），指空地或聚会的地方；目标词“长”读第二声（cháng），指距离大。",
+          "唱": "声调错误。“唱”读第四声（chàng），指发出声音或唱歌；目标词“长”读第二声（cháng），指距离大。",
+          "昌": "声调错误。“昌”读第一声（chāng），指兴旺或美好；目标词“长”读第二声（cháng），指距离大。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "長",
+          "pronunciation": "cháng",
+          "ipa": "[tʂʰɑŋ˧˥]",
+          "syllable_count": 1,
+          "audio_url": null,
+          "options": [
+            "場",
+            "長",
+            "唱",
+            "昌"
+          ],
+          "correct_answer": "長",
+          "explanation": "正確。“長”讀第二聲（cháng），符合目標詞的讀音和“距離大”的釋義。",
+          "distractor_explanations": {
+            "场": "聲調錯誤。“場”讀第三聲（chǎng），指空地或聚會的地方；目標詞“長”讀第二聲（cháng），指距離大。",
+            "唱": "聲調錯誤。“唱”讀第四聲（chàng），指發出聲音或唱歌；目標詞“長”讀第二聲（cháng），指距離大。",
+            "昌": "聲調錯誤。“昌”讀第一聲（chāng），指興旺或美好；目標詞“長”讀第二聲（cháng），指距離大。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "ebd86e16-96f8-412b-ac23-83f82195d8e7",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "长",
+        "pronunciation": "cháng",
+        "correct_definition": "指空间或时间上距离大，与‘短’相对。",
+        "options": [
+          "购买或使用商品、服务的个人或组织。",
+          "生物化学的简称，研究生物体内化学过程和物质的科学。",
+          "时刻表是列出交通工具（如火车、飞机、公交车）出发和到达时间的表格或列表。",
+          "指空间或时间上距离大，与‘短’相对。"
+        ],
+        "hant": {
+          "word": "長",
+          "pronunciation": "cháng",
+          "correct_definition": "指空間或時間上距離大，與‘短’相對。",
+          "options": [
+            "購買或使用商品、服務的個人或組織。",
+            "生物化學的簡稱，研究生物體內化學過程和物質的科學。",
+            "時刻表是列出交通工具（如火車、飛機、公交車）出發和到達時間的表格或列表。",
+            "指空間或時間上距離大，與‘短’相對。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "0f219be3-737b-440b-bfed-1cebf10ef72c",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "___城在中国北方，它很长很长。",
+        "original_sentence": "长城在中国北方，它很长很长。",
+        "correct_answer": "长",
+        "options": [
+          "重",
+          "厚",
+          "长",
+          "远"
+        ],
+        "explanation": "正确。“长”准确描述了长城在空间上绵延不断的物理特征，符合语境。",
+        "distractor_tags": {},
+        "word_definition": "指空间或时间上距离大，与‘短’相对。",
+        "target_word": "长",
+        "hant": {
+          "sentence_with_blank": "___城在中國北方，它很長很長。",
+          "original_sentence": "長城在中國北方，它很長很長。",
+          "correct_answer": "長",
+          "options": [
+            "重",
+            "厚",
+            "長",
+            "遠"
+          ],
+          "explanation": "正確。“長”準確描述了長城在空間上綿延不斷的物理特徵，符合語境。",
+          "distractor_tags": {},
+          "word_definition": "指空間或時間上距離大，與‘短’相對。",
+          "target_word": "長"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "2af0eed1-48d3-4d0c-8b9c-a0944363ee84",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这条裙子太长了，我想把它改短一点。",
+            "is_correct": true
+          },
+          {
+            "text": "这条裙子太长了，我想把它改短下来一点。",
+            "is_correct": false
+          },
+          {
+            "text": "这只裙子太长了，我想把它改短一点。",
+            "is_correct": false
+          },
+          {
+            "text": "这条裙子太长着了，我想把它改短一点。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "量词使用错误。名词“裙子”的规范量词应为“条”，不能使用“只”。 体标选用错误。动态助词“着”不能用在形容词“长”后表示程度，此处应使用“了”来确认状态。 方向补语误用。结果补语“短”后不能接趋向补语“下来”，“改短”本身已包含结果，直接加“一点”即可。",
+        "target_word": "长",
+        "hant": {
+          "sentences": [
+            {
+              "text": "這條裙子太長了，我想把它改短一點。",
+              "is_correct": true
+            },
+            {
+              "text": "這條裙子太長了，我想把它改短下來一點。",
+              "is_correct": false
+            },
+            {
+              "text": "這隻裙子太長了，我想把它改短一點。",
+              "is_correct": false
+            },
+            {
+              "text": "這條裙子太長著了，我想把它改短一點。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "量詞使用錯誤。名詞“裙子”的規範量詞應為“條”，不能使用“只”。 體標選用錯誤。動態助詞“著”不能用在形容詞“長”後表示程度，此處應使用“了”來確認狀態。 方向補語誤用。結果補語“短”後不能接趨向補語“下來”，“改短”本身已包含結果，直接加“一點”即可。",
+          "target_word": "長"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "bc84c87f-9693-4569-828f-e2c9897f5b1d",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "长城在中国北方，它很长很长。",
+            "is_correct": true
+          },
+          {
+            "text": "这条田埂比那条田埂很长。",
+            "is_correct": false,
+            "error_description": "在“比”字比较句中，形容词前不能使用“很”等程度副词，应直接使用形容词“长”，或使用“更”、“得多”等。"
+          },
+          {
+            "text": "这条田埂很长，一眼望不到尽头。",
+            "is_correct": true
+          },
+          {
+            "text": "这种豆角很长，在菜市场很受欢迎。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "長城在中國北方，它很長很長。",
+              "is_correct": true
+            },
+            {
+              "text": "這條田埂比那條田埂很長。",
+              "is_correct": false,
+              "error_description": "在“比”字比較句中，形容詞前不能使用“很”等程度副詞，應直接使用形容詞“長”，或使用“更”、“得多”等。"
+            },
+            {
+              "text": "這條田埂很長，一眼望不到盡頭。",
+              "is_correct": true
+            },
+            {
+              "text": "這種豆角很長，在菜市場很受歡迎。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "9de2d704-5568-4c4a-a4da-073b1eaebccf",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "长",
+        "pronunciation": "cháng",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "形容程度高，令人满意。",
+              "指空间或时间上距离大，与‘短’相对。",
+              "to drink tea; the act of drinking tea",
+              "セットにする"
+            ],
+            "correct_answer": "指空间或时间上距离大，与‘短’相对。"
+          }
+        },
+        "hant": {
+          "word": "長",
+          "pronunciation": "cháng",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "形容程度高，令人滿意。",
+                "指空間或時間上距離大，與‘短’相對。",
+                "to drink tea; the act of drinking tea",
+                "セットにする"
+              ],
+              "correct_answer": "指空間或時間上距離大，與‘短’相對。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f7049f5d-7f00-426b-a686-e8429e262a12",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这条田埂很___，一眼望不到尽头。",
+        "original_sentence": "这条田埂很长，一眼望不到尽头。",
+        "target_word": "长",
+        "word": "长",
+        "answer": {
+          "accepted": [
+            "长",
+            "长长",
+            "长短",
+            "长久",
+            "漫长"
+          ],
+          "accepted_normalized": [
+            "长",
+            "长长",
+            "长短",
+            "长久",
+            "漫长"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這條田埂很___，一眼望不到盡頭。",
+          "original_sentence": "這條田埂很長，一眼望不到盡頭。",
+          "target_word": "長",
+          "word": "長",
+          "answer": {
+            "accepted": [
+              "長",
+              "長長",
+              "長短",
+              "長久",
+              "漫長"
+            ],
+            "accepted_normalized": [
+              "長",
+              "長長",
+              "長短",
+              "長久",
+              "漫長"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e3b229be-a2f7-429c-a343-871b8e64bcca",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "长",
+        "options": [
+          "chāng",
+          "chàng",
+          "cháng",
+          "chǎng"
+        ],
+        "correct_answer": "cháng",
+        "word": "长",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "長",
+          "options": [
+            "chāng",
+            "chàng",
+            "cháng",
+            "chǎng"
+          ],
+          "correct_answer": "cháng",
+          "word": "長",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "61bf86ab-11f5-4c0a-8cb4-8814ab683920",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "cháng",
+        "options": [
+          "长",
+          "快",
+          "比",
+          "高"
+        ],
+        "correct_answer": "长",
+        "word": "长",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "比": "frequency",
+          "高": "frequency",
+          "快": "frequency"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "cháng",
+          "options": [
+            "長",
+            "快",
+            "比",
+            "高"
+          ],
+          "correct_answer": "長",
+          "word": "長",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "比": "frequency",
+            "高": "frequency",
+            "快": "frequency"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "e8106741-8600-4078-b4b2-1b5e3aa09b44",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "长",
+        "toneless_pinyin": "chang",
+        "full_pinyin": "cháng",
+        "options": [
+          "4",
+          "3",
+          "2",
+          "1"
+        ],
+        "correct_answer": "2",
+        "option_labels": {
+          "4": "falling (4)",
+          "3": "dipping (3)",
+          "2": "rising (2)",
+          "1": "high level (1)"
+        },
+        "syllable_count": 1,
+        "hant": {
+          "schema_version": 2,
+          "word": "長",
+          "toneless_pinyin": "chang",
+          "full_pinyin": "cháng",
+          "options": [
+            "4",
+            "3",
+            "2",
+            "1"
+          ],
+          "correct_answer": "2",
+          "option_labels": {
+            "4": "falling (4)",
+            "3": "dipping (3)",
+            "2": "rising (2)",
+            "1": "high level (1)"
+          },
+          "syllable_count": 1
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "1d77f8b2-da6d-4b38-ae67-328ba55633c6",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "长",
+        "relation": "antonym",
+        "options": [
+          "短",
+          "宽",
+          "细",
+          "高"
+        ],
+        "correct_answer": "短",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指空间或时间上距离大，与‘短’相对。",
+            "explanation": "反义项：指空间或时间上距离小，与目标词当前义项构成反义关系。"
+          }
+        },
+        "hant": {
+          "word": "長",
+          "relation": "antonym",
+          "options": [
+            "短",
+            "寬",
+            "細",
+            "高"
+          ],
+          "correct_answer": "短",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指空間或時間上距離大，與‘短’相對。",
+              "explanation": "反義項：指空間或時間上距離小，與目標詞當前義項構成反義關係。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "高": 0.626417
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "81bebecd-91e1-419e-8fd1-f9eaf8f6c113",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "这部电影太___了，我看了两个小时。",
+        "original_sentence": "这部电影太长了，我看了两个小时。",
+        "correct_answer": "长",
+        "options": [
+          "大",
+          "多",
+          "高",
+          "长"
+        ],
+        "explanation": "正确。符合语境，表示电影播放的时间距离大。",
+        "distractor_tags": {},
+        "word_definition": "指空间或时间上距离大，与‘短’相对。",
+        "target_word": "长",
+        "hant": {
+          "sentence_with_blank": "這部電影太___了，我看了兩個小時。",
+          "original_sentence": "這部電影太長了，我看了兩個小時。",
+          "correct_answer": "長",
+          "options": [
+            "大",
+            "多",
+            "高",
+            "長"
+          ],
+          "explanation": "正確。符合語境，表示電影播放的時間距離大。",
+          "distractor_tags": {},
+          "word_definition": "指空間或時間上距離大，與‘短’相對。",
+          "target_word": "長"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "0bf247fa-833d-4bda-8905-cab6414abb66",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这条长长的公路一直走到海边。",
+            "is_correct": true
+          },
+          {
+            "text": "他的故事很长，我们坐着慢慢听。",
+            "is_correct": true
+          },
+          {
+            "text": "这部电影太长了，我看了两个小时。",
+            "is_correct": true
+          },
+          {
+            "text": "这部电影长太了，我看了两个小时。",
+            "is_correct": false,
+            "error_description": "“太……了”结构中，程度副词“太”应放在形容词“长”之前，且“了”放在句末。错误句子将“长”放在了“太”之前，导致语序错误。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這條長長的公路一直走到海邊。",
+              "is_correct": true
+            },
+            {
+              "text": "他的故事很長，我們坐著慢慢聽。",
+              "is_correct": true
+            },
+            {
+              "text": "這部電影太長了，我看了兩個小時。",
+              "is_correct": true
+            },
+            {
+              "text": "這部電影長太了，我看了兩個小時。",
+              "is_correct": false,
+              "error_description": "“太……了”結構中，程度副詞“太”應放在形容詞“長”之前，且“了”放在句末。錯誤句子將“長”放在了“太”之前，導致語序錯誤。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "c13df211-c83e-4d33-b03d-a627a2b6f461",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这条___长的公路一直走到海边。",
+        "original_sentence": "这条长长的公路一直走到海边。",
+        "target_word": "长",
+        "word": "长",
+        "answer": {
+          "accepted": [
+            "长",
+            "长长",
+            "长短",
+            "长久",
+            "漫长"
+          ],
+          "accepted_normalized": [
+            "长",
+            "长长",
+            "长短",
+            "长久",
+            "漫长"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這條___長的公路一直走到海邊。",
+          "original_sentence": "這條長長的公路一直走到海邊。",
+          "target_word": "長",
+          "word": "長",
+          "answer": {
+            "accepted": [
+              "長",
+              "長長",
+              "長短",
+              "長久",
+              "漫長"
+            ],
+            "accepted_normalized": [
+              "長",
+              "長長",
+              "長短",
+              "長久",
+              "漫長"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "6f93d0e4-3842-47ac-b264-7ad752d229ef",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "长",
+        "relation": "antonym",
+        "options": [
+          "短",
+          "高",
+          "宽",
+          "细"
+        ],
+        "correct_answer": "短",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指空间或时间上距离大，与‘短’相对。",
+            "explanation": "反义项：指空间或时间上距离小，与目标词当前义项构成反义关系。"
+          }
+        },
+        "hant": {
+          "word": "長",
+          "relation": "antonym",
+          "options": [
+            "短",
+            "高",
+            "寬",
+            "細"
+          ],
+          "correct_answer": "短",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指空間或時間上距離大，與‘短’相對。",
+              "explanation": "反義項：指空間或時間上距離小，與目標詞當前義項構成反義關係。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "高": 0.626417
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10300,
+      "word_asset_id": "shadow-10300-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 3,
+      "rejected": 0,
+      "kept": 5
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '长' is fused into a neighbouring chunk — chunks=['他', '留着长长的头发', '看起来很有个性']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '长' is fused into a neighbouring chunk — chunks=['这条裙子', '太长了', '我', '想', '把它', '改短一点']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00432352,
+      "prompt_tokens": 2467,
+      "completion_tokens": 2761,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 48148
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0021104,
+      "prompt_tokens": 235,
+      "completion_tokens": 1590,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1570,
+      "call_role": "repair",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 28436
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00274336,
+      "prompt_tokens": 649,
+      "completion_tokens": 1981,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1774,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 34671
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00250752,
+      "prompt_tokens": 252,
+      "completion_tokens": 1896,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1840,
+      "call_role": "repair",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 33563
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0008704,
+      "prompt_tokens": 564,
+      "completion_tokens": 539,
+      "cached_tokens": 0,
+      "reasoning_tokens": 482,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 10818
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00284352,
+      "prompt_tokens": 1486,
+      "completion_tokens": 1850,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1748,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 32708
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00280576,
+      "prompt_tokens": 644,
+      "completion_tokens": 2031,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1804,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 35456
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00321376,
+      "prompt_tokens": 1487,
+      "completion_tokens": 2139,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2017,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 37781
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00304832,
+      "prompt_tokens": 642,
+      "completion_tokens": 2221,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 38761
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00400672,
+      "prompt_tokens": 1661,
+      "completion_tokens": 2715,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47739
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00397728,
+      "prompt_tokens": 1661,
+      "completion_tokens": 2692,
+      "cached_tokens": 0,
+      "reasoning_tokens": 2048,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 47897
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00120768,
+      "prompt_tokens": 418,
+      "completion_tokens": 839,
+      "cached_tokens": 0,
+      "reasoning_tokens": 725,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 15515
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.00018094,
+      "prompt_tokens": 393,
+      "completion_tokens": 62,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 4688
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00177536,
+      "prompt_tokens": 688,
+      "completion_tokens": 1215,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1137,
+      "call_role": "json_repair",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 21724
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.000584,
+      "prompt_tokens": 433,
+      "completion_tokens": 348,
+      "cached_tokens": 0,
+      "reasoning_tokens": 321,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 6964
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175776,
+      "prompt_tokens": 545,
+      "completion_tokens": 1237,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1140,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 21870
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00096704,
+      "prompt_tokens": 418,
+      "completion_tokens": 651,
+      "cached_tokens": 0,
+      "reasoning_tokens": 537,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 12048
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.00017859,
+      "prompt_tokens": 394,
+      "completion_tokens": 59,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 4994
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0021568,
+      "prompt_tokens": 556,
+      "completion_tokens": 1546,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1478,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 29515
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00071296,
+      "prompt_tokens": 444,
+      "completion_tokens": 446,
+      "cached_tokens": 0,
+      "reasoning_tokens": 422,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 8942
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00113696,
+      "prompt_tokens": 545,
+      "completion_tokens": 752,
+      "cached_tokens": 0,
+      "reasoning_tokens": 683,
+      "call_role": "primary",
+      "sense_id": 10300,
+      "generation_batch_id": "171a1f1a-313f-4916-8ab0-b5cefdb14f22",
+      "language_code": "zh",
+      "latency_ms": 13718
+    }
+  ],
+  "llm_calls_observed": 21,
+  "llm_cost_observed_usd": 0.04310864999999999,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 1,
+    "repaired": 1,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 373.25,
+  "finished_at": "2026-10-08T10:06:59.631385+00:00"
+}

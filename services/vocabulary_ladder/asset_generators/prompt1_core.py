@@ -14,7 +14,7 @@ import logging
 from typing import Optional
 
 from config import Config
-from services.llm_service import call_llm
+from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
     PROMPT1_KEY_MAP, SENTENCE_KEY_MAP, MORPH_FORM_KEY_MAP,
@@ -27,6 +27,65 @@ logger = logging.getLogger(__name__)
 
 TASK_NAME = 'vocab_prompt1_core'
 _PIPELINE = 'vocab_ladder'
+
+# max_tokens caps. RE-DERIVED 2026-10-03 (ADR-028 cost work) from the old
+# flat 8192 (primary/repair) and 4096 (sentence_repair), using MEASURED
+# completion_tokens instead of an unmeasured round number. Source:
+# data/eval/runs/phase2_bundle_*/ + phase2_fix_*/ + phase2_smoke_ja_v3/ +
+# phase2_smoke_zh_r/ *.json llm_calls (reasoning OFF for qwen in these runs).
+# Formula: cap = max(ceil(p99 * 2), ceil(max * 1.25)), rounded up to a round
+# number, never below the observed max * 1.25.
+#
+# vocab_prompt1_core (primary + retry, one cap shared across languages):
+#   en n=19 p99=723  max=729
+#   zh n=19 p99=772  max=773
+#   ja n=24 p99=1753 max=1845  <- governs (worst language)
+#   formula = 3507 -> rounded to 4000
+_MAX_TOKENS_PRIMARY_RIGHTSIZED = 4000
+
+# vocab_prompt1_core_repair: own sample too thin to derive from directly
+# (data/eval/runs/phase2_fix_ja/*.json: n=3, p99=1337, max=1340, ja-only).
+# Borrows the primary call's ja measurement above (p99=1753, max=1845) since
+# this returns "the complete corrected JSON object" -- the same shape as the
+# primary P1 output. Same formula/cap as primary: 4000.
+_MAX_TOKENS_REPAIR_RIGHTSIZED = 4000
+
+# vocab_prompt1_core_sentence_repair (small, index-keyed sentence rewrites):
+#   en n=9  p99=134 max=137
+#   zh n=17 p99=74  max=74
+#   ja n=23 p99=204 max=206  <- governs (worst language)
+#   formula = 408 -> rounded to 500
+_MAX_TOKENS_SENTENCE_REPAIR_RIGHTSIZED = 500
+
+# At qwen3.7-plus's $1.28/M completion price (ja's model for all three
+# tasks above), these cuts take the worst-case reservation on ja from
+# ~$0.011/request (primary/repair, old 8192) to ~$0.006/request, and from
+# ~$0.005/request (sentence_repair, old 4096) to ~$0.0008/request.
+
+# Pre-2026-10-03 (reasoning-safe) caps. This whole module runs on a qwen
+# model (see TASK-813), so when `LADDER_QWEN_REASONING=on` (the default --
+# see services.llm_service.ladder_qwen_reasoning_mode) restores Phase-1
+# reasoning-left-on behaviour for these calls, the right-sized caps above
+# would truncate: reasoning tokens count toward `max_tokens`, and the
+# right-sized values were derived from reasoning-OFF measurements only.
+_MAX_TOKENS_PRIMARY_REASONING_SAFE = 8192
+_MAX_TOKENS_REPAIR_REASONING_SAFE = 8192
+_MAX_TOKENS_SENTENCE_REPAIR_REASONING_SAFE = 4096
+
+
+def _max_tokens_primary() -> int:
+    return (_MAX_TOKENS_PRIMARY_REASONING_SAFE if ladder_qwen_reasoning_mode() != 'off'
+            else _MAX_TOKENS_PRIMARY_RIGHTSIZED)
+
+
+def _max_tokens_repair() -> int:
+    return (_MAX_TOKENS_REPAIR_REASONING_SAFE if ladder_qwen_reasoning_mode() != 'off'
+            else _MAX_TOKENS_REPAIR_RIGHTSIZED)
+
+
+def _max_tokens_sentence_repair() -> int:
+    return (_MAX_TOKENS_SENTENCE_REPAIR_REASONING_SAFE if ladder_qwen_reasoning_mode() != 'off'
+            else _MAX_TOKENS_SENTENCE_REPAIR_RIGHTSIZED)
 
 # language_id → llm_calls.language_code. Same hardcoded map used by
 # services/exercise_generation/judges/answer_entailment.py — see there for
@@ -214,7 +273,7 @@ class CoreAssetGenerator:
                     model=cfg['model'],
                     provider=cfg['provider'],
                     temperature=0.3,
-                    max_tokens=8192,
+                    max_tokens=_max_tokens_primary(),
                     response_format='json',
                     pipeline=_PIPELINE,
                     task_name=TASK_NAME,
@@ -281,7 +340,7 @@ class CoreAssetGenerator:
                 model=cfg['model'],
                 provider=cfg['provider'],
                 temperature=0.2,
-                max_tokens=8192,
+                max_tokens=_max_tokens_repair(),
                 response_format='json',
                 pipeline=_PIPELINE,
                 task_name=f'{TASK_NAME}_repair',
@@ -363,7 +422,7 @@ class CoreAssetGenerator:
                 model=cfg['model'],
                 provider=cfg['provider'],
                 temperature=0.4,
-                max_tokens=4096,
+                max_tokens=_max_tokens_sentence_repair(),
                 response_format='json',
                 pipeline=_PIPELINE,
                 task_name=f'{TASK_NAME}_sentence_repair',

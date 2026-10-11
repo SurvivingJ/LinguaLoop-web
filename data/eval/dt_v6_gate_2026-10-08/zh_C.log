@@ -1,0 +1,53 @@
+=== 2026-10-08T21:00:18+11:00 START zh C limit=0
+[plan] L2=zh L1=en fixture-set=v6_silver items=34 (clean 6 / single 23 / multi 5) framework=v2
+[taxonomy] candidate v6 parsed from migrations/dt_taxonomy_v6_seed.sql: 9 pair keys; baseline subtypes en=20 ja=23 zh=20
+[taxonomy] candidate v6 pre-seeded into the config cache (live DB taxonomy untouched)
+[resume] loaded 0 graded + 0 skipped from data/eval/dt_v6_gate_2026-10-08/zh_C.ckpt.jsonl
+Building prefix dict from the default dictionary ...
+2026-10-08 21:00:20,596 - DEBUG - Building prefix dict from the default dictionary ...
+Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.cache
+2026-10-08 21:00:20,596 - DEBUG - Loading model from cache C:\Users\James\AppData\Local\Temp\jieba.cache
+Loading model cost 0.514 seconds.
+2026-10-08 21:00:21,110 - DEBUG - Loading model cost 0.514 seconds.
+Prefix dict has been built successfully.
+2026-10-08 21:00:21,110 - DEBUG - Prefix dict has been built successfully.
+[1/34] zh_silver_01 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[2/34] zh_silver_02 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[3/34] zh_silver_03 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[4/34] zh_silver_04 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[5/34] zh_silver_05 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[6/34] zh_silver_06 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[7/34] zh_silver_07 kind=single pred_errors=1 tier=tier2 fell_open=False
+[8/34] zh_silver_08 kind=single pred_errors=1 tier=tier2 fell_open=False
+[9/34] zh_silver_09 kind=single pred_errors=1 tier=tier2 fell_open=False
+[10/34] zh_silver_10 kind=single pred_errors=1 tier=tier2 fell_open=False
+[11/34] zh_silver_15 kind=single pred_errors=0 tier=tier2 fell_open=False
+2026-10-08 21:10:36,582 - WARNING - dual_translation.grader_cascade: dropping error with out-of-range enum index: {'span_repro': [74, 76], 'span_ref': [74, 76], 'category': 6, 'source': 0, 'severity': 0, 'subtype': 6, 'learner_form': '退色', 'corrected_form': '褪色', 'confidence': '0.95', 'is_mistake': False}
+[12/34] zh_silver_30 kind=single pred_errors=0 tier=tier2 fell_open=False
+[13/34] zh_silver_35 kind=single pred_errors=0 tier=tier2 fell_open=False
+[14/34] zh_silver_11 kind=single pred_errors=1 tier=tier2 fell_open=False
+[15/34] zh_silver_12 kind=single pred_errors=1 tier=tier2 fell_open=False
+[16/34] zh_silver_16 kind=single pred_errors=0 tier=tier2 fell_open=False
+[17/34] zh_silver_17 kind=single pred_errors=1 tier=tier2 fell_open=False
+[18/34] zh_silver_18 kind=single pred_errors=1 tier=tier2 fell_open=False
+[19/34] zh_silver_19 kind=multi pred_errors=1 tier=tier2 fell_open=False
+[20/34] zh_silver_20 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[21/34] zh_silver_21 kind=multi pred_errors=1 tier=tier2 fell_open=False
+[22/34] zh_silver_22 kind=multi pred_errors=0 tier=tier2 fell_open=False
+[23/34] zh_silver_23 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[24/34] zh_silver_24 kind=single pred_errors=1 tier=tier2 fell_open=False
+[25/34] zh_silver_25 kind=single pred_errors=1 tier=tier2 fell_open=False
+[26/34] zh_silver_27 kind=single pred_errors=1 tier=tier2 fell_open=False
+[27/34] zh_silver_28 kind=single pred_errors=1 tier=tier2 fell_open=False
+[28/34] zh_silver_29 kind=single pred_errors=1 tier=tier2 fell_open=False
+[29/34] zh_silver_32 kind=single pred_errors=1 tier=tier2 fell_open=False
+[30/34] zh_silver_33 kind=single pred_errors=1 tier=tier2 fell_open=False
+[31/34] zh_silver_34 kind=single pred_errors=1 tier=tier2 fell_open=False
+[32/34] zh_silver_36 kind=single pred_errors=1 tier=tier2 fell_open=False
+[33/34] zh_silver_37 kind=single pred_errors=1 tier=tier2 fell_open=False
+[34/34] zh_silver_38 kind=single pred_errors=1 tier=tier2 fell_open=False
+
+[done] wrote data/eval/dt_v6_gate_2026-10-08/zh_C.md
+  span F1=0.862  clean FP rate=0.000  overall QWK=0.718  cost=$0.3199
+  meaning_inversion recall=1.000  exemplar drops=0  no-template lines=0
+=== 2026-10-08T21:42:05+11:00 END zh C rc=0

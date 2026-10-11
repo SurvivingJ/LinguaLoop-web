@@ -1,0 +1,1193 @@
+{
+  "sense_id": 35033,
+  "language_id": 3,
+  "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+  "started_at": "2026-10-03T01:37:50.233564+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[1] flagged (rating 3): 不自然な主語接続",
+    "P1 sentence[7] flagged (rating 3): 主語の曖昧さあり"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.9945933818817139,
+    "p1_generate": 21.162965059280396,
+    "tier_gate": 1.6351110935211182,
+    "p1_judge": 13.116013765335083,
+    "collocate_grounding": 0.0
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] flagged (rating 3): 不自然な主語接続",
+        "P1 sentence[7] flagged (rating 3): 主語の曖昧さあり"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/naɾu/",
+        "morphological_forms": [
+          {
+            "form": "なった",
+            "label": "活用"
+          },
+          {
+            "form": "なって",
+            "label": "活用"
+          },
+          {
+            "form": "ならない",
+            "label": "活用"
+          },
+          {
+            "form": "なれる",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "なる",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35033
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "6b9032a0-f66d-4fa9-8cf3-fb4b7f7700dc",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なれる",
+        "pronunciation": "なる",
+        "correct_definition": "物事や状態が変化して、ある結果・状態になる。",
+        "options": [
+          "病気やけがを治療するための方法や手段。薬を使ったり、手術をしたりすることなど。",
+          "酸素が少なく、物が腐りやすい状態のこと。",
+          "物事や状態が変化して、ある結果・状態になる。",
+          "有機物を微生物の働きで分解・発酵させて作られる、肥料として使える土のようなもの。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "e02e5748-3af1-4b2e-9f74-64bbdb9c08a9",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "これらの手段は、心の豊かさを追求するものになれます。",
+        "original_sentence": "これらの手段は、心の豊かさを追求するものになれます。",
+        "correct_answer": "なっ",
+        "base_form": "なれる",
+        "form_label": "連用形",
+        "options": [
+          "なれない",
+          "なって",
+          "なる",
+          "なっ"
+        ],
+        "explanation": "「ます」に接続する連用形（音便形）が正解です。",
+        "word_definition": "物事や状態が変化して、ある結果・状態になる。",
+        "target_word": "なっ"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "93696b18-3d01-4e61-af91-c7a31de4ece4",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "AIがホワイトカラーの雇用を代替する時代がなれました。",
+            "is_correct": false
+          },
+          {
+            "text": "AIがホワイトカラーの雇用を代替する時代になれました。",
+            "is_correct": true
+          },
+          {
+            "text": "AIがホワイトカラーの雇用を代替する時代をなれました。",
+            "is_correct": false
+          },
+          {
+            "text": "AIがホワイトカラーの雇用を代替する時代となれました。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "誤答。変化の結果には助詞「に」を使うべきで、「を」は不適切です。 誤答。主語が「時代」自身になってしまうため、文脈として不自然です。 誤答。変化の結果を表す場合は「に」が標準的であり、「と」は引用や同定の意味になりがちです。",
+        "target_word": "なっ"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "959d5ea3-d912-46c5-b8d2-e53334932189",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "内部は、光に満ちあふれた空間になれました。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "1783a9d8-1315-4831-9529-8530ac4059fb",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なれる",
+        "pronunciation": "なる",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "作用 —— 一事物对另一事物产生的影响或效果，也指功能与活动",
+              "整体",
+              "位置や程度が、高い状態から低い状態に変わること。",
+              "物事や状態が変化して、ある結果・状態になる。"
+            ],
+            "correct_answer": "物事や状態が変化して、ある結果・状態になる。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "07ed78a8-a76b-4335-a1a4-a737339810a8",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "内部は、光に満ちあふれた空間になれました。",
+        "chunks": [
+          "内部は",
+          "光に",
+          "満ちあふれた空間に",
+          "なれました"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "内部は",
+          "なれました",
+          "光に",
+          "満ちあふれた空間に"
+        ],
+        "target_word": "なり",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "2b52127c-7c03-481b-b6ce-8f573cf78d86",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "なる",
+        "options": [
+          "為る",
+          "成功",
+          "完成",
+          "成る"
+        ],
+        "correct_answer": "成る",
+        "word": "成る",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "為る": "homophone",
+          "成功": "component",
+          "完成": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "6d70a97a-2eda-447c-a737-07be8025a973",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "これらの手段は、心の豊かさを追求するもの___なれます。",
+        "original_sentence": "これらの手段は、心の豊かさを追求するものになれます。",
+        "options": [
+          "に",
+          "で",
+          "と",
+          "を"
+        ],
+        "correct_answer": "に",
+        "target_word": "なっ",
+        "error_tags": {
+          "を": "",
+          "で": "",
+          "と": ""
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "正解。変化の結果を表す助詞「に」が適切です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "49ce3df2-51cf-47d4-be40-5ce3cc972d12",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なれる",
+        "relation": "synonym",
+        "options": [
+          "作る",
+          "保つ",
+          "止まる",
+          "変化する"
+        ],
+        "correct_answer": "変化する",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事や状態が変化して、ある結果・状態になる。",
+            "explanation": "類義語。状態が変わって別のものになるという意味で近いです。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "止まる": 0.563454,
+            "作る": 0.543665,
+            "保つ": 0.450492
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "f6b2ac6f-6e75-4dc7-8054-8adba88b3eec",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "予期しない変化や問題が起きる状態になれます。",
+        "original_sentence": "予期しない変化や問題が起きる状態になれます。",
+        "correct_answer": "なら",
+        "base_form": "なれる",
+        "form_label": "ます形（連用形）",
+        "options": [
+          "なり",
+          "なら",
+          "なっ",
+          "なれ"
+        ],
+        "explanation": "可能動詞「なれる」の未然形（連用形）であり、文末の助動詞「ます」と接続して丁寧な可能表現を作る",
+        "word_definition": "物事や状態が変化して、ある結果・状態になる。",
+        "target_word": "なら"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d2ef7085-be74-4dce-a00c-88eae12e6014",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "このシステムは、私たちの食生活を支える基盤がなれます。",
+            "is_correct": false
+          },
+          {
+            "text": "このシステムは、私たちの食生活を支える基盤になれます。",
+            "is_correct": true
+          },
+          {
+            "text": "このシステムは、私たちの食生活を支える基盤となれます。",
+            "is_correct": false
+          },
+          {
+            "text": "このシステムは、私たちの食生活を支える基盤をなれます。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "誤答。変化の結果には助詞「に」を使うべきで、「を」は不適切です。 誤答。主語が「基盤」自身になってしまうため、文脈として不自然です。 誤答。変化の結果を表す場合は「に」が標準的であり、「と」は引用や同定の意味になりがちです。",
+        "target_word": "なっ"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "1c592f66-ca3b-4487-aa53-e672e3b29216",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "AIがホワイトカラーの雇用を代替する時代になれました。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "ac4f592d-7e7c-451e-8a96-8ad8457c7402",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "AIがホワイトカラーの雇用を代替する時代になれました。",
+        "chunks": [
+          "AIが",
+          "ホワイトカラーの",
+          "雇用を",
+          "代替する時代に",
+          "なれました"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "shuffled_chunks": [
+          "なれました",
+          "AIが",
+          "代替する時代に",
+          "ホワイトカラーの",
+          "雇用を"
+        ],
+        "target_word": "なっ",
+        "chunk_count": 5
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "2b9947c7-fab4-4d21-b4dd-381d086c836b",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "予期しない変化や問題が起きる状態___なれます。",
+        "original_sentence": "予期しない変化や問題が起きる状態になれます。",
+        "options": [
+          "と",
+          "で",
+          "を",
+          "に"
+        ],
+        "correct_answer": "に",
+        "target_word": "なら",
+        "error_tags": {
+          "を": "",
+          "で": "",
+          "と": ""
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "正解。変化の結果を表す助詞「に」が適切です。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "c5a03ccb-e797-469e-ad24-f28e64040186",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "なれる",
+        "relation": "synonym",
+        "options": [
+          "作る",
+          "止まる",
+          "変化する",
+          "保つ"
+        ],
+        "correct_answer": "変化する",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事や状態が変化して、ある結果・状態になる。",
+            "explanation": "類義語。状態が変わって別のものになるという意味で近いです。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "synonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "止まる": 0.563454,
+            "作る": 0.543665,
+            "保つ": 0.450492
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35033,
+      "word_asset_id": "shadow-35033-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "sentence_validity": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "particle": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'なっ' does not occur in its own sentence"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    },
+    {
+      "type_code": "cloze_typed",
+      "reason": "target 'なら' does not occur in its own sentence"
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "reason": "only 2 kana confusions available"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00238976,
+      "prompt_tokens": 2944,
+      "completion_tokens": 1131,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 20970
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00012768,
+      "prompt_tokens": 283,
+      "completion_tokens": 29,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 1591
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00050496,
+      "prompt_tokens": 854,
+      "completion_tokens": 181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4307
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004288,
+      "prompt_tokens": 516,
+      "completion_tokens": 206,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4512
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00046016,
+      "prompt_tokens": 766,
+      "completion_tokens": 168,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4057
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_bundle_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0042656,
+      "prompt_tokens": 2306,
+      "completion_tokens": 2756,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 48200
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00046368,
+      "prompt_tokens": 817,
+      "completion_tokens": 158,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4162
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.000504,
+      "prompt_tokens": 815,
+      "completion_tokens": 190,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 4580
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_bundle_judge",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0014416,
+      "prompt_tokens": 1217,
+      "completion_tokens": 822,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 15197
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0003344,
+      "prompt_tokens": 781,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2394
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0003344,
+      "prompt_tokens": 781,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2636
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00028064,
+      "prompt_tokens": 597,
+      "completion_tokens": 70,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2470
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027712,
+      "prompt_tokens": 626,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2079
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027392,
+      "prompt_tokens": 596,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2299
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00027712,
+      "prompt_tokens": 626,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35033,
+      "generation_batch_id": "38ee205b-d350-4fff-ad2f-9145f51148cf",
+      "language_code": "ja",
+      "latency_ms": 2419
+    }
+  ],
+  "llm_calls_observed": 15,
+  "llm_cost_observed_usd": 0.012363840000000001,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 1,
+    "repaired": 1,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 125.03200000000652,
+  "finished_at": "2026-10-03T01:39:55.251169+00:00"
+}

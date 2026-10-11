@@ -3,8 +3,8 @@ title: "Exercise Generation Cost Reduction — Task Breakdown"
 feature: exercise-gen-cost
 prose_page: ../features/exercise-generation-v2.md
 tech_page: ../decisions/ADR-028-exercise-gen-cost-under-1c.md
-total_tasks: 15
-done: 9
+total_tasks: 21
+done: 10
 ---
 
 # Exercise Generation Cost Reduction — Task Breakdown
@@ -572,7 +572,8 @@ output). See [[evaluations/exercise-gen-phase1-2026-09]] §5, §11, §13.
 
 ## TASK-814: Collapse A/B variant doubling
 
-**Status:** [ ] Not Started — gated on baseline + Phase 1 score
+**Status:** [?] Blocked — bundle failed non-inferiority 2026-10-03; attribution pending clean
+reasoning-off/bundle-off eval (needs OpenRouter credit). See TASK-856.
 **Feature:** exercise-gen-cost
 **Type:** refactor
 **Complexity:** L (1-2d)
@@ -603,7 +604,8 @@ quality score meets threshold.
 
 ## TASK-815: Bundle generation call (P2+P3+L4+typed)
 
-**Status:** [ ] Not Started — gated on baseline + Phase 1 score
+**Status:** [?] Blocked — bundle failed non-inferiority 2026-10-03; attribution pending clean
+reasoning-off/bundle-off eval (needs OpenRouter credit). See TASK-856.
 **Feature:** exercise-gen-cost
 **Type:** refactor
 **Complexity:** XL (>2d)
@@ -632,7 +634,8 @@ together, per ADR-028 Decision §4's ~4-5-call target.
 
 ## TASK-816: Bundle judge call
 
-**Status:** [ ] Not Started — gated on baseline + Phase 1 score
+**Status:** [?] Blocked — bundle failed non-inferiority 2026-10-03; attribution pending clean
+reasoning-off/bundle-off eval (needs OpenRouter credit). See TASK-856.
 **Feature:** exercise-gen-cost
 **Type:** refactor
 **Complexity:** L (1-2d)
@@ -724,5 +727,243 @@ it under the old name.
 
 **Verification:**
 One real batch submission completes and produces valid assets at the modeled discount.
+
+---
+
+## TASK-856: Clean attribution eval — reasoning-off vs. bundle-off, staggered 3-arm
+
+**Status:** [x] Done 2026-10-08 — attribution: **reasoning-off is the cause** of the Phase 2 quality regression (arms B/D/E series superseded the original 3-arm design; see [[evaluations/exercise-gen-phase2-2026-10]] section 12 and ADR-028 Outcome 2026-10-08).
+**Feature:** exercise-gen-cost
+**Type:** eval
+**Complexity:** M (3-8h)
+**Depends On:** TASK-814, TASK-815, TASK-816
+
+**Description:**
+Phase 2's blind pairwise review (`VOCAB_LADDER_BUNDLE_MODE=on`, qwen reasoning off via
+`LADDER_QWEN_REASONING=off`) failed non-inferiority vs. Phase 1 in all three languages (ja
+major-defect 25.7% vs. 8.6%, en 13.2% vs. 2.9%, zh 24.2% vs. 19.4% — see
+[[evaluations/exercise-gen-phase2-2026-10]] "Pairwise quality (blind)"), but Phase 2 changed TWO
+things vs. Phase 1 at once — bundle mode AND qwen reasoning actually being off (the fix landed
+2026-09-28, after Phase 1 was measured) — so the regression cannot yet be attributed to either
+axis. `LADDER_QWEN_REASONING` (added alongside this task, default `on` = restores the exact
+qwen-reasoning-left-on state Phase 1 ran under, including reasoning-safe `max_tokens` caps) lets
+bundle mode be varied independently of qwen's reasoning state. This task runs three NEW 30-sense
+arms, each language run sequentially (not in parallel) and each arm's three languages run
+sequentially against the OpenRouter account to avoid Phase 2's in-flight-budget contention
+(§0/§6 of the Phase 2 report — six arms fired at once there and burned through genuine 402s
+before any judge ever ran), concurrency 1 throughout:
+
+* **Arm A** — reasoning on / bundle off (the Phase-1-equivalent control: re-confirms Phase 1's
+  own numbers are reproducible today, same senses, same code path apart from the bundle modules
+  never being invoked).
+* **Arm B** — reasoning off / bundle off (isolates the reasoning-off effect alone, cleanly this
+  time — Phase 2's `nobundle` arm died to contention before producing usable n).
+* **Arm C** — reasoning on / bundle on (isolates the bundle effect alone, holding reasoning at
+  its Phase-1-validated state).
+
+Together with Phase 2's existing `phase2_bundle_{ja,zh,en}` data (reasoning off / bundle on),
+this gives a full 2×2 (reasoning × bundle) on the bundle axis (A vs. C, and B vs. phase2_bundle)
+and the reasoning axis (A vs. B, and C vs. phase2_bundle) — holding the other factor fixed either
+way.
+
+**Acceptance Criteria:**
+- [ ] All three arms, all three languages, run to completion (not killed by 402 contention) — same
+      30 senses/language as Phase 1/Phase 2 (`--senses-from data/eval/runs/phase1_<lang>`)
+- [ ] Each run's `summary.json` records `ladder_qwen_reasoning` matching the intended arm
+- [ ] Scored against phase1 (same language) via `scripts/score_exercise_gen_run.py`, plus blind
+      pairwise packs generated per the Phase 2 §5 process
+- [ ] A written verdict: which axis (bundle, reasoning, or both) explains the Phase 2 defect
+      classes (ja also-correct distractors + compound anchoring; en malformed items/grammar; zh
+      cloze accepted-list junk + true-homophone L1 distractors)
+
+**Technical Notes:**
+Run arms and languages SEQUENTIALLY, not in parallel (lesson from Phase 2's six-arm contention
+collapse — en nobundle there was 30/30 failed, $0 spent, 0 calls observed). `--force` is required
+for ja (and recommended for all three) because `--senses-from` reuses senses that may already
+have live `word_assets` rows from a prior run; without `--force` the real pipeline skips them.
+en needs the same 5 `--model-override` flags Phase 1/Phase 2 used (en's ladder tasks were moved
+onto qwen by TASK-813; without the override en would resolve to whatever `prompt_templates`
+currently has active, which may not be qwen) — exact slugs pulled from
+`data/eval/runs/phase1_en/summary.json`'s `model_overrides_applied`. Arm C additionally needs
+`VOCAB_LADDER_BUNDLE_MODE=on` and the draft bundle prompt rows (no live `prompt_templates` row
+exists for `vocab_bundle_generation`/`ladder_bundle_judge` yet) via
+`--prompt-override-file migrations/exercise_gen_bundle_prompts_draft.sql`, exactly as Phase 2's
+`phase2_bundle_*` runs did (see `data/eval/runs/_logs/phase2_bundle_*.log` for the reference
+invocation this task's commands are modeled on). `--max-cost-usd 2.0` per run is a safety
+ceiling, not expected to trip.
+
+**Exact commands** (run one at a time, in this order — en last per language since it has the most
+model-override surface area to go wrong on first):
+
+Arm A — reasoning on, bundle off (Phase-1-equivalent control):
+```
+LADDER_QWEN_REASONING=on PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_zh --lang zh --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_a_reasonon_bundleoff_zh
+
+LADDER_QWEN_REASONING=on PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_ja --lang ja --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_a_reasonon_bundleoff_ja
+
+LADDER_QWEN_REASONING=on PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_en --lang en --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_a_reasonon_bundleoff_en \
+  --model-override vocab_prompt2_exercises:en=qwen/qwen3.7-plus \
+  --model-override vocab_prompt3_transforms:en=qwen/qwen3.7-plus \
+  --model-override ladder_syn_ant_generation:en=qwen/qwen3.7-plus \
+  --model-override ladder_word_family_generation:en=qwen/qwen3.7-plus \
+  --model-override ladder_l4_morphology_generation:en=qwen/qwen3.7-plus
+```
+
+Arm B — reasoning off, bundle off:
+```
+LADDER_QWEN_REASONING=off PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_zh --lang zh --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_b_reasonoff_bundleoff_zh
+
+LADDER_QWEN_REASONING=off PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_ja --lang ja --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_b_reasonoff_bundleoff_ja
+
+LADDER_QWEN_REASONING=off PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_en --lang en --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_b_reasonoff_bundleoff_en \
+  --model-override vocab_prompt2_exercises:en=qwen/qwen3.7-plus \
+  --model-override vocab_prompt3_transforms:en=qwen/qwen3.7-plus \
+  --model-override ladder_syn_ant_generation:en=qwen/qwen3.7-plus \
+  --model-override ladder_word_family_generation:en=qwen/qwen3.7-plus \
+  --model-override ladder_l4_morphology_generation:en=qwen/qwen3.7-plus
+```
+
+Arm C — reasoning on, bundle on:
+```
+LADDER_QWEN_REASONING=on VOCAB_LADDER_BUNDLE_MODE=on PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_zh --lang zh --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_c_reasonon_bundleon_zh \
+  --prompt-override-file migrations/exercise_gen_bundle_prompts_draft.sql
+
+LADDER_QWEN_REASONING=on VOCAB_LADDER_BUNDLE_MODE=on PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_ja --lang ja --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_c_reasonon_bundleon_ja \
+  --prompt-override-file migrations/exercise_gen_bundle_prompts_draft.sql
+
+LADDER_QWEN_REASONING=on VOCAB_LADDER_BUNDLE_MODE=on PYTHONPATH=. python scripts/run_exercise_gen_eval.py \
+  --senses-from data/eval/runs/phase1_en --lang en --force --concurrency 1 \
+  --max-cost-usd 2.0 --out data/eval/runs/phase3_c_reasonon_bundleon_en \
+  --prompt-override-file migrations/exercise_gen_bundle_prompts_draft.sql \
+  --model-override vocab_prompt2_exercises:en=qwen/qwen3.7-plus \
+  --model-override vocab_prompt3_transforms:en=qwen/qwen3.7-plus \
+  --model-override ladder_syn_ant_generation:en=qwen/qwen3.7-plus \
+  --model-override ladder_word_family_generation:en=qwen/qwen3.7-plus \
+  --model-override ladder_l4_morphology_generation:en=qwen/qwen3.7-plus
+```
+
+(Windows/PowerShell: set each env var with `$env:LADDER_QWEN_REASONING='on'` etc. on its own line
+before the command, since inline `VAR=value cmd` prefix syntax is POSIX shell only.)
+
+**Credit estimate:** Arm A and Arm C both run qwen with reasoning genuinely on, at roughly Phase
+1's measured $/sense (ja $0.0686, zh $0.0493, en $0.0289, mean over senses-with-calls) — ~$2.06 +
+$1.48 + $0.87 ≈ **~$4.4 each**, ~$8.8 for A+C combined. Arm B runs reasoning off with the
+right-sized caps, at roughly the `phase2_fix_*` dev-smoke rate (~$0.011/sense across all three
+languages, clean of contention) — 30 × $0.011 × 3 ≈ **~$1.0**. Total **~$10** at measured rates,
+plus repair/retry overhead and any 402 retries not seen in the clean smoke runs — **budget ~$15-20
+before starting**, and set `--max-cost-usd 2.0` per run as a hard per-run ceiling regardless (9
+runs × $2.00 = $18.00 worst case if every ceiling trips, which it should not at these rates).
+
+**Files to Create / Modify:**
+- None (pure eval run — no code or prompt_templates changes)
+
+**Verification:**
+`data/eval/runs/phase3_{a,b,c}_*_{zh,ja,en}/summary.json` exist, each with
+`status_counts.success`/`partial` consistent with a contention-free run (compare to Phase 1's own
+completion rate) and `ladder_qwen_reasoning` matching the arm; scorer output and pairwise verdicts
+written up in a follow-on wiki section once judged.
+
+---
+
+## TASK-857: Flip production to the recommended reasoning config
+
+**Status:** [x] Done (code default switched 2026-10-09; rollback = `LADDER_QWEN_REASONING=on`)
+**Feature:** exercise-gen-cost
+**Type:** infra
+**Complexity:** XS (<1h)
+**Depends On:** TASK-856
+
+**Description:**
+Set `LADDER_QWEN_REASONING=budget`, `LADDER_QWEN_REASONING_BUDGET_JA=1024`, `_EN=1024`, `_ZH=2048` in the production environment (bundle mode stays off). Code support shipped 2026-10-08. **2026-10-09 (user approved):** the defaults now live in code (`services/llm_service.py`): mode `budget`, per-language budgets ja 1024 / en 1024 / zh 2048 (env precedence `_BUDGET_<LANG>` > `_BUDGET` > per-language default > 1024), bundle mode still off. No env vars needed. Rollback: `LADDER_QWEN_REASONING=on`.
+
+**Acceptance Criteria:**
+- [x] User approved the flip (2026-10-09)
+- [ ] A post-flip `llm_calls` sample shows reasoning_tokens bounded by the budgets and $/sense near ja $0.034 / zh $0.039 / en $0.022
+
+
+**Scope note (2026-10-09):** the whole `reasoning` payload and all `LADDER_QWEN_REASONING` modes (default `budget`) are gated to `pipeline == 'vocab_ladder'` in `llm_service._make_one_call`; every other pipeline (test_gen, sense gen, DT, curation) sends NO `reasoning` key, matching the real pre-ADR-028 baseline ffb0afe7 (HEAD 868e77e5 already contained the ADR-028 enabled:False/exclude:True additions). Tests in `test_provider_routing_and_reasoning.py`.
+
+---
+
+## TASK-858: Re-run arm F (en generation on gemini-3.5-flash-lite)
+
+**Status:** [?] Blocked — OpenRouter credit exhausted (402)
+**Feature:** exercise-gen-cost
+**Type:** eval
+**Complexity:** S (1-3h)
+**Depends On:** none
+
+**Description:**
+Arm F was void. Re-run once credit is available on the same 30 en senses; score and blind-pairwise vs phase1 and vs arm D en.
+
+**Acceptance Criteria:**
+- [ ] Run completes without 402s; summary.json present
+- [ ] Verdict written into the Phase 2 eval page
+
+---
+
+## TASK-859: Re-test bundle mode with budget reasoning
+
+**Status:** [ ] Not Started
+**Feature:** exercise-gen-cost
+**Type:** eval
+**Complexity:** M (3-8h)
+**Depends On:** TASK-856
+
+**Description:**
+Bundle mode failed only while confounded with reasoning-off. Run bundle on with `LADDER_QWEN_REASONING=budget` (recommended per-language budgets) on the same 30 senses/language; blind pairwise vs phase1 and vs the matching arm D/E.
+
+**Acceptance Criteria:**
+- [ ] All three languages run; $/sense and major-defect rate recorded
+- [ ] Verdict on whether bundling adds saving without quality loss
+
+---
+
+## TASK-860: Coverage-metric variance study (control-vs-control rerun)
+
+**Status:** [ ] Not Started
+**Feature:** exercise-gen-cost
+**Type:** eval
+**Complexity:** M (3-8h)
+**Depends On:** none
+
+**Description:**
+The >=95% coverage gate failed in every arm including phase1-vs-baseline, suggesting run-to-run variance in a single-run reference. Re-run the Phase 1 config 2-3 times on the same senses and measure coverage between identical-config runs to set a realistic gate threshold.
+
+**Acceptance Criteria:**
+- [ ] Control-vs-control coverage distribution reported per language
+- [ ] Gate threshold revised (or justified) from that variance
+
+---
+
+## TASK-861: Apply pending migrations (user)
+
+**Status:** [x] Done (applied live 2026-10-09 via supabase CLI db query --linked)
+**Feature:** exercise-gen-cost
+**Type:** infra
+**Complexity:** XS (<1h)
+**Depends On:** none
+
+**Description:**
+The user applies `migrations/llm_calls_cost_instrumentation.sql`, `migrations/exercise_gen_en_p2_p3_off_sonnet.sql`, and `migrations/ladder_ja_cloze_judge_slug_fix.sql`. Not applied by the agent.
+
+**Acceptance Criteria:**
+- [ ] All three applied; verified via pg_get_functiondef / row checks
 
 ---

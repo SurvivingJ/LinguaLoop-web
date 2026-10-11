@@ -1,0 +1,1334 @@
+{
+  "sense_id": 35311,
+  "language_id": 3,
+  "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+  "started_at": "2026-10-03T01:56:44.899919+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "[A] Missing level_7",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed",
+    "[B] Missing level_7"
+  ],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.5351886749267578,
+    "p1_generate": 18.967896461486816,
+    "p1_repair": 22.245530605316162,
+    "tier_gate": 0.0,
+    "p1_judge": 0.2650141716003418,
+    "collocate_grounding": 0.0,
+    "fan_out": 6.111345291137695
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "kanoː",
+        "morphological_forms": [
+          {
+            "form": "不可能",
+            "label": "派生"
+          },
+          {
+            "form": "可能性",
+            "label": "派生"
+          },
+          {
+            "form": "可能だ",
+            "label": "活用"
+          },
+          {
+            "form": "可能な",
+            "label": "活用"
+          }
+        ],
+        "pronunciation": "かのう",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35311
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "4041ba07-5d75-4395-9499-8216a93c3e44",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "pronunciation": "かのう",
+        "correct_definition": "物事を行うことができる性質や状態。",
+        "options": [
+          "物事を行うことができる性質や状態。",
+          "他の人や国などから提供されたものを受け取ること。",
+          "契約や約束などの内容を実際に行うこと。",
+          "年齢が低い、まだ成長途中の人間。特に、親に養われる年齢の者。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1cf6e797-6078-44a7-aeca-ee89813b0ed4",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "近年、精密農業の導入が小規模農家の経営に新たな___性をもたらしています。",
+        "original_sentence": "近年、精密農業の導入が小規模農家の経営に新たな可能性をもたらしています。",
+        "correct_answer": "可能",
+        "options": [
+          "必要",
+          "簡単",
+          "重要",
+          "可能"
+        ],
+        "explanation": "「可能となり」は実現できる性質を表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "物事を行うことができる性質や状態。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "08383bbb-f909-4e43-aae5-ad14dd816ba5",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "再生___エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担う。",
+        "original_sentence": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担う。",
+        "correct_answer": "可能",
+        "base_form": "可能",
+        "form_label": "語幹（な形容動詞・連体形の前）",
+        "options": [
+          "必要",
+          "簡単",
+          "重要",
+          "可能"
+        ],
+        "explanation": "「な」を伴い名詞を修飾する連体形の語幹。",
+        "word_definition": "物事を行うことができる性質や状態。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "1f22d872-7b1a-4479-a608-370a6edb6516",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "近年、精密農業の導入が小規模農家の経営に新たな可能性がもたらしています。",
+            "is_correct": false
+          },
+          {
+            "text": "もたらしています可能性を新たな、小規模農家の経営に精密農業の導入が。",
+            "is_correct": false
+          },
+          {
+            "text": "彼らは驚くべきスピードで成長し、わずか数週間で出荷可能な体重になります。",
+            "is_correct": true
+          },
+          {
+            "text": "近年、精密農業の導入が小規模農家の経営に新たな可能性をもたらしいます。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：他動詞「もたらす」の対象は「を」で示す。「が」は誤り。 活用：「もたらして」が正しい活用で、「もたらしい」は存在しない形。 語順：修飾関係が崩れ、係り受けが不明瞭になっている。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "c6512a34-3e49-4a56-ad4d-52d7bdf1e92b",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "近年、精密農業の導入が小規模農家の経営に新たな可能性をもたらしています。",
+            "is_correct": true
+          },
+          {
+            "text": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担う。",
+            "is_correct": true
+          },
+          {
+            "text": "彼らは驚くべきスピードで成長し、わずか数週間で出荷可能が体重になります。",
+            "is_correct": false,
+            "error_description": "活用：名詞の前では連体形「可能な」を使う。「可能が」は誤り。"
+          },
+          {
+            "text": "これらにより、壁を薄くして大きな窓を設けることが可能となり、内部は光に満ちあふれました。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "2e366b58-eaa9-4515-b51c-ada8737a6630",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "この問題は解決可能です。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "e451b4b6-d043-4644-afb1-882bc1ee03a8",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "pronunciation": "かのう",
+        "tier": "T4",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "物事を行うことができる性質や状態。",
+              "permanent",
+              "specific; particular — a clear feature or condition that sets something apart from others",
+              "ものや体が、長い間こわれずに使えること。"
+            ],
+            "correct_answer": "物事を行うことができる性質や状態。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "584da54d-c102-495e-aa48-c449c4537784",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "再生___エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担う。",
+        "original_sentence": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担う。",
+        "target_word": "可能",
+        "word": "可能",
+        "answer": {
+          "accepted": [
+            "可能",
+            "不可能",
+            "可能性",
+            "可能だ",
+            "可能な"
+          ],
+          "accepted_normalized": [
+            "可能",
+            "不可能",
+            "可能性",
+            "可能だ",
+            "可能な"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "599c706f-07b7-4a28-9b71-c0ef2b35f5c5",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "可能",
+        "options": [
+          "かあのう",
+          "がのう",
+          "かのう",
+          "かの"
+        ],
+        "correct_answer": "かのう",
+        "word": "可能",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "86acf721-ba66-4b87-8b70-4666399a9d15",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "かのう",
+        "options": [
+          "可能",
+          "能力",
+          "知能",
+          "機能"
+        ],
+        "correct_answer": "可能",
+        "word": "可能",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "機能": "component",
+          "能力": "component",
+          "知能": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "b1a919cb-50b8-4602-9534-a5dd288aa884",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "relation": "antonym",
+        "options": [
+          "確実",
+          "不可能",
+          "容易",
+          "有効"
+        ],
+        "correct_answer": "不可能",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事を行うことができる性質や状態。",
+            "explanation": "物事を行える状態の対義語であり、行うことができない性質を表す。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "確実": 0.392692,
+            "有効": 0.512842
+          }
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2ca300ec-f7fd-424d-9991-934467322c07",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "pronunciation": "かのう",
+        "ipa": "kanoː",
+        "syllable_count": 4,
+        "audio_url": null,
+        "options": [
+          "河道",
+          "可能",
+          "か流",
+          "嘉賞"
+        ],
+        "correct_answer": "可能",
+        "explanation": "正解です。「可能」は「物事を行うことができる性質や状態。」という意味です。",
+        "distractor_explanations": {
+          "河道": "「河道」は「可能」と一モーラだけ異なる実在語です（2モーラ目: 「の」→「ど」、一部の音の違い）。",
+          "嘉賞": "「嘉賞」は「可能」と一モーラだけ異なる実在語です（2モーラ目: 「の」→「しょ」、一部の音の違い）。",
+          "か流": "「か流」は「可能」と一モーラだけ異なる実在語です（2モーラ目: 「の」→「りゅ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 10,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3a43ed77-2ae1-4a77-a159-236382c5aef6",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "明日なら参加が___です。",
+        "original_sentence": "明日なら参加が可能です。",
+        "correct_answer": "可能",
+        "options": [
+          "可能",
+          "必要",
+          "簡単",
+          "重要"
+        ],
+        "explanation": "「可能に見える」は実現できる性質を表す固定表現。",
+        "distractor_tags": {},
+        "word_definition": "物事を行うことができる性質や状態。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c473dfe1-8eb7-4857-9229-7c2c79da54cb",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "それは実現不___です。",
+        "original_sentence": "それは実現不可能です。",
+        "correct_answer": "可能",
+        "base_form": "可能",
+        "form_label": "語幹（連用形・に の前）",
+        "options": [
+          "必要",
+          "簡単",
+          "重要",
+          "可能"
+        ],
+        "explanation": "「に」を伴い述語を修飾する連用形の語幹。",
+        "word_definition": "物事を行うことができる性質や状態。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "521cd5a9-3415-4c52-88b9-4b2e2b7499d3",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "連絡はメールで可能です。",
+            "is_correct": true
+          },
+          {
+            "text": "彼にはそれが可能で見える。",
+            "is_correct": false
+          },
+          {
+            "text": "彼にそれが可能に見える。",
+            "is_correct": false
+          },
+          {
+            "text": "見える可能にそれが、彼には。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞：経験者を示す「には」を単なる「に」に置き換えると不自然。 活用：連用形は「可能に」であり、「可能で」は接続が誤り。 語順：述語を文頭に置き、係り受けが崩れている。",
+        "target_word": "可能"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "ca63ac60-8619-45aa-995a-d1c8bbac4cfd",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "今すぐ出発することが可能だ。",
+            "is_correct": false,
+            "error_description": "「も」を「が」に置き換えると、他の選択肢との並列を示す含意が失われる。"
+          },
+          {
+            "text": "連絡はメールで可能です。",
+            "is_correct": true
+          },
+          {
+            "text": "明日なら参加が可能です。",
+            "is_correct": true
+          },
+          {
+            "text": "それは実現不可能です。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "2fb61d4b-544c-43d5-9faa-cd3d99e4e8c2",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "original_sentence": "彼らは驚くべきスピードで成長し、わずか数週間で出荷可能な体重になります。"
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "983ed089-f103-470c-9a35-08951a1c709e",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "それは実現不___です。",
+        "original_sentence": "それは実現不可能です。",
+        "target_word": "可能",
+        "word": "可能",
+        "answer": {
+          "accepted": [
+            "可能",
+            "不可能",
+            "可能性",
+            "可能だ",
+            "可能な"
+          ],
+          "accepted_normalized": [
+            "可能",
+            "不可能",
+            "可能性",
+            "可能だ",
+            "可能な"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "dc791aae-f2ba-4636-b3da-a3b841b4d234",
+      "language_id": 3,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "彼らは驚くべきスピードで成長し、わずか数週間で出荷可能な体重になります。",
+        "chunks": [
+          "彼らは",
+          "驚くべきスピードで",
+          "成長し",
+          "わずか数週間で",
+          "出荷可能な体重に",
+          "なります"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "shuffled_chunks": [
+          "彼らは",
+          "なります",
+          "出荷可能な体重に",
+          "驚くべきスピードで",
+          "わずか数週間で",
+          "成長し"
+        ],
+        "target_word": "可能",
+        "chunk_count": 6
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "a6459052-a671-488f-913b-ca09c03d167c",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "可能",
+        "relation": "antonym",
+        "options": [
+          "簡単",
+          "複雑",
+          "不便",
+          "不可能"
+        ],
+        "correct_answer": "不可能",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "物事を行うことができる性質や状態。",
+            "explanation": "物事を行える状態の対義語であり、行うことができない性質を表す"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "property",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 5,
+          "generated_count": 5
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "簡単": 0.529247,
+            "複雑": 0.415692
+          }
+        }
+      },
+      "complexity_tier": "T4",
+      "is_active": true,
+      "word_sense_id": 35311,
+      "word_asset_id": "shadow-35311-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 10
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "sentence chunks into 0 pieces (min 3) — too short to jumble"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00218112,
+      "prompt_tokens": 2744,
+      "completion_tokens": 1018,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+      "language_code": "ja",
+      "latency_ms": 18760
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001936,
+      "prompt_tokens": 1322,
+      "completion_tokens": 1182,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "repair",
+      "sense_id": 35311,
+      "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+      "language_code": "ja",
+      "latency_ms": 21387
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00043808,
+      "prompt_tokens": 833,
+      "completion_tokens": 134,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+      "language_code": "ja",
+      "latency_ms": 3578
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00044736,
+      "prompt_tokens": 802,
+      "completion_tokens": 149,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+      "language_code": "ja",
+      "latency_ms": 3814
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0004288,
+      "prompt_tokens": 740,
+      "completion_tokens": 150,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+      "language_code": "ja",
+      "latency_ms": 3957
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00044576,
+      "prompt_tokens": 753,
+      "completion_tokens": 160,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+      "language_code": "ja",
+      "latency_ms": 4154
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00051584,
+      "prompt_tokens": 824,
+      "completion_tokens": 197,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+      "language_code": "ja",
+      "latency_ms": 4830
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00028992,
+      "prompt_tokens": 634,
+      "completion_tokens": 68,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35311,
+      "generation_batch_id": "4dd9d0e1-5cf1-4e8f-897c-d46256744bcf",
+      "language_code": "ja",
+      "latency_ms": 2745
+    }
+  ],
+  "llm_calls_observed": 8,
+  "llm_cost_observed_usd": 0.00668288,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 60.625,
+  "finished_at": "2026-10-03T01:57:45.526051+00:00"
+}

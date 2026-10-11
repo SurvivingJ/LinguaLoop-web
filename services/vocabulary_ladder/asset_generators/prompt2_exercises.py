@@ -14,7 +14,7 @@ import json
 import logging
 
 from config import Config
-from services.llm_service import call_llm
+from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
     PROMPT2_LEVELS, OPTION_KEY_MAP, DEFAULT_SENTENCE_ASSIGNMENTS,
@@ -27,8 +27,54 @@ logger = logging.getLogger(__name__)
 TASK_NAME = 'vocab_prompt2_exercises'
 _PIPELINE = 'vocab_ladder'
 
+# max_tokens cap (primary/retry AND the scoped repair call below share this
+# one constant). RE-DERIVED 2026-10-03 (ADR-028 cost work) from the old flat
+# 8192, using MEASURED completion_tokens. Source: data/eval/runs/
+# phase2_bundle_*/ + phase2_fix_*/ + phase2_smoke_ja_v3/ + phase2_smoke_zh_r/
+# *.json llm_calls for vocab_prompt2_exercises (reasoning OFF for qwen in
+# these runs). Every language's own sample is individually thin (<10):
+#   en n=4  p99=669  max=671
+#   zh n=6  p99=759  max=763
+#   ja n=1  p99=1003 max=1003
+# pooled across languages (same generator/template family, just a different
+# language's content) n=11, p99=979, max=1003 -- just over the n>=10
+# analogous-task threshold, so used directly rather than borrowing an
+# unrelated task; flagged here as thin. cap = max(ceil(p99*2),
+# ceil(max*1.25)) = 1959, rounded up to 2000. At qwen3.7-plus's $1.28/M
+# completion price this cuts the worst-case reservation (ja, the language
+# with the single largest observed value) from ~$0.011/request to
+# ~$0.003/request.
+_MAX_TOKENS_RIGHTSIZED = 2000
+
+# Pre-2026-10-03 (reasoning-safe) cap. This module runs on a qwen model (see
+# TASK-813); when `LADDER_QWEN_REASONING=on` (the default) restores Phase-1
+# reasoning-left-on behaviour, reasoning tokens count toward `max_tokens` and
+# the right-sized cap above (derived from reasoning-OFF measurements) would
+# truncate.
+_MAX_TOKENS_REASONING_SAFE = 8192
+
+
+def _max_tokens() -> int:
+    return (_MAX_TOKENS_REASONING_SAFE if ladder_qwen_reasoning_mode() != 'off'
+            else _MAX_TOKENS_RIGHTSIZED)
+
+
 # language_id → llm_calls.language_code — see prompt1_core.py.
 _LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
+
+def _coerce_index(value, default: int) -> int:
+    """Best-effort int coercion for an LLM-supplied sentence index.
+
+    The response schema doesn't guarantee a JSON number here, and a string
+    index silently surviving this remap is exactly what produced en's
+    bundle-mode 0-exercise renders (item 6): `TypeError` several layers
+    downstream, with no error/skip ever recorded for the sense.
+    """
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 class ExerciseAssetGenerator:
@@ -85,7 +131,10 @@ class ExerciseAssetGenerator:
         )
         cfg = self._cfg
 
-        raw = self._call_with_retry(prompt_text, cfg, p2_active, sense_id)
+        raw = self._call_with_retry(
+            prompt_text, cfg, p2_active, sense_id,
+            core_asset, sentence_assignments, used_distractors,
+        )
         if raw is None:
             return None
 
@@ -93,8 +142,21 @@ class ExerciseAssetGenerator:
 
     def _call_with_retry(
         self, prompt_text: str, cfg: dict, p2_active: list[int], sense_id: int,
+        core_asset: dict | None = None,
+        sentence_assignments: dict[int, int] | None = None,
+        used_distractors: list[str] | None = None,
     ) -> dict | None:
-        """Single LLM call, retry once if any active level is missing or call fails."""
+        """Single LLM call, retry once if any active level is missing or call fails.
+
+        Bound: at most 3 real calls per step (primary + retry + one scoped
+        repair — see below), up from TASK-810's cap of 2. The retry-cap
+        regression (families that used to recover via a 3rd/4th call now fail
+        outright) showed 2 was too tight specifically for the "missing a
+        level or two after both attempts" case, which a full extra attempt at
+        every active level wastes money solving — the repair call below asks
+        ONLY for the missing levels instead.
+        """
+        raw: dict | None = None
         for attempt in (1, 2):
             try:
                 raw = call_llm(
@@ -102,7 +164,7 @@ class ExerciseAssetGenerator:
                     model=cfg['model'],
                     provider=cfg['provider'],
                     temperature=0.4,
-                    max_tokens=8192,
+                    max_tokens=_max_tokens(),
                     response_format='json',
                     pipeline=_PIPELINE,
                     task_name=TASK_NAME,
@@ -120,6 +182,7 @@ class ExerciseAssetGenerator:
                 if attempt == 2:
                     logger.error("Prompt 2 gave up for sense %s after 2 attempts", sense_id)
                     return None
+                raw = None
                 continue
 
             missing = [lv for lv in p2_active if str(lv) not in (raw or {})]
@@ -131,12 +194,73 @@ class ExerciseAssetGenerator:
                     missing, sense_id,
                 )
             else:
-                logger.error(
-                    "Prompt 2 still missing levels %s for sense %s after retry — accepting partial",
-                    missing, sense_id,
+                logger.warning(
+                    "Prompt 2 still missing levels %s for sense %s after retry "
+                    "— attempting one scoped repair call", missing, sense_id,
                 )
-                return raw
-        return None
+
+        if raw is None:
+            return None
+        missing = [lv for lv in p2_active if str(lv) not in raw]
+        if missing and core_asset is not None:
+            repaired = self._repair_missing_levels(
+                core_asset, missing, sentence_assignments or {},
+                used_distractors or [], sense_id, cfg,
+            )
+            if repaired:
+                for lv in missing:
+                    key = str(lv)
+                    if key in repaired:
+                        raw[key] = repaired[key]
+        return raw
+
+    def _repair_missing_levels(
+        self, core_asset: dict, missing_levels: list[int],
+        sentence_assignments: dict[int, int], used_distractors: list[str],
+        sense_id: int, cfg: dict,
+    ) -> dict | None:
+        """ONE bounded, scoped repair call asking ONLY for `missing_levels`.
+
+        Reuses `_build_prompt` with `active_levels` narrowed to just the
+        missing set — the template already only instructs for the levels
+        listed there (see the module docstring: "if L5 is skipped ... the
+        prompt simply omits Level 5 entirely"), so this is a smaller, cheaper
+        ask than a full retry of every active level, and it is tagged
+        `call_role='repair'` so it's distinguishable in `llm_calls` from the
+        primary/retry pair above.
+        """
+        prompt_text = self._build_prompt(
+            core_asset, missing_levels, sentence_assignments, used_distractors,
+        )
+        try:
+            raw = call_llm(
+                prompt_text,
+                model=cfg['model'],
+                provider=cfg['provider'],
+                temperature=0.4,
+                max_tokens=_max_tokens(),
+                response_format='json',
+                pipeline=_PIPELINE,
+                task_name=TASK_NAME,
+                template_version=cfg.get('version'),
+                language_code=_LANG_ID_TO_CODE.get(self.language_id),
+                call_role='repair',
+                sense_id=sense_id,
+                allow_internal_repair=False,
+            )
+        except Exception as e:
+            logger.warning(
+                "Prompt 2 scoped repair call failed for sense %s (levels %s): %s",
+                sense_id, missing_levels, e,
+            )
+            return None
+        still_missing = [lv for lv in missing_levels if str(lv) not in (raw or {})]
+        if still_missing:
+            logger.warning(
+                "Prompt 2 scoped repair still missing levels %s for sense %s",
+                still_missing, sense_id,
+            )
+        return raw
 
     def _build_prompt(
         self, core_asset: dict, active_levels: list[int],
@@ -238,7 +362,17 @@ class ExerciseAssetGenerator:
     ) -> dict:
         """Remap Level 6 semantic discrimination output."""
         if isinstance(level_data, dict):
-            correct_idx = level_data.get('1', sentence_assignments.get(6, 3))
+            # TASK-8xx (en bundle-mode 0-exercise renders, item 6): the model
+            # is not schema-guaranteed to emit the sentence index as a JSON
+            # number — a string index here survives remap/validation
+            # untouched and later blows up `correct_idx < len(sentences)` in
+            # `exercise_renderer._gather_bundle_judge_requests` with
+            # `TypeError: '<' not supported between instances of 'str' and
+            # 'int'`, observed live on en senses 13900/13902. Coerce once,
+            # here, so every downstream reader gets a real int.
+            correct_idx = _coerce_index(
+                level_data.get('1'), sentence_assignments.get(6, 3),
+            )
             wrong_sentences = level_data.get('2', [])
             if isinstance(wrong_sentences, list):
                 wrong_sentences = [

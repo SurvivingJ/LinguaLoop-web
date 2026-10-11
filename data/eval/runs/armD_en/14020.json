@@ -1,0 +1,348 @@
+{
+  "sense_id": 14020,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T22:54:15.692298+00:00",
+  "status": "partial",
+  "errors": [
+    "Prompt 2 variant A generation failed",
+    "Prompt 3 (P3) variant A generation failed",
+    "Prompt 3 (L4) variant A generation failed",
+    "Prompt 2 variant B generation failed",
+    "Prompt 3 (P3) variant B generation failed",
+    "Prompt 3 (L4) variant B generation failed"
+  ],
+  "warnings": [
+    "P1 sentence[3] flagged (rating 3): register: overly clinical and academic for a neutral register"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.4717376232147217,
+    "p1_generate": 2.8573150634765625,
+    "tier_gate": 0.0,
+    "p1_judge": 1.28409743309021,
+    "collocate_grounding": 0.0,
+    "fan_out": 0.05277562141418457
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[3] flagged (rating 3): register: overly clinical and academic for a neutral register"
+      ]
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/əˈroʊmə/",
+        "morphological_forms": [
+          {
+            "form": "aroma",
+            "label": "singular"
+          },
+          {
+            "form": "aromas",
+            "label": "plural"
+          },
+          {
+            "form": "aromas",
+            "label": "genitive singular"
+          }
+        ],
+        "pronunciation": "uh-ROH-muh",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14020
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "b982b558-0117-41f5-870a-a13331e10b24",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "aroma",
+        "pronunciation": "uh-ROH-muh",
+        "correct_definition": "A pleasant, distinctive smell, often of food or drink.",
+        "options": [
+          "A pleasant, distinctive smell, often of food or drink.",
+          "A liquid that has passed through solid waste or soil and contains substances from it.",
+          "able to adjust to new conditions or situations",
+          "having superior status or importance; outstanding"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f83fb654-a4e4-4c74-bca0-1fd8fcec03f6",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "aroma",
+        "pronunciation": "uh-ROH-muh",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "To adjust or mark something to ensure it is accurate and consistent with a standard.",
+              "To face something scary or hard.",
+              "Having many different aspects or features.",
+              "A pleasant, distinctive smell, often of food or drink."
+            ],
+            "correct_answer": "A pleasant, distinctive smell, often of food or drink."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "f4fc5a73-6dec-487e-bd01-c47876052cf5",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The compost is deemed mature when it has cooled, turned a uniform dark brown, and possesses an earthy ___, free from any discernible food scrap remnants.",
+        "original_sentence": "The compost is deemed mature when it has cooled, turned a uniform dark brown, and possesses an earthy aroma, free from any discernible food scrap remnants.",
+        "target_word": "aroma",
+        "word": "aroma",
+        "answer": {
+          "accepted": [
+            "aroma",
+            "aromas"
+          ],
+          "accepted_normalized": [
+            "aroma",
+            "aromas"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "69a89416-ce7b-47c1-9711-4f83f6487e6f",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The sweet aroma of baking cookies spread through the entire house during the rainy afternoon.",
+        "chunks": [
+          "The sweet aroma of baking cookies",
+          "spread",
+          "through the entire house",
+          "during the rainy afternoon"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "through the entire house",
+          "The sweet aroma of baking cookies",
+          "spread",
+          "during the rainy afternoon"
+        ],
+        "target_word": "aroma",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "concrete_noun",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 4,
+          "generated_count": 6
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14020,
+      "word_asset_id": "shadow-14020-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {},
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.002347,
+      "prompt_tokens": 2065,
+      "completion_tokens": 691,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14020,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2674
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006762,
+      "prompt_tokens": 729,
+      "completion_tokens": 183,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14020,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1158
+    }
+  ],
+  "llm_calls_observed": 2,
+  "llm_cost_observed_usd": 0.0030232,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 5.155999999959022,
+  "finished_at": "2026-10-05T22:54:20.840407+00:00"
+}

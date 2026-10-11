@@ -1,0 +1,1521 @@
+{
+  "sense_id": 14100,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T23:00:30.596167+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[2] flagged (rating 3): register: metaphorical use leans too formal for a neutral register course."
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.45280933380126953,
+    "p1_generate": 3.278381109237671,
+    "tier_gate": 0.0,
+    "p1_judge": 1.4471025466918945,
+    "collocate_grounding": 0.0,
+    "fan_out": 43.506221532821655
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[2] flagged (rating 3): register: metaphorical use leans too formal for a neutral register course."
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/əˈsɛnd/",
+        "morphological_forms": [
+          {
+            "form": "ascends",
+            "label": "third-person singular present"
+          },
+          {
+            "form": "ascended",
+            "label": "past tense"
+          },
+          {
+            "form": "ascended",
+            "label": "past participle"
+          },
+          {
+            "form": "ascending",
+            "label": "present participle"
+          }
+        ],
+        "pronunciation": "uh-SEND",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            14100
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "bbc70d25-c541-4704-a995-91c4e8bd4a5d",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "ascend",
+        "pronunciation": "uh-SEND",
+        "correct_definition": "To move upward or to a higher position.",
+        "options": [
+          "To move upward or to a higher position.",
+          "To open a lock, usually with a key, or to make something available.",
+          "A means of solving a problem or dealing with a difficult situation.",
+          "Being the most important or main part of something."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "989f3c67-6978-4f0b-bf29-68a85ad29b7c",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "At the heart of this phenomenon lies the concept of lift, a force that perpetually battles gravity, enabling these massive machines to ___ and traverse vast distances.",
+        "original_sentence": "At the heart of this phenomenon lies the concept of lift, a force that perpetually battles gravity, enabling these massive machines to ascend and traverse vast distances.",
+        "correct_answer": "ascend",
+        "options": [
+          "ascend",
+          "hover",
+          "descend",
+          "glide"
+        ],
+        "explanation": "Correct: 'ascend' correctly completes the sentence, meaning the machines move upward into the air.",
+        "distractor_tags": {},
+        "word_definition": "To move upward or to a higher position.",
+        "target_word": "ascend"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "8bdabc38-5c6e-4c9a-97b5-bccbf633e87e",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "As an airplane ___, the air becomes less dense, meaning there are fewer air molecules.",
+        "original_sentence": "As an airplane ascends, the air becomes less dense, meaning there are fewer air molecules.",
+        "correct_answer": "ascends",
+        "base_form": "ascend",
+        "form_label": "third-person singular present",
+        "options": [
+          "ascend",
+          "ascended",
+          "ascending",
+          "ascends"
+        ],
+        "explanation": "third-person singular present form is required for subject-verb agreement with the singular noun 'airplane'",
+        "word_definition": "To move upward or to a higher position.",
+        "target_word": "ascends"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e94ce8e8-d6d0-4e2a-845e-fad49a3a3b43",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The heavy iron anchor began to ascend rapidly the moment it was thrown overboard into the sea.",
+            "is_correct": false
+          },
+          {
+            "text": "The diver watched her oxygen levels ascend as she swam deeper into the dark, crushing depths of the ocean.",
+            "is_correct": false
+          },
+          {
+            "text": "The hikers began to ascend the steep mountain trail as the morning sun broke through the clouds.",
+            "is_correct": true
+          },
+          {
+            "text": "He tried to ascend the liquid coffee into his mouth, but it just spilled all over his shirt.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: oxygen levels physically decrease, not ascend, as a diver goes deeper underwater. Semantically inappropriate: 'ascend' is not used to describe the physical act of drinking or consuming a liquid. Semantically inappropriate: a heavy iron anchor sinks (descends) when thrown into the sea; it defies physics for it to ascend.",
+        "target_word": "ascend"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "fb9a1a8f-c609-4121-a088-6c1014ea513e",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The hikers began to ascend up the steep trail as the morning sun broke through the clouds.",
+            "is_correct": false,
+            "error_description": "The verb 'ascend' inherently means to move upward, making the addition of the preposition 'up' redundant and grammatically incorrect."
+          },
+          {
+            "text": "As an airplane ascends, the air becomes less dense, meaning there are fewer air molecules.",
+            "is_correct": true
+          },
+          {
+            "text": "At the heart of this phenomenon lies the concept of lift, a force that perpetually battles gravity, enabling these massive machines to ascend and traverse vast distances.",
+            "is_correct": true
+          },
+          {
+            "text": "From its humble origins as a wild plant in the highlands of Ethiopia, coffee has ascended to become one of the world's most highly valued commodities, underpinning the livelihoods of millions and shaping diurnal rituals across continents.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "893a3974-11d6-4a1c-a572-7e0769191100",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "ascend",
+        "pronunciation": "uh-SEND",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "Very, very big.",
+              "To move upward or to a higher position.",
+              "A stage is a raised platform in a theater where performers stand.",
+              "A container made of cloth, paper, or plastic, used for carrying things."
+            ],
+            "correct_answer": "To move upward or to a higher position."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "a341d3fc-45e4-4bfe-84d1-648f462e4226",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "As an airplane ___, the air becomes less dense, meaning there are fewer air molecules.",
+        "original_sentence": "As an airplane ascends, the air becomes less dense, meaning there are fewer air molecules.",
+        "target_word": "ascends",
+        "word": "ascend",
+        "answer": {
+          "accepted": [
+            "ascends"
+          ],
+          "accepted_normalized": [
+            "ascends"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "eed557c4-35b0-44e4-bcb4-3f77be16c4c0",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Smoke starts to ascend from the chimney whenever they light the fireplace.",
+        "chunks": [
+          "Smoke",
+          "starts",
+          "to ascend from the chimney whenever they light the fireplace"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "to ascend from the chimney whenever they light the fireplace",
+          "starts",
+          "Smoke"
+        ],
+        "target_word": "ascend",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "c362bfc1-0115-4c69-a4ee-2912aa9d26e4",
+      "language_id": 2,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "ascend",
+        "relation": "antonym",
+        "options": [
+          "advance",
+          "proceed",
+          "traverse",
+          "descend"
+        ],
+        "correct_answer": "descend",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "To move upward or to a higher position.",
+            "explanation": "antonym: to move downward is the opposite of moving upward"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1,
+          "band_rejected": [],
+          "band_scores": {
+            "traverse": 0.441384
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "8b0fc1e7-7afc-490a-8488-ec163a0ab889",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "ascend",
+        "sentence_with_blank": "As an airplane ___, the air becomes less dense, meaning there are fewer air molecules.",
+        "original_sentence": "As an airplane ascends, the air becomes less dense, meaning there are fewer air molecules.",
+        "required_pos": "verb",
+        "options": [
+          "ascendity",
+          "ascendage",
+          "ascendous",
+          "ascends"
+        ],
+        "correct_answer": "ascends",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the required third-person singular present verb form"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "1c2c5c69-7206-42a4-b473-d3f1f14d796b",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "ascend",
+        "pronunciation": "uh-SEND",
+        "ipa": "/əˈsɛnd/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "extend",
+          "ascent",
+          "ascend",
+          "assent"
+        ],
+        "correct_answer": "ascend",
+        "explanation": "Correct: this is the target word /əˈsɛnd/.",
+        "distractor_explanations": {
+          "ascent": "Minimal pair: differs only in final consonant /t/ vs /d/; also a noun, not a verb.",
+          "assent": "Minimal pair: differs only in final consonant /t/ vs /d/; means 'to agree'.",
+          "extend": "Rhyme: same stress pattern and ending /ɛnd/, but different initial consonants /ɪkˈstɛnd/."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "2fb93d8c-c285-47e5-b5d7-e60b14ff9d42",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The small drone ___ quickly to capture a wide aerial view of the park.",
+        "original_sentence": "The small drone ascends quickly to capture a wide aerial view of the park.",
+        "correct_answer": "ascends",
+        "options": [
+          "hovers",
+          "ascends to",
+          "ascends",
+          "descends"
+        ],
+        "explanation": "Correct: third-person singular present tense matching the singular subject 'drone'.",
+        "distractor_tags": {},
+        "word_definition": "To move upward or to a higher position.",
+        "target_word": "ascends"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c014bdd4-eb5b-490f-ac3f-4d76a16367d9",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "She watched the elevator doors close as her friends ___ to the top floor.",
+        "original_sentence": "She watched the elevator doors close as her friends ascended to the top floor.",
+        "correct_answer": "ascended",
+        "base_form": "ascend",
+        "form_label": "past simple",
+        "options": [
+          "ascend",
+          "ascending",
+          "ascends",
+          "ascended"
+        ],
+        "explanation": "past simple form required by the past-tense narrative context",
+        "word_definition": "To move upward or to a higher position.",
+        "target_word": "ascended"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "f4e69282-abc4-4a9e-bed5-a0c0d3666022",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The river ascends through the valley, flowing gently toward the ocean.",
+            "is_correct": false
+          },
+          {
+            "text": "The path gradually ascends through the dense forest until you reach the rocky summit.",
+            "is_correct": true
+          },
+          {
+            "text": "He tried to ascend his knowledge of mathematics by reading the textbook once.",
+            "is_correct": false
+          },
+          {
+            "text": "The chef decided to ascend the soup by adding more salt and pepper to enhance its flavor.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'ascend' refers to physical upward movement, not improving or enhancing food. Semantically inappropriate: 'ascend' is not used for abstract improvement of knowledge; 'expand' or 'deepen' would be correct. Semantically inappropriate: rivers flow downward due to gravity; 'ascends' contradicts the natural direction of water flow and the phrase 'toward the ocean.'",
+        "target_word": "ascends"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "0107a622-8acc-4282-bb32-3b2ce1023b71",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The hikers began to ascend up the steep trail as the morning sun broke through the clouds.",
+            "is_correct": false,
+            "error_description": "The verb 'ascend' already means to go or move up. Adding the preposition 'up' creates a redundant pleonasm. 'Ascend' should be used as a transitive verb taking a direct object (e.g., 'ascend the trail') or as an intransitive verb without 'up' (e.g., 'ascend into the sky')."
+          },
+          {
+            "text": "She watched the elevator doors close as her friends ascended to the top floor.",
+            "is_correct": true
+          },
+          {
+            "text": "The path gradually ascends through the dense forest until you reach the rocky summit.",
+            "is_correct": true
+          },
+          {
+            "text": "The small drone ascends quickly to capture a wide aerial view of the park.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "8526a686-8e22-4b43-97e4-c83019adf36b",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "She watched the elevator doors close as her friends ___ to the top floor.",
+        "original_sentence": "She watched the elevator doors close as her friends ascended to the top floor.",
+        "target_word": "ascended",
+        "word": "ascend",
+        "answer": {
+          "accepted": [
+            "ascended"
+          ],
+          "accepted_normalized": [
+            "ascended"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "5b5fe490-99fc-42ae-8188-752d62514e4e",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "The hikers began to ascend the steep mountain trail as the morning sun broke through the clouds.",
+        "chunks": [
+          "The hikers",
+          "began",
+          "to ascend the steep mountain trail as the morning sun broke through the clouds"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2
+        ],
+        "shuffled_chunks": [
+          "The hikers",
+          "to ascend the steep mountain trail as the morning sun broke through the clouds",
+          "began"
+        ],
+        "target_word": "ascend",
+        "chunk_count": 3
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "83e61afe-8012-41ec-8521-af39b5fd0b41",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "ascend",
+        "sentence_with_blank": "She watched the elevator doors close as her friends ___ to the top floor.",
+        "original_sentence": "She watched the elevator doors close as her friends ascended to the top floor.",
+        "required_pos": "noun",
+        "options": [
+          "ascendal",
+          "ascent",
+          "ascendure",
+          "ascendage"
+        ],
+        "correct_answer": "ascent",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established nominalisation meaning the act of moving upward"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 14100,
+      "word_asset_id": "shadow-14100-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "word_family": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.002475,
+      "prompt_tokens": 2025,
+      "completion_tokens": 747,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2864
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000677,
+      "prompt_tokens": 715,
+      "completion_tokens": 185,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1343
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0016848,
+      "prompt_tokens": 657,
+      "completion_tokens": 1152,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20951
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186592,
+      "prompt_tokens": 1251,
+      "completion_tokens": 1145,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21050
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176064,
+      "prompt_tokens": 854,
+      "completion_tokens": 1162,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21134
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00192992,
+      "prompt_tokens": 1255,
+      "completion_tokens": 1194,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21939
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00177408,
+      "prompt_tokens": 660,
+      "completion_tokens": 1221,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22117
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00186528,
+      "prompt_tokens": 857,
+      "completion_tokens": 1243,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22317
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00255968,
+      "prompt_tokens": 1667,
+      "completion_tokens": 1583,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 28471
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0026672,
+      "prompt_tokens": 1667,
+      "completion_tokens": 1667,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1025,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30097
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00176704,
+      "prompt_tokens": 818,
+      "completion_tokens": 1176,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20769
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00177184,
+      "prompt_tokens": 821,
+      "completion_tokens": 1179,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20981
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003108,
+      "prompt_tokens": 411,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 974
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003318,
+      "prompt_tokens": 406,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 900
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000451,
+      "prompt_tokens": 495,
+      "completion_tokens": 121,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1082
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001977,
+      "prompt_tokens": 384,
+      "completion_tokens": 33,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 890
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004369,
+      "prompt_tokens": 523,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1007
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.00043,
+      "prompt_tokens": 500,
+      "completion_tokens": 112,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1019
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003683,
+      "prompt_tokens": 411,
+      "completion_tokens": 98,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1221
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003279,
+      "prompt_tokens": 393,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1027
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004301,
+      "prompt_tokens": 492,
+      "completion_tokens": 113,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1090
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002171,
+      "prompt_tokens": 432,
+      "completion_tokens": 35,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 930
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003582,
+      "prompt_tokens": 519,
+      "completion_tokens": 81,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 959
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004325,
+      "prompt_tokens": 500,
+      "completion_tokens": 113,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 14100,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1010
+    }
+  ],
+  "llm_calls_observed": 24,
+  "llm_cost_observed_usd": 0.0270907,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T4",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 62.85999999998603,
+  "finished_at": "2026-10-05T23:01:33.448105+00:00"
+}

@@ -1,0 +1,786 @@
+{
+  "sense_id": 35293,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T13:22:34.327210+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.5538368225097656,
+    "p1_generate": 39.7008011341095,
+    "tier_gate": 0.009000062942504883,
+    "p1_judge": 23.819518089294434,
+    "collocate_grounding": 0.0,
+    "fan_out": 32.95954251289368
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/kʲiwaɨmete/",
+        "pronunciation": "きわめて",
+        "register": "formal"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35293
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "9e2ff74d-8d3a-44aa-86a2-99384f00fb4f",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "極めて",
+        "pronunciation": "きわめて",
+        "ipa": "/kʲiwaɨmete/",
+        "syllable_count": 5,
+        "audio_url": null,
+        "options": [
+          "諦めて",
+          "極めて",
+          "際限",
+          "競って"
+        ],
+        "correct_answer": "極めて",
+        "explanation": "これが正解です。「きわめて」と読みます。",
+        "distractor_explanations": {
+          "諦めて": "読みは「あきらめて」です。3番目のモーラ「め」が「ら」に変わっています。",
+          "際限": "読みは「さいげん」です。1番目のモーラ「き」が「さ」に、2番目の「わ」が「い」に変わっています。",
+          "競って": "読みは「きそって」です。2番目のモーラ「わ」が「そ」に変わっています。"
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "3785d039-7b35-4d82-9568-151b671ddc88",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "極めて",
+        "pronunciation": "きわめて",
+        "correct_definition": "状態や動作の度合いが、とても高いことを表す副詞。",
+        "options": [
+          "物事の真ん中の部分や、活動などでいちばん重要な役割を果たすものや人のこと。",
+          "色が薄くなったり、消えたりすること。",
+          "家畜や家禽を飼育し、肉・卵・乳・皮などの生活に役立つ物を生産する産業。",
+          "状態や動作の度合いが、とても高いことを表す副詞。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "4002f862-2f2c-42c1-ae3c-3174c4483ba0",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "その社会的意義は___大きい。",
+        "original_sentence": "その社会的意義は極めて大きい。",
+        "correct_answer": "極めて",
+        "options": [
+          "すなわち",
+          "極めて",
+          "おおよそ",
+          "いかに"
+        ],
+        "explanation": "「極めて大きい」は、度合いが非常に高いことを表す自然な表現です。",
+        "distractor_tags": {},
+        "word_definition": "状態や動作の度合いが、とても高いことを表す副詞。",
+        "target_word": "極めて"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "dee78b7f-009a-4751-90bb-4a08325b2759",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "かつては安定していた生態系のサイクルが、現代文明の経済活動によって歪められ、その修復は極めて困難な局面を迎えている。",
+            "is_correct": false
+          },
+          {
+            "text": "かつては安定していた生態系のサイクルが、現代文明の経済活動によって歪められ、その修復は極めて困難だ局面を迎えている。",
+            "is_correct": false
+          },
+          {
+            "text": "かつては安定していた生態系のサイクルが、現代文明の経済活動によって極めて歪められ、その修復は困難な局面を迎えている。",
+            "is_correct": false
+          },
+          {
+            "text": "かつては安定していた生態系のサイクルが、現代文明の経済活動によって歪められ、その修復は極めて困難な局面を迎えている。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "正しい文です。 語順・係り受けの誤り：「極めて」は「困難な」を修飾すべきであり、「歪められ」を修飾すると文脈の焦点がずれます。 活用・アスペクトの誤り：連体修飾節では「困難な」とするのが適切であり、「困難だ」は格助詞「の」を伴わない限り誤りです。",
+        "target_word": "極めて"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 4,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "995b0880-c960-4c24-a1d2-f98f4699b0b6",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "その社会的意義は極めて大きい。",
+            "is_correct": true
+          },
+          {
+            "text": "再生可能エネルギーの導入加速にもかかわらず、製造プロセスの性質上、炭素発生をゼロ化し得ない領域において、CCUSは極めて重要な役割を担う。",
+            "is_correct": true
+          },
+          {
+            "text": "こうした文脈下、人工知能アルゴリズムによるリアルタイムの習熟度分析を通じて学習者の認知特性に最適化された教材提示を可能にするアダプティブラーニングプラットフォームの導入は、教育学の観点から極めて示唆に富む。",
+            "is_correct": true
+          },
+          {
+            "text": "その社会的意義は極めてに大きい。",
+            "is_correct": false,
+            "error_description": "「極めて」は程度を表す副詞であり、助詞「に」を伴って「極めてに」となることはありません。副詞はそのまま形容詞や動詞を修飾します。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "cb66ac3f-01bc-4211-b787-6b2b71ebf3fe",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "極めて",
+        "pronunciation": "きわめて",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "創作活動や料理などを行うための仕事部屋。特に、パン職人や画家が作業に集中するための特別な空間。",
+              "状態や動作の度合いが、とても高いことを表す副詞。",
+              "じぶんの かいしゃ",
+              "擅长 —— 做某事的技术或能力很出色"
+            ],
+            "correct_answer": "状態や動作の度合いが、とても高いことを表す副詞。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b1389629-7249-4b7d-a376-43c21e7c7547",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "極めて",
+        "options": [
+          "ぎわめて",
+          "きわめで",
+          "きいわめて",
+          "きわめて"
+        ],
+        "correct_answer": "きわめて",
+        "word": "極めて",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "74d19ec0-06cb-4f47-923d-86b00de5a2eb",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "きわめて",
+        "options": [
+          "極めて",
+          "分厚い",
+          "大好き",
+          "認める"
+        ],
+        "correct_answer": "極めて",
+        "word": "極めて",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "大好き": "component",
+          "分厚い": "component",
+          "認める": "frequency"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "function",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "22fbf4d1-842f-4b10-9964-f1ad7039b8fa",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "その社会的意義は極めて大きい。",
+            "is_correct": true
+          },
+          {
+            "text": "この問題は極めて難しいだ。",
+            "is_correct": false
+          },
+          {
+            "text": "極めてこの問題は難しい。",
+            "is_correct": false
+          },
+          {
+            "text": "この問題は極めて難しかった。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助詞の混同：「難しい」はイ形容詞であり、その後に断定の助動詞「だ」を直接付けることはできません。 語順の誤り：程度を表す副詞「極めて」は、それが修飾する形容詞「難しい」の直前に置くのが自然です。 活用・アスペクトの誤り：文脈や他の選択肢との対比から、現在の状態を表す「難しい」が適切であり、過去の「難しかった」は不自然です。",
+        "target_word": "極めて"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "e0fc2ca3-e046-4d9b-9cb0-21237f12442b",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "彼の態度は極めて失礼だ。",
+            "is_correct": true
+          },
+          {
+            "text": "この料理は極めてに美味しい。",
+            "is_correct": false,
+            "error_description": "「極めて」は副詞です。副詞は助詞「に」を伴わず、そのまま後ろの形容詞や動詞を修飾します。"
+          },
+          {
+            "text": "この料理は極めて美味しい。",
+            "is_correct": true
+          },
+          {
+            "text": "この問題は極めて難しい。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "function",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 6,
+          "generated_count": 4
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35293,
+      "word_asset_id": "shadow-35293-prompt1_core",
+      "ladder_level": 7
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 9
+    }
+  },
+  "deterministic_skips": [],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0037984,
+      "prompt_tokens": 2874,
+      "completion_tokens": 2249,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 39492
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00195584,
+      "prompt_tokens": 844,
+      "completion_tokens": 1317,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23521
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00198784,
+      "prompt_tokens": 1696,
+      "completion_tokens": 1129,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20049
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0020032,
+      "prompt_tokens": 1708,
+      "completion_tokens": 1138,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20115
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00304384,
+      "prompt_tokens": 2768,
+      "completion_tokens": 1686,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 29600
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00324224,
+      "prompt_tokens": 2768,
+      "completion_tokens": 1841,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 32725
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016356,
+      "prompt_tokens": 371,
+      "completion_tokens": 75,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 5228
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016016,
+      "prompt_tokens": 366,
+      "completion_tokens": 71,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35293,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 5626
+    }
+  ],
+  "llm_calls_observed": 8,
+  "llm_cost_observed_usd": 0.01635508,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T2",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 110.68799999996554,
+  "finished_at": "2026-10-05T13:24:25.015644+00:00"
+}

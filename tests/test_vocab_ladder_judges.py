@@ -15,7 +15,11 @@ from services.exercise_generation.judges import p1_sentences as p1mod
 from services.exercise_generation.judges import l1_distractor as l1mod
 from services.exercise_generation.judges import collocation as collocmod
 from services.exercise_generation.judges import sentence_validity as svmod
-from services.exercise_generation.judges.base import JudgeOutcome
+from services.exercise_generation.judges.base import (
+    JudgeOutcome,
+    JudgeUnavailable,
+    batch_mode,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -313,6 +317,50 @@ def test_l1_filter_empty_distractors(monkeypatch):
         db=None, target='ship', distractors=[], language_id=2,
     )
     assert kept == [] and meta['rejected'] == 0
+
+
+# ---------------------------------------------------------------------------
+# batch_mode() fail-closed (TASK-510) — 2026-10-04 armB_ja regression: this
+# judge's fail-open path (`_all_keep`), like cloze.py's, was never wired into
+# `guard_fail_open`, so an unreachable judge shipped unjudged content even
+# inside a fail-closed generation/eval batch.
+# ---------------------------------------------------------------------------
+
+def test_l1_filter_llm_error_fails_closed_in_batch_mode(monkeypatch):
+    _patch_l1_cfg(monkeypatch)
+
+    def _boom(*a, **k):
+        raise RuntimeError('404 boom')
+    monkeypatch.setattr(l1mod, 'call_llm', _boom)
+    with batch_mode():
+        with pytest.raises(JudgeUnavailable):
+            l1mod.filter_l1_distractors(
+                db=None, target='ship', distractors=['a', 'b'], language_id=2,
+            )
+
+
+def test_l1_filter_template_missing_fails_closed_in_batch_mode(monkeypatch):
+    def _boom(db, task_name, language_id):
+        raise RuntimeError('no row')
+    monkeypatch.setattr(l1mod, 'get_template_config', _boom)
+    with batch_mode():
+        with pytest.raises(JudgeUnavailable):
+            l1mod.filter_l1_distractors(
+                db=None, target='ship', distractors=['a', 'b', 'c'], language_id=2,
+            )
+
+
+def test_l1_filter_llm_error_still_keeps_all_outside_batch_mode(monkeypatch):
+    """Serve-adjacent callers keep the original fail-open contract."""
+    _patch_l1_cfg(monkeypatch)
+
+    def _boom(*a, **k):
+        raise RuntimeError('404 boom')
+    monkeypatch.setattr(l1mod, 'call_llm', _boom)
+    kept, meta = l1mod.filter_l1_distractors(
+        db=None, target='ship', distractors=['a', 'b'], language_id=2,
+    )
+    assert kept == ['a', 'b'] and meta['rejected'] == 0
 
 
 # ---------------------------------------------------------------------------

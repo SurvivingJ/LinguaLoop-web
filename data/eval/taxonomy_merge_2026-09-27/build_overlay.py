@@ -9,6 +9,13 @@ Outputs (next to this script):
 
 Run from the repo root:  PYTHONPATH=. python data/eval/taxonomy_merge_2026-09-27/build_overlay.py
 
+DO NOT RE-RUN without first porting the post-build hand edits recorded in the overlay's
+`post_build_edits` field (en_silver_24 2026-09-28; the three en it/him-for-them items retyped
+word_choice -> pronoun by developer decision 2026-10-09, which also contradicts
+overlay_reconciled.json and so would trip apply_resolutions). The script currently exits on
+en_silver_24 ("word_choice without explanation_variant") because the silver file was repaired
+after this script last ran. v6_label_overlay.json is the maintained source now.
+
 Decision sources, in precedence order:
   1. OVERRIDES below (user rule on 的/地/得, inversion-by-effect, reconciled.json relabels,
      and judgement calls) — every one carries a note.
@@ -90,23 +97,23 @@ OVERRIDES: dict[tuple[str, int], tuple[str, str, str, str]] = {
 
 # word_choice explanation_variant (3-way, ADR-031 Decision A, 2026-09-27):
 #   wrong_sense        = the SAME lemma used in a different one of its own senses (narrow)
-#   shared_translation = a DIFFERENT word sharing an L1 gloss with the correct word
+#   false_synonym = a DIFFERENT word sharing an L1 gloss with the correct word
 #   wrong_word         = anything else that does not fit the idea
-# Precedence: same lemma -> wrong_sense; shared L1 gloss -> shared_translation; else wrong_word.
+# Precedence: same lemma -> wrong_sense; shared L1 gloss -> false_synonym; else wrong_word.
 # L1 assumed: en for zh/ja L2 learners; zh or ja for en L2 learners.
 # (variant, one-line note, uncertain). Applies to every final word_choice entry.
 WC_VARIANT: dict[tuple[str, int], tuple[str, str, bool]] = {
-    ("zh_seed_06", 0): ("shared_translation", "轻松 and 放松 are different words sharing the L1 gloss 'relaxed'; 轻松 is light/easy, not the unwound state. Resolves escalation (author: gloss overlap; reviewer: different lexeme, so not wrong_sense).", False),
+    ("zh_seed_06", 0): ("false_synonym", "轻松 and 放松 are different words sharing the L1 gloss 'relaxed'; 轻松 is light/easy, not the unwound state. Resolves escalation (author: gloss overlap; reviewer: different lexeme, so not wrong_sense).", False),
     ("zh_seed_12", 0): ("wrong_word", "浅 (pale) is a different word from 正 (true/pure colour); no shared gloss.", False),
-    ("zh_multi_02", 1): ("shared_translation", "普通 and 简单 are different words that can both be rendered 'plain' in English; 普通 is ordinary, not simple in design. Resolves escalation. UNCERTAIN: 'plain' is not a core dictionary gloss of 普通 (common/ordinary); if the sense-dictionary lookup finds no shared gloss this falls to wrong_word.", True),
+    ("zh_multi_02", 1): ("false_synonym", "普通 and 简单 are different words that can both be rendered 'plain' in English; 普通 is ordinary, not simple in design. Resolves escalation. UNCERTAIN: 'plain' is not a core dictionary gloss of 普通 (common/ordinary); if the sense-dictionary lookup finds no shared gloss this falls to wrong_word.", True),
     ("zh_silver_09", 0): ("wrong_word", "一点 is a different quantity word from 很多; no shared gloss, not a sense confusion.", False),
     ("zh_silver_17", 0): ("wrong_word", "很好看 (pretty) replaces 栩栩如生 (lifelike) with a different, vaguer word.", False),
-    ("ja_seed_08", 0): ("shared_translation", "持つ and 掴む are different verbs sharing the L1 gloss 'hold'; 持つ is hold/carry, not grip/grasp. Resolves escalation.", False),
+    ("ja_seed_08", 0): ("false_synonym", "持つ and 掴む are different verbs sharing the L1 gloss 'hold'; 持つ is hold/carry, not grip/grasp. Resolves escalation.", False),
     ("ja_seed_14", 0): ("wrong_word", "難しい (difficult) for 面白い (interesting): different word, no shared gloss, not antonyms.", False),
     ("ja_multi_01", 1): ("wrong_word", "面白さ (fun) is a vaguer different word for 醍醐味 (the real pleasure); no shared core gloss.", False),
-    ("ja_multi_02", 0): ("shared_translation", "最初 and まず are different words sharing the L1 gloss 'first'; 最初 is 'at the beginning', not enumerative 'first of all'. Was agreed wrong_sense under the 2-way; a different lemma cannot be narrow wrong_sense.", False),
+    ("ja_multi_02", 0): ("false_synonym", "最初 and まず are different words sharing the L1 gloss 'first'; 最初 is 'at the beginning', not enumerative 'first of all'. Was agreed wrong_sense under the 2-way; a different lemma cannot be narrow wrong_sense.", False),
     ("ja_multi_03", 0): ("wrong_word", "Same 難しい/面白い substitution as ja_seed_14.", False),
-    ("ja_multi_04", 1): ("shared_translation", "仕事 used for a part's function via L1 'job' (the part's job); 役割 is the needed word. Was agreed wrong_sense; 役割 is a different lemma. UNCERTAIN: JMdict glosses (work/job/task vs role/part/function) share no exact gloss, so a strict lookup would give wrong_word.", True),
+    ("ja_multi_04", 1): ("false_synonym", "仕事 used for a part's function via L1 'job' (the part's job); 役割 is the needed word. Was agreed wrong_sense; 役割 is a different lemma. UNCERTAIN: JMdict glosses (work/job/task vs role/part/function) share no exact gloss, so a strict lookup would give wrong_word.", True),
     ("ja_silver_20", 0): ("wrong_word", "たくさん for いくつか: different quantity word, no shared gloss.", False),
     ("ja_silver_24", 0): ("wrong_word", "高い for 格別: different word; loses 格別's intensity (reviewer concession: collocation claim dropped).", False),
     ("ja_silver_28", 0): ("wrong_word", "先にある (at the tip) for 指先にあたる (corresponds to the fingertip): different expression.", False),
@@ -114,13 +121,13 @@ WC_VARIANT: dict[tuple[str, int], tuple[str, str, bool]] = {
     ("en_seed_06", 0): ("wrong_word", "'nice' for 'fun': different word, no shared zh/ja gloss (好/いい vs 好玩/楽しい).", False),
     ("en_seed_10", 0): ("wrong_word", "'it' for 'them': wrong pronoun form (number), not a gloss or sense confusion.", False),
     ("en_seed_14", 0): ("wrong_word", "'foot' for 'hand': different word.", False),
-    ("en_multi_03", 0): ("shared_translation", "'key' and 'important' share the L1 gloss 重要 (zh 重要的/关键的, ja 重要な); 'key' is used in its correct 'crucial' sense, so not wrong_sense. Resolves escalation. UNCERTAIN: arguably an acceptable near-synonym (not an error); en has no zh/ja glosses yet, so the lookup cannot confirm.", True),
+    ("en_multi_03", 0): ("false_synonym", "'key' and 'important' share the L1 gloss 重要 (zh 重要的/关键的, ja 重要な); 'key' is used in its correct 'crucial' sense, so not wrong_sense. Resolves escalation. UNCERTAIN: arguably an acceptable near-synonym (not an error); en has no zh/ja glosses yet, so the lookup cannot confirm.", True),
     ("en_multi_03", 2): ("wrong_word", "'it' for 'them': wrong pronoun form (number).", False),
     ("en_silver_11", 0): ("wrong_word", "'fourth' for 'third': different word.", False),
     ("en_silver_13", 0): ("wrong_word", "'him' for 'them': wrong pronoun form (person/number).", False),
     ("en_silver_15", 0): ("wrong_word", "'everyone' for 'you' (plus inserted 'also'): different word.", False),
-    ("en_silver_17", 0): ("shared_translation", "'say' and 'tell' share the L1 gloss 说 (zh) / 言う (ja); 'say' cannot take the addressee. Resolves escalation (reviewer: not wrong_sense; author: gloss overlap).", False),
-    ("en_silver_28", 0): ("shared_translation", "'engine' and 'motor' share the zh L1 gloss 发动机 (and 马达 overlap); 'engine' has no electric-servo sense, so not wrong_sense. Resolves escalation.", False),
+    ("en_silver_17", 0): ("false_synonym", "'say' and 'tell' share the L1 gloss 说 (zh) / 言う (ja); 'say' cannot take the addressee. Resolves escalation (reviewer: not wrong_sense; author: gloss overlap).", False),
+    ("en_silver_28", 0): ("false_synonym", "'engine' and 'motor' share the zh L1 gloss 发动机 (and 马达 overlap); 'engine' has no electric-servo sense, so not wrong_sense. Resolves escalation.", False),
     ("en_silver_31", 0): ("wrong_word", "'thing' for 'gripper': vague different word.", False),
     ("en_silver_32", 0): ("wrong_word", "'stuff' for 'commands': vague different word.", False),
     ("en_silver_35", 0): ("wrong_word", "'expensive' for 'important': different word; a 贵重-style L1 path is conceivable but the two share no gloss.", False),
@@ -292,8 +299,9 @@ def main():
         "final": True,
         "finalised": "2026-09-27: blind review (overlay_reconciled.json) + user Decision A (word_choice "
                      "explanation_variant is 3-way: wrong_word | wrong_sense (narrow, same lemma) | "
-                     "shared_translation) + Decision B (reviewer's call on zh_silver_18, zh_silver_37, "
-                     "ja_silver_19, en_silver_17).",
+                     "false_synonym) + Decision B (reviewer's call on zh_silver_18, zh_silver_37, "
+                     "ja_silver_19, en_silver_17). The third variant was renamed 2026-10-04 for clarity "
+                     "(meaning and detection method unchanged).",
         "resolution_scope": "`resolution` is set only on the 61 entries that went through blind review; "
                             "csv_deterministic entries outside that set were never contested and carry none.",
         "entries": overlay,

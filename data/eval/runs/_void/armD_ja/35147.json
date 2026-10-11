@@ -1,0 +1,1403 @@
+{
+  "sense_id": 35147,
+  "language_id": 3,
+  "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+  "started_at": "2026-10-05T13:05:10.611862+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [
+    "P1 sentence[1] flagged (rating 3): 副詞と疑問形の呼応が不自然",
+    "P1 sentence[2] rejected (rating 1): 非文法的で意味不明",
+    "P1 sentence[3] rejected (rating 1): 非文法的で意味不明",
+    "P1 sentence[4] rejected (rating 1): 非文法的で意味不明",
+    "P1 sentence[5] rejected (rating 1): 非文法的で意味不明"
+  ],
+  "stage_seconds": {
+    "fetch_corpus": 0.8902559280395508,
+    "p1_generate": 32.48375344276428,
+    "p1_sentence_repair": 23.15124011039734,
+    "tier_gate": 0.015102863311767578,
+    "p1_judge": 65.27800369262695,
+    "collocate_grounding": 0.0,
+    "fan_out": 46.33683633804321
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": [
+        "P1 sentence[1] flagged (rating 3): 副詞と疑問形の呼応が不自然",
+        "P1 sentence[2] rejected (rating 1): 非文法的で意味不明",
+        "P1 sentence[3] rejected (rating 1): 非文法的で意味不明",
+        "P1 sentence[4] rejected (rating 1): 非文法的で意味不明",
+        "P1 sentence[5] rejected (rating 1): 非文法的で意味不明"
+      ]
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/iku/",
+        "morphological_forms": [
+          {
+            "form": "行って",
+            "label": "活用"
+          },
+          {
+            "label": "活用"
+          },
+          {
+            "form": "行ける",
+            "label": "活用"
+          },
+          {
+            "form": "行っている",
+            "label": "活用"
+          },
+          {
+            "form": "いらっしゃる",
+            "label": "敬語形"
+          }
+        ],
+        "pronunciation": "いく",
+        "register": "polite"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            35147
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "bf49ca1f-03df-493b-9046-4954622fc5ce",
+      "language_id": 3,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行く",
+        "pronunciation": "いく",
+        "ipa": "/iku/",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "奥",
+          "行く",
+          "柵",
+          "入る"
+        ],
+        "correct_answer": "行く",
+        "explanation": "正解です。「行く」は「ある場所から別の場所へ移動する。また、物事が進む。」という意味です。",
+        "distractor_explanations": {
+          "奥": "「奥」は「行く」と一モーラだけ異なる実在語です（1モーラ目: 「い」→「お」、一部の音の違い）。",
+          "入る": "「入る」は「行く」と一モーラだけ異なる実在語です（2モーラ目: 「く」→「る」、一部の音の違い）。",
+          "柵": "「柵」は「行く」と一モーラだけ異なる実在語です（1モーラ目: 「い」→「さ」、一部の音の違い）。"
+        },
+        "distractor_source": "phonetic_trie"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 10,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 3
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "5d5a293d-68ad-4995-a18d-67e66b10a955",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行き",
+        "pronunciation": "いく",
+        "correct_definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+        "options": [
+          "ある場所から別の場所へ移動する。また、物事が進む。",
+          "ある時点での、周りのようすや状態のこと。",
+          "植物が作り出す、種子を含んだ部分。特に食用になるもの。",
+          "人の作業を助けるために、その人のそばで一緒に作業をする。"
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "d3386e2e-3917-49c6-a42a-e85bfb54014c",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "休みの日は、よく家族と公園へ___ませんか。",
+        "original_sentence": "休みの日は、よく家族と公園へ行きませんか。",
+        "correct_answer": "行き",
+        "base_form": "行く",
+        "form_label": "連用形（ます形語幹）",
+        "options": [
+          "行く",
+          "行き",
+          "行って",
+          "行か"
+        ],
+        "explanation": "「ませんか」に接続するため、動詞の連用形（ます形語幹）が必要です。",
+        "word_definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+        "target_word": "行き"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "da856411-1670-4b74-ba7c-9fb7ad07f6e5",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "この切符で、新宿まで行きません。",
+            "is_correct": false
+          },
+          {
+            "text": "このバスは、どのルートを経由して行きません。",
+            "is_correct": false
+          },
+          {
+            "text": "明日の会議には、どの電車で行きません。",
+            "is_correct": false
+          },
+          {
+            "text": "このバスは、どのルートを経由して行きません。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "語順・係り受けの誤り：「どの電車」で移動するかを尋ねる疑問詞を含む文で、否定の「行きません」を結びつけると意味が破綻します。「どの電車で行きますか」とするのが自然です。 語順・係り受けの誤り：「どのルート」を経由するのかを問う疑問詞の文であり、否定形「行きません」とは結びつきません。「どのルートを経由して行きますか」とすべきです。 助詞の混同：「この切符で」は手段や方法を表しますが、単に「新宿まで行く」という事実を述べる文脈では、存在・場所を表す「は」や、単に動作を提示する形が適切であり、「で」を用いて否定するのは不自然です。",
+        "target_word": "行く"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "48a4b1d1-c0c9-4e2e-8f01-84b2975d4e41",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "休みの日は、よく家族と公園へ行きです。",
+            "is_correct": false,
+            "error_description": "「行き」は動詞「行く」の連用形であり、単独で「です」に接続して述語を作ることはできません。習慣や誘いを表す文脈では、「行きませんか」や「行きます」などの適切な活用形を用いる必要があります。"
+          },
+          {
+            "text": "来週、私たちは一緒に東京へ行きましょう。",
+            "is_correct": true
+          },
+          {
+            "text": "明日の会議には、どの電車で行きません。",
+            "is_correct": true
+          },
+          {
+            "text": "休みの日は、よく家族と公園へ行きませんか。",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "62f6edfb-3fe0-4510-9f30-17d1ead3fcf4",
+      "language_id": 3,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行き",
+        "pronunciation": "いく",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "植物の生長を助けるために土に与える、栄養分を含んだ物質のことです。",
+              "「長年」とは、とても長い時間のことを言います。何年もずっと続いているときに使います。",
+              "ある場所から別の場所へ移動する。また、物事が進む。",
+              "扣紧；固定；预订保留"
+            ],
+            "correct_answer": "ある場所から別の場所へ移動する。また、物事が進む。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "b4417297-9b94-4752-8dc5-5b0bafbd937a",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "休みの日は、よく家族と公園へ___ませんか。",
+        "original_sentence": "休みの日は、よく家族と公園へ行きませんか。",
+        "target_word": "行き",
+        "word": "行き",
+        "answer": {
+          "accepted": [
+            "行き"
+          ],
+          "accepted_normalized": [
+            "行き"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "60d9ef64-3ca9-4b91-9cc9-82032af17d0d",
+      "language_id": 3,
+      "exercise_type": "kanji_to_reading",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "行く",
+        "options": [
+          "いくう",
+          "いぐ",
+          "いいく",
+          "いく"
+        ],
+        "correct_answer": "いく",
+        "word": "行く",
+        "direction": "kanji_to_reading"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f4afc841-60d0-4b44-ac33-d38e2f475785",
+      "language_id": 3,
+      "exercise_type": "reading_to_kanji",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "いく",
+        "options": [
+          "幾",
+          "履行",
+          "行く",
+          "技術"
+        ],
+        "correct_answer": "行く",
+        "word": "行く",
+        "direction": "reading_to_kanji",
+        "distractor_sources": {
+          "幾": "homophone",
+          "履行": "component",
+          "技術": "component"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "f45a4dda-d70d-410d-b273-1f54cfd4f5dc",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行き",
+        "relation": "antonym",
+        "options": [
+          "来",
+          "帰",
+          "止",
+          "出"
+        ],
+        "correct_answer": "来",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+            "explanation": "目標語の「行き」は「行く」の連用形であり、話し手や基準点へ移動する「来る」の連用形「来（き）」が対義語として成立します。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "dd16d147-a191-4777-960a-06c7cd3aea06",
+      "language_id": 3,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "この電車は、大阪へ___ません。",
+        "original_sentence": "この電車は、大阪へ行きません。",
+        "correct_answer": "行き",
+        "options": [
+          "戻り",
+          "参り",
+          "通る",
+          "行き"
+        ],
+        "explanation": "「大阪へ行き」が自然な移動の方向と目的地を示す表現です。",
+        "distractor_tags": {},
+        "word_definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+        "target_word": "行き"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "qwen/qwen-2.5-72b-instruct",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "3fa131cb-2ca7-43d7-8e20-88a04698d17a",
+      "language_id": 3,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "計画は順調に___ません。",
+        "original_sentence": "計画は順調に行きません。",
+        "correct_answer": "行き",
+        "base_form": "行く",
+        "form_label": "連用形（ます形）",
+        "options": [
+          "行かない",
+          "行く",
+          "行き",
+          "行って"
+        ],
+        "explanation": "「ません」に接続するには連用形（ます形）の「行き」が必要です。",
+        "word_definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+        "target_word": "行き"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "a477e75a-031e-4bb2-a3ef-44b7187df708",
+      "language_id": 3,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "もう行きません。",
+            "is_correct": false
+          },
+          {
+            "text": "もう行きません。",
+            "is_correct": true
+          },
+          {
+            "text": "もう行き行きました。",
+            "is_correct": false
+          },
+          {
+            "text": "もう一行きません。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "助数詞の誤り：動作の回数には「一回」を用います。「一」だけでは回数を表す接尾辞として機能しません。 助詞の混同：「行きます」の否定形は「行きません」です。「ません」は存在や所有の否定「ありません」の混同です。 活用・アスペクトの誤り：動詞の連用形が重複しており、文法的に成立しません。過去の完了は「行きました」とします。",
+        "target_word": "行っ"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "a2905861-c349-481e-a234-8ead256aa86c",
+      "language_id": 3,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "もう行きません。",
+            "is_correct": true
+          },
+          {
+            "text": "計画は順調に行きません。",
+            "is_correct": true
+          },
+          {
+            "text": "この電車は、大阪へ行きません。",
+            "is_correct": true
+          },
+          {
+            "text": "明日の会議には、どの電車で行きません。",
+            "is_correct": false,
+            "error_description": "「会議には」は目的地ではなく手段や手段の範囲を表すため、移動の帰着点を示す「へ」や「に」ではなく、手段・方法を表す「で」を使うのが適切です。"
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "fc54a1d7-3d9f-4eb8-86c0-1bf6cdf47337",
+      "language_id": 3,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "計画は順調に___ません。",
+        "original_sentence": "計画は順調に行きません。",
+        "target_word": "行き",
+        "word": "行き",
+        "answer": {
+          "accepted": [
+            "行き"
+          ],
+          "accepted_normalized": [
+            "行き"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "ime"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "841a7d75-434e-4388-afd4-c1f216c6cafa",
+      "language_id": 3,
+      "exercise_type": "particle_selection",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "来週、私たちは一緒に東京___行きましょう。",
+        "original_sentence": "来週、私たちは一緒に東京へ行きましょう。",
+        "options": [
+          "へ",
+          "で",
+          "を",
+          "が"
+        ],
+        "correct_answer": "へ",
+        "target_word": "行き",
+        "error_tags": {
+          "を": "object_marking",
+          "が": "topic_vs_subject",
+          "で": "location_vs_target"
+        },
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "移動の方向や着点を示す格助詞「へ」が、動詞「行き」の目的地を正しく標示する"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "particle_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "9bdfa5d4-cb52-44ab-b70f-2c46a6581034",
+      "language_id": 3,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "行き",
+        "relation": "antonym",
+        "options": [
+          "来",
+          "居",
+          "戻り",
+          "止まり"
+        ],
+        "correct_answer": "来",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "ある場所から別の場所へ移動する。また、物事が進む。",
+            "explanation": "対象の場所へ移動する動作を表し、目標語の「行き」と対義関係にある。"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 0,
+          "generated_count": 10
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {}
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 35147,
+      "word_asset_id": "shadow-35147-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 10
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "particle": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '行く' is fused into a neighbouring chunk — chunks=['この切符で', '新宿まで', '行きません']"
+    },
+    {
+      "type_code": "particle_selection",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '行く' is fused into a neighbouring chunk — chunks=['このバスは', 'どのルートを', '経由して', '行きません']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00316032,
+      "prompt_tokens": 2580,
+      "completion_tokens": 1824,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 31915
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00143936,
+      "prompt_tokens": 246,
+      "completion_tokens": 1063,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23011
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00181568,
+      "prompt_tokens": 706,
+      "completion_tokens": 1242,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22126
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core_sentence_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00165184,
+      "prompt_tokens": 402,
+      "completion_tokens": 1190,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "repair",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20975
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00178336,
+      "prompt_tokens": 721,
+      "completion_tokens": 1213,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21470
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00199104,
+      "prompt_tokens": 1634,
+      "completion_tokens": 1147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20466
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0020128,
+      "prompt_tokens": 1638,
+      "completion_tokens": 1163,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 20817
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017808,
+      "prompt_tokens": 821,
+      "completion_tokens": 1186,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21306
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00177312,
+      "prompt_tokens": 817,
+      "completion_tokens": 1181,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 21363
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00189728,
+      "prompt_tokens": 1045,
+      "completion_tokens": 1221,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23069
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_particle_selection_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00199584,
+      "prompt_tokens": 1017,
+      "completion_tokens": 1305,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23303
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00299424,
+      "prompt_tokens": 2649,
+      "completion_tokens": 1677,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 29971
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00321952,
+      "prompt_tokens": 2649,
+      "completion_tokens": 1853,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 32907
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00183904,
+      "prompt_tokens": 743,
+      "completion_tokens": 1251,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22291
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001912,
+      "prompt_tokens": 751,
+      "completion_tokens": 1306,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 22914
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00016548,
+      "prompt_tokens": 373,
+      "completion_tokens": 78,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 2927
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00159104,
+      "prompt_tokens": 592,
+      "completion_tokens": 1095,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 19380
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "qwen/qwen-2.5-72b-instruct",
+      "cost_usd": 0.00015888,
+      "prompt_tokens": 368,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 2409
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_particle",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00165696,
+      "prompt_tokens": 590,
+      "completion_tokens": 1147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 35147,
+      "generation_batch_id": "cc66743a-321d-4b5f-a169-eb5cc5c60f8b",
+      "language_code": "ja",
+      "latency_ms": 23781
+    }
+  ],
+  "llm_calls_observed": 19,
+  "llm_cost_observed_usd": 0.0348386,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 220.18800000008196,
+  "finished_at": "2026-10-05T13:08:50.786639+00:00"
+}

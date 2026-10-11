@@ -1,0 +1,1416 @@
+{
+  "sense_id": 10382,
+  "language_id": 1,
+  "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+  "started_at": "2026-10-05T14:51:14.906506+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.36071157455444336,
+    "p1_generate": 61.90651798248291,
+    "tier_gate": 0.0,
+    "p1_judge": 28.683329343795776,
+    "collocate_grounding": 0.0,
+    "fan_out": 55.322211027145386
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[pu˥˩ tʰʊŋ˧˥]",
+        "morphological_forms": [
+          {
+            "form": "不同",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "bù tóng",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10382
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "861bff9a-737a-421f-848d-d2584ea90532",
+      "language_id": 1,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不同",
+        "pronunciation": "bù tóng",
+        "ipa": "[pu˥˩ tʰʊŋ˧˥]",
+        "syllable_count": 2,
+        "audio_url": null,
+        "options": [
+          "布桶",
+          "不同",
+          "捕虫",
+          "不通"
+        ],
+        "correct_answer": "不同",
+        "explanation": "正确写法。“不同”读作 bù tóng（实际语流中“不”常变调为第二声 bú），表示事物之间有差别。",
+        "distractor_explanations": {
+          "不通": "“通”读第一声 tōng。“不通”指不畅通或不懂得，与“不同”意思和发音均不同。",
+          "布桶": "“桶”读第三声 tǒng。“布桶”指用布做的桶，是具体名词，与表示差别的“不同”无关。",
+          "捕虫": "“捕”读第三声 bǔ，“虫”读第二声 chóng。“捕虫”是捕捉虫子的动作，与“不同”发音和意思都不同。"
+        },
+        "distractor_source": "llm",
+        "hant": {
+          "word": "不同",
+          "pronunciation": "bù tóng",
+          "ipa": "[pu˥˩ tʰʊŋ˧˥]",
+          "syllable_count": 2,
+          "audio_url": null,
+          "options": [
+            "布桶",
+            "不同",
+            "捕蟲",
+            "不通"
+          ],
+          "correct_answer": "不同",
+          "explanation": "正確寫法。“不同”讀作 bù tóng（實際語流中“不”常變調為第二聲 bú），表示事物之間有差別。",
+          "distractor_explanations": {
+            "不通": "“通”讀第一聲 tōng。“不通”指不暢通或不懂得，與“不同”意思和發音均不同。",
+            "布桶": "“桶”讀第三聲 tǒng。“布桶”指用布做的桶，是具體名詞，與表示差別的“不同”無關。",
+            "捕虫": "“捕”讀第三聲 bǔ，“蟲”讀第二聲 chóng。“捕蟲”是捕捉蟲子的動作，與“不同”發音和意思都不同。"
+          },
+          "distractor_source": "llm"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "qwen/qwen3.7-plus",
+          "version": 2
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "a2c2f6c6-4cc8-4f19-ad14-befa5b51b722",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不同",
+        "pronunciation": "bù tóng",
+        "correct_definition": "指事物之间没有共同点，有差别。",
+        "options": [
+          "形容数量或程度上的增加。",
+          "指事物之间没有共同点，有差别。",
+          "指规模很大、人口众多、经济和文化都很发达的城市。",
+          "在预定时间或事情发生之前做好必要的准备工作。"
+        ],
+        "hant": {
+          "word": "不同",
+          "pronunciation": "bù tóng",
+          "correct_definition": "指事物之間沒有共同點，有差別。",
+          "options": [
+            "形容數量或程度上的增加。",
+            "指事物之間沒有共同點，有差別。",
+            "指規模很大、人口眾多、經濟和文化都很發達的城市。",
+            "在預定時間或事情發生之前做好必要的準備工作。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "fd8dd734-65d0-477a-ac25-3f75f5bcd5d6",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "全球化让不同文化的人常见面。",
+            "is_correct": true
+          },
+          {
+            "text": "全球化让的人不同文化常见面。",
+            "is_correct": false
+          },
+          {
+            "text": "全球化让不同文化的人见面常。",
+            "is_correct": false
+          },
+          {
+            "text": "全球化让不同文化的人常见面着。",
+            "is_correct": false
+          }
+        ],
+        "explanation": "体标错误：“见面”是短暂性动作，不能与表示状态持续的“着”连用。 语序错误：定语“不同文化”错位，破坏了“让+宾语+动词”的正常兼语结构。 语序错误：副词“常”错放在动词“见面”之后，应放在动词前作状语。",
+        "target_word": "不同",
+        "hant": {
+          "sentences": [
+            {
+              "text": "全球化讓不同文化的人常見面。",
+              "is_correct": true
+            },
+            {
+              "text": "全球化讓的人不同文化常見面。",
+              "is_correct": false
+            },
+            {
+              "text": "全球化讓不同文化的人見面常。",
+              "is_correct": false
+            },
+            {
+              "text": "全球化讓不同文化的人常見面著。",
+              "is_correct": false
+            }
+          ],
+          "explanation": "體標錯誤：“見面”是短暫性動作，不能與表示狀態持續的“著”連用。 語序錯誤：定語“不同文化”錯位，破壞了“讓+賓語+動詞”的正常兼語結構。 語序錯誤：副詞“常”錯放在動詞“見面”之後，應放在動詞前作狀語。",
+          "target_word": "不同"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b0b88590-c20b-46f6-bd9f-236f3ea8bc45",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "每个国家有了不同规定。",
+            "is_correct": false,
+            "error_description": "体标误用。形容词“不同”表示状态，不需要加动态助词“了”，应直接使用“有”或“是”。"
+          },
+          {
+            "text": "不同地方的人看时间不一样。",
+            "is_correct": true
+          },
+          {
+            "text": "不同地方的人对时间的看法不一样。",
+            "is_correct": true
+          },
+          {
+            "text": "每个国家有不同规定。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "每個國家有了不同規定。",
+              "is_correct": false,
+              "error_description": "體標誤用。形容詞“不同”表示狀態，不需要加動態助詞“了”，應直接使用“有”或“是”。"
+            },
+            {
+              "text": "不同地方的人看時間不一樣。",
+              "is_correct": true
+            },
+            {
+              "text": "不同地方的人對時間的看法不一樣。",
+              "is_correct": true
+            },
+            {
+              "text": "每個國家有不同規定。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "8682f2a8-f9f0-426a-9cd3-f04515497786",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不同",
+        "pronunciation": "bù tóng",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "外部環境；あなたが住む家の外にあるもののように、あなたの周りにあるすべて",
+              "东西变得不干净了。",
+              "friendly",
+              "指事物之间没有共同点，有差别。"
+            ],
+            "correct_answer": "指事物之间没有共同点，有差别。"
+          }
+        },
+        "hant": {
+          "word": "不同",
+          "pronunciation": "bù tóng",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "外部環境；あなたが住む家の外にあるもののように、あなたの周りにあるすべて",
+                "東西變得不乾淨了。",
+                "friendly",
+                "指事物之間沒有共同點，有差別。"
+              ],
+              "correct_answer": "指事物之間沒有共同點，有差別。"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "1ee1e110-6965-4089-bd6f-c04548359eac",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___地方的人对时间的看法不一样。",
+        "original_sentence": "不同地方的人对时间的看法不一样。",
+        "target_word": "不同",
+        "word": "不同",
+        "answer": {
+          "accepted": [
+            "不同"
+          ],
+          "accepted_normalized": [
+            "不同"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "___地方的人對時間的看法不一樣。",
+          "original_sentence": "不同地方的人對時間的看法不一樣。",
+          "target_word": "不同",
+          "word": "不同",
+          "answer": {
+            "accepted": [
+              "不同"
+            ],
+            "accepted_normalized": [
+              "不同"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "e8a1b6a8-4c84-47cb-a25d-9794b84150a9",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "不同",
+        "options": [
+          "bù tōng",
+          "bū tóng",
+          "bù tóng",
+          "bú tóng"
+        ],
+        "correct_answer": "bù tóng",
+        "word": "不同",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "不同",
+          "options": [
+            "bù tōng",
+            "bū tóng",
+            "bù tóng",
+            "bú tóng"
+          ],
+          "correct_answer": "bù tóng",
+          "word": "不同",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "74ef5e80-584a-42c8-b231-34d44a49e4c2",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "bù tóng",
+        "options": [
+          "社会",
+          "不能",
+          "不同",
+          "福祉"
+        ],
+        "correct_answer": "不同",
+        "word": "不同",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "福祉": "component",
+          "社会": "component",
+          "不能": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "bù tóng",
+          "options": [
+            "社會",
+            "不能",
+            "不同",
+            "福祉"
+          ],
+          "correct_answer": "不同",
+          "word": "不同",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "福祉": "component",
+            "社会": "component",
+            "不能": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "a99800a5-95bb-40ee-b2b4-7f6671f71727",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "不同",
+        "toneless_pinyin": "bu tong",
+        "full_pinyin": "bù tóng",
+        "options": [
+          "43",
+          "42",
+          "44",
+          "41"
+        ],
+        "correct_answer": "42",
+        "option_labels": {
+          "43": "falling (4) + dipping (3)",
+          "42": "falling (4) + rising (2)",
+          "44": "falling (4) + falling (4)",
+          "41": "falling (4) + high level (1)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "不同",
+          "toneless_pinyin": "bu tong",
+          "full_pinyin": "bù tóng",
+          "options": [
+            "43",
+            "42",
+            "44",
+            "41"
+          ],
+          "correct_answer": "42",
+          "option_labels": {
+            "43": "falling (4) + dipping (3)",
+            "42": "falling (4) + rising (2)",
+            "44": "falling (4) + falling (4)",
+            "41": "falling (4) + high level (1)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "1d03da26-f432-4ad3-984f-e9fdd32a9b56",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不同",
+        "relation": "antonym",
+        "options": [
+          "相近",
+          "相似",
+          "相同",
+          "类似"
+        ],
+        "correct_answer": "相同",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指事物之间没有共同点，有差别。",
+            "explanation": "反义项：表示事物之间完全一致、无差别，与「不同」构成反义"
+          }
+        },
+        "hant": {
+          "word": "不同",
+          "relation": "antonym",
+          "options": [
+            "相近",
+            "相似",
+            "相同",
+            "類似"
+          ],
+          "correct_answer": "相同",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指事物之間沒有共同點，有差別。",
+              "explanation": "反義項：表示事物之間完全一致、無差別，與「不同」構成反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "相似": 0.69126,
+            "类似": 0.70756
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "03d22887-2b13-4be1-aed4-b9eeab63acc8",
+      "language_id": 1,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "这个过程连接了___国家的农民、公司和普通消费者。",
+        "original_sentence": "这个过程连接了不同国家的农民、公司和普通消费者。",
+        "correct_answer": "不同",
+        "options": [
+          "个别",
+          "一致",
+          "相反",
+          "不同"
+        ],
+        "explanation": "正确。'不同'修饰'国家'，表示国家之间存在差异，符合语境。",
+        "distractor_tags": {},
+        "word_definition": "指事物之间没有共同点，有差别。",
+        "target_word": "不同",
+        "hant": {
+          "sentence_with_blank": "這個過程連線了___國家的農民、公司和普通消費者。",
+          "original_sentence": "這個過程連線了不同國家的農民、公司和普通消費者。",
+          "correct_answer": "不同",
+          "options": [
+            "個別",
+            "一致",
+            "相反",
+            "不同"
+          ],
+          "explanation": "正確。'不同'修飾'國家'，表示國家之間存在差異，符合語境。",
+          "distractor_tags": {},
+          "word_definition": "指事物之間沒有共同點，有差別。",
+          "target_word": "不同"
+        }
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "deepseek/deepseek-chat",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "c2d84e9d-ba4c-4236-9c57-cdf6e11ba3ee",
+      "language_id": 1,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "地方不同的有不同的记谱法。",
+            "is_correct": false
+          },
+          {
+            "text": "不同的地方有不同的记谱法起来。",
+            "is_correct": false
+          },
+          {
+            "text": "不同的地方有不同的记谱法着。",
+            "is_correct": false
+          },
+          {
+            "text": "不同的地方有不同的记谱法。",
+            "is_correct": true
+          }
+        ],
+        "explanation": "体标位置错误：动态助词'着'表示动作持续或状态保持，不能放在名词性短语'记谱法'之后。 语序错误：'不同的'作为定语必须放在中心语'地方'之前，错位破坏了'主题—评论'结构。 方向补语误用：'起来'表示动作开始或向上，不能附加在表示客观存在的名词性成分'记谱法'之后。",
+        "target_word": "不同",
+        "hant": {
+          "sentences": [
+            {
+              "text": "地方不同的有不同的記譜法。",
+              "is_correct": false
+            },
+            {
+              "text": "不同的地方有不同的記譜法起來。",
+              "is_correct": false
+            },
+            {
+              "text": "不同的地方有不同的記譜法著。",
+              "is_correct": false
+            },
+            {
+              "text": "不同的地方有不同的記譜法。",
+              "is_correct": true
+            }
+          ],
+          "explanation": "體標位置錯誤：動態助詞'著'表示動作持續或狀態保持，不能放在名詞性短語'記譜法'之後。 語序錯誤：'不同的'作為定語必須放在中心語'地方'之前，錯位破壞了'主題—評論'結構。 方向補語誤用：'起來'表示動作開始或向上，不能附加在表示客觀存在的名詞性成分'記譜法'之後。",
+          "target_word": "不同"
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "6568d895-655b-42e9-a661-4064b0f3453f",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "不同国家采取了不同的监管方法。",
+            "is_correct": true
+          },
+          {
+            "text": "不同的地方有不同的记谱法。",
+            "is_correct": true
+          },
+          {
+            "text": "不同以前，他现在每天坚持早起锻炼。",
+            "is_correct": false,
+            "error_description": "语序错误。“不同”作为形容词，不能直接放在名词或代词前作状语。应改为“和……不同”或“不同于……”。"
+          },
+          {
+            "text": "这个过程连接了不同国家的农民、公司和普通消费者。",
+            "is_correct": true
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "不同國家採取了不同的監管方法。",
+              "is_correct": true
+            },
+            {
+              "text": "不同的地方有不同的記譜法。",
+              "is_correct": true
+            },
+            {
+              "text": "不同以前，他現在每天堅持早起鍛鍊。",
+              "is_correct": false,
+              "error_description": "語序錯誤。“不同”作為形容詞，不能直接放在名詞或代詞前作狀語。應改為“和……不同”或“不同於……”。"
+            },
+            {
+              "text": "這個過程連線了不同國家的農民、公司和普通消費者。",
+              "is_correct": true
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 0.8
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "35a447ac-eae9-40c9-85b1-31228ff1e916",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___国家采取了不同的监管方法。",
+        "original_sentence": "不同国家采取了不同的监管方法。",
+        "target_word": "不同",
+        "word": "不同",
+        "answer": {
+          "accepted": [
+            "不同"
+          ],
+          "accepted_normalized": [
+            "不同"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "___國家採取了不同的監管方法。",
+          "original_sentence": "不同國家採取了不同的監管方法。",
+          "target_word": "不同",
+          "word": "不同",
+          "answer": {
+            "accepted": [
+              "不同"
+            ],
+            "accepted_normalized": [
+              "不同"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "506cf7c1-8ea8-4756-b119-a7fed3ff4c6c",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "不同",
+        "relation": "antonym",
+        "options": [
+          "相似",
+          "独立",
+          "相同",
+          "相关"
+        ],
+        "correct_answer": "相同",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "指事物之间没有共同点，有差别。",
+            "explanation": "反义项：事物之间没有差别，有共同点"
+          }
+        },
+        "hant": {
+          "word": "不同",
+          "relation": "antonym",
+          "options": [
+            "相似",
+            "獨立",
+            "相同",
+            "相關"
+          ],
+          "correct_answer": "相同",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "指事物之間沒有共同點，有差別。",
+              "explanation": "反義項：事物之間沒有差別，有共同點"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "形容词",
+        "variant": "B",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined",
+            "mined"
+          ],
+          "mined_count": 10,
+          "generated_count": 0
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "相似": 0.69126,
+            "相关": 0.500212
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10382,
+      "word_asset_id": "shadow-10382-prompt1_core",
+      "ladder_level": 6
+    }
+  ],
+  "judges": {
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "relation": {
+      "ran": 2,
+      "rejected": 0,
+      "kept": 6
+    },
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '不同' is fused into a neighbouring chunk — chunks=['”她的意思是', '不同种类的植物', '和动物', '可以一起', '生活', '大自然才会健康']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '不同' is fused into a neighbouring chunk — chunks=['全球化', '让不同文化的人', '常见面']"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0029568,
+      "prompt_tokens": 2596,
+      "completion_tokens": 1661,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 39662
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00175584,
+      "prompt_tokens": 647,
+      "completion_tokens": 1210,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 28510
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00189792,
+      "prompt_tokens": 1439,
+      "completion_tokens": 1123,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 23278
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00267968,
+      "prompt_tokens": 1658,
+      "completion_tokens": 1679,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 30956
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00170816,
+      "prompt_tokens": 634,
+      "completion_tokens": 1176,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 37843
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00191424,
+      "prompt_tokens": 1442,
+      "completion_tokens": 1135,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 38971
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00270016,
+      "prompt_tokens": 1658,
+      "completion_tokens": 1695,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 40758
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00167328,
+      "prompt_tokens": 633,
+      "completion_tokens": 1149,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 36652
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001646802,
+      "prompt_tokens": 392,
+      "completion_tokens": 62,
+      "cached_tokens": 64,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2539
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001639098,
+      "prompt_tokens": 397,
+      "completion_tokens": 60,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10382,
+      "generation_batch_id": "fb48f46d-9291-47be-8436-7b118f076520",
+      "language_code": "zh",
+      "latency_ms": 2425
+    }
+  ],
+  "llm_calls_observed": 10,
+  "llm_cost_observed_usd": 0.01761467,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 154.5470000000205,
+  "finished_at": "2026-10-05T14:53:49.451898+00:00"
+}

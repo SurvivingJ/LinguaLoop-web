@@ -1,0 +1,39 @@
+=== 2026-10-08T20:25:02+11:00 START en A limit=0
+[plan] L2=en L1=zh fixture-set=v5 items=30 (clean 10 / single 15 / multi 5) framework=v2
+[resume] loaded 0 graded + 0 skipped from data/eval/dt_v6_gate_2026-10-08/en_A.ckpt.jsonl
+[1/30] en_clean_01 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[2/30] en_clean_02 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[3/30] en_clean_03 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[4/30] en_clean_04 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[5/30] en_clean_05 kind=clean pred_errors=0 tier=tier0 fell_open=None
+[6/30] en_clean_06 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[7/30] en_clean_07 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[8/30] en_clean_08 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[9/30] en_clean_09 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[10/30] en_clean_10 kind=clean pred_errors=0 tier=tier2 fell_open=False
+[11/30] en_seed_01 kind=single pred_errors=1 tier=tier2 fell_open=False
+[12/30] en_seed_02 kind=single pred_errors=1 tier=tier2 fell_open=False
+[13/30] en_seed_03 kind=single pred_errors=1 tier=tier2 fell_open=False
+[14/30] en_seed_04 kind=single pred_errors=1 tier=tier2 fell_open=False
+[15/30] en_seed_05 kind=single pred_errors=1 tier=tier2 fell_open=False
+[16/30] en_seed_06 kind=single pred_errors=0 tier=tier2 fell_open=False
+[17/30] en_seed_07 kind=single pred_errors=1 tier=tier2 fell_open=False
+[18/30] en_seed_08 kind=single pred_errors=1 tier=tier2 fell_open=False
+2026-10-08 20:26:05,999 - WARNING - dual_translation.grader_cascade: verifier response from 'google/gemini-3.5-flash-lite' was not valid JSON (Extra data: line 1 column 335 (char 334)): '```json\n{"confidence": "1.0", "verdicts": [{"error_index": 0, "verdict": 0, "severity": 0, "subtype": 12, "span_repro": [58, 62], "span_ref": [58, 63]}], "added_errors": [], "judgments": {"naturalne
+[19/30] en_seed_09 kind=single pred_errors=1 tier=tier2 fell_open=True
+[20/30] en_seed_10 kind=single pred_errors=1 tier=tier2 fell_open=False
+[21/30] en_seed_11 kind=single pred_errors=1 tier=tier2 fell_open=False
+[22/30] en_seed_12 kind=single pred_errors=1 tier=tier2 fell_open=False
+[23/30] en_seed_13 kind=single pred_errors=1 tier=tier2 fell_open=False
+[24/30] en_seed_14 kind=single pred_errors=1 tier=tier2 fell_open=False
+[25/30] en_seed_15 kind=single pred_errors=1 tier=tier2 fell_open=False
+[26/30] en_multi_01 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[27/30] en_multi_02 kind=multi pred_errors=3 tier=tier2 fell_open=False
+[28/30] en_multi_03 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[29/30] en_multi_04 kind=multi pred_errors=2 tier=tier2 fell_open=False
+[30/30] en_multi_05 kind=multi pred_errors=2 tier=tier2 fell_open=False
+
+[done] wrote data/eval/dt_v6_gate_2026-10-08/en_A.md
+  span F1=0.923  clean FP rate=0.000  overall QWK=0.695  cost=$0.0461
+  meaning_inversion recall=n/a  exemplar drops=0  no-template lines=0
+=== 2026-10-08T20:26:58+11:00 END en A rc=0

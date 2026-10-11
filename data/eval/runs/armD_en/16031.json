@@ -1,0 +1,1335 @@
+{
+  "sense_id": 16031,
+  "language_id": 2,
+  "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+  "started_at": "2026-10-05T23:07:24.087318+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.1621551513671875,
+    "p1_generate": 2.860553503036499,
+    "tier_gate": 0.0030164718627929688,
+    "p1_judge": 1.3107936382293701,
+    "collocate_grounding": 0.0,
+    "fan_out": 42.796205043792725
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "google/gemini-3.5-flash-lite",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "/ˈwɔːtərlɒɡ/",
+        "morphological_forms": [
+          {
+            "form": "waterlog",
+            "label": "base form"
+          },
+          {
+            "form": "waterlogs",
+            "label": "third-person singular present"
+          },
+          {
+            "form": "waterlogged",
+            "label": "past tense / past participle"
+          },
+          {
+            "form": "waterlogging",
+            "label": "present participle"
+          }
+        ],
+        "pronunciation": "WAW-ter-log",
+        "register": "neutral"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            16031
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "360421ac-dd08-4c1a-af3f-fdc8fa321556",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "waterlogged",
+        "pronunciation": "WAW-ter-log",
+        "correct_definition": "To make something so full of water that it becomes extremely heavy and cannot float.",
+        "options": [
+          "The speed at which something moves or happens.",
+          "A structure with walls and a roof, such as a house, school, or office.",
+          "To make something so full of water that it becomes extremely heavy and cannot float.",
+          "Relating to the calculation of the quantities of substances involved in chemical reactions."
+        ]
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "19042490-7fb4-4b42-b58a-ba34472aad92",
+      "language_id": 2,
+      "exercise_type": "cloze_completion",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The compost pile should maintain a consistency akin to a wrung-out sponge – moist but not ___.",
+        "original_sentence": "The compost pile should maintain a consistency akin to a wrung-out sponge – moist but not waterlogged.",
+        "correct_answer": "waterlogged",
+        "options": [
+          "waterlogged",
+          "compacted",
+          "fertilized",
+          "desiccated"
+        ],
+        "explanation": "Correct: Fits the context perfectly, describing soil that has absorbed too much water and lost its proper sponge-like consistency.",
+        "distractor_tags": {},
+        "word_definition": "To make something so full of water that it becomes extremely heavy and cannot float.",
+        "target_word": "waterlogged"
+      },
+      "tags": {
+        "ladder_level": 3,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "cloze_judge": {
+          "rejected": 0,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 3
+    },
+    {
+      "id": "32c973d7-c122-4a97-a371-50250d13ef81",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "Heavy rains will ___ the soil if the garden lacks proper drainage.",
+        "original_sentence": "Heavy rains will waterlog the soil if the garden lacks proper drainage.",
+        "correct_answer": "waterlog",
+        "base_form": "waterlog",
+        "form_label": "base form",
+        "options": [
+          "waterlogs",
+          "waterlog",
+          "waterlogged",
+          "waterlogging"
+        ],
+        "explanation": "base form required after the modal auxiliary 'will'",
+        "word_definition": "To make something so full of water that it becomes extremely heavy and cannot float.",
+        "target_word": "waterlog"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "3e55f225-2e14-41c4-80f1-7494cd97becb",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "She waterlogged the dry sponge by squeezing all the water out of it.",
+            "is_correct": false
+          },
+          {
+            "text": "The baker waterlogged the flour to make the pastry crust extra crispy.",
+            "is_correct": false
+          },
+          {
+            "text": "The dry desert sun will quickly waterlogged the cracked earth.",
+            "is_correct": false
+          },
+          {
+            "text": "If you leave the wooden blocks outside overnight, the morning dew might waterlog them.",
+            "is_correct": true
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: 'Waterlogged' implies an excess of water, which contradicts the context of a dry desert sun and cracked earth. Semantically inappropriate: Squeezing water out of a sponge makes it dry, which is the exact opposite of the definition of waterlogging. Pragmatically inappropriate: Adding excess water to flour makes dough heavy and soggy, which would ruin a crispy pastry crust rather than create one.",
+        "target_word": "waterlog"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "b8a4ac94-31c0-4ce5-9115-54d366ce642a",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The continuous downpour began to waterlog our tent during the camping trip.",
+            "is_correct": true
+          },
+          {
+            "text": "The continuous downpour began to waterlogged our tent during the camping trip.",
+            "is_correct": false,
+            "error_description": "The infinitive marker 'to' must be followed by the base form of the verb ('waterlog'), not the past tense or past participle form ('waterlogged')."
+          },
+          {
+            "text": "The compost pile should maintain a consistency akin to a wrung-out sponge – moist but not waterlogged.",
+            "is_correct": true
+          },
+          {
+            "text": "Heavy rains will waterlog the soil if the garden lacks proper drainage.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "b4684f65-f592-4fd4-859b-da9494e3304d",
+      "language_id": 2,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "waterlogged",
+        "pronunciation": "WAW-ter-log",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "An area of public land with grass and trees for people to enjoy; as a verb, to leave a vehicle somewhere for a time.",
+              "To make something so full of water that it becomes extremely heavy and cannot float.",
+              "to decide or find out something",
+              "Service is when you help someone or do a job for them."
+            ],
+            "correct_answer": "To make something so full of water that it becomes extremely heavy and cannot float."
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "36916864-42d5-4afa-a146-3cd2556de42b",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "Heavy rains will ___ the soil if the garden lacks proper drainage.",
+        "original_sentence": "Heavy rains will waterlog the soil if the garden lacks proper drainage.",
+        "target_word": "waterlog",
+        "word": "waterlogged",
+        "answer": {
+          "accepted": [
+            "waterlog"
+          ],
+          "accepted_normalized": [
+            "waterlog"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "bdea6f59-47c7-4144-9097-76c3a87748e3",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "Excessive watering can waterlog potted plants and cause their roots to rot.",
+        "chunks": [
+          "Excessive watering",
+          "can waterlog",
+          "potted plants",
+          "and cause their roots to rot"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "can waterlog",
+          "Excessive watering",
+          "potted plants",
+          "and cause their roots to rot"
+        ],
+        "target_word": "waterlog",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 9
+    },
+    {
+      "id": "f62bf07d-0544-4d0f-ae40-188b74a06481",
+      "language_id": 2,
+      "exercise_type": "word_family",
+      "source_type": "vocabulary",
+      "content": {
+        "stem": "waterlog",
+        "sentence_with_blank": "Heavy rains will ___ the soil if the garden lacks proper drainage.",
+        "original_sentence": "Heavy rains will waterlog the soil if the garden lacks proper drainage.",
+        "required_pos": "adjective",
+        "options": [
+          "waterlogation",
+          "waterlogged",
+          "waterlogment",
+          "waterlogive"
+        ],
+        "correct_answer": "waterlogged",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "explanation": "the established adjectival participle meaning saturated with water"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "word_family_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "dictionary_rejected": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "eccf1e69-ddd1-4186-8b41-bb62794dc72b",
+      "language_id": 2,
+      "exercise_type": "phonetic_recognition",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "waterlogged",
+        "pronunciation": "WAW-ter-log",
+        "ipa": "/ˈwɔːtərlɒɡ/",
+        "syllable_count": 3,
+        "audio_url": null,
+        "options": [
+          "waddled",
+          "waterfowl",
+          "wattled",
+          "waterlogged"
+        ],
+        "correct_answer": "waterlogged",
+        "explanation": "Correct: This is the exact target word spoken in the audio.",
+        "distractor_explanations": {
+          "waddled": "Minimal pair: Differs in the middle consonant cluster (/tər/ vs /d/) and the final syllable (/ɒɡd/ vs /əld/).",
+          "waterfowl": "Near-homophone: Shares the initial /ˈwɔːtər/ sound but ends with /faʊl/ instead of /lɒɡd/.",
+          "wattled": "Rhyme/Near-homophone: Shares the same stress and syllable count, but starts with /wɒ/ and ends with /əld/."
+        },
+        "distractor_source": "llm"
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "l1_distractor_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "model": "google/gemini-3.5-flash-lite",
+          "version": 1
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "fc387830-088d-451a-b40b-089a42f761ae",
+      "language_id": 2,
+      "exercise_type": "morphology_slot",
+      "source_type": "vocabulary",
+      "content": {
+        "sentence_with_blank": "The storm surge threatened to ___ the low-lying coastal meadows.",
+        "original_sentence": "The storm surge threatened to waterlog the low-lying coastal meadows.",
+        "correct_answer": "waterlog",
+        "base_form": "waterlog",
+        "form_label": "bare infinitive",
+        "options": [
+          "waterlogs",
+          "waterlog",
+          "waterlogging",
+          "waterlogged"
+        ],
+        "explanation": "bare infinitive is required after the infinitive marker 'to'",
+        "word_definition": "To make something so full of water that it becomes extremely heavy and cannot float.",
+        "target_word": "waterlog"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "d3963225-324f-44ef-8736-bf497cc4b4be",
+      "language_id": 2,
+      "exercise_type": "semantic_discrimination",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The firefighters used the special foam to waterlog the electrical fire and put it out quickly.",
+            "is_correct": false
+          },
+          {
+            "text": "Farmers worried that the melting snow would waterlog their newly planted fields.",
+            "is_correct": true
+          },
+          {
+            "text": "The dry desert sand began to waterlog after just a few minutes under the blazing, cloudless sun.",
+            "is_correct": false
+          },
+          {
+            "text": "The baker carefully waterlogged the delicate flour and sugar to ensure the cake would rise perfectly in the oven.",
+            "is_correct": false
+          }
+        ],
+        "explanation": "Pragmatically inappropriate: Desert sand under a blazing sun cannot become waterlogged because there is no water source to saturate it. Semantically inappropriate: Waterlogging implies ruining something by making it heavy and soggy, which contradicts the goal of baking a light, perfectly risen cake. Semantically inappropriate: Water or waterlogging is never used to extinguish electrical fires due to the risk of electrocution; specialized non-conductive agents are required.",
+        "target_word": "waterlog"
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": []
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "2b2bcb5e-72a3-4600-88d3-5c6db56c4d73",
+      "language_id": 2,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "The storm surge threatened to waterlog the low-lying coastal meadows.",
+            "is_correct": true
+          },
+          {
+            "text": "The excessive irrigation waterlogged to the potted plants and caused their roots to rot.",
+            "is_correct": false,
+            "error_description": "The verb 'waterlog' is transitive in this context and requires a direct object. The preposition 'to' is incorrectly inserted between the verb and its object."
+          },
+          {
+            "text": "We watched the cardboard box waterlog and collapse under the heavy rain.",
+            "is_correct": true
+          },
+          {
+            "text": "Farmers worried that the melting snow would waterlog their newly planted fields.",
+            "is_correct": true
+          }
+        ]
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 5.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "86165182-19af-40da-9f09-74b017618bfe",
+      "language_id": 2,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "The storm surge threatened to ___ the low-lying coastal meadows.",
+        "original_sentence": "The storm surge threatened to waterlog the low-lying coastal meadows.",
+        "target_word": "waterlog",
+        "word": "waterlogged",
+        "answer": {
+          "accepted": [
+            "waterlog"
+          ],
+          "accepted_normalized": [
+            "waterlog"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": null
+        },
+        "input_mode": "text"
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "79252d48-3235-4074-a363-c9b0272af009",
+      "language_id": 2,
+      "exercise_type": "jumbled_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "original_sentence": "If you leave the wooden blocks outside overnight, the morning dew might waterlog them.",
+        "chunks": [
+          "If you leave the wooden blocks outside overnight",
+          "the morning dew",
+          "might waterlog",
+          "them"
+        ],
+        "correct_ordering": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "shuffled_chunks": [
+          "If you leave the wooden blocks outside overnight",
+          "them",
+          "might waterlog",
+          "the morning dew"
+        ],
+        "target_word": "waterlog",
+        "chunk_count": 4
+      },
+      "tags": {
+        "ladder_level": 9,
+        "semantic_class": "action_verb",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 1,
+          "generated_count": 9
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 16031,
+      "word_asset_id": "shadow-16031-prompt1_core",
+      "ladder_level": 9
+    }
+  ],
+  "judges": {
+    "cloze": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 0
+    },
+    "sentence_validity": {
+      "ran": 4,
+      "rejected": 0,
+      "kept": 8
+    },
+    "word_family": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "l1_distractor": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    },
+    {
+      "type_code": "word_family",
+      "reason": "no generated asset for this variant"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0022516,
+      "prompt_tokens": 1947,
+      "completion_tokens": 667,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 2728
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0006399,
+      "prompt_tokens": 683,
+      "completion_tokens": 174,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1232
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00153312,
+      "prompt_tokens": 663,
+      "completion_tokens": 1032,
+      "cached_tokens": 0,
+      "reasoning_tokens": 824,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18891
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185632,
+      "prompt_tokens": 1213,
+      "completion_tokens": 1147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20608
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00185248,
+      "prompt_tokens": 1209,
+      "completion_tokens": 1145,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20719
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001768,
+      "prompt_tokens": 865,
+      "completion_tokens": 1165,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21117
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_l4_morphology_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001824,
+      "prompt_tokens": 864,
+      "completion_tokens": 1209,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 21464
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.001776,
+      "prompt_tokens": 666,
+      "completion_tokens": 1221,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 22027
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00271456,
+      "prompt_tokens": 1627,
+      "completion_tokens": 1714,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 30382
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00274912,
+      "prompt_tokens": 1627,
+      "completion_tokens": 1741,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 31356
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015888,
+      "prompt_tokens": 829,
+      "completion_tokens": 1034,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 18801
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_word_family_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00173312,
+      "prompt_tokens": 828,
+      "completion_tokens": 1147,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 20504
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003351,
+      "prompt_tokens": 417,
+      "completion_tokens": 84,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1012
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003547,
+      "prompt_tokens": 399,
+      "completion_tokens": 94,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 927
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003923,
+      "prompt_tokens": 491,
+      "completion_tokens": 98,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1030
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0001889,
+      "prompt_tokens": 388,
+      "completion_tokens": 29,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 854
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004499,
+      "prompt_tokens": 533,
+      "completion_tokens": 116,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1015
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_word_family",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000444,
+      "prompt_tokens": 505,
+      "completion_tokens": 117,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1053
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.000392,
+      "prompt_tokens": 415,
+      "completion_tokens": 107,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1076
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003451,
+      "prompt_tokens": 392,
+      "completion_tokens": 91,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1037
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0003942,
+      "prompt_tokens": 514,
+      "completion_tokens": 96,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 1243
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0002014,
+      "prompt_tokens": 388,
+      "completion_tokens": 34,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 820
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "google/gemini-3.5-flash-lite",
+      "cost_usd": 0.0004521,
+      "prompt_tokens": 532,
+      "completion_tokens": 117,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 16031,
+      "generation_batch_id": "bc2cb279-a340-46f0-aad1-b65fe8c8e2bd",
+      "language_code": "en",
+      "latency_ms": 922
+    }
+  ],
+  "llm_calls_observed": 23,
+  "llm_cost_observed_usd": 0.02623672000000001,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T5",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 59.71900000004098,
+  "finished_at": "2026-10-05T23:08:23.808591+00:00"
+}

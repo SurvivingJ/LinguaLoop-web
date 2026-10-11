@@ -1,0 +1,1057 @@
+{
+  "sense_id": 10125,
+  "language_id": 1,
+  "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+  "started_at": "2026-10-05T21:22:56.383191+00:00",
+  "status": "success",
+  "errors": [],
+  "warnings": [],
+  "stage_seconds": {
+    "fetch_corpus": 0.2897369861602783,
+    "p1_generate": 29.641780376434326,
+    "tier_gate": 0.0,
+    "p1_judge": 21.986788988113403,
+    "collocate_grounding": 0.0,
+    "fan_out": 31.16316294670105
+  },
+  "assets": [
+    {
+      "asset_type": "prompt1_core",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_A",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_A",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt2_exercises_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "prompt3_transforms_B",
+      "is_valid": true,
+      "model_used": "qwen/qwen3.7-plus",
+      "validation_errors": null,
+      "validation_warnings": null
+    },
+    {
+      "asset_type": "llm_types_B",
+      "is_valid": true,
+      "model_used": "per-type (see prompt_templates)",
+      "validation_errors": null,
+      "validation_warnings": null
+    }
+  ],
+  "metadata_updates": [
+    {
+      "table": "dim_word_senses",
+      "payload": {
+        "ipa_pronunciation": "[tʂən˥ ʈʂəŋ˥˩]",
+        "morphological_forms": [
+          {
+            "form": "真正",
+            "label": "繁体"
+          }
+        ],
+        "pronunciation": "zhēn zhèng",
+        "register": "中性"
+      },
+      "filters": [
+        [
+          "eq",
+          [
+            "id",
+            10125
+          ],
+          {}
+        ]
+      ]
+    }
+  ],
+  "exercise_rows": [
+    {
+      "id": "5709a288-2f54-4b1b-a833-0f561ce68050",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "真正",
+        "pronunciation": "zhēn zhèng",
+        "correct_definition": "确实；表示所说的话是真实的",
+        "options": [
+          "生产或制造过程中使用的材料或原料。",
+          "确实；表示所说的话是真实的",
+          "泥，指由水和土混合而成的柔软物质，常用于建筑或陶艺。",
+          "一种物体遮住另一种物体，使其不被看到或接触到。"
+        ],
+        "hant": {
+          "word": "真正",
+          "pronunciation": "zhēn zhèng",
+          "correct_definition": "確實；表示所說的話是真實的",
+          "options": [
+            "生產或製造過程中使用的材料或原料。",
+            "確實；表示所說的話是真實的",
+            "泥，指由水和土混合而成的柔軟物質，常用於建築或陶藝。",
+            "一種物體遮住另一種物體，使其不被看到或接觸到。"
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "14145624-e104-48e5-9e24-41f2c05db645",
+      "language_id": 1,
+      "exercise_type": "definition_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "真正",
+        "pronunciation": "zhēn zhèng",
+        "tier": "T3",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "options": [
+              "located at",
+              "応用する",
+              "确实；表示所说的话是真实的",
+              "識別標識"
+            ],
+            "correct_answer": "确实；表示所说的话是真实的"
+          }
+        },
+        "hant": {
+          "word": "真正",
+          "pronunciation": "zhēn zhèng",
+          "tier": "T3",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "options": [
+                "located at",
+                "応用する",
+                "確實；表示所說的話是真實的",
+                "識別標識"
+              ],
+              "correct_answer": "確實；表示所說的話是真實的"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 2,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 2
+    },
+    {
+      "id": "921ee875-8a1c-4183-9743-f3731f60fd8c",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "___的可持续性，不仅依赖材料本身的创新，更需配套的分类回收基础设施、政策法规与公众认知协同演进。",
+        "original_sentence": "真正的可持续性，不仅依赖材料本身的创新，更需配套的分类回收基础设施、政策法规与公众认知协同演进。",
+        "target_word": "真正",
+        "word": "真正",
+        "answer": {
+          "accepted": [
+            "真正"
+          ],
+          "accepted_normalized": [
+            "真正"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "___的可持續性，不僅依賴材料本身的創新，更需配套的分類回收基礎設施、政策法規與公眾認知協同演進。",
+          "original_sentence": "真正的可持續性，不僅依賴材料本身的創新，更需配套的分類回收基礎設施、政策法規與公眾認知協同演進。",
+          "target_word": "真正",
+          "word": "真正",
+          "answer": {
+            "accepted": [
+              "真正"
+            ],
+            "accepted_normalized": [
+              "真正"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 4
+    },
+    {
+      "id": "5a8a4118-5c18-4fca-89ba-9637f33b7e32",
+      "language_id": 1,
+      "exercise_type": "hanzi_to_pinyin",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "真正",
+        "options": [
+          "zhēn zhēng",
+          "zhēn zhéng",
+          "zhén zhèng",
+          "zhēn zhèng"
+        ],
+        "correct_answer": "zhēn zhèng",
+        "word": "真正",
+        "direction": "hanzi_to_pinyin",
+        "hant": {
+          "schema_version": 2,
+          "prompt": "真正",
+          "options": [
+            "zhēn zhēng",
+            "zhēn zhéng",
+            "zhén zhèng",
+            "zhēn zhèng"
+          ],
+          "correct_answer": "zhēn zhèng",
+          "word": "真正",
+          "direction": "hanzi_to_pinyin"
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "84b57626-896f-49f7-b132-60ac00e3cf29",
+      "language_id": 1,
+      "exercise_type": "pinyin_to_hanzi",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "prompt": "zhēn zhèng",
+        "options": [
+          "真正",
+          "正是",
+          "跟着",
+          "肯定"
+        ],
+        "correct_answer": "真正",
+        "word": "真正",
+        "direction": "pinyin_to_hanzi",
+        "distractor_sources": {
+          "肯定": "component",
+          "正是": "component",
+          "跟着": "component"
+        },
+        "hant": {
+          "schema_version": 2,
+          "prompt": "zhēn zhèng",
+          "options": [
+            "真正",
+            "正是",
+            "跟著",
+            "肯定"
+          ],
+          "correct_answer": "真正",
+          "word": "真正",
+          "direction": "pinyin_to_hanzi",
+          "distractor_sources": {
+            "肯定": "component",
+            "正是": "component",
+            "跟着": "component"
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "84691c8f-4039-4a42-9844-1fc7fff6e8d8",
+      "language_id": 1,
+      "exercise_type": "tone_id_word",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "word": "真正",
+        "toneless_pinyin": "zhen zheng",
+        "full_pinyin": "zhēn zhèng",
+        "options": [
+          "12",
+          "11",
+          "14",
+          "13"
+        ],
+        "correct_answer": "14",
+        "option_labels": {
+          "12": "high level (1) + rising (2)",
+          "11": "high level (1) + high level (1)",
+          "14": "high level (1) + falling (4)",
+          "13": "high level (1) + dipping (3)"
+        },
+        "syllable_count": 2,
+        "hant": {
+          "schema_version": 2,
+          "word": "真正",
+          "toneless_pinyin": "zhen zheng",
+          "full_pinyin": "zhēn zhèng",
+          "options": [
+            "12",
+            "11",
+            "14",
+            "13"
+          ],
+          "correct_answer": "14",
+          "option_labels": {
+            "12": "high level (1) + rising (2)",
+            "11": "high level (1) + high level (1)",
+            "14": "high level (1) + falling (4)",
+            "13": "high level (1) + dipping (3)"
+          },
+          "syllable_count": 2
+        }
+      },
+      "tags": {
+        "ladder_level": 1,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 1
+    },
+    {
+      "id": "0655f204-381b-46c0-a5ee-a07516410431",
+      "language_id": 1,
+      "exercise_type": "synonym_antonym_match",
+      "source_type": "vocabulary",
+      "content": {
+        "word": "真正",
+        "relation": "antonym",
+        "options": [
+          "果然",
+          "确实",
+          "虚假",
+          "其实"
+        ],
+        "correct_answer": "虚假",
+        "schema_version": 2,
+        "nl": {
+          "en": {
+            "definition": "确实；表示所说的话是真实的",
+            "explanation": "反义：「真正」表确实真实，「虚假」表不真实、伪造，二者在「真/假」义上构成反义"
+          }
+        },
+        "hant": {
+          "word": "真正",
+          "relation": "antonym",
+          "options": [
+            "果然",
+            "確實",
+            "虛假",
+            "其實"
+          ],
+          "correct_answer": "虛假",
+          "schema_version": 2,
+          "nl": {
+            "en": {
+              "definition": "確實；表示所說的話是真實的",
+              "explanation": "反義：「真正」表確實真實，「虛假」表不真實、偽造，二者在「真/假」義上構成反義"
+            }
+          }
+        }
+      },
+      "tags": {
+        "ladder_level": 6,
+        "semantic_class": "副词",
+        "variant": "A",
+        "generator": "llm_typed",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "relation_judge": {
+          "rejected": 0,
+          "kept": 3,
+          "rejected_items": [],
+          "relation": "antonym",
+          "model": "qwen/qwen3.7-plus",
+          "version": 2,
+          "band_rejected": [],
+          "band_scores": {
+            "其实": 0.73069
+          }
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 6
+    },
+    {
+      "id": "cdc96409-5612-4a01-8ba4-1286857deb86",
+      "language_id": 1,
+      "exercise_type": "spot_incorrect_sentence",
+      "source_type": "vocabulary",
+      "content": {
+        "sentences": [
+          {
+            "text": "这才是真正的快乐。",
+            "is_correct": true
+          },
+          {
+            "text": "我想去真正的森林里看看。",
+            "is_correct": true
+          },
+          {
+            "text": "我真正喜欢这首歌。",
+            "is_correct": true
+          },
+          {
+            "text": "我真正喜欢了这首歌。",
+            "is_correct": false,
+            "error_description": "体标位置错误。副词“真正”修饰心理动词“喜欢”时，表示一种真实的状态或程度，通常不与表示完成的动态助词“了”连用，应去掉“了”。"
+          }
+        ],
+        "hant": {
+          "sentences": [
+            {
+              "text": "這才是真正的快樂。",
+              "is_correct": true
+            },
+            {
+              "text": "我想去真正的森林裡看看。",
+              "is_correct": true
+            },
+            {
+              "text": "我真正喜歡這首歌。",
+              "is_correct": true
+            },
+            {
+              "text": "我真正喜歡了這首歌。",
+              "is_correct": false,
+              "error_description": "體標位置錯誤。副詞“真正”修飾心理動詞“喜歡”時，表示一種真實的狀態或程度，通常不與表示完成的動態助詞“了”連用，應去掉“了”。"
+            }
+          ]
+        }
+      },
+      "tags": {
+        "ladder_level": 7,
+        "semantic_class": "副词",
+        "variant": "B",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        },
+        "sentence_validity_judge": {
+          "rejected": 0,
+          "kept": 1,
+          "verdict": "accept",
+          "confidence": 4.0
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 7
+    },
+    {
+      "id": "cc4a8a3b-c589-418a-b7a2-4ef49b2e0ec2",
+      "language_id": 1,
+      "exercise_type": "cloze_typed",
+      "source_type": "vocabulary",
+      "content": {
+        "schema_version": 2,
+        "sentence_with_blank": "这才是___的快乐。",
+        "original_sentence": "这才是真正的快乐。",
+        "target_word": "真正",
+        "word": "真正",
+        "answer": {
+          "accepted": [
+            "真正"
+          ],
+          "accepted_normalized": [
+            "真正"
+          ]
+        },
+        "normalization": {
+          "unicode": "NFKC",
+          "whitespace": "collapse+trim",
+          "case": "fold",
+          "trailing_punctuation": "strip",
+          "quotes": "straighten",
+          "script": "t2s"
+        },
+        "input_mode": "ime",
+        "hant": {
+          "schema_version": 2,
+          "sentence_with_blank": "這才是___的快樂。",
+          "original_sentence": "這才是真正的快樂。",
+          "target_word": "真正",
+          "word": "真正",
+          "answer": {
+            "accepted": [
+              "真正"
+            ],
+            "accepted_normalized": [
+              "真正"
+            ]
+          },
+          "normalization": {
+            "unicode": "NFKC",
+            "whitespace": "collapse+trim",
+            "case": "fold",
+            "trailing_punctuation": "strip",
+            "quotes": "straighten",
+            "script": "t2s"
+          },
+          "input_mode": "ime"
+        }
+      },
+      "tags": {
+        "ladder_level": 4,
+        "semantic_class": "副词",
+        "variant": "B",
+        "generator": "deterministic",
+        "provenance": {
+          "sentence_sources": [
+            "mined",
+            "mined",
+            "mined",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated",
+            "generated"
+          ],
+          "mined_count": 3,
+          "generated_count": 7
+        }
+      },
+      "complexity_tier": "T3",
+      "is_active": true,
+      "word_sense_id": 10125,
+      "word_asset_id": "shadow-10125-prompt1_core",
+      "ladder_level": 4
+    }
+  ],
+  "judges": {
+    "relation": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 3
+    },
+    "sentence_validity": {
+      "ran": 1,
+      "rejected": 0,
+      "kept": 1
+    }
+  },
+  "deterministic_skips": [
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '真正' is fused into a neighbouring chunk — chunks=['她正在', '学习真正', '的中国功夫']"
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "reason": "target word '真正' is fused into a neighbouring chunk — chunks=['他', '是我', '真正的朋友']"
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "reason": "judge or band check left too few distractors"
+    }
+  ],
+  "llm_calls": [
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt1_core",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00291808,
+      "prompt_tokens": 2491,
+      "completion_tokens": 1657,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 29380
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_p1_sentence",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017552,
+      "prompt_tokens": 645,
+      "completion_tokens": 1210,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21663
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00191552,
+      "prompt_tokens": 1438,
+      "completion_tokens": 1137,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20217
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt3_transforms",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0019248,
+      "prompt_tokens": 1439,
+      "completion_tokens": 1144,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20579
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0017008,
+      "prompt_tokens": 631,
+      "completion_tokens": 1171,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20832
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "ladder_syn_ant_generation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00171456,
+      "prompt_tokens": 630,
+      "completion_tokens": 1182,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21224
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0027216,
+      "prompt_tokens": 1657,
+      "completion_tokens": 1712,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 30226
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "vocab_prompt2_exercises",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00273312,
+      "prompt_tokens": 1657,
+      "completion_tokens": 1721,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 30860
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00116768,
+      "prompt_tokens": 421,
+      "completion_tokens": 807,
+      "cached_tokens": 0,
+      "reasoning_tokens": 711,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 14795
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.000170082,
+      "prompt_tokens": 397,
+      "completion_tokens": 66,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 2082
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.0015776,
+      "prompt_tokens": 554,
+      "completion_tokens": 1094,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 20262
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity__json_repair",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00141568,
+      "prompt_tokens": 524,
+      "completion_tokens": 975,
+      "cached_tokens": 0,
+      "reasoning_tokens": 948,
+      "call_role": "json_repair",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 17558
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00158656,
+      "prompt_tokens": 538,
+      "completion_tokens": 1105,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1009,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 21178
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_l1_distractor",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00149664,
+      "prompt_tokens": 421,
+      "completion_tokens": 1064,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1004,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19173
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "cloze_distractor_judge",
+      "model": "deepseek/deepseek-chat",
+      "cost_usd": 0.0001675089,
+      "prompt_tokens": 391,
+      "completion_tokens": 65,
+      "cached_tokens": 0,
+      "reasoning_tokens": 0,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 2003
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00158208,
+      "prompt_tokens": 560,
+      "completion_tokens": 1096,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 19569
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_sentence_validity",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00113376,
+      "prompt_tokens": 439,
+      "completion_tokens": 776,
+      "cached_tokens": 0,
+      "reasoning_tokens": 735,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 15455
+    },
+    {
+      "pipeline": "vocab_ladder",
+      "task_name": "judge_ladder_relation",
+      "model": "qwen/qwen3.7-plus",
+      "cost_usd": 0.00154272,
+      "prompt_tokens": 533,
+      "completion_tokens": 1072,
+      "cached_tokens": 0,
+      "reasoning_tokens": 1024,
+      "call_role": "primary",
+      "sense_id": 10125,
+      "generation_batch_id": "0b3c2849-0bd0-4867-ab06-1424e31b461b",
+      "language_code": "zh",
+      "latency_ms": 18991
+    }
+  ],
+  "llm_calls_observed": 18,
+  "llm_cost_observed_usd": 0.029223990899999996,
+  "render_skipped_cost_cap": false,
+  "exceptions": [],
+  "judge_failures": [],
+  "tier_gate": {
+    "tier": "T1",
+    "screened": 10,
+    "rejected": 0,
+    "repaired": 0,
+    "still_failing": 0
+  },
+  "collocate_grounding": {
+    "status": "no_source",
+    "reason": "no collocate asserted for this sense"
+  },
+  "wall_clock_s": 253.0470000000205,
+  "finished_at": "2026-10-05T21:27:09.426998+00:00"
+}
