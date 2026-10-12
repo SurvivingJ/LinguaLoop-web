@@ -316,6 +316,8 @@ $$;
 
 ## RPC: `compute_weekly_plan` (Tier B)
 
+> **2026-10-12 (planned):** `user_study_plans.excluded_modules` is applied to the template before allocation via `apply_module_exclusions` — see [[features/session-modules.tech]] / [[decisions/ADR-032-session-module-exclusion]].
+
 Implementation in PL/pgSQL or Python (`services/study_plan_service.py`); pseudocode-equivalent in [[algorithms/study-plan-adaptation.tech]]. Idempotent (R3.8):
 
 ```sql
@@ -329,6 +331,8 @@ Returns the upserted `weekly_plan_states` row as jsonb.
 PK `(user_id, language_id, week_start_date)` guarantees one row per week. Re-running mid-week with changed inputs (e.g. new ELO from a Tuesday test) UPSERTs new `target_counts`, but `completed_counts`, `practice_completed_*_min`, and `session_progress_log` are preserved by the conditional UPDATE.
 
 ## RPC: `build_daily_session` (Tier C)
+
+> **2026-10-12 (planned):** filters `excluded_modules` out of the budget split, candidates, retry and word_upload — see [[features/session-modules.tech]].
 
 ```sql
 CREATE OR REPLACE FUNCTION public.build_daily_session(
@@ -664,6 +668,7 @@ Returned: 11 items across 4 words. User completes 8; each submit fires `record_s
 ## Related Pages
 
 - [[features/study-plans]] — Plain-English counterpart.
+- [[features/session-modules.tech]] — Module include/exclude (Tier B rescale + Tier C filter).
 - [[algorithms/study-plan-adaptation.tech]] — Adapter math in depth.
 - [[features/practice-engine.tech]] — The Practice surface this orchestrator allocates to.
 - [[features/comprehension-tests.tech]] — Test side; `_compute_daily_load` becomes the fallback.

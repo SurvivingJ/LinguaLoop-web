@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-10-09
+last_updated: 2026-10-12
 ---
 
 # Master Task List
@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 21 |
+| Not Started | 28 |
 | In Progress (`[~]`) | 10 |
 | Blocked / Deferred / Awaiting decision (numbered tasks) | 18 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 210 |
+
+*2026-10-12 (NEW — Daily Session Modules, TASK-863–869):* learners can include/exclude daily-session modules (reading, listening, dictation, pinyin, classifier_drill, pitch_accent, flashcards, dual_translation, practice) per language. Excluded modules are dropped from Tier B with time redistributed by one common factor (flashcards fixed), filtered again in Tier C, and applied immediately via a same-day `build_daily_session` rebuild. See [[features/session-modules]], [[decisions/ADR-032-session-module-exclusion]], [[tasklist/session-modules.tasks]]. Counts: Not Started 21→28.
 
 *2026-10-09 (TASK-850 re-run BLOCKED — OpenRouter credit exhausted, $89.92 of $90):* every call returned 402 and
 there are no results. The invalid outputs are quarantined in `data/eval/dt_v6_gate_2026-10-09/invalid_402_credit_exhausted/`.
@@ -1071,6 +1073,18 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-854 | dt-taxonomy-v6 | Post-cutover verification (1 week) + snapshot retirement | [ ] | S | TASK-853 |
 | TASK-855 | dt-taxonomy-v6 | (Optional) jev bucket question flow for DT grading | [?] | XL | TASK-853; jev porting of `pending` buckets; new ADR |
 | TASK-862 | dt-taxonomy-v6 | Bug: `_decode_error` drops errors with an invalid `category` index (derive from subtype) | [x] (local; not deployed) | S | none |
+
+### Daily Session Modules (new 2026-10-12)
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-863 | session-modules | Migration: `user_study_plans.excluded_modules text[]` + CHECK | [ ] | XS | none |
+| TASK-864 | session-modules | Tier B: `apply_module_exclusions` + `compute_weekly_plan` wiring | [ ] | M | TASK-863 |
+| TASK-865 | session-modules | Tier C: `build_daily_session` honours `excluded_modules` (+ SQL test) | [ ] | M | TASK-863 |
+| TASK-866 | session-modules | API: GET/PUT `excluded_modules`, validation, immediate week recompute + today rebuild | [ ] | M | TASK-864, TASK-865 |
+| TASK-867 | session-modules | Session runner speed-round gate + legacy fallback filter | [ ] | S | TASK-865 |
+| TASK-868 | session-modules | Settings UI "Daily session modules" card + i18n (en/zh/ja/es) | [ ] | M | TASK-866 |
+| TASK-869 | session-modules | Live rollout: apply migrations + e2e check (user-approved) | [ ] | S | TASK-863–868 |
 
 ### Language Packs (existing — unchanged)
 
