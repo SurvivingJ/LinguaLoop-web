@@ -104,6 +104,7 @@ Templates are the starting points the adapter shifts from. Each `(language, dail
 - Practice sessions remain free of token cost (unchanged from existing Vocab Dojo / Exercises).
 - Tests still consume tokens / free-tier limits per existing logic — the plan respects `get_daily_free_test_limit` when filling test slots.
 - A learner can edit `daily_minutes`, `weekday_shape`, and `skill_weight_overrides` at any time. Changes apply to the next Sunday's recompute and the next daily resolve.
+- A learner can exclude individual modules (per language) from daily-session planning; excluded modules get no Tier B slots and are filtered in Tier C, and their time is redistributed to the kept modules. The per-skill ≥1/week coverage floor applies to included modules only. See [[features/session-modules]] and [[decisions/ADR-032-session-module-exclusion]].
 - The `goal_id` column is present but ignored in V1 — see [[decisions/ADR-008-study-plan-orchestration-layer]] for the V2 plan.
 
 ## Onboarding
@@ -127,6 +128,7 @@ Full numerical traceback in [[features/study-plans.tech]] under "Worked Example.
 ## Related Pages
 
 - [[features/study-plans.tech]] — Full technical specification.
+- [[features/session-modules]] — Per-language include/exclude of daily-session modules.
 - [[algorithms/study-plan-adaptation]] — Plain-English adaptation philosophy.
 - [[algorithms/study-plan-adaptation.tech]] — Formulas and pseudocode.
 - [[features/practice-engine]] — The Practice surface this orchestrator allocates against.
