@@ -346,24 +346,37 @@ class PracticeSessionService:
     def _prepare_jumbled_items(items, language_id: int) -> None:
         """Fill in jumbled_sentence chunks/ordering, in place, per item.
 
-        One item that cannot be prepared is logged and left alone rather than
-        failing the whole session.
+        An item that cannot be prepared (or prepares to fewer than three
+        chunks) is logged and REMOVED from ``items``: leaving it in made the
+        renderer throw on the learner's screen. The list is mutated in place
+        so the caller's payload sees the removal.
         """
         from services.exercise_generation.language_processor import (
-            needs_jumbled_prep, prepare_jumbled_content,
+            jumbled_is_servable, needs_jumbled_prep, prepare_jumbled_content,
         )
-        for item in items or []:
+        if not items:
+            return
+        keep = []
+        for item in items:
             if item.get('exercise_type') != 'jumbled_sentence':
-                continue
-            if not needs_jumbled_prep(item.get('content')):
+                keep.append(item)
                 continue
             try:
-                item['content'] = prepare_jumbled_content(item['content'], language_id)
+                if needs_jumbled_prep(item.get('content')):
+                    item['content'] = prepare_jumbled_content(item['content'], language_id)
             except Exception as e:
                 logger.error(
                     'Failed to prepare jumbled content for exercise %s: %s',
                     item.get('exercise_id'), e,
                 )
+                continue
+            if jumbled_is_servable(item.get('content')):
+                keep.append(item)
+            else:
+                logger.error(
+                    'Dropping unservable jumbled_sentence exercise %s', item.get('exercise_id'),
+                )
+        items[:] = keep
 
     def _apply_script_variant(
         self, payload: Dict[str, Any], user_id: str, language_id: int,
@@ -1379,5 +1392,3 @@ def get_practice_session_service() -> PracticeSessionService:
     if _singleton is None:
         _singleton = PracticeSessionService()
     return _singleton
-
-
