@@ -86,45 +86,83 @@ class Lexicon:
 
     # -- definition distractors -------------------------------------------
 
-    def definitions_at_tier(
+    def frequency_of(self, sense_id: int | None, lemma: str | None) -> float | None:
+        """Zipf-style frequency of a sense's word, or None when unknown.
+
+        Looked up by sense id first (exact), then by lemma (the first sense of
+        that lemma). The shared yardstick for "how hard is this word": every
+        entry carries it, unlike the sentence ``complexity_tier`` that the
+        pipeline hands builders, which is a property of one example sentence.
+        """
+        for entry in self.entries:
+            if entry.sense_id == sense_id and entry.frequency is not None:
+                return entry.frequency
+        entry = self.by_lemma.get(lemma or '')
+        return entry.frequency if entry is not None else None
+
+    # (frequency half-width or None, (min, max) definition-length ratio or None),
+    # tightest first. A distractor from an earlier stage is always preferred.
+    _DEFINITION_STAGES: tuple = (
+        (1.0, (0.6, 1.6)),
+        (2.0, (0.6, 1.6)),
+        (2.0, (0.4, 2.5)),
+        (None, (0.4, 2.5)),
+        (None, None),
+    )
+
+    def definitions_near(
         self,
-        tier: str | None,
+        frequency: float | None,
+        key_definition: str,
         exclude_sense_ids: set[int],
         count: int = 3,
         rng: random.Random | None = None,
     ) -> list[str]:
-        """Distinct definitions from other senses at the same complexity tier.
+        """Distinct definitions from senses that look like the key's.
 
-        The tier guard is the point (TASK-516): ``get_distractors`` samples the
-        whole language, so an A1 word could end up with three C2 definitions
-        beside it and the answer becomes obvious from register alone. Falls
-        back to the untiered pool only when the tier has too few senses to fill
-        the options — a slightly easy item beats no item.
+        A wrong option has to compete with the right one on *difficulty* and
+        on *shape*, or the item is answerable without knowing the word: a
+        C2-register definition beside three plain ones, or the one option
+        that is three times longer than its neighbours. Two cheap, comparable
+        signals stand in for "same difficulty":
+
+          * word frequency within a band of the target's (common words with
+            common words), and
+          * definition length within a ratio of the key's.
+
+        Candidates are taken stage by stage, tightest first
+        (:attr:`_DEFINITION_STAGES`), so a slightly looser pick only appears
+        when the tight pool cannot fill ``count`` — a slightly easy item beats
+        no item. A target with unknown frequency skips the frequency band and
+        is matched on length alone. (The pipeline's ``tier`` is a sentence
+        complexity label, T1/T3/T6, which the entries' ``definition_level``
+        can never equal — that mismatch is why the old tier guard did nothing.)
         """
         rng = rng or random
-        seen: set[str] = set()
+        key_len = len((key_definition or '').strip())
+        seen: set[str] = {(key_definition or '').strip()}
+        picked: list[str] = []
 
-        def collect(pool: list[LexEntry]) -> list[str]:
-            out: list[str] = []
+        pool = [e for e in self.entries
+                if e.definition and e.sense_id not in exclude_sense_ids]
+        rng.shuffle(pool)
+
+        for width, ratio in self._DEFINITION_STAGES:
             for entry in pool:
-                text = (entry.definition or '').strip()
-                if not text or text in seen or entry.sense_id in exclude_sense_ids:
+                if len(picked) >= count:
+                    return picked
+                text = entry.definition.strip()
+                if not text or text in seen:
                     continue
+                if width is not None and frequency is not None:
+                    if entry.frequency is None or abs(entry.frequency - frequency) > width:
+                        continue
+                if ratio is not None and key_len:
+                    if not (ratio[0] * key_len <= len(text) <= ratio[1] * key_len):
+                        continue
                 seen.add(text)
-                out.append(text)
-                if len(out) >= count:
-                    break
-            return out
-
-        tiered = [e for e in self.entries if e.tier == tier and e.definition]
-        rng.shuffle(tiered)
-        picked = collect(tiered)
-        if len(picked) >= count:
-            return picked
-
-        rest = [e for e in self.entries if e.tier != tier and e.definition]
-        rng.shuffle(rest)
-        return picked + collect(rest)[: count - len(picked)]
+                picked.append(text)
+        return picked[:count]
 
     # -- reading distractors (TASK-529) -----------------------------------
 
@@ -335,6 +373,12 @@ def _load_entries(db, language_id: int) -> list[LexEntry]:
                 'dim_vocabulary!inner(lemma, language_id, frequency_rank, semantic_class)'
             )
             .eq('dim_vocabulary.language_id', language_id)
+            # Native rows only: a word's own-language sense has
+            # definition_language_id == its language_id. Cross-language
+            # 'llm_gloss' rows share the same vocab_id, and letting them in
+            # put English definitions in a Japanese word's distractor pool
+            # (mixed-language options).
+            .eq('definition_language_id', language_id)
             .range(offset, offset + _PAGE - 1)
             .execute()
         )

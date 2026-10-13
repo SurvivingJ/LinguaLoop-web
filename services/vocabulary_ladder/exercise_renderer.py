@@ -764,7 +764,19 @@ class LadderExerciseRenderer:
             sentence_assignments = SENTENCE_ASSIGNMENTS_A
         renderers = {
             1: self._render_phonetic,
-            2: self._render_definition_match,
+            # L2 (definition_match) is NOT dispatched here. It is a
+            # capability-matrix 'deterministic' type and is produced
+            # exclusively by `_render_deterministic` ->
+            # services/vocabulary_ladder/deterministic/definition_match.py,
+            # which draws distractors from native-language senses at the same
+            # tier. A legacy `_render_definition_match` (get_distractors RPC,
+            # no language or tier control, sentence-target `word`) used to run
+            # here too, so every sense got a legacy row AND a deterministic
+            # row per variant — and because the legacy row ran first,
+            # `apply_caps` (2 per sense for this type) spent one of its two
+            # slots on the legacy A row and dropped the deterministic B row.
+            # Removed rather than fixed for the same reason as the L9 jumbled
+            # stub below.
             3: self._render_cloze,
             4: self._render_morphology_slot,
             5: self._render_collocation_gap,
@@ -907,41 +919,6 @@ class LadderExerciseRenderer:
             logger.warning("L1 audio generation failed for sense %s lang %s: %s",
                            sense_id, language_id, exc)
             return None
-
-    def _render_definition_match(self, core, p2, p3, sense_id, language_id, sa) -> dict | None:
-        """L2: Definition match from database.
-
-        Uses existing get_distractors() RPC for wrong definitions.
-        """
-        definition = core.get('definition', '')
-        if not definition:
-            return None
-
-        # Get 3 distractor definitions from other words
-        try:
-            from services.vocabulary.knowledge_service import VocabularyKnowledgeService
-            ks = VocabularyKnowledgeService(self.db)
-            distractors = ks.get_distractors(sense_id, language_id, count=3)
-        except Exception as e:
-            logger.warning("Failed to get distractors for L2 sense %s: %s", sense_id, e)
-            distractors = []
-
-        if len(distractors) < 3:
-            return None
-
-        options = [definition] + distractors[:3]
-        random.shuffle(options)
-
-        # Get the lemma
-        sentences = core.get('sentences', [])
-        word = get_sentence_target(sentences[0]) if sentences else ''
-
-        return {
-            'word': word,
-            'pronunciation': core.get('pronunciation', ''),
-            'correct_definition': definition,
-            'options': options,
-        }
 
     def _render_cloze(self, core, p2, p3, sense_id, language_id, sa) -> dict | None:
         """L3: Cloze completion.

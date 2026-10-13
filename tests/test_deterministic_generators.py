@@ -188,33 +188,66 @@ def test_kanji_input_yields_no_kana_distractors():
 # definition_match — the tier guard
 # ---------------------------------------------------------------------------
 
-def test_definition_match_prefers_same_tier():
+def test_definition_match_prefers_words_of_similar_frequency():
+    """The difficulty guard: common words beside common words.
+
+    The pipeline's ``tier`` (a sentence label like T1/T3/T6) never equals a
+    lexicon entry's tier, so the guard now keys on word frequency instead.
+    """
     install_lexicon(1, [
-        ('茶', 'chá (cha2)', 'a drink made from leaves', 'A1', 5.0),
-        ('水', 'shuǐ (shui3)', 'clear liquid you drink', 'A1', 6.0),
-        ('牛奶', 'niú nǎi (niu2 nai3)', 'white drink from cows', 'A1', 4.5),
-        ('嗜热菌群', 'shì rè (shi4 re4)', 'thermophilic microbial community',
-         'C2', 0.3),
+        ('咖啡', 'kā fēi (ka1 fei1)', 'a hot drink made from roasted beans', 'A1', 5.0),
+        ('茶', 'chá (cha2)', 'a drink made from leaves, hot', 'A1', 5.2),
+        ('水', 'shuǐ (shui3)', 'clear liquid that you drink daily', 'A1', 4.8),
+        ('牛奶', 'niú nǎi (niu2 nai3)', 'white drink that comes from cows', 'A1', 5.5),
+        ('嗜热菌群', 'shì rè (shi4 re4)', 'thermophilic microbial community, rare', 'C2', 0.3),
     ])
-    ctx = make_ctx(db=object(), tier='A1')
+    ctx = make_ctx(db=object(), tier='T3')   # tier is irrelevant to the match
     items, skips = det.generate(ctx, type_codes={'definition_match'})
     assert len(items) == 1, skips
     block = items[0].content['nl']['en']
-    assert 'thermophilic microbial community' not in block['options']
+    assert 'thermophilic microbial community, rare' not in block['options']
     assert block['correct_answer'] in block['options']
 
 
-def test_definition_match_falls_back_when_tier_is_thin():
-    """One item slightly too easy beats no item at all."""
+def test_definition_match_keeps_distractor_length_comparable_to_the_key():
+    """An option three times longer than its neighbours gives the answer away."""
+    long_def = 'a very long and elaborate definition ' * 4
     install_lexicon(1, [
-        ('茶', 'chá (cha2)', 'a drink made from leaves', 'C2', 5.0),
-        ('水', 'shuǐ (shui3)', 'clear liquid you drink', 'C2', 6.0),
-        ('牛奶', 'niú nǎi (niu2 nai3)', 'white drink from cows', 'C2', 4.5),
+        ('咖啡', 'kā fēi (ka1 fei1)', 'a hot drink made from roasted beans', 'A1', 5.0),
+        ('茶', 'chá (cha2)', 'a drink made from leaves, hot', 'A1', 5.2),
+        ('水', 'shuǐ (shui3)', 'clear liquid that you drink daily', 'A1', 4.8),
+        ('牛奶', 'niú nǎi (niu2 nai3)', 'white drink that comes from cows', 'A1', 5.5),
+        ('酒', 'jiǔ (jiu3)', long_def, 'A1', 5.1),
     ])
-    ctx = make_ctx(db=object(), tier='A1')
-    items, _ = det.generate(ctx, type_codes={'definition_match'})
-    assert len(items) == 1
+    items, skips = det.generate(make_ctx(db=object()), type_codes={'definition_match'})
+    assert len(items) == 1, skips
+    assert long_def not in items[0].content['nl']['en']['options']
+
+
+def test_definition_match_loosens_in_stages_when_the_tight_pool_is_thin():
+    """One item slightly off beats no item at all — but the tight picks come first."""
+    install_lexicon(1, [
+        ('咖啡', 'kā fēi (ka1 fei1)', 'a hot drink made from roasted beans', 'A1', 5.0),
+        ('茶', 'chá (cha2)', 'a drink made from leaves, hot', 'A1', 5.2),     # near
+        ('水', 'shuǐ (shui3)', 'clear liquid that you drink daily', 'A1', 2.0),   # far
+        ('牛奶', 'niú nǎi (niu2 nai3)', 'white drink that comes from cows', 'A1', 1.0),  # far
+    ])
+    items, skips = det.generate(make_ctx(db=object()), type_codes={'definition_match'})
+    assert len(items) == 1, skips
     assert len(items[0].content['nl']['en']['options']) == 4
+
+
+def test_lexicon_definitions_near_orders_tight_before_loose():
+    lex = install_lexicon(1, [
+        ('far', 'a', 'x' * 30, 'A1', 1.0),
+        ('near', 'b', 'y' * 30, 'A1', 5.1),
+        ('mid', 'c', 'z' * 30, 'A1', 6.5),
+    ])
+    got = lex.definitions_near(5.0, 'k' * 30, set(), count=2)
+    assert got[0] == 'y' * 30                      # inside the 1.0 band
+    assert set(got) == {'y' * 30, 'z' * 30}        # then the 2.0 band, not the far one
+    assert lex.frequency_of(None, 'near') == 5.1
+    assert lex.frequency_of(None, 'missing') is None
 
 
 def test_definition_match_skips_with_a_reason_when_pool_is_empty():
@@ -236,6 +269,77 @@ def test_definition_match_uses_the_nl_envelope():
     ctx = make_ctx(db=object(), tier='A1')
     items, _ = det.generate(ctx, type_codes={'definition_match'})
     assert validate_envelope(items[0].content, 'definition_match') == []
+
+
+def test_definition_match_word_is_the_headword_not_the_inflected_target():
+    """ja verbs: the sentence target is a stem (描い); the word shown beside the
+    definitions must be the dictionary form (描く)."""
+    install_lexicon(1, [
+        ('茶', 'chá (cha2)', 'd1', 'A1', 5.0),
+        ('水', 'shuǐ (shui3)', 'd2', 'A1', 6.0),
+        ('牛奶', 'niú nǎi (niu2 nai3)', 'd3', 'A1', 4.5),
+    ])
+    ctx = make_ctx(db=object(), tier='A1', headword='咖啡馆')
+    items, _ = det.generate(ctx, type_codes={'definition_match'})
+    assert items[0].content['word'] == '咖啡馆'
+
+    ctx = make_ctx(db=object(), tier='A1')  # no headword: sentence target wins
+    items, _ = det.generate(ctx, type_codes={'definition_match'})
+    assert items[0].content['word'] == '咖啡'
+
+
+def test_definition_match_shows_kana_for_rare_ja_spellings():
+    from services.vocabulary_ladder.deterministic.definition_match import display_word
+    assert display_word('為る', 3) == 'する'
+    assert display_word('軈て', 3) == 'やがて'
+    assert display_word('描く', 3) == '描く'      # ordinary kanji word: unchanged
+    assert display_word('為る', 1) == '為る'      # only ja has the table
+
+    install_lexicon(3, [
+        ('水', 'みず', '飲み物として使う、透明な液体。', 'A1', 6.0),
+        ('茶', 'ちゃ', '葉を煮出して作る、飲み物。', 'A1', 5.0),
+        ('牛乳', 'ぎゅうにゅう', '牛から取れる、白い飲み物。', 'A1', 4.5),
+    ])
+    core = make_core(definition='ある動作をする。')
+    ctx = make_ctx(db=object(), language_id=3, tier='A1', core=core,
+                   definition=core['definition'], headword='為る')
+    items, _ = det.generate(ctx, type_codes={'definition_match'})
+    assert items[0].content['word'] == 'する'
+
+
+def test_definition_match_never_mixes_definition_scripts():
+    """A pool polluted with English glosses must not leak into a Japanese item."""
+    from services.exercise_generation.schemas.envelope import validate_envelope
+    install_lexicon(3, [
+        ('水', 'みず', '飲み物として使う、透明な液体。', 'A1', 6.0),
+        ('茶', 'ちゃ', '葉を煮出して作る、飲み物。', 'A1', 5.0),
+        ('牛乳', 'ぎゅうにゅう', '牛から取れる、白い飲み物。', 'A1', 4.5),
+        ('犬', 'いぬ', 'a dog', 'A1', 5.5),
+        ('猫', 'ねこ', 'a cat', 'A1', 5.2),
+    ])
+    core = make_core(definition='豆から作る、温かい飲み物。')
+    ctx = make_ctx(db=object(), language_id=3, tier='A1', core=core,
+                   definition=core['definition'])
+    items, skips = det.generate(ctx, type_codes={'definition_match'})
+    assert len(items) == 1, skips
+    block = items[0].content['nl']['en']
+    assert 'a dog' not in block['options'] and 'a cat' not in block['options']
+    assert validate_envelope(items[0].content, 'definition_match') == []
+
+
+def test_definition_match_skips_rather_than_pad_with_foreign_definitions():
+    install_lexicon(3, [
+        ('水', 'みず', '飲み物として使う、透明な液体。', 'A1', 6.0),
+        ('犬', 'いぬ', 'a dog', 'A1', 5.5),
+        ('猫', 'ねこ', 'a cat', 'A1', 5.2),
+        ('鳥', 'とり', 'a bird', 'A1', 5.0),
+    ])
+    core = make_core(definition='豆から作る、温かい飲み物。')
+    ctx = make_ctx(db=object(), language_id=3, tier='A1', core=core,
+                   definition=core['definition'])
+    items, skips = det.generate(ctx, type_codes={'definition_match'})
+    assert items == []
+    assert any(s.type_code == 'definition_match' and s.reason for s in skips)
 
 
 # ---------------------------------------------------------------------------

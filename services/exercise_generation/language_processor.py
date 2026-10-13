@@ -550,7 +550,11 @@ def prepare_jumbled_content(content: dict, language_id: int) -> dict:
     """
     chunks = content.get('chunks')
     if not (isinstance(chunks, list) and chunks):
-        sentence = content['original_sentence']
+        sentence = (content.get('original_sentence') or '').strip()
+        if not sentence:
+            raise ValueError(
+                'jumbled_sentence content has neither chunks nor original_sentence'
+            )
         processor = LanguageProcessor.for_language(language_id)
         try:
             chunks = processor.chunk_sentence(sentence)
@@ -563,6 +567,30 @@ def prepare_jumbled_content(content: dict, language_id: int) -> dict:
         'chunks': chunks,
         'correct_ordering': list(range(len(chunks))),
     }
+
+
+MIN_JUMBLED_CHUNKS = 3
+
+
+def jumbled_is_servable(content) -> bool:
+    """Whether prepared jumbled content is a real exercise the renderer can show.
+
+    ``prepare_jumbled_content`` falls back to word tokens (or the whole
+    sentence) when chunking fails, so a prepared row can still hold one or two
+    pieces — nothing to arrange. Serve paths use this to drop such rows rather
+    than hand the learner a crash or a trivial item.
+    """
+    if not isinstance(content, dict):
+        return False
+    chunks = content.get('chunks')
+    ordering = content.get('correct_ordering')
+    return (
+        isinstance(chunks, list)
+        and len(chunks) >= MIN_JUMBLED_CHUNKS
+        and all(isinstance(c, str) and c.strip() for c in chunks)
+        and isinstance(ordering, list)
+        and len(ordering) == len(chunks)
+    )
 
 
 def needs_jumbled_prep(content) -> bool:
