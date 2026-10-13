@@ -37,7 +37,7 @@ def make_core(**overrides) -> dict:
         'semantic_class': 'concrete',
         'morphological_forms': [],
         'sentences': [
-            {'text': '我每天早上唤咖啡。', 'target_word': '咖啡',
+            {'text': '我每天早上喝咖啡。', 'target_word': '咖啡',
              'complexity_tier': 'A1'}
             for _ in range(10)
         ],
@@ -552,7 +552,7 @@ def test_cloze_typed_blanks_the_target_and_stores_normalisation():
     items, skips = det.generate(ctx, type_codes={'cloze_typed'})
     assert len(items) == 1, skips
     content = items[0].content
-    assert content['sentence_with_blank'] == '我每天早上唤___。'
+    assert content['sentence_with_blank'] == '我每天早上喝___。'
     assert content['answer']['accepted'] == ['咖啡']
     assert content['normalization']['script'] == 't2s'
     assert content['input_mode'] == 'ime'
@@ -804,7 +804,7 @@ def test_a_raising_builder_costs_one_type_not_the_sense():
     det._REGISTRY['__test_explodes'] = _boom
     try:
         ctx = make_ctx()
-        items, _ = det.generate(ctx)
+        items, _ = det.generate(ctx, type_codes={'definition_match'} and None)
         assert any(i.type_code == 'hanzi_to_pinyin' for i in items)
     finally:
         det._REGISTRY.pop('__test_explodes', None)
