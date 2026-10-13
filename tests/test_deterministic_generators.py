@@ -804,7 +804,7 @@ def test_a_raising_builder_costs_one_type_not_the_sense():
     det._REGISTRY['__test_explodes'] = _boom
     try:
         ctx = make_ctx()
-        items, _ = det.generate(ctx, type_codes={'definition_match'} and None)
+        items, _ = det.generate(ctx)
         assert any(i.type_code == 'hanzi_to_pinyin' for i in items)
     finally:
         det._REGISTRY.pop('__test_explodes', None)
