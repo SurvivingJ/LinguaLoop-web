@@ -108,6 +108,7 @@ def submit_drill() -> ApiResponse:
         from routes.tests import _apply_timing_and_progress  # lazy import: avoid circular import
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=g.current_user_id, language_id=language_id, kind='drill',
         )
 
         accuracy = (correct_items / total_items) * 100.0 if total_items else 0.0

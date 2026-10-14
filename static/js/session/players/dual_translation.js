@@ -29,6 +29,8 @@ function esc(s) {
 }
 
 export function mount(container, ctx) {
+  const timer =
+    window.ActiveTimer && typeof window.ActiveTimer.create === 'function' ? window.ActiveTimer.create() : null;
   const state = { submissionId: null, submitting: false, destroyed: false, card: null };
 
   container.innerHTML = `
@@ -45,6 +47,7 @@ export function mount(container, ctx) {
   return {
     destroy() {
       state.destroyed = true;
+      if (timer) timer.reset();
       if (state.card) state.card.destroy();
     },
   };
@@ -130,6 +133,7 @@ export function mount(container, ctx) {
         T('session.dt_submit', null, 'Submit translation')
       )}</button>`;
 
+    if (timer) timer.start();
     body().querySelector('[data-dt-submit]').onclick = submit;
   }
 
@@ -146,13 +150,18 @@ export function mount(container, ctx) {
     if (button) button.disabled = true;
 
     let grade = null;
+    const payload = { reproduction };
+    if (timer) {
+      payload.active_ms = timer.stop();
+      payload.client_event_id = window.ActiveTimer.newEventId();
+    }
     try {
       const res = await window.authFetch(
         `/api/dual-translation/${encodeURIComponent(state.submissionId)}/submit`,
-        { method: 'POST', body: JSON.stringify({ reproduction }) }
+        { method: 'POST', body: JSON.stringify(payload) }
       );
-      const payload = await res.json();
-      grade = payload.data || payload;
+      const resBody = await res.json();
+      grade = resBody.data || resBody;
       if (!res.ok) throw new Error(`submit failed (${res.status})`);
     } catch (e) {
       console.error('dual_translation: submit failed', e);

@@ -120,6 +120,11 @@
     // TASK-731: handle to a mounted DT error card, torn down before the next
     // one mounts so a stale card's callbacks can't fire into a new item.
     errorCard: null,
+    // Weekly-minutes: active time for this passage. The measurement and event
+    // id are fixed on the first submit attempt and reused on retry.
+    timer: null,
+    activeMs: null,
+    eventId: null,
   };
 
   const el = {};
@@ -262,6 +267,12 @@
     state.ageTier = data.age_tier;
     state.selfRating = null;
     state.naturalnessShown = false;
+    state.activeMs = null;
+    state.eventId = null;
+    if (window.ActiveTimer) {
+      if (!state.timer) state.timer = window.ActiveTimer.create();
+      state.timer.start();
+    }
 
     el.reference.textContent = data.l1_text || '';
     renderRubric(data.rubric_descriptors || {});
@@ -357,12 +368,19 @@
     el.submit.disabled = true;
     el.submit.textContent = tr('dual_translation.submitting');
 
+    if (state.timer && state.activeMs === null) {
+      state.activeMs = state.timer.stop();
+      state.eventId = window.ActiveTimer.newEventId();
+    }
+
     let resp;
     try {
       resp = await window.authFetch('/api/dual-translation/' + state.submissionId + '/submit', {
         method: 'POST',
         body: JSON.stringify({
           reproduction: reproduction,
+          active_ms: state.activeMs === null ? undefined : state.activeMs,
+          client_event_id: state.eventId || undefined,
           idempotency_key:
             window.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
         }),

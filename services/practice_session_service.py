@@ -689,6 +689,24 @@ class PracticeSessionService:
                 user_id, sense_id, is_correct, time_taken_ms
             )
 
+        # 5b. Weekly minutes ledger (ADR-035): credit every attempt, in or out
+        # of a planned session, once per exercise_attempts id. Best-effort and
+        # independent of STUDY_PLAN_ENABLED / session_mode; planner math below
+        # is untouched.
+        if attempt_id and eff_language_id:
+            try:
+                from services.study_time import credit_study_time  # lazy: avoids import cycle
+                credit_study_time(
+                    self.db, user_id, eff_language_id, 'practice',
+                    self._effective_practice_seconds(time_taken_ms, expected_seconds),
+                    'exercise_attempts', str(attempt_id),
+                )
+            except Exception as e:
+                logger.warning(
+                    'study-time credit failed (non-fatal) for attempt=%s: %s',
+                    attempt_id, e,
+                )
+
         # 6. Study Plan progress (if session_mode given and Plan enabled)
         if (
             Config.STUDY_PLAN_ENABLED

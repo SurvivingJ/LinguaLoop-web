@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 23 |
+| Not Started | 24 |
 | In Progress (`[~]`) | 11 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 25 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 210 |
+| Done (cumulative, not listed here) | 219 |
+
+*2026-10-14 (NEW — Weekly Minutes, TASK-885–896):* the Study Plan page's "practice done" counted vocabulary practice only; tests, flashcards, dual translation and out-of-session activity credited 0 minutes, the reader used the server week, and a missing weekly row dropped credit. Fix: event-row ledger `study_time_ledger` ([[decisions/ADR-035-study-time-ledger]]), measured clamped time per kind, page shows "Studied this week: X / Y min" + breakdown, current-week backfill. TASK-885, 886 and 896 are LIVE-DB (user approval to apply). Counts: Not Started 23→35 (+12). See [[features/weekly-minutes]], [[tasklist/weekly-minutes.tasks]].
 
 *2026-10-14 (NEW — Security Hardening, TASK-875–884):* swarm security audit findings S1–S17 (self-escalation on `users`, 32 RLS-off tables, anon-callable SECURITY DEFINER functions, open views, client-writable progress tables, answer keys before submit). Developer decisions: drop `users_admin_all`, no admin session rotation, full client write revoke on `users`, revoke `authenticated` SELECT on `vw_exercise_type_effectiveness`, in-function `auth.uid()` checks only where `authenticated` keeps EXECUTE; TASK-884 (rate limiting) Deferred as a potential future improvement. TASK-875, 876, 877, 879, 880 are LIVE-DB and require user approval to apply; TASK-882 has LIVE-DB policy/migration parts. Nothing applied. See [[features/security-hardening]], [[decisions/ADR-034-no-client-db-writes]], [[tasklist/security-hardening.tasks]]. Counts: Not Started 22→31 (+9), Blocked/Deferred 18→19 (+1).
 
@@ -1115,6 +1117,18 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-882 | security-hardening | Route hardening: no answer keys pre-submit, server-side duration caps, bounded results (S14, S15; policy parts LIVE-DB) | Done (repo) — awaiting live apply approval | L | TASK-876, TASK-880 |
 | TASK-883 | security-hardening | Remove anon-client fallback in `routes/users.py`, delete dead `payment_service` factory (S17) | Done | S | TASK-877 |
 | TASK-884 | security-hardening | Rate limiting on LLM and auth endpoints (S16) — **Deferred**: potential future improvement, not implemented | Deferred | L | — |
+| TASK-885 | weekly-minutes | LIVE-DB (apply gated): `study_time_ledger` table + `credit_study_time` + `get_weekly_study_seconds` | Done (repo) — awaiting live apply approval | M | — |
+| TASK-886 | weekly-minutes | Idempotent current-week backfill script for the ledger (LIVE-DB, apply gated) | Done (repo) — awaiting live apply approval | M | TASK-885 |
+| TASK-887 | weekly-minutes | SQL tests for ledger, credit function, week attribution and backfill | Done | M | TASK-885, TASK-886 |
+| TASK-888 | weekly-minutes | `services/study_time.py`: caps, clamp, best-effort credit wrapper, weekly summary | Done | S | — |
+| TASK-889 | weekly-minutes | Credit tests and classifier/counter drills from measured duration | Done | S | TASK-888 |
+| TASK-890 | weekly-minutes | Credit every vocabulary practice attempt (in or out of a session) | Done | S | TASK-888 |
+| TASK-891 | weekly-minutes | Flashcard and dual-translation endpoints accept and credit `active_ms` | Done | M | TASK-888 |
+| TASK-892 | weekly-minutes | Study Plan reader: learner-local week everywhere + `weekly_study` response field | Done | M | TASK-888 |
+| TASK-893 | weekly-minutes | Client active-time helper; flashcards and dual translation send `active_ms` + `client_event_id` | Done | M | — |
+| TASK-894 | weekly-minutes | Audit: every test and drill client sends `started_at` and `finished_at` | Done | S | — |
+| TASK-895 | weekly-minutes | Study Plan page: "Studied this week: X / Y min" + breakdown, i18n en/zh/ja/es | Done | M | TASK-892 |
+| TASK-896 | weekly-minutes | Integration, wiki sync and rollout (live apply approval-gated) | [ ] | M | TASK-885..895 |
 
 ### Language Packs (existing — unchanged)
 

@@ -116,6 +116,7 @@
 
 {% block extra_js %}
 <!-- Shared exercise renderers (global window.ExRenderers) used by the practice player -->
+<script src="{{ url_for('static', filename='js/active-timer.js') }}"></script>
 <script src="{{ url_for('static', filename='js/exercise-renderers.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dt-error-card.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='js/session/controller.js') }}"></script>

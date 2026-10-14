@@ -41,6 +41,7 @@ from flask import Blueprint, current_app, g, request
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.day_boundary import is_valid_timezone, plan_today
+from services.study_time import weekly_study_summary
 from services.supabase_factory import get_supabase_admin
 from utils.responses import (
     ApiResponse, api_success, bad_request, not_found, server_error,
@@ -231,7 +232,8 @@ def get_study_plan() -> ApiResponse:
 
         plan = plan_resp.data[0]
 
-        week_start = _monday_of(date.today())
+        # Learner-local week (matches the ledger/record_session_progress writers).
+        week_start = _monday_of(plan_today(db, user_id, language_id))
         week_resp = (
             db.table('weekly_plan_states')
             .select(
@@ -252,9 +254,19 @@ def get_study_plan() -> ApiResponse:
         current_week = week_resp.data[0] if week_resp.data else None
 
         extras = _daily_session_extras(db, user_id, language_id, plan, current_week)
+        # Weekly minutes ledger total (ADR-035). Degrades to null; never fails the GET.
+        target_minutes = (current_week or {}).get('total_weekly_minutes')
+        weekly_study = _safe(
+            'weekly_study',
+            lambda: weekly_study_summary(
+                db, user_id, language_id, week_start, target_minutes,
+            ),
+            None,
+        )
         return api_success({
             'plan': plan,
             'current_week': current_week,
+            'weekly_study': weekly_study,
             'study_plan_enabled': bool(Config.STUDY_PLAN_ENABLED),
             **extras,
         })
@@ -502,7 +514,7 @@ def update_study_plan() -> ApiResponse:
             try:
                 from services.study_plan_service import StudyPlanService
                 StudyPlanService(db=db).compute_weekly_plan(
-                    user_id, language_id, _monday_of(date.today()),
+                    user_id, language_id, _monday_of(plan_today(db, user_id, language_id)),
                 )
             except Exception as e:
                 logger.warning(
@@ -695,7 +707,9 @@ def recompute_weekly_plan() -> ApiResponse:
         result = svc.compute_weekly_plan(
             user_id=g.current_user_id,
             language_id=int(language_id),
-            week_start=_monday_of(date.today()),
+            week_start=_monday_of(
+                plan_today(get_supabase_admin(), g.current_user_id, int(language_id))
+            ),
         )
         if result is None:
             return server_error(

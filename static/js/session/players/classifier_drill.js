@@ -564,7 +564,8 @@ export function mount(container, ctx) {
     const total = state.items.length;
     const correct = state.correct;
     const pct = total ? Math.round((correct / total) * 100) : 0;
-    const time = Math.round((Date.now() - state.startTime) / 1000);
+    const finishedAtMs = Date.now();
+    const time = Math.round((finishedAtMs - state.startTime) / 1000);
 
     el.stage.style.display = 'none';
     el.controls.style.display = 'none';
@@ -588,6 +589,8 @@ export function mount(container, ctx) {
           total_items: total,
           time_taken: time,
           item_results: state.itemResults,
+          started_at: state.startTime ? new Date(state.startTime).toISOString() : null,
+          finished_at: new Date(finishedAtMs).toISOString(),
         }),
       });
       if (resp.ok) {

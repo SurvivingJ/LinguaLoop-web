@@ -252,6 +252,7 @@
                 <div class="card-body">
                     <h5 class="card-title" data-i18n="study_plan.week_summary_title">This week so far</h5>
                     <p class="text-muted small mb-3" id="weekStartLabel">—</p>
+                    <div id="weeklyStudied" class="mb-3" hidden></div>
                     <div id="weekStats" class="week-stats"></div>
                     <h6 class="mt-4 mb-2" data-i18n="study_plan.targets.heading">Per-skill targets vs completed</h6>
                     <div id="weekTargetsTable"></div>
@@ -266,6 +267,7 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/study-plan-settings.js') }}"></script>
+<script src="{{ url_for('static', filename='js/weekly-study.js') }}"></script>
 <script>
 (function () {
     'use strict';
@@ -683,6 +685,11 @@
             startLabel.textContent = T('study_plan.no_week_yet');
             statsEl.innerHTML = '';
             tableEl.innerHTML = '';
+            window.WeeklyStudy.render(
+                document.getElementById('weeklyStudied'),
+                payload ? payload.weekly_study : null,
+                T
+            );
             renderShortfallNote(null);
             return;
         }
@@ -691,11 +698,15 @@
         statsEl.innerHTML = `
             <div class="stat-tile"><h4>${weekState.total_weekly_minutes}</h4><small>${T('study_plan.stat.total_min')}</small></div>
             <div class="stat-tile"><h4>${weekState.practice_target_minutes}</h4><small>${T('study_plan.stat.practice_target')}</small></div>
-            <div class="stat-tile"><h4>${weekState.practice_completed_maint_min + weekState.practice_completed_acq_min}</h4><small>${T('study_plan.stat.practice_done')}</small></div>
             <div class="stat-tile"><h4>${(weekState.maintenance_share * 100).toFixed(0)}%</h4><small>${T('study_plan.stat.maint_share')}</small></div>
             <div class="stat-tile"><h4>${(weekState.acquisition_share * 100).toFixed(0)}%</h4><small>${T('study_plan.stat.acq_share')}</small></div>
             ${newWordsTile(weekState)}
         `;
+        window.WeeklyStudy.render(
+            document.getElementById('weeklyStudied'),
+            payload ? payload.weekly_study : null,
+            T
+        );
         renderShortfallNote(payload);
 
         const targets = weekState.target_counts || {};

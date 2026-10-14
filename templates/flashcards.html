@@ -151,10 +151,15 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/active-timer.js') }}"></script>
 <script>
 (function() {
     const RATING_MAP = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' };
     const languageId = parseInt(localStorage.getItem('selectedLanguageId')) || 1;
+
+    // Weekly-minutes active-time measurement (one timer + event id per card showing).
+    const cardTimer = window.ActiveTimer ? window.ActiveTimer.create() : null;
+    let cardEventId = null;
 
     // State
     const state = {
@@ -287,6 +292,10 @@
         // Reset flip
         state.isFlipped = false;
         els.flashcard.classList.remove('is-flipped');
+        if (cardTimer) {
+            cardEventId = window.ActiveTimer.newEventId();
+            cardTimer.start();
+        }
 
         // Front content
         if (card.type === 'reading') {
@@ -333,13 +342,16 @@
         state.ratings[rating] = (state.ratings[rating] || 0) + 1;
         state.reviewed++;
 
-        // Submit review to API (fire-and-forget)
+        // Submit review to API (fire-and-forget). active_ms / client_event_id
+        // feed the weekly "Studied this week" minutes (static/js/active-timer.js).
+        const reviewBody = { card_id: card.card_id, rating: rating };
+        if (cardTimer) {
+            reviewBody.active_ms = cardTimer.stop();
+            reviewBody.client_event_id = cardEventId;
+        }
         window.authFetch('/api/flashcards/review', {
             method: 'POST',
-            body: JSON.stringify({
-                card_id: card.card_id,
-                rating: rating,
-            }),
+            body: JSON.stringify(reviewBody),
         }).catch(function(e) { console.error('Review submit failed:', e); });
 
         // If "again", re-add to end of queue

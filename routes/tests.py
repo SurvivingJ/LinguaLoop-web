@@ -4,6 +4,7 @@
 from flask import Blueprint, request, jsonify, current_app, g
 from uuid import uuid4
 import traceback
+from datetime import datetime
 import logging
 
 from config import Config
@@ -12,6 +13,7 @@ from services.ai_service import ModerationServiceError
 from services.attempt_timing import (
     AttemptTimingError, clamp_time_taken, validate_attempt_window, validate_counts,
 )
+from services.study_time import credit_study_time
 from services.dictation.cap import MAX_STORED_DIFF_ENTRIES
 from services.test_service import (
     TestService, DimensionService, NoMatchingAttemptError, get_test_service,
@@ -281,7 +283,8 @@ def _normalize_timing(request_body):
     request_body['finished_at'] = finished
 
 
-def _apply_timing_and_progress(client, attempt_id, request_body):
+def _apply_timing_and_progress(client, attempt_id, request_body,
+                               user_id=None, language_id=None, kind='test'):
     """Post-submission hook — persist timing + bump Study Plan counter.
 
     Phase 13. Best-effort: failures are logged but never bubble up to the
@@ -295,6 +298,9 @@ def _apply_timing_and_progress(client, attempt_id, request_body):
         attempt_id: UUID returned by the submission RPC.
         request_body: the request JSON dict (we read started_at /
             finished_at from it).
+        user_id, language_id: when both are given, the measured window is
+            also credited to the weekly study-time ledger (weekly-minutes,
+            ADR-035) as ``kind`` ('test' or 'drill').
 
     See migrations/phase13_apply_attempt_timing_and_progress.sql.
     """
@@ -302,6 +308,13 @@ def _apply_timing_and_progress(client, attempt_id, request_body):
         return
     started_at  = request_body.get('started_at')   # ISO timestamp or None
     finished_at = request_body.get('finished_at')
+    if kind == 'drill':
+        # Drill routes do not pre-validate the window like the test routes do
+        # (_normalize_timing); a forged/garbled window is dropped, not stored.
+        try:
+            started_at, finished_at = validate_attempt_window(started_at, finished_at)
+        except AttemptTimingError:
+            started_at, finished_at = None, None
     try:
         client.rpc('apply_attempt_timing_and_progress', {
             'p_attempt_id':  str(attempt_id),
@@ -313,6 +326,37 @@ def _apply_timing_and_progress(client, attempt_id, request_body):
         current_app.logger.warning(
             f"apply_attempt_timing_and_progress failed (non-fatal) for "
             f"attempt={attempt_id}: {e}"
+        )
+
+    _credit_attempt_window(
+        client, attempt_id, started_at, finished_at, user_id, language_id, kind,
+    )
+
+
+def _credit_attempt_window(client, attempt_id, started_at, finished_at,
+                           user_id, language_id, kind):
+    """Credit the validated, clamped attempt window to the study-time ledger.
+
+    Never raises. No window (older clients) or an invalid one earns nothing:
+    missing test timing is not estimated (weekly-minutes tech spec, decision 3).
+    """
+    if not user_id or language_id is None:
+        return
+    try:
+        # Re-validate/clamp: drill routes pass the raw body, and this keeps
+        # the credit bounded by MAX_CREDITED_ATTEMPT_SECONDS regardless.
+        start_iso, finish_iso = validate_attempt_window(started_at, finished_at)
+        if not start_iso or not finish_iso:
+            return
+        seconds = int((datetime.fromisoformat(finish_iso)
+                       - datetime.fromisoformat(start_iso)).total_seconds())
+        credit_study_time(
+            client, user_id, language_id, kind, seconds,
+            'test_attempts', str(attempt_id),
+        )
+    except Exception as e:
+        current_app.logger.warning(
+            f"study-time credit skipped (non-fatal) for attempt={attempt_id}: {e}"
         )
 
 
@@ -669,6 +713,7 @@ def submit_test_attempt(slug):
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=current_user_id, language_id=language_id,
         )
 
         # BKT vocabulary tracking
@@ -752,6 +797,7 @@ def submit_pinyin_attempt(slug):
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=current_user_id, language_id=language_id,
         )
 
         result = {
@@ -850,6 +896,7 @@ def submit_pitch_accent_attempt(slug):
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=current_user_id, language_id=language_id,
         )
 
         result = {
@@ -1005,6 +1052,7 @@ def submit_dictation_attempt(slug):
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=current_user_id, language_id=language_id,
         )
 
         # Per-word BKT updates — single batched RPC instead of N round-trips.
