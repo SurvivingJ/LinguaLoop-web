@@ -15,6 +15,18 @@ logger = logging.getLogger(__name__)
 users_bp = Blueprint("users", __name__)
 
 
+def _service_client():
+    """Return the service-role Supabase client; fail closed if unavailable.
+
+    Never falls back to the anon client: the anon key must not be used for
+    token or profile reads/writes (see TASK-883).
+    """
+    client = getattr(current_app, 'supabase_service', None)
+    if client is None:
+        raise RuntimeError("Supabase service-role client is not configured")
+    return client
+
+
 @users_bp.route('/elo', methods=['GET'])
 @supabase_jwt_required
 def get_user_elo_ratings() -> ApiResponse:
@@ -36,11 +48,11 @@ def get_token_balance() -> ApiResponse:
         user_id = g.current_user_id
 
         # Atomic RPC: grants daily free tokens if not yet granted today
-        client = current_app.supabase_service or current_app.supabase
+        client = _service_client()
         client.rpc('grant_daily_free_tokens', {'p_user_id': user_id}).execute()
 
         # Read updated balance
-        user_result = current_app.supabase.table('users')\
+        user_result = client.table('users')\
             .select('tokens, last_free_token_date')\
             .eq('id', user_id)\
             .single()\
@@ -66,7 +78,7 @@ def get_user_profile() -> ApiResponse:
     try:
         user_id = g.current_user_id
 
-        user_result = current_app.supabase.table('users')\
+        user_result = _service_client().table('users')\
             .select(
                 'id, email, display_name, email_verified, '
                 'total_tests_taken, total_tests_generated, '

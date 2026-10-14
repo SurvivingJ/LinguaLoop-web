@@ -19,6 +19,7 @@ from flask import Blueprint, request, g
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from services.attempt_timing import clamp_time_taken_ms
 from utils.responses import ApiResponse, api_success, bad_request, server_error
 
 logger = logging.getLogger(__name__)
@@ -168,7 +169,7 @@ def submit_practice_attempt() -> ApiResponse:
                 user_id=g.current_user_id,
                 exercise_id=str(exercise_id),
                 is_correct=bool(data['is_correct']),
-                time_taken_ms=data.get('time_taken_ms'),
+                time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
                 timed_out=bool(data.get('timed_out')),
             )
         else:
@@ -177,7 +178,7 @@ def submit_practice_attempt() -> ApiResponse:
                 exercise_id=str(exercise_id),
                 is_correct=bool(data['is_correct']),
                 user_response=data.get('user_response'),
-                time_taken_ms=data.get('time_taken_ms'),
+                time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
                 session_mode=session_mode,
                 language_id=data.get('language_id'),
                 expected_seconds=data.get('expected_seconds'),

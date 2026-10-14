@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-09-24
+last_updated: 2026-10-14
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -44,6 +44,22 @@ The schema lives in Supabase PostgreSQL with Row-Level Security (RLS) policies o
 **Triggers:** 11 across 8 tables
 **RLS coverage:** 36 enabled / 28 disabled (see [[database/schema]] for the audit snapshot)
 **Application RPCs:** ~77 plpgsql/sql functions (plus ~199 extension functions from pgvector, pg_trgm, intarray)
+
+### Security posture (2026-10-14 audit; PLANNED, not applied live)
+
+The 2026-10-14 audit found that, as of the audit, `anon` and `authenticated` held broad table and function privileges and
+that the "RLS coverage" count above leaves 32 public tables unprotected. Target state, per
+[[decisions/ADR-034-no-client-db-writes]] and [[features/security-hardening.tech]] (tasks TASK-875 to TASK-883 in
+[[tasklist/security-hardening.tasks]]; every LIVE-DB task requires user approval to apply):
+
+- `users`, `user_tokens`, `token_transactions`: all client write privileges revoked (no column allowlist); own-row SELECT only. Policies `users_update_own`, `Users can update own profile`, `Users update own profile`, `users_admin_all`, `System can update tokens` and `tokens_own_data` are dropped (TASK-875).
+- `user_reports`: policy "Admin can view all reports" (`USING (true)`) dropped; `authenticated` keeps INSERT and own-row SELECT; `anon` has no grants (TASK-875).
+- The 32 RLS-off tables (`prompt_templates`, `llm_calls`, `exercises`, `word_assets`, `user_classifier_mastery`, `dt_*`, `generation_*`, `corpus_*`, `dim_classifier*`, ...): RLS enabled, all client privileges revoked, no policies; service_role only (TASK-876).
+- SECURITY DEFINER and pipeline functions: EXECUTE for `service_role` and `postgres` only, `search_path = public, pg_temp`; `is_admin` and `is_moderator` stay EXECUTE-able by `authenticated` (TASK-877).
+- Eight analytics views: client write grants revoked, `security_invoker = true`; `vw_distractor_error_analysis` and `vw_exercise_type_effectiveness` have no client SELECT (TASK-879).
+- Progress tables (`user_skill_ratings`, `test_attempts`, `exercise_attempts`, `question_attempt_results`, `user_vocabulary_knowledge`, `user_word_ladder`, `daily_test_loads`, `user_flashcards`, `calibration_*`, `weekly_plan_states`, `user_study_plans`): own-row SELECT only; default privileges in `public` revoked for `anon`/`authenticated`/PUBLIC (TASK-880).
+
+Until those migrations are applied, the grants and policies listed under individual tables below describe the pre-hardening state.
 
 ### Archive of 2026-09-21
 
@@ -428,7 +444,7 @@ Public mirror of `auth.users`. Auto-created by trigger on auth signup.
 - **Indexes:** `idx_users_active (id WHERE deleted_at IS NULL)`, `idx_users_email (email)`, `idx_users_free_test_date (last_free_test_date)`, `idx_users_organization (organization_id WHERE NOT NULL)`, `idx_users_subscription_tier (subscription_tier_id)`
 - **Foreign Keys:** `id` -> `auth.users.id`, `subscription_tier_id` -> `dim_subscription_tiers.id`, `organization_id` -> `organizations.id`, `native_language_id` -> `dim_languages.id`
 - **Triggers:** AFTER INSERT -> `create_user_dependencies()`, BEFORE UPDATE -> `update_updated_at_column()`
-- **RLS:** Enabled (Phase 6). Policies: users read own profile, users update own profile, service_role full access, admin read all users.
+- **RLS:** Enabled (Phase 6). Policies: users read own profile, users update own profile, service_role full access, admin read all users. **Security note (2026-10-14 audit):** the update policies and `users_admin_all` let a user raise their own `subscription_tier_id`; planned fix is a full client write revoke and dropping those policies (TASK-875, not yet applied; see Security posture above).
 - **Referenced by:** test_attempts, user_skill_ratings, tests (gen_user), user_languages, user_tokens, token_transactions, flagged_content, user_exercise_sessions, organization_members, vocabulary_review_queue (reviewed_by), user_vocabulary_knowledge, user_flashcards, word_quiz_results, mysteries (gen_user), mystery_progress, mystery_attempts, exercise_attempts, user_word_ladder, user_exercise_history, user_pack_selections
 
 ---

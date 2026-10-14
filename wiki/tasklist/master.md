@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-10-13
+last_updated: 2026-10-14
 ---
 
 # Master Task List
@@ -19,12 +19,16 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 22 |
+| Not Started | 23 |
 | In Progress (`[~]`) | 11 |
-| Blocked / Deferred / Awaiting decision (numbered tasks) | 18 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 25 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 210 |
+
+*2026-10-14 (NEW — Security Hardening, TASK-875–884):* swarm security audit findings S1–S17 (self-escalation on `users`, 32 RLS-off tables, anon-callable SECURITY DEFINER functions, open views, client-writable progress tables, answer keys before submit). Developer decisions: drop `users_admin_all`, no admin session rotation, full client write revoke on `users`, revoke `authenticated` SELECT on `vw_exercise_type_effectiveness`, in-function `auth.uid()` checks only where `authenticated` keeps EXECUTE; TASK-884 (rate limiting) Deferred as a potential future improvement. TASK-875, 876, 877, 879, 880 are LIVE-DB and require user approval to apply; TASK-882 has LIVE-DB policy/migration parts. Nothing applied. See [[features/security-hardening]], [[decisions/ADR-034-no-client-db-writes]], [[tasklist/security-hardening.tasks]]. Counts: Not Started 22→31 (+9), Blocked/Deferred 18→19 (+1).
+
+*2026-10-14 (Security Hardening, repo side):* TASK-875/876/877/879/880/882 written and tested in the repo, awaiting live apply approval (Not Started 31→23, awaiting-apply +6; TASK-881 and TASK-883 Done, not counted; TASK-878 still Not Started, TASK-884 Deferred).
 
 *2026-10-12 (NEW — Daily Session Modules, TASK-863–869):* learners can include/exclude daily-session modules (reading, listening, dictation, pinyin, classifier_drill, pitch_accent, flashcards, dual_translation, practice) per language. Excluded modules are dropped from Tier B with time redistributed by one common factor (flashcards fixed), filtered again in Tier C, and applied immediately via a same-day `build_daily_session` rebuild. See [[features/session-modules]], [[decisions/ADR-032-session-module-exclusion]], [[tasklist/session-modules.tasks]]. Counts: Not Started 21→28.
 
@@ -1096,6 +1100,21 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-872 | session-budget-settings | Accrue `new_words_completed` + tail stats (`record_session_progress` gains `p_sense_id`, `p_is_tail`); serve the optional tail (`tail`, `tail_queue`, "Keep going?" prompt) | [x] | M | TASK-863, TASK-871, TASK-874 |
 | TASK-873 | session-budget-settings | Calibration BKT evidence at `/end` (definition mode only, batch RPC, no ladder side effects) + single-wrong-answer admission to Queue A2 below test/word-quiz evidence | [x] | M | TASK-871 |
 | TASK-874 | session-budget-settings | Review-load governor (backlog thresholds T / 2T) and review forecast (`review_governor_state`, `new_words_effective`, `review_forecast_min_per_day`) | [x] | S | TASK-863 |
+
+### Security Hardening (new 2026-10-14)
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-875 | security-hardening | LIVE-DB: close self-escalation and balance forgery on `users`, `user_tokens`, `user_reports` (full client write revoke, drop `users_admin_all`; S1, S4, S9) | Done (repo) — awaiting live apply approval | M | — |
+| TASK-876 | security-hardening | LIVE-DB: enable RLS and revoke client access on the 32 unprotected tables (S2) | Done (repo) — awaiting live apply approval | S | — |
+| TASK-877 | security-hardening | LIVE-DB: function-grant hardening, REVOKE/GRANT per function + pinned search_path, groups A/B/C (S3, S5-S8, S13, S17) | Done (repo) — awaiting live apply approval | L | — |
+| TASK-878 | security-hardening | Read-only tampering check on study-plan minutes before debugging the minutes bug | [ ] | S | TASK-877 |
+| TASK-879 | security-hardening | LIVE-DB: analytics views to invoker, drop client grants incl. `vw_exercise_type_effectiveness` (S11) | Done (repo) — awaiting live apply approval | M | TASK-876 |
+| TASK-880 | security-hardening | LIVE-DB: lock down client-writable progress tables + default privileges (S10, S12) | Done (repo) — awaiting live apply approval | M | TASK-875, TASK-877 |
+| TASK-881 | security-hardening | Regression guard: static migration lint, catalog ACL/RLS test, `migrations/CLAUDE.md` rule | Done | M | TASK-875, TASK-876, TASK-877 |
+| TASK-882 | security-hardening | Route hardening: no answer keys pre-submit, server-side duration caps, bounded results (S14, S15; policy parts LIVE-DB) | Done (repo) — awaiting live apply approval | L | TASK-876, TASK-880 |
+| TASK-883 | security-hardening | Remove anon-client fallback in `routes/users.py`, delete dead `payment_service` factory (S17) | Done | S | TASK-877 |
+| TASK-884 | security-hardening | Rate limiting on LLM and auth endpoints (S16) — **Deferred**: potential future improvement, not implemented | Deferred | L | — |
 
 ### Language Packs (existing — unchanged)
 
