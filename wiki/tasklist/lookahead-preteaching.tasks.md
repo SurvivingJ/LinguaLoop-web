@@ -383,7 +383,11 @@ numbers are inconsistent: sharing one budget makes a cohort take 2.4 weeks and
 miss its own deadline every time. Either the cohort holds a separate intake
 budget, or `target_new_rate` rises for pre-teach words, or the cohort shrinks.
 
-**Blocked on:** which of the three. The choice changes both the daily minutes a
+**Superseded 2026-10-13:** resolved by [[decisions/ADR-033-budget-scope-and-new-word-budget]]. There is no separate
+cohort budget or `words_per_week`; the cohort is Queue B inside `new_words_per_day`
+([[features/session-budget-settings]], TASK-871). Close this task when TASK-871 ships.
+
+**Previously blocked on:** which of the three. The choice changes both the daily minutes a
 learner spends on acquisition and how many tests a week the feature can unblock,
 so it is not an implementation detail.
 

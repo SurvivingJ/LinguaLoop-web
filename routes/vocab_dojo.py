@@ -5,6 +5,7 @@ from flask import Blueprint, request, g, redirect
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from services.attempt_timing import clamp_time_taken_ms
 from utils.responses import ApiResponse, api_success, bad_request, server_error
 
 logger = logging.getLogger(__name__)
@@ -63,7 +64,7 @@ def submit_dojo_attempt() -> ApiResponse:
             exercise_id=str(exercise_id),
             is_correct=bool(is_correct),
             is_first_attempt=bool(data.get('is_first_attempt', True)),
-            time_taken_ms=data.get('time_taken_ms'),
+            time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
             language_id=data.get('language_id'),
             exercise_type=data.get('exercise_type'),
             ladder_level=data.get('ladder_level'),
@@ -240,10 +241,15 @@ def start_gate() -> ApiResponse:
             g.current_user_id, int(sense_id), int(language_id), gate_name
         )
 
+        from services.vocabulary_ladder import battery_token
         return api_success({
             'gate_name': gate_name,
             'exercises': exercises,
             'battery_size': len(exercises),
+            'battery_token': battery_token.issue(
+                g.current_user_id, 'gate', int(sense_id), gate_name,
+                [ex.get('exercise_id') or ex.get('id') for ex in exercises],
+            ),
         })
 
     except Exception as e:
@@ -259,7 +265,11 @@ def submit_gate_result() -> ApiResponse:
     Body:
         sense_id: required (int)
         gate_name: required ('gate_a' or 'gate_b')
-        passed: required (bool) — caller computes pass/fail from battery results
+        battery_token: required — issued by POST /gate
+        results: required — [{exercise_id, is_correct}] for the issued battery
+
+    Pass/fail is derived server-side (GATES[gate_name]['pass_threshold']); a
+    client-supplied ``passed`` flag is ignored (TASK-882 / S14).
     """
     try:
         data = request.get_json(silent=True) or {}
@@ -268,10 +278,23 @@ def submit_gate_result() -> ApiResponse:
 
         sense_id = data.get('sense_id')
         gate_name = data.get('gate_name')
-        passed = data.get('passed')
 
-        if sense_id is None or not gate_name or passed is None:
-            return bad_request("sense_id, gate_name, and passed required")
+        if sense_id is None or not gate_name:
+            return bad_request("sense_id, gate_name, battery_token and results required")
+
+        from services.vocabulary_ladder.config import GATES
+        if gate_name not in GATES:
+            return bad_request("gate_name must be 'gate_a' or 'gate_b'")
+
+        from services.vocabulary_ladder import battery_token
+        try:
+            correct, size = battery_token.score(
+                data.get('battery_token'), g.current_user_id, 'gate',
+                int(sense_id), gate_name, data.get('results'),
+            )
+        except (battery_token.BatteryError, TypeError, ValueError) as e:
+            return bad_request(str(e))
+        passed = size > 0 and correct >= min(GATES[gate_name]['pass_threshold'], size)
 
         from services.vocabulary_ladder.ladder_service import LadderService
         service = LadderService()
@@ -280,6 +303,8 @@ def submit_gate_result() -> ApiResponse:
             result = service.pass_gate(g.current_user_id, int(sense_id), gate_name)
         else:
             result = {'gate': gate_name, 'passed': False, 'word_state': 'active'}
+        result = dict(result or {})
+        result.update({'correct': correct, 'battery_size': size})
 
         return api_success(result)
 
@@ -315,9 +340,14 @@ def start_stress_test() -> ApiResponse:
             g.current_user_id, int(sense_id), int(language_id)
         )
 
+        from services.vocabulary_ladder import battery_token
         return api_success({
             'exercises': exercises,
             'battery_size': len(exercises),
+            'battery_token': battery_token.issue(
+                g.current_user_id, 'stress', int(sense_id), None,
+                [ex.get('exercise_id') or ex.get('id') for ex in exercises],
+            ),
         })
 
     except Exception as e:
@@ -333,8 +363,11 @@ def submit_stress_test_result() -> ApiResponse:
     Body:
         sense_id: required (int)
         language_id: required (int)
-        score: required (float, 0.0-1.0, e.g. 6/8 = 0.75)
-        passed: required (bool) — caller computes pass/fail
+        battery_token: required — issued by POST /stress-test
+        results: required — [{exercise_id, is_correct}] for the issued battery
+
+    Score and pass/fail are derived server-side (STRESS_TEST['pass_threshold']);
+    client-supplied ``score`` / ``passed`` are ignored (TASK-882 / S14).
     """
     try:
         data = request.get_json(silent=True) or {}
@@ -343,11 +376,24 @@ def submit_stress_test_result() -> ApiResponse:
 
         sense_id = data.get('sense_id')
         language_id = data.get('language_id')
-        score = data.get('score')
-        passed = data.get('passed')
 
-        if sense_id is None or not language_id or score is None or passed is None:
-            return bad_request("sense_id, language_id, score, and passed required")
+        if sense_id is None or not language_id:
+            return bad_request("sense_id, language_id, battery_token and results required")
+
+        from services.vocabulary_ladder import battery_token
+        from services.vocabulary_ladder.config import STRESS_TEST
+        try:
+            correct, size = battery_token.score(
+                data.get('battery_token'), g.current_user_id, 'stress',
+                int(sense_id), None, data.get('results'),
+            )
+            language_id = int(language_id)
+        except (battery_token.BatteryError, TypeError, ValueError) as e:
+            return bad_request(str(e))
+        if size <= 0:
+            return bad_request("empty battery")
+        score = correct / size
+        passed = correct >= min(STRESS_TEST['pass_threshold'], size)
 
         from services.vocabulary_ladder.ladder_service import LadderService
         service = LadderService()
@@ -363,6 +409,8 @@ def submit_stress_test_result() -> ApiResponse:
                 'stress_test_score': float(score),
                 'passed': False,
             }
+        result = dict(result or {})
+        result.update({'correct': correct, 'battery_size': size})
 
         return api_success(result)
 

@@ -24,6 +24,51 @@ view, trigger, or RPC that already exists):
    any object that is live and not redefined elsewhere — keep it, even if one of
    its objects is now stale.
 
+## Security rules for new functions and tables (TASK-881)
+
+Supabase grants `EXECUTE` on new functions to `PUBLIC`/`anon`/`authenticated` by default and
+exposes every `public` table through PostgREST, so each new object must lock itself down in
+the same migration file. This is enforced by `tests/test_migration_security_lint.py` (static,
+runs in CI) and `tests/sql/check_function_acls.sql` (read-only catalog check, run against
+live/staging after applying; every result set must be empty).
+
+**Every new function** (any `CREATE [OR REPLACE] FUNCTION` in `public`):
+
+```sql
+CREATE OR REPLACE FUNCTION public.foo(...) RETURNS ... LANGUAGE plpgsql
+SECURITY DEFINER            -- only if it needs to bypass RLS
+SET search_path = public, pg_temp
+AS $$ ... $$;
+
+REVOKE ALL ON FUNCTION public.foo(...) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.foo(...) TO service_role;
+```
+
+- `SECURITY DEFINER` without `SET search_path` is rejected by the lint; so is a `SECURITY
+  DEFINER` function with no `REVOKE ... FROM PUBLIC/anon/authenticated` in the same file.
+  Revoke from `PUBLIC` as well: `anon` inherits EXECUTE through `PUBLIC`.
+- Flask uses the service role, so `service_role`-only is the default. A function that must
+  stay callable by `authenticated` (e.g. an RLS helper) needs an in-function `auth.uid()`
+  check, an entry in the VALUES allowlist in `tests/sql/check_function_acls.sql`, an ADR, and
+  a `-- security-lint: allow-definer-exposed <reason>` comment in the migration.
+- A `CREATE OR REPLACE` of an existing function keeps its live ACL, but still repeat the
+  `REVOKE`/`GRANT` so the file is self-describing.
+
+**Every new table** (`CREATE TABLE` in `public`):
+
+```sql
+ALTER TABLE public.bar ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.bar FROM PUBLIC, anon, authenticated;
+-- Only if clients read it directly: add a policy and GRANT SELECT TO authenticated.
+-- Never grant INSERT/UPDATE/DELETE to client roles; writes go through Flask (service role).
+```
+
+- Missing `ENABLE ROW LEVEL SECURITY` in the same file fails the lint. A deliberate exception
+  needs `-- security-lint: allow-no-rls <reason>` plus an ADR.
+- Do not add files to the frozen `HISTORICAL_*` lists in the lint test; those cover
+  migrations that predate this rule. The live state of those objects is repaired by the
+  `security_*` migrations.
+
 ## When you read `migrations/`
 
 Treat anything in `migrations/archive/` as history only — never as the current

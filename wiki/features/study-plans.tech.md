@@ -317,6 +317,8 @@ $$;
 ## RPC: `compute_weekly_plan` (Tier B)
 
 > **2026-10-12 (planned):** `user_study_plans.excluded_modules` is applied to the template before allocation via `apply_module_exclusions` — see [[features/session-modules.tech]] / [[decisions/ADR-032-session-module-exclusion]].
+>
+> **2026-10-13 (planned, revised (b)):** `rebalance_practice` sizes the practice pool (flex plus clamp, as before) and the review share by due pressure; in-budget new-word minutes are `min(quota minutes, practice pool − review)` (`acq_target_minutes`). `maintenance_share`/`acquisition_share` are persisted as derived values (the relaxed CHECK allows 1.0/0.0). New-word volume is the learner-set `user_study_plans.new_words_per_day` quota (`new_words_target`, `new_words_completed`, tail statistics); `budget_scope='tests_only'` or a `practice` exclusion moves all review and new words to an optional tail. There is no extra pool and no scale-up of tests — see [[features/session-budget-settings.tech]] / [[decisions/ADR-033-budget-scope-and-new-word-budget]].
 
 Implementation in PL/pgSQL or Python (`services/study_plan_service.py`); pseudocode-equivalent in [[algorithms/study-plan-adaptation.tech]]. Idempotent (R3.8):
 
@@ -333,6 +335,8 @@ PK `(user_id, language_id, week_start_date)` guarantees one row per week. Re-run
 ## RPC: `build_daily_session` (Tier C)
 
 > **2026-10-12 (planned):** filters `excluded_modules` out of the budget split, candidates, retry and word_upload — see [[features/session-modules.tech]].
+>
+> **2026-10-13 (planned, revised (b)):** keeps one pool: the in-budget TASK-732 split, whose practice share (only under `tests_and_review` with `practice` not excluded) is filled directly with due reviews first, then whole new words from the governed `new_words_per_day` quota, and unused minutes return to tests. The remainder of the quota and the reviews that did not fit are an optional tail derived by the session route — see [[features/session-budget-settings.tech]].
 
 ```sql
 CREATE OR REPLACE FUNCTION public.build_daily_session(
@@ -669,6 +673,7 @@ Returned: 11 items across 4 words. User completes 8; each submit fires `record_s
 
 - [[features/study-plans]] — Plain-English counterpart.
 - [[features/session-modules.tech]] — Module include/exclude (Tier B rescale + Tier C filter).
+- [[features/session-budget-settings.tech]] — Budget scope, daily new-word quota, optional tail, review governor; [[decisions/ADR-033-budget-scope-and-new-word-budget]].
 - [[algorithms/study-plan-adaptation.tech]] — Adapter math in depth.
 - [[features/practice-engine.tech]] — The Practice surface this orchestrator allocates to.
 - [[features/comprehension-tests.tech]] — Test side; `_compute_daily_load` becomes the fallback.

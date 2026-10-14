@@ -111,7 +111,8 @@ class VocabularyKnowledgeService:
             return None
 
     def update_from_word_tests_batch(
-        self, user_id: str, language_id: int, results: list[dict]
+        self, user_id: str, language_id: int, results: list[dict],
+        side_effects: bool = True,
     ) -> list[dict]:
         """Batched per-sense word-test BKT update.
 
@@ -130,6 +131,13 @@ class VocabularyKnowledgeService:
             language_id: e.g. 1 for Chinese
             results: [{"sense_id": int, "is_correct": bool}, ...].
                 Duplicates allowed; server dedupes.
+            side_effects: when False, only the BKT write happens; the
+                downstream flashcard creation, ladder seeding and frequency
+                inference are skipped. Calibration passes False so its
+                evidence cannot create ladder rows outside the daily
+                new-word quota and the supply gate
+                ([[features/session-budget-settings.tech]], TASK-873). The
+                default keeps the dictation caller unchanged.
 
         Returns:
             List of {sense_id, p_known_before, p_known_after, status},
@@ -152,9 +160,10 @@ class VocabularyKnowledgeService:
 
             # Fire downstream services ONCE over the batch result, not N
             # times. Both already operate set-based internally.
-            self._auto_create_flashcards(user_id, language_id, rows)
-            self._seed_ladder_for_new_words(user_id, language_id, rows)
-            self._trigger_frequency_inference(user_id, language_id, rows)
+            if side_effects:
+                self._auto_create_flashcards(user_id, language_id, rows)
+                self._seed_ladder_for_new_words(user_id, language_id, rows)
+                self._trigger_frequency_inference(user_id, language_id, rows)
 
             return rows
 

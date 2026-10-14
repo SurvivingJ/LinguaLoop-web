@@ -4,14 +4,19 @@
 from flask import Blueprint, request, jsonify, current_app, g
 from uuid import uuid4
 import traceback
+from datetime import datetime
 import logging
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.ai_service import ModerationServiceError
+from services.attempt_timing import (
+    AttemptTimingError, clamp_time_taken, validate_attempt_window, validate_counts,
+)
+from services.study_time import credit_study_time
 from services.dictation.cap import MAX_STORED_DIFF_ENTRIES
 from services.test_service import (
-    TestService, DimensionService, get_test_service,
+    TestService, DimensionService, NoMatchingAttemptError, get_test_service,
     parse_language_id, VALID_LANGUAGE_IDS
 )
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
@@ -176,6 +181,8 @@ def complete_daily_load_test():
         test_service = get_test_service()
         result = test_service.mark_daily_test_complete(user_id, language_id, test_id)
         return api_success(data=result)
+    except NoMatchingAttemptError:
+        return bad_request("No attempt recorded today for this test")
     except Exception as e:
         logger.error(f"Error marking daily test complete: {e}")
         logger.error(traceback.format_exc())
@@ -263,7 +270,21 @@ def get_test(slug):
         current_app.logger.error(f"Error in get_test route: {e}")
         return server_error("Failed to fetch test")
         
-def _apply_timing_and_progress(client, attempt_id, request_body):
+def _normalize_timing(request_body):
+    """Validate/clamp started_at + finished_at in place (TASK-882 / S15).
+
+    Call BEFORE the submission RPC so a forged window is rejected (400) and
+    nothing is recorded. Raises AttemptTimingError; callers return bad_request.
+    """
+    started, finished = validate_attempt_window(
+        request_body.get('started_at'), request_body.get('finished_at'),
+    )
+    request_body['started_at'] = started
+    request_body['finished_at'] = finished
+
+
+def _apply_timing_and_progress(client, attempt_id, request_body,
+                               user_id=None, language_id=None, kind='test'):
     """Post-submission hook — persist timing + bump Study Plan counter.
 
     Phase 13. Best-effort: failures are logged but never bubble up to the
@@ -277,6 +298,9 @@ def _apply_timing_and_progress(client, attempt_id, request_body):
         attempt_id: UUID returned by the submission RPC.
         request_body: the request JSON dict (we read started_at /
             finished_at from it).
+        user_id, language_id: when both are given, the measured window is
+            also credited to the weekly study-time ledger (weekly-minutes,
+            ADR-035) as ``kind`` ('test' or 'drill').
 
     See migrations/phase13_apply_attempt_timing_and_progress.sql.
     """
@@ -284,6 +308,13 @@ def _apply_timing_and_progress(client, attempt_id, request_body):
         return
     started_at  = request_body.get('started_at')   # ISO timestamp or None
     finished_at = request_body.get('finished_at')
+    if kind == 'drill':
+        # Drill routes do not pre-validate the window like the test routes do
+        # (_normalize_timing); a forged/garbled window is dropped, not stored.
+        try:
+            started_at, finished_at = validate_attempt_window(started_at, finished_at)
+        except AttemptTimingError:
+            started_at, finished_at = None, None
     try:
         client.rpc('apply_attempt_timing_and_progress', {
             'p_attempt_id':  str(attempt_id),
@@ -295,6 +326,37 @@ def _apply_timing_and_progress(client, attempt_id, request_body):
         current_app.logger.warning(
             f"apply_attempt_timing_and_progress failed (non-fatal) for "
             f"attempt={attempt_id}: {e}"
+        )
+
+    _credit_attempt_window(
+        client, attempt_id, started_at, finished_at, user_id, language_id, kind,
+    )
+
+
+def _credit_attempt_window(client, attempt_id, started_at, finished_at,
+                           user_id, language_id, kind):
+    """Credit the validated, clamped attempt window to the study-time ledger.
+
+    Never raises. No window (older clients) or an invalid one earns nothing:
+    missing test timing is not estimated (weekly-minutes tech spec, decision 3).
+    """
+    if not user_id or language_id is None:
+        return
+    try:
+        # Re-validate/clamp: drill routes pass the raw body, and this keeps
+        # the credit bounded by MAX_CREDITED_ATTEMPT_SECONDS regardless.
+        start_iso, finish_iso = validate_attempt_window(started_at, finished_at)
+        if not start_iso or not finish_iso:
+            return
+        seconds = int((datetime.fromisoformat(finish_iso)
+                       - datetime.fromisoformat(start_iso)).total_seconds())
+        credit_study_time(
+            client, user_id, language_id, kind, seconds,
+            'test_attempts', str(attempt_id),
+        )
+    except Exception as e:
+        current_app.logger.warning(
+            f"study-time credit skipped (non-fatal) for attempt={attempt_id}: {e}"
         )
 
 
@@ -530,6 +592,24 @@ def _update_vocabulary_tracking(user_id, test_id, language_id, rpc_result):
         return None
 
 
+def _attach_explanations(result, test_id):
+    """Add ``answer_explanation`` to each question_result (TASK-882 / S14).
+
+    The explanation (like the correct answer, which the grading RPC already
+    returns in question_results) is revealed only here, after submit. Failure
+    is non-fatal: the learner just sees no explanation.
+    """
+    try:
+        rows = current_app.supabase_service.table('questions') \
+            .select('id, answer_explanation').eq('test_id', str(test_id)).execute().data or []
+        by_id = {str(r['id']): r.get('answer_explanation') for r in rows}
+        for qr in result.get('question_results') or []:
+            if isinstance(qr, dict):
+                qr['answer_explanation'] = by_id.get(str(qr.get('question_id')))
+    except Exception as e:
+        current_app.logger.warning("answer_explanation lookup failed (non-fatal): %s", e)
+
+
 def _build_submission_response(rpc_result, test_mode, word_quiz):
     """Construct the API response dict from RPC results and optional word quiz."""
     attempt_id = rpc_result.get('attempt_id')
@@ -576,6 +656,11 @@ def submit_test_attempt(slug):
 
         if not responses:
             return bad_request("No responses provided")
+
+        try:
+            _normalize_timing(data)
+        except AttemptTimingError as e:
+            return bad_request(str(e))
 
         # Lightweight test lookup (just id and language_id, no questions)
         test_lookup = current_app.supabase_service.table('tests')\
@@ -628,12 +713,14 @@ def submit_test_attempt(slug):
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=current_user_id, language_id=language_id,
         )
 
         # BKT vocabulary tracking
         word_quiz = _update_vocabulary_tracking(current_user_id, test_id, language_id, rpc_result)
 
         result = _build_submission_response(rpc_result, test_mode, word_quiz)
+        _attach_explanations(result, test_id)
         return api_success(data={'result': result})
 
     except Exception as e:
@@ -660,11 +747,15 @@ def submit_pinyin_attempt(slug):
 
         correct_chars = data.get('correct_chars', 0)
         total_chars = data.get('total_chars', 0)
-        time_taken = data.get('time_taken', 0)
+        time_taken = clamp_time_taken(data.get('time_taken', 0))
         idempotency_key = data.get('idempotency_key') or str(uuid4())
 
-        if total_chars <= 0:
-            return bad_request("Invalid total_chars")
+        try:
+            correct_chars, total_chars = validate_counts(
+                correct_chars, total_chars, 'correct_chars', 'total_chars')
+            _normalize_timing(data)
+        except AttemptTimingError as e:
+            return bad_request(str(e))
 
         accuracy = correct_chars / total_chars
 
@@ -706,6 +797,7 @@ def submit_pinyin_attempt(slug):
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=current_user_id, language_id=language_id,
         )
 
         result = {
@@ -754,12 +846,16 @@ def submit_pitch_accent_attempt(slug):
 
         correct_units = data.get('correct_units', 0)
         total_units = data.get('total_units', 0)
-        time_taken = data.get('time_taken', 0)
+        time_taken = clamp_time_taken(data.get('time_taken', 0))
         furigana_used = bool(data.get('furigana_used', False))
         idempotency_key = data.get('idempotency_key') or str(uuid4())
 
-        if total_units <= 0:
-            return bad_request("Invalid total_units")
+        try:
+            correct_units, total_units = validate_counts(
+                correct_units, total_units, 'correct_units', 'total_units')
+            _normalize_timing(data)
+        except AttemptTimingError as e:
+            return bad_request(str(e))
 
         accuracy = correct_units / total_units
 
@@ -800,6 +896,7 @@ def submit_pitch_accent_attempt(slug):
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=current_user_id, language_id=language_id,
         )
 
         result = {
@@ -849,11 +946,16 @@ def submit_dictation_attempt(slug):
 
         user_transcript = (data.get('user_transcript') or '').strip()
         replay_count = data.get('replay_count', 1)
-        time_taken = data.get('time_taken', 0)
+        time_taken = clamp_time_taken(data.get('time_taken', 0))
         idempotency_key = data.get('idempotency_key') or str(uuid4())
 
         if not user_transcript:
             return bad_request("Empty user_transcript")
+
+        try:
+            _normalize_timing(data)
+        except AttemptTimingError as e:
+            return bad_request(str(e))
 
         try:
             replay_count = max(1, int(replay_count))
@@ -950,6 +1052,7 @@ def submit_dictation_attempt(slug):
         # Phase 13 — persist timing + bump Study Plan counter (best-effort).
         _apply_timing_and_progress(
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
+            user_id=current_user_id, language_id=language_id,
         )
 
         # Per-word BKT updates — single batched RPC instead of N round-trips.
@@ -1053,14 +1156,16 @@ def get_test_with_ratings(identifier):
 
         normalize_audio_url(test)
 
-        # Get questions.
+        # Get questions. TASK-882 / S14: the answer key (`answer`) and
+        # `answer_explanation` are deliberately NOT selected -- grading is
+        # server-side and both come back only in the submit response.
         # Ordered by question_id ("<slug>-qN", written in creation order) rather
         # than left unordered: the furigana payload is POSITIONAL — the page
         # reads furiganaPayload.questions[index] against this array's order — so
         # an unspecified row order lets readings drift onto the wrong question.
         questions_result = current_app.supabase_service.table('questions').select(
             'id, question_id, question_text, question_type_id, choices, '
-            'answer, answer_explanation, points, audio_url'
+            'points, audio_url'
         ).eq('test_id', test_id).order('question_id').execute()
 
         # Get ELO ratings with FK join to dim_test_types

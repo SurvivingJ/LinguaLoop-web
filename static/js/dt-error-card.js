@@ -258,12 +258,20 @@ const DTErrorCard = (function () {
     const options = opts || {};
     const doFetch = options.authFetch || (typeof window !== 'undefined' && window.authFetch);
     const state = { destroyed: false, submitting: false, typed: '' };
+    // Weekly-minutes: active time on this card (shown -> rated). The event id
+    // is minted once per card so a retried rating dedupes server-side.
+    const AT = typeof window !== 'undefined' ? window.ActiveTimer : null;
+    const timer = AT && typeof AT.create === 'function' ? AT.create() : null;
+    let eventId = null;
+    let activeMs = null;
 
     renderPrompt();
+    if (timer) timer.start();
 
     return {
       destroy() {
         state.destroyed = true;
+        if (timer) timer.reset();
       },
     };
 
@@ -318,6 +326,14 @@ const DTErrorCard = (function () {
       const wasCorrect = wasCorrectFor(card, state.typed);
       const body = { rating: rating };
       if (wasCorrect !== null) body.was_correct = wasCorrect;
+      if (timer) {
+        if (activeMs === null) {
+          activeMs = timer.stop();
+          eventId = AT.newEventId();
+        }
+        body.active_ms = activeMs;
+        body.client_event_id = eventId;
+      }
 
       let saved = false;
       let nextDue = null;

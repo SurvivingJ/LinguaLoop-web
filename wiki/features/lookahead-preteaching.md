@@ -3,10 +3,10 @@ title: Lookahead Pre-Teaching
 type: feature
 status: planned
 tech_page: ./lookahead-preteaching.tech.md
-last_updated: 2026-09-19
+last_updated: 2026-10-13
 open_questions:
   - "ANSWERED 2026-09-19: rank by points per MINUTE (`c4_per_minute`), not per word. Which word that picks flips with the per-word cost model: least-known-first wins if unfamiliar words are cheap per point, frontier-first wins if they are expensive. `c4_per_minute` tracks the best arm at every setting, so the ranking is settled — but its `kappa` parameter is NOT yet measurable (15 exercise_attempts in total). Ship kappa = 0 and fit it from attempts-to-Ring-2 once traffic exists."
-  - "ANSWERED 2026-09-19: the learner picks it. `words_per_week` becomes a user setting (casual ~20, serious ~100), replacing the derived `target_new_rate` of daily_minutes // 6 (5/week at 30 min/day) as the ladder intake ceiling. NEW CONSEQUENCE: a serious learner burns the entire 1,582-sense ja demand pool in ~16 weeks, so generation is continuous, not a one-off 500-sense backfill."
+  - "SUPERSEDED 2026-10-13: the separate `words_per_week` setting is deprecated. Pre-teaching is now Queue B inside the learner's `new_words_per_day` quota, drawn only after Queue A (unknowns from recent tests) is exhausted. See [[decisions/ADR-033-budget-scope-and-new-word-budget]] and [[features/session-budget-settings]]. (Original 2026-09-19 answer: learner-set words_per_week, casual ~20, serious ~100.)"
   - "ANSWERED 2026-09-19: the target test is hidden from the learner until they are ready for it. The cohort is framed as 'words for the week ahead'; naming a test would both promise something A2 deliberately does not commit to and remove the reveal."
 ---
 
@@ -43,10 +43,13 @@ puts 98% of the catalogue in reach that way.
    know (`p_known < 0.5`) and ranks them by how many of those ten tests they
    block. Words shared across the pool are worth far more than words that
    unlock one test.
-3. **Open a cohort.** The top words — sized against the learner's own
-   words-per-week target, which they choose (casual ~20, serious ~100) —
-   become the cycle's cohort and are subscribed to the vocabulary ladder
-   ahead of every other intake source.
+3. **Open a cohort.** The top words — drawn from the learner's daily
+   new-words quota (`new_words_per_day`), and only after unknown words from
+   their recent tests are used up (see [[features/session-budget-settings]]
+   and [[decisions/ADR-033-budget-scope-and-new-word-budget]]) —
+   become the cycle's cohort and are subscribed to the vocabulary ladder.
+   *(Amended 2026-10-13: this was previously a separate words-per-week
+   target and came ahead of every other source.)*
 4. **Teach them.** For the next few days the Practice session's Acquisition mode
    anchors on those words and drills them to **Ring 2 cleared** — recognition,
    meaning recall and form production, not just "have you seen this before".
@@ -86,7 +89,7 @@ dollars per language.
 
 - **A cohort cannot be learned in a day.** The ladder's cross-session gate
   requires successes on two distinct calendar days per family, so the minimum
-  useful lead time is three days — and no words-per-week setting can shorten
+  useful lead time is three days — and no new-words setting can shorten
   it. A learner who studies once a week gets one cohort per visit-pair.
 - **A fast learner outruns the content.** At 100 words/week the ja demand
   pool (1,582 test-referenced senses with no exercises) lasts ~16 weeks.
@@ -125,9 +128,12 @@ dollars per language.
   ranking — whether unfamiliar words cost more or less per point than
   half-familiar ones — is still unmeasured, and it is what decides whether
   the ranking behaves like least-known-first or frontier-first.
-- **ANSWERED 2026-09-19** — the learner sets their own words-per-week target
-  (casual ~20, serious ~100). This replaces the derived 5/week and removes
-  the conflict with cohort size entirely.
+- **SUPERSEDED 2026-10-13** — the separate words-per-week target (casual ~20,
+  serious ~100, answered 2026-09-19) is deprecated. Pre-teaching is the second
+  source (Queue B) inside the learner's `new_words_per_day` quota, used only
+  after recent-test unknowns (Queue A) run out. See
+  [[decisions/ADR-033-budget-scope-and-new-word-budget]] and
+  [[features/session-budget-settings]].
 - **ANSWERED 2026-09-19** — does the UI name the target test? **No.** The target
   is hidden until the cohort is ready; then the test surfaces as unlocked. The
   learner sees "words for the week ahead" while learning, never "this is for

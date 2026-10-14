@@ -639,6 +639,95 @@ def apply_calibration_to_ratings(user_id: str,
     return list(decisions) if isinstance(decisions, list) else []
 
 
+def apply_calibration_to_vocabulary(user_id: str, session: dict) -> Optional[dict]:
+    """Write BKT evidence for the answered anchors of a definition-mode run.
+
+    TASK-873 (cold start 4B). Calibration used to write only calibration tables,
+    ``user_calibration_state`` and ELO. This sends each answered anchor sense
+    through the batch word-test RPC so ``user_vocabulary_knowledge`` reflects what
+    the run showed.
+
+    Exercise type: semantically ``definition_match`` (a four-option definition
+    recognition item, as in the post-test word quiz). The batch RPC takes no
+    ``p_exercise_type`` and applies ``bkt_update_word_test``, whose slip 0.05 /
+    guess 0.25 / transit 0.05 equal the ``definition_match`` branch of
+    ``bkt_update_exercise``; a SQL test pins the equality.
+
+    Rules:
+      * Definition mode only. Pronunciation runs are never sent.
+      * Idempotent through ``calibration_sessions.bkt_applied_at``: the write is
+        claimed with a conditional UPDATE, so a second ``/end`` is a no-op.
+      * Predicate ``answered_at IS NOT NULL AND is_correct IS NOT NULL``. An
+        explicit skip ("I don't know") is stored with ``chosen_sense_id`` NULL,
+        ``is_correct`` false and ``answered_at`` set, so it is sent as wrong,
+        exactly like a wrong option. Never-answered items are ignored.
+      * ``side_effects=False``: no flashcards, no ladder rows (admission goes
+        through the daily quota and the supply gate), no frequency inference.
+
+    NON-FATAL. Any failure is logged at WARNING and the marker is reset
+    (best effort) so a retried ``/end`` can try again. Returns the summary
+    ``{'sent': n}`` when the write ran, else None.
+    """
+    mode = session.get('mode') or MODE_DEFINITION
+    if mode != MODE_DEFINITION:
+        return None
+
+    db = get_supabase_admin()
+    session_id = session['id']
+    claimed = False
+    try:
+        claim = (db.table('calibration_sessions')
+                   .update({'bkt_applied_at': 'now()'})
+                   .eq('id', session_id)
+                   .eq('user_id', user_id)
+                   .eq('mode', MODE_DEFINITION)
+                   .is_('bkt_applied_at', 'null')
+                   .execute())
+        if not (claim.data or []):
+            return None
+        claimed = True
+
+        rows = (db.table('calibration_responses')
+                  .select('anchor_sense_id, is_correct')
+                  .eq('session_id', session_id)
+                  .not_.is_('answered_at', 'null')
+                  .not_.is_('is_correct', 'null')
+                  .limit(1000)
+                  .execute().data) or []
+        results = [
+            {'sense_id': int(r['anchor_sense_id']), 'is_correct': bool(r['is_correct'])}
+            for r in rows if r.get('anchor_sense_id') is not None
+        ]
+        if not results:
+            return {'sent': 0}
+
+        from services.vocabulary.knowledge_service import VocabularyKnowledgeService
+        updated = VocabularyKnowledgeService().update_from_word_tests_batch(
+            user_id, int(session['word_language_id']), results,
+            side_effects=False,
+        )
+        # The wrapper swallows its own errors and returns [] on failure; the RPC
+        # returns one row per unique sense, so [] for a non-empty input is a failure.
+        if not updated:
+            raise RuntimeError('batch word-test RPC returned no rows')
+        return {'sent': len(results)}
+    except Exception as exc:
+        logger.warning(
+            'calibration BKT evidence not written for session %s user=%s (%s); '
+            'the calibration result is kept.', session_id, user_id, str(exc)[:160])
+        if claimed:
+            try:
+                (db.table('calibration_sessions')
+                   .update({'bkt_applied_at': None})
+                   .eq('id', session_id)
+                   .eq('user_id', user_id)
+                   .execute())
+            except Exception as reset_exc:
+                logger.warning('could not reset bkt_applied_at for session %s: %s',
+                               session_id, reset_exc)
+        return None
+
+
 def end_session(user_id: str, session: dict) -> dict:
     """Close a session, publish pooled ability, and return the final report."""
     db = get_supabase_admin()
@@ -660,6 +749,13 @@ def end_session(user_id: str, session: dict) -> dict:
     language_id = int(session['word_language_id'])
     mode = session.get('mode') or MODE_DEFINITION
     pooled = write_calibration_state(user_id, language_id, mode)
+
+    # TASK-873 (cold start 4B): BKT evidence for the answered anchors. Definition
+    # mode only, once per session, non-fatal; independent of whether the pooled
+    # state write above landed.
+    if mode == MODE_DEFINITION:
+        apply_calibration_to_vocabulary(user_id, session)
+
     if pooled:
         report['pooled'] = {
             'ability_zipf': pooled['ability_zipf'],

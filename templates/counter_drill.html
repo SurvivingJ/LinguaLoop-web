@@ -507,7 +507,8 @@
 
         const total = state.items.length;
         const pct = total ? Math.round((state.correct / total) * 100) : 0;
-        const seconds = Math.round((Date.now() - state.startTime) / 1000);
+        const finishedAtMs = Date.now();
+        const seconds = Math.round((finishedAtMs - state.startTime) / 1000);
 
         el.resultsPct.textContent = pct;
         el.resultsCorrect.textContent = state.correct;
@@ -525,6 +526,8 @@
                     correct_items: state.correct,
                     total_items: total,
                     time_taken: seconds,
+                    started_at: state.startTime ? new Date(state.startTime).toISOString() : null,
+                    finished_at: new Date(finishedAtMs).toISOString(),
                     idempotency_key: (window.crypto && window.crypto.randomUUID)
                         ? window.crypto.randomUUID() : undefined,
                 }),

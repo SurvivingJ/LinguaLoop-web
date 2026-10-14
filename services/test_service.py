@@ -10,7 +10,9 @@ import logging
 import traceback
 from datetime import datetime, timezone, date
 
-from services.day_boundary import plan_today, plan_today_iso
+from services.day_boundary import (
+    local_day_start_utc, plan_timezone, plan_today, plan_today_iso,
+)
 from typing import Optional, Dict, List, Any, Tuple
 
 from config import Config
@@ -26,6 +28,10 @@ from services.dimension_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class NoMatchingAttemptError(Exception):
+    """daily-load/complete called for a test the user has not attempted today."""
 
 
 # ============================================================================
@@ -78,11 +84,11 @@ class TestService:
             test_type: Order by this test type's ELO rating
             limit: Maximum number of tests to return
         """
-        if not self.client:
+        if not self.admin:
             return []
 
         try:
-            query = self.client.table('tests').select(
+            query = self.admin.table('tests').select(
                 'id, slug, language_id, topic, difficulty, '
                 'listening_rating, reading_rating, dictation_rating, created_at'
             )
@@ -123,14 +129,17 @@ class TestService:
         """
         Get a single test by slug with its questions.
 
-        Returns formatted test data ready for the frontend.
+        Returns formatted test data ready for the frontend. The answer key is
+        never included (TASK-882 / S14); it is returned only by the submit
+        endpoint. Reads use the service-role client so the `questions` /
+        `tests` RLS policies can be tightened.
         """
-        if not self.client or not slug:
+        if not self.admin or not slug:
             return None
 
         try:
             # Fetch test
-            t_res = self.client.table('tests').select('*').eq('slug', slug).limit(1).execute()
+            t_res = self.admin.table('tests').select('*').eq('slug', slug).limit(1).execute()
             if not t_res.data:
                 return None
 
@@ -139,7 +148,7 @@ class TestService:
             # Fetch questions. Ordered by question_id ("<slug>-qN", written in
             # creation order) to match the positional furigana payload — see the
             # equivalent fetch in routes/tests.py.
-            q_res = self.client.table('questions')\
+            q_res = self.admin.table('questions')\
                 .select('*')\
                 .eq('test_id', t['id'])\
                 .order('question_id')\
@@ -154,7 +163,6 @@ class TestService:
                     'id': q['id'],
                     'question': q['question_text'],
                     'choices': self._parse_choices(q.get('choices')),
-                    'answer': q.get('correct_answer', ''),
                 })
 
             # Format response
@@ -227,7 +235,7 @@ class TestService:
         Returns:
             Dict with attempt_id, score, total_questions, percentage
         """
-        if not self.client:
+        if not self.admin:
             raise Exception("Supabase client not initialized")
 
         try:
@@ -249,7 +257,7 @@ class TestService:
                 'user_elo_after': user_elo_after
             }
 
-            attempt_result = self.client.table('test_attempts').insert(attempt_record).execute()
+            attempt_result = self.admin.table('test_attempts').insert(attempt_record).execute()
             attempt_id = attempt_result.data[0]['id']
 
             # Insert individual responses
@@ -264,7 +272,7 @@ class TestService:
                 })
 
             if responses_to_insert:
-                self.client.table('attempt_responses').insert(responses_to_insert).execute()
+                self.admin.table('attempt_responses').insert(responses_to_insert).execute()
 
             return {
                 'attempt_id': attempt_id,
@@ -476,6 +484,11 @@ class TestService:
 
         now = datetime.now(timezone.utc)
 
+        # Session modules (ADR-032): a learner who switched a test type off in
+        # the Study Plan must not get it from this legacy path either. No plan
+        # row (or a failed read) means no exclusions.
+        excluded = self._excluded_modules(user_id, language_id)
+
         # Build test_type id-to-code map
         id_to_type_code = {}
         if DimensionService._test_type_cache:
@@ -510,6 +523,8 @@ class TestService:
                 if (now - attempt_time).total_seconds() < COOLDOWN_SECONDS:
                     continue
             except (ValueError, TypeError):
+                continue
+            if excluded and id_to_type_code.get(a['test_type_id'], 'listening') in excluded:
                 continue
             retry_pool.append(a)
 
@@ -550,6 +565,7 @@ class TestService:
                     t for t in recommended
                     if t.get('test_id') not in selected_test_ids
                     and t.get('test_id') not in latest_by_test
+                    and t.get('test_type', 'listening') not in excluded
                 ]
 
                 for t in new_tests:
@@ -605,6 +621,8 @@ class TestService:
                     if test_id in selected_test_ids or test_id in latest_by_test:
                         continue
                     type_code = (r.get('dim_test_types') or {}).get('type_code', 'listening')
+                    if type_code in excluded:
+                        continue
                     load_items.append({
                         'test_id': test_id,
                         'slot_type': 'new',
@@ -619,6 +637,28 @@ class TestService:
                 logger.error(f"Error in fallback test selection for daily load: {e}")
 
         return load_items
+
+    def _excluded_modules(self, user_id: str, language_id: int) -> set:
+        """The learner's ``user_study_plans.excluded_modules`` as a set.
+
+        Empty when there is no plan row or the read fails (fail open: the legacy
+        path must keep producing a load).
+        """
+        try:
+            resp = (
+                self.admin.table('user_study_plans')
+                .select('excluded_modules')
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .limit(1)
+                .execute()
+            )
+            rows = resp.data or []
+            if rows:
+                return {m for m in (rows[0].get('excluded_modules') or []) if isinstance(m, str)}
+        except Exception as e:
+            logger.warning(f"Could not read excluded_modules for daily load: {e}")
+        return set()
 
     @staticmethod
     def _normalize_load_item(item):
@@ -718,6 +758,20 @@ class TestService:
         # that the GET never showed them.
         today = plan_today_iso(self.admin, user_id, language_id)
 
+        # TASK-882 / S15: a slot is completed only if the caller really has a
+        # test_attempts row for this test since the start of their local day.
+        # Without this any user could mark any test complete via the API.
+        day_start = local_day_start_utc(plan_timezone(self.admin, user_id, language_id))
+        attempt = self.admin.table('test_attempts')\
+            .select('id')\
+            .eq('user_id', user_id)\
+            .eq('test_id', test_id)\
+            .gte('created_at', day_start.isoformat())\
+            .limit(1)\
+            .execute()
+        if not attempt.data:
+            raise NoMatchingAttemptError("No attempt recorded today for this test")
+
         record = self.admin.table('daily_test_loads')\
             .select('id, completed_test_ids, test_ids')\
             .eq('user_id', user_id)\
@@ -752,7 +806,7 @@ class TestService:
     def record_flagged_input(self, user_email: str, content: str,
                              flagged_categories: List[str] = None) -> None:
         """Record flagged input for analytics."""
-        if not self.client:
+        if not self.admin:
             return
 
         try:
@@ -765,7 +819,7 @@ class TestService:
                 'content_length': len(content),
             }
 
-            self.client.table('flagged_inputs').insert(record).execute()
+            self.admin.table('flagged_inputs').insert(record).execute()
         except Exception as e:
             logger.warning(f"Failed to record flagged input: {e}")
 

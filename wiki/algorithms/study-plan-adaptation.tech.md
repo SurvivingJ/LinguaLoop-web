@@ -151,6 +151,16 @@ def rebalance_practice(user, language, template):
     return practice_minutes, maint_share, acq_share
 ```
 
+> **2026-10-13 (planned, revised (b)) — new words become a daily quota.** New-word volume is a
+> learner-set count (`user_study_plans.new_words_per_day`, 0 = off). `rebalance_practice` sizes the practice pool
+> (flex plus clamp to `daily_minutes·7`, as above) and the review share by due pressure; the
+> acquisition-pressure split above no longer divides the practice minutes. In-budget acquisition minutes are
+> `min(quota minutes, practice pool − review)`, and `maint_share`/`acq_share` are persisted as derived values. Under
+> `budget_scope='tests_only'` (or with `practice` excluded) tests are rescaled to fill `daily_minutes·7` and the review
+> share is a weekly **tail target** only; all review and new words are served in an optional tail after the main session.
+> See [[features/session-budget-settings.tech]] and
+> [[decisions/ADR-033-budget-scope-and-new-word-budget]].
+
 ### 6. compute_weekly_plan orchestration
 
 ```python

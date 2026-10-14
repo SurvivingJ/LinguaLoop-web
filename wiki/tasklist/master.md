@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-10-12
+last_updated: 2026-10-14
 ---
 
 # Master Task List
@@ -19,14 +19,26 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 28 |
-| In Progress (`[~]`) | 10 |
-| Blocked / Deferred / Awaiting decision (numbered tasks) | 18 |
+| Not Started | 24 |
+| In Progress (`[~]`) | 11 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 210 |
+| Done (cumulative, not listed here) | 219 |
+
+*2026-10-14 (NEW — Weekly Minutes, TASK-885–896):* the Study Plan page's "practice done" counted vocabulary practice only; tests, flashcards, dual translation and out-of-session activity credited 0 minutes, the reader used the server week, and a missing weekly row dropped credit. Fix: event-row ledger `study_time_ledger` ([[decisions/ADR-035-study-time-ledger]]), measured clamped time per kind, page shows "Studied this week: X / Y min" + breakdown, current-week backfill. TASK-885, 886 and 896 are LIVE-DB (user approval to apply). Counts: Not Started 23→35 (+12). See [[features/weekly-minutes]], [[tasklist/weekly-minutes.tasks]].
+
+*2026-10-14 (NEW — Security Hardening, TASK-875–884):* swarm security audit findings S1–S17 (self-escalation on `users`, 32 RLS-off tables, anon-callable SECURITY DEFINER functions, open views, client-writable progress tables, answer keys before submit). Developer decisions: drop `users_admin_all`, no admin session rotation, full client write revoke on `users`, revoke `authenticated` SELECT on `vw_exercise_type_effectiveness`, in-function `auth.uid()` checks only where `authenticated` keeps EXECUTE; TASK-884 (rate limiting) Deferred as a potential future improvement. TASK-875, 876, 877, 879, 880 are LIVE-DB and require user approval to apply; TASK-882 has LIVE-DB policy/migration parts. Nothing applied. See [[features/security-hardening]], [[decisions/ADR-034-no-client-db-writes]], [[tasklist/security-hardening.tasks]]. Counts: Not Started 22→31 (+9), Blocked/Deferred 18→19 (+1).
+
+*2026-10-14 (Security Hardening, repo side):* TASK-875/876/877/879/880/882 written and tested in the repo, awaiting live apply approval (Not Started 31→23, awaiting-apply +6; TASK-881 and TASK-883 Done, not counted; TASK-878 still Not Started, TASK-884 Deferred).
 
 *2026-10-12 (NEW — Daily Session Modules, TASK-863–869):* learners can include/exclude daily-session modules (reading, listening, dictation, pinyin, classifier_drill, pitch_accent, flashcards, dual_translation, practice) per language. Excluded modules are dropped from Tier B with time redistributed by one common factor (flashcards fixed), filtered again in Tier C, and applied immediately via a same-day `build_daily_session` rebuild. See [[features/session-modules]], [[decisions/ADR-032-session-module-exclusion]], [[tasklist/session-modules.tasks]]. Counts: Not Started 21→28.
+
+*2026-10-13 (c) (IMPLEMENTED, code only):* TASK-863, 864, 866–868 and 870–874 are code complete (migrations written, NOT applied live); TASK-865 is In Progress (its `build_daily_session` SQL scenarios have not been run); TASK-869 (live rollout) stays Not Started and now lists the `user_word_watchlist` / `word_upload_slot_scheduling.sql` prerequisites. Counts: Not Started 33→22, In Progress 10→11, Done 10 (not enumerated here).
+
+*2026-10-13 (b) (FINAL DECISIONS + 2 new tasks — TASK-873, TASK-874):* new words are an Anki-style daily quota **inside** the planner (the "extra pool outside the budget", `extra_weekly_minutes` and `scale_up_to_target` are removed): Tier C fits whole new words into the in-budget practice share after due reviews, unused minutes return to tests, the remainder is an optional tail (not required, counted toward weekly targets). Review-load governor and review forecast (TASK-874); calibration writes BKT evidence and a single wrong calibration answer admits a sense to Queue A2 (TASK-873); layout Option A resolved (TASK-868); backfill 5/day accepted. TASK-864/865/866/868/869/871/872 amended; TASK-872 retitled and grown to M (tail serving). Counts: Not Started 31→33. See [[decisions/ADR-033-budget-scope-and-new-word-budget]] (Revision (b)), [[tasklist/session-budget-settings.tasks]].
+
+*2026-10-13 (AMENDED + 3 new tasks — Session budget settings, TASK-870–872):* `practice` now means Vocabulary review only; new words are a learner-set `new_words_per_day` (first version: outside `daily_minutes`, **superseded by the (b) note above**); `budget_scope` (`tests_and_review` / `tests_only`). TASK-863/864/865/866/868/869 amended (marked "amended 2026-10-13" in title); new tasks in [[tasklist/session-budget-settings.tasks]]. See [[features/session-budget-settings]], [[decisions/ADR-033-budget-scope-and-new-word-budget]]. Counts: Not Started 28→31.
 
 *2026-10-09 (TASK-850 re-run BLOCKED — OpenRouter credit exhausted, $89.92 of $90):* every call returned 402 and
 there are no results. The invalid outputs are quarantined in `data/eval/dt_v6_gate_2026-10-09/invalid_402_credit_exhausted/`.
@@ -1078,13 +1090,45 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-863 | session-modules | Migration: `user_study_plans.excluded_modules text[]` + CHECK | [ ] | XS | none |
-| TASK-864 | session-modules | Tier B: `apply_module_exclusions` + `compute_weekly_plan` wiring | [ ] | M | TASK-863 |
-| TASK-865 | session-modules | Tier C: `build_daily_session` honours `excluded_modules` (+ SQL test) | [ ] | M | TASK-863 |
-| TASK-866 | session-modules | API: GET/PUT `excluded_modules`, validation, immediate week recompute + today rebuild | [ ] | M | TASK-864, TASK-865 |
-| TASK-867 | session-modules | Session runner speed-round gate + legacy fallback filter | [ ] | S | TASK-865 |
-| TASK-868 | session-modules | Settings UI "Daily session modules" card + i18n (en/zh/ja/es) | [ ] | M | TASK-866 |
-| TASK-869 | session-modules | Live rollout: apply migrations + e2e check (user-approved) | [ ] | S | TASK-863–868 |
+| TASK-863 | session-modules | Migration: `user_study_plans.excluded_modules text[]` + CHECK (amended 2026-10-13: + `budget_scope`, `new_words_per_day`, weekly_plan_states budget columns, relaxed shares CHECK, `dim_languages.new_word_minutes_est`, SQL helpers, redefined `compute_weekly_plan_persist`) | [x] | S | none |
+| TASK-864 | session-modules | Tier B: `apply_module_exclusions` + `compute_weekly_plan` wiring (amended 2026-10-13 (b): practice pool + review share, in-budget acquisition minutes, `tests_only` tail target, derived shares, no scale-up) | [x] | M | TASK-863, TASK-870, TASK-874 |
+| TASK-865 | session-modules | Tier C: `build_daily_session` honours `excluded_modules` (+ SQL test) (amended 2026-10-13 (b): one pool, reviews first then whole new words, unused minutes return to tests) | [~] | M | TASK-863, TASK-874 |
+| TASK-866 | session-modules | API: GET/PUT `excluded_modules`, validation, immediate week recompute + today rebuild (amended 2026-10-13 (b): + `budget_scope`, `new_words_per_day`, `typical_day`, `governor`, `forecast`) | [x] | M | TASK-864, TASK-865, TASK-874 |
+| TASK-867 | session-modules | Session runner speed-round gate + legacy fallback filter | [x] | S | TASK-865 |
+| TASK-868 | session-modules | Settings UI "Daily session" card (was "Daily session modules") + i18n (en/zh/ja/es) (amended 2026-10-13 (b): layout resolved, Option A single card with stacked sections; forecast + typical-day text) | [x] | M | TASK-866 |
+| TASK-869 | session-modules | Live rollout: apply migrations + e2e check (user-approved) (amended 2026-10-13 (b): covers new columns, six migrations in order) | [ ] | S | TASK-863–868, TASK-870–874 |
+| TASK-870 | session-budget-settings | Per-language `minutes_per_new_word` estimate in `_refresh_exercise_time_estimates` (default 3.0; `dim_languages.new_word_minutes_est` + `get_minutes_per_new_word`) | [x] | S | TASK-863 |
+| TASK-871 | session-budget-settings | Ladder intake rework: per-local-day governed new-word quota; Queue A1 test/word-quiz unknowns → A2 calibration wrongs → B pre-teaching; one-off rebuild on unobtainable words | [x] | M | TASK-863, TASK-864, TASK-865, TASK-874 |
+| TASK-872 | session-budget-settings | Accrue `new_words_completed` + tail stats (`record_session_progress` gains `p_sense_id`, `p_is_tail`); serve the optional tail (`tail`, `tail_queue`, "Keep going?" prompt) | [x] | M | TASK-863, TASK-871, TASK-874 |
+| TASK-873 | session-budget-settings | Calibration BKT evidence at `/end` (definition mode only, batch RPC, no ladder side effects) + single-wrong-answer admission to Queue A2 below test/word-quiz evidence | [x] | M | TASK-871 |
+| TASK-874 | session-budget-settings | Review-load governor (backlog thresholds T / 2T) and review forecast (`review_governor_state`, `new_words_effective`, `review_forecast_min_per_day`) | [x] | S | TASK-863 |
+
+### Security Hardening (new 2026-10-14)
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-875 | security-hardening | LIVE-DB: close self-escalation and balance forgery on `users`, `user_tokens`, `user_reports` (full client write revoke, drop `users_admin_all`; S1, S4, S9) | Done (repo) — awaiting live apply approval | M | — |
+| TASK-876 | security-hardening | LIVE-DB: enable RLS and revoke client access on the 32 unprotected tables (S2) | Done (repo) — awaiting live apply approval | S | — |
+| TASK-877 | security-hardening | LIVE-DB: function-grant hardening, REVOKE/GRANT per function + pinned search_path, groups A/B/C (S3, S5-S8, S13, S17) | Done (repo) — awaiting live apply approval | L | — |
+| TASK-878 | security-hardening | Read-only tampering check on study-plan minutes before debugging the minutes bug | [ ] | S | TASK-877 |
+| TASK-879 | security-hardening | LIVE-DB: analytics views to invoker, drop client grants incl. `vw_exercise_type_effectiveness` (S11) | Done (repo) — awaiting live apply approval | M | TASK-876 |
+| TASK-880 | security-hardening | LIVE-DB: lock down client-writable progress tables + default privileges (S10, S12) | Done (repo) — awaiting live apply approval | M | TASK-875, TASK-877 |
+| TASK-881 | security-hardening | Regression guard: static migration lint, catalog ACL/RLS test, `migrations/CLAUDE.md` rule | Done | M | TASK-875, TASK-876, TASK-877 |
+| TASK-882 | security-hardening | Route hardening: no answer keys pre-submit, server-side duration caps, bounded results (S14, S15; policy parts LIVE-DB) | Done (repo) — awaiting live apply approval | L | TASK-876, TASK-880 |
+| TASK-883 | security-hardening | Remove anon-client fallback in `routes/users.py`, delete dead `payment_service` factory (S17) | Done | S | TASK-877 |
+| TASK-884 | security-hardening | Rate limiting on LLM and auth endpoints (S16) — **Deferred**: potential future improvement, not implemented | Deferred | L | — |
+| TASK-885 | weekly-minutes | LIVE-DB (apply gated): `study_time_ledger` table + `credit_study_time` + `get_weekly_study_seconds` | Done (repo) — awaiting live apply approval | M | — |
+| TASK-886 | weekly-minutes | Idempotent current-week backfill script for the ledger (LIVE-DB, apply gated) | Done (repo) — awaiting live apply approval | M | TASK-885 |
+| TASK-887 | weekly-minutes | SQL tests for ledger, credit function, week attribution and backfill | Done | M | TASK-885, TASK-886 |
+| TASK-888 | weekly-minutes | `services/study_time.py`: caps, clamp, best-effort credit wrapper, weekly summary | Done | S | — |
+| TASK-889 | weekly-minutes | Credit tests and classifier/counter drills from measured duration | Done | S | TASK-888 |
+| TASK-890 | weekly-minutes | Credit every vocabulary practice attempt (in or out of a session) | Done | S | TASK-888 |
+| TASK-891 | weekly-minutes | Flashcard and dual-translation endpoints accept and credit `active_ms` | Done | M | TASK-888 |
+| TASK-892 | weekly-minutes | Study Plan reader: learner-local week everywhere + `weekly_study` response field | Done | M | TASK-888 |
+| TASK-893 | weekly-minutes | Client active-time helper; flashcards and dual translation send `active_ms` + `client_event_id` | Done | M | — |
+| TASK-894 | weekly-minutes | Audit: every test and drill client sends `started_at` and `finished_at` | Done | S | — |
+| TASK-895 | weekly-minutes | Study Plan page: "Studied this week: X / Y min" + breakdown, i18n en/zh/ja/es | Done | M | TASK-892 |
+| TASK-896 | weekly-minutes | Integration, wiki sync and rollout (live apply approval-gated) | [ ] | M | TASK-885..895 |
 
 ### Language Packs (existing — unchanged)
 

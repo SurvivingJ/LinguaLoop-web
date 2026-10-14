@@ -435,8 +435,9 @@ async function loadTestData() {
             id: q.id,
             text: q.question_text,
             choices: Array.isArray(q.choices) ? q.choices : JSON.parse(q.choices || '[]'),
-            correctAnswer: q.correct_answer,
-            explanation: q.answer_explanation,
+            // Answer key/explanation arrive only in the submit response (TASK-882)
+            correctAnswer: null,
+            explanation: null,
             type: q.question_type
         }));
         
@@ -472,12 +473,10 @@ async function submitTest() {
             // For reading/listening, check each question
             testState.questions.forEach(question => {
                 const selectedAnswer = testState.answers[question.id];
-                const isCorrect = selectedAnswer === question.correctAnswer;
-                
+                // Grading is server-side; no is_correct is sent (TASK-882).
                 responses.push({
                     question_id: question.id,
-                    selected_answer: selectedAnswer || '',
-                    is_correct: isCorrect
+                    selected_answer: selectedAnswer || ''
                 });
             });
         }
@@ -1010,6 +1009,17 @@ function showResults(result) {
 
                 const qResult = resultsMap.get(question.id);
                 if (!qResult) return; // Skip if no result for this question
+                question.correctAnswer = qResult.correct_answer;
+                question.explanation = qResult.answer_explanation || null;
+                if (question.explanation && !answersContainer.parentElement.querySelector('.answer-explanation')) {
+                    const exp = document.createElement('div');
+                    exp.className = 'answer-explanation';
+                    const strong = document.createElement('strong');
+                    strong.textContent = 'Explanation';
+                    exp.appendChild(strong);
+                    exp.appendChild(document.createTextNode(' ' + question.explanation));
+                    answersContainer.parentElement.appendChild(exp);
+                }
 
                 answersContainer.querySelectorAll('.answer-option').forEach(option => {
                     const choice = option.dataset.choice;

@@ -1,4 +1,13 @@
-"""Regression tests for ladder intake: the top-up floor and the supply gate.
+"""Regression tests for ladder intake: the daily quota and the supply gate.
+
+Session-budget-settings (TASK-871) replaced the pool-floor trigger with a
+per-local-day started quota (``want = E - (unstarted + started today)``). The
+tests below keep their original intent; the stub now models the quota state
+(``unstarted``, ``started_today``) instead of a pool floor, and
+``eligible_count`` only drives the servable-pool side effect (demand-driven
+generation for subscribed-but-unservable rows). By default ``unstarted``
+equals ``eligible_count``, so "N rows already waiting" reduces intake one for
+one. Quota-specific cases live in tests/test_ladder_new_word_quota.py.
 
 Two bugs are pinned here.
 
@@ -83,6 +92,11 @@ class _StubDB:
         evidence:        rows the user_vocabulary_knowledge read returns.
         wrong_questions: list of (question_id, [sense_id, ...]) missed.
         already:         sense_ids already on the ladder.
+        unstarted:       admitted-but-never-attempted words (default: eligible_count).
+        started_today:   words whose first attempt is today.
+        npd:             new_words_per_day (weekday shape is all ones).
+        recent:          senses carried by recent tests (default: every sense
+                         that has any evidence, so evidence alone decides).
     """
 
     def __init__(
@@ -93,7 +107,20 @@ class _StubDB:
         evidence=(),
         wrong_questions=(),
         already=(),
+        unstarted=None,
+        started_today=0,
+        npd=15,
+        recent=None,
     ):
+        self.unstarted = eligible_count if unstarted is None else unstarted
+        self.started_today = started_today
+        self.npd = npd
+        self.shortfalls = []
+        if recent is None:
+            recent = [r['sense_id'] for r in evidence]
+            for _qid, sids in wrong_questions:
+                recent.extend(sids)
+        self.recent = list(recent)
         self.eligible_count = eligible_count
         # Senses standing in for the existing eligible pool. By default every
         # one of them is servable, so `eligible_count` still means what the
@@ -125,8 +152,21 @@ class _StubDB:
         table._handler = lambda _q: _Response(data=rows)
         return table
 
-    def rpc(self, name, _args):
-        raise AssertionError('unexpected rpc: %s' % name)
+    def rpc(self, name, args):
+        if name == 'ladder_new_word_state':
+            data = {
+                'unstarted': self.unstarted,
+                'started_today': self.started_today,
+                'unstarted_sense_ids': [],
+            }
+        elif name == 'review_governor_state':
+            data = {'level': 'normal', 'overdue_items': 0, 'due_items': 0}
+        elif name == 'set_new_words_shortfall':
+            self.shortfalls.append(args['p_shortfall'])
+            data = True
+        else:
+            raise AssertionError('unexpected rpc: %s' % name)
+        return _Query(lambda _q: _Response(data=data))
 
     # -- per-table handlers --
 
@@ -140,8 +180,28 @@ class _StubDB:
         return _Response(data=[{'sense_id': s} for s in self.already])
 
     def _h_user_study_plans(self, _q):
-        # daily_minutes=15 -> target_active_pool == 15
-        return _Response(data=[{'daily_minutes': 15}])
+        return _Response(data=[{
+            'daily_minutes': 15,
+            'new_words_per_day': self.npd,
+            'weekday_shape': [1.0] * 7,
+            'timezone': 'UTC',
+            'excluded_modules': [],
+        }])
+
+    def _h_daily_test_loads(self, _q):
+        return _Response(data=[])
+
+    def _h_test_attempts(self, _q):
+        return _Response(data=[{'test_id': 1}])
+
+    def _h_tests(self, _q):
+        return _Response(data=[{'id': 1, 'vocab_sense_ids': self.recent}])
+
+    def _h_questions(self, _q):
+        return _Response(data=[])
+
+    def _h_calibration_responses(self, _q):
+        return _Response(data=[])
 
     def _h_user_vocabulary_knowledge(self, _q):
         return _Response(data=self.evidence)
@@ -235,16 +295,27 @@ def test_partially_stalled_ladder_still_receives_words():
     assert len(db.inserted) == 5
 
 
-def test_pool_at_floor_is_left_alone():
-    """Top-up is a floor, not an unconditional drip — no runaway growth."""
+def test_quota_already_met_is_left_alone():
+    """Intake tops up to the quota; it is not an unconditional drip."""
     fresh, db = _top_up(eligible_count=15, evidence=_missed(range(1, 101)))
     assert fresh == []
     assert db.inserted == []
 
 
-def test_pool_above_floor_is_left_alone():
+def test_waiting_words_above_quota_are_left_alone():
     fresh, _ = _top_up(eligible_count=40, evidence=_missed(range(1, 101)))
     assert fresh == []
+
+
+def test_a_large_existing_pool_no_longer_suppresses_admission():
+    """The pool-floor trigger is gone: 40 servable ladder rows used to mean
+    "already full" forever. Only unstarted + started-today words count now."""
+    senses = list(range(1, 101))
+    fresh, _ = _top_up(
+        eligible_count=40, unstarted=0, started_today=0,
+        evidence=_missed(senses), supply=_supply_for(senses),
+    )
+    assert len(fresh) == LADDER_TOPUP_MAX_PER_CALL
 
 
 @pytest.mark.parametrize('eligible,expected', [
@@ -464,23 +535,20 @@ def test_a_broken_generation_queue_does_not_break_the_session(monkeypatch):
 # 5. The pool floor counts servable rows, not rows
 # ----------------------------------------------------------------------
 
-def test_unservable_subscriptions_do_not_hold_pool_slots():
-    """THE LIVE CASE: 24 ladder rows, 3 of them servable, against a floor of
-    15. Counting rows says "already full" forever, so the supply gate alone
-    would stop new dead rows without ever unblocking the learner who has 21."""
+def test_unservable_subscriptions_do_not_block_intake():
+    """THE LIVE CASE: 24 ladder rows, 3 of them servable. Intake is driven by the
+    quota state, not by the pool, so dead rows never hold intake shut."""
     senses = list(range(1, 101))
     fresh, _ = _top_up(
-        eligible_count=24,
+        eligible_count=24, unstarted=0,
         eligible_supply={-1: 3, -2: 3, -3: 3},   # 3 servable of 24
         evidence=_missed(senses),
         supply=_supply_for(senses),
     )
-    assert len(fresh) == LADDER_TOPUP_MAX_PER_CALL, (
-        'a pool of unservable words must not count as a full pool'
-    )
+    assert len(fresh) == LADDER_TOPUP_MAX_PER_CALL
 
 
-def test_a_fully_servable_pool_at_the_floor_is_still_left_alone():
+def test_a_quota_met_by_waiting_words_is_still_left_alone():
     fresh, db = _top_up(eligible_count=15, evidence=_missed(range(1, 101)))
     assert fresh == []
     assert db.inserted == []
@@ -499,7 +567,7 @@ def test_unservable_subscriptions_are_queued_for_generation(monkeypatch):
         ),
     )
     _top_up(
-        eligible_count=5,
+        eligible_count=5, unstarted=0,
         eligible_supply={-1: 3},                 # 1 servable of 5
         evidence=_missed([1]),
         supply=_supply_for([1]),

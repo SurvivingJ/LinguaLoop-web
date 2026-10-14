@@ -30,6 +30,9 @@ export function mount(container, ctx) {
   const mode = (ctx.item && ctx.item.mode) || 'acquisition';
   const minutes = (ctx.item && ctx.item.minutes) || 10;
   const languageId = ctx.languageId;
+  // session-budget-settings: items of the optional "Keep going?" round carry
+  // is_tail; the flag goes on the session URL and is echoed on attempt POSTs.
+  const isTail = !!(ctx.item && ctx.item.is_tail);
 
   const state = {
     exercises: [],
@@ -85,7 +88,7 @@ export function mount(container, ctx) {
     }
     try {
       const res = await window.authFetch(
-        `/api/practice/session?mode=${encodeURIComponent(mode)}&minutes=${minutes}&language_id=${languageId}`
+        `/api/practice/session?mode=${encodeURIComponent(mode)}&minutes=${minutes}&language_id=${languageId}${isTail ? '&tail=1' : ''}`
       );
       const data = await res.json();
       // Skip gate / stress markers (they need the separate /api/vocab-dojo
@@ -226,6 +229,7 @@ export function mount(container, ctx) {
         expected_seconds: ex.expected_seconds,
         session_mode: mode,
         language_id: languageId,
+        ...(isTail ? { is_tail: true } : {}),
       }),
     });
     if (!r || !r.ok) return null;

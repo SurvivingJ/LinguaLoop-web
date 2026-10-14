@@ -26,6 +26,14 @@ function esc(s) {
 }
 
 // FSRS ratings, matching routes/flashcards.py (1=again .. 4=easy).
+// Active-time helper (static/js/active-timer.js, loaded by study_session.html).
+// Optional: without it the review POST simply omits active_ms/client_event_id.
+function newTimer() {
+  return window.ActiveTimer && typeof window.ActiveTimer.create === 'function'
+    ? window.ActiveTimer.create()
+    : null;
+}
+
 const RATINGS = [
   { value: 1, key: 'session.fc_again', fallback: 'Again', cls: 'btn-outline-danger' },
   { value: 2, key: 'session.fc_hard', fallback: 'Hard', cls: 'btn-outline-warning' },
@@ -36,6 +44,9 @@ const RATINGS = [
 export function mount(container, ctx) {
   const limit = (ctx.item && ctx.item.cards) || 15;
   const state = { cards: [], index: 0, revealed: false, reviewed: 0, destroyed: false };
+  const timer = newTimer();
+  // One id per card showing, reused if the same review is ever re-sent.
+  let eventId = null;
 
   container.innerHTML = `
     <div class="session-card"><div class="card"><div class="card-body p-4">
@@ -51,6 +62,7 @@ export function mount(container, ctx) {
   return {
     destroy() {
       state.destroyed = true;
+      if (timer) timer.reset();
     },
   };
 
@@ -103,6 +115,8 @@ export function mount(container, ctx) {
     if (state.destroyed) return;
     const card = state.cards[state.index];
     state.revealed = false;
+    eventId = window.ActiveTimer ? window.ActiveTimer.newEventId() : null;
+    if (timer) timer.start();
 
     body().innerHTML = `
       <p class="text-muted small mb-2">${esc(
@@ -150,10 +164,15 @@ export function mount(container, ctx) {
       b.disabled = true;
     });
     const card = state.cards[state.index];
+    const payload = { card_id: card.card_id, rating };
+    if (timer && eventId) {
+      payload.active_ms = timer.stop();
+      payload.client_event_id = eventId;
+    }
     try {
       const res = await window.authFetch('/api/flashcards/review', {
         method: 'POST',
-        body: JSON.stringify({ card_id: card.card_id, rating }),
+        body: JSON.stringify(payload),
       });
       if (!res || !res.ok) throw new Error(`review failed (${res && res.status})`);
       state.reviewed += 1;

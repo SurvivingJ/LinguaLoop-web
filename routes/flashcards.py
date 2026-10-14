@@ -6,6 +6,7 @@ from datetime import date, datetime
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary.fsrs import CardState, schedule_review
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
@@ -111,6 +112,9 @@ def submit_review() -> ApiResponse:
 
     Accepts:
         {"card_id": 123, "rating": 3}  // 1=again, 2=hard, 3=good, 4=easy
+    Optional (weekly-minutes): ``active_ms`` (client active time on the card)
+    and ``client_event_id`` (uuid). Both are required for the review to be
+    credited to the study-time ledger; ``active_ms`` is clamped server-side.
     """
     try:
         current_user_id = g.current_user_id
@@ -179,6 +183,15 @@ def submit_review() -> ApiResponse:
             language_id=row['language_id'],
             exercise_type='text_flashcard',
         )
+
+        # Weekly minutes: best-effort credit, never fails the review.
+        event_id = parse_client_event_id(data.get('client_event_id'))
+        if event_id:
+            credit_study_time(
+                db, current_user_id, row['language_id'], 'flashcard',
+                clamp_active_ms('flashcard', data.get('active_ms')),
+                'flashcard_review', event_id,
+            )
 
         return api_success({
             'next_due': new_card.due_date.isoformat() if new_card.due_date else None,

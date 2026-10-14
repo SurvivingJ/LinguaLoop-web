@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from services.attempt_timing import clamp_time_taken_ms
 from utils.responses import ApiResponse, api_success, bad_request, server_error
 
 logger = logging.getLogger(__name__)
@@ -203,7 +204,7 @@ def submit_attempt() -> ApiResponse:
             exercise_id=data['exercise_id'],
             is_correct=bool(data.get('is_correct', False)),
             user_response=data.get('user_response', {}),
-            time_taken_ms=data.get('time_taken_ms'),
+            time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
         )
 
         if result.get('error'):

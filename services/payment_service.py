@@ -400,11 +400,3 @@ class PaymentService:
             }).execute()
         except Exception as e:
             logger.error(f"Error logging transaction: {e}")
-
-# Usage example for your Flask routes
-def get_payment_service(config) -> PaymentService:
-    """Factory function to create PaymentService instance"""
-    from supabase import create_client
-    
-    supabase = create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
-    return PaymentService(supabase, config.STRIPE_SECRET_KEY)

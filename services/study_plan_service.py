@@ -34,8 +34,9 @@ from __future__ import annotations
 import hashlib
 import logging
 import math
+from decimal import Decimal, ROUND_FLOOR
 from datetime import date, datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -113,6 +114,39 @@ PLANNABLE_SURFACE_SKILLS = ('flashcards', 'dual_translation')
 # exploratory content does not belong in a minute budget. Pinned by
 # tests/test_plannable_surfaces.py.
 UNPLANNED_TEST_TYPES = ('listening_lab', 'mystery')
+
+
+# ----------------------------------------------------------------------------
+# Session modules (ADR-032) and budget settings (ADR-033)
+# wiki/features/session-modules.tech.md, session-budget-settings.tech.md
+# ----------------------------------------------------------------------------
+
+MODULE_PRACTICE = 'practice'
+# Module vocabulary. MUST equal the SQL CHECK
+# user_study_plans_excluded_modules_known (migrations/session_module_exclusions.sql);
+# tests/test_session_modules.py pins that they agree.
+ALL_MODULES = (
+    'reading', 'listening', 'dictation', 'pinyin', 'classifier_drill',
+    'pitch_accent', 'flashcards', 'dual_translation', MODULE_PRACTICE,
+)
+# Modules whose weekly count is NOT rescaled when others are excluded:
+# flashcards is one review block a day whose real size is set by due cards.
+NON_SCALABLE_MODULES = ('flashcards',)
+
+# Must equal the SQL CHECK user_study_plans_budget_scope_known (test-pinned).
+BUDGET_SCOPES = ('tests_and_review', 'tests_only')
+DEFAULT_BUDGET_SCOPE = 'tests_and_review'
+NEW_WORDS_MAX_PER_DAY = 50
+# tests_only: review_target_minutes <= daily*7*0.5 (a weekly TARGET for the tail, not a budget)
+REVIEW_TAIL_CAP_FRACTION = 0.5
+# Assumed (OPEN): review_share = base * (OFFSET + maint_pressure)
+REVIEW_PRESSURE_OFFSET = 0.5
+DEFAULT_WEEKDAY_SHAPE = (1.0,) * 7
+# Max minutes of tail chunks offered per "Keep going?" round (tunable).
+TAIL_OFFER_MAX_MIN = Config.TAIL_OFFER_MAX_MIN
+
+# Review-load governor levels
+GOVERNOR_LEVELS = ('normal', 'reduced', 'paused')
 
 
 # ============================================================================
@@ -231,45 +265,265 @@ def rebalance_practice(
     practice_total_minutes: int,
     flex_pct: float,
     base_maintenance_share: float,
-    ladder: Dict[str, int],
     fsrs: Dict[str, int],
     bkt: Dict[str, int],
     weakness_global: float,
-) -> Tuple[int, float, float]:
-    """Return (practice_minutes, maint_share, acq_share).
+    cap_minutes: int,
+) -> Tuple[int, int, float]:
+    """Return (practice_minutes, review_minutes, review_share).
 
-    Inputs are the relevant slices from compute_weekly_plan_load_signals.
-    Math mirrors Section 6e exactly.
+    Sizes the practice pool and the review share inside it (ADR-033 revision
+    (b)). There is no acquisition pressure any more: new-word minutes are
+    whatever of the pool the learner's quota needs, decided by the caller.
+
+    ``practice_total_minutes`` is the template's ORIGINAL value (not the
+    exclusion-adjusted one, which is 0 under tests_only), so tests_only can still
+    size a weekly review tail target. ``cap_minutes`` is ``daily_minutes * 7``.
     """
     trr = target_review_rate(daily_minutes)
-    tap = target_active_pool(daily_minutes)
-    tnr = target_new_rate(daily_minutes)
     known_words = max(bkt.get('known_count_p80', 0), 1)
 
     maint_pressure = (
         _clamp01(fsrs.get('due_7d_lookahead', 0) / max(trr * 7, 1))
         + 0.5 * _clamp01(bkt.get('decayed_count', 0) / known_words)
-    )
-    acq_pressure = (
-        _clamp01(ladder.get('stuck_count', 0) / max(tap, 1))
-        + 0.3 * _clamp01(ladder.get('new_intro_7d', 0) / max(tnr, 1))
+    )   # range 0..1.5
+
+    review_share = _clamp(
+        MAINT_SHARE_FLOOR,
+        base_maintenance_share * (REVIEW_PRESSURE_OFFSET + maint_pressure),
+        MAINT_SHARE_CEIL,
     )
 
-    psum = maint_pressure + acq_pressure
-    if psum == 0:
-        acq_share = 1.0 - base_maintenance_share
-    else:
-        raw_ratio = acq_pressure / psum
-        acq_share = _clamp(ACQ_SHARE_FLOOR, raw_ratio, ACQ_SHARE_CEIL)
-    maint_share = 1.0 - acq_share
-
-    # ±flex_pct from template based on global weakness
+    # +/- flex_pct from template based on global weakness
     flex_factor = 1.0 + flex_pct * (2.0 * weakness_global - 1.0)
     practice_minutes = round(practice_total_minutes * flex_factor)
-    practice_minutes = min(practice_minutes, daily_minutes * 7)
-    practice_minutes = max(practice_minutes, 0)
+    practice_minutes = int(_clamp(0, practice_minutes, cap_minutes))
 
-    return practice_minutes, round(maint_share, 2), round(acq_share, 2)
+    if practice_minutes <= 0:
+        return 0, 0, round(review_share, 2)
+    review_minutes = int(round(practice_minutes * review_share))
+    return practice_minutes, review_minutes, round(review_share, 2)
+
+
+# ----------------------------------------------------------------------------
+# Module exclusions (session-modules.tech.md)
+# ----------------------------------------------------------------------------
+
+def apply_module_exclusions(
+    weekly_counts: Dict[str, int],
+    practice_total_minutes: int,
+    excluded: Iterable[str],
+    minutes_of: Callable[[str], float],
+) -> Tuple[Dict[str, int], int]:
+    """Drop excluded modules from the template and rescale the scalable rest.
+
+    One common factor ``k`` preserves the template's total minutes and its
+    relative mix. ``flashcards`` (NON_SCALABLE_MODULES) is never rescaled.
+    Scalable counts use largest-remainder rounding with a deterministic
+    (remainder desc, skill key asc) tie-break. Pure; no DB access.
+
+    Returns ``(adjusted_weekly_counts, adjusted_practice_total_minutes)``.
+    When nothing in ``excluded`` touches the template the inputs are returned
+    unchanged (the same dict object), so the default plan is a strict no-op.
+    """
+    ex = set(excluded or ())
+    if not ex.intersection(set(weekly_counts) | {MODULE_PRACTICE}):
+        return weekly_counts, practice_total_minutes
+
+    kept = {s: c for s, c in weekly_counts.items() if s not in ex}
+    practice_kept = 0 if MODULE_PRACTICE in ex else practice_total_minutes
+
+    m_total = (
+        sum(c * minutes_of(s) for s, c in weekly_counts.items())
+        + practice_total_minutes
+    )
+    fixed = {s: c for s, c in kept.items() if s in NON_SCALABLE_MODULES}
+    scalable = {s: c for s, c in kept.items() if s not in NON_SCALABLE_MODULES}
+    m_fixed = sum(c * minutes_of(s) for s, c in fixed.items())
+    m_scalable = sum(c * minutes_of(s) for s, c in scalable.items()) + practice_kept
+
+    if m_scalable == 0:
+        # Only flashcards (or nothing) left: no redistribution.
+        return dict(kept), 0
+
+    k = (m_total - m_fixed) / m_scalable
+
+    raw = {s: c * k for s, c in scalable.items()}
+    floors = {s: int(math.floor(v + 1e-9)) for s, v in raw.items()}
+    spare = int(round(sum(raw.values()))) - sum(floors.values())
+    order = sorted(raw, key=lambda s: (-(raw[s] - floors[s]), s))
+    counts = dict(floors)
+    for s in order:
+        if spare <= 0:
+            break
+        counts[s] += 1
+        spare -= 1
+
+    adjusted = {**fixed, **counts}
+    # Preserve the template's key order for stable downstream iteration.
+    adjusted = {s: adjusted[s] for s in weekly_counts if s in adjusted}
+    return adjusted, int(round(practice_kept * k))
+
+
+# ----------------------------------------------------------------------------
+# New-word quota helpers (session-budget-settings.tech.md)
+# ----------------------------------------------------------------------------
+
+def new_words_for_day(new_words_per_day: int, weight: float) -> int:
+    """The day's new-word quota Q for a weekday weight.
+
+    ``floor(x + 0.5)``, NOT ``round()`` (banker's rounding would disagree with
+    the SQL helper at .5 ties). Mirrors SQL ``public.new_words_for_day``;
+    a test evaluates both on a grid.
+    """
+    if weight is None or weight <= 0 or new_words_per_day is None or new_words_per_day <= 0:
+        return 0
+    # Decimal, not float: SQL does this in exact numeric (25 * 0.58 + 0.5 = 15.0 there, but
+    # 25 * 0.58 is 14.499999999999998 in binary floating point -> 14). str() gives the
+    # shortest repr of the weight, i.e. the decimal literal the JSON/SQL side holds.
+    x = Decimal(str(new_words_per_day)) * Decimal(str(weight)) + Decimal('0.5')
+    return int(x.to_integral_value(rounding=ROUND_FLOOR))
+
+
+def new_words_week_target(
+    new_words_per_day: int, shape: Optional[Sequence[float]],
+) -> int:
+    """Weekly quota = sum of the 7 daily quotas under the plan's weekday shape."""
+    weights = shape or DEFAULT_WEEKDAY_SHAPE
+    return sum(new_words_for_day(new_words_per_day, float(w)) for w in weights)
+
+
+def derived_shares(review_minutes: int, acq_minutes: int) -> Tuple[float, float]:
+    """(maintenance_share, acquisition_share), persisted for observability only.
+
+    maintenance = round(review / (review + acq), 2); acquisition = round(1 -
+    maintenance, 2) so the pair always sums to 1.00 (relaxed shares CHECK).
+    1.00 / 0.00 when there is nothing to split.
+    """
+    denom = review_minutes + acq_minutes
+    if denom <= 0:
+        return 1.0, 0.0
+    maint = round(review_minutes / denom, 2)
+    return maint, round(1.0 - maint, 2)
+
+
+# ----------------------------------------------------------------------------
+# Review-load governor and forecast (pure mirrors of the SQL helpers)
+# ----------------------------------------------------------------------------
+
+def review_governor_level(backlog_min: float, threshold_min: float) -> str:
+    """'normal' | 'reduced' | 'paused'. Mirrors SQL ``review_governor_level``."""
+    if threshold_min is None or threshold_min <= 0:
+        return 'normal'
+    if backlog_min <= threshold_min:
+        return 'normal'
+    if backlog_min <= 2 * threshold_min:
+        return 'reduced'
+    return 'paused'
+
+
+def effective_new_words(quota: int, level: str) -> int:
+    """quota | floor(quota / 2) | 0. Mirrors SQL ``new_words_effective``."""
+    q = max(int(quota), 0)
+    if level == 'paused':
+        return 0
+    if level == 'reduced':
+        return q // 2
+    return q
+
+
+def review_forecast_min_per_day(
+    avg_new_words_per_day: float, item_seconds: float,
+) -> float:
+    """Steady-state extra review minutes/day a month after introducing
+    ``avg_new_words_per_day`` words a day.
+
+    Each new word needs N = Config.REVIEWS_PER_NEW_WORD_30D reviews in its first
+    30 days, spread evenly; 30 * n words are inside that window, each costing
+    N / 30 reviews/day, so reviews/day = n * N (the 30 cancels; there is NO
+    further division by 30). 5 words/day at 20 s -> 11.67 min/day. N = 7 and
+    the steady-state reading are OPEN; ``item_seconds`` is a v1 estimate.
+    """
+    return (
+        float(avg_new_words_per_day)
+        * Config.REVIEWS_PER_NEW_WORD_30D
+        * float(item_seconds)
+        / 60.0
+    )
+
+
+def _empty_governor() -> Dict[str, Any]:
+    return {
+        'level': 'normal',
+        'overdue_items': 0, 'overdue_minutes': 0.0,
+        'due_items': 0, 'due_minutes': 0.0,
+        'threshold_minutes': 0.0,
+        'item_seconds': float(Config.REVIEW_ITEM_SECONDS_DEFAULT),
+    }
+
+
+def get_review_governor(
+    db, user_id: str, language_id: int, plan_date,
+) -> Dict[str, Any]:
+    """Call RPC ``review_governor_state``; any failure -> level 'normal', zeros.
+
+    Never raises. ``item_seconds`` falls back to the default (not 0) so callers
+    that convert items to minutes stay meaningful.
+    """
+    result = _empty_governor()
+    try:
+        iso = plan_date.isoformat() if hasattr(plan_date, 'isoformat') else str(plan_date)
+        resp = db.rpc('review_governor_state', {
+            'p_user_id':     user_id,
+            'p_language_id': language_id,
+            'p_date':        iso,
+        }).execute()
+        data = resp.data
+        if isinstance(data, list) and len(data) == 1:
+            data = data[0]
+        if not isinstance(data, dict):
+            return result
+        level = data.get('level')
+        result['level'] = level if level in GOVERNOR_LEVELS else 'normal'
+        for key in ('overdue_items', 'due_items'):
+            result[key] = int(data.get(key) or 0)
+        for key in ('overdue_minutes', 'due_minutes', 'threshold_minutes'):
+            result[key] = float(data.get(key) or 0.0)
+        item_seconds = float(data.get('item_seconds') or 0.0)
+        if item_seconds > 0:
+            result['item_seconds'] = item_seconds
+        return result
+    except Exception as exc:
+        logger.warning(
+            'review_governor_state failed for user=%s lang=%s: %s',
+            user_id, language_id, exc,
+        )
+        return _empty_governor()
+
+
+def get_minutes_per_new_word(db, language_id: int) -> float:
+    """dim_languages.new_word_minutes_est, else Config.NEW_WORD_MINUTES_DEFAULT.
+
+    Mirror of SQL ``public.new_word_minutes``. Missing row, NULL, non-positive,
+    non-finite value or a failed read all fall back to the default.
+    """
+    try:
+        resp = (
+            db.table('dim_languages')
+            .select('new_word_minutes_est')
+            .eq('id', language_id)
+            .limit(1)
+            .execute()
+        )
+        if resp.data:
+            raw = resp.data[0].get('new_word_minutes_est')
+            if raw is not None:
+                val = float(raw)
+                if math.isfinite(val) and val > 0:
+                    return val
+    except Exception as exc:
+        logger.debug('get_minutes_per_new_word read failed: %s', exc)
+    return float(Config.NEW_WORD_MINUTES_DEFAULT)
 
 
 def _test_time_estimate(skill: str, db) -> float:
@@ -346,7 +600,10 @@ class StudyPlanService:
         # 1. Load plan
         plan_resp = (
             self.db.table('user_study_plans')
-            .select('template_id, daily_minutes, skill_weight_overrides')
+            .select(
+                'template_id, daily_minutes, skill_weight_overrides, '
+                'weekday_shape, excluded_modules, budget_scope, new_words_per_day'
+            )
             .eq('user_id', user_id)
             .eq('language_id', language_id)
             .limit(1)
@@ -403,7 +660,34 @@ class StudyPlanService:
         bkt = signals.get('bkt', {}) or {}
 
         skills_signals = signals.get('skills', {}) or {}
-        weekly_template = template['weekly_test_counts']
+
+        # 4a. Module exclusions + budget scope (ADR-032 / ADR-033).
+        daily_minutes = int(plan['daily_minutes'])
+        weekly_ceiling = daily_minutes * 7
+        excluded = {m for m in (plan.get('excluded_modules') or []) if isinstance(m, str)}
+        scope = plan.get('budget_scope')
+        if scope not in BUDGET_SCOPES:
+            scope = DEFAULT_BUDGET_SCOPE
+        practice_in = (scope == 'tests_and_review' and MODULE_PRACTICE not in excluded)
+        # tests_only: the vocabulary pool leaves the in-budget plan, so its
+        # template minutes go to tests/surfaces exactly like an exclusion.
+        eff_excluded = set(excluded)
+        if scope == 'tests_only':
+            eff_excluded.add(MODULE_PRACTICE)
+
+        minutes_cache: Dict[str, float] = {}
+
+        def minutes_of(skill: str) -> float:
+            if skill not in minutes_cache:
+                minutes_cache[skill] = _test_time_estimate(skill, self.db)
+            return minutes_cache[skill]
+
+        weekly_template, _discarded_practice = apply_module_exclusions(
+            template['weekly_test_counts'],
+            int(template['practice_total_minutes']),
+            eff_excluded,
+            minutes_of,
+        )
 
         skill_weakness: Dict[str, float] = {}
         skill_values: Dict[str, float] = {}
@@ -429,22 +713,59 @@ class StudyPlanService:
         }
         target_counts = allocate_test_counts(weekly_template, scores)
 
-        # 6. Practice rebalance
+        # 6. Practice pool + review share. Skipped when the learner turned
+        # Vocabulary review off. The ORIGINAL template minutes are used: under
+        # tests_only the review target is still sized (as a weekly tail target).
         weakness_global = (
             sum(skill_weakness.values()) / len(skill_weakness)
             if skill_weakness else 0.5
         )
-        practice_minutes, maint_share, acq_share = rebalance_practice(
-            daily_minutes=int(plan['daily_minutes']),
-            practice_total_minutes=int(template['practice_total_minutes']),
-            flex_pct=float(template['practice_minutes_flex_pct']),
-            base_maintenance_share=float(template['base_maintenance_share']),
-            ladder=ladder, fsrs=fsrs, bkt=bkt,
-            weakness_global=weakness_global,
-        )
-
-        # 7. Carry-over decay
         prior_week = signals.get('prior_week')
+        if MODULE_PRACTICE in excluded:
+            practice_pool = 0
+            review = 0
+        else:
+            practice_pool, review, _review_share = rebalance_practice(
+                daily_minutes=daily_minutes,
+                practice_total_minutes=int(template['practice_total_minutes']),
+                flex_pct=float(template['practice_minutes_flex_pct']),
+                base_maintenance_share=float(template['base_maintenance_share']),
+                fsrs=fsrs, bkt=bkt,
+                weakness_global=weakness_global,
+                cap_minutes=weekly_ceiling,
+            )
+            review_cap = (
+                weekly_ceiling if scope == 'tests_and_review'
+                else int(math.floor(weekly_ceiling * REVIEW_TAIL_CAP_FRACTION))
+            )
+            # Review carry-over. New-word minutes are NOT carried: they are a
+            # daily quota and an unmet quota is a shortfall, not a debt.
+            if prior_week:
+                left = max(
+                    0,
+                    int(prior_week.get('review_target_minutes', 0) or 0)
+                    - int(prior_week.get('practice_completed_maint_min', 0) or 0),
+                )
+                review = review + round(CARRY_OVER_DECAY * left)
+            review = min(review, review_cap)
+
+        # 5b. New words (a count, converted to minutes by the per-language cost).
+        mpnw = get_minutes_per_new_word(self.db, language_id)
+        new_words_target = new_words_week_target(
+            int(plan.get('new_words_per_day') or 0), plan.get('weekday_shape'),
+        )
+        acq_quota_min = int(round(new_words_target * mpnw))
+
+        # 6b. In-budget practice pool P and its new-word minutes.
+        if practice_in:
+            practice_target = int(min(max(practice_pool, review), weekly_ceiling))
+            acq_target_minutes = int(max(0, min(acq_quota_min, practice_target - review)))
+        else:
+            practice_target = 0
+            acq_target_minutes = 0
+
+        # 7. Test carry-over decay (iterates target_counts, so excluded skills
+        # get none). No scale-up: tests are not rescaled to absorb freed minutes.
         if prior_week:
             prev_targets   = prior_week.get('target_counts', {}) or {}
             prev_completed = prior_week.get('completed_counts', {}) or {}
@@ -455,47 +776,38 @@ class StudyPlanService:
                 )
                 if remaining > 0:
                     target_counts[s] += round(CARRY_OVER_DECAY * remaining)
-            prev_practice_left = max(
-                0,
-                int(prior_week.get('practice_target_minutes', 0))
-                - int(prior_week.get('practice_completed_maint_min', 0))
-                - int(prior_week.get('practice_completed_acq_min',   0)),
-            )
-            if prev_practice_left > 0:
-                practice_minutes += round(CARRY_OVER_DECAY * prev_practice_left)
-                practice_minutes = min(
-                    practice_minutes,
-                    int(plan['daily_minutes']) * 7,
-                )
 
-        # 8. Total weekly minutes
+        # 8. Total weekly minutes (the in-budget total)
         test_minutes = sum(
-            target_counts[s] * _test_time_estimate(s, self.db)
+            target_counts[s] * minutes_of(s)
             for s in target_counts
         )
-        total_weekly_minutes = int(round(test_minutes + practice_minutes))
+        total_weekly_minutes = int(round(test_minutes + practice_target))
 
         # TASK-714 / ADR-021: cap the week at what the learner actually
         # committed to. Bringing flashcards and dual_translation into
-        # target_counts adds real minutes to the sum above — but the learner
+        # target_counts adds real minutes to the sum above -- but the learner
         # was already spending those minutes, unseen. Without this clamp,
         # counting them would LENGTHEN their day (today_budget derives from
         # total_weekly_minutes) instead of making the existing day honest.
         # With it, the new surfaces compete with test slots inside the same
         # budget, which is exactly what ADR-021 means by "dual_translation
         # competes directly with test time".
-        # rebalance_practice already applies the same ceiling to practice.
-        weekly_ceiling = int(plan['daily_minutes']) * 7
         total_weekly_minutes = min(total_weekly_minutes, weekly_ceiling)
 
-        # 9. Persist
+        # 9. Persist. maintenance/acquisition shares are DERIVED, observability only.
+        maint_share, acq_share = derived_shares(review, acq_target_minutes)
         computed = {
             'target_counts':           target_counts,
             'skill_values':            skill_values,
-            'practice_target_minutes': int(practice_minutes),
+            'practice_target_minutes': int(practice_target),
             'maintenance_share':       float(maint_share),
             'acquisition_share':       float(acq_share),
             'total_weekly_minutes':    total_weekly_minutes,
+            'budget_scope':            scope,
+            'review_target_minutes':   int(review),
+            'new_words_target':        int(new_words_target),
+            'acq_target_minutes':      int(acq_target_minutes),
         }
         try:
             persist_resp = self.db.rpc('compute_weekly_plan_persist', {
@@ -512,9 +824,11 @@ class StudyPlanService:
             return None
 
         logger.info(
-            'compute_weekly_plan: user=%s lang=%s week=%s counts=%s practice=%dmin (M:%.2f A:%.2f)',
-            user_id, language_id, week_start,
-            target_counts, practice_minutes, maint_share, acq_share,
+            'compute_weekly_plan: user=%s lang=%s week=%s scope=%s counts=%s '
+            'practice=%dmin review=%dmin acq=%dmin new_words=%d (M:%.2f A:%.2f)',
+            user_id, language_id, week_start, scope,
+            target_counts, practice_target, review, acq_target_minutes,
+            new_words_target, maint_share, acq_share,
         )
         return persist_resp.data if isinstance(persist_resp.data, dict) else computed
 
@@ -555,6 +869,78 @@ class StudyPlanService:
         return resp.data if isinstance(resp.data, dict) else {
             'error': 'malformed_response', 'code': 'E_SHAPE',
         }
+
+    # ------------------------------------------------------------------
+    # Public: rebuild_today (settings change -> re-resolve today)
+    # ------------------------------------------------------------------
+
+    def rebuild_today(self, user_id: str, language_id: int) -> bool:
+        """Re-resolve today's not-yet-completed slots after a settings change.
+
+        If a ``daily_test_loads`` row exists for the learner's LOCAL today, call
+        ``build_daily_session`` for it (TASK-705 re-entrancy keeps completed
+        slots) and return True unless the result carries an ``error``. With no
+        row, return False: the next ``GET /api/study-session`` builds a fresh
+        day anyway. Never raises.
+        """
+        try:
+            local_today = plan_today(self.db, user_id, language_id)
+            resp = (
+                self.db.table('daily_test_loads')
+                .select('load_date')
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .eq('load_date', local_today.isoformat())
+                .limit(1)
+                .execute()
+            )
+            if not resp.data:
+                return False
+            result = self.build_daily_session(user_id, language_id, local_today)
+        except Exception as exc:
+            logger.warning(
+                'rebuild_today failed for user=%s lang=%s: %s',
+                user_id, language_id, exc,
+            )
+            return False
+        return not (isinstance(result, dict) and 'error' in result)
+
+
+def typical_day_inputs(db, language_id: int, plan: Dict[str, Any],
+                       week: Dict[str, Any]) -> Dict[str, float]:
+    """The two numbers of a typical day that do NOT depend on the new-words input.
+
+    Lets the settings card preview any ``new_words_per_day`` client-side. ``week``
+    is a ``weekly_plan_states`` row. Returns
+    ``{practice_room_min_per_day, review_min_per_day}``::
+
+        test_min     = sum(week.target_counts[s] * minutes_of(s))
+        practice_day = (total_weekly_minutes / 7) * P / (P + test_min)   (P > 0)
+        review_min_per_day        = review_target_minutes / 7
+        practice_room_min_per_day = max(0, practice_day - review_min_per_day)  (P > 0, else 0)
+    """
+    cache: Dict[str, float] = {}
+
+    def minutes_of(skill: str) -> float:
+        if skill not in cache:
+            cache[skill] = _test_time_estimate(skill, db)
+        return cache[skill]
+
+    counts = week.get('target_counts') or {}
+    test_min = sum(int(c) * minutes_of(s) for s, c in counts.items())
+    pool = float(week.get('practice_target_minutes') or 0)
+    total = float(week.get('total_weekly_minutes') or 0)
+    review_per_day = float(week.get('review_target_minutes') or 0) / 7.0
+
+    if pool > 0 and (pool + test_min) > 0:
+        practice_day = (total / 7.0) * pool / (pool + test_min)
+        room = max(0.0, practice_day - review_per_day)
+    else:
+        room = 0.0
+    return {
+        'practice_room_min_per_day': room,
+        'review_min_per_day':        review_per_day,
+    }
 
 
 # ============================================================================
@@ -685,6 +1071,10 @@ def _refresh_exercise_time_estimates() -> Dict[str, Any]:
       - dim_test_types.expected_minutes_p50    (from test_attempts.duration_ms)
     over the last 30 days, requiring ≥30 samples per type.
 
+    Then (TASK-870) calls refresh_new_word_minutes, which writes
+    dim_languages.new_word_minutes_est, and merges ``languages_updated`` into
+    the summary.
+
     Returns the RPC's jsonb summary as a Python dict, or an error dict on
     failure (logged).
     """
@@ -697,10 +1087,26 @@ def _refresh_exercise_time_estimates() -> Dict[str, Any]:
             summary.get('exercise_types_updated', 0),
             summary.get('test_types_updated', 0),
         )
-        return summary
     except Exception as e:
         logger.error('refresh_practice_time_estimates RPC failed: %s', e)
         return {'error': str(e), 'exercise_types_updated': 0, 'test_types_updated': 0}
+
+    # TASK-870: per-language minutes-per-new-word, AFTER the exercise-type P50s
+    # are fresh (the RPC reads dim_exercise_types.expected_seconds_p50). Its
+    # failure must not turn a successful time-estimate refresh into an error.
+    try:
+        nw = db.rpc('refresh_new_word_minutes', {}).execute()
+        nw_data = nw.data if isinstance(nw.data, dict) else {}
+        summary['languages_updated'] = int(nw_data.get('languages_updated', 0) or 0)
+        logger.info(
+            '_refresh_exercise_time_estimates: %d languages new_word_minutes_est updated',
+            summary['languages_updated'],
+        )
+    except Exception as e:
+        logger.error('refresh_new_word_minutes RPC failed: %s', e)
+        summary['languages_updated'] = 0
+        summary['new_word_minutes_error'] = str(e)
+    return summary
 
 
 # ============================================================================

@@ -48,6 +48,7 @@ from middleware.auth import jwt_required as supabase_jwt_required
 from services.dimension_service import DimensionService
 from services.dual_translation import cards as dt_cards
 from services.dual_translation.grader_cascade import grade_submission, get_active_rubric
+from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.vocabulary.fsrs import AGAIN, CardState, schedule_review
 from utils.responses import (
     ApiResponse, api_success, api_error, bad_request, not_found, forbidden, server_error,
@@ -68,6 +69,10 @@ DT_ERROR_CARD_INTERLEAVE_EVERY = max(1, int(os.environ.get('DT_ERROR_CARD_INTERL
 # Fallback L1 while users.native_language_id is still unset for most rows
 # (no onboarding UI captures it yet) — id 2 = English (config.py LANGUAGES).
 DEFAULT_L1_LANGUAGE_ID = 2
+
+# Weekly minutes: one error-card review is credited at most this long
+# (task AC: DT card 120 s; the submit path allows 900 s).
+DT_CARD_REVIEW_MAX_SECONDS = 120
 
 # ADR-018: naturalness is de-emphasized everywhere and hidden outright in the
 # rubric "feed-up" at the lowest age tiers, to avoid demotivation.
@@ -212,6 +217,14 @@ def submit(submission_id: int) -> ApiResponse:
 
         _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
 
+        # Weekly minutes: credit once, on the first persisted grading only
+        # (the cached path above returns early). Best-effort, clamped to 900 s.
+        credit_study_time(
+            db, g.current_user_id, passage['l2_language_id'], 'dual_translation',
+            clamp_active_ms('dual_translation', data.get('active_ms')),
+            'dt_submission', submission_id,
+        )
+
         # TASK-610: systematic errors are synthesised OFF the hot path by the
         # nightly job (scripts/dt_nightly_synthesis.py), which reads these
         # dt_error_instance rows directly and clusters/promotes them into
@@ -340,6 +353,8 @@ def submit_card_review(card_id: int) -> ApiResponse:
             'rating': rating,
             'was_correct': was_correct,
         }).execute()
+
+        _credit_card_review_time(db, card_row, data)
 
         return api_success({
             'next_due': new_card.due_date.isoformat() if new_card.due_date else None,
@@ -657,10 +672,41 @@ def _fetch_due_cards(db, user_id: str) -> list:
     ]
 
 
+def _credit_card_review_time(db, card_row: dict, data: dict) -> None:
+    """Weekly minutes: credit an error-card review (kind dual_translation).
+
+    Needs a valid ``client_event_id`` and ``active_ms > 0``. The card has no
+    language column, so the language is the profile entry's L2; a card with no
+    resolvable language earns nothing. Never raises.
+    """
+    try:
+        event_id = parse_client_event_id(data.get('client_event_id'))
+        seconds = clamp_active_ms('dual_translation', data.get('active_ms'))
+        # Per-card reviews are short; cap at the flashcard-style 120 s.
+        seconds = min(seconds, DT_CARD_REVIEW_MAX_SECONDS)
+        if not event_id or seconds <= 0 or not card_row.get('profile_entry_id'):
+            return
+        resp = (
+            db.table('dt_error_profile_entry')
+            .select('l2_language_id')
+            .eq('id', card_row['profile_entry_id'])
+            .limit(1)
+            .execute()
+        )
+        if not resp.data or not resp.data[0].get('l2_language_id'):
+            return
+        credit_study_time(
+            db, card_row['user_id'], resp.data[0]['l2_language_id'],
+            'dual_translation', seconds, 'dt_card_review', event_id,
+        )
+    except Exception as e:
+        logger.warning("dt card review credit skipped (non-fatal): %s", e)
+
+
 def _get_card(db, card_id: int) -> Optional[dict]:
     resp = (
         db.table('dt_card')
-        .select('id, user_id, stability, difficulty, due_date, last_review, reps, lapses, state')
+        .select('id, user_id, profile_entry_id, stability, difficulty, due_date, last_review, reps, lapses, state')
         .eq('id', card_id)
         .limit(1)
         .execute()

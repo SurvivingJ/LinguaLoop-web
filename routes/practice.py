@@ -19,6 +19,7 @@ from flask import Blueprint, request, g
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from services.attempt_timing import clamp_time_taken_ms
 from utils.responses import ApiResponse, api_success, bad_request, server_error
 
 logger = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ def get_practice_session() -> ApiResponse:
                       (default: auto)
         minutes     : optional time budget (1..180; default 15)
         debug       : optional (0|1); when 1, items include score_breakdown
+        tail        : optional (0|1); 1 = optional-tail round (session-budget-settings)
     """
     try:
         language_id = request.args.get('language_id', type=int)
@@ -60,6 +62,8 @@ def get_practice_session() -> ApiResponse:
             return bad_request("minutes must be between 1 and 180")
 
         debug = request.args.get('debug', '0') == '1'
+        # session-budget-settings: tail=1 marks an optional-tail round.
+        tail = (request.args.get('tail') or '0').lower() in ('1', 'true')
 
         from services.practice_session_service import get_practice_session_service
         payload = get_practice_session_service().get_session(
@@ -68,6 +72,7 @@ def get_practice_session() -> ApiResponse:
             mode=mode,
             target_minutes=minutes,
             debug=debug,
+            tail=tail,
         )
 
         if isinstance(payload, dict) and 'error' in payload:
@@ -108,6 +113,8 @@ def submit_practice_attempt() -> ApiResponse:
                         tooling).
         language_id   : optional override; otherwise looked up from
                         exercises.language_id.
+        tail / is_tail: optional bool; the attempt belongs to an optional-tail
+                        round (echoed from the session payload).
     """
     try:
         data = request.get_json() or {}
@@ -162,7 +169,7 @@ def submit_practice_attempt() -> ApiResponse:
                 user_id=g.current_user_id,
                 exercise_id=str(exercise_id),
                 is_correct=bool(data['is_correct']),
-                time_taken_ms=data.get('time_taken_ms'),
+                time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
                 timed_out=bool(data.get('timed_out')),
             )
         else:
@@ -171,10 +178,11 @@ def submit_practice_attempt() -> ApiResponse:
                 exercise_id=str(exercise_id),
                 is_correct=bool(data['is_correct']),
                 user_response=data.get('user_response'),
-                time_taken_ms=data.get('time_taken_ms'),
+                time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
                 session_mode=session_mode,
                 language_id=data.get('language_id'),
                 expected_seconds=data.get('expected_seconds'),
+                is_tail=_truthy(data.get('is_tail', data.get('tail'))),
             )
 
         if isinstance(result, dict) and result.get('error'):
@@ -185,6 +193,12 @@ def submit_practice_attempt() -> ApiResponse:
     except Exception as e:
         logger.error("Error submitting practice attempt: %s", e)
         return server_error("Failed to submit attempt")
+
+
+def _truthy(v) -> bool:
+    if isinstance(v, str):
+        return v.strip().lower() in ('1', 'true')
+    return bool(v)
 
 
 #: Exercise types whose correctness the server decides rather than the client.

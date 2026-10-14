@@ -46,6 +46,24 @@
     .skill-override-row input[type=range] { flex: 1; }
     .skill-override-row .value { width: 3rem; text-align: right; font-variant-numeric: tabular-nums; }
 
+    /* Daily session card (Option A: one card, stacked sections) */
+    .ds-section h6 { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+    .ds-num {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 1.35rem; height: 1.35rem; border-radius: 50%;
+        background: var(--selected-bg); color: var(--primary);
+        font-size: .75rem; font-weight: 700; flex-shrink: 0;
+    }
+    .ds-scope-opt { margin-bottom: .5rem; }
+    .ds-scope-opt .form-check-label { cursor: pointer; }
+    .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: .5rem 1rem; }
+    .module-grid .form-check.locked label { opacity: .8; }
+    .nw-row { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem 1rem; }
+    .nw-row .input-group { width: 10.5rem; }
+    .nw-row input[type=number] { text-align: center; }
+    .ds-note { border: 1px solid var(--border-default); border-radius: 8px; padding: .5rem .75rem; }
+    #typicalDaySummary { font-weight: 500; margin-bottom: 0; }
+
     .flag-disabled-banner {
         background: var(--warning-bg, #fff7ed);
         border: 1px solid var(--warning, #d97706);
@@ -127,6 +145,78 @@
                 </div>
             </div>
 
+            <div class="card mb-3" id="dailySessionCard">
+                <div class="card-body">
+                    <h5 class="card-title" data-i18n="study_plan.daily_session.title">Daily session</h5>
+                    <p class="text-muted small mb-3" data-i18n="study_plan.daily_session.intro">
+                        Choose what your daily time covers and which parts make up your session.
+                    </p>
+
+                    <!-- 1. What the daily time covers -->
+                    <section class="ds-section" aria-labelledby="dsScopeHeading">
+                        <h6 id="dsScopeHeading"><span class="ds-num" aria-hidden="true">1</span><span data-i18n="study_plan.daily_session.scope.heading">What your daily time covers</span></h6>
+                        <div role="radiogroup" aria-labelledby="dsScopeHeading">
+                            <div class="form-check ds-scope-opt">
+                                <input class="form-check-input" type="radio" name="budgetScope" id="scopeTestsAndReview" value="tests_and_review">
+                                <label class="form-check-label" for="scopeTestsAndReview">
+                                    <strong data-i18n="study_plan.daily_session.scope.tests_and_review">Tests + vocabulary review</strong>
+                                    <span class="d-block small text-muted" data-i18n="study_plan.daily_session.scope.tests_and_review_desc">Your daily time covers tests and vocabulary review. New words are a daily quota planned inside it; what does not fit is offered as optional work after the session.</span>
+                                </label>
+                            </div>
+                            <div class="form-check ds-scope-opt">
+                                <input class="form-check-input" type="radio" name="budgetScope" id="scopeTestsOnly" value="tests_only">
+                                <label class="form-check-label" for="scopeTestsOnly">
+                                    <strong data-i18n="study_plan.daily_session.scope.tests_only">Tests only</strong>
+                                    <span class="d-block small text-muted" data-i18n="study_plan.daily_session.scope.tests_only_desc">Your daily time covers tests only (flashcards and dual translation count as tests). Review and new words are offered as optional work after the session.</span>
+                                </label>
+                            </div>
+                        </div>
+                        <p class="form-text mb-0" data-i18n="study_plan.daily_session.scope.hint">Flashcards and dual translation count as tests. “Tests only” needs at least one test module switched on.</p>
+                    </section>
+
+                    <hr>
+
+                    <!-- 2. Modules -->
+                    <section class="ds-section" aria-labelledby="dsModulesHeading">
+                        <h6 id="dsModulesHeading"><span class="ds-num" aria-hidden="true">2</span><span data-i18n="study_plan.modules.title">Modules</span></h6>
+                        <p class="text-muted small mb-2" data-i18n="study_plan.modules.hint">Turned-off modules are only left out of your daily session — you can still use them any time from the rest of the app.</p>
+                        <div id="moduleToggles" class="module-grid" role="group" aria-labelledby="dsModulesHeading"></div>
+                        <p id="moduleLockHint" class="form-text d-none mb-0" role="status" data-i18n="study_plan.daily_session.last_module_hint">At least one module (or new words) must stay on.</p>
+                        <p id="moduleShortHint" class="form-text text-warning d-none mb-0" role="status" data-i18n="study_plan.modules.flashcards_only_hint">Only Flashcard review is on, so your daily session will be short.</p>
+                    </section>
+
+                    <hr>
+
+                    <!-- 3. New words -->
+                    <section class="ds-section" aria-labelledby="dsNewWordsHeading">
+                        <h6 id="dsNewWordsHeading"><span class="ds-num" aria-hidden="true">3</span><span data-i18n="study_plan.daily_session.new_words.label">New words per day</span></h6>
+                        <div class="nw-row">
+                            <div class="input-group" role="group" aria-labelledby="dsNewWordsHeading">
+                                <button type="button" class="btn btn-outline-secondary" id="newWordsDec" data-i18n-aria="study_plan.daily_session.new_words.decrease" aria-label="Fewer new words">−</button>
+                                <input type="number" id="newWordsInput" class="form-control" min="0" max="50" step="1" aria-labelledby="dsNewWordsHeading">
+                                <button type="button" class="btn btn-outline-secondary" id="newWordsInc" data-i18n-aria="study_plan.daily_session.new_words.increase" aria-label="More new words">+</button>
+                            </div>
+                            <span class="text-muted" data-i18n="study_plan.daily_session.new_words.unit">words per day</span>
+                            <span id="reviewForecast" class="text-muted small"></span>
+                        </div>
+                        <p id="newWordsNoReviewWarning" class="form-text text-warning d-none mb-1" role="status" data-i18n="study_plan.session.new_words_no_review_warning">Vocabulary review is off — words you learn won't be reviewed.</p>
+                        <p id="newWordsEstimate" class="mb-1 mt-2" aria-live="polite"></p>
+                        <p id="newWordsHint" class="form-text mt-0 mb-1"></p>
+                        <div id="governorNote" class="ds-note small d-none" role="status"></div>
+                        <p id="newWordsHelp" class="form-text mb-0"></p>
+                        <p id="newWordsMsg" class="form-text text-danger d-none mb-0" role="status"></p>
+                    </section>
+
+                    <hr>
+
+                    <!-- 4. Typical day -->
+                    <section class="ds-section" aria-labelledby="dsTypicalHeading">
+                        <h6 id="dsTypicalHeading"><span class="ds-num" aria-hidden="true">4</span><span data-i18n="study_plan.daily_session.typical_heading">Typical day</span></h6>
+                        <p id="typicalDaySummary" aria-live="polite"></p>
+                    </section>
+                </div>
+            </div>
+
             <div class="card mb-3">
                 <div class="card-body">
                     <button class="btn btn-link p-0 text-decoration-none" type="button"
@@ -162,6 +252,7 @@
                 <div class="card-body">
                     <h5 class="card-title" data-i18n="study_plan.week_summary_title">This week so far</h5>
                     <p class="text-muted small mb-3" id="weekStartLabel">—</p>
+                    <div id="weeklyStudied" class="mb-3" hidden></div>
                     <div id="weekStats" class="week-stats"></div>
                     <h6 class="mt-4 mb-2" data-i18n="study_plan.targets.heading">Per-skill targets vs completed</h6>
                     <div id="weekTargetsTable"></div>
@@ -175,6 +266,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/study-plan-settings.js') }}"></script>
+<script src="{{ url_for('static', filename='js/weekly-study.js') }}"></script>
 <script>
 (function () {
     'use strict';
@@ -190,6 +283,8 @@
         }
         return key; // dev fallback — visible enough to spot a missing key
     };
+
+    const SPS = window.StudyPlanSettings;
 
     const state = {
         languages: [],          // [{id, code, name}] for languages the user has plans for OR has tested in
@@ -363,8 +458,181 @@
         // Template select
         renderTemplateSelect(langId, plan.template_id);
 
+        // Daily session card (scope, modules, new words)
+        renderDailySession(langId);
+
         // Week summary
-        renderWeekSummary(current_week);
+        renderWeekSummary(current_week, state.plansByLang[langId]);
+    }
+
+    // ---------------------------------------------------------------------
+    // Daily session card (session-modules + session-budget-settings, Option A)
+    // ---------------------------------------------------------------------
+
+    const DS = 'study_plan.daily_session.';
+    const $ = (id) => document.getElementById(id);
+
+    function currentPayload() {
+        return state.plansByLang[state.selectedLangId];
+    }
+
+    // "6 reviews" / "1 review" (no plural support in the i18n bundle, so the
+    // count phrase has its own _one key and is interpolated into the message).
+    function countPhrase(kind, n) {
+        const key = 'session.tail.' + kind + '_count' + (Number(n) === 1 ? '_one' : '');
+        return T(key, { n });
+    }
+
+    function renderDailySession(langId) {
+        const payload = state.plansByLang[langId];
+        if (!payload || !payload.plan) return;
+        const plan = payload.plan;
+        const available = payload.available_modules || [];
+        const included = SPS.includedSet(available, plan.excluded_modules || []);
+
+        // Scope radios
+        const scope = plan.budget_scope === 'tests_only' ? 'tests_only' : 'tests_and_review';
+        document.querySelectorAll('input[name=budgetScope]').forEach(r => { r.checked = r.value === scope; });
+
+        // New words
+        const npd = SPS.clampNewWords(plan.new_words_per_day, 0);
+        $('newWordsInput').value = npd;
+        $('newWordsInput').dataset.last = npd;
+        $('newWordsMsg').classList.add('d-none');
+
+        // Module toggles (one form-switch per available module; checked = included)
+        const box = $('moduleToggles');
+        box.textContent = '';
+        available.forEach(code => {
+            const wrap = document.createElement('div');
+            wrap.className = 'form-check form-switch';
+            wrap.dataset.module = code;
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.className = 'form-check-input module-toggle';
+            input.id = 'moduleToggle_' + code;
+            input.dataset.module = code;
+            input.setAttribute('role', 'switch');
+            input.checked = included.has(code);
+            input.addEventListener('change', updateDailySession);
+            const label = document.createElement('label');
+            label.className = 'form-check-label';
+            label.htmlFor = input.id;
+            label.textContent = T('study_plan.modules.' + code);
+            wrap.append(input, label);
+            box.appendChild(wrap);
+        });
+
+        updateDailySession();
+    }
+
+    function readDailySessionForm() {
+        const toggles = Array.from(document.querySelectorAll('input.module-toggle'));
+        const included = new Set(toggles.filter(t => t.checked).map(t => t.dataset.module));
+        const excluded = toggles.filter(t => !t.checked).map(t => t.dataset.module);
+        const scopeEl = document.querySelector('input[name=budgetScope]:checked');
+        return {
+            toggles,
+            included,
+            excluded,
+            scope: scopeEl ? scopeEl.value : 'tests_and_review',
+            npd: SPS.clampNewWords($('newWordsInput').value, 0),
+        };
+    }
+
+    // Recompute every derived element from the (unsaved) form + the saved GET payload.
+    function updateDailySession() {
+        const payload = currentPayload();
+        if (!payload || !payload.plan) return;
+        const form = readDailySessionForm();
+        const available = payload.available_modules || [];
+        const dailyEl = $('dailyMinutesNumber');
+        const daily = parseInt(dailyEl.value, 10) || payload.plan.daily_minutes;
+        const mpnw = Number(payload.minutes_per_new_word) || 0;
+        const practiceIncluded = form.included.has('practice');
+
+        // Scope: "tests only" is meaningless with no test/surface module on.
+        const testsOnlyOff = SPS.testsOnlyDisabled(form.included);
+        $('scopeTestsOnly').disabled = testsOnlyOff;
+        if (testsOnlyOff && form.scope === 'tests_only') {
+            $('scopeTestsAndReview').checked = true;
+            form.scope = 'tests_and_review';
+        }
+
+        // Module locks (last toggle on; last test module under tests_only)
+        const ms = SPS.moduleState(available, form.included, form.npd, form.scope);
+        let anyLock = false;
+        form.toggles.forEach(t => {
+            const reason = ms.locks[t.dataset.module];
+            t.disabled = !!reason;
+            const wrap = t.closest('.form-check');
+            wrap.classList.toggle('locked', !!reason);
+            if (reason) {
+                anyLock = true;
+                wrap.title = T(reason === 'last_test' ? 'study_plan.modules.last_test' : 'study_plan.modules.last_one');
+            } else {
+                wrap.removeAttribute('title');
+            }
+        });
+        $('moduleLockHint').classList.toggle('d-none', !anyLock);
+        $('moduleShortHint').classList.toggle('d-none', !ms.flashcardsOnly);
+
+        const card = SPS.computeCard({
+            daily,
+            scope: form.scope,
+            practiceIncluded,
+            newWordsPerDay: form.npd,
+            shape: payload.plan.weekday_shape,
+            minutesPerNewWord: mpnw,
+            typicalDay: payload.typical_day,
+            governor: payload.governor,
+            forecast: payload.forecast,
+        });
+
+        // Stepper limits and static help
+        $('newWordsDec').disabled = form.npd <= 0;
+        $('newWordsInc').disabled = form.npd >= SPS.NEW_WORDS_MAX;
+        $('newWordsHelp').textContent = T(DS + 'new_words.help', { minutes: Number(mpnw.toFixed(1)) });
+
+        // Advisory only: Save is never blocked by this.
+        $('newWordsNoReviewWarning').classList.toggle('d-none', !card.noReviewWarning);
+
+        // "~F fit in your session, ~R after (optional)" after the governor
+        $('newWordsEstimate').textContent =
+            card.estimate === 'off' ? T(DS + 'new_words.estimate_off')
+            : card.estimate === 'paused' ? T(DS + 'new_words.estimate_paused')
+            : T(DS + 'new_words.estimate', { fit: card.fit, after: card.after });
+
+        const hint = SPS.hintDescriptor(card, daily);
+        $('newWordsHint').textContent = card.npd > 0 ? T(DS + 'new_words.' + hint.key, hint.params) : '';
+
+        $('reviewForecast').textContent =
+            card.npd > 0 ? T(DS + 'forecast', { minutes: card.forecastMin }) : '';
+
+        renderGovernorNote(payload.governor, form.npd);
+
+        const summary = SPS.typicalDaySummary(card, daily, practiceIncluded);
+        let text = '';
+        if (summary) {
+            text = T(DS + summary.key, summary.params);
+            if (summary.tail) text += ' ' + T(DS + summary.tail.key, summary.tail.params);
+        }
+        $('typicalDaySummary').textContent = text;
+        $('typicalDaySummary').classList.toggle('d-none', !summary);
+    }
+
+    function renderGovernorNote(governor, npd) {
+        const note = $('governorNote');
+        const key = SPS.governorMessageKey(governor);
+        if (!key || npd <= 0) {
+            note.classList.add('d-none');
+            note.textContent = '';
+            return;
+        }
+        note.textContent = T(DS + 'governor.' + key, {
+            reviews: countPhrase('reviews', governor.overdue_items || 0),
+        });
+        note.classList.remove('d-none');
     }
 
     function skillsForLanguage(langId) {
@@ -408,7 +676,7 @@
             })).join('');
     }
 
-    function renderWeekSummary(weekState) {
+    function renderWeekSummary(weekState, payload) {
         const startLabel = document.getElementById('weekStartLabel');
         const statsEl = document.getElementById('weekStats');
         const tableEl = document.getElementById('weekTargetsTable');
@@ -417,6 +685,12 @@
             startLabel.textContent = T('study_plan.no_week_yet');
             statsEl.innerHTML = '';
             tableEl.innerHTML = '';
+            window.WeeklyStudy.render(
+                document.getElementById('weeklyStudied'),
+                payload ? payload.weekly_study : null,
+                T
+            );
+            renderShortfallNote(null);
             return;
         }
 
@@ -424,10 +698,16 @@
         statsEl.innerHTML = `
             <div class="stat-tile"><h4>${weekState.total_weekly_minutes}</h4><small>${T('study_plan.stat.total_min')}</small></div>
             <div class="stat-tile"><h4>${weekState.practice_target_minutes}</h4><small>${T('study_plan.stat.practice_target')}</small></div>
-            <div class="stat-tile"><h4>${weekState.practice_completed_maint_min + weekState.practice_completed_acq_min}</h4><small>${T('study_plan.stat.practice_done')}</small></div>
             <div class="stat-tile"><h4>${(weekState.maintenance_share * 100).toFixed(0)}%</h4><small>${T('study_plan.stat.maint_share')}</small></div>
             <div class="stat-tile"><h4>${(weekState.acquisition_share * 100).toFixed(0)}%</h4><small>${T('study_plan.stat.acq_share')}</small></div>
+            ${newWordsTile(weekState)}
         `;
+        window.WeeklyStudy.render(
+            document.getElementById('weeklyStudied'),
+            payload ? payload.weekly_study : null,
+            T
+        );
+        renderShortfallNote(payload);
 
         const targets = weekState.target_counts || {};
         const completed = weekState.completed_counts || {};
@@ -454,6 +734,31 @@
                 <tbody>${rows || `<tr><td colspan="4" class="text-center text-muted">${T('study_plan.targets.empty')}</td></tr>`}</tbody>
             </table>
         `;
+    }
+
+    // "New words x / y" tile (+ minutes done in optional rounds). Counts and
+    // minutes are numbers from our own API; nothing here is user text.
+    function newWordsTile(weekState) {
+        if (weekState.new_words_target === undefined || weekState.new_words_target === null) return '';
+        const done = Number(weekState.new_words_completed) || 0;
+        const target = Number(weekState.new_words_target) || 0;
+        const tail = Number(weekState.tail_completed_min) || 0;
+        const sub = tail > 0 ? `<br><small>${T('study_plan.stats.optional_rounds', { minutes: tail })}</small>` : '';
+        return `<div class="stat-tile" id="newWordsTile"><h4>${done} / ${target}</h4><small>${T('study_plan.stats.new_words')}</small>${sub}</div>`;
+    }
+
+    function renderShortfallNote(payload) {
+        let note = document.getElementById('shortfallNote');
+        if (!note) {
+            note = document.createElement('p');
+            note.id = 'shortfallNote';
+            note.className = 'form-text text-warning mt-2 mb-0 d-none';
+            note.setAttribute('role', 'status');
+            document.getElementById('weekStats').after(note);
+        }
+        const n = payload ? Number(payload.today_new_words_shortfall) : 0;
+        note.textContent = n > 0 ? T(DS + 'shortfall', { n }) : '';
+        note.classList.toggle('d-none', !(n > 0));
     }
 
     function updateWeekdaySum() {
@@ -497,10 +802,52 @@
 
     document.getElementById('dailyMinutesRange').addEventListener('input', (e) => {
         document.getElementById('dailyMinutesNumber').value = e.target.value;
+        updateDailySession();
     });
     document.getElementById('dailyMinutesNumber').addEventListener('input', (e) => {
         const v = Math.max(10, Math.min(180, parseInt(e.target.value || '30')));
         document.getElementById('dailyMinutesRange').value = v;
+        updateDailySession();
+    });
+
+    // --- Daily session card ----------------------------------------------
+    document.querySelectorAll('input[name=budgetScope]').forEach(r => {
+        r.addEventListener('change', updateDailySession);
+    });
+
+    // Set the new-words value (clamped 0..50). Going to 0 is refused when no
+    // module is on, because new words > 0 is what keeps the plan non-empty.
+    function setNewWords(raw) {
+        const msg = $('newWordsMsg');
+        const v = SPS.clampNewWords(raw, null);
+        const input = $('newWordsInput');
+        if (v === null) { input.value = SPS.clampNewWords(readDailySessionForm().npd, 0); return; }
+        if (v === 0 && readDailySessionForm().included.size === 0) {
+            msg.textContent = T(DS + 'new_words.needs_module');
+            msg.classList.remove('d-none');
+            input.value = SPS.clampNewWords(input.dataset.last, 1) || 1;
+            updateDailySession();
+            return;
+        }
+        msg.classList.add('d-none');
+        input.value = v;
+        input.dataset.last = v;
+        updateDailySession();
+    }
+    // Live preview while typing (the value is clamped on read); the field itself
+    // is only normalised on change/blur so typing is never fought.
+    $('newWordsInput').addEventListener('input', updateDailySession);
+    $('newWordsInput').addEventListener('change', (e) => setNewWords(e.target.value));
+    $('newWordsInput').addEventListener('blur', (e) => setNewWords(e.target.value));
+    $('newWordsDec').addEventListener('click', () => setNewWords(readDailySessionForm().npd - 1));
+    $('newWordsInc').addEventListener('click', () => setNewWords(readDailySessionForm().npd + 1));
+
+    // Dynamic text is built with T(); rebuild when the UI language changes.
+    document.addEventListener('languageChanged', () => {
+        const payload = currentPayload();
+        if (!payload) return;
+        renderDailySession(state.selectedLangId);
+        renderWeekSummary(payload.current_week, payload);
     });
     for (let i = 0; i < 7; i++) {
         document.getElementById('ws' + i).addEventListener('input', updateWeekdaySum);
@@ -519,12 +866,16 @@
             if (Math.abs(v - 1.0) > 0.005) overrides[inp.dataset.skill] = v;
         });
         const templateId = parseInt(document.getElementById('templateSelect').value) || null;
+        const session = readDailySessionForm();
 
         const body = {
             language_id: langId,
             daily_minutes: dailyMinutes,
             weekday_shape: weekdayShape,
             skill_weight_overrides: overrides,
+            excluded_modules: session.excluded,
+            budget_scope: session.scope,
+            new_words_per_day: session.npd,
         };
         if (templateId) body.template_id = templateId;
 
@@ -538,8 +889,10 @@
                 showSaveBanner(false, T('study_plan.save_failed', { error: `${res.status} ${t}` }));
                 return;
             }
+            let saved = {};
+            try { saved = await res.json(); } catch (_) { /* non-JSON success body */ }
             await selectLanguage(langId);  // reload to get normalized weekday_shape from server
-            showSaveBanner(true, T('study_plan.save_success'));
+            showSaveBanner(true, T(saved.session_rebuilt ? 'study_plan.modules.session_rebuilt' : 'study_plan.save_success'));
         } catch (e) {
             showSaveBanner(false, T('study_plan.save_failed', { error: e.message }));
         }

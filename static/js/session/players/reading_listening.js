@@ -114,8 +114,10 @@ export function mount(container, ctx) {
       id: qd.id,
       text: qd.question_text,
       choices: Array.isArray(qd.choices) ? qd.choices : JSON.parse(qd.choices || '[]'),
-      correctAnswer: qd.correct_answer,
-      explanation: qd.answer_explanation,
+      // Answer key + explanation are NOT in the pre-submit payload (TASK-882);
+      // they arrive in the submit response's question_results.
+      correctAnswer: null,
+      explanation: null,
       type: qd.question_type,
     }));
   }
@@ -555,6 +557,18 @@ export function mount(container, ctx) {
       answersContainer.parentElement.classList.add('results-shown');
       const qResult = resultsMap.get(question.id);
       if (!qResult) return;
+      question.correctAnswer = qResult.correct_answer;
+      question.explanation = qResult.answer_explanation || null;
+      if (question.explanation && !answersContainer.parentElement.querySelector('.answer-explanation')) {
+        const exp = document.createElement('div');
+        exp.className = 'answer-explanation';
+        const strong = document.createElement('strong');
+        strong.innerHTML = '<i class="fas fa-lightbulb me-2"></i>';
+        strong.appendChild(document.createTextNode(T('test.explanation', null, 'Explanation')));
+        exp.appendChild(strong);
+        exp.appendChild(document.createTextNode(' ' + question.explanation));
+        answersContainer.parentElement.appendChild(exp);
+      }
       answersContainer.querySelectorAll('.answer-option').forEach((option) => {
         const choice = option.dataset.choice;
         if (choice === qResult.correct_answer) option.classList.add('correct');

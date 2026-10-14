@@ -3,7 +3,7 @@ title: Lookahead Pre-Teaching — Technical Specification
 type: feature-tech
 status: planned
 prose_page: ./lookahead-preteaching.md
-last_updated: 2026-09-19
+last_updated: 2026-10-13
 dependencies:
   - "table: user_word_ladder, user_vocabulary_knowledge, tests.vocab_sense_ids, exercises"
   - "table: generation_queue, daily_test_loads, weekly_plan_states, selection_tuning"
@@ -194,7 +194,7 @@ shape:
 |---|---|---|
 | `preteach_enabled` | `0` | master switch, **ships off** |
 | `preteach_depth` | `2` | ring to clear before release (§3.2) |
-| `preteach_budget` | derived | `ceil(words_per_week * lead_days / 7)`, capped by the eligible pool |
+| `preteach_budget` | derived | **Amended 2026-10-13:** no `words_per_week`. Cohort size is capped by the words left in today's `new_words_per_day` quota after Queue A (recent-test unknowns); see [[decisions/ADR-033-budget-scope-and-new-word-budget]] and [[features/session-budget-settings.tech]]. Struck formula: ~~`ceil(words_per_week * lead_days / 7)`~~ |
 | `preteach_top_n` | `10` | pool size the cohort is derived from |
 | `preteach_kappa` | `0` | per-word cost model (§3.1a); 0 until fitted |
 | `preteach_ranking` | `value_text = 'per_minute'` | `greedy` \| `frontier` \| `frequency` |
@@ -592,7 +592,14 @@ run early and over-read.
   clears Ring 2 in fewer attempts than one at 0.05, `frontier` is being
   overcharged and may be the better default. Resolve with §8.5; until then
   `greedy` ships as default and `frontier` as a one-row switch.
-- **ANSWERED 2026-09-19.** Neither: **the learner sets `words_per_week`
+- **SUPERSEDED 2026-10-13.** The `words_per_week` setting below is DEPRECATED and must not be
+  built (no `user_study_plans.words_per_week` column). Pre-teaching is Queue B inside the learner's
+  `new_words_per_day` quota ([[decisions/ADR-033-budget-scope-and-new-word-budget]],
+  [[features/session-budget-settings.tech]]): `_nominate_from_lookahead` is called only when Queue A
+  (A1 recent-test and word-quiz unknowns, then A2 calibration wrongs) did not fill the day's governed quota, and the cohort is bounded by what is left of it.
+  `target_new_rate`'s derived value is likewise replaced by `new_words_per_day`. The 2026-09-19 text is
+  kept for history.
+- **ANSWERED 2026-09-19 (superseded, see above).** Neither: **the learner sets `words_per_week`
   directly** (a new column on `user_study_plans`; casual ~20, serious ~100),
   and it replaces `target_new_rate`'s derived `daily_minutes // 6` as the
   ladder intake ceiling. `preteach_budget` derives from it rather than being a

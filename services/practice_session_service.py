@@ -39,12 +39,13 @@ Follows the singleton pattern used by TestService / VocabularyKnowledgeService.
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from config import Config
 from services.supabase_factory import get_supabase_admin
-from services.study_plan_service import target_active_pool
+from services import study_plan_service as _plan
+from services.day_boundary import local_date, local_day_start_utc, plan_today_iso
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.vocabulary.fsrs import CardState, schedule_review, AGAIN, GOOD, EASY
 
@@ -54,12 +55,9 @@ logger = logging.getLogger(__name__)
 # Ladder intake tunables (plan §4c)
 # ----------------------------------------------------------------------
 
-# Ceiling on how many senses one top-up pass may add. The pool floor
-# (target_active_pool) can be far above the current count on a stalled or
-# brand-new ladder; without a cap the first call after the gate->floor change
-# would insert the entire deficit at once. Interim guard only — a true
-# per-calendar-day quota is what user_word_ladder.created_at (task741) exists
-# to make expressible.
+# Safety ceiling on how many senses one intake pass may add. Intake is driven
+# by the per-local-day new-word quota (admit_daily_new_words), not by a pool
+# floor; this cap only bounds a pathological quota (npd up to 50) on one call.
 LADDER_TOPUP_MAX_PER_CALL = 12
 
 # Ladder states that count towards the eligible pool. state='new' is in here,
@@ -92,6 +90,18 @@ SUPPLY_GATE_ROW_LIMIT = 10000
 EVIDENCE_ROW_LIMIT = 2000
 WRONG_ANSWER_ROW_LIMIT = 5000
 LADDER_SUBSCRIBED_ROW_LIMIT = 5000
+
+# Queue A1 (session-budget-settings, TASK-871): unknowns from tests and word
+# quizzes the learner took recently. Tunable (assumed, no data). Config wins when
+# it defines the name, so the planner and intake share one value.
+RECENT_TEST_WINDOW_DAYS = getattr(Config, 'RECENT_TEST_WINDOW_DAYS', 28)
+RECENT_TEST_ROW_LIMIT = 1000
+RECENT_TEST_CHUNK = 100
+
+# Queue A2 (TASK-873): calibration wrongs.
+CALIBRATION_EVIDENCE_MAX_AGE_DAYS = getattr(
+    Config, 'CALIBRATION_EVIDENCE_MAX_AGE_DAYS', 90)   # tunable (assumed, no data)
+CALIBRATION_ROW_LIMIT = 500
 
 
 # T4.3 — how many starved nominations one session request may queue for
@@ -130,6 +140,7 @@ class PracticeSessionService:
         target_minutes: int = 15,
         user_theta: Optional[float] = None,
         debug: bool = False,
+        tail: bool = False,
     ) -> Dict[str, Any]:
         """Return today's Practice session in the requested mode.
 
@@ -140,17 +151,20 @@ class PracticeSessionService:
             target_minutes: time budget; 1..180
             user_theta: optional pre-computed IRT theta; RPC computes if None
             debug: when True, includes score_breakdown on each item
+            tail: True for an optional-tail round (session-budget-settings).
+                The payload echoes ``tail: true`` so the client can echo it on
+                the attempt POST. Maintenance items are served most-overdue
+                first in every case.
 
         Returns the RPC jsonb verbatim, augmented with `cold_subscribed`
         (list of senses auto-subscribed before the call) if any.
 
-        Ladder top-up (R4.9, redesigned per plan §4c):
-          When acquisition is possible and the user's eligible ladder pool is
-          below target_active_pool(daily_minutes), subscribe enough senses to
-          reach that floor, capped at LADDER_TOPUP_MAX_PER_CALL per call.
-          Nominations come from evidence (words the learner has missed), and
-          every nomination must clear the supply gate — see
-          _maybe_top_up_ladder.
+        Ladder intake (session-budget-settings):
+          When acquisition is possible, admit enough words to meet today's
+          governed started-per-day quota (admit_daily_new_words), capped at
+          LADDER_TOPUP_MAX_PER_CALL per call. Nominations come from recent test
+          unknowns, then calibration wrongs, and every nomination must clear
+          the supply gate. Never-attempted admitted words are served first.
 
         Session floor (T4.6):
           A session shorter than PRACTICE_SESSION_MIN_ITEMS is topped up from
@@ -211,6 +225,18 @@ class PracticeSessionService:
                     'session floor top-up failed (non-fatal) for user=%s '
                     'lang=%s: %s', user_id, language_id, e,
                 )
+
+        # Session-budget-settings: serve never-attempted admitted words first
+        # (oldest admission first), and maintenance reviews most-overdue first.
+        try:
+            self._order_items(payload, user_id, language_id, mode)
+        except Exception as e:
+            logger.warning(
+                'session item ordering failed (non-fatal) for user=%s '
+                'lang=%s: %s', user_id, language_id, e,
+            )
+        if tail:
+            payload['tail'] = True
 
         # Strip score_breakdown when not in debug mode (it's verbose and
         # only useful for telemetry / parity tests).
@@ -342,6 +368,94 @@ class PracticeSessionService:
             len(items), len(payload['items']), PRACTICE_SESSION_MIN_ITEMS,
         )
 
+    # ------------------------------------------------------------------
+    # Item ordering (session-budget-settings, TASK-872)
+    # ------------------------------------------------------------------
+
+    def _order_items(
+        self, payload: Dict[str, Any], user_id: str, language_id: int, mode: str,
+    ) -> None:
+        """Re-order the RPC's items in place (the RPC itself is not modified).
+
+        * Acquisition items: words that have never been attempted come first,
+          oldest admission first (``ladder_new_word_state.unstarted_sense_ids``
+          order), before any word whose ladder is already in progress. Items of
+          one word stay contiguous and keep their order.
+        * Maintenance items: most overdue first (earliest
+          ``user_flashcards.due_date`` / ``user_word_ladder.review_due_at``).
+        """
+        items = payload.get('items') or []
+        if len(items) < 2:
+            return
+        if mode in ('acquisition', 'auto') and any(
+            i.get('mode', 'acquisition') == 'acquisition' for i in items
+        ):
+            self._unstarted_first(items, user_id, language_id)
+        if mode in ('maintenance', 'auto'):
+            self._most_overdue_first(items, user_id)
+
+    def _unstarted_first(
+        self, items: List[Dict[str, Any]], user_id: str, language_id: int,
+    ) -> None:
+        state = self.new_word_state(user_id, language_id)
+        if not state or not state['unstarted_sense_ids']:
+            return
+        rank = {sid: i for i, sid in enumerate(state['unstarted_sense_ids'])}
+        # contiguous acquisition groups by sense, order of first appearance
+        groups: List[List[Dict[str, Any]]] = []
+        index: Dict[Any, int] = {}
+        slots: List[Any] = []        # positions of acquisition items, in order
+        for pos, item in enumerate(items):
+            if item.get('mode', 'acquisition') != 'acquisition':
+                continue
+            slots.append(pos)
+            key = item.get('sense_id')
+            if key in index:
+                groups[index[key]].append(item)
+            else:
+                index[key] = len(groups)
+                groups.append([item])
+        big = len(rank) + 1
+        groups.sort(key=lambda g: rank.get(g[0].get('sense_id'), big))
+        flat = [it for g in groups for it in g]
+        for pos, it in zip(slots, flat):
+            items[pos] = it
+
+    def _most_overdue_first(
+        self, items: List[Dict[str, Any]], user_id: str,
+    ) -> None:
+        positions = [
+            p for p, i in enumerate(items)
+            if i.get('mode') == 'maintenance' and i.get('sense_id') is not None
+        ]
+        if len(positions) < 2:
+            return
+        sense_ids = sorted({items[p]['sense_id'] for p in positions})
+        due: Dict[Any, str] = {}
+
+        def _norm(value) -> Optional[str]:
+            if not value:
+                return None
+            text = str(value)
+            return text[:10] + 'T00:00:00' if len(text) <= 10 else text[:19]
+
+        for table, column in (('user_flashcards', 'due_date'),
+                              ('user_word_ladder', 'review_due_at')):
+            resp = (self.db.table(table).select(f'sense_id, {column}')
+                    .eq('user_id', user_id).in_('sense_id', sense_ids)
+                    .execute())
+            for row in (resp.data or []):
+                when = _norm(row.get(column))
+                if when and (row['sense_id'] not in due or when < due[row['sense_id']]):
+                    due[row['sense_id']] = when
+        far = '9999-12-31T00:00:00'
+        picked = sorted(
+            (items[p] for p in positions),
+            key=lambda it: due.get(it['sense_id'], far),
+        )
+        for p, it in zip(positions, picked):
+            items[p] = it
+
     @staticmethod
     def _prepare_jumbled_items(items, language_id: int) -> None:
         """Fill in jumbled_sentence chunks/ordering, in place, per item.
@@ -470,6 +584,7 @@ class PracticeSessionService:
         session_mode: Optional[str] = None,
         language_id: Optional[int] = None,
         expected_seconds: Optional[int] = None,
+        is_tail: bool = False,
     ) -> Dict[str, Any]:
         """Record an attempt and propagate BKT / FSRS / Tier-B progress.
 
@@ -487,6 +602,9 @@ class PracticeSessionService:
           expected_seconds : the item's p50 time estimate (as served on the
               session item). Used as the credited fallback when time_taken_ms
               is missing/zero or absurdly large (TASK-701).
+          is_tail      : the attempt belongs to an optional-tail round
+              (the session was requested with tail=1). Forwarded as
+              ``p_is_tail`` so tail minutes and tail new words are tracked.
         """
         # 1. Look up exercise metadata
         exercise = (
@@ -571,6 +689,24 @@ class PracticeSessionService:
                 user_id, sense_id, is_correct, time_taken_ms
             )
 
+        # 5b. Weekly minutes ledger (ADR-035): credit every attempt, in or out
+        # of a planned session, once per exercise_attempts id. Best-effort and
+        # independent of STUDY_PLAN_ENABLED / session_mode; planner math below
+        # is untouched.
+        if attempt_id and eff_language_id:
+            try:
+                from services.study_time import credit_study_time  # lazy: avoids import cycle
+                credit_study_time(
+                    self.db, user_id, eff_language_id, 'practice',
+                    self._effective_practice_seconds(time_taken_ms, expected_seconds),
+                    'exercise_attempts', str(attempt_id),
+                )
+            except Exception as e:
+                logger.warning(
+                    'study-time credit failed (non-fatal) for attempt=%s: %s',
+                    attempt_id, e,
+                )
+
         # 6. Study Plan progress (if session_mode given and Plan enabled)
         if (
             Config.STUDY_PLAN_ENABLED
@@ -591,6 +727,12 @@ class PracticeSessionService:
                     'p_skill':         None,
                     'p_delta_count':   0,
                     'p_delta_seconds': delta_seconds,
+                    # Session-budget-settings (TASK-872): the sense is passed
+                    # only for acquisition so the RPC can count a new word the
+                    # day it is first attempted; maintenance passes None.
+                    'p_sense_id':      sense_id if session_mode == 'acquisition'
+                                       else None,
+                    'p_is_tail':       bool(is_tail),
                 }).execute()
             except Exception as e:
                 # Non-fatal: progress tracking is best-effort.
@@ -682,66 +824,486 @@ class PracticeSessionService:
     def _maybe_top_up_ladder(
         self, user_id: str, language_id: int
     ) -> List[int]:
-        """Top the eligible ladder pool up to its floor, evidence first.
+        """Admit today's new words; returns the newly-admitted sense ids.
 
-        Returns the list of newly-subscribed sense_ids (may be empty).
-
-        One nomination queue, behind the supply gate:
-
-          Evidence. Senses the learner has demonstrably not learnt, read from
-            ``user_vocabulary_knowledge`` and from the questions they answered
-            incorrectly. Both signals are already recorded; nothing new needs
-            collecting. (A second queue — cold-start backfill from selected
-            language packs — was archived 2026-09-21 with the packs feature; no
-            pack was ever created, so it never fired. A brand-new learner with
-            no test history therefore gets no top-up until they have evidence.)
-
-        The supply gate sits between nomination and subscription: a sense is
-        admitted only if it already carries at least
-        LADDER_MIN_EXERCISES_PER_SENSE active exercises in this language.
-        Without it the ladder fills with unservable words — the live failure
-        this replaces, where 21 of 24 subscribed senses had no exercise at all
-        and the engine had recorded 3 attempts in its lifetime.
-
-        History: this was previously a *cold-start-only* pack seed that
-        returned early if the user had ANY eligible row. The rows it inserts
-        are state='new' — itself in the eligible set — so the very first seed
-        permanently disarmed all subsequent intake. Flooring the pool instead
-        of gating on emptiness is what makes intake ongoing.
-
-        Note the floor is on the *eligible pool*, not a per-day intake quota.
-        ``user_word_ladder.created_at`` (added by task741) is what makes a true
-        per-calendar-day cap expressible; until intake volume warrants one, the
-        per-call cap remains the guard against a large first fill.
+        Delegates to :meth:`admit_daily_new_words`, which holds the body
+        (per-local-day started quota, review governor, nomination queues, supply
+        gate). Kept as the name ``get_session`` has always called.
         """
-        eligible_count = self._eligible_ladder_count(user_id, language_id)
-        pool_floor = target_active_pool(
-            self._daily_minutes(user_id, language_id)
+        return self.admit_daily_new_words(user_id, language_id)['admitted']
+
+    # -- quota state (session-budget-settings, TASK-871) ----------------
+
+    def new_word_state(
+        self, user_id: str, language_id: int
+    ) -> Optional[Dict[str, Any]]:
+        """Today's new-word quota state for a learner, or None.
+
+        Reads the plan once (``new_words_per_day``, ``weekday_shape``,
+        ``timezone``, ``excluded_modules``), applies the review-load governor
+        and counts the ladder through ``ladder_new_word_state``:
+
+            quota       Q  = new_words_for_day(npd, weight of today's weekday)
+            effective   E  = effective_new_words(Q, governor level)
+            unstarted   U  = admitted words never attempted
+            started_today ST = words whose first-ever attempt is on or after
+                              local midnight (admitted today or earlier)
+            unstarted_sense_ids  oldest admission first
+
+        None means "no plan row or a read failed": callers admit nothing.
+        Never raises.
+        """
+        try:
+            resp = (
+                self.db.table('user_study_plans')
+                .select('new_words_per_day, weekday_shape, timezone, excluded_modules')
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .limit(1)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                'new-word state: plan read failed for user=%s lang=%s: %s',
+                user_id, language_id, e,
+            )
+            return None
+        if not getattr(resp, 'data', None):
+            return None
+        plan = resp.data[0]
+
+        tz = plan.get('timezone')
+        npd = int(plan.get('new_words_per_day') or 0)
+        shape = plan.get('weekday_shape') or [1.0] * 7
+        excluded = plan.get('excluded_modules') or []
+        today = local_date(tz)
+        try:
+            weight = float(shape[today.weekday()])
+        except (IndexError, TypeError, ValueError):
+            weight = 1.0
+        quota = _plan.new_words_for_day(npd, weight)
+
+        if 'practice' in excluded:
+            gov: Dict[str, Any] = {'level': 'normal'}
+        else:
+            gov = _plan.get_review_governor(
+                self.db, user_id, language_id, today
+            ) or {'level': 'normal'}
+        level = gov.get('level') or 'normal'
+        effective = _plan.effective_new_words(quota, level)
+
+        try:
+            st = self.db.rpc('ladder_new_word_state', {
+                'p_user_id':     user_id,
+                'p_language_id': language_id,
+                'p_day_start':   local_day_start_utc(tz).isoformat(),
+            }).execute().data
+        except Exception as e:
+            logger.warning(
+                'new-word state: ladder_new_word_state failed for user=%s '
+                'lang=%s: %s', user_id, language_id, e,
+            )
+            return None
+        if isinstance(st, list):
+            st = st[0] if st else None
+        if not isinstance(st, dict):
+            return None
+
+        return {
+            'timezone':      tz,
+            'excluded':      list(excluded),
+            'quota':         quota,
+            'effective':     effective,
+            'level':         level,
+            'governor':      gov,
+            'unstarted':     int(st.get('unstarted') or 0),
+            'started_today': int(st.get('started_today') or 0),
+            'unstarted_sense_ids': list(st.get('unstarted_sense_ids') or []),
+        }
+
+    def admit_daily_new_words(
+        self, user_id: str, language_id: int
+    ) -> Dict[str, Any]:
+        """Top today's ladder intake up to the governed started-per-day quota.
+
+        Returns ``{'admitted': [sense_id, ...], 'needs_rebuild': bool}``.
+
+        Quota (Anki-like, ADR-033 revision (c)): ``new_words_per_day`` counts
+        words *started* per local day, not words admitted. Admitted-but-unstarted
+        words carry over and are counted, so intake only tops up:
+
+            want_raw = E - (U + ST)
+            want     = min(max(want_raw, 0), LADDER_TOPUP_MAX_PER_CALL)
+
+        with ``E`` the effective quota after the review governor. A repeat call
+        the same day admits nothing because ``U + ST`` already includes earlier
+        admissions. The old pool-floor trigger is gone: a large existing pool no
+        longer suppresses admission.
+
+        Nominations: Queue A1 (recent test + word-quiz unknowns), then A2
+        (calibration wrongs), then Queue B (lookahead; empty until built), all
+        behind one supply gate. The unmet part of the quota is recorded as the
+        day's shortfall; starved nominations are queued for generation.
+
+        ``needs_rebuild`` is True once, on the first supply check of the day,
+        when Tier C planned more in-budget new words than can be served.
+
+        Never raises: a failure admits nothing.
+        """
+        empty: Dict[str, Any] = {'admitted': [], 'needs_rebuild': False}
+        try:
+            return self._admit_daily_new_words(user_id, language_id, empty)
+        except Exception as e:
+            logger.warning(
+                'daily new-word intake failed for user=%s lang=%s: %s',
+                user_id, language_id, e,
+            )
+            return empty
+
+    def _admit_daily_new_words(
+        self, user_id: str, language_id: int, empty: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        state = self.new_word_state(user_id, language_id)
+        if state is None:
+            return empty
+        new_today = state['effective']
+        if new_today <= 0:
+            return empty
+
+        unstarted, started_today = state['unstarted'], state['started_today']
+        want_raw = new_today - (unstarted + started_today)
+        want = min(max(want_raw, 0), LADDER_TOPUP_MAX_PER_CALL)
+        if want <= 0:
+            return empty
+
+        # Side effect only: asks for exercises for subscribed-but-unservable
+        # rows. No longer gates intake and target_active_pool is not read.
+        try:
+            self._eligible_ladder_count(user_id, language_id)
+        except Exception as e:
+            logger.warning('eligible ladder count failed (non-fatal): %s', e)
+
+        # Read the supply flag BEFORE set_new_words_shortfall flips it.
+        today_iso = plan_today_iso(self.db, user_id, language_id)
+        prior_checked, planned_in_budget, checked_e = self._today_supply_flags(
+            user_id, language_id, today_iso
         )
-        deficit = pool_floor - eligible_count
-        if deficit <= 0:
-            return []
-        want = min(deficit, LADDER_TOPUP_MAX_PER_CALL)
+        # A supply check is only valid for the E it was made under. A mid-day
+        # quota change (settings edit, governor level change) makes it stale:
+        # treat the day as unchecked so the rebuild flag can fire once more.
+        # (checked_e is None only for rows written before the key existed.)
+        if prior_checked and checked_e is not None and checked_e != new_today:
+            prior_checked = False
 
         subscribed = self._subscribed_sense_ids(user_id)
+        fresh = self._nominate_new_words(user_id, language_id, want, subscribed)
 
-        fresh = self._nominate_from_evidence(
-            user_id, language_id, want, subscribed
+        inserted = bool(fresh) and self._insert_ladder_rows(user_id, fresh)
+        if fresh and not inserted:
+            return empty
+        admitted = list(fresh) if inserted else []
+        if admitted:
+            logger.info(
+                'ladder intake admitted %d sense(s) for user=%s lang=%s '
+                '(E=%d, unstarted=%d, started_today=%d)',
+                len(admitted), user_id, language_id, new_today,
+                unstarted, started_today,
+            )
+
+        shortfall = max(0, want_raw - len(admitted))
+        try:
+            self.db.rpc('set_new_words_shortfall', {
+                'p_user_id':     user_id,
+                'p_language_id': language_id,
+                'p_date':        today_iso,
+                'p_shortfall':   shortfall,
+                'p_checked_e':   new_today,
+            }).execute()
+        except Exception as e:
+            logger.warning(
+                'set_new_words_shortfall failed (non-fatal) for user=%s '
+                'lang=%s: %s', user_id, language_id, e,
+            )
+
+        servable = min(new_today, unstarted + started_today + len(admitted))
+        needs_rebuild = bool(
+            not prior_checked
+            and planned_in_budget is not None
+            and planned_in_budget > servable
         )
-        source = 'evidence'
+        return {'admitted': admitted, 'needs_rebuild': needs_rebuild}
 
-        if not fresh:
-            return []
-        if not self._insert_ladder_rows(user_id, fresh):
-            return []
+    def _today_supply_flags(
+        self, user_id: str, language_id: int, load_date: str
+    ):
+        """(new_words_supply_checked, new_words_in_budget, checked_e) from today's targets.
 
-        logger.info(
-            'ladder top-up subscribed %d sense(s) from %s for user=%s lang=%s '
-            '(eligible %d -> %d, floor %d)',
-            len(fresh), source, user_id, language_id,
-            eligible_count, eligible_count + len(fresh), pool_floor,
+        ``checked_e`` is the effective quota the supply check was made under
+        (``new_words_supply_checked_e``), None when absent.
+
+        ``planned`` is None when there is no row or no such key (nothing to
+        compare against, so no rebuild).
+        """
+        try:
+            resp = (
+                self.db.table('daily_test_loads')
+                .select('daily_session_targets')
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .eq('load_date', load_date)
+                .limit(1)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning('supply-flag read failed (non-fatal): %s', e)
+            return True, None, None     # unknown: do not trigger a rebuild
+        if not resp.data:
+            return True, None, None
+        targets = resp.data[0].get('daily_session_targets') or {}
+        planned = targets.get('new_words_in_budget')
+        checked_e = targets.get('new_words_supply_checked_e')
+        return (
+            bool(targets.get('new_words_supply_checked')),
+            int(planned) if planned is not None else None,
+            int(checked_e) if checked_e is not None else None,
         )
-        return fresh
+
+    # -- nomination queues ----------------------------------------------
+
+    def _nominate_new_words(
+        self, user_id: str, language_id: int, want: int, exclude: set,
+    ) -> List[int]:
+        """Nominate and gate senses for today's intake, best queue first.
+
+        Order (decided 2026-10-13): Queue A1 (unknowns from recent tests and
+        word quizzes) -> Queue A2 (calibration wrongs; one wrong answer is
+        enough) -> Queue B (lookahead cohorts, empty until built). A later queue
+        is consulted only if the earlier ones did not fill ``want``. Every queue
+        goes through ``_gate_and_admit``. No frequency-based cold-start queue.
+        """
+        admitted: List[int] = []
+        taken = set(exclude)
+
+        recent = self._recent_test_sense_ids(user_id, language_id)
+        a1 = [
+            c for c in self._evidence_candidates(
+                user_id, language_id, recency_first=True)
+            if c['sense_id'] in recent and c['sense_id'] not in taken
+        ]
+        admitted += self._gate_and_admit(
+            [c['sense_id'] for c in a1], want, language_id)
+        taken.update(admitted)
+
+        if len(admitted) < want:
+            a2 = self._calibration_wrong_candidates(user_id, language_id, taken)
+            got = self._gate_and_admit(
+                a2, want - len(admitted), language_id)
+            admitted += got
+            taken.update(got)
+
+        if len(admitted) < want:
+            b = self._nominate_from_lookahead(
+                user_id, language_id, want - len(admitted), taken)
+            admitted += self._gate_and_admit(
+                b, want - len(admitted), language_id)
+        return admitted[:want]
+
+    def _nominate_from_lookahead(
+        self, user_id: str, language_id: int, want: int, exclude: set,
+    ) -> List[int]:
+        """Queue B: lookahead pre-teaching cohorts.
+
+        Stub returning ``[]`` until [[features/lookahead-preteaching]] ships.
+        """
+        return []
+
+    def _gate_and_admit(
+        self, candidates: List[int], want: int, language_id: int,
+    ) -> List[int]:
+        """Run ranked candidate sense ids through the supply gate.
+
+        Overfetches (``want * NOMINATION_OVERFETCH``) because exercise coverage
+        sits near 3% of tested senses, keeps those with at least
+        LADDER_MIN_EXERCISES_PER_SENSE active exercises, queues the starved for
+        generation (capped by DEMAND_GENERATION_MAX_PER_CALL) and returns
+        ``admitted[:want]``. Fails closed when supply cannot be verified.
+        """
+        if not candidates or want <= 0:
+            return []
+        head = candidates[:max(want * NOMINATION_OVERFETCH, want)]
+        supplied = self._senses_with_supply(head, language_id)
+        admitted = [sid for sid in head if sid in supplied]
+        starved = [sid for sid in head if sid not in supplied]
+        if starved:
+            logger.info(
+                'ladder intake: %d of %d nominated sense(s) for lang=%s have '
+                'fewer than %d active exercises and were held back',
+                len(starved), len(head), language_id,
+                LADDER_MIN_EXERCISES_PER_SENSE,
+            )
+            self._request_generation(starved, language_id)
+        return admitted[:want]
+
+    def _recent_test_sense_ids(self, user_id: str, language_id: int) -> set:
+        """Senses carried by tests the learner took in the recent window.
+
+        ``test_attempts`` within RECENT_TEST_WINDOW_DAYS give test ids; in
+        chunks of RECENT_TEST_CHUNK, ``tests.vocab_sense_ids`` and
+        ``questions.sense_ids`` are unioned. A failed read returns an empty set
+        (intake adds nothing rather than admitting unrelated words).
+        """
+        since = (
+            datetime.now(timezone.utc) - timedelta(days=RECENT_TEST_WINDOW_DAYS)
+        ).isoformat()
+        try:
+            resp = (
+                self.db.table('test_attempts')
+                .select('test_id')
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .gte('created_at', since)
+                .limit(RECENT_TEST_ROW_LIMIT)
+                .execute()
+            )
+            test_ids = sorted({
+                r['test_id'] for r in (resp.data or [])
+                if r.get('test_id') is not None
+            })
+            senses: set = set()
+            for start in range(0, len(test_ids), RECENT_TEST_CHUNK):
+                chunk = test_ids[start:start + RECENT_TEST_CHUNK]
+                t = (self.db.table('tests').select('id, vocab_sense_ids')
+                     .in_('id', chunk).execute())
+                for row in (t.data or []):
+                    senses.update(row.get('vocab_sense_ids') or [])
+                q = (self.db.table('questions').select('test_id, sense_ids')
+                     .in_('test_id', chunk).execute())
+                for row in (q.data or []):
+                    senses.update(row.get('sense_ids') or [])
+            return senses
+        except Exception as e:
+            logger.warning(
+                'recent-test sense read failed for user=%s lang=%s: %s',
+                user_id, language_id, e,
+            )
+            return set()
+
+    # -- calibration evidence (TASK-873) ---------------------------------
+
+    def _calibration_ledger(
+        self, user_id: str, language_id: int
+    ) -> Dict[int, Dict[str, Any]]:
+        """Per anchor sense: what applied definition-mode calibration showed.
+
+        Reads ``calibration_responses`` joined (inner) to ``calibration_sessions``
+        with mode 'definition', this word language and ``bkt_applied_at`` set,
+        keeping only ``answered_at IS NOT NULL AND is_correct IS NOT NULL`` (an
+        explicit skip is stored as a wrong answer; an unanswered item is
+        ignored). Returns ``{sense_id: {cal_n, cal_wrong, last_answer_wrong,
+        last_at}}``: ``cal_n`` distinct sessions answered, ``cal_wrong`` the
+        sessions whose answers for the sense were all incorrect. A failed read
+        returns ``{}``.
+        """
+        try:
+            resp = (
+                self.db.table('calibration_responses')
+                .select(
+                    'anchor_sense_id, is_correct, answered_at, session_id, '
+                    'calibration_sessions!inner(mode, word_language_id, '
+                    'bkt_applied_at)'
+                )
+                .eq('user_id', user_id)
+                .eq('calibration_sessions.mode', 'definition')
+                .eq('calibration_sessions.word_language_id', language_id)
+                .limit(CALIBRATION_ROW_LIMIT)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning(
+                'calibration ledger read failed for user=%s lang=%s: %s',
+                user_id, language_id, e,
+            )
+            return {}
+
+        # sense -> session -> [is_correct, ...] and the latest answer
+        per: Dict[int, Dict[Any, List[bool]]] = {}
+        latest: Dict[int, tuple] = {}
+        for row in (resp.data or []):
+            sid = row.get('anchor_sense_id')
+            sess = row.get('calibration_sessions') or {}
+            if (
+                sid is None
+                or row.get('answered_at') is None
+                or row.get('is_correct') is None
+                or sess.get('bkt_applied_at') is None
+                or (sess.get('mode') or 'definition') != 'definition'
+            ):
+                continue
+            per.setdefault(sid, {}).setdefault(
+                row.get('session_id'), []).append(bool(row['is_correct']))
+            at = str(row['answered_at'])
+            if sid not in latest or at > latest[sid][0]:
+                latest[sid] = (at, bool(row['is_correct']))
+
+        ledger: Dict[int, Dict[str, Any]] = {}
+        for sid, sessions in per.items():
+            ledger[sid] = {
+                'cal_n':     len(sessions),
+                'cal_wrong': sum(1 for ans in sessions.values() if not any(ans)),
+                'last_answer_wrong': not latest[sid][1],
+                'last_at':   latest[sid][0],
+            }
+        return ledger
+
+    def _calibration_wrong_candidates(
+        self, user_id: str, language_id: int, exclude: set,
+    ) -> List[int]:
+        """Queue A2: senses whose latest calibration answer was wrong.
+
+        Rule (i): a single wrong (or explicit "I don't know") calibration answer
+        is sufficient; neither LADDER_EVIDENCE_MIN_COUNT nor
+        LADDER_EVIDENCE_P_KNOWN_MAX applies. Within CALIBRATION_EVIDENCE_MAX_AGE_DAYS,
+        not in ``exclude``, and not currently 'known' / 'probably_known'. Ordered
+        by lemma frequency (Zipf desc) then most recent answer. Ranked below A1
+        by the caller; the supply gate still applies.
+        """
+        ledger = self._calibration_ledger(user_id, language_id)
+        cutoff = (
+            datetime.now(timezone.utc)
+            - timedelta(days=CALIBRATION_EVIDENCE_MAX_AGE_DAYS)
+        ).isoformat()
+        wrong = [
+            sid for sid, e in ledger.items()
+            if e['last_answer_wrong'] and e['last_at'] >= cutoff
+            and sid not in exclude
+        ]
+        if not wrong:
+            return []
+
+        vetoed: set = set()
+        try:
+            for start in range(0, len(wrong), SUPPLY_GATE_CHUNK):
+                chunk = wrong[start:start + SUPPLY_GATE_CHUNK]
+                resp = (
+                    self.db.table('user_vocabulary_knowledge')
+                    .select('sense_id, status')
+                    .eq('user_id', user_id)
+                    .in_('sense_id', chunk)
+                    .execute()
+                )
+                vetoed.update(
+                    r['sense_id'] for r in (resp.data or [])
+                    if r.get('status') in ('known', 'probably_known')
+                )
+        except Exception as e:
+            logger.warning('calibration status veto read failed: %s', e)
+            return []          # fail closed: cannot confirm the words are not known
+
+        remaining = [sid for sid in wrong if sid not in vetoed]
+        frequency = self._sense_frequency(remaining)
+        remaining.sort(key=lambda s: ledger[s]['last_at'], reverse=True)
+        remaining.sort(key=lambda s: frequency.get(s, 0.0), reverse=True)
+        return remaining
 
     # -- pool state ----------------------------------------------------
 
@@ -891,43 +1453,6 @@ class PracticeSessionService:
 
     # -- Queue A: evidence (T4.2) --------------------------------------
 
-    def _nominate_from_evidence(
-        self, user_id: str, language_id: int, want: int, exclude: set,
-    ) -> List[int]:
-        """Nominate senses the learner has shown they do not know.
-
-        Ranked wrong-count first, then most-recent evidence, then frequency,
-        and filtered through the supply gate. Senses that rank well but have
-        no exercises are logged rather than dropped silently — they are the
-        input to demand-driven generation (T4.3), and while exercise coverage
-        sits near 3% of tested senses most nominations land there.
-        """
-        candidates = [
-            c for c in self._evidence_candidates(user_id, language_id)
-            if c['sense_id'] not in exclude
-        ]
-        if not candidates:
-            return []
-
-        # Gate a generous slice rather than exactly `want`: at current coverage
-        # the large majority of nominations fail the gate.
-        head = candidates[:max(want * NOMINATION_OVERFETCH, want)]
-        supplied = self._senses_with_supply(
-            [c['sense_id'] for c in head], language_id
-        )
-        admitted = [c['sense_id'] for c in head if c['sense_id'] in supplied]
-        starved = [c['sense_id'] for c in head if c['sense_id'] not in supplied]
-        if starved:
-            logger.info(
-                'ladder intake: %d of %d evidence-nominated sense(s) for '
-                'user=%s lang=%s have fewer than %d active exercises and were '
-                'held back',
-                len(starved), len(head), user_id, language_id,
-                LADDER_MIN_EXERCISES_PER_SENSE,
-            )
-            self._request_generation(starved, language_id)
-        return admitted[:want]
-
     def _request_generation(self, sense_ids: List[int], language_id: int) -> int:
         """Queue starved nominations for exercise generation (T4.3).
 
@@ -975,10 +1500,21 @@ class PracticeSessionService:
         return queued
 
     def _evidence_candidates(
-        self, user_id: str, language_id: int
+        self, user_id: str, language_id: int, recency_first: bool = False,
     ) -> List[Dict[str, Any]]:
-        """Ranked evidence nominations for this learner, best first."""
+        """Ranked test / word-quiz evidence nominations (Queue A1), best first.
+
+        The calibration contribution is subtracted before the thresholds apply
+        (``evidence_count - cal_n``, ``word_test_wrong - cal_wrong``): a
+        calibration answer is not test or word-quiz evidence and is handled by
+        Queue A2. A row left with no evidence is dropped from A1.
+
+        ``recency_first`` ranks most-recent ``last_evidence_at`` first, then wrong
+        count, then frequency; the default is wrong count, then recency, then
+        frequency.
+        """
         wrong_by_question = self._wrong_answer_sense_counts(user_id)
+        ledger = self._calibration_ledger(user_id, language_id)
 
         rows: List[Dict[str, Any]] = []
         try:
@@ -1010,7 +1546,12 @@ class PracticeSessionService:
             sid = row.get('sense_id')
             if sid is None:
                 continue
-            evidence = row.get('evidence_count') or 0
+            cal = ledger.get(sid) or {}
+            evidence = (row.get('evidence_count') or 0) - cal.get('cal_n', 0)
+            word_test_wrong = max(
+                0, (row.get('word_test_wrong') or 0) - cal.get('cal_wrong', 0))
+            if cal and evidence <= 0:
+                continue          # calibration-only evidence: Queue A2's job
             p_known = row.get('p_known')
             # One wrong answer is a careless click or a bad distractor, not a
             # knowledge gap. Admit on repeated evidence, or on a p_known the
@@ -1025,7 +1566,7 @@ class PracticeSessionService:
             candidates[sid] = {
                 'sense_id': sid,
                 'wrongs': (
-                    (row.get('word_test_wrong') or 0)
+                    word_test_wrong
                     + (row.get('comprehension_wrong') or 0)
                     + wrong_by_question.get(sid, 0)
                 ),
@@ -1053,8 +1594,12 @@ class PracticeSessionService:
             candidates.values(),
             key=lambda c: frequency.get(c['sense_id'], 0.0), reverse=True,
         )
-        ordered.sort(key=lambda c: c['last_evidence_at'], reverse=True)
-        ordered.sort(key=lambda c: c['wrongs'], reverse=True)
+        if recency_first:
+            ordered.sort(key=lambda c: c['wrongs'], reverse=True)
+            ordered.sort(key=lambda c: c['last_evidence_at'], reverse=True)
+        else:
+            ordered.sort(key=lambda c: c['last_evidence_at'], reverse=True)
+            ordered.sort(key=lambda c: c['wrongs'], reverse=True)
         return ordered
 
     def _wrong_answer_sense_counts(self, user_id: str) -> Dict[int, int]:
