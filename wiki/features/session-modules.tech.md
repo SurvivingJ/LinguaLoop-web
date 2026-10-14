@@ -3,13 +3,14 @@ title: Daily Session Modules (include / exclude) — Technical Specification
 type: feature-tech
 status: planned
 prose_page: ./session-modules.md
-last_updated: 2026-10-12
+last_updated: 2026-10-13
 dependencies:
-  - "table: user_study_plans (new column excluded_modules)"
+  - "table: user_study_plans (new columns excluded_modules, budget_scope, new_words_per_day)"
+  - "feature: session-budget-settings (new-word quota inside the planner; optional tail; review governor)"
   - "table: dim_study_plan_templates (read: weekly_test_counts, practice_total_minutes)"
   - "table: weekly_plan_states, daily_test_loads (written by existing RPCs)"
   - "RPC: build_daily_session (redefined)"
-  - "RPC: compute_weekly_plan_persist (unchanged — replace semantics on target_counts)"
+  - "RPC: compute_weekly_plan_persist (redefined 2026-10-13 to persist the new weekly_plan_states columns; replace semantics on target_counts kept)"
   - "service: services/study_plan_service.py (Tier B)"
   - "routes: routes/study_plan.py, routes/study_session.py"
   - "service: services/test_service.py (legacy fallback)"
@@ -34,7 +35,7 @@ A **module** is a daily-session planning unit. The module vocabulary is the unio
 | `pitch_accent` | test | ja | yes |
 | `flashcards` | surface | all | **no** (one block/day, sized by due cards) |
 | `dual_translation` | surface | all | yes |
-| `practice` | maint + acq practice chunks + speed-round tail | all | yes |
+| `practice` (UI label "Vocabulary review") | `maint` practice chunks + speed-round tail (review only; `acq` is governed by `new_words_per_day`) | all | yes |
 
 `listening_lab` and `mystery` are *not* modules. They are outside the planner by ADR-021 and are
 pinned by `tests/test_plannable_surfaces.py`.
@@ -65,6 +66,15 @@ to the other side (test ↔ practice) instead of to the remaining modules.
 ## Database Impact
 
 ### Migration `migrations/session_module_exclusions.sql` (new)
+
+> **2026-10-13 amendment:** this migration file now also carries `user_study_plans.budget_scope`
+> and `user_study_plans.new_words_per_day`, plus the `weekly_plan_states` columns for the new-word
+> quota and tail statistics, `dim_languages.new_word_minutes_est`, the relaxed `weekly_plan_states_shares_sum` CHECK
+> (the shares are now derived and can reach `1.0 / 0.0`), the SQL helpers `new_words_for_day` / `new_word_minutes`, and a
+> redefinition of `compute_weekly_plan_persist` (it persists the new columns; it was previously
+> described here as unchanged). Full DDL and rationale: [[features/session-budget-settings.tech]] and
+> [[decisions/ADR-033-budget-scope-and-new-word-budget]]. The module-exclusion DDL below is
+> unchanged.
 
 ```sql
 BEGIN;
@@ -119,8 +129,14 @@ Edits (each tagged `-- session-modules` in comments):
    `IF 'practice' = ANY(v_excluded) THEN v_practice_minutes_total := 0; ELSE … END IF;`
 4. In the test/surface candidate INSERT (`FROM jsonb_each_text(v_state.target_counts) … generate_series`),
    add `WHERE tc.skill_key <> ALL(v_excluded)`.
-5. Guard both practice candidate INSERTs (`'maint'`, `'acq'`) with
-   `WHERE NOT ('practice' = ANY(v_excluded))`.
+5. (Amended 2026-10-13, revised (b).) The practice-side candidate INSERTs and the practice greedy loop are
+   replaced by a direct assignment, because "due reviews first, then new words" is a priority order, not a value
+   ranking. The in-budget practice share exists only when `v_practice_in` (`budget_scope = 'tests_and_review'`
+   and `'practice'` not in `v_excluded`); with `practice` excluded edit 3's `IF` wrap is subsumed. Reviews take
+   `LEAST(share, due minutes)`, whole new words from the `new_words_per_day` quota take what is left, and any unused
+   share minutes return to the test budget. The `'acq'` candidate no longer exists; the remainder of the quota is
+   served in an optional tail derived by the session route. Full contract:
+   [[features/session-budget-settings.tech]] (Migration 2).
 6. In the TASK-704 retry SELECT, add `AND dtt.type_code <> ALL(v_excluded)`.
 7. In the word_upload SELECT, add `AND dtt.type_code <> ALL(v_excluded)`. This sits inside the
    `JOIN dim_test_types` predicate's WHERE, so a multi-skill test can still be served as one of
@@ -130,8 +146,9 @@ Edits (each tagged `-- session-modules` in comments):
 9. Add `'excluded_modules', to_jsonb(v_excluded)` to the `daily_session_targets` object. This is
    for observability, and the session route also reads it to gate the speed round.
 
-With `practice` excluded, steps 3 and 5 give `v_practice_budget = 0` and
-`v_test_budget = v_today_budget`. With every test/surface module excluded, `v_test_minutes_total`
+With `practice` excluded, steps 3 and 5 give `v_practice_budget = 0` (no `maint` review) and
+`v_test_budget = v_today_budget`; new words, if `new_words_per_day > 0`, are then served only in the optional tail
+(there is no in-budget practice share). With every test/surface module excluded, `v_test_minutes_total`
 is 0 and the whole day goes to practice. Both cases fall out of the existing TASK-732 formula
 without new branches.
 
@@ -194,14 +211,24 @@ NON_SCALABLE_MODULES = ('flashcards',)
   and use these two values everywhere the raw template values are used today: the weakness loop,
   bandit scores, `allocate_test_counts`, and `rebalance_practice(practice_total_minutes=…)`.
   The ±50% floors and ceilings therefore apply around the *adjusted* counts.
-- If `'practice' in excluded`, skip `rebalance_practice`. Set `practice_minutes = 0`,
-  `maint_share = base_maintenance_share`, `acq_share = 1 − base_maintenance_share`. The shares are
-  persisted for schema compatibility only and are unused at 0 minutes.
+- If `'practice' in excluded`, skip `rebalance_practice` and set `review = 0` and `practice_target_minutes = 0`
+  (new words are then served only in the optional tail). (Amended 2026-10-13, revised (b).) The persisted shares are
+  derived (`maintenance = review / (review + acq_target_minutes)`, 1.00 / 0.00 when both are 0), which the relaxed
+  `weekly_plan_states_shares_sum` CHECK allows.
 - Carry-over: the test loop already iterates `target_counts` keys, so excluded skills get no
   carry-over automatically. Apply practice carry-over only when practice is not excluded.
 - `weakness_global` is averaged over the kept skills only (it already is, since `skill_weakness`
   is built from `weekly_template`).
 - The weekly ceiling clamp (`daily_minutes·7`) is unchanged.
+- (2026-10-13, revised (b)) `rebalance_practice` sizes the practice pool and the review share (no acquisition
+  pressure); in-budget new-word minutes are `min(quota minutes, practice pool − review)` and are carried in
+  `weekly_plan_states.acq_target_minutes`. Under `budget_scope='tests_only'` the
+  call becomes `apply_module_exclusions(…, excluded ∪ {'practice'})` so tests fill `daily_minutes·7`, and all review and new
+  words move to the optional tail. There is no scale-up of tests. See [[features/session-budget-settings.tech]].
+- (2026-10-13, revised (b)) The persist call passes the four new keys (`budget_scope`, `review_target_minutes`,
+  `new_words_target`, `acq_target_minutes`); `compute_weekly_plan_persist` is redefined
+  (migration 1, TASK-863) with those keys optional and `new_words_completed`, `tail_completed_min`,
+  `tail_new_words_completed` never overwritten.
 
 ### `StudyPlanService.rebuild_today(user_id, language_id) -> bool` (new)
 
@@ -229,12 +256,15 @@ NON_SCALABLE_MODULES = ('flashcards',)
 
 - **New body field:** `excluded_modules?: string[]`.
 - **Validation** (new helper `_validate_excluded_modules(value, available) -> list[str] | None`):
+  - (2026-10-13) The helper also receives the effective `new_words_per_day` (the request value,
+    else the stored one).
   - Must be a list of strings. Return 400 `"excluded_modules must be a list of module codes"`.
   - De-duplicate, then sort by `ALL_MODULES` order.
   - Every element must be in `available` for this language. Return 400
     `"unknown module for this language: <code>"`.
-  - `set(available) − set(excluded)` must be non-empty. Return 400
-    `"at least one module must remain included"`.
+  - `set(available) − set(excluded)` must be non-empty **or** `new_words_per_day > 0`.
+    Otherwise return 400 `"at least one module must remain included"`. (`new_words_per_day > 0`
+    counts as included.)
 - **`is_template_only`:** add `'excluded_modules'` to the tuple of "other fields", so a request
   carrying it is never treated as template-only.
 - **After a successful UPDATE**, and only when `excluded_modules` was in the request *and* differs
@@ -270,7 +300,8 @@ NON_SCALABLE_MODULES = ('flashcards',)
   `T('study_plan.modules.<code>')`. Checked means **included**.
 - **State:** derived from `plan.excluded_modules` on `showPlanEditor`. Re-evaluate on every
   change. When exactly one toggle is checked, disable it (`disabled` + `title` =
-  `T('study_plan.modules.last_one')`). When the only checked toggle is `flashcards`, show
+  `T('study_plan.modules.last_one')`), **unless** the new-words input is above 0, in which case
+  no toggle is locked. When the only checked toggle is `flashcards`, show
   `#moduleShortHint` (`T('study_plan.modules.flashcards_only_hint')`).
 - **Hint text** under the heading: `T('study_plan.modules.hint')`, which reads "Excluded modules
   are only left out of your daily session — you can still use them any time from the rest of
@@ -283,7 +314,10 @@ NON_SCALABLE_MODULES = ('flashcards',)
 - **i18n keys** (add to `static/i18n/{en,zh,ja,es}.json`): `study_plan.modules.title`,
   `.hint`, `.last_one`, `.flashcards_only_hint`, `.session_rebuilt`, and one label per module
   code (`.reading`, `.listening`, `.dictation`, `.pinyin`, `.classifier_drill`, `.pitch_accent`,
-  `.flashcards`, `.dual_translation`, `.practice`).
+  `.flashcards`, `.dual_translation`, `.practice`). The `.practice` label now reads
+  **"Vocabulary review"** (was "Vocabulary practice"; translate in zh/ja/es accordingly).
+  The card itself is superseded by the "Daily session" card of
+  [[features/session-budget-settings.tech]] (TASK-868).
 
 ## Key Architectural Decisions
 
@@ -299,9 +333,12 @@ NON_SCALABLE_MODULES = ('flashcards',)
    - **Rationale:** Its slot is one review block a day, and its real size comes from the due-card
      count (`ceil(due/15)` hydration). Scaling 7/week → 8/week would double-book a day, not add
      useful review.
-4. **Decision:** `practice` is one module covering maint, acq and the speed-round tail.
-   - **Rationale:** Learners see one "vocabulary practice" concept, while maint/acq is an internal
-     ADR-009 split. The speed round drills the same mastered vocabulary.
+4. **Decision:** `practice` is one module covering `maint` review and the speed-round tail.
+   (Amended 2026-10-13: it previously also covered `acq`.)
+   - **Rationale:** The speed round drills the same mastered vocabulary as `maint`. New-word
+     acquisition is a different learner intent, so it is controlled solely by
+     `new_words_per_day` (0 = off) — see [[decisions/ADR-033-budget-scope-and-new-word-budget]].
+     Excluding `practice` therefore no longer stops new words (they are served in the optional tail).
 5. **Decision:** Immediate effect through a same-day rebuild that reuses TASK-705 re-entrancy.
    - **Rationale:** The developer chose immediate effect. `build_daily_session` is already
      designed to be re-run for the same date and keep completed slots. Before this change nothing
@@ -328,8 +365,8 @@ NON_SCALABLE_MODULES = ('flashcards',)
     tie-break; total minutes preserved to within one slot's rounding.
   - `ALL_MODULES` equals the SQL CHECK list. Parse it from `migrations/session_module_exclusions.sql`.
   - `compute_weekly_plan` with a stubbed DB: excluded keys absent from the persisted
-    `target_counts`; `practice_target_minutes == 0` when practice is excluded; no carry-over for
-    excluded skills.
+    `target_counts`; `review_target_minutes == 0` when practice is excluded (`practice_target_minutes` then
+    equals `acq_target_minutes`); no carry-over for excluded skills.
 - **Route (`tests/test_session_modules_routes.py`, new):** PUT validation (non-list, unknown
   code, a ja-only code on zh, all excluded → 400); `is_template_only` false when
   `excluded_modules` is present; recompute and `rebuild_today` called only when the value changed;
@@ -341,6 +378,9 @@ NON_SCALABLE_MODULES = ('flashcards',)
   `practice_budget_minutes = 0`; a same-day rebuild after excluding a skill keeps that skill's
   already-completed slot with `is_completed`.
 - **Session route:** speed round suppressed when `excluded_modules` contains `practice`.
+- **New-word interplay (2026-10-13, revised (b)):** excluding `practice` with `new_words_per_day > 0` gives
+  `practice_*_min = 0` in the main session and new words in the optional tail only; `new_words_per_day = 0` plus `practice`
+  excluded yields none; PUT accepts all-modules-excluded only when `new_words_per_day > 0`.
 - **Regression:** the full `tests/test_weekly_plan_seeding.py`, `tests/test_plannable_surfaces.py`
   and `tests/test_daily_load_retry_slot.py` suites stay green, since the default `'{}'` must be a
   no-op.
@@ -361,3 +401,11 @@ classifier_drill 1, flashcards 7, dual_translation 2, and practice is 90 min.
   practice round(90 × 1.1471) = 103 min. Minutes are 42 + 18 + 4 + 4 + 49 + 24 + 103 = **244**,
   the same as before. These adjusted counts then feed the unchanged bandit / ±50% / carry-over /
   `daily_minutes·7` clamp pipeline.
+
+## Related Pages
+
+- [[features/session-modules]] — Plain-English counterpart
+- [[features/session-budget-settings]] / [[features/session-budget-settings.tech]] — Budget scope and new-words-per-day (2026-10-13)
+- [[decisions/ADR-032-session-module-exclusion]]
+- [[decisions/ADR-033-budget-scope-and-new-word-budget]]
+- [[tasklist/session-modules.tasks]], [[tasklist/session-budget-settings.tasks]]

@@ -476,6 +476,11 @@ class TestService:
 
         now = datetime.now(timezone.utc)
 
+        # Session modules (ADR-032): a learner who switched a test type off in
+        # the Study Plan must not get it from this legacy path either. No plan
+        # row (or a failed read) means no exclusions.
+        excluded = self._excluded_modules(user_id, language_id)
+
         # Build test_type id-to-code map
         id_to_type_code = {}
         if DimensionService._test_type_cache:
@@ -510,6 +515,8 @@ class TestService:
                 if (now - attempt_time).total_seconds() < COOLDOWN_SECONDS:
                     continue
             except (ValueError, TypeError):
+                continue
+            if excluded and id_to_type_code.get(a['test_type_id'], 'listening') in excluded:
                 continue
             retry_pool.append(a)
 
@@ -550,6 +557,7 @@ class TestService:
                     t for t in recommended
                     if t.get('test_id') not in selected_test_ids
                     and t.get('test_id') not in latest_by_test
+                    and t.get('test_type', 'listening') not in excluded
                 ]
 
                 for t in new_tests:
@@ -605,6 +613,8 @@ class TestService:
                     if test_id in selected_test_ids or test_id in latest_by_test:
                         continue
                     type_code = (r.get('dim_test_types') or {}).get('type_code', 'listening')
+                    if type_code in excluded:
+                        continue
                     load_items.append({
                         'test_id': test_id,
                         'slot_type': 'new',
@@ -619,6 +629,28 @@ class TestService:
                 logger.error(f"Error in fallback test selection for daily load: {e}")
 
         return load_items
+
+    def _excluded_modules(self, user_id: str, language_id: int) -> set:
+        """The learner's ``user_study_plans.excluded_modules`` as a set.
+
+        Empty when there is no plan row or the read fails (fail open: the legacy
+        path must keep producing a load).
+        """
+        try:
+            resp = (
+                self.admin.table('user_study_plans')
+                .select('excluded_modules')
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .limit(1)
+                .execute()
+            )
+            rows = resp.data or []
+            if rows:
+                return {m for m in (rows[0].get('excluded_modules') or []) if isinstance(m, str)}
+        except Exception as e:
+            logger.warning(f"Could not read excluded_modules for daily load: {e}")
+        return set()
 
     @staticmethod
     def _normalize_load_item(item):

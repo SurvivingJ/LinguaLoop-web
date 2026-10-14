@@ -98,6 +98,15 @@
             <div class="display-6 mb-2">🎉</div>
             <h1 class="h4 mb-3" data-i18n="session.done_title">Session complete!</h1>
             <div id="sessionSummaryBody"></div>
+            <!-- Optional tail: shown by controller.js when reviews / new words are left today -->
+            <div id="sessionTailPrompt" class="alert alert-info text-start mt-3 mb-0 d-none" role="status">
+                <p class="mb-1 fw-semibold" id="sessionTailMessage"></p>
+                <p class="small mb-2 d-none" id="sessionTailGovernor"></p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-primary btn-sm" id="sessionTailKeepGoing" data-i18n="session.tail.keep_going">Keep going</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="sessionTailDone" data-i18n="session.tail.done">Done for today</button>
+                </div>
+            </div>
             <a href="/tests" class="btn btn-primary mt-3" id="sessionDoneBrowseLink" data-i18n="session.done_browse">Back to tests</a>
         </div>
     </div>

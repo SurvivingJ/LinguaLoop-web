@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-10-12
+last_updated: 2026-10-13
 ---
 
 # Master Task List
@@ -19,14 +19,20 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 28 |
-| In Progress (`[~]`) | 10 |
+| Not Started | 22 |
+| In Progress (`[~]`) | 11 |
 | Blocked / Deferred / Awaiting decision (numbered tasks) | 18 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 210 |
 
 *2026-10-12 (NEW — Daily Session Modules, TASK-863–869):* learners can include/exclude daily-session modules (reading, listening, dictation, pinyin, classifier_drill, pitch_accent, flashcards, dual_translation, practice) per language. Excluded modules are dropped from Tier B with time redistributed by one common factor (flashcards fixed), filtered again in Tier C, and applied immediately via a same-day `build_daily_session` rebuild. See [[features/session-modules]], [[decisions/ADR-032-session-module-exclusion]], [[tasklist/session-modules.tasks]]. Counts: Not Started 21→28.
+
+*2026-10-13 (c) (IMPLEMENTED, code only):* TASK-863, 864, 866–868 and 870–874 are code complete (migrations written, NOT applied live); TASK-865 is In Progress (its `build_daily_session` SQL scenarios have not been run); TASK-869 (live rollout) stays Not Started and now lists the `user_word_watchlist` / `word_upload_slot_scheduling.sql` prerequisites. Counts: Not Started 33→22, In Progress 10→11, Done 10 (not enumerated here).
+
+*2026-10-13 (b) (FINAL DECISIONS + 2 new tasks — TASK-873, TASK-874):* new words are an Anki-style daily quota **inside** the planner (the "extra pool outside the budget", `extra_weekly_minutes` and `scale_up_to_target` are removed): Tier C fits whole new words into the in-budget practice share after due reviews, unused minutes return to tests, the remainder is an optional tail (not required, counted toward weekly targets). Review-load governor and review forecast (TASK-874); calibration writes BKT evidence and a single wrong calibration answer admits a sense to Queue A2 (TASK-873); layout Option A resolved (TASK-868); backfill 5/day accepted. TASK-864/865/866/868/869/871/872 amended; TASK-872 retitled and grown to M (tail serving). Counts: Not Started 31→33. See [[decisions/ADR-033-budget-scope-and-new-word-budget]] (Revision (b)), [[tasklist/session-budget-settings.tasks]].
+
+*2026-10-13 (AMENDED + 3 new tasks — Session budget settings, TASK-870–872):* `practice` now means Vocabulary review only; new words are a learner-set `new_words_per_day` (first version: outside `daily_minutes`, **superseded by the (b) note above**); `budget_scope` (`tests_and_review` / `tests_only`). TASK-863/864/865/866/868/869 amended (marked "amended 2026-10-13" in title); new tasks in [[tasklist/session-budget-settings.tasks]]. See [[features/session-budget-settings]], [[decisions/ADR-033-budget-scope-and-new-word-budget]]. Counts: Not Started 28→31.
 
 *2026-10-09 (TASK-850 re-run BLOCKED — OpenRouter credit exhausted, $89.92 of $90):* every call returned 402 and
 there are no results. The invalid outputs are quarantined in `data/eval/dt_v6_gate_2026-10-09/invalid_402_credit_exhausted/`.
@@ -1078,13 +1084,18 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-863 | session-modules | Migration: `user_study_plans.excluded_modules text[]` + CHECK | [ ] | XS | none |
-| TASK-864 | session-modules | Tier B: `apply_module_exclusions` + `compute_weekly_plan` wiring | [ ] | M | TASK-863 |
-| TASK-865 | session-modules | Tier C: `build_daily_session` honours `excluded_modules` (+ SQL test) | [ ] | M | TASK-863 |
-| TASK-866 | session-modules | API: GET/PUT `excluded_modules`, validation, immediate week recompute + today rebuild | [ ] | M | TASK-864, TASK-865 |
-| TASK-867 | session-modules | Session runner speed-round gate + legacy fallback filter | [ ] | S | TASK-865 |
-| TASK-868 | session-modules | Settings UI "Daily session modules" card + i18n (en/zh/ja/es) | [ ] | M | TASK-866 |
-| TASK-869 | session-modules | Live rollout: apply migrations + e2e check (user-approved) | [ ] | S | TASK-863–868 |
+| TASK-863 | session-modules | Migration: `user_study_plans.excluded_modules text[]` + CHECK (amended 2026-10-13: + `budget_scope`, `new_words_per_day`, weekly_plan_states budget columns, relaxed shares CHECK, `dim_languages.new_word_minutes_est`, SQL helpers, redefined `compute_weekly_plan_persist`) | [x] | S | none |
+| TASK-864 | session-modules | Tier B: `apply_module_exclusions` + `compute_weekly_plan` wiring (amended 2026-10-13 (b): practice pool + review share, in-budget acquisition minutes, `tests_only` tail target, derived shares, no scale-up) | [x] | M | TASK-863, TASK-870, TASK-874 |
+| TASK-865 | session-modules | Tier C: `build_daily_session` honours `excluded_modules` (+ SQL test) (amended 2026-10-13 (b): one pool, reviews first then whole new words, unused minutes return to tests) | [~] | M | TASK-863, TASK-874 |
+| TASK-866 | session-modules | API: GET/PUT `excluded_modules`, validation, immediate week recompute + today rebuild (amended 2026-10-13 (b): + `budget_scope`, `new_words_per_day`, `typical_day`, `governor`, `forecast`) | [x] | M | TASK-864, TASK-865, TASK-874 |
+| TASK-867 | session-modules | Session runner speed-round gate + legacy fallback filter | [x] | S | TASK-865 |
+| TASK-868 | session-modules | Settings UI "Daily session" card (was "Daily session modules") + i18n (en/zh/ja/es) (amended 2026-10-13 (b): layout resolved, Option A single card with stacked sections; forecast + typical-day text) | [x] | M | TASK-866 |
+| TASK-869 | session-modules | Live rollout: apply migrations + e2e check (user-approved) (amended 2026-10-13 (b): covers new columns, six migrations in order) | [ ] | S | TASK-863–868, TASK-870–874 |
+| TASK-870 | session-budget-settings | Per-language `minutes_per_new_word` estimate in `_refresh_exercise_time_estimates` (default 3.0; `dim_languages.new_word_minutes_est` + `get_minutes_per_new_word`) | [x] | S | TASK-863 |
+| TASK-871 | session-budget-settings | Ladder intake rework: per-local-day governed new-word quota; Queue A1 test/word-quiz unknowns → A2 calibration wrongs → B pre-teaching; one-off rebuild on unobtainable words | [x] | M | TASK-863, TASK-864, TASK-865, TASK-874 |
+| TASK-872 | session-budget-settings | Accrue `new_words_completed` + tail stats (`record_session_progress` gains `p_sense_id`, `p_is_tail`); serve the optional tail (`tail`, `tail_queue`, "Keep going?" prompt) | [x] | M | TASK-863, TASK-871, TASK-874 |
+| TASK-873 | session-budget-settings | Calibration BKT evidence at `/end` (definition mode only, batch RPC, no ladder side effects) + single-wrong-answer admission to Queue A2 below test/word-quiz evidence | [x] | M | TASK-871 |
+| TASK-874 | session-budget-settings | Review-load governor (backlog thresholds T / 2T) and review forecast (`review_governor_state`, `new_words_effective`, `review_forecast_min_per_day`) | [x] | S | TASK-863 |
 
 ### Language Packs (existing — unchanged)
 

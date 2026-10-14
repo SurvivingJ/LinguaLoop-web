@@ -105,6 +105,7 @@ Templates are the starting points the adapter shifts from. Each `(language, dail
 - Tests still consume tokens / free-tier limits per existing logic — the plan respects `get_daily_free_test_limit` when filling test slots.
 - A learner can edit `daily_minutes`, `weekday_shape`, and `skill_weight_overrides` at any time. Changes apply to the next Sunday's recompute and the next daily resolve.
 - A learner can exclude individual modules (per language) from daily-session planning; excluded modules get no Tier B slots and are filtered in Tier C, and their time is redistributed to the kept modules. The per-skill ≥1/week coverage floor applies to included modules only. See [[features/session-modules]] and [[decisions/ADR-032-session-module-exclusion]].
+- **New words are a daily quota inside the session (2026-10-13, revised (b)).** The learner sets how many new words to learn per day (`new_words_per_day`, 0 = off). The quota is fitted into the in-budget practice share after due reviews; whatever does not fit is offered in an optional extra round after the main session (never required, counted toward weekly targets), and a review-load governor lowers the quota when reviews back up. Learners can also choose a budget scope (`tests_and_review` or `tests_only`; under `tests_only` all review and new words are in the extra round). See [[features/session-budget-settings]] and [[decisions/ADR-033-budget-scope-and-new-word-budget]].
 - The `goal_id` column is present but ignored in V1 — see [[decisions/ADR-008-study-plan-orchestration-layer]] for the V2 plan.
 
 ## Onboarding
@@ -129,6 +130,7 @@ Full numerical traceback in [[features/study-plans.tech]] under "Worked Example.
 
 - [[features/study-plans.tech]] — Full technical specification.
 - [[features/session-modules]] — Per-language include/exclude of daily-session modules.
+- [[features/session-budget-settings]] — Budget scope and learner-set new words per day.
 - [[algorithms/study-plan-adaptation]] — Plain-English adaptation philosophy.
 - [[algorithms/study-plan-adaptation.tech]] — Formulas and pseudocode.
 - [[features/practice-engine]] — The Practice surface this orchestrator allocates against.

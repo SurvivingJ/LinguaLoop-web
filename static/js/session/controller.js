@@ -4,6 +4,15 @@
 // server state. See plan we-now-have-the-swirling-haven.md.
 
 import { getPlayer } from './player_registry.js';
+import {
+  hasTail,
+  tailCounts,
+  tailPromptKey,
+  governorKey,
+  countKey,
+  appendTailRound,
+  requiredProgress,
+} from './tail.js';
 
 const $ = (id) => document.getElementById(id);
 const T = (key, params, fallback) =>
@@ -36,6 +45,10 @@ const session = {
   // mean next_index (computed server-side over the FULL queue) can't be
   // trusted once we've filtered; see loadSession().
   practiceOnly: false,
+  // Optional end-of-session tail (session-budget-settings). The learner said
+  // "Done for today"; stop re-offering until the page is reloaded.
+  tailDeclined: false,
+  _tailToken: 0, // guards a slow GET from painting over a newer summary
 };
 
 document.addEventListener('DOMContentLoaded', init);
@@ -361,8 +374,8 @@ function showSummary() {
   $('sessionProgress').classList.add('d-none');
   $('sessionStart').classList.add('d-none');
   $('sessionStage').innerHTML = '';
-  const total = session.queue.length;
-  const done = session.queue.filter((q) => q.is_completed).length;
+  // Optional tail items never count toward completion.
+  const { done, total } = requiredProgress(session.queue);
 
   const rows = session.queue
     .map((q) => {
@@ -390,18 +403,113 @@ function showSummary() {
     `<p class="text-muted">${escapeHtml(T('session.done_line', null, 'Nice work — you finished today’s load.'))}</p>` +
     `<ul class="session-results" aria-label="${escapeHtml(resultsLabel)}">${rows}</ul>`;
   $('sessionSummary').classList.remove('d-none');
+  hideTailPrompt();
+  offerTail();
 }
 
-function showEmpty() {
-  $('sessionStart').classList.remove('d-none');
-  $('sessionStartSummary').textContent = session.practiceOnly
+// ---- Optional tail ("Session done — N reviews and M new words left today") ---
+
+function hideTailPrompt() {
+  const box = $('sessionTailPrompt');
+  if (box) box.classList.add('d-none');
+}
+
+// Phrase like "6 reviews" / "1 new word" (the i18n bundle has no plural support).
+function countPhrase(kind, n) {
+  const fallback = kind === 'reviews' ? `${n} reviews` : `${n} new words`;
+  return T(countKey(kind, n), { n }, fallback);
+}
+
+// Ask the server whether anything optional is left. The tail is computed live
+// and only once every required item is complete, so it is fetched here (at
+// summary time) rather than carried on the initial load. Best-effort: a failure
+// just leaves the plain summary.
+async function offerTail({ fromEmpty = false } = {}) {
+  if (session.tailDeclined) return;
+  const token = ++session._tailToken;
+  let data;
+  try {
+    const res = await window.authFetch(`/api/study-session?language_id=${session.languageId}`);
+    if (!res || !res.ok) return;
+    const body = await res.json();
+    data = body.data || body;
+  } catch (e) {
+    console.warn('Could not check for optional work:', e);
+    return;
+  }
+  if (token !== session._tailToken || !hasTail(data)) return;
+  if (fromEmpty) showEmptyWithTail();
+  renderTailPrompt(data);
+}
+
+function renderTailPrompt(data) {
+  const box = $('sessionTailPrompt');
+  if (!box) return;
+  const { reviews, words } = tailCounts(data.tail);
+  const key = tailPromptKey(data.tail);
+  if (!key) return;
+
+  $('sessionTailMessage').textContent = T(
+    key,
+    { reviews: countPhrase('reviews', reviews), words: countPhrase('words', words) },
+    'Session done — keep going?'
+  );
+
+  // Governor: say why new words are fewer / paused (only when it matters).
+  const gKey = governorKey(data.governor);
+  const gEl = $('sessionTailGovernor');
+  if (gEl) {
+    const overdue = (data.governor && data.governor.overdue_items) || 0;
+    gEl.textContent = gKey ? T(gKey, { reviews: countPhrase('reviews', overdue) }, '') : '';
+    gEl.classList.toggle('d-none', !gKey);
+  }
+
+  $('sessionTailKeepGoing').onclick = () => keepGoing(data.tail_queue);
+  $('sessionTailDone').onclick = () => {
+    session.tailDeclined = true;
+    hideTailPrompt();
+  };
+  box.classList.remove('d-none');
+}
+
+// "Keep going": run this round's chunks through the normal runner. They are
+// persisted through complete-block like any practice chunk (ids tail_maint_k /
+// tail_acq_k), so they credit weekly progress without ever being required.
+function keepGoing(tailQueue) {
+  const { queue, firstIndex } = appendTailRound(session.queue, tailQueue);
+  session.queue = queue;
+  session.index = firstIndex;
+  hideTailPrompt();
+  $('sessionSummary').classList.add('d-none');
+  runCurrent();
+}
+
+function emptyMessage() {
+  return session.practiceOnly
     ? T('session.empty_practice_page', null, 'No practice due right now.')
     : T(
         'session.empty',
         null,
         'No session items for today. Check your Study Plan or browse tests.'
       );
+}
+
+function showEmpty() {
+  $('sessionStart').classList.remove('d-none');
+  $('sessionStartSummary').textContent = emptyMessage();
   $('sessionStartBtn').classList.add('d-none');
+  // An empty required queue (e.g. a weekday-weight-0 day with reviews due) still
+  // has optional work: offer the tail here too, not only from showSummary.
+  offerTail({ fromEmpty: true });
+}
+
+// Empty required queue + optional work left: swap the empty card for the summary
+// card (which hosts the tail prompt) showing the same empty message.
+function showEmptyWithTail() {
+  $('sessionStart').classList.add('d-none');
+  $('sessionSummaryBody').innerHTML =
+    `<p class="text-muted">${escapeHtml(emptyMessage())}</p>`;
+  $('sessionSummary').classList.remove('d-none');
 }
 
 function showError(msg) {

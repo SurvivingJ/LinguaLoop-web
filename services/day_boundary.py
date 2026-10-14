@@ -31,7 +31,7 @@ helper is authoritative for route/service code, the SQL helper for RPC bodies
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timezone
+from datetime import date, datetime, time, timezone
 from typing import Any, Optional
 
 try:  # Python 3.9+
@@ -90,6 +90,24 @@ def local_date(tz_name: Any, now: Optional[datetime] = None) -> date:
     if moment.tzinfo is None:
         moment = moment.replace(tzinfo=_UTC)
     return moment.astimezone(resolve_zone(tz_name)).date()
+
+
+def local_day_start_utc(tz_name: Any, now: Optional[datetime] = None) -> datetime:
+    """UTC instant of 00:00 on the learner's current local date.
+
+    Falls back to UTC midnight on an unusable zone (``resolve_zone`` never
+    raises). Used as the "started today" boundary for the new-word quota
+    ([[features/session-budget-settings.tech]]).
+    """
+    moment = now or datetime.now(_UTC)
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=_UTC)
+    zone = resolve_zone(tz_name)
+    local = moment.astimezone(zone)
+    # Build local midnight from the wall-clock date, then convert; ZoneInfo
+    # resolves the offset for that wall time, so DST days are handled.
+    midnight = datetime.combine(local.date(), time.min, tzinfo=zone)
+    return midnight.astimezone(_UTC)
 
 
 def local_today_iso(tz_name: Any, now: Optional[datetime] = None) -> str:

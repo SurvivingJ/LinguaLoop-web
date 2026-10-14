@@ -57,3 +57,7 @@ Flashcards explicitly do **not** get their own budget — they are a sub-type of
 - [[decisions/ADR-007-merge-exercises-vocab-dojo]] — Practice surface unification.
 - [[decisions/ADR-008-study-plan-orchestration-layer]] — Layer that allocates these budgets.
 - [[features/flashcards]] — Status as a Maintenance sub-type clarified here.
+
+## Amendments
+
+Amended by [[decisions/ADR-033-budget-scope-and-new-word-budget]] (2026-10-13). Practice now means vocabulary review plus (under `tests_and_review`) whole new words fitted from a learner-set daily quota, reviews first; whatever does not fit is an optional tail after the main session, and a budget scope decides whether the vocabulary share sits inside `daily_minutes` or entirely in the tail. The Maintenance/Acquisition share split and its bounds above no longer govern the plan (the persisted shares are derived observability values).

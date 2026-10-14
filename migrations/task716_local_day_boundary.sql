@@ -1,3 +1,6 @@
+-- NOTE (2026-10-13): the public.record_session_progress body in this file is SUPERSEDED by
+-- migrations/new_words_completed_accrual.sql (adds p_sense_id / p_is_tail). This file is
+-- NOT archived: it is still the only record of resolve_plan_timezone and plan_local_date.
 -- TASK-716 — local-day boundary: resolve "today" (and the week) through the
 --   plan timezone. Implements [[decisions/ADR-022-local-day-boundary]].
 --   Also lands TASK-714's 'surface' progress kind (same function body).

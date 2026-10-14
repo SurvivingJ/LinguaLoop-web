@@ -38,14 +38,16 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import math
 import random
 import uuid
 from collections import OrderedDict, deque
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from flask import Blueprint, g, request
 
 from config import Config
+from services import study_plan_service as _plan
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.day_boundary import plan_today_iso
 from services.supabase_factory import get_supabase_admin
@@ -70,6 +72,15 @@ _PRACTICE_BLOCKS = {
 # rather than one monolithic block. The practice player takes `minutes` per
 # chunk via /api/practice/session?minutes=.
 _PRACTICE_CHUNK_MAX_MIN = 10
+
+# Optional tail (session-budget-settings, TASK-872): work offered after the
+# required session is complete -- due reviews that did not fit, then the rest of
+# today's new-word quota. Tail items are NEVER part of `queue`, so progress and
+# session completion are unchanged. Reviews come before new words.
+_TAIL_BLOCKS = {
+    'maintenance': 'tail_maint',
+    'acquisition': 'tail_acq',
+}
 
 # ---------------------------------------------------------------------------
 # Plannable non-test surfaces (TASK-714 / ADR-021).
@@ -138,6 +149,12 @@ def _today_iso(db, user_id: str, language_id: int) -> str:
     inside the helper; this function does not raise.
     """
     return plan_today_iso(db, user_id, language_id)
+
+
+def _practice_service():
+    """The process-wide practice session service (lazy: keeps imports light)."""
+    from services.practice_session_service import get_practice_session_service
+    return get_practice_session_service()
 
 
 def _next_incomplete_index(queue: List[Dict[str, Any]]) -> int:
@@ -239,7 +256,7 @@ def _build_surface_items(
     return items
 
 
-def _valid_block_ids(targets: Dict[str, Any]) -> set:
+def _valid_block_ids(targets: Dict[str, Any], extra_ids: Optional[set] = None) -> set:
     """Non-test block ids that are legitimately part of today's session.
 
     Covers practice chunks, the TASK-714 surface blocks and the TASK-533 speed
@@ -251,11 +268,15 @@ def _valid_block_ids(targets: Dict[str, Any]) -> set:
     they POST, already done — and a learner whose last mastered word lapsed
     mid-session would have their finished round rejected. Accepting it is
     harmless: it credits no weekly counter either way.
+
+    ``extra_ids`` carries the optional-tail ids (``_tail_window_ids``) for the
+    completion endpoint; the GET never needs them here.
     """
     return (
         {c['id'] for c in _build_practice_chunks(targets, [])}
         | {i['id'] for i in _build_surface_items(targets, [])}
         | {_SPEED_ROUND_BLOCK_ID}
+        | set(extra_ids or ())
     )
 
 
@@ -305,6 +326,137 @@ def _interleave_practice(
         result.extend(insert_before.get(j, []))
         result.append(test_seq[j])
     result.extend(insert_before.get(total_tests, []))  # guard: trailing chunks
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Optional tail (session-budget-settings, TASK-872) -- pure helpers, unit-tested
+# in tests/test_study_session_tail.py.
+# ---------------------------------------------------------------------------
+
+def _tail_offer_max_min() -> int:
+    """Max minutes of tail chunks offered per "Keep going?" round (tunable)."""
+    try:
+        return int(getattr(_plan, 'TAIL_OFFER_MAX_MIN', 20))
+    except (TypeError, ValueError):
+        return 20
+
+
+def _is_main_complete(queue: List[Dict[str, Any]]) -> bool:
+    """True when every non-bonus item of the required queue is complete."""
+    return all(q.get('is_completed') for q in queue if not q.get('is_bonus'))
+
+
+def _tail_done_count(completed_blocks: List[str], prefix: str) -> int:
+    return sum(1 for b in (completed_blocks or []) if str(b).startswith(f"{prefix}_"))
+
+
+def _build_tail_queue(
+    reviews_minutes: float, new_word_minutes: float, completed_blocks: List[str],
+) -> List[Dict[str, Any]]:
+    """Chunk one round of tail work: reviews first, then new words.
+
+    At most ``TAIL_OFFER_MAX_MIN`` minutes are offered per round
+    (``maint_min = min(reviews, cap)``, ``acq_min = min(words, cap - maint)``),
+    in chunks of at most ``_PRACTICE_CHUNK_MAX_MIN``. ``k`` continues from the
+    completed ids of the same kind so ids never collide across rounds.
+    """
+    cap = _tail_offer_max_min()
+    maint_min = min(int(math.ceil(max(0.0, reviews_minutes))), cap)
+    acq_min = min(int(math.ceil(max(0.0, new_word_minutes))), cap - maint_min)
+    queue: List[Dict[str, Any]] = []
+    for mode, minutes in (('maintenance', maint_min), ('acquisition', acq_min)):
+        prefix = _TAIL_BLOCKS[mode]
+        k = _tail_done_count(completed_blocks, prefix)
+        for n, chunk_min in enumerate(_chunk_minutes(minutes), start=1):
+            queue.append({
+                'kind':         'practice',
+                'id':           f"{prefix}_{k + n}",
+                'mode':         mode,
+                'minutes':      chunk_min,
+                'is_bonus':     True,
+                'is_tail':      True,
+                'is_completed': False,
+            })
+    return queue
+
+
+def _tail_window_ids(completed_blocks: List[str]) -> set:
+    """Tail block ids POST /complete-block will accept.
+
+    A tail chunk is derived live, and finishing a chunk's reviews shrinks the
+    very backlog it was derived from, so re-deriving the queue at completion time
+    would reject legitimate completions. Instead accept the ids a round can
+    currently contain (the next ``ceil(cap / chunk)`` of each kind) plus ids
+    already completed (idempotent re-POST). Anything else is stale or invented.
+    """
+    per_round = max(1, int(math.ceil(_tail_offer_max_min() / _PRACTICE_CHUNK_MAX_MIN)))
+    ids: set = set()
+    for prefix in _TAIL_BLOCKS.values():
+        done = _tail_done_count(completed_blocks, prefix)
+        ids.update(f"{prefix}_{k}" for k in range(1, done + per_round + 1))
+    return ids
+
+
+def _mpnw(db, language_id: int) -> float:
+    """Minutes per new word for the language (Config default on any failure)."""
+    try:
+        return float(_plan.get_minutes_per_new_word(db, language_id))
+    except Exception:
+        return float(getattr(Config, 'NEW_WORD_MINUTES_DEFAULT', 3.0))
+
+
+def compute_governor_and_tail(
+    state: Optional[Dict[str, Any]], queue: List[Dict[str, Any]],
+    completed_blocks: List[str], mpnw: float,
+) -> Dict[str, Any]:
+    """The ``governor``, ``tail`` and ``tail_queue`` response fields.
+
+    ``state`` is ``PracticeSessionService.new_word_state`` (None when there is no
+    plan or a read failed: no governor message, no tail). ``tail`` is non-null
+    only when the required queue is complete and something is left:
+
+        reviews_left_items = governor.due_items   (0 if 'practice' is excluded)
+        new_words_left     = max(0, min(E - ST, U))
+
+    Under ``tests_only`` the in-budget pool holds no vocabulary, so every review
+    and new word appears here.
+    """
+    if state is None:
+        return {'governor': None, 'tail': None, 'tail_queue': []}
+
+    gov = state['governor'] or {}
+    practice_off = 'practice' in (state.get('excluded') or [])
+    governor = {
+        'level':               state['level'],
+        'overdue_items':       int(gov.get('overdue_items') or 0),
+        'overdue_minutes':     float(gov.get('overdue_minutes') or 0),
+        'threshold_minutes':   float(gov.get('threshold_minutes') or 0),
+        'new_words_quota':     int(state['quota']),
+        'new_words_effective': int(state['effective']),
+    }
+    result: Dict[str, Any] = {'governor': governor, 'tail': None, 'tail_queue': []}
+    if not _is_main_complete(queue):
+        return result
+
+    reviews_items = 0 if practice_off else int(gov.get('due_items') or 0)
+    item_seconds = float(gov.get('item_seconds') or getattr(
+        Config, 'REVIEW_ITEM_SECONDS_DEFAULT', 20.0))
+    reviews_minutes = reviews_items * item_seconds / 60.0
+    words_left = max(0, min(state['effective'] - state['started_today'],
+                            state['unstarted']))
+    words_minutes = (max(1, int(round(words_left * mpnw))) if words_left else 0)
+    if reviews_items <= 0 and words_left <= 0:
+        return result
+
+    result['tail'] = {
+        'reviews_left_items':    reviews_items,
+        'reviews_left_minutes':  round(reviews_minutes, 1),
+        'new_words_left':        words_left,
+        'new_words_left_minutes': words_minutes,
+    }
+    result['tail_queue'] = _build_tail_queue(
+        reviews_minutes, words_minutes, completed_blocks)
     return result
 
 
@@ -389,8 +541,25 @@ def get_study_session() -> ApiResponse:
         daily_load = get_test_service().get_or_create_daily_load(user_id, language_id)
         tests = daily_load.get('tests', []) or []
 
-        # 2. Practice targets + per-block completion from the persisted row.
+        # 1b. Session-budget-settings: top today's ladder intake up to the
+        #     governed started-per-day quota BEFORE the targets are read. Best
+        #     effort -- an intake failure never costs the learner their session.
+        #     When fewer words can be served than Tier C planned inside the
+        #     budget, rebuild today's session ONCE (the supply flag written by
+        #     intake prevents a second rebuild) and re-read the load.
         db = get_supabase_admin()
+        practice_service = _practice_service()
+        try:
+            intake = practice_service.admit_daily_new_words(user_id, language_id)
+            if intake.get('needs_rebuild') and Config.STUDY_PLAN_ENABLED:
+                _plan.StudyPlanService(db).rebuild_today(user_id, language_id)
+                daily_load = get_test_service().get_or_create_daily_load(
+                    user_id, language_id)
+                tests = daily_load.get('tests', []) or []
+        except Exception as exc:
+            logger.warning("daily new-word intake failed (non-fatal): %s", exc)
+
+        # 2. Practice targets + per-block completion from the persisted row.
         today = _today_iso(db, user_id, language_id)
         row = (
             db.table('daily_test_loads')
@@ -414,14 +583,17 @@ def get_study_session() -> ApiResponse:
         # has one. Best-effort: a failure here drops the bonus block rather
         # than the session, because a speed round is the least important thing
         # on this screen.
+        # Suppressed outright when Vocabulary review ('practice') is excluded:
+        # a speed round is vocabulary review by another name (session-modules).
         speed_round_available = False
-        try:
-            from services.vocabulary_ladder.speed_round import get_speed_round_composer
-            speed_round_available = (
-                get_speed_round_composer().has_enough_mastered(user_id, language_id)
-            )
-        except Exception as exc:
-            logger.warning("speed-round availability check failed: %s", exc)
+        if 'practice' not in (targets.get('excluded_modules') or []):
+            try:
+                from services.vocabulary_ladder.speed_round import get_speed_round_composer
+                speed_round_available = (
+                    get_speed_round_composer().has_enough_mastered(user_id, language_id)
+                )
+            except Exception as exc:
+                logger.warning("speed-round availability check failed: %s", exc)
 
         queue = build_session_queue(
             tests, targets, completed_blocks, user_id, load_date,
@@ -431,6 +603,17 @@ def get_study_session() -> ApiResponse:
         total = len(queue)
         completed = sum(1 for q in queue if q['is_completed'])
 
+        # Session-budget-settings: governor message + the live optional tail.
+        # `progress` and `next_index` count `queue` only; tail items never join
+        # it, so session completion is unchanged. Best effort.
+        extras: Dict[str, Any] = {'governor': None, 'tail': None, 'tail_queue': []}
+        try:
+            state = practice_service.new_word_state(user_id, language_id)
+            extras = compute_governor_and_tail(
+                state, queue, completed_blocks, _mpnw(db, language_id))
+        except Exception as exc:
+            logger.warning("governor/tail computation failed (non-fatal): %s", exc)
+
         return api_success({
             'load_date':          load_date,
             'language_id':        language_id,
@@ -438,6 +621,9 @@ def get_study_session() -> ApiResponse:
             'queue':              queue,
             'progress':           {'completed': completed, 'total': total},
             'next_index':         _next_incomplete_index(queue),
+            'governor':           extras['governor'],
+            'tail':               extras['tail'],
+            'tail_queue':         extras['tail_queue'],
         })
 
     except Exception as e:
@@ -492,7 +678,10 @@ def complete_block() -> ApiResponse:
         # practice_acq_1) or surface ids (e.g. flashcards_1), derived from the
         # persisted budget (TASK-703 / TASK-714).
         targets = row.data[0].get('daily_session_targets') or {}
-        valid_ids = _valid_block_ids(targets)
+        valid_ids = _valid_block_ids(
+            targets,
+            extra_ids=_tail_window_ids(row.data[0].get('completed_blocks') or []),
+        )
         if block_id not in valid_ids:
             return bad_request(
                 f"block_id must be one of {sorted(valid_ids)}"

@@ -235,6 +235,38 @@ class Config:
     STUDY_PLAN_TIER_C_ALPHA_A = 0.02   # acquisition per-minute value
     STUDY_PLAN_TIER_C_GAMMA   = 0.15   # spacing-penalty weight
 
+    # ------------------------------------------------------------------
+    # Session budget settings (wiki/features/session-budget-settings.tech.md,
+    # ADR-033). All tunable; none has production data behind it yet.
+    # ------------------------------------------------------------------
+
+    # Fallback minutes to introduce ONE new word when
+    # dim_languages.new_word_minutes_est is NULL. MIRRORED in SQL
+    # public.new_word_minutes (3.0) -- change one, change both (test-pinned).
+    NEW_WORD_MINUTES_DEFAULT = 3.0
+
+    # Review-load governor. MIRRORED in SQL review_governor_state /
+    # review_item_seconds (migrations/review_governor.sql); test-pinned.
+    # T (minutes) = REVIEW_BACKLOG_THRESHOLD_DAYS
+    #               * max(REVIEW_ALLOWANCE_FLOOR_MIN, review_target_minutes / 7)
+    REVIEW_BACKLOG_THRESHOLD_DAYS = 1.0
+    REVIEW_ALLOWANCE_FLOOR_MIN = 3.0
+    REVIEW_ITEM_SECONDS_DEFAULT = 20.0
+
+    # Review forecast: reviews one new word needs in its first 30 days
+    # (Python only; OPEN/tunable). X min/day = n * N * item_seconds / 60.
+    REVIEWS_PER_NEW_WORD_30D = 7
+
+    # Ladder intake (services/practice_session_service.py). Tunable, no data.
+    RECENT_TEST_WINDOW_DAYS = 28
+    RECENT_TEST_ROW_LIMIT = 1000
+    RECENT_TEST_CHUNK = 100
+    CALIBRATION_EVIDENCE_MAX_AGE_DAYS = 90
+    CALIBRATION_ROW_LIMIT = 500
+
+    # Max minutes of optional-tail chunks offered per "Keep going?" round.
+    TAIL_OFFER_MAX_MIN = 20
+
     # Seed minutes per test type, used by services.test_time_estimate when
     # dim_test_types.expected_minutes_p50 has not yet accrued ≥30 samples.
     # Mirrors the per-type seed in the SQL helper of the same name in

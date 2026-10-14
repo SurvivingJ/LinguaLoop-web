@@ -1,3 +1,9 @@
+-- NOTE (2026-10-13): public.compute_weekly_plan_persist below is SUPERSEDED by
+-- migrations/session_module_exclusions.sql (adds optional budget_scope /
+-- review_target_minutes / new_words_target / acq_target_minutes keys and preserves
+-- new_words_completed, tail_completed_min, tail_new_words_completed). Do not treat
+-- the body in this file as current. compute_weekly_plan_load_signals is still
+-- defined only here, so this file is NOT archived (migrations/CLAUDE.md rule 4).
 -- ============================================================================
 -- Phase 13 — Study Plans — compute_weekly_plan SQL helpers
 -- Date: 2026-05-21

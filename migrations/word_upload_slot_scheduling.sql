@@ -1,3 +1,8 @@
+-- NOTE (2026-10-13): the public.build_daily_session body in this file is SUPERSEDED by
+-- migrations/session_module_exclusions_build_daily_session.sql (session-modules
+-- TASK-865 + session-budget-settings). This file is NOT archived: it is still the
+-- only repo record of user_word_watchlist.last_matched_surfaced_at and
+-- idx_user_word_watchlist_pending_word_upload (migrations/CLAUDE.md rule 4).
 -- word_upload_slot_scheduling.sql — build_daily_session: word-list-import Step 6
 -- =============================================================================
 -- CONTEXT
