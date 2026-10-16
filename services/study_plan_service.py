@@ -575,6 +575,9 @@ class StudyPlanService:
 
     def __init__(self, db=None):
         self.db = db or get_supabase_admin()
+        # Stage code of the last compute_weekly_plan failure (None on success).
+        # Lets callers report WHICH step failed without exposing exception text.
+        self.last_failure: Optional[str] = None
 
     # ------------------------------------------------------------------
     # Public: compute_weekly_plan
@@ -592,7 +595,9 @@ class StudyPlanService:
         error (logged). Idempotent: same DB state + same week_start →
         same target_counts thanks to deterministic Beta seeding.
         """
+        self.last_failure = None
         if not Config.STUDY_PLAN_ENABLED:
+            self.last_failure = 'disabled'
             return None
 
         week_start = week_start or _monday_of(date.today())
@@ -611,6 +616,7 @@ class StudyPlanService:
         )
         if not plan_resp.data:
             logger.debug('no user_study_plan for user=%s lang=%s', user_id, language_id)
+            self.last_failure = 'no_plan'
             return None
         plan = plan_resp.data[0]
 
@@ -630,6 +636,7 @@ class StudyPlanService:
         # missing/dangling template_id is handled gracefully, not thrown.
         if not template_resp.data:
             logger.error('template_id=%s not found for user=%s', plan['template_id'], user_id)
+            self.last_failure = 'template_missing'
             return None
         template = template_resp.data[0]
 
@@ -643,9 +650,11 @@ class StudyPlanService:
             signals = signals_resp.data
         except Exception as e:
             logger.error('load_signals failed for user=%s lang=%s: %s', user_id, language_id, e)
+            self.last_failure = 'load_signals_failed'
             return None
         if not isinstance(signals, dict):
             logger.error('load_signals returned non-dict: %r', signals)
+            self.last_failure = 'load_signals_invalid'
             return None
 
         # 4. Compute weakness per skill, then value
@@ -821,6 +830,7 @@ class StudyPlanService:
                 'persist failed for user=%s lang=%s week=%s: %s',
                 user_id, language_id, week_start, e,
             )
+            self.last_failure = 'persist_failed'
             return None
 
         logger.info(

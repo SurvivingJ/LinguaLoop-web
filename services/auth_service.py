@@ -3,18 +3,22 @@ from datetime import datetime, timezone
 from typing import Dict, Optional
 import logging
 
-from services.supabase_factory import get_supabase_admin
+from services.supabase_factory import get_supabase_admin, get_supabase_auth
 
 
 class AuthService:
     """
     Authentication service for handling OTP-based login and user management.
 
-    Uses two Supabase clients:
-    - supabase_admin: Service role client that bypasses RLS, used for:
-      * Sending OTP emails (requires admin auth.admin.* permissions)
-      * Verifying OTPs and creating sessions
-      * Calling RPC functions that need elevated permissions
+    Uses three Supabase clients:
+    - supabase_admin: Service role client that bypasses RLS, used for table and
+      RPC access that needs elevated permissions. Its auth state must NEVER
+      change: supabase-py swaps a client's Authorization header to the signed-in
+      user's JWT on SIGNED_IN / TOKEN_REFRESHED, which would demote every later
+      query on this shared singleton from service_role to authenticated.
+    - auth_client: Service-key client reserved for login-flow calls (sending and
+      verifying OTPs, refreshing sessions, minting sessions). Its auth state is
+      allowed to change because it is never used for table or RPC access.
     - supabase: Regular anon client for standard queries (respects RLS)
     """
     def __init__(self, supabase_client: Client):
@@ -30,6 +34,14 @@ class AuthService:
                 "SupabaseFactory.initialize() ran at startup."
             )
         self.supabase_admin = admin
+        auth_client = get_supabase_auth()
+        if auth_client is None:
+            raise RuntimeError(
+                "AuthService requires the Supabase auth-flow client. "
+                "Ensure SUPABASE_SERVICE_ROLE_KEY is set and "
+                "SupabaseFactory.initialize() ran at startup."
+            )
+        self.auth_client = auth_client
         self.logger = logging.getLogger(__name__)
     
     def send_otp(self, email: str, is_registration: bool = False) -> Dict:
@@ -47,8 +59,9 @@ class AuthService:
             Dict with 'success' boolean and either 'message' or 'error'
         """
         try:
-            # Use ADMIN client for sending OTP emails (requires auth.admin permissions)
-            response = self.supabase_admin.auth.sign_in_with_otp({
+            # Auth-flow client: sending OTP emails needs the service key, and
+            # this call must not touch the shared data client's auth state.
+            response = self.auth_client.auth.sign_in_with_otp({
                 "email": email,
                 "options": {
                     "should_create_user": is_registration
@@ -104,8 +117,9 @@ class AuthService:
         try:
             self.logger.info(f"Verifying OTP for {email}")
 
-            # Use admin client for OTP verification (requires elevated permissions)
-            response = self.supabase_admin.auth.verify_otp({
+            # Auth-flow client: a successful verify_otp makes the client adopt the
+            # user's session, so it must never be the shared data client.
+            response = self.auth_client.auth.verify_otp({
                 "email": email,
                 "token": token,
                 "type": "email"
@@ -280,7 +294,7 @@ class AuthService:
         on subsequent expiries instead of hitting device-restore every hour.
         """
         try:
-            link = self.supabase_admin.auth.admin.generate_link({
+            link = self.auth_client.auth.admin.generate_link({
                 'type': 'magiclink',
                 'email': email,
             })
@@ -290,7 +304,7 @@ class AuthService:
                 self.logger.error('mint_session_for_user: generate_link returned no hashed_token')
                 return {'success': False, 'error': 'Failed to mint session'}
 
-            verified = self.supabase_admin.auth.verify_otp({
+            verified = self.auth_client.auth.verify_otp({
                 'token_hash': hashed_token,
                 'type': 'magiclink',
             })
@@ -319,8 +333,9 @@ class AuthService:
             Dict with new jwt_token and refresh_token on success
         """
         try:
-            # Use admin client to refresh the session
-            response = self.supabase_admin.auth.refresh_session(refresh_token)
+            # Auth-flow client: refresh_session fires TOKEN_REFRESHED, which
+            # re-authenticates the client as the user.
+            response = self.auth_client.auth.refresh_session(refresh_token)
 
             if response.session:
                 self.logger.info("Session refreshed successfully")

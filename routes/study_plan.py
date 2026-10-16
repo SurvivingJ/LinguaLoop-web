@@ -44,7 +44,7 @@ from services.day_boundary import is_valid_timezone, plan_today
 from services.study_time import weekly_study_summary
 from services.supabase_factory import get_supabase_admin
 from utils.responses import (
-    ApiResponse, api_success, bad_request, not_found, server_error,
+    ApiResponse, api_error, api_success, bad_request, not_found, server_error,
 )
 
 logger = logging.getLogger(__name__)
@@ -712,8 +712,10 @@ def recompute_weekly_plan() -> ApiResponse:
             ),
         )
         if result is None:
-            return server_error(
-                "compute_weekly_plan returned no result — check server logs."
+            return api_error(
+                "compute_weekly_plan returned no result — check server logs.",
+                500, 'SERVER_ERROR',
+                details={'stage': svc.last_failure or 'unknown'},
             )
         return api_success({'week_state': result})
 
