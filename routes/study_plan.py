@@ -717,7 +717,10 @@ def recompute_weekly_plan() -> ApiResponse:
                 500, 'SERVER_ERROR',
                 details={'stage': svc.last_failure or 'unknown'},
             )
-        return api_success({'week_state': result})
+        # Re-resolve today's unfinished slots too, so the recompute is visible in
+        # the daily session (get_or_create_daily_load serves an existing row as-is).
+        session_rebuilt = bool(svc.rebuild_today(g.current_user_id, int(language_id)))
+        return api_success({'week_state': result, 'session_rebuilt': session_rebuilt})
 
     except Exception:
         # Full traceback: every handled failure inside compute_weekly_plan
