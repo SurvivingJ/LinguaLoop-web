@@ -609,8 +609,15 @@ def get_study_session() -> ApiResponse:
         extras: Dict[str, Any] = {'governor': None, 'tail': None, 'tail_queue': []}
         try:
             state = practice_service.new_word_state(user_id, language_id)
+            # Practice mode (/session?mode=practice) hides tests, so it asks
+            # with scope=practice: the tail gate then ignores test items.
+            gate_queue = (
+                [q for q in queue if q.get('kind') != 'test']
+                if (request.args.get('scope') or '').lower() == 'practice'
+                else queue
+            )
             extras = compute_governor_and_tail(
-                state, queue, completed_blocks, _mpnw(db, language_id))
+                state, gate_queue, completed_blocks, _mpnw(db, language_id))
         except Exception as exc:
             logger.warning("governor/tail computation failed (non-fatal): %s", exc)
 

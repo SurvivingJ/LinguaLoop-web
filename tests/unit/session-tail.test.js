@@ -133,3 +133,56 @@ describe('appendTailRound', () => {
     expect(JSON.stringify(base)).toBe(copy);
   });
 });
+
+// ---- Practice extra rounds (ADR-036) ----------------------------------------
+import {
+  EXTRA_NEW_WORDS_MAX,
+  normalizeExtraChoice,
+  isRunnableExtraChoice,
+  extraRequestUrl,
+  extraBeyondQuota,
+  makeExtraItem,
+} from '../../static/js/session/tail.js';
+
+describe('practice extra rounds', () => {
+  it('clamps new words to 0..max', () => {
+    expect(normalizeExtraChoice({ reviews: 1, newWords: '99' })).toEqual({
+      reviews: true,
+      newWords: EXTRA_NEW_WORDS_MAX,
+    });
+    expect(normalizeExtraChoice({ newWords: -3 })).toEqual({ reviews: false, newWords: 0 });
+    expect(normalizeExtraChoice(null)).toEqual({ reviews: false, newWords: 0 });
+  });
+
+  it('is runnable only when something is chosen', () => {
+    expect(isRunnableExtraChoice({ reviews: false, newWords: 0 })).toBe(false);
+    expect(isRunnableExtraChoice({ reviews: true, newWords: 0 })).toBe(true);
+    expect(isRunnableExtraChoice({ reviews: false, newWords: 5 })).toBe(true);
+  });
+
+  it('builds the request URL with excludes', () => {
+    const url = extraRequestUrl(2, { reviews: true, newWords: 5 }, [4, 'x', 9]);
+    expect(url).toBe('/api/practice/extra?language_id=2&reviews=1&new_words=5&exclude=4%2C9');
+    expect(extraRequestUrl(2, { newWords: 3 })).not.toContain('exclude');
+  });
+
+  it('counts words beyond what is left of the quota', () => {
+    expect(extraBeyondQuota({ newWords: 10 }, { new_words_left: 4 })).toBe(6);
+    expect(extraBeyondQuota({ newWords: 3 }, { new_words_left: 4 })).toBe(0);
+    expect(extraBeyondQuota({ newWords: 5 }, null)).toBe(5);
+  });
+
+  it('makes an optional, never-required queue item', () => {
+    const item = makeExtraItem({ reviews: false, newWords: 5 }, 3, [1]);
+    expect(item).toMatchObject({
+      kind: 'practice',
+      id: 'extra_3',
+      mode: 'acquisition',
+      is_tail: true,
+      is_extra: true,
+      is_completed: false,
+      extra: { reviews: false, newWords: 5, exclude: [1] },
+    });
+    expect(requiredProgress([item])).toEqual({ done: 0, total: 0 });
+  });
+});

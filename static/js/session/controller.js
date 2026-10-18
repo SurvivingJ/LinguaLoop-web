@@ -12,6 +12,10 @@ import {
   countKey,
   appendTailRound,
   requiredProgress,
+  normalizeExtraChoice,
+  isRunnableExtraChoice,
+  extraBeyondQuota,
+  makeExtraItem,
 } from './tail.js';
 
 const $ = (id) => document.getElementById(id);
@@ -49,6 +53,13 @@ const session = {
   // "Done for today"; stop re-offering until the page is reloaded.
   tailDeclined: false,
   _tailToken: 0, // guards a slow GET from painting over a newer summary
+  // Practice extra rounds (ADR-036, practice mode only): the learner's last
+  // choice (pre-selected next time), a round counter for ids, the latest tail
+  // (for the beyond-quota warning) and whether they said "Done".
+  extraChoice: { reviews: true, newWords: 0 },
+  extraRounds: 0,
+  extraTail: null,
+  extraDeclined: false,
 };
 
 document.addEventListener('DOMContentLoaded', init);
@@ -117,8 +128,15 @@ function applyModeLabels() {
   document.title = `${T('session.header_practice', null, 'Practice')} | LinguaDojo`;
 }
 
+// Practice mode asks with scope=practice so the server's tail gate ignores the
+// test items this page never shows.
+function studySessionUrl() {
+  const scope = session.practiceOnly ? '&scope=practice' : '';
+  return `/api/study-session?language_id=${session.languageId}${scope}`;
+}
+
 async function loadSession() {
-  const res = await window.authFetch(`/api/study-session?language_id=${session.languageId}`);
+  const res = await window.authFetch(studySessionUrl());
   if (!res.ok) throw new Error(`Session load failed (${res.status})`);
   const body = await res.json();
   const data = body.data || body;
@@ -244,6 +262,9 @@ function runCurrent() {
 // is credited by default instead of silently completing nowhere — the F2 /
 // TASK-701 failure mode.
 async function persistCompletion(item) {
+  // Extra rounds are not daily blocks: their attempts already credited the
+  // weekly counters (as tail work), so there is nothing to persist here.
+  if (item.is_extra) return true;
   const [url, payload] =
     item.kind === 'test'
       ? ['/api/tests/daily-load/complete', { test_id: item.id, language_id: session.languageId }]
@@ -404,6 +425,7 @@ function showSummary() {
     `<ul class="session-results" aria-label="${escapeHtml(resultsLabel)}">${rows}</ul>`;
   $('sessionSummary').classList.remove('d-none');
   hideTailPrompt();
+  hideExtraPanel();
   offerTail();
 }
 
@@ -425,11 +447,14 @@ function countPhrase(kind, n) {
 // summary time) rather than carried on the initial load. Best-effort: a failure
 // just leaves the plain summary.
 async function offerTail({ fromEmpty = false } = {}) {
-  if (session.tailDeclined) return;
+  if (session.tailDeclined) {
+    renderExtraPanel();
+    return;
+  }
   const token = ++session._tailToken;
   let data;
   try {
-    const res = await window.authFetch(`/api/study-session?language_id=${session.languageId}`);
+    const res = await window.authFetch(studySessionUrl());
     if (!res || !res.ok) return;
     const body = await res.json();
     data = body.data || body;
@@ -437,9 +462,15 @@ async function offerTail({ fromEmpty = false } = {}) {
     console.warn('Could not check for optional work:', e);
     return;
   }
-  if (token !== session._tailToken || !hasTail(data)) return;
+  if (token !== session._tailToken) return;
+  session.extraTail = data && data.tail ? data.tail : null;
+  if (!hasTail(data)) {
+    renderExtraPanel();
+    return;
+  }
   if (fromEmpty) showEmptyWithTail();
   renderTailPrompt(data);
+  renderExtraPanel();
 }
 
 function renderTailPrompt(data) {
@@ -484,6 +515,72 @@ function keepGoing(tailQueue) {
   runCurrent();
 }
 
+// ---- Practice extra rounds ("Keep practising", practice mode only) ----------
+
+function hideExtraPanel() {
+  const box = $('sessionExtraPanel');
+  if (box) box.classList.add('d-none');
+}
+
+function renderExtraPanel() {
+  const box = $('sessionExtraPanel');
+  if (!box || !session.practiceOnly || session.extraDeclined) return;
+  const choice = normalizeExtraChoice(session.extraChoice);
+  $('sessionExtraReviews').checked = choice.reviews;
+  $('sessionExtraNewWords').value = String(choice.newWords);
+
+  const update = () => {
+    const c = readExtraChoice();
+    const beyond = extraBeyondQuota(c, session.extraTail);
+    const warn = $('sessionExtraWarning');
+    warn.textContent = beyond
+      ? T(
+          'session.extra.beyond_quota',
+          { n: beyond },
+          `${beyond} of these words go beyond today's goal — they add to your future reviews.`
+        )
+      : '';
+    warn.classList.toggle('d-none', !beyond);
+    $('sessionExtraStart').disabled = !isRunnableExtraChoice(c);
+  };
+  $('sessionExtraReviews').onchange = update;
+  $('sessionExtraNewWords').onchange = update;
+  $('sessionExtraNewWords').oninput = update;
+  update();
+
+  $('sessionExtraStart').onclick = () => startExtraRound(readExtraChoice());
+  $('sessionExtraDone').onclick = () => {
+    session.extraDeclined = true;
+    hideExtraPanel();
+  };
+  box.classList.remove('d-none');
+}
+
+function readExtraChoice() {
+  return normalizeExtraChoice({
+    reviews: $('sessionExtraReviews').checked,
+    newWords: $('sessionExtraNewWords').value,
+  });
+}
+
+// One round through the normal runner; at its end showSummary() brings the
+// learner back to this panel with the same choice pre-selected.
+function startExtraRound(choice) {
+  if (!isRunnableExtraChoice(choice)) return;
+  session.extraChoice = choice;
+  const last = [...session.queue].reverse().find((q) => q.is_extra);
+  const exclude = (last && last.served_sense_ids) || [];
+  session.extraRounds += 1;
+  // Drop skipped (still incomplete) optional items, as appendTailRound does.
+  const kept = session.queue.filter((q) => !(q.is_tail && !q.is_completed));
+  session.queue = kept.concat([makeExtraItem(choice, session.extraRounds, exclude)]);
+  session.index = kept.length;
+  hideTailPrompt();
+  hideExtraPanel();
+  $('sessionSummary').classList.add('d-none');
+  runCurrent();
+}
+
 function emptyMessage() {
   return session.practiceOnly
     ? T('session.empty_practice_page', null, 'No practice due right now.')
@@ -495,6 +592,13 @@ function emptyMessage() {
 }
 
 function showEmpty() {
+  if (session.practiceOnly) {
+    // Practice mode always has something to offer: open-ended extra rounds.
+    $('sessionLoading').classList.add('d-none');
+    showEmptyWithTail();
+    offerTail();
+    return;
+  }
   $('sessionStart').classList.remove('d-none');
   $('sessionStartSummary').textContent = emptyMessage();
   $('sessionStartBtn').classList.add('d-none');
@@ -507,8 +611,7 @@ function showEmpty() {
 // card (which hosts the tail prompt) showing the same empty message.
 function showEmptyWithTail() {
   $('sessionStart').classList.add('d-none');
-  $('sessionSummaryBody').innerHTML =
-    `<p class="text-muted">${escapeHtml(emptyMessage())}</p>`;
+  $('sessionSummaryBody').innerHTML = `<p class="text-muted">${escapeHtml(emptyMessage())}</p>`;
   $('sessionSummary').classList.remove('d-none');
 }
 

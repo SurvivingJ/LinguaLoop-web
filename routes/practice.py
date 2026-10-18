@@ -89,6 +89,59 @@ def get_practice_session() -> ApiResponse:
 
 
 # ---------------------------------------------------------------------------
+# GET /api/practice/extra?language_id=&reviews=0|1&new_words=0..10&exclude=1,2
+# ---------------------------------------------------------------------------
+
+@practice_bp.route('/extra', methods=['GET'])
+@supabase_jwt_required
+def get_practice_extra() -> ApiResponse:
+    """One open-ended Practice round past today's budget (ADR-036).
+
+    Query params:
+        language_id : required (int)
+        reviews     : optional (0|1); 1 = include up to 10 review items
+                      (due first, then review-ahead)
+        new_words   : optional (0..10); new words to learn this round, admitted
+                      past the daily quota when needed
+        exclude     : optional comma-separated sense ids to keep out of the
+                      review half (the previous round's words)
+    At least one of reviews / new_words must be requested.
+    """
+    try:
+        language_id = request.args.get('language_id', type=int)
+        if not language_id:
+            return bad_request("language_id required")
+        reviews = _truthy(request.args.get('reviews', '0'))
+        new_words = request.args.get('new_words', 0, type=int)
+        from services.practice_session_service import EXTRA_NEW_WORDS_MAX
+        if new_words is None or new_words < 0 or new_words > EXTRA_NEW_WORDS_MAX:
+            return bad_request(f"new_words must be between 0 and {EXTRA_NEW_WORDS_MAX}")
+        if not reviews and new_words == 0:
+            return bad_request("request reviews=1 and/or new_words>0")
+        exclude = []
+        for part in (request.args.get('exclude') or '').split(','):
+            part = part.strip()
+            if part.isdigit():
+                exclude.append(int(part))
+
+        from services.practice_session_service import get_practice_session_service
+        payload = get_practice_session_service().get_extra_round(
+            user_id=g.current_user_id,
+            language_id=int(language_id),
+            reviews=reviews,
+            new_words=new_words,
+            exclude_sense_ids=exclude[:200],
+        )
+        if isinstance(payload, dict) and 'error' in payload:
+            return bad_request(payload.get('error'))
+        return api_success(payload)
+
+    except Exception as e:
+        logger.error("Error building practice extra round: %s", e)
+        return server_error("Failed to build extra practice round")
+
+
+# ---------------------------------------------------------------------------
 # POST /api/practice/attempt
 # ---------------------------------------------------------------------------
 

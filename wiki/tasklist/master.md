@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-10-14
+last_updated: 2026-10-18
 ---
 
 # Master Task List
@@ -19,7 +19,7 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 24 |
+| Not Started | 25 |
 | In Progress (`[~]`) | 11 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
@@ -1129,6 +1129,7 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-894 | weekly-minutes | Audit: every test and drill client sends `started_at` and `finished_at` | Done | S | — |
 | TASK-895 | weekly-minutes | Study Plan page: "Studied this week: X / Y min" + breakdown, i18n en/zh/ja/es | Done | M | TASK-892 |
 | TASK-896 | weekly-minutes | Integration, wiki sync and rollout (live apply approval-gated) | [ ] | M | TASK-885..895 |
+| TASK-899 | practice-extra-rounds | Apply practice_review_ahead.sql live and smoke-test (LIVE-DB, approval-gated) | [ ] | S | TASK-898 |
 
 ### Language Packs (existing — unchanged)
 

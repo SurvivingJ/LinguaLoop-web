@@ -227,7 +227,7 @@ def app():
     return Flask(__name__)
 
 
-def _call_get(app, monkeypatch, db, practice, speed=True, tests=()):
+def _call_get(app, monkeypatch, db, practice, speed=True, tests=(), query=''):
     test_service = MagicMock()
     test_service.get_or_create_daily_load.return_value = {
         'tests': list(tests), 'load_date': '2026-10-13'}
@@ -240,7 +240,7 @@ def _call_get(app, monkeypatch, db, practice, speed=True, tests=()):
     composer.has_enough_mastered.return_value = speed
     import services.vocabulary_ladder.speed_round as sr
     monkeypatch.setattr(sr, 'get_speed_round_composer', lambda: composer)
-    with app.test_request_context('/api/study-session?language_id=1'):
+    with app.test_request_context('/api/study-session?language_id=1' + query):
         g.current_user_id = 'user-1'
         resp = ss.get_study_session.__wrapped__()
     resp = resp[0] if isinstance(resp, tuple) else resp
@@ -336,3 +336,25 @@ def test_complete_block_tail_ids_advance_with_completed_rounds(app, monkeypatch)
     done = ['tail_maint_1', 'tail_maint_2']
     resp, _ = _post_complete(app, monkeypatch, _DB({}, completed=done), 'tail_maint_3')
     assert resp.status_code == 200
+
+
+# ---------------------------------------------------------------------------
+# Practice mode gate (practice-extra-rounds): scope=practice ignores tests
+# ---------------------------------------------------------------------------
+
+_OPEN_TEST = [{'id': 't1', 'test_type': 'reading', 'is_completed': False}]
+
+
+def test_open_test_hides_the_tail_in_the_daily_session(app, monkeypatch):
+    db = _DB({'practice_acquisition_min': 0, 'practice_maintenance_min': 0}, completed=[])
+    data, _ = _call_get(app, monkeypatch, db, _Practice(_state()), speed=False,
+                        tests=_OPEN_TEST)
+    assert data['tail'] is None
+
+
+def test_scope_practice_offers_the_tail_despite_an_open_test(app, monkeypatch):
+    db = _DB({'practice_acquisition_min': 0, 'practice_maintenance_min': 0}, completed=[])
+    data, _ = _call_get(app, monkeypatch, db, _Practice(_state()), speed=False,
+                        tests=_OPEN_TEST, query='&scope=practice')
+    assert data['tail']['new_words_left'] == 3
+    assert data['progress'] == {'completed': 0, 'total': 1}     # queue itself unchanged
