@@ -107,6 +107,28 @@
                     <button type="button" class="btn btn-outline-secondary btn-sm" id="sessionTailDone" data-i18n="session.tail.done">Done for today</button>
                 </div>
             </div>
+            <!-- Practice extra rounds (practice mode only): open-ended reviews / new words past today's budget -->
+            <div id="sessionExtraPanel" class="alert alert-secondary text-start mt-3 mb-0 d-none">
+                <p class="mb-2 fw-semibold" data-i18n="session.extra.title">Keep practising</p>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="sessionExtraReviews" checked>
+                    <label class="form-check-label" for="sessionExtraReviews" data-i18n="session.extra.reviews">Reviews (no limit — due first, then ahead of schedule)</label>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <label for="sessionExtraNewWords" class="mb-0" data-i18n="session.extra.new_words">New words this round</label>
+                    <select id="sessionExtraNewWords" class="form-select form-select-sm w-auto">
+                        <option value="0">0</option>
+                        <option value="3">3</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+                <p class="small text-warning mb-2 d-none" id="sessionExtraWarning" role="status"></p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-primary btn-sm" id="sessionExtraStart" data-i18n="session.extra.start">Start round</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="sessionExtraDone" data-i18n="session.extra.done">Done</button>
+                </div>
+            </div>
             <a href="/tests" class="btn btn-primary mt-3" id="sessionDoneBrowseLink" data-i18n="session.done_browse">Back to tests</a>
         </div>
     </div>

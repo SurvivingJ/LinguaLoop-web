@@ -81,3 +81,64 @@ export function requiredProgress(queue) {
     total: required.length,
   };
 }
+
+// ---- Practice extra rounds (practice-extra-rounds, ADR-036) -----------------
+// Practice mode offers open-ended rounds past the daily budget: reviews (due
+// first, then review-ahead) and/or up to EXTRA_NEW_WORDS_MAX new words. After
+// each round the learner is back on the selection screen.
+
+export const EXTRA_NEW_WORDS_MAX = 10;
+
+/** Clamp a learner's choice to what the server accepts. */
+export function normalizeExtraChoice(choice) {
+  const n = Math.round(Number(choice && choice.newWords) || 0);
+  return {
+    reviews: !!(choice && choice.reviews),
+    newWords: Math.max(0, Math.min(EXTRA_NEW_WORDS_MAX, n)),
+  };
+}
+
+/** True when the choice asks for anything at all. */
+export function isRunnableExtraChoice(choice) {
+  const c = normalizeExtraChoice(choice);
+  return c.reviews || c.newWords > 0;
+}
+
+/** GET /api/practice/extra URL for a choice (+ senses to keep out of reviews). */
+export function extraRequestUrl(languageId, choice, excludeSenseIds) {
+  const c = normalizeExtraChoice(choice);
+  const params = new URLSearchParams({
+    language_id: String(languageId),
+    reviews: c.reviews ? '1' : '0',
+    new_words: String(c.newWords),
+  });
+  const ex = (excludeSenseIds || []).filter((s) => Number.isInteger(s)).slice(0, 200);
+  if (ex.length) params.set('exclude', ex.join(','));
+  return `/api/practice/extra?${params.toString()}`;
+}
+
+/** How many of the chosen new words go past what is left of today's quota. */
+export function extraBeyondQuota(choice, tail) {
+  const { newWords } = normalizeExtraChoice(choice);
+  const left = Math.max(0, Number(tail && tail.new_words_left) || 0);
+  return Math.max(0, newWords - left);
+}
+
+/**
+ * A queue item for one extra round. Optional like a tail item (never counts
+ * toward completion) and never persisted through complete-block: its attempts
+ * already credit the weekly counters as tail work.
+ */
+export function makeExtraItem(choice, n, excludeSenseIds) {
+  const c = normalizeExtraChoice(choice);
+  return {
+    kind: 'practice',
+    id: `extra_${n}`,
+    mode: c.reviews ? 'maintenance' : 'acquisition',
+    is_bonus: true,
+    is_tail: true,
+    is_extra: true,
+    is_completed: false,
+    extra: { ...c, exclude: (excludeSenseIds || []).slice(0, 200) },
+  };
+}

@@ -60,6 +60,15 @@ logger = logging.getLogger(__name__)
 # floor; this cap only bounds a pathological quota (npd up to 50) on one call.
 LADDER_TOPUP_MAX_PER_CALL = 12
 
+# Practice extra rounds (practice-extra-rounds, ADR-036): open-ended practice
+# past the daily budget. At most this many new words per round; the learner
+# sees the selection screen again between rounds. No daily cap, only a warning.
+EXTRA_NEW_WORDS_MAX = 10
+# Review items per extra round, and how long a just-attempted sense is kept
+# out of review-ahead so consecutive rounds do not loop on the same words.
+EXTRA_REVIEW_ITEMS = 10
+EXTRA_REVIEW_RECENT_MINUTES = 10
+
 # Ladder states that count towards the eligible pool. state='new' is in here,
 # which is why a cold-start seed used to disarm all later intake.
 LADDER_ELIGIBLE_STATES = ('new', 'active', 'gated', 'pre_mastery', 'relearning')
@@ -290,6 +299,193 @@ class PracticeSessionService:
             )
 
         return payload
+
+    # ------------------------------------------------------------------
+    # Extra rounds (practice-extra-rounds, ADR-036)
+    # ------------------------------------------------------------------
+
+    def get_extra_round(
+        self,
+        user_id: str,
+        language_id: int,
+        reviews: bool,
+        new_words: int,
+        exclude_sense_ids: Optional[List[int]] = None,
+    ) -> Dict[str, Any]:
+        """One open-ended Practice round, beyond today's budget.
+
+        ``new_words`` (0..EXTRA_NEW_WORDS_MAX): admit enough words past the
+        daily quota that ``new_words`` never-started words are available, then
+        serve acquisition items for them. ``reviews``: serve up to
+        EXTRA_REVIEW_ITEMS review items -- due work first (the Maintenance
+        pool), then review-ahead (``get_review_ahead_items``).
+
+        Attempts go through the normal attempt path with is_tail=True, so FSRS,
+        BKT and the weekly counters update as for any tail round.
+
+        Returns the session payload shape plus ``extra`` stats:
+        ``{requested_new_words, new_words_served, new_words_admitted,
+        new_words_beyond_quota, reviews_served}``.
+        """
+        new_words = max(0, min(int(new_words or 0), EXTRA_NEW_WORDS_MAX))
+        if not reviews and new_words == 0:
+            return {'error': 'nothing_requested', 'code': 'E_EMPTY'}
+        exclude = set(int(s) for s in (exclude_sense_ids or []))
+
+        acq_items: List[Dict[str, Any]] = []
+        admitted: List[int] = []
+        beyond_quota = 0
+        if new_words:
+            admitted, targets, beyond_quota = self._admit_extra_new_words(
+                user_id, language_id, new_words)
+            acq_items = self._extra_acquisition_items(
+                user_id, language_id, targets, new_words)
+
+        rev_items: List[Dict[str, Any]] = []
+        if reviews:
+            rev_items = self._extra_review_items(user_id, language_id, exclude)
+
+        items = self._interleave_extras(rev_items, acq_items) if (
+            rev_items and acq_items) else (rev_items or acq_items)
+
+        payload: Dict[str, Any] = {
+            'items': items,
+            'tail': True,
+            'extra': {
+                'requested_new_words':    new_words,
+                'new_words_served':       len({i.get('sense_id') for i in acq_items}),
+                'new_words_admitted':     len(admitted),
+                'new_words_beyond_quota': beyond_quota,
+                'reviews_served':         len(rev_items),
+            },
+            'no_content_reason': None if items else 'all_complete',
+        }
+        try:
+            self._apply_script_variant(payload, user_id, language_id)
+        except Exception as e:
+            logger.warning('extra round: script variant failed (non-fatal): %s', e)
+        self._prepare_jumbled_items(payload['items'], language_id)
+        for item in payload['items']:
+            item.pop('score_breakdown', None)
+        return payload
+
+    def _admit_extra_new_words(
+        self, user_id: str, language_id: int, n: int,
+    ):
+        """Admit words past the daily quota so ``n`` unstarted words exist.
+
+        Returns ``(admitted, target_sense_ids, beyond_quota)``. Unlike
+        admit_daily_new_words this ignores the quota E and writes no
+        shortfall: extra words are not part of the plan. Already-admitted
+        unstarted words are used first, so repeated rounds do not bloat the
+        pool. ``beyond_quota`` is how many of the round's words go past what
+        is left of today's quota (for the UI warning).
+        """
+        state = self.new_word_state(user_id, language_id) or {}
+        unstarted = list(state.get('unstarted_sense_ids') or [])
+        quota_left = max(0, int(state.get('effective') or 0)
+                         - int(state.get('started_today') or 0))
+        admitted: List[int] = []
+        want = n - len(unstarted)
+        if want > 0:
+            try:
+                subscribed = self._subscribed_sense_ids(user_id)
+                fresh = self._nominate_new_words(
+                    user_id, language_id, want, subscribed)
+                if fresh and self._insert_ladder_rows(user_id, fresh):
+                    admitted = list(fresh)
+            except Exception as e:
+                logger.warning(
+                    'extra new-word intake failed for user=%s lang=%s: %s',
+                    user_id, language_id, e,
+                )
+        targets = (unstarted + admitted)[:n]
+        if admitted:
+            logger.info(
+                'extra intake admitted %d sense(s) beyond quota for user=%s lang=%s',
+                len(admitted), user_id, language_id,
+            )
+        return admitted, targets, max(0, len(targets) - quota_left)
+
+    def _extra_acquisition_items(
+        self, user_id: str, language_id: int, targets: List[int], n: int,
+    ) -> List[Dict[str, Any]]:
+        """Acquisition items for the round's target words (oldest first)."""
+        if not targets:
+            return []
+        minutes = max(1, min(180, int(round(
+            n * float(_plan.get_minutes_per_new_word(self.db, language_id))))))
+        try:
+            resp = self.db.rpc('get_practice_session', {
+                'p_user_id':        user_id,
+                'p_language_id':    language_id,
+                'p_mode':           'acquisition',
+                'p_target_minutes': minutes,
+                'p_user_theta':     None,
+            }).execute()
+        except Exception as e:
+            logger.warning('extra round acquisition call failed: %s', e)
+            return []
+        data = resp.data if isinstance(resp.data, dict) else {}
+        items = [
+            i for i in (data.get('items') or [])
+            if not i.get('is_gate_marker') and not i.get('is_stress_test_marker')
+        ]
+        rank = {sid: k for k, sid in enumerate(targets)}
+        picked = [i for i in items if i.get('sense_id') in rank]
+        picked.sort(key=lambda i: rank[i['sense_id']])  # stable within a word
+        for i in picked:
+            i['mode'] = 'acquisition'
+        return picked
+
+    def _extra_review_items(
+        self, user_id: str, language_id: int, exclude: set,
+    ) -> List[Dict[str, Any]]:
+        """Up to EXTRA_REVIEW_ITEMS reviews: due work first, then review-ahead."""
+        items: List[Dict[str, Any]] = []
+        seen_senses = set(exclude)
+        try:
+            resp = self.db.rpc('get_practice_session', {
+                'p_user_id':        user_id,
+                'p_language_id':    language_id,
+                'p_mode':           'maintenance',
+                'p_target_minutes': 15,
+                'p_user_theta':     None,
+            }).execute()
+            data = resp.data if isinstance(resp.data, dict) else {}
+            due = [i for i in (data.get('items') or [])
+                   if i.get('mode') == 'maintenance']
+            if len(due) > 1:
+                self._most_overdue_first(due, user_id)
+            for i in due:
+                sid = i.get('sense_id')
+                if sid is None or sid in seen_senses:
+                    continue
+                seen_senses.add(sid)
+                items.append(i)
+                if len(items) >= EXTRA_REVIEW_ITEMS:
+                    return items
+        except Exception as e:
+            logger.warning('extra round maintenance call failed: %s', e)
+
+        try:
+            resp = self.db.rpc('get_review_ahead_items', {
+                'p_user_id':                user_id,
+                'p_language_id':            language_id,
+                'p_limit':                  EXTRA_REVIEW_ITEMS - len(items),
+                'p_exclude_recent_minutes': EXTRA_REVIEW_RECENT_MINUTES,
+                'p_exclude_sense_ids':      sorted(seen_senses),
+            }).execute()
+            ahead = resp.data if isinstance(resp.data, list) else []
+        except Exception as e:
+            logger.warning('review-ahead call failed: %s', e)
+            ahead = []
+        for i in ahead:
+            if i.get('sense_id') in seen_senses:
+                continue
+            seen_senses.add(i.get('sense_id'))
+            items.append(i)
+        return items[:EXTRA_REVIEW_ITEMS]
 
     def _apply_session_floor(
         self,

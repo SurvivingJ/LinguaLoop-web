@@ -15,6 +15,8 @@
 // /api/practice/attempt would write it into the sense-keyed practice system and
 // silently corrupt the recurrence metric the feature exists to measure.
 
+import { extraRequestUrl } from '../tail.js';
+
 const T = (key, params, fallback) =>
   window.LinguaI18n && typeof LinguaI18n.t === 'function'
     ? LinguaI18n.t(key, params) || fallback || key
@@ -33,6 +35,9 @@ export function mount(container, ctx) {
   // session-budget-settings: items of the optional "Keep going?" round carry
   // is_tail; the flag goes on the session URL and is echoed on attempt POSTs.
   const isTail = !!(ctx.item && ctx.item.is_tail);
+  // Practice extra rounds (ADR-036): items come from /api/practice/extra and
+  // mix reviews with new words, so each attempt is credited by its own mode.
+  const extra = ctx.item && ctx.item.is_extra ? ctx.item.extra || {} : null;
 
   const state = {
     exercises: [],
@@ -88,7 +93,9 @@ export function mount(container, ctx) {
     }
     try {
       const res = await window.authFetch(
-        `/api/practice/session?mode=${encodeURIComponent(mode)}&minutes=${minutes}&language_id=${languageId}${isTail ? '&tail=1' : ''}`
+        extra
+          ? extraRequestUrl(languageId, extra, extra.exclude)
+          : `/api/practice/session?mode=${encodeURIComponent(mode)}&minutes=${minutes}&language_id=${languageId}${isTail ? '&tail=1' : ''}`
       );
       const data = await res.json();
       // Skip gate / stress markers (they need the separate /api/vocab-dojo
@@ -113,6 +120,12 @@ export function mount(container, ctx) {
         return;
       }
       state.exercises = items;
+      if (extra) {
+        // Remembered so the next round's reviews skip this round's words.
+        ctx.item.served_sense_ids = items
+          .map((it) => it.sense_id)
+          .filter((sid) => Number.isInteger(sid));
+      }
       q('progressArea').style.display = 'flex';
       renderExercise();
     } catch (e) {
@@ -227,7 +240,8 @@ export function mount(container, ctx) {
         user_response: response,
         time_taken_ms: timeTakenMs,
         expected_seconds: ex.expected_seconds,
-        session_mode: mode,
+        session_mode:
+          extra && (ex.mode === 'acquisition' || ex.mode === 'maintenance') ? ex.mode : mode,
         language_id: languageId,
         ...(isTail ? { is_tail: true } : {}),
       }),
