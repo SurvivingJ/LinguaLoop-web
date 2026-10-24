@@ -458,7 +458,7 @@ const ExRenderers = (function () {
         corr.innerHTML =
           '<i class="fas fa-check me-1"></i>' +
           escHtml(c.error_word) +
-          ' → ' +
+          ' \\u2192 ' +
           escHtml(c.correct_word);
         corr.style.display = '';
         _showFeedback(false, c.explanation);
