@@ -902,7 +902,8 @@ const ExRenderers = (function () {
       'Choose the correct definition:',
       prompt,
       c.options || [],
-      c.correct_definition || '',
+      // v2 (flattenNl) carries `correct_answer`; v1 rows carry `correct_definition`.
+      c.correct_answer || c.correct_definition || '',
       '',
       w
     );
