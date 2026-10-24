@@ -458,7 +458,7 @@ const ExRenderers = (function () {
         corr.innerHTML =
           '<i class="fas fa-check me-1"></i>' +
           escHtml(c.error_word) +
-          ' \u2192 ' +
+          ' → ' +
           escHtml(c.correct_word);
         corr.style.display = '';
         _showFeedback(false, c.explanation);
@@ -902,7 +902,8 @@ const ExRenderers = (function () {
       'Choose the correct definition:',
       prompt,
       c.options || [],
-      c.correct_definition || '',
+      // v2 (flattenNl) carries `correct_answer`; v1 rows carry `correct_definition`.
+      c.correct_answer || c.correct_definition || '',
       '',
       w
     );
