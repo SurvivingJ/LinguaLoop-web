@@ -16,6 +16,12 @@ Definitions in this corpus are frequently short and generic ("a kind of tool",
 vector when embedded bare. Prefixing the lemma keeps distinct senses distinct,
 which is exactly the property the mid-band neighbour query depends on.
 
+Only the native standard row of a sense is embedded (definition_level
+'standard', definition language = word language). Its simple row and every
+cross-language gloss row borrow that vector through the ``sense_embedding()``
+SQL function, and a CHECK constraint rejects a vector on any other row
+(migrations/sense_vectors_native_standard_512.sql, ADR-037).
+
 Idempotent: senses that already carry an embedding are skipped, so an
 interrupted run resumes and a re-run after adding senses pays only for the new
 ones. ``--force`` re-embeds everything, which is right only after a model
@@ -59,13 +65,25 @@ def build_text(lemma: str | None, definition: str | None) -> str:
     return lemma or definition
 
 
-#: dim_word_senses.embedding is halfvec(768) since 2026-09-22
-#: (migrations/shrink_sense_embeddings_halfvec768.sql). text-embedding-3-small
+#: dim_word_senses.embedding is halfvec(512) since 2026-10-28
+#: (migrations/sense_vectors_native_standard_512.sql). text-embedding-3-small
 #: is Matryoshka-trained: truncating to the first N dims and re-normalising is
 #: exactly what the API's ``dimensions=N`` returns, so this keeps new vectors
 #: identical in kind to the migrated ones. Topic/passage embeddings are NOT
 #: sense embeddings and stay 1536-d — do not change EmbeddingService globally.
-SENSE_EMBEDDING_DIMS = 768
+SENSE_EMBEDDING_DIMS = 512
+
+
+def is_embedded_row(row: dict) -> bool:
+    """True for the one row of a sense that stores its vector.
+
+    The native standard row: definition_level 'standard' and the definition
+    written in the word's own language. The database enforces the same rule
+    (CHECK dim_word_senses_embedding_native_standard_chk).
+    """
+    return (row.get('definition_level') == 'standard'
+            and row.get('definition_language_id') is not None
+            and row.get('definition_language_id') == row.get('word_language_id'))
 
 
 def sense_vector(vector: list[float] | None) -> list[float] | None:
@@ -83,18 +101,20 @@ def sense_vector(vector: list[float] | None) -> list[float] | None:
     return [x / norm for x in head] if norm else head
 
 
-def fetch_pending(db, language_id: int | None, force: bool) -> list[dict]:
-    """Senses needing an embedding, paired with their lemma."""
+def fetch_pending(db, language_id: int, force: bool) -> list[dict]:
+    """Native standard senses needing an embedding, paired with their lemma."""
     out: list[dict] = []
     offset = 0
     while True:
         query = (
             db.table('dim_word_senses')
-            .select('id, definition, dim_vocabulary!inner(lemma, language_id)')
+            .select('id, definition, dim_vocabulary!inner(lemma)')
+            .eq('word_language_id', language_id)
+            .eq('definition_language_id', language_id)
+            .eq('definition_level', 'standard')
+            .order('id')
             .range(offset, offset + _PAGE - 1)
         )
-        if language_id is not None:
-            query = query.eq('dim_vocabulary.language_id', language_id)
         if not force:
             query = query.is_('embedding', 'null')
         rows = query.execute().data or []

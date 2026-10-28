@@ -31,11 +31,14 @@ logger = logging.getLogger(__name__)
 
 #: A foil below this cosine is unrelated — not a distractor, just a filler.
 #: 0.35 was set on 1536-d vectors; +0.015 is the measured shift at this point
-#: from the 2026-09-22 move to 768-d truncated embeddings (n=3,009 pairs).
-BAND_MIN = 0.365
+#: from the 2026-09-22 move to 768-d truncated embeddings (n=3,009 pairs), and
+#: +0.012 more from the 2026-10-28 move to 512-d (mean over 2,125 pairs at
+#: cos 0.30-0.45, all three languages).
+BAND_MIN = 0.377
 #: A foil above this cosine is a near-duplicate of the target sense, and is
-#: very likely an also-correct answer. Left unchanged by the 768-d move: the
-#: measured shift up here was +0.007 on a small sample (n=7), within noise.
+#: very likely an also-correct answer. Left unchanged by the 768-d and 512-d
+#: moves: the measured shift up here was +0.007 on a small sample (n=7), within
+#: noise.
 BAND_MAX = 0.88
 
 #: The RPC installed by the TASK-521 migration.

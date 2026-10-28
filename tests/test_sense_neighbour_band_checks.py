@@ -122,8 +122,8 @@ def test_no_candidates_makes_no_call():
 
 @pytest.mark.parametrize('similarity, expected', [
     (0.20, False),   # unrelated — filler, not a distractor
-    (0.35, False),   # below the 768-d floor (was the 1536-d floor)
-    (0.365, True),   # lower bound is inclusive
+    (0.365, False),  # below the 512-d floor (was the 768-d floor)
+    (0.377, True),   # lower bound is inclusive
     (0.60, True),
     (0.88, True),    # upper bound is inclusive
     (0.95, False),   # near-duplicate — probably also correct
@@ -137,14 +137,14 @@ def test_band_check_of_none_is_no_opinion():
 
 
 # ---------------------------------------------------------------------------
-# Writers must store 768-d, unit-length vectors (halfvec(768) since 2026-09-22)
+# Writers must store 512-d, unit-length vectors (halfvec(512) since 2026-10-28)
 # ---------------------------------------------------------------------------
 
 def test_sense_vector_truncates_and_normalises():
     from scripts.backfill_sense_embeddings import SENSE_EMBEDDING_DIMS, sense_vector
     full = [0.5] * 768 + [9.0] * 768          # tail must be discarded
     out = sense_vector(full)
-    assert len(out) == SENSE_EMBEDDING_DIMS == 768
+    assert len(out) == SENSE_EMBEDDING_DIMS == 512
     assert abs(sum(x * x for x in out) - 1.0) < 1e-9
     assert len({round(x, 12) for x in out}) == 1
 
