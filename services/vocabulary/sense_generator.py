@@ -535,10 +535,11 @@ class SenseGenerator:
         degrade silently for exactly the newest words. The backfill would have
         to be re-run forever to stay correct.
 
-        Both levels are embedded, not just ``standard``: the backfill embeds
-        every row with a NULL vector, so skipping ``simple`` here would leave
-        the corpus in a state a later backfill "fixes" — the drift this exists
-        to prevent.
+        Only the native standard row is embedded (``is_embedded_row``): the
+        simple row and every cross-language gloss borrow its vector through
+        ``sense_embedding()``, and the database rejects a vector on any other
+        row (ADR-037). The backfill applies the same rule, so the two cannot
+        drift.
 
         Failure is logged and swallowed. An embedding is an enrichment; a word
         that exists without one is usable, and a word that failed to be created
@@ -551,7 +552,8 @@ class SenseGenerator:
         # sense generation must stay importable in environments (tests, offline
         # CLI runs) that never embed anything.
         try:
-            from scripts.backfill_sense_embeddings import build_text, sense_vector
+            from scripts.backfill_sense_embeddings import (
+                build_text, is_embedded_row, sense_vector)
             from services.topic_generation.agents.embedder import EmbeddingService
         except Exception as exc:
             logger.debug("embed-on-create unavailable: %s", exc)
@@ -559,6 +561,8 @@ class SenseGenerator:
 
         rows = []
         for row in written:
+            if not is_embedded_row(row):
+                continue
             sense_id = row.get('id')
             text = build_text(lemma, row.get('definition'))
             if sense_id and text:
