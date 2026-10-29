@@ -3,7 +3,7 @@ title: Practice Extra Rounds
 type: feature
 status: in-progress
 tech_page: practice-extra-rounds.tech.md
-last_updated: 2026-10-18
+last_updated: 2026-10-29
 open_questions: []
 ---
 
@@ -28,8 +28,9 @@ learn a few more new words, as many rounds as I like."
    **Done** hides the panel.
 4. If any of the chosen new words go beyond what is left of today's goal, a warning says how
    many and that they add to future reviews. There is no hard cap.
-5. Today's optional extra round ("Session done — N reviews and M new words left today") now also
-   appears in Practice mode even if today's tests are not done.
+5. Today's optional extra round ("Session done — N reviews and M new words left today") appears
+   once the practice part of the session is done, even if today's tests were skipped or are not
+   done. This holds in both Practice mode and the daily session (changed 2026-10-29).
 
 ## Constraints & Edge Cases
 - At most 10 new words per round; the learner sees the selection screen again between rounds.

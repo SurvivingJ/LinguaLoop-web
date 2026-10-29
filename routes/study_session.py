@@ -609,13 +609,10 @@ def get_study_session() -> ApiResponse:
         extras: Dict[str, Any] = {'governor': None, 'tail': None, 'tail_queue': []}
         try:
             state = practice_service.new_word_state(user_id, language_id)
-            # Practice mode (/session?mode=practice) hides tests, so it asks
-            # with scope=practice: the tail gate then ignores test items.
-            gate_queue = (
-                [q for q in queue if q.get('kind') != 'test']
-                if (request.args.get('scope') or '').lower() == 'practice'
-                else queue
-            )
+            # The tail gate ignores test items: "Keep going" is offered once the
+            # practice part is done, even if tests were skipped. (Practice mode
+            # still sends scope=practice; it no longer changes anything.)
+            gate_queue = [q for q in queue if q.get('kind') != 'test']
             extras = compute_governor_and_tail(
                 state, gate_queue, completed_blocks, _mpnw(db, language_id))
         except Exception as exc:
