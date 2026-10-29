@@ -10,6 +10,9 @@
  *   npm run test:e2e:headed   — headed browser so you can watch the OTP flow
  *
  * In CI: set TEST_JWT_TOKEN env var to a pre-issued token (bypasses OTP).
+ * Automated runs: set TEST_USER_EMAIL + TEST_USER_PASSWORD (plus SUPABASE_URL
+ * and SUPABASE_KEY) to mint a fresh token for the dedicated test account via
+ * Supabase's password grant — see scripts/mint_test_token.py.
  */
 
 import { test as setup, expect } from '@playwright/test';
@@ -22,9 +25,22 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 // If CI injects a ready-made JWT, skip the OTP dance entirely.
 const PRE_ISSUED_TOKEN = process.env.TEST_JWT_TOKEN;
 
+const { TEST_USER_EMAIL, TEST_USER_PASSWORD, SUPABASE_URL, SUPABASE_KEY } = process.env;
+const CAN_MINT = !!(TEST_USER_EMAIL && TEST_USER_PASSWORD && SUPABASE_URL && SUPABASE_KEY);
+
+async function mintTestToken() {
+  const res = await fetch(`${SUPABASE_URL.replace(/\/$/, '')}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: TEST_USER_EMAIL, password: TEST_USER_PASSWORD }),
+  });
+  if (!res.ok) throw new Error(`[auth-setup] password login failed: ${res.status} ${await res.text()}`);
+  return (await res.json()).access_token;
+}
+
 setup('authenticate', async ({ page }) => {
   // Skip if auth file exists and is less than 55 minutes old (JWT TTL)
-  if (!PRE_ISSUED_TOKEN && existsSync(AUTH_FILE)) {
+  if (!PRE_ISSUED_TOKEN && !CAN_MINT && existsSync(AUTH_FILE)) {
     const ageMs = Date.now() - statSync(AUTH_FILE).mtimeMs;
     if (ageMs < 55 * 60 * 1000) {
       console.log('[auth-setup] Reusing existing auth state (< 55 min old).');
@@ -32,15 +48,16 @@ setup('authenticate', async ({ page }) => {
     }
   }
 
-  if (PRE_ISSUED_TOKEN) {
-    // CI path: inject the token directly, no OTP needed.
+  if (PRE_ISSUED_TOKEN || CAN_MINT) {
+    // Token path: inject the token directly, no OTP needed.
+    const token = PRE_ISSUED_TOKEN || (await mintTestToken());
     await page.goto(BASE_URL + '/login');
-    await page.addInitScript((token) => {
-      localStorage.setItem('jwt_token', token);
-    }, PRE_ISSUED_TOKEN);
+    await page.evaluate((t) => localStorage.setItem('jwt_token', t), token);
     await page.goto(BASE_URL + '/');
     await page.context().storageState({ path: AUTH_FILE });
-    console.log('[auth-setup] CI: auth state saved via TEST_JWT_TOKEN.');
+    console.log(
+      `[auth-setup] auth state saved via ${PRE_ISSUED_TOKEN ? 'TEST_JWT_TOKEN' : 'test-account password login'}.`
+    );
     return;
   }
 
