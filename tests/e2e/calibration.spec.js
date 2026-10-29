@@ -53,6 +53,21 @@ async function waitForItem(page) {
   return page.locator(OPTION);
 }
 
+/**
+ * Click an option and return the server's verdict.
+ *
+ * Read it from the /answer response, not the DOM: a correct answer's reveal is
+ * on screen for only CORRECT_PAUSE_MS (450 ms) before it advances, and once an
+ * assertion has backed off to polling every second it can miss that window.
+ */
+async function answerOption(page, option) {
+  const [response] = await Promise.all([
+    page.waitForResponse((r) => r.url().includes('/api/calibration/answer')),
+    option.click(),
+  ]);
+  return response.json();
+}
+
 test.describe('Calibration', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/calibration');
@@ -84,13 +99,12 @@ test.describe('Calibration', () => {
     // Answer every option until one of them is wrong. With four options and one
     // key, the first two tries cannot both be right.
     for (let i = 0; i < 4; i += 1) {
-      await options.nth(i).click();
-      await expect(page.locator(OPTION + '.correct')).toHaveCount(1, { timeout: 15_000 });
-      const wrong = await page.locator(OPTION + '.wrong').count();
-      if (wrong === 1) break;
+      const { is_correct: isCorrect } = await answerOption(page, options.nth(i));
+      if (!isCorrect) break;
       // That one was right: it advances on its own, so pick up the next item.
       await waitForItem(page);
     }
+    await expect(page.locator(OPTION + '.wrong')).toHaveCount(1, { timeout: 15_000 });
 
     // The Next button is showing, "I don't know" is not, and nothing has moved.
     await expect(page.locator('#calNextBtn')).toBeVisible();
@@ -138,17 +152,16 @@ test.describe('Calibration', () => {
 
     for (let i = 0; i < 4; i += 1) {
       const prompt = await page.locator('#calPrompt').textContent();
-      await options.nth(i).click();
-      await expect(page.locator(OPTION + '.correct')).toHaveCount(1, { timeout: 15_000 });
+      const { is_correct: isCorrect } = await answerOption(page, options.nth(i));
 
-      if ((await page.locator(OPTION + '.wrong').count()) === 0) {
+      if (isCorrect) {
         // Right answer: no button, and it moves on by itself.
         await expect(page.locator('#calNextBtn')).toBeHidden();
         await waitForItem(page);
         await expect(page.locator('#calPrompt')).not.toHaveText(prompt ?? '');
         return;
       }
-      await page.locator('#calNextBtn').click();
+      await page.locator('#calNextBtn').click({ timeout: 15_000 });
       await waitForItem(page);
     }
     test.skip(true, 'four wrong answers in a row — no correct answer to observe');

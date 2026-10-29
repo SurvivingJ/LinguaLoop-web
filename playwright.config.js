@@ -39,6 +39,9 @@ export default defineConfig({
     },
   ],
 
-  // Flask must be running locally before `npm run test:e2e`
+  // Flask must be running locally before `npm run test:e2e`. Serve it the way
+  // production does (`gunicorn wsgi:app --bind 127.0.0.1:5000 --workers 2`):
+  // `python app.py` is threaded, and concurrent requests sharing one Supabase
+  // client fail with "[Errno 11] Resource temporarily unavailable".
   // In CI, start the server in the workflow before running this command.
 });

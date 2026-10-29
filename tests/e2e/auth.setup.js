@@ -34,7 +34,8 @@ async function mintTestToken() {
     headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: TEST_USER_EMAIL, password: TEST_USER_PASSWORD }),
   });
-  if (!res.ok) throw new Error(`[auth-setup] password login failed: ${res.status} ${await res.text()}`);
+  if (!res.ok)
+    throw new Error(`[auth-setup] password login failed: ${res.status} ${await res.text()}`);
   return (await res.json()).access_token;
 }
 
@@ -56,7 +57,8 @@ setup('authenticate', async ({ page }) => {
     await page.evaluate(
       ([t, lang]) => {
         localStorage.setItem('jwt_token', t);
-        if (!localStorage.getItem('selectedLanguageId')) localStorage.setItem('selectedLanguageId', lang);
+        if (!localStorage.getItem('selectedLanguageId'))
+          localStorage.setItem('selectedLanguageId', lang);
       },
       [token, process.env.TEST_LANGUAGE_ID || '1']
     );
