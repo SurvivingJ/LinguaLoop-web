@@ -16,6 +16,10 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on-first-retry',
+    // Cloud sessions ship a preinstalled Chromium; point at it instead of `playwright install`.
+    ...(process.env.PW_CHROMIUM_PATH && {
+      launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH },
+    }),
   },
 
   projects: [

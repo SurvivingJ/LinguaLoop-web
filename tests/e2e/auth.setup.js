@@ -52,7 +52,14 @@ setup('authenticate', async ({ page }) => {
     // Token path: inject the token directly, no OTP needed.
     const token = PRE_ISSUED_TOKEN || (await mintTestToken());
     await page.goto(BASE_URL + '/login');
-    await page.evaluate((t) => localStorage.setItem('jwt_token', t), token);
+    // Pick a study language too, or a fresh account lands on /language-selection.
+    await page.evaluate(
+      ([t, lang]) => {
+        localStorage.setItem('jwt_token', t);
+        if (!localStorage.getItem('selectedLanguageId')) localStorage.setItem('selectedLanguageId', lang);
+      },
+      [token, process.env.TEST_LANGUAGE_ID || '1']
+    );
     await page.goto(BASE_URL + '/');
     await page.context().storageState({ path: AUTH_FILE });
     console.log(

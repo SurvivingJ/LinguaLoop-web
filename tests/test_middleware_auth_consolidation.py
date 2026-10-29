@@ -103,7 +103,7 @@ def app_with_decorators(monkeypatch):
             sub = call.args[1] if call and len(call.args) > 1 else None
             if sub == 'service-account':
                 return SimpleNamespace(data=[])
-            return SimpleNamespace(data=[{'subscription_tier': 'admin'}])
+            return SimpleNamespace(data=[{'dim_subscription_tiers': {'tier_code': 'admin'}}])
 
         eq_obj.execute.side_effect = fake_execute
         return chain
