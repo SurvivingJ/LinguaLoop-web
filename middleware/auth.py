@@ -222,12 +222,13 @@ def get_optional_user_id(req) -> str | None:
 
 
 def _user_has_tier(user_id, allowed):
-    """True iff the user's subscription_tier is in ``allowed``."""
+    """True iff the user's tier_code (via subscription_tier_id) is in ``allowed``."""
     result = _get_supabase_admin().table('users')\
-        .select('subscription_tier').eq('id', user_id).execute()
+        .select('dim_subscription_tiers(tier_code)').eq('id', user_id).execute()
     if not result.data:
         return False
-    return result.data[0]['subscription_tier'] in allowed
+    tier = result.data[0].get('dim_subscription_tiers') or {}
+    return tier.get('tier_code') in allowed
 
 
 # ============================================================================
