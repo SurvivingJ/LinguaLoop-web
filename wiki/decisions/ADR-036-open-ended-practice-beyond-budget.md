@@ -17,7 +17,8 @@ queue. The developer wants unlimited reviews and/or new words in Practice mode.
 - Early reviews update FSRS/BKT normally. Extra new words join the ladder and its schedule.
   Extra work counts toward the weekly targets (attempts carry `is_tail`).
 - No daily cap, only a warning when the new words go beyond today's goal.
-- The Practice-mode tail gate ignores test items (`scope=practice`).
+- The tail gate ignores test items (`scope=practice` originally; since 2026-10-29 in every mode,
+  so the daily session offers "Keep going" once the practice part is done, even with skipped tests).
 
 ## Consequences
 - Learners can over-admit; the review governor reduces later quotas automatically when the

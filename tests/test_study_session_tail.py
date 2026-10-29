@@ -339,14 +339,23 @@ def test_complete_block_tail_ids_advance_with_completed_rounds(app, monkeypatch)
 
 
 # ---------------------------------------------------------------------------
-# Practice mode gate (practice-extra-rounds): scope=practice ignores tests
+# Tail gate ignores tests: offered once the practice part is done, even with
+# skipped tests, in both the daily session and Practice mode
 # ---------------------------------------------------------------------------
 
 _OPEN_TEST = [{'id': 't1', 'test_type': 'reading', 'is_completed': False}]
 
 
-def test_open_test_hides_the_tail_in_the_daily_session(app, monkeypatch):
+def test_open_test_does_not_hide_the_tail_in_the_daily_session(app, monkeypatch):
     db = _DB({'practice_acquisition_min': 0, 'practice_maintenance_min': 0}, completed=[])
+    data, _ = _call_get(app, monkeypatch, db, _Practice(_state()), speed=False,
+                        tests=_OPEN_TEST)
+    assert data['tail']['new_words_left'] == 3
+    assert data['progress'] == {'completed': 0, 'total': 1}     # test still required
+
+
+def test_open_practice_block_still_hides_the_tail(app, monkeypatch):
+    db = _DB({'practice_acquisition_min': 5, 'practice_maintenance_min': 0}, completed=[])
     data, _ = _call_get(app, monkeypatch, db, _Practice(_state()), speed=False,
                         tests=_OPEN_TEST)
     assert data['tail'] is None
