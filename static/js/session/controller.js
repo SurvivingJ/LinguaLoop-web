@@ -128,8 +128,8 @@ function applyModeLabels() {
   document.title = `${T('session.header_practice', null, 'Practice')} | LinguaDojo`;
 }
 
-// Practice mode asks with scope=practice so the server's tail gate ignores the
-// test items this page never shows.
+// Practice mode still sends scope=practice; the server's tail gate now ignores
+// test items in every mode, so it no longer changes the response.
 function studySessionUrl() {
   const scope = session.practiceOnly ? '&scope=practice' : '';
   return `/api/study-session?language_id=${session.languageId}${scope}`;
@@ -443,7 +443,7 @@ function countPhrase(kind, n) {
 }
 
 // Ask the server whether anything optional is left. The tail is computed live
-// and only once every required item is complete, so it is fetched here (at
+// and only once every required non-test item is complete, so it is fetched here (at
 // summary time) rather than carried on the initial load. Best-effort: a failure
 // just leaves the plain summary.
 async function offerTail({ fromEmpty = false } = {}) {
