@@ -324,7 +324,7 @@ stored at **two definition levels** (`simple` + `standard`) sharing one
 | `source` | text | NO | 'llm' | CHECK: llm/manual/llm_gloss. `manual` (admin-curated) is never overwritten by backfill; `llm_gloss` = cross-language gloss |
 | `source_ref` | text | YES | | Provenance, e.g. `"deepseek/deepseek-v4-flash v2"` |
 | `validation_notes` | text | YES | | |
-| `embedding` | halfvec(768) | YES | | text-embedding-3-small of `"{lemma}: {definition}"` (TASK-521), truncated to 768 dims + L2-normalised (≡ API `dimensions=768`), stored fp16. Was vector(1536) until 2026-09-22. Writers must pass vectors through `scripts/backfill_sense_embeddings.py::sense_vector` — see *Storage* below |
+| `embedding` | halfvec(512) | YES | | text-embedding-3-small of `"{lemma}: {definition}"` (TASK-521), truncated to 512 dims + L2-normalised (≡ API `dimensions=512`), stored fp16. **Only on the native standard row** of a sense (`definition_level='standard'` AND `definition_language_id = word_language_id`), enforced by CHECK `dim_word_senses_embedding_native_standard_chk`; every other row of the sense reads its twin's vector through `sense_embedding(id)` ([[decisions/ADR-037-one-sense-vector-native-standard-512]]). vector(1536) until 2026-09-22, halfvec(768) on every row until 2026-10-29. Writers must use `scripts/backfill_sense_embeddings.py::is_embedded_row` + `sense_vector` — see *Storage* below |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
 
@@ -335,9 +335,11 @@ writer in code, functions, views, policies or triggers. Do not reintroduce them;
 DDL in `create_all_tables.sql` and `archive/` still shows them.
 
 - **Primary Key:** `dim_word_senses_pkey (id)`
+- **Check:** `dim_word_senses_embedding_native_standard_chk` — `embedding IS NULL OR (definition_level = 'standard' AND definition_language_id = word_language_id)` (2026-10-29)
 - **Unique:** `uq_sense_def_level (vocab_id, definition_language_id, definition_level, sense_rank)` — replaced `uq_sense_definition` (migrations/add_sense_levels_and_source.sql, 2026-05-31)
 - **Indexes (btree):** `idx_senses_rank (vocab_id, sense_rank)` — also serves plain `vocab_id` lookups and the FK cascade; `idx_senses_lang (definition_language_id)`; `idx_senses_source (source)`; `idx_dim_word_senses_wl_dl_level (word_language_id, definition_language_id, definition_level)`; `idx_dim_word_senses_pronunciation_lookup (word_language_id, definition_level) WHERE pronunciation IS NOT NULL`. `idx_senses_vocab (vocab_id)` was dropped 2026-09-21 as redundant (0.55 vs 0.56 ms on a 150-id lookup).
-- **Indexes (HNSW):** none since 2026-09-22 — the seven partial `idx_dws_emb_w{W}_d{D}` indexes (~456 MB) were dropped; `semantic_distractors()` scans one language pair exactly (~16 ms warm on en/en, 10.8k rows).
+- **Indexes (HNSW):** none since 2026-09-22 — the seven partial `idx_dws_emb_w{W}_d{D}` indexes (~456 MB) were dropped. Since 2026-10-29 `semantic_distractors()` scans the word language's native standard rows exactly (en 6.6k, zh 4.3k, ja 3.4k vectors) and joins each neighbour to the requested definition language/level row via `uq_sense_def_level`.
+- **Helper:** `sense_embedding(p_sense_id integer) RETURNS halfvec` — the twin's vector for any row (SQL, STABLE, service_role only).
 - **Foreign Keys:** `vocab_id` -> `dim_vocabulary.id` (CASCADE), `definition_language_id` -> `dim_languages.id`
 - **Triggers:** BEFORE UPDATE -> `update_updated_at_column()` (`update_sense_timestamp`); BEFORE INSERT OR UPDATE OF vocab_id -> `set_sense_word_language()` (`trg_dim_word_senses_word_language`)
 - **RLS:** Enabled
@@ -357,6 +359,16 @@ the measured amount and `cos_max` by +0.01 (0.75 → 0.76); `sense_neighbours.BA
 `BAND_MAX` 0.88 unchanged (shift within noise). `calibration_distractor_cache` was cleared and
 rebuilt on the new vectors. Growth: ~2 MB per 1,000 new senses. If a language pair grows past
 ~100k senses, an HNSW index on halfvec(768) costs ~2 KB/row. Undo = re-embed at 1536-d (~$0.03).
+
+**After (2026-10-29, `migrations/sense_vectors_native_standard_512.sql`,
+[[decisions/ADR-037-one-sense-vector-native-standard-512]]):** 33 MB; whole database **193 MB**.
+One vector per meaning, on the native standard row only (14,230 vectors, was 55,002), halfvec(512).
+512-d vs 768-d: correlation 0.983–0.988, top-20 neighbour overlap 90–92%. p95 shift: zh +0.016,
+en +0.016, ja +0.012. Bands now: zh pairs `cos_min` 0.445, ja pairs 0.463, en/en 0.366,
+`cos_max` 0.77; the four cross-language pairs copy their native pair's band, because they score
+native-definition vectors. `sense_neighbours.BAND_MIN` 0.365 → 0.377. The definition-mode
+`calibration_distractor_cache` was dropped and rebuilt (162,613 rows). Projected at 10k zh + 10k
+ja words: ~75 MB.
 
 #### Two-level sense generation
 
