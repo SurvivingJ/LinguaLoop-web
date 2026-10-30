@@ -11,6 +11,10 @@ import argparse
 import csv
 import json
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import nt_lang  # noqa: E402
 
 csv.field_size_limit(10 ** 9)
 WA = ['sense_id', 'language_id', 'asset_type', 'content', 'model_used', 'prompt_version',
@@ -73,8 +77,11 @@ def main():
     ap.add_argument('writes')
     ap.add_argument('out')
     ap.add_argument('--exclude-csv', default='')
-    ap.add_argument('--title', default='JA word assets — upload package')
+    ap.add_argument('--lang', default='ja', help='ja | zh | en')
+    ap.add_argument('--title', default='')
     args = ap.parse_args()
+    lang_name, lang_id = nt_lang.name(args.lang), nt_lang.language_id(args.lang)
+    args.title = args.title or f'{args.lang.upper()} word assets — upload package'
     exclude = set()
     if args.exclude_csv:
         exclude = {int(r['sense_id']) for r in csv.DictReader(open(args.exclude_csv, encoding='utf-8'))}
@@ -105,13 +112,13 @@ def main():
         fh.write(f"-- Expected: assets = {len(assets)}, senses = {len(senses)}; per type: {per_type}\n")
         fh.write("WITH ids AS (SELECT unnest(ARRAY[" + ",".join(map(str, senses)) + "]) AS id)\n"
                  "SELECT asset_type, count(*) AS assets, count(DISTINCT sense_id) AS senses\n"
-                 "FROM word_assets\nWHERE language_id = 3 AND sense_id IN (SELECT id FROM ids)\n"
+                 f"FROM word_assets\nWHERE language_id = {lang_id} AND sense_id IN (SELECT id FROM ids)\n"
                  "GROUP BY ROLLUP (asset_type)\nORDER BY asset_type NULLS LAST;\n")
     n_upd = {t: sum(1 for u in updates if u[0] == t) for t in sorted({u[0] for u in updates})}
     with open(os.path.join(args.out, 'README.md'), 'w', encoding='utf-8') as fh:
         fh.write(f"""# {args.title}
 
-Reviewed fat-seed output for **{len(senses)} Japanese senses** (all passed
+Reviewed fat-seed output for **{len(senses)} {lang_name} senses** (all passed
 `check --source reviewed`; rejected and skipped senses are excluded).
 {'Delta package: the ' + str(len(exclude)) + ' senses of the earlier package are excluded.' if exclude else 'Complete package (every reviewed run).'}
 
@@ -119,8 +126,8 @@ Reviewed fat-seed output for **{len(senses)} Japanese senses** (all passed
 |---|---|
 | `word_assets` rows | {len(assets):,} ({len(types)} asset types) |
 | UPDATE statements | {sum(n_upd.values()):,} {n_upd} |
-| language_id | 3 (ja) |
-| source models | Sonnet core / Haiku audits, variants and review (runs r0069+), Sonnet + Opus (earlier runs) |
+| language_id | {lang_id} ({args.lang}) |
+| source | tool-free fat-seed pipeline (scratch_offline/nt_pipeline.py); see the run directories for models |
 
 ## Files
 

@@ -20,15 +20,19 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import nt_lang  # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHEATSHEET = os.path.join(REPO, 'data/exercise_seeding/ja/RULES_CHEATSHEET.md')
 SKILL = os.path.join(REPO, '.claude/skills/fat-seed-authoring/SKILL.md')
 
 
 def block_reference():
+    """The skill's "## Block reference" section, up to the next ## heading."""
     text = open(SKILL, encoding='utf-8').read()
     start = text.index('## Block reference')
-    end = text.index('## Step 3')
+    end = text.index('\n## ', start + 1)
     return text[start:end].strip()
 
 
@@ -43,10 +47,15 @@ nothing else: no preamble, no commentary. Follow the rules below exactly.
 
 
 def runner(cmd, run, *extra):
-    """Run a fat_seed_runner subcommand through the offline DB shim."""
+    """Run a fat_seed_runner subcommand.
+
+    Through the offline DB shim (scratch_offline/run.py, reads snap/*.json) by
+    default; with NT_ONLINE=1 against the real database (needs SUPABASE_URL /
+    SUPABASE_KEY in the environment)."""
     env = dict(os.environ, PYTHONIOENCODING='utf-8')
+    via = [] if os.environ.get('NT_ONLINE') == '1' else ['scratch_offline/run.py']
     p = subprocess.run(
-        [sys.executable, 'scratch_offline/run.py', 'scripts/fat_seed_runner.py', cmd, run, *extra],
+        [sys.executable, *via, 'scripts/fat_seed_runner.py', cmd, run, *extra],
         cwd=REPO, env=env, capture_output=True, text=True)
     return p.returncode, p.stdout + p.stderr
 
@@ -55,6 +64,7 @@ LIMIT_WAIT = 600  # seconds between retries while a usage limit is in force
 
 
 def _cli(args, system, prompt):
+    system = nt_lang.localise(system)  # NT_LANG: name the target language
     p = subprocess.run(
         ['claude', '-p', '--model', args.model, '--effort', args.effort,
          '--tools', '', '--no-session-persistence', '--output-format', 'json',

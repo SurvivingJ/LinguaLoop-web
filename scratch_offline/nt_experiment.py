@@ -24,7 +24,9 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OPT = os.path.join(REPO, 'data/exercise_seeding/ja/opt')
+# NT_LANG (ja | zh | en, default ja) picks the language's experiment directory;
+# the scripts this harness starts inherit it and name the language in their prompts.
+OPT = os.path.join(REPO, 'data/exercise_seeding', os.environ.get('NT_LANG', 'ja'), 'opt')
 GOLD = os.path.join(OPT, 'gold')
 csv.field_size_limit(10 ** 9)
 
