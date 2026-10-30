@@ -10,14 +10,23 @@ through the Supabase MCP `execute_sql` tool, read-only, in four steps:
     python3 scratch_offline/nt_snapshot.py queries --lang zh --sizes '<that JSON>'
         writes snap/_snapshot_zh.sql: numbered queries, one per page, each
         returning json_agg rows. Run them one at a time with execute_sql. Pages
-        are sized (~2 MB) so that every result is too large to show inline and
-        is saved to a tool-results file instead, keeping the rows out of the
-        conversation.
+        are sized (~2 MB) so that every result is too large to show inline.
+        EXPECT the tool to answer "Error: result (N characters ...) exceeds
+        maximum allowed tokens. Output has been saved to <path>": that is the
+        normal, successful case. Do NOT read the file (ignore the tool's advice
+        to slice it); pass <path> to `add`. Stop only on a real SQL error, or
+        if a page comes back inline.
     python3 scratch_offline/nt_snapshot.py add <saved result file> [...]
         merges each saved result into snap/<table>.json (rows replace rows
-        with the same key; other languages' rows are kept).
+        with the same key; other languages' rows are kept). The "-> N total"
+        it prints counts every language in the file; use `status` for one.
     python3 scratch_offline/nt_snapshot.py status --lang zh
-        local row counts per table, plus the SQL for the expected counts.
+        local row counts per table for the language, then the SQL (on its own
+        line) for the expected counts: run it and compare.
+    python3 scratch_offline/nt_snapshot.py reset --lang zh
+        removes the language's rows (and refreshes the shared tables on the
+        next `add`) before a re-snapshot, so rows deleted in the database do
+        not linger.
 
 Columns are the ones the scripts read, as in the Japanese snapshot. Embeddings,
 user ids and other unused columns are left out; snap/ is gitignored because it
@@ -71,7 +80,7 @@ def where(table, lang_id):
 def select(table, lang_id, part=None):
     key, cols, _ = TABLES[table]
     w = where(table, lang_id)
-    if part:
+    if part and part[1] > 1:
         k, n = part
         w += f' AND abs(hashtext({key}::text)) % {n} = {k}'
     return f'(SELECT json_agg(t) FROM (SELECT {cols} FROM {table} WHERE {w}) t)'
@@ -153,7 +162,29 @@ def cmd_status(args):
             n = sum(1 for r in rows if r.get('language_id') == lid)
         print(f'{t}: {n}')
     counts = ', '.join(f"'{t}', (SELECT count(*) FROM {t} WHERE {where(t, lid)})" for t in TABLES)
-    print(f'\nexpected counts: SELECT json_build_object({counts}) AS counts;')
+    print('\nexpected counts (run with execute_sql):')
+    print(f'SELECT json_build_object({counts}) AS counts;')
+
+
+def cmd_reset(args):
+    lid = nt_lang.language_id(args.lang)
+    vpath = os.path.join(SNAP, 'dim_vocabulary.json')
+    vocab = {r['id'] for r in json.load(open(vpath, encoding='utf-8'))
+             if r.get('language_id') == lid} if os.path.exists(vpath) else set()
+    for t in TABLES:
+        path = os.path.join(SNAP, f'{t}.json')
+        if not os.path.exists(path):
+            continue
+        rows = json.load(open(path, encoding='utf-8'))
+        if TABLES[t][2] is None:
+            keep = []  # shared tables are re-fetched whole by the base query
+        elif t == 'dim_word_senses':
+            keep = [r for r in rows if not (r.get('vocab_id') in vocab and r.get('definition_language_id') == lid)]
+        else:
+            keep = [r for r in rows if r.get('language_id') != lid]
+        with open(path, 'w', encoding='utf-8') as fh:
+            json.dump(keep, fh, ensure_ascii=False)
+        print(f'{t}: {len(rows) - len(keep)} rows removed, {len(keep)} kept')
 
 
 def main():
@@ -163,8 +194,10 @@ def main():
     p = sub.add_parser('queries'); p.add_argument('--lang', required=True); p.add_argument('--sizes', required=True)
     p = sub.add_parser('add'); p.add_argument('files', nargs='+')
     p = sub.add_parser('status'); p.add_argument('--lang', required=True)
+    p = sub.add_parser('reset'); p.add_argument('--lang', required=True)
     args = ap.parse_args()
-    {'sizes': cmd_sizes, 'queries': cmd_queries, 'add': cmd_add, 'status': cmd_status}[args.cmd](args)
+    {'sizes': cmd_sizes, 'queries': cmd_queries, 'add': cmd_add, 'status': cmd_status,
+     'reset': cmd_reset}[args.cmd](args)
 
 
 if __name__ == '__main__':
