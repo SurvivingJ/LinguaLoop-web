@@ -71,7 +71,11 @@ def main() -> int:
         ap.error('choose --dry-run or --apply')
     up = sr.load_json(os.path.join(a.run, 'sentence_refs', 'upload.json'))
     run_id = os.path.basename(os.path.normpath(a.run))
-    from services.supabase_factory import get_supabase_admin
+    from dotenv import load_dotenv
+    load_dotenv()
+    from services.supabase_factory import SupabaseFactory, get_supabase_admin
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     db = get_supabase_admin()
     by_test: dict[str, list[dict]] = {}
     for r in up['rows']:

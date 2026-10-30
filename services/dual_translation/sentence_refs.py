@@ -101,18 +101,27 @@ def attach_token_spans(spans: list[SentenceSpan], token_map: Optional[list]) -> 
         offsets.append((pos, pos + len(surf)))
         pos += len(surf)
     for sp in spans:
-        starts = [i for i, (a, _) in enumerate(offsets) if a == sp.char_start]
-        ends = [i for i, (_, b) in enumerate(offsets) if b == sp.char_end]
-        if starts and ends and ends[0] >= starts[0]:
-            sp.token_start, sp.token_end = starts[0], ends[0] + 1
-        else:
-            # allow leading/trailing whitespace tokens inside the span
-            inner = [i for i, (a, b) in enumerate(offsets) if a >= sp.char_start and b <= sp.char_end]
-            if inner and ''.join(token_map[i][0] for i in inner).strip() == sp.text:
-                sp.token_start, sp.token_end = inner[0], inner[-1] + 1
-            else:
-                sp.token_start = sp.token_end = None
-                warnings.append(f'sentence {sp.idx}: token map does not align with span {sp.char_start}-{sp.char_end}')
+        # A token belongs to the sentence when it overlaps the span and the part
+        # of it outside the span is whitespace only. English token maps attach
+        # the following space to sentence-final punctuation (". "), so that
+        # token straddles the boundary by one blank character.
+        members = []
+        for i, (a, b) in enumerate(offsets):
+            if b <= sp.char_start or a >= sp.char_end:
+                continue
+            surf = token_map[i][0]
+            outside = surf[:max(0, sp.char_start - a)] + surf[max(0, sp.char_end - a):]
+            if outside.strip():
+                members = None  # a token carries real text across the boundary
+                break
+            members.append(i)
+        if members:
+            inside = ''.join(token_map[i][0] for i in members)
+            if inside.strip() == sp.text:
+                sp.token_start, sp.token_end = members[0], members[-1] + 1
+                continue
+        sp.token_start = sp.token_end = None
+        warnings.append(f'sentence {sp.idx}: token map does not align with span {sp.char_start}-{sp.char_end}')
     return warnings
 
 

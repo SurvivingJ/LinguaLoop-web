@@ -4,7 +4,7 @@ feature: test-sentence-references
 prose_page: ../features/test-sentence-references.md
 tech_page: ../features/test-sentence-references.tech.md
 total_tasks: 12
-done: 10
+done: 11
 ---
 
 # Test Sentence References — Task Breakdown
@@ -18,7 +18,7 @@ Sequence: 900 → 901 → 902 → (903, 904, 905, 906 in parallel) → 907 pilot
 
 ## TASK-900: Transcript preamble audit and cleanup
 
-**Status:** [x] Done (repo) — audit run live read-only: 2 affected en tests (block-type preamble) + 1 orphaned `dt_passage` row; `--apply` is LIVE-DB and awaits approval
+**Status:** [x] Done (live 2026-10-30) — 2 en transcripts cleaned (backups in `data/transcript_cleanup/2026-10-30/`), `transcript_hash` on all 305 active tests, `dt_passage` 19 retired
 **Feature:** test-sentence-references
 **Type:** bug
 **Complexity:** S
@@ -54,7 +54,7 @@ Keep a JSON backup of every changed transcript under `data/transcript_cleanup/<d
 
 ## TASK-901: Migration — `test_sentences`, `test_sentence_references`, `dt_passage` range columns
 
-**Status:** [x] Done (repo) — migration + SQL test pass on a scratch Postgres 16; live apply awaits approval
+**Status:** [x] Done (live 2026-10-30) — both migrations applied; RLS on, client roles denied, constraint validated
 **Feature:** test-sentence-references
 **Type:** infra
 **Complexity:** S
@@ -85,7 +85,7 @@ only after approval, then the deny check as `authenticated`.
 
 ## TASK-902: Segmenter backfill — `scripts/build_test_sentences.py`
 
-**Status:** [x] Done (repo) — offline fixture mode verified on 7 tests; live backfill after TASK-901
+**Status:** [x] Done (live 2026-10-30) — 4,698 sentences (zh 2,084 / en 2,343 / ja 271); token spans null for 670 (tests with no word map, plus 26 ja sentences in 8 tests whose stored map no longer matches the transcript). Fixed en boundary tokens (". " straddles the span) before applying
 **Feature:** test-sentence-references
 **Type:** feature
 **Complexity:** M
@@ -252,7 +252,7 @@ page.
 
 ## TASK-907: Two-arm pilot (30 tests per language) and evaluation page
 
-**Status:** [x] Done — [[evaluations/sentence-refs-pilot-2026-10-30]]: arm = sentencewise, floors ja 0.65 / zh 0.70 / en 0.60; rows assembled, upload after TASK-901
+**Status:** [x] Done (live 2026-10-30) — [[evaluations/sentence-refs-pilot-2026-10-30]]; 2,072 references uploaded, sentencewise arm active (1,035 rows; the one failed zh sentence stays inactive), aligned arm inactive
 **Feature:** test-sentence-references
 **Type:** test
 **Complexity:** M

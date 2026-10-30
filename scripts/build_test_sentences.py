@@ -85,7 +85,11 @@ def run_fixture(path: str, out: str | None) -> int:
 
 
 def run_db(apply: bool, test_id: str | None) -> int:
-    from services.supabase_factory import get_supabase_admin
+    from dotenv import load_dotenv
+    load_dotenv()
+    from services.supabase_factory import SupabaseFactory, get_supabase_admin
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     db = get_supabase_admin()
     q = db.table('tests').select('id, language_id, transcript, vocab_token_map, transcript_hash').eq('is_active', True)
     if test_id:
