@@ -53,6 +53,35 @@ def test_token_spans_cover_sentences_exactly(fixture):
             assert joined.strip() == sp.text
 
 
+def test_token_straddling_boundary_with_whitespace_only_is_accepted():
+    tm = [['Hi', 1], ['. ', 0], ['Bye', 2], ['.', 0]]
+    spans = sr.segment_with_spans('Hi. Bye.', 'en')
+    assert sr.attach_token_spans(spans, tm) == []
+    assert [(s.token_start, s.token_end) for s in spans] == [(0, 2), (2, 4)]
+
+
+def test_token_carrying_text_across_boundary_is_rejected():
+    tm = [['Hi.B', 0], ['ye.', 0]]
+    spans = sr.segment_with_spans('Hi. Bye.', 'en')  # spans [0,3) and [4,8)
+    tm = [['Hi. B', 0], ['ye.', 0]]
+    warnings = sr.attach_token_spans(spans, tm)
+    assert len(warnings) == 2 and all(s.token_start is None for s in spans)
+
+
+def test_repair_token_map_reinserts_dropped_whitespace():
+    text = 'いしを つんで\nつくります。'
+    tm = [['いし', 7], ['を', 0], ['つん', 8], ['で', 0], ['つくり', 9], ['ます', 0], ['。', 0]]
+    fixed = sr.repair_token_map(text, tm)
+    assert ''.join(s for s, _ in fixed) == text
+    assert [x for x in fixed if x[1]] == [['いし', 7], ['つん', 8], ['つくり', 9]]
+    assert ['\n', 0] in fixed and [' ', 0] in fixed
+
+
+def test_repair_token_map_refuses_non_whitespace_drift():
+    assert sr.repair_token_map('abc def', [['abc', 1], ['xyz', 2]]) is None
+    assert sr.repair_token_map('abc def!', [['abc', 1], ['def', 2]]) is None
+
+
 def test_no_token_map_gives_null_spans():
     spans = sr.segment_with_spans('一。二。', 'zh')
     assert sr.attach_token_spans(spans, None) == ['no token map']
