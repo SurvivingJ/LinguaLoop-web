@@ -15,6 +15,10 @@ where documents lose points.
   学生, 电 in 电脑, 起来 in 一起来吧) or carry another reading. For 多音字, say
   the reading to yourself: 行 xíng/háng, 长 cháng/zhǎng, 得 dé/de/děi,
   重 zhòng/chóng, 还 hái/huán, 觉 jué/jiào, 种 zhǒng/zhòng.
+- Single characters that are mostly bound in modern Chinese (国, 语, 民, 业)
+  may appear only where they truly stand alone. 「他走过很多国」 is wrong:
+  use 国家. If no such context exists at the tier, skip the sense as a
+  fragment.
 - Respect the tier: count 汉字 (T1 ≤10, T2 ≤16, T3 ≤22, T4 ≤30, T5 ≤40). Grammar
   ceilings: T1 has no 了/着/过, T2 adds 了, T3 adds 着/过 and simple 把, and
   T4 adds 被 and 如果…就….
@@ -28,20 +32,29 @@ where documents lose points.
   forms, real 复合 words, 重叠 only if the word reduplicates, and 繁体 only
   when it differs.
 
-## 2. level_1 (listening): tone neighbours, real words
-- Correct = the headword. Distractors are real words that differ from it ONLY
-  in the tone of one syllable:
-  - One syllable: 妈 mā → 麻 má, 马 mǎ, 骂 mà; 买 mǎi → 卖 mài.
-  - Two syllables, one tone changed: 老师 lǎoshī → 老是 lǎoshì;
+## 2. level_1 (listening): sounds confusable, real words
+zh has no phonetic trie: a declined level_1 means the sense gets NO
+listening exercise. Find neighbours; declining is the last resort.
+- Correct = the headword. Each distractor is a real, common word that differs
+  from it by ONE thing in ONE syllable:
+  - **Tone:** 妈 mā → 麻 má, 马 mǎ, 骂 mà; 老师 lǎoshī → 老是 lǎoshì;
     主人 zhǔrén → 主任 zhǔrèn; 同意 tóngyì → 同一 tóngyī.
-  - Not valid: 练习 liànxí → 联系 liánxì, because both syllables change.
-- Never: a word with the same syllable AND tone (pure homophone), a synonym,
-  a non-word, a word that differs in the initial or final as well.
-- Explanation states the tone contrast: 「mǎ（第三声）与 mā（第一声）声调不同，意思是马」.
-- B uses different words. Another character with the same contrasting
-  syllable is fine: A 马 mǎ, B 码 mǎ. If a variant cannot get 3 real tone
-  neighbours unused by the other variant, write `{"declined":
-  "no_minimal_pairs"}` for that variant.
+  - **One sound:** an initial or final pair learners confuse, with the tone
+    the same or changed.
+    - n/l: 男 nán → 蓝 lán. z/zh, c/ch, s/sh: 四 sì → 是 shì.
+    - an/ang: 山 shān → 伤 shāng. en/eng: 门 mén → 盟 méng.
+    - in/ing: 心 xīn → 星 xīng.
+    - Two syllables: 地理 dìlǐ → 地利 dìlì (the tone of the second
+      syllable changes).
+- Never: a pure homophone (same sound AND tone, e.g. 地利/地力 are homophones
+  of each other: use only one per variant), a synonym, a non-word, a rare or
+  literary word (墨刑, 魔星), or a change in both syllables (练习 liànxí →
+  联系 liánxì).
+- Explanation states the contrast: 「mǎ（第三声）与 mā（第一声）声调不同，意思是马」;
+  「lán 与 nán 声母不同，意思是蓝色」.
+- B uses different words from A. Another character with the same contrasting
+  sound is fine: A 马 mǎ, B 码 mǎ. Decline (`{"declined": "no_minimal_pairs"}`)
+  only after trying tone AND one-sound neighbours on BOTH syllables.
 
 ## 3. level_6 wrong sentences: grammatical, wrong only in how THIS word is used
 Each wrong sentence reads as grammatical Chinese. A native speaker says
@@ -74,7 +87,9 @@ Each wrong sentence reads as grammatical Chinese. A native speaker says
   - 「他慢慢站下来了。」→「他慢慢站起来了。」
   - 「我买了三只书。」→「我买了三本书。」 (target 书)
 - The error must be one a native spots at once: a common learner error, not
-  something natives also say.
+  something natives also say. Patterns natives use are NOT errors (V过了 as in
+  看过了). The corrected sentence must itself be fully grammatical: re-check
+  the measure word and the rest of the sentence.
 - error_description, in Chinese, names the wrong form, the right form and why.
 
 ## 5. synonym_antonym_match: decline unless a dictionary lists the pair
