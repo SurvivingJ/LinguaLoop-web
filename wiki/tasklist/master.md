@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-10-18
+last_updated: 2026-10-30
 ---
 
 # Master Task List
@@ -19,12 +19,16 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 25 |
+| Not Started | 26 |
 | In Progress (`[~]`) | 11 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 219 |
+
+*2026-10-30 (executed, repo side):* TASK-900–907 Done (repo): migrations + SQL test, audit (2 affected en tests live), segmenter, runner, two skills, upload path, and the pilot ([[evaluations/sentence-refs-pilot-2026-10-30]]: arm = sentencewise, 2,072 reviewed references assembled). TASK-908 unblocked; TASK-909–911 Done (repo; two TASK-910 gaps noted in the tasks file). LIVE-DB applies still await approval.
+
+*2026-10-30 (NEW — Test Sentence References, TASK-900–911):* sentence-grain L1 references for every active transcript ([[decisions/ADR-037-sentence-level-l1-references]]), authored by Claude subagents through two new skills (word-asset pattern), reviewed blind with a tightness score, uploaded through the repo write path; OpenRouter stays live-grading only. Serves the Produce stage of [[features/test-prestudy]]. TASK-900 and TASK-901 are LIVE-DB (approval). TASK-908 Blocked on the pilot. See [[tasklist/test-sentence-references.tasks]]. Counts: Not Started 25→36, Blocked 27→28.
 
 *2026-10-14 (NEW — Weekly Minutes, TASK-885–896):* the Study Plan page's "practice done" counted vocabulary practice only; tests, flashcards, dual translation and out-of-session activity credited 0 minutes, the reader used the server week, and a missing weekly row dropped credit. Fix: event-row ledger `study_time_ledger` ([[decisions/ADR-035-study-time-ledger]]), measured clamped time per kind, page shows "Studied this week: X / Y min" + breakdown, current-week backfill. TASK-885, 886 and 896 are LIVE-DB (user approval to apply). Counts: Not Started 23→35 (+12). See [[features/weekly-minutes]], [[tasklist/weekly-minutes.tasks]].
 
@@ -1130,6 +1134,18 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-895 | weekly-minutes | Study Plan page: "Studied this week: X / Y min" + breakdown, i18n en/zh/ja/es | Done | M | TASK-892 |
 | TASK-896 | weekly-minutes | Integration, wiki sync and rollout (live apply approval-gated) | [ ] | M | TASK-885..895 |
 | TASK-899 | practice-extra-rounds | Apply practice_review_ahead.sql live and smoke-test (LIVE-DB, approval-gated) | [ ] | S | TASK-898 |
+| TASK-900 | test-sentence-references | Transcript preamble audit and cleanup (LIVE-DB, approval) | Done (repo) | S | — |
+| TASK-901 | test-sentence-references | Migration: test_sentences, test_sentence_references, dt_passage range columns (LIVE-DB) | Done (repo) | S | TASK-900 |
+| TASK-902 | test-sentence-references | Segmenter backfill `build_test_sentences.py` | Done (repo) | M | TASK-901 |
+| TASK-903 | test-sentence-references | Runner `sentence_ref_runner.py` + validators + tightness | Done (repo) | L | TASK-902 |
+| TASK-904 | test-sentence-references | Skill `sentence-reference-authoring` (Sonnet authors, two arms) | Done (repo) | S | TASK-903 |
+| TASK-905 | test-sentence-references | Skill `sentence-reference-review` (blind back-translation first; Opus sample) | Done (repo) | S | TASK-903 |
+| TASK-906 | test-sentence-references | Upload path `upload_sentence_references.py` | Done (repo) | S | TASK-901, TASK-903 |
+| TASK-907 | test-sentence-references | Two-arm pilot, 30 tests/language, evaluation page, tightness floor | Done (repo) | M | TASK-904, TASK-905, TASK-906 |
+| TASK-908 | test-sentence-references | Full run, all active tests, first L1 set; retire covered dt_passage rows | [ ] | L | TASK-907, TASK-901 live |
+| TASK-909 | test-sentence-references | Sentences endpoint, passage-from-sentences, primed-window selector | Done (repo) | M | TASK-901 |
+| TASK-910 | test-sentence-references | Grader target words → per-word contextual_use evidence | Done (repo) | M | TASK-909 |
+| TASK-911 | test-sentence-references | Preview and cloze use `test_sentences` | Done (repo) | S | TASK-902 |
 
 ### Language Packs (existing — unchanged)
 
