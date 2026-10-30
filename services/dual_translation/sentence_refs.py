@@ -125,6 +125,38 @@ def attach_token_spans(spans: list[SentenceSpan], token_map: Optional[list]) -> 
     return warnings
 
 
+def repair_token_map(transcript: str, token_map: list) -> Optional[list]:
+    """Re-insert whitespace that a tokenizer dropped from `token_map`.
+
+    Some Japanese word maps omit spaces and newlines, so their surfaces no
+    longer concatenate to the transcript. This walks both in step and adds the
+    missing whitespace back as [ws, 0] tokens (no sense link). Every existing
+    token, and its sense id, is kept unchanged and in order. Returns the
+    repaired map, or None when the difference is anything other than missing
+    whitespace (those maps need a real rebuild).
+    """
+    out: list = []
+    pos = 0
+    text = transcript or ''
+    for surf, sid in token_map:
+        ws = ''
+        while pos < len(text) and not text.startswith(surf, pos) and text[pos].isspace():
+            ws += text[pos]
+            pos += 1
+        if ws:
+            out.append([ws, 0])
+        if not text.startswith(surf, pos):
+            return None
+        out.append([surf, sid])
+        pos += len(surf)
+    tail = text[pos:]
+    if tail:
+        if tail.strip():
+            return None
+        out.append([tail, 0])
+    return out if ''.join(t for t, _ in out) == text else None
+
+
 def senses_in_span(token_map: list, token_start: int, token_end: int) -> list[int]:
     return [sid for _, sid in token_map[token_start:token_end] if sid]
 
