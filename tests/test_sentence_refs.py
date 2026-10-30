@@ -68,6 +68,20 @@ def test_token_carrying_text_across_boundary_is_rejected():
     assert len(warnings) == 2 and all(s.token_start is None for s in spans)
 
 
+def test_repair_token_map_reinserts_dropped_whitespace():
+    text = 'いしを つんで\nつくります。'
+    tm = [['いし', 7], ['を', 0], ['つん', 8], ['で', 0], ['つくり', 9], ['ます', 0], ['。', 0]]
+    fixed = sr.repair_token_map(text, tm)
+    assert ''.join(s for s, _ in fixed) == text
+    assert [x for x in fixed if x[1]] == [['いし', 7], ['つん', 8], ['つくり', 9]]
+    assert ['\n', 0] in fixed and [' ', 0] in fixed
+
+
+def test_repair_token_map_refuses_non_whitespace_drift():
+    assert sr.repair_token_map('abc def', [['abc', 1], ['xyz', 2]]) is None
+    assert sr.repair_token_map('abc def!', [['abc', 1], ['def', 2]]) is None
+
+
 def test_no_token_map_gives_null_spans():
     spans = sr.segment_with_spans('一。二。', 'zh')
     assert sr.attach_token_spans(spans, None) == ['no token map']

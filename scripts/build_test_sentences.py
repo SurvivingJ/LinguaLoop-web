@@ -126,16 +126,67 @@ def run_db(apply: bool, test_id: str | None) -> int:
     return 0
 
 
+def run_repair_maps(apply: bool) -> int:
+    """Re-insert whitespace dropped from word maps, then refresh token spans of
+    the existing sentence rows in place. Rows are updated, never recreated, so
+    their references (FK ON DELETE CASCADE) are kept."""
+    import datetime
+    from dotenv import load_dotenv
+    load_dotenv()
+    from services.supabase_factory import SupabaseFactory, get_supabase_admin
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
+    db = get_supabase_admin()
+    tests = db.table('tests').select('id, language_id, transcript, vocab_token_map').eq('is_active', True).execute().data or []
+    backup_dir = os.path.join(ROOT, 'data', 'token_map_repair', datetime.date.today().isoformat())
+    repaired = refused = spans_set = 0
+    for t in tests:
+        tm = t.get('vocab_token_map')
+        if not tm or ''.join(s for s, _ in tm) == (t.get('transcript') or ''):
+            continue
+        fixed = sr.repair_token_map(t['transcript'], tm)
+        if fixed is None:
+            refused += 1
+            log.warning('%s: map differs by more than whitespace; needs a real rebuild', t['id'][:8])
+            continue
+        code = sr.LANG_CODE.get(int(t['language_id']), 'en')
+        spans = sr.segment_with_spans(t['transcript'], code)
+        warnings = sr.attach_token_spans(spans, fixed)
+        rows = db.table('test_sentences').select('id, idx, char_start, char_end').eq('test_id', t['id']).order('idx').execute().data or []
+        by_idx = {sp.idx: sp for sp in spans}
+        ok_rows = [r for r in rows if r['idx'] in by_idx and by_idx[r['idx']].char_start == r['char_start'] and by_idx[r['idx']].char_end == r['char_end']]
+        log.info('%s: +%d whitespace tokens, %d/%d sentences now spanned, %d rows to update%s',
+                 t['id'][:8], len(fixed) - len(tm), sum(1 for sp in spans if sp.token_start is not None), len(spans),
+                 len(ok_rows), ('; warnings: ' + '; '.join(warnings)) if warnings else '')
+        repaired += 1
+        if not apply:
+            continue
+        os.makedirs(backup_dir, exist_ok=True)
+        sr.dump_json(os.path.join(backup_dir, f'{t["id"]}.json'), {'test_id': t['id'], 'vocab_token_map': tm})
+        db.table('tests').update({'vocab_token_map': fixed}).eq('id', t['id']).execute()
+        for r in ok_rows:
+            sp = by_idx[r['idx']]
+            db.table('test_sentences').update({'token_start': sp.token_start, 'token_end': sp.token_end}).eq('id', r['id']).execute()
+            spans_set += 1 if sp.token_start is not None else 0
+    log.info('%s: %d maps repaired, %d refused, %d sentence spans set', 'applied' if apply else 'dry run', repaired, refused, spans_set)
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--apply', action='store_true')
     ap.add_argument('--test-id')
+    ap.add_argument('--repair-token-maps', action='store_true', help='re-insert whitespace dropped from word maps and refresh spans in place')
     ap.add_argument('--fixture', help='offline: JSON with tests[] (id, language_id, transcript, vocab_token_map)')
     ap.add_argument('--out', help='with --fixture: write the span rows here')
     a = ap.parse_args()
     if a.fixture:
         return run_fixture(a.fixture, a.out)
+    if a.repair_token_maps:
+        if not (a.dry_run or a.apply):
+            ap.error('choose --dry-run or --apply')
+        return run_repair_maps(a.apply)
     if not (a.dry_run or a.apply):
         ap.error('choose --dry-run or --apply (or --fixture)')
     return run_db(a.apply, a.test_id)
