@@ -93,7 +93,7 @@ Every option gets an explanation. Exactly one is correct.
 
 | block | shape |
 |---|---|
-| `level_1` phonetic | `{"options": [4–8 options]}`. The correct option is the plan's `correct` (the headword); the distractors must sound like it (L1 is a **listening** exercise). For ja, pairs that differ only in pitch accent are NOT valid. Over-generate: a judge filters distractors and the item dies below 3 survivors. |
+| `level_1` phonetic | `{"options": [4–8 options]}`. The correct option is the plan's `correct` (the headword); the distractors must sound like it (L1 is a **listening** exercise). For ja, pairs that differ only in pitch accent are NOT valid. Over-generate: a judge filters distractors and the item dies below 3 survivors. Or `{"declined": "no_minimal_pairs"}` when the word has too few real one-mora neighbours for that variant. |
 | `level_3` cloze | `{"options": [4]}`. The correct option is the plan's `correct`, the form in the anchor sentence. Only it may fit the blank. |
 | `level_5` collocation gap | `{"options": [4]}`. The correct option is the plan's collocate; the distractors are genuine non-collocates. |
 | `level_6` semantic discrimination | `{"correct_sentence_index": <plan value>, "wrong_sentences": [{"text", "explanation"} ×3]}`. Each wrong sentence misuses the word (wrong sense or wrong usage), and is clearly wrong. |

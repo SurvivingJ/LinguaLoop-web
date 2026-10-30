@@ -323,7 +323,11 @@ def prepare_exercises(db, batch: dict, answers: dict[int, dict]) -> tuple[list[d
                 else:
                     p2_asset = p2_gen._remap_output(
                         raw_p2, variant['p2']['levels'], assignments)
-                    ok, errs = validator.validate_prompt2(p2_asset, active_levels)
+                    # A fat-seed answer may decline level_1 (too few real
+                    # minimal pairs); that level is then not required.
+                    declined = set(answer.get('declined_levels') or [])
+                    ok, errs = validator.validate_prompt2(
+                        p2_asset, [lv for lv in active_levels if lv not in declined])
                     if not ok:
                         errors.extend(f"[{variant_key}] {e}" for e in errs)
                     assets[f'prompt2_exercises_{variant_key}'] = p2_asset
