@@ -343,6 +343,7 @@ def block_descriptors(ctx: _Ctx, item: dict, content: dict, headword: str) -> di
             if lv == 1:
                 d['correct'] = headword
                 d['options'] = '4-8 (over-generate; a judge filters distractors)'
+                d['may_decline_with'] = fs.ESCAPE_TOKENS[name]
             elif lv == 6:
                 d.update({'correct_sentence_index': a.get(6),
                           'sentence': (sent(a.get(6)) or {}).get('sentence')})

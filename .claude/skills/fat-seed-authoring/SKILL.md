@@ -1,76 +1,159 @@
 ---
 name: fat-seed-authoring
-description: Cheap/fast path for building vocabulary-ladder exercises from a word list — spin up subagents that each write one named-field JSON document per word sense (core + every exercise block for variants A and B), validate them exactly as upload would, hand off to fat-seed-review in a fresh context, then assemble and upload. Use when asked to fat-seed words, build exercises quickly/cheaply from a word list, or author one JSON per word. The staged, live-prompt path is batch-exercise-authoring; this one trades the live prompt wording for one document per word.
+description: Production path for building vocabulary-ladder exercise assets for every sense of a language — one named-field JSON document per word sense (core + every exercise block for variants A and B), written and reviewed by headless `claude -p` calls with no tools (Sonnet core, Haiku audits/variants/patch review), validated exactly as upload would, assembled into SQL upload packages. Use when asked to fat-seed words, build or backfill exercise assets for a language (ja, zh, en), author one JSON per word, or run the authoring pipeline on a new language. The staged, live-prompt path is batch-exercise-authoring.
 ---
 
 # Fat-Seed Authoring
 
-One JSON document per word sense, written by a subagent, reviewed by a
-different subagent, then pushed through the **unchanged** upload path. You
-orchestrate: you run the commands, spawn the authors, relay errors, and hand
-off the review. You do not write the documents yourself, and you never review
-them.
+One JSON document per word sense, pushed through the **unchanged** upload
+path. Since October 2026 the documents are written by a script-driven,
+tool-free pipeline: each model call gets a prompt and returns JSON, the
+scripts write the files and run the validators. You orchestrate: export,
+build runs, launch the pipeline, watch it, sample its quality, package the
+SQL. You do not write or review documents yourself.
 
-Runner: `PYTHONIOENCODING=utf-8 python scripts/fat_seed_runner.py <cmd> RUN`
-(translation in `services/vocabulary_ladder/fat_seed.py`, tests in
-`tests/test_fat_seed.py`). **No step calls a hosted model API.** Every model
-call is a Claude subagent.
-
-Compared with `batch-exercise-authoring` (the staged chain), this path answers
-the rules of the live prompts, not the prompts themselves, in one document
-instead of five stages. Whether that costs quality has not been measured yet.
-Compare `review_summary.json` and the stage-8 reject rates against a staged
-run of similar words before scaling past a first slice.
-
-## Size first
-
-Agree the slice with the user before exporting. **Default: 8 senses, one
-language.** Anything larger is a scope conversation: each sense is roughly one
-long subagent turn of writing plus a review.
+Measured on Japanese (`data/exercise_seeding/ja/opt/REPORT.md`, 6,111 senses
+produced): **$0.045/sense** against $0.19 for the earlier Sonnet + Opus
+subagent path. A frozen Opus judge scored a 104-sense production sample at
+7.05/10, with 22% of senses carrying at least one item-breaking defect. The
+earlier path scored 7.67 and 14% on the 100-sense test set. Read the report
+before changing the configuration: most "obvious" improvements were measured
+and rejected.
 
 ## The chain
 
-| # | step | who |
+| # | step | command |
 |---|---|---|
-| 0 | `python scripts/export_exercise_worklist.py --language ja --format csv --limit 8 --out-dir data/exercise_seeding/ja/fatseed_NN` | you |
-| 1 | `brief RUN` → `RUN/fat_seed/briefs/core_NN.md` + `rules_core.md` | you |
-| 2 | author the cores, then the variants, one subagent per brief | **author subagents** |
-| 3 | `check RUN`: fix loop until `failed: 0` | you + authors |
-| 4 | `review-pack RUN`, then hand off | **fat-seed-review** (fresh subagent) |
-| 5 | `check RUN --source reviewed`, then `assemble RUN` | you |
-| 6 | `upload_exercises.py` core → exercises `--no-render`, dry run first | you |
-| 7 | stage 8 + render via `exercise_stage_runner.py` | batch-exercise-judging + you |
+| 0 | cheat sheet for the language exists | `.claude/skills/fat-seed-authoring/cheatsheets/<lang>.md` (see "New language") |
+| 1 | export the worklist | `python scripts/export_exercise_worklist.py --language <lang> --stage core --format csv --include-unreferenced --out-dir data/exercise_seeding/<lang>/fatseed_all` |
+| 2 | build runs (≤12 senses, a lemma's senses together) | `python3 scratch_offline/nt_make_runs.py data/exercise_seeding/<lang>/fatseed_all data/exercise_seeding/<lang>/wf2` |
+| 3 | author + review every run | `python3 scratch_offline/nt_pipeline.py --lang <lang> --workers 20` |
+| 4 | quality sample | `python3 scratch_offline/nt_judge.py RUN --source reviewed --model opus --effort medium --rubric 3` on ~10% of runs |
+| 5 | assemble + capture the uploader's writes | `python3 scratch_offline/assemble_all.py --lang <lang>` |
+| 6 | package the SQL | `python3 scratch_offline/package_upload.py data/exercise_seeding/<lang>/payload_wf/writes.jsonl data/exercise_seeding/<lang>/upload --lang <lang>` |
+| 7 | apply, verify, render | `psql … -f upload/apply_all.sql`, `verify.sql`, then stage 8 + render (below) |
 
-`status RUN` shows where every sense stands.
+Steps 2–6 resume: re-running a step skips finished work and never re-pays.
 
-## Step 2: spawning the authors
+## Prerequisites
 
-One subagent per brief file (6 senses each by default; `brief --width N`).
-They are independent, so launch them together in the background. The prompt
-is the brief's path plus this skill's block reference, nothing about other
-briefs:
+- **Models:** the `claude` CLI on PATH; every call is `claude -p --tools ""`
+  with a system prompt. Usage limits are handled: `call_model` waits 10 min
+  and retries. A malformed JSON reply is retried once.
+- **Database:** the runner (`scripts/fat_seed_runner.py`: `brief`, `plan`,
+  `check`, `assemble`) reads `dim_word_senses`, `prompt_templates` etc.
+  - With network access to Supabase, set `NT_ONLINE=1` plus `SUPABASE_URL` /
+    `SUPABASE_KEY`, and the scripts call it directly. Exports and uploads use
+    the same credentials.
+  - Without it, as in a Claude Code cloud container, everything goes through
+    the offline shim `scratch_offline/run.py`. The shim serves reads from
+    `scratch_offline/snap/<table>.json` (gitignored: they hold table rows)
+    and records writes to `writes.jsonl` instead of executing them.
+  - To snapshot a language through the Supabase MCP, run one
+    `SELECT json_agg(t) AS <table> FROM (…rows for that language…) t` per
+    table. Then run `python3 scratch_offline/spill.py <saved tool result> <table>`.
+  - Tables to snapshot: `dim_languages`, `dim_vocabulary`, `dim_word_senses`,
+    `prompt_templates`, `tests`, `exercises`, `word_assets`,
+    `corpus_collocations`, `calibration_anchor_blocklist`. Check
+    `snap/_queries.log` for `MISSING` tables after a dry run.
+- **Lints:** `nt_pipeline.py` sets `FAT_SEED_LINT_ALL_BLOCKS=1` with
+  `FAT_SEED_LINT_SKIP=l3_generic_expl,l6_shared_expl,l6_copied_expl,l7_edit_far`.
+  It keeps only the rules that paid for themselves: A/B overlap, level_7
+  twin, particle slot, level_7 error on the target.
 
-> You are authoring vocabulary-ladder exercises for LinguaLoop. Work only
-> from files; make no API calls.
->
-> Phase 1: read `RUN/fat_seed/briefs/core_NN.md` and the rules file it names.
-> Write `RUN/fat_seed/words/<sense_id>.json` (the `core` only) for every
-> sense in it.
->
-> Phase 2: run `PYTHONIOENCODING=utf-8 python scripts/fat_seed_runner.py plan
-> RUN --senses <your ids>`. For each sense, read
-> `RUN/fat_seed/plans/<sid>.json` and `RUN/fat_seed/rules_exercises.md`.
-> Add `variants` to the same document: every block the plan lists for A and
-> for B, in the shapes in `.claude/skills/fat-seed-authoring/SKILL.md`
-> ("Block reference"). A plan with `"ok": false` means your core failed
-> validation. Fix the core and re-run `plan` for that sense.
->
-> Phase 3: run `… fat_seed_runner.py check RUN --senses <your ids>` and fix
-> until every sense is `ok`. Report the final check line.
+## What one run does (`nt_pipeline.py` → `nt_author.py` → `nt_review.py`)
 
-If the subagent's Bash is denied, run `plan` / `check` yourself and send the
-output back to **the same subagent** with SendMessage. Its context holds the
-sense and the rules; a fresh agent would re-derive them.
+1. `brief`, then **core**: Sonnet/low writes each sense's core (definition,
+   10 sentences with the mined ones byte-for-byte, POS, register, forms).
+   The core anchors every block, and Haiku confuses sibling senses of the
+   same lemma here; that was 0.26 vs 0.06 fatal share in production. Do not
+   move the core to Haiku.
+2. **core audit** (Haiku): reading / whole-word / sense / natural per sentence,
+   regenerating failures. This takes core fatals below the earlier pipeline.
+3. `plan`: code fixes each block's anchor sentence, answer and `given` values.
+4. **variants** (Haiku/medium, 4 senses per call): every block the plan lists
+   for A and B, in the Block reference shapes below. For ja, level_1 is
+   declined in code (`--skip-l1`), because the renderer builds it from the ja
+   phonetic trie. zh and en have no trie, so their level_1 is authored and the
+   cheat sheet must cover it.
+5. **variant audit + level_6 audit** (Haiku): level_6 "wrong" sentences must
+   be natural-sounding sense misuses, and level_7 must have one span on the
+   target. This is the largest quality gain per dollar.
+6. `check` and up to 2 repair rounds for validator failures only.
+7. **patch review** (Haiku/medium, no tools): it returns RFC 6902 JSON-Patch
+   operations, never whole documents. Patched blocks are shape-validated and
+   declines preserved. `check --source reviewed` follows, with one repair round.
+
+Configuration lives in `scratch_offline/nt_pipeline.py` (`AUTHOR_ARGS`,
+`REVIEW_ARGS`, `LINT_ENV`). Each call is logged with its cost in
+`RUN/fat_seed/nt_usage.jsonl`.
+
+## Running it
+
+- Launch detached so a session restart does not kill it:
+  `setsid nohup python3 scratch_offline/nt_pipeline.py --lang ja --workers 20 >> LOG 2>&1 < /dev/null & disown`.
+  It prints `RUN <dir>: final reviewed check {...}` per run and `PIPELINE DONE`.
+- **Workers:** each run is ~35 min of serial model calls; 20–32 workers gives
+  ~50 runs/hour. The account's 5-hour usage limit, not the machine, is the
+  ceiling. More workers only reach it sooner.
+- **Restarting:** stop the pipeline and its children (`nt_pipeline`,
+  `nt_author`, `nt_review`, `claude -p`), delete any truncated JSON written in
+  the last minutes, relaunch the same command. Authoring resumes from
+  `words/`, review resumes with `--resume`, and audits keep their state in
+  `audit_*.json`.
+- **QA:** judge ~4 random finished runs at a time (~45 senses, ~$3). Steer by
+  the share of senses with ≥1 fatal. It is the stable metric; minors are noise.
+  Judge records carry a document hash, so re-running the judge after a
+  re-review re-judges only changed senses.
+
+## Afterwards
+
+- `assemble` drops a sense when the reviewer said `rewrite` but changed nothing.
+  Re-review those senses: move their `review/` and `reviewed/` files aside,
+  run `nt_review.py RUN RUN --model haiku --effort medium --resume`, then
+  delete `RUN/07_upload/` and `RUN/upload_writes.jsonl` and re-assemble.
+  This recovered 179 of 209 senses on ja.
+- Senses that still fail: retry the model-omission failures once in a fresh
+  run (`nt_make_runs.py` picks them up). `plan: no LLM-authored level is
+  active` cannot be fixed by authoring.
+- **Rejected cores** are dictionary-data problems (duplicate sibling senses,
+  wrong headword/POS, definition ≠ usage). List them in
+  `data/exercise_seeding/<lang>/issues/` for the user; regenerating does not
+  fix them.
+- **Packages:** `package_upload.py` writes `apply_all.sql` (one transaction),
+  ~1 MB `chunks/` (each its own transaction, for the Supabase SQL editor),
+  `word_assets.csv`, `verify.sql` and a README. Use `--exclude-csv
+  <earlier>/word_assets.csv` for a delta. Files over 50 MB do not belong in
+  git: commit the chunks, or `gzip -9` the SQL (≈7× smaller). Archive the
+  JSON records (`words/`, `reviewed/`, `review/`, `senses.csv`) as a tar.gz.
+- **Upload and render** stay exactly as the staged chain: `--source-model
+  claude-code:fat-seed`, core before exercises, `--no-render`. Then
+  `python scripts/exercise_stage_runner.py prepare RUN --stage 8`, hand off
+  to `batch-exercise-judging`, then `collect`, `render --dry-run`, `render`.
+  Verify `count(*) = count(word_asset_id)` on `exercises`.
+
+## New language
+
+1. **Cheat sheet:** write `cheatsheets/<lang>.md` following
+   `cheatsheets/README.md`. Copy the five-section structure of `ja.md` and
+   replace the Japanese examples and rules with the language's own.
+   `nt_pipeline.py` refuses to start without one.
+2. **Prompts:** set `--lang` (or `NT_LANG`). The system prompts name the
+   language automatically: they say "Japanese" and are localised, while
+   Japanese stays byte-identical.
+3. **Blocks differ:** `particle_selection` is ja-only and `word_family`
+   en-only. The plan decides which blocks a sense gets, so nothing to configure.
+   level_1 is authored unless the language has a phonetic trie
+   (`TRIE_LANGS` in `nt_pipeline.py`; ja only today).
+4. **Validate before scaling:** export a 100-sense gold set with one sense
+   per lemma, but keep siblings together the way production runs do. Run it
+   with `NT_LANG=<lang> python3 scratch_offline/nt_experiment.py <arm>
+   --gold gold100 --chunks 8 --judge-model opus --judge-effort medium
+   --judge-rubric 3 …`, and compare against an arm using the earlier
+   configuration on the same senses. Differences under ~0.55 points on 100
+   senses are noise. Fix the cheat sheet where the defect classes cluster
+   (`nt_experiment.py --loss <arm> --against <baseline>`).
+5. Then run the chain from step 1.
 
 ## Block reference
 
@@ -93,7 +176,7 @@ Every option gets an explanation. Exactly one is correct.
 
 | block | shape |
 |---|---|
-| `level_1` phonetic | `{"options": [4–8 options]}`. The correct option is the plan's `correct` (the headword); the distractors must sound like it (L1 is a **listening** exercise). For ja, pairs that differ only in pitch accent are NOT valid. Over-generate: a judge filters distractors and the item dies below 3 survivors. |
+| `level_1` phonetic | `{"options": [4–8 options]}`. The correct option is the plan's `correct` (the headword); the distractors must sound like it (L1 is a **listening** exercise). For ja, pairs that differ only in pitch accent are NOT valid. Over-generate: a judge filters distractors and the item dies below 3 survivors. Or `{"declined": "no_minimal_pairs"}` when the word has too few real one-mora neighbours for that variant. |
 | `level_3` cloze | `{"options": [4]}`. The correct option is the plan's `correct`, the form in the anchor sentence. Only it may fit the blank. |
 | `level_5` collocation gap | `{"options": [4]}`. The correct option is the plan's collocate; the distractors are genuine non-collocates. |
 | `level_6` semantic discrimination | `{"correct_sentence_index": <plan value>, "wrong_sentences": [{"text", "explanation"} ×3]}`. Each wrong sentence misuses the word (wrong sense or wrong usage), and is clearly wrong. |
@@ -108,59 +191,27 @@ A and B must be written independently. A B that copies A is worse than none.
 Only the blocks with a `may_decline_with` in the plan can be declined, and
 only with that token.
 
-## Step 3: check
-
-`check RUN` runs every gate the uploader runs: the P1 remap and validator,
-tier screen, collocate grounding, the P2/P3 validators and the L4/L8/typed
-schema gates. Errors name the variant and block (`[B] level_3: missing`).
-Send each sense's errors to its author subagent. Repeat until
-`check (words): {'ok': N}`, with skips allowed.
-
-## Step 4: the review hand-off
-
-`review-pack RUN` writes `RUN/fat_seed/review_packs/review_NN.md`. For each
-pack, launch a **new** subagent whose entire prompt is:
-
-> Use the fat-seed-review skill on run directory `RUN`, pack `review_NN.md`.
-
-Nothing else: not what the authors struggled with, not which items worry you.
-A reviewer who knows the authoring reasoning is already committed to it.
-
-## Step 5: assemble
-
-`check RUN --source reviewed`, then `assemble RUN`. It refuses to assemble if:
-
-- **RUBBER STAMP**: the review changed nothing in any document. Re-run the
-  review in a fresh context. Do not edit a document to get past it.
-- A `rewrite` verdict has an unchanged document, or a reviewed document fails
-  validation. That sense is dropped, with the reason in `07_upload/dropped.json`.
-
-`reject` verdicts are dropped by design. `RUN/fat_seed/review_summary.json`
-records what the review changed per sense. Report it to the user; it is the
-quality signal for this path.
-
-## Steps 6–7: upload, then the renderer's judges
-
-Exactly as the staged chain (see `batch-exercise-authoring` §7–8). `assemble`
-prints the upload commands with `--source-model claude-code:fat-seed`, so
-fat-seed assets are distinguishable in `word_assets`. Dry run first, core
-before exercises, **always `--no-render`**. Then:
-
-1. `python scripts/exercise_stage_runner.py prepare RUN --stage 8`: hand off
-   to `batch-exercise-judging` (fresh subagent), then `collect RUN --stage 8`.
-2. `render RUN --dry-run`; repeat step 1 until `0 sense(s) blocked`.
-3. `render RUN`, then verify:
-   `select count(*), count(word_asset_id) from exercises where word_sense_id in (…)`.
-   The two counts must be equal.
-
 ## Hard rules
 
-- **You never author and never review.** Authors and the reviewer are
-  separate subagents, and the reviewer never sees the authoring conversation.
 - Never hand-edit `plans/`, `senses.csv`, `prompts.json` or `07_upload/`.
   A wrong plan is fixed in the core (`semantic_class`, `primary_collocate`,
   `morphological_forms`), never in the plan file.
 - Mined sentences stay byte-identical, or they silently become `generated`.
+- Launch a run directory exactly once at a time: two writers corrupt it.
 - Never insert into `exercises`; never render a sense that already has rows.
-- One run directory per slice, and never mix this path and the staged chain
-  in the same `RUN`.
+- Never write to the live database from this pipeline; it produces SQL
+  packages that the user applies.
+- Do not change models, effort or prompts in the production configuration
+  without a gold-set comparison under the frozen judge. Long rule lists, higher
+  effort, split A/B calls, extra repair rounds and second review passes were
+  all measured and made things worse or cost more for nothing (`opt/REPORT.md`).
+
+## Small slices: the subagent path
+
+For a handful of senses without the CLI pipeline, the runner still supports
+the original flow: `brief RUN` → author subagents write
+`RUN/fat_seed/words/<sid>.json` (core, then `plan RUN`, then variants) →
+`check RUN` until `ok` → `review-pack RUN` → a fresh subagent runs the
+fat-seed-review skill per pack → `check RUN --source reviewed` → `assemble RUN`.
+`status RUN` shows where every sense stands. Authors and reviewers must be
+separate subagents.
