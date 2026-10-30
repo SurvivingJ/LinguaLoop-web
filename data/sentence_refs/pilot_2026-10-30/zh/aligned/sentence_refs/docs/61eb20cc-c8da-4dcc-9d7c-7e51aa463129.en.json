@@ -1,0 +1,106 @@
+{
+ "test_id": "61eb20cc-c8da-4dcc-9d7c-7e51aa463129",
+ "l2": "zh",
+ "l1": "en",
+ "arm": "aligned",
+ "prompt_version": "sr-1.0",
+ "author_model": "claude-sonnet-5-5",
+ "sentences": [
+  {
+   "idx": 0,
+   "l2": "在现代航空工程的精密体系中，飞行器的设计本质上是物理法则的艺术化应用，尤其是空气动力学原理在其中占据了核心地位。",
+   "l1": "In the precise system of modern aeronautical engineering, aircraft design is in essence an artistic application of physical laws, and aerodynamic principles in particular occupy a central position within it."
+  },
+  {
+   "idx": 1,
+   "l2": "当一架飞机在大气层中穿行时，其机翼与气流之间的相互作用决定了飞行的基本可行性。",
+   "l1": "When an aircraft travels through the atmosphere, the interaction between its wings and the airflow determines the basic feasibility of flight."
+  },
+  {
+   "idx": 2,
+   "l2": "这一过程的核心在于升力的生成机制——机翼上表面的气流因曲率较大而流速加快，导致压力降低；相比之下，下表面的气流流速较慢，压力相对较高。",
+   "l1": "The core of this process lies in the mechanism of lift generation: the airflow over the upper surface of the wing speeds up because of the greater curvature, causing the pressure to drop; by comparison, the airflow over the lower surface moves more slowly and the pressure is relatively higher."
+  },
+  {
+   "idx": 3,
+   "l2": "这种压力差垂直于气流方向，形成向上的净力，即升力。",
+   "l1": "This pressure difference is perpendicular to the direction of the airflow and forms an upward net force, namely lift."
+  },
+  {
+   "idx": 4,
+   "l2": "根据伯努利定理，流体速度的增加必然伴随着静压的减小，这为升力提供了经典物理解释。",
+   "l1": "According to Bernoulli's theorem, an increase in fluid velocity is necessarily accompanied by a decrease in static pressure, which provides a classical physical explanation for lift."
+  },
+  {
+   "idx": 5,
+   "l2": "然而，仅依赖伯努利原理并不足以完全描述复杂的真实流动现象，因此现代空气动力学更倾向于结合牛顿第三定律进行综合分析：机翼通过攻角向下偏转气流，气流则以相等且反向的力推动机翼上升，从而产生升力。",
+   "l1": "However, relying only on Bernoulli's principle is not enough to fully describe complex real flow phenomena, so modern aerodynamics tends more toward a combined analysis incorporating Newton's third law: the wing deflects the airflow downward through the angle of attack, and the airflow in turn pushes the wing upward with an equal and opposite force, thereby producing lift."
+  },
+  {
+   "idx": 6,
+   "l2": "飞行过程中，升力并非唯一作用于飞机的力。",
+   "l1": "During flight, lift is not the only force acting on the aircraft."
+  },
+  {
+   "idx": 7,
+   "l2": "与之同时存在的还有阻力，这是空气对飞机前进运动施加的反向力，可细分为压差阻力、摩擦阻力以及诱导阻力等多种类型。",
+   "l1": "Coexisting with it is drag, which is the opposing force that air exerts on the aircraft's forward motion, and which can be subdivided into several types, such as pressure drag, friction drag and induced drag."
+  },
+  {
+   "idx": 8,
+   "l2": "压差阻力源于飞机前后方的压力不平衡，尤其在机身截面剧烈变化处尤为显著；摩擦阻力则来源于空气分子与飞机表面之间的黏性剪切作用，受表面粗糙度和雷诺数影响极大；而诱导阻力则是升力的副产品，由翼尖涡流引起局部下洗气流所致，其强度随升力增大而增强。",
+   "l1": "Pressure drag arises from the pressure imbalance between the front and rear of the aircraft, and is especially pronounced where the fuselage cross-section changes sharply; friction drag comes from the viscous shear between air molecules and the aircraft surface, and is greatly affected by surface roughness and the Reynolds number; and induced drag is a by-product of lift, caused by the local downwash induced by wingtip vortices, and its strength increases as lift increases."
+  },
+  {
+   "idx": 9,
+   "l2": "为了实现高效巡航，航空工程师必须在气动构型上进行精细权衡，以最大化升阻比——即单位阻力下所能产生的升力，这是衡量飞行效率的关键指标。",
+   "l1": "To achieve efficient cruising, aeronautical engineers must make fine trade-offs in the aerodynamic configuration in order to maximize the lift-to-drag ratio, that is, the lift that can be produced per unit of drag, which is a key indicator of flight efficiency."
+  },
+  {
+   "idx": 10,
+   "l2": "从工程实现的角度看，飞机的设计是一场多学科耦合的优化博弈。",
+   "l1": "From the perspective of engineering implementation, aircraft design is a multidisciplinary coupled optimization game."
+  },
+  {
+   "idx": 11,
+   "l2": "材料科学的进步使得复合材料得以广泛应用，不仅减轻了结构重量，还增强了疲劳耐久性；计算流体动力学（CFD）的发展则使工程师能够在虚拟风洞中模拟极端工况下的气动性能，从而在原型制造前完成多轮迭代。",
+   "l1": "Advances in materials science have allowed composite materials to be widely used, which has not only reduced structural weight but also enhanced fatigue durability; the development of computational fluid dynamics, CFD, in turn enables engineers to simulate aerodynamic performance under extreme conditions in a virtual wind tunnel, thereby completing multiple rounds of iteration before prototype manufacturing."
+  },
+  {
+   "idx": 12,
+   "l2": "此外，主动流动控制技术，如边界层吸入或合成射流，正在被探索用于实时调节气流分离，进一步延展飞行包线。",
+   "l1": "In addition, active flow control technologies, such as boundary layer suction or synthetic jets, are being explored for adjusting flow separation in real time, further extending the flight envelope."
+  },
+  {
+   "idx": 13,
+   "l2": "这些前沿技术的背后，是对纳维-斯托克斯方程组的深入求解，其非线性特性使得湍流建模至今仍是物理学界未完全攻克的难题。",
+   "l1": "Behind these cutting-edge technologies is the in-depth solution of the Navier-Stokes equations, whose nonlinear nature makes turbulence modeling to this day a problem that the physics community has not fully conquered."
+  },
+  {
+   "idx": 14,
+   "l2": "值得注意的是，即便在自动驾驶与人工智能高度集成的现代客机中，空气动力学的基本物理规律依然不可违背。",
+   "l1": "It is worth noting that even in modern airliners highly integrated with autopilot and artificial intelligence, the basic physical laws of aerodynamics still cannot be violated."
+  },
+  {
+   "idx": 15,
+   "l2": "飞行员或飞控系统所执行的所有操纵动作——无论是俯仰、滚转还是偏航——最终都归结为对气动力矩的精确调控。",
+   "l1": "All the control actions performed by pilots or flight control systems, whether pitch, roll or yaw, ultimately come down to the precise regulation of aerodynamic moments."
+  },
+  {
+   "idx": 16,
+   "l2": "飞机在不同飞行阶段（如起飞、巡航、降落）所面临的气动挑战各异，要求机翼形态（如襟翼与缝翼的展开）能够动态适应。",
+   "l1": "The aerodynamic challenges that an aircraft faces in different flight phases, such as takeoff, cruise and landing, differ, requiring the wing shape, such as the extension of flaps and slats, to adapt dynamically."
+  },
+  {
+   "idx": 17,
+   "l2": "由此观之，航空工程不仅是技术的集合体，更是人类对自然法则深刻理解的外化表现。",
+   "l1": "From this it can be seen that aeronautical engineering is not only a collection of technologies, but also an externalized expression of humanity's deep understanding of the laws of nature."
+  },
+  {
+   "idx": 18,
+   "l2": "每一次平稳起降，都是对物理定律严谨遵循的结果，也彰显了工程智慧在复杂系统中实现可控性的卓越能力。",
+   "l1": "Every smooth takeoff and landing is the result of strict adherence to the laws of physics, and also demonstrates the outstanding ability of engineering wisdom to achieve controllability in complex systems."
+  }
+ ],
+ "author_notes": ""
+}

@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-10-14
+last_updated: 2026-10-30
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -637,6 +637,7 @@ Generated comprehension tests with transcript, audio, and vocabulary annotations
 | `age_tier_model` | text | YES | | Dated jev snapshot that served the answer |
 | `age_tier_calibration` | text | YES | | Which score→tier table: `default`, `ja-2026-09-27`, `zh-2026-09-27` |
 | `age_tier_assessed_at` | timestamptz | YES | | |
+| `transcript_hash` | text | YES | | Hex sha256 of `transcript`, written by `scripts/audit_transcript_preambles.py` for every active test and read by the sentence segmenter to detect transcript changes (TASK-900, `migrations/tests_transcript_hash.sql`, **planned — not yet applied live**). No trigger: transcripts are edited only by admin tooling. See [[features/test-sentence-references.tech]] |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
 
@@ -646,7 +647,7 @@ Generated comprehension tests with transcript, audio, and vocabulary annotations
 - **Foreign Keys:** `gen_user` -> `users.id`, `language_id` -> `dim_languages.id`, `organization_id` -> `organizations.id`, `topic_id` -> `topics.id`
 - **Triggers:** BEFORE UPDATE -> `update_updated_at_column()`
 - **RLS:** Enabled
-- **Referenced by:** test_attempts, questions, test_skill_ratings, token_transactions, user_reports
+- **Referenced by:** test_attempts, questions, test_skill_ratings, token_transactions, user_reports, test_sentences (planned, TASK-901)
 
 
 **Tier backup tables** (service role only: RLS on, no policies). Restore statements are in `migrations/task819_jev_tier_assignment.sql` and `task821_tier_calibration.sql`.
@@ -1991,6 +1992,80 @@ AI-generated content flagged by safety checks.
 
 ---
 
+## 11. Test Sentence References (TASK-901 — planned, migration written, not applied live)
+
+Sentence-level L2 segmentation of test transcripts and their L1 reference translations
+([[features/test-sentence-references.tech]], [[decisions/ADR-037-sentence-level-l1-references]]).
+Migration: `migrations/test_sentence_references_schema.sql`; SQL test:
+`tests/sql/test_sentence_references.sql`. Both tables are service-role only (RLS on, every
+client privilege revoked, no policies — [[decisions/ADR-034-no-client-db-writes]]).
+
+### `test_sentences`
+
+One row per sentence of an active test's transcript, written by `scripts/build_test_sentences.py` (TASK-902).
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | bigint | NO | identity | PK |
+| `test_id` | uuid | NO | | FK -> tests ON DELETE CASCADE |
+| `idx` | smallint | NO | | 0-based sentence index. CHECK >= 0. UNIQUE (test_id, idx) |
+| `char_start` | integer | NO | | Half-open code-point span in `tests.transcript`. CHECK >= 0 |
+| `char_end` | integer | NO | | CHECK char_end > char_start |
+| `token_start` | integer | YES | | Half-open span in `tests.vocab_token_map`. NULL when the test has no token map |
+| `token_end` | integer | YES | | CHECK: both token_* NULL, or both set with token_end > token_start >= 0 |
+| `l2_text` | text | NO | | The sentence, terminator attached. CHECK length > 0; trigger enforces `l2_text = substr(transcript, char_start+1, char_end-char_start)` |
+| `transcript_hash` | text | NO | | sha256 of the transcript at segmentation time; differs from `tests.transcript_hash` when the rows are stale |
+| `created_at` | timestamptz | YES | now() | |
+
+- **Primary Key:** `test_sentences_pkey (id)`
+- **Unique:** `test_sentences_test_id_idx_key (test_id, idx)`
+- **Indexes:** `idx_test_sentences_test_idx (test_id, idx)`
+- **Foreign Keys:** `test_id` -> `tests.id` (CASCADE)
+- **Triggers:** BEFORE INSERT OR UPDATE OF test_id, char_start, char_end, l2_text -> `test_sentences_check_l2_text()` (check_violation on mismatch or span past the transcript end)
+- **RLS:** Enabled, no policies; `REVOKE ALL FROM PUBLIC, anon, authenticated`; `GRANT ALL TO service_role`
+- **Referenced by:** test_sentence_references
+
+### `test_sentence_references`
+
+L1 reference translations per sentence, with authoring/review provenance. At most one active row per (sentence, L1).
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | bigint | NO | identity | PK |
+| `sentence_id` | bigint | NO | | FK -> test_sentences ON DELETE CASCADE |
+| `l1_language_id` | smallint | NO | | FK -> dim_languages |
+| `l1_text` | text | NO | | The reference. CHECK length > 0; trigger rejects the test's L2 script (Han for zh; Han or kana for ja; none for en) |
+| `author_model` | text | NO | | e.g. `claude-sonnet-5-5` (the authoring subagent's model) |
+| `prompt_version` | text | NO | | Skill version string, e.g. `sr-1.0` |
+| `arm` | text | YES | | CHECK: `sentencewise` \| `aligned` (pilot) or NULL |
+| `reviewer_model` | text | YES | | |
+| `review_verdict` | text | NO | 'pending' | CHECK: `pending` \| `pass` \| `rewritten` \| `fail` |
+| `tightness` | real | YES | | Tier 0 similarity of the reviewer's blind back-translation to `l2_text`. CHECK 0–1 |
+| `entailment_ok` | boolean | YES | | Reviewer's mutual-entailment judgement |
+| `is_active` | boolean | NO | false | Partial unique index: one active row per (sentence_id, l1_language_id) |
+| `run_id` | text | YES | | RUN directory name (provenance) |
+| `created_at` | timestamptz | YES | now() | |
+
+- **Primary Key:** `test_sentence_references_pkey (id)`
+- **Unique:** `uq_test_sentence_references_active (sentence_id, l1_language_id) WHERE is_active`
+- **Indexes:** `idx_test_sentence_references_sentence (sentence_id, l1_language_id)`, `idx_test_sentence_references_run (run_id WHERE NOT NULL)`
+- **Foreign Keys:** `sentence_id` -> `test_sentences.id` (CASCADE), `l1_language_id` -> `dim_languages.id`
+- **Triggers:** BEFORE INSERT OR UPDATE OF sentence_id, l1_text -> `test_sentence_references_check_l1_script()` (looks up the test's `dim_languages.language_code` through the sentence; check_violation on a script leak)
+- **RLS:** Enabled, no policies; `REVOKE ALL FROM PUBLIC, anon, authenticated`; `GRANT ALL TO service_role`
+
+### `dt_passage` — columns added by the same migration
+
+`dt_passage` itself is specified in [[features/dual-translation.tech]] (`migrations/dual_translation_groundwork.sql`). TASK-901 adds:
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `sentence_start` | smallint | YES | | Inclusive first `test_sentences.idx` of the passage within `source_ref_id`. NULL on pre-existing rows |
+| `sentence_end` | smallint | YES | | Inclusive last index. CHECK `dt_passage_sentence_range_chk`: both NULL, or both set with 0 <= sentence_start <= sentence_end (added NOT VALID, then validated) |
+
+- **Unique:** `uq_dt_passage_sentence_range (source_ref_id, sentence_start, sentence_end) WHERE both NOT NULL` — a sentence range of a test is extracted once and reused.
+
+---
+
 ## Enum Types
 
 ### `exercise_source_type`
@@ -2040,6 +2115,8 @@ Exercise accuracy percentages grouped by exercise type, complexity tier, and lan
 | `test_attempts` | AFTER INSERT | -- | `update_test_attempts_count()` | O(1) increment tests.total_attempts (Phase 3: was COUNT(*)) |
 | `test_attempts` | AFTER INSERT | -- | `update_skill_attempts_count()` | O(1) increment test_skill_ratings.total_attempts (Phase 3: was COUNT(*)) |
 | `exercise_attempts` | AFTER INSERT | `trigger_sync_exercise_history` | `sync_exercise_history()` | Copy to user_exercise_history for anti-repetition (Phase 4) |
+| `test_sentences` | BEFORE INSERT/UPDATE | `test_sentences_check_l2_text` | `test_sentences_check_l2_text()` | l2_text must equal the transcript span (TASK-901, planned) |
+| `test_sentence_references` | BEFORE INSERT/UPDATE | `test_sentence_references_check_l1_script` | `test_sentence_references_check_l1_script()` | Reject L2 script (Han / kana) in l1_text (TASK-901, planned) |
 
 **Note:** Duplicate trigger `update_skill_attempts_count_trigger` on test_attempts was removed in Phase 1.
 

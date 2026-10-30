@@ -100,6 +100,221 @@ def grade_submission(
     age_tier: int,
     max_tier: str = "tier2",
     framework_v2: Optional[bool] = None,
+    target_sense_ids: Optional[list[int]] = None,
+    target_token_map: Optional[list] = None,
+    target_lemmas: Optional[dict] = None,
+) -> dict:
+    """Grade one submission and return the §2.2 contract dict, plus — when the
+    caller names ``target_sense_ids`` (TASK-910, the prestudy Produce stage) — a
+    ``target_words`` list with one produced / variant / omitted row per sense.
+
+    The cascade itself is ``_grade_cascade`` (unchanged contract). Target-word
+    classification is a pure post-pass over the contract's diff/errors (see
+    ``classify_target_words``); it never calls a model and never touches the
+    DB — persistence of the per-word evidence is the route's job, exactly as
+    for ``dt_error_instance`` rows.
+
+    Args (target words only; the rest are documented on ``_grade_cascade``):
+        target_sense_ids: primed senses to report on. ``None``/empty -> the
+            contract is returned exactly as before, with no ``target_words`` key.
+        target_token_map: ``[[surface, sense_id], ...]`` covering the gold
+            window (the slice of ``tests.vocab_token_map`` between the window's
+            sentence token spans), used to locate each sense's surface in the gold.
+        target_lemmas: ``{sense_id: lemma}`` for the variant (lemma-present) rule.
+    """
+    contract = _grade_cascade(
+        db,
+        passage_id=passage_id,
+        gold_l2=gold_l2,
+        reproduction=reproduction,
+        l2_language_id=l2_language_id,
+        l1_language_id=l1_language_id,
+        age_tier=age_tier,
+        max_tier=max_tier,
+        framework_v2=framework_v2,
+    )
+    if target_sense_ids:
+        l2_code = DimensionService.get_language_code(l2_language_id) or ""
+        contract["target_words"] = classify_target_words(
+            target_sense_ids,
+            token_map=target_token_map or [],
+            gold=gold_l2,
+            reproduction=reproduction,
+            errors=contract.get("errors") or [],
+            l2_code=l2_code,
+            lemmas=target_lemmas or {},
+        )
+    return contract
+
+
+# Status values for target-word rows (TASK-910).
+TARGET_PRODUCED = "produced"
+TARGET_VARIANT = "variant"
+TARGET_OMITTED = "omitted"
+
+
+def _target_norm(text: str, l2_code: str) -> str:
+    """Normalisation for surface/lemma presence checks: Tier 0's width + kana
+    fold, then case-fold (en) and whitespace removal (CJK)."""
+    out = _normalize_l2(text or "", l2_code).casefold()
+    if (l2_code or "").lower() in ("ja", "zh"):
+        out = "".join(out.split())
+    return out
+
+
+def _gold_surfaces(token_map: list, gold: str) -> list[tuple[int, str, int, int]]:
+    """``(sense_id, surface, gold_start, gold_end)`` for every sense-bearing token
+    in ``token_map``, located left-to-right in the raw gold. Tokens concatenate
+    to the gold within a sentence; the single space ``join_sentences`` inserts
+    between en sentences is skipped by searching forward from the cursor. A
+    token that cannot be found keeps a ``(-1, -1)`` span (no error-overlap)."""
+    out: list[tuple[int, str, int, int]] = []
+    pos = 0
+    for entry in token_map or []:
+        if not entry or len(entry) < 2:
+            continue
+        surface, sense_id = entry[0], entry[1]
+        surface = surface or ""
+        at = gold.find(surface, pos) if surface else -1
+        if at >= 0:
+            start, end = at, at + len(surface)
+            pos = end
+        else:
+            start, end = -1, -1
+        if sense_id:
+            out.append((int(sense_id), surface, start, end))
+    return out
+
+
+def _overlapping_error(errors: list[dict], start: int, end: int) -> Optional[dict]:
+    """First ``dt_error_instance``-shaped error whose ``span_reference`` overlaps
+    the half-open gold span ``[start, end)``."""
+    if start < 0 or end <= start:
+        return None
+    for err in errors or []:
+        span = err.get("span_reference")
+        if not isinstance(span, (list, tuple)) or len(span) != 2:
+            continue
+        try:
+            a, b = int(span[0]), int(span[1])
+        except (TypeError, ValueError):
+            continue
+        if a < end and b > start:
+            return err
+    return None
+
+
+def classify_target_words(
+    target_sense_ids: list[int],
+    *,
+    token_map: list,
+    gold: str,
+    reproduction: str,
+    errors: list[dict],
+    l2_code: str,
+    lemmas: Optional[dict] = None,
+) -> list[dict]:
+    """Classify each primed sense as produced / variant / omitted (TASK-910).
+
+    Per sense, with its surface(s) taken from the gold's token map:
+      * ``produced`` — a surface (Tier 0-normalised) occurs in the reproduction;
+      * ``variant``  — the lemma occurs instead, or a cascade error's
+        ``span_reference`` overlaps the surface's position in the gold (the
+        learner attempted the word and the model typed what went wrong; the
+        error's subtype and learner form are attached);
+      * ``omitted``  — none of the above.
+
+    A sense absent from the token map (not in this window) is still reported,
+    as ``omitted`` with ``in_gold`` None, so the client's table stays aligned
+    with the primed list. Rows are returned in ``target_sense_ids`` order,
+    de-duplicated.
+
+    Row shape: ``{sense_id, status, in_gold, in_yours, lemma, error_subtype,
+    learner_form, is_correct}`` — ``is_correct`` is the BKT evidence the route
+    writes (produced, or a lemma variant -> True; an error-typed variant or an
+    omission -> False).
+    """
+    lemmas = lemmas or {}
+    surfaces = _gold_surfaces(token_map or [], gold or "")
+    repro_norm = _target_norm(reproduction or "", l2_code)
+    rows: list[dict] = []
+    seen: set[int] = set()
+    for raw in target_sense_ids or []:
+        try:
+            sense_id = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if sense_id in seen:
+            continue
+        seen.add(sense_id)
+        mine = [t for t in surfaces if t[0] == sense_id]
+        lemma = lemmas.get(sense_id) or lemmas.get(str(sense_id))
+        in_gold = mine[0][1] if mine else None
+        row = {
+            "sense_id": sense_id,
+            "status": TARGET_OMITTED,
+            "in_gold": in_gold,
+            "in_yours": None,
+            "lemma": lemma,
+            "error_subtype": None,
+            "learner_form": None,
+            "is_correct": False,
+        }
+        produced = next(
+            (t for t in mine if t[1] and _target_norm(t[1], l2_code) in repro_norm), None,
+        )
+        if produced is not None:
+            row.update(status=TARGET_PRODUCED, in_gold=produced[1], in_yours=produced[1], is_correct=True)
+            rows.append(row)
+            continue
+        overlap = None
+        for _sid, surface, start, end in mine:
+            err = _overlapping_error(errors, start, end)
+            if err is not None:
+                overlap = (surface, err)
+                break
+        lemma_norm = _target_norm(lemma, l2_code) if lemma else ""
+        if lemma_norm and lemma_norm in repro_norm:
+            # The lemma was retrieved; a typed error on the same gold span says
+            # the form was wrong (and names how), so it outranks the bare lemma
+            # match for the evidence row.
+            row.update(status=TARGET_VARIANT, in_yours=lemma, is_correct=True)
+            if overlap is not None:
+                surface, err = overlap
+                row.update(
+                    in_gold=surface,
+                    in_yours=err.get("learner_form") or lemma,
+                    error_subtype=err.get("subtype"),
+                    learner_form=err.get("learner_form"),
+                    is_correct=False,
+                )
+            rows.append(row)
+            continue
+        if overlap is not None:
+            surface, err = overlap
+            row.update(
+                status=TARGET_VARIANT,
+                in_gold=surface,
+                in_yours=err.get("learner_form"),
+                error_subtype=err.get("subtype"),
+                learner_form=err.get("learner_form"),
+                is_correct=False,
+            )
+        rows.append(row)
+    return rows
+
+
+def _grade_cascade(
+    db,
+    *,
+    passage_id: int,
+    gold_l2: str,
+    reproduction: str,
+    l2_language_id: int,
+    l1_language_id: int,
+    age_tier: int,
+    max_tier: str = "tier2",
+    framework_v2: Optional[bool] = None,
 ) -> dict:
     """Grade one submission end-to-end and return the §2.2 contract dict.
 
