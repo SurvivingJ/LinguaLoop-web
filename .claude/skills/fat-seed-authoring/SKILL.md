@@ -72,8 +72,10 @@ Steps 2–6 resume: re-running a step skips finished work and never re-pays.
    regenerating failures. This takes core fatals below the earlier pipeline.
 3. `plan`: code fixes each block's anchor sentence, answer and `given` values.
 4. **variants** (Haiku/medium, 4 senses per call): every block the plan lists
-   for A and B, in the Block reference shapes below. level_1 is declined in
-   code (`--skip-l1`).
+   for A and B, in the Block reference shapes below. For ja, level_1 is
+   declined in code (`--skip-l1`), because the renderer builds it from the ja
+   phonetic trie. zh and en have no trie, so their level_1 is authored and the
+   cheat sheet must cover it.
 5. **variant audit + level_6 audit** (Haiku): level_6 "wrong" sentences must
    be natural-sounding sense misuses, and level_7 must have one span on the
    target. This is the largest quality gain per dollar.
@@ -141,6 +143,8 @@ Configuration lives in `scratch_offline/nt_pipeline.py` (`AUTHOR_ARGS`,
    Japanese stays byte-identical.
 3. **Blocks differ:** `particle_selection` is ja-only and `word_family`
    en-only. The plan decides which blocks a sense gets, so nothing to configure.
+   level_1 is authored unless the language has a phonetic trie
+   (`TRIE_LANGS` in `nt_pipeline.py`; ja only today).
 4. **Validate before scaling:** export a 100-sense gold set with one sense
    per lemma, but keep siblings together the way production runs do. Run it
    with `NT_LANG=<lang> python3 scratch_offline/nt_experiment.py <arm>

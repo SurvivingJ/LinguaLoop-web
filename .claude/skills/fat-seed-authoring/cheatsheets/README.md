@@ -8,6 +8,12 @@ It is the main lever on quality per language.
 `ja.md` is the production sheet (v7 from the optimisation campaign,
 `data/exercise_seeding/ja/opt/REPORT.md`). Use it as the template.
 
+`zh.md` and `en.md` (v1) follow the same structure. They are aligned with the
+live zh/en core and exercise prompts and their judges. They also cover
+level_1, which zh and en still author because there is no phonetic trie for
+them. **Neither has been run yet.** Validate each on a 100-sense gold set
+before the full queue, as described below.
+
 ## What made the Japanese sheet work
 
 - **Short and structural.** ~5 KB in five numbered sections. Every longer

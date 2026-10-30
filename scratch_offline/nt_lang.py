@@ -32,4 +32,8 @@ def language_id(lang=None):
 def localise(system_prompt):
     """Name the target language in a system prompt (a no-op for Japanese)."""
     lang = code()
-    return system_prompt if lang == 'ja' else system_prompt.replace('Japanese', name(lang))
+    if lang == 'ja':
+        return system_prompt
+    n = name(lang)
+    article = 'an' if n[0] in 'AEIOU' else 'a'
+    return system_prompt.replace('a Japanese', f'{article} {n}').replace('Japanese', n)

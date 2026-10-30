@@ -27,13 +27,17 @@ CHEATSHEETS = os.path.join(REPO, '.claude/skills/fat-seed-authoring/cheatsheets'
 # puts the senses of one lemma in the same run and Haiku confuses them in the
 # core sentences (fatal share 0.26 vs 0.06 with a Sonnet core on the same
 # runs; opt/ctrl_hybrid). Sonnet/low writes the core only; Haiku/medium does
-# the audits, the variants and the patch review; no level_1 (the renderer
-# builds it from the phonetic trie). Lints: only the rules that paid for
+# the audits, the variants and the patch review; no level_1 for ja (the
+# renderer builds it from the ja phonetic trie; zh/en have no trie yet and
+# need the authored level_1 block). Lints: only the rules that paid for
 # themselves (A/B overlap, level_7 twin, ps_slot, l7_target_absent,
 # l7_multi_span); the rest are demoted.
 # The cheat sheet (--cheatsheet, default cheatsheets/<lang>.md) is appended.
 AUTHOR_ARGS = ['--model', 'haiku', '--effort', 'medium', '--core-model', 'sonnet', '--core-effort', 'low',
-               '--skip-l1', '--core-audit', '--variant-audit', '--l6-audit']
+               '--core-audit', '--variant-audit', '--l6-audit']
+# Languages whose level_1 distractors come from a phonetic trie
+# (services/vocabulary_ladder/l1_lookup.py); their level_1 is not authored.
+TRIE_LANGS = {'ja'}
 REVIEW_ARGS = ['--model', 'haiku', '--effort', 'medium']
 LINT_ENV = {'FAT_SEED_LINT_ALL_BLOCKS': '1',
             'FAT_SEED_LINT_SKIP': 'l3_generic_expl,l6_shared_expl,l6_copied_expl,l7_edit_far'}
@@ -64,7 +68,10 @@ def process(run, args):
     review_args = list(REVIEW_ARGS)
     if glob.glob(os.path.join(run, 'fat_seed', 'reviewed', '*.json')):
         review_args.append('--resume')  # a relaunch must not re-review (re-pay) finished senses
-    for script, extra in (('nt_author.py', [rel, *AUTHOR_ARGS, '--cheatsheet', args.cheatsheet]),
+    author_args = [*AUTHOR_ARGS, '--cheatsheet', args.cheatsheet]
+    if args.lang in TRIE_LANGS:
+        author_args.append('--skip-l1')
+    for script, extra in (('nt_author.py', [rel, *author_args]),
                           ('nt_review.py', [rel, rel, *review_args])):
         p = subprocess.run([sys.executable, f'scratch_offline/{script}', *extra],
                            cwd=REPO, env=env, stdout=log, stderr=subprocess.STDOUT)
