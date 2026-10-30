@@ -3,7 +3,7 @@ title: Calibration — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: calibration.md
-last_updated: 2026-09-13
+last_updated: 2026-10-30
 dependencies:
   - "table: dim_word_senses (+ new column word_language_id, embedding)"
   - "table: dim_vocabulary (lemma, language_id, frequency_rank)"
@@ -18,7 +18,7 @@ dependencies:
   - "RPCs: calibration_next_anchor, calibration_ability, calibration_zipf_band, calibration_band_midpoint (new)"
   - "routes/calibration.py, services/calibration_service.py, templates/calibration.html (new)"
   - "tables: calibration_anchor_pool, calibration_distractor_cache (TASK-772/773, DERIVED - rebuild on dictionary change)"
-  - "RPCs: calibration_record_answer, calibration_build_items, calibration_next_anchors, calibration_discard_unanswered, calibration_refresh_anchor_pool, calibration_fill_distractor_cache, calibration_cache_distractors_chunk, calibration_distractor_cache_coverage (TASK-769/770/772/773)"
+  - "RPCs: calibration_record_answer, calibration_build_items, calibration_next_anchors, calibration_discard_unanswered, calibration_refresh_anchor_pool, calibration_fill_distractor_cache, calibration_cache_distractors_chunk, calibration_distractor_cache_coverage, calibration_cached_options (TASK-769/770/772/773, ADR-038)"
   - "script: scripts/build_calibration_distractor_cache.py (TASK-773)"
 breaking_change_risk: low
 ---
@@ -623,6 +623,12 @@ in place.
    approximation; ADR-025 still holds word for word. Verified byte-for-byte against a
    live call. `pronunciation_distractors()` **does** contain `random()`, so it is
    cached as a pool of 8 and sampled at serve time, keeping the variety it has today.
+   **Since 2026-10-30 the cache is packed** ([[decisions/ADR-038-packed-calibration-distractor-cache]]):
+   one row per `(anchor_sense_id, mode)` holding ranked `sense_ids[]`, `similarities[]`
+   (definition mode) and `freq_tiers[]` (edit distance in pronunciation mode).
+   `calibration_cached_options(mode, anchor)` expands it to the old row-per-option shape
+   and joins `option_text`, `vocab_id` and `frequency` live, so a corrected definition or
+   reading is served at once. 46 MB → 7 MB for the same 211,692 options.
 
 4. **Prefetch** (TASK-771). The client renders from a queue and tops it up in the
    background, so no answer is ever followed by a wait.

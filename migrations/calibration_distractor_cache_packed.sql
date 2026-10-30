@@ -1,6 +1,6 @@
 -- ============================================================================
 -- calibration_distractor_cache: one row per (anchor, mode), options as arrays
--- Status: PENDING (not yet applied to live). ADR-038. Vocabulary storage phase 2.
+-- Status: APPLIED 2026-10-30 (SQL Editor). ADR-038. Vocabulary storage phase 2.
 -- ============================================================================
 --
 -- WHY

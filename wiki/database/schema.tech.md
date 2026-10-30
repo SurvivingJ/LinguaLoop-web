@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-10-14
+last_updated: 2026-10-30
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -368,7 +368,8 @@ en +0.016, ja +0.012. Bands now: zh pairs `cos_min` 0.445, ja pairs 0.463, en/en
 `cos_max` 0.77; the four cross-language pairs copy their native pair's band, because they score
 native-definition vectors. `sense_neighbours.BAND_MIN` 0.365 → 0.377. The definition-mode
 `calibration_distractor_cache` was dropped and rebuilt (162,613 rows). Projected at 10k zh + 10k
-ja words: ~75 MB.
+ja words: ~75 MB. Since 2026-10-30 that cache is packed one row per anchor and mode (46 → 7 MB,
+[[decisions/ADR-038-packed-calibration-distractor-cache]]).
 
 #### Two-level sense generation
 
