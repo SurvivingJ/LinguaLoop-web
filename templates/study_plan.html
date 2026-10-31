@@ -210,6 +210,18 @@
                     <hr>
 
                     <!-- 4. Typical day -->
+                    <section class="ds-section" aria-labelledby="dsPrestudyHeading">
+                        <h6 id="dsPrestudyHeading"><span class="ds-num" aria-hidden="true">&#9670;</span><span data-i18n="study_plan.daily_session.prestudy.heading">Study before hard tests</span></h6>
+                        <select class="form-select form-select-sm w-auto" id="prestudyModeSelect" aria-describedby="prestudyModeHint">
+                            <option value="auto" data-i18n="study_plan.daily_session.prestudy.auto">Automatically</option>
+                            <option value="ask" data-i18n="study_plan.daily_session.prestudy.ask">Ask me</option>
+                            <option value="off" data-i18n="study_plan.daily_session.prestudy.off">Off</option>
+                        </select>
+                        <p class="form-text mb-0" id="prestudyModeHint" data-i18n="study_plan.daily_session.prestudy.hint">Before a new test where more than a quarter of the key words are new to you, and before every retry, the session adds a short word study. It uses test time, so a day may have one fewer test. "Study first" stays available on every test.</p>
+                    </section>
+
+                    <hr>
+
                     <section class="ds-section" aria-labelledby="dsTypicalHeading">
                         <h6 id="dsTypicalHeading"><span class="ds-num" aria-hidden="true">4</span><span data-i18n="study_plan.daily_session.typical_heading">Typical day</span></h6>
                         <p id="typicalDaySummary" aria-live="polite"></p>
@@ -493,6 +505,10 @@
         // Scope radios
         const scope = plan.budget_scope === 'tests_only' ? 'tests_only' : 'tests_and_review';
         document.querySelectorAll('input[name=budgetScope]').forEach(r => { r.checked = r.value === scope; });
+
+        // Test prestudy trigger
+        const pm = ['auto', 'ask', 'off'].includes(plan.prestudy_mode) ? plan.prestudy_mode : 'auto';
+        if ($('prestudyModeSelect')) $('prestudyModeSelect').value = pm;
 
         // New words
         const npd = SPS.clampNewWords(plan.new_words_per_day, 0);
@@ -877,6 +893,7 @@
             budget_scope: session.scope,
             new_words_per_day: session.npd,
         };
+        if ($('prestudyModeSelect')) body.prestudy_mode = $('prestudyModeSelect').value;
         if (templateId) body.template_id = templateId;
 
         try {

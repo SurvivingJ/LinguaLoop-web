@@ -246,6 +246,14 @@ def submit(submission_id: int) -> ApiResponse:
                 db, g.current_user_id, passage['l2_language_id'], submission_id,
                 contract['target_words'],
             )
+            # Test prestudy: store the Produce result on the prime session and
+            # send omitted primed words to next-day review. Best-effort.
+            if passage.get('source_ref_id'):
+                from services import prestudy
+                prestudy.record_produce(
+                    db, g.current_user_id, str(passage['source_ref_id']),
+                    passage['l2_language_id'], submission_id, contract['target_words'],
+                )
 
         # Weekly minutes: credit once, on the first persisted grading only
         # (the cached path above returns early). Best-effort, clamped to 900 s.
@@ -322,69 +330,79 @@ def passage_from_sentences() -> ApiResponse:
         if not isinstance(primed_ids, list):
             return bad_request("primed_sense_ids must be a list")
 
-        if not _user_has_attempted(db, user_id, test_id):
-            return forbidden("Dual translation passages come only from tests you have attempted")
-
-        test = _get_test_for_passage(db, test_id)
-        if not test:
-            return not_found("Test not found")
-        if l1_language_id == int(test['language_id']):
-            return bad_request("l1_language_id must differ from the test's language")
-
-        sentences = _get_sentence_range(db, test_id, start, end)
-        if len(sentences) != n_sentences:
-            return api_error(
-                "No sentence rows for this range", 422, error_code="SENTENCES_MISSING",
-            )
-        stored_hash = test.get('transcript_hash')
-        if stored_hash and any(sr.get('transcript_hash') != stored_hash for sr in sentences):
-            return api_error(
-                "Sentence rows are stale for this transcript", 409, error_code="SENTENCES_STALE",
-            )
-
-        refs = _get_usable_references(db, [sr['id'] for sr in sentences], l1_language_id)
-        missing = [sr['idx'] for sr in sentences if sr['id'] not in refs]
-        if missing:
-            return api_error(
-                "A sentence in this range has no reference in that language", 422,
-                error_code="REFERENCE_MISSING", details={'missing_idx': missing},
-            )
-
-        l2_code = _LANG_CODE.get(int(test['language_id']), 'en')
-        l1_code = _LANG_CODE.get(l1_language_id, 'en')
-        passage = _find_or_create_range_passage(
-            db, test, start, end,
-            l2_text=join_sentences([sr['l2_text'] for sr in sentences], l2_code),
-        )
-        if not passage:
-            return server_error("Failed to create passage")
-        l1_text = join_sentences([refs[sr['id']]['l1_text'] for sr in sentences], l1_code)
-
-        correction_style = Config.resolve_correction_style(user_id)
-        submission_resp = db.table('dt_submission').insert({
-            'user_id': user_id,
-            'passage_id': passage['id'],
-            'l1_language_id': l1_language_id,
-            'reproduction': '',
-            'correction_style': correction_style,
-        }).execute()
-        if not submission_resp.data:
-            return server_error("Failed to create submission")
-
-        return api_success({
-            'passage_id': passage['id'],
-            'l1_text': l1_text,
-            'n_sentences': n_sentences,
-            'submission_id': submission_resp.data[0]['id'],
-            'age_tier': passage['age_tier'],
-            'rubric_descriptors': _rubric_descriptors_for(db, passage['age_tier'], l2_code),
-            'correction_style': correction_style,
-            'primed_token': primed_token.issue(user_id, passage['id'], primed_ids),
-        })
+        return open_range_passage(db, user_id, test_id, start, end, l1_language_id, primed_ids)
 
     except Exception as e:
         logger.error("Error building passage from sentences: %s", e)
         return server_error("Failed to build passage")
+
+
+def open_range_passage(db, user_id: str, test_id: str, start: int, end: int, l1_language_id: int,
+                       primed_ids: list, extra: Optional[dict] = None) -> ApiResponse:
+    """Core of POST /passage-from-sentences, shared with the prestudy Produce
+    route (POST /api/tests/<id>/prestudy/produce), which picks the window
+    itself. ``extra`` keys are merged into the success payload."""
+    n_sentences = end - start + 1
+    if not _user_has_attempted(db, user_id, test_id):
+        return forbidden("Dual translation passages come only from tests you have attempted")
+
+    test = _get_test_for_passage(db, test_id)
+    if not test:
+        return not_found("Test not found")
+    if l1_language_id == int(test['language_id']):
+        return bad_request("l1_language_id must differ from the test's language")
+
+    sentences = _get_sentence_range(db, test_id, start, end)
+    if len(sentences) != n_sentences:
+        return api_error(
+            "No sentence rows for this range", 422, error_code="SENTENCES_MISSING",
+        )
+    stored_hash = test.get('transcript_hash')
+    if stored_hash and any(sr.get('transcript_hash') != stored_hash for sr in sentences):
+        return api_error(
+            "Sentence rows are stale for this transcript", 409, error_code="SENTENCES_STALE",
+        )
+
+    refs = _get_usable_references(db, [sr['id'] for sr in sentences], l1_language_id)
+    missing = [sr['idx'] for sr in sentences if sr['id'] not in refs]
+    if missing:
+        return api_error(
+            "A sentence in this range has no reference in that language", 422,
+            error_code="REFERENCE_MISSING", details={'missing_idx': missing},
+        )
+
+    l2_code = _LANG_CODE.get(int(test['language_id']), 'en')
+    l1_code = _LANG_CODE.get(l1_language_id, 'en')
+    passage = _find_or_create_range_passage(
+        db, test, start, end,
+        l2_text=join_sentences([sr['l2_text'] for sr in sentences], l2_code),
+    )
+    if not passage:
+        return server_error("Failed to create passage")
+    l1_text = join_sentences([refs[sr['id']]['l1_text'] for sr in sentences], l1_code)
+
+    correction_style = Config.resolve_correction_style(user_id)
+    submission_resp = db.table('dt_submission').insert({
+        'user_id': user_id,
+        'passage_id': passage['id'],
+        'l1_language_id': l1_language_id,
+        'reproduction': '',
+        'correction_style': correction_style,
+    }).execute()
+    if not submission_resp.data:
+        return server_error("Failed to create submission")
+
+    return api_success({
+        **(extra or {}),
+        'passage_id': passage['id'],
+        'l1_text': l1_text,
+        'n_sentences': n_sentences,
+        'submission_id': submission_resp.data[0]['id'],
+        'age_tier': passage['age_tier'],
+        'rubric_descriptors': _rubric_descriptors_for(db, passage['age_tier'], l2_code),
+        'correction_style': correction_style,
+        'primed_token': primed_token.issue(user_id, passage['id'], primed_ids),
+    })
 
 
 def _user_has_attempted(db, user_id: str, test_id: str) -> bool:
@@ -525,10 +543,8 @@ def _record_target_word_evidence(db, user_id: str, language_id: int, submission_
     (migrations/create_all_tables.sql); a write path for non-exercise sources
     (`source = 'prestudy_produce'`) does not exist yet. Add the column + a
     nullable-exercise insert path, then record one row per sense here.
-    TODO(TASK-910): omitted senses are not appended to `prestudy_followups`
-    (the next-day review list) — that table/queue has no schema or write path
-    in the repo yet (TASK-9xx prestudy tasks). Append `omitted` rows here once
-    it exists.
+    Omitted senses go to next-day review through ``prestudy.record_produce``
+    (called by the submit route after this).
     """
     results = [
         {'sense_id': int(r['sense_id']), 'is_correct': bool(r.get('is_correct'))}

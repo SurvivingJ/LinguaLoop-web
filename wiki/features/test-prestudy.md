@@ -1,9 +1,9 @@
 ---
 title: Test Prestudy (tests as teaching material)
 type: feature
-status: planned
+status: in-progress
 tech_page: ./test-prestudy.tech.md (not yet written — pending the open questions below)
-last_updated: 2026-10-30
+last_updated: 2026-10-31
 demo: ../demos/test-prestudy-demo.html
 open_questions:
   - "ANSWERED 2026-10-29: ELO for a first attempt made after prestudy = reduced K with factor 0.5 (`test_attempts.prestudied = true`, `elo_reduction_factor = 0.5`, existing badge)."
@@ -334,6 +334,75 @@ for [[features/lookahead-preteaching]] once the supply gate is lifted: words the
 prestudy and still missed in the attempt are the strongest demand signal for exercise generation
 (`_request_generation`). ADR-026 chose a pool over a pinned test for *multi-day* pre-teaching;
 prestudy is same-day priming, so the two coexist — note the tension in the tech page.
+
+## Implementation — "Study first" on the preview page (2026-10-31)
+
+Built (repo; the ELO migration is not yet applied live):
+
+- **Entry point.** The test preview page shows a "Study first" button under "Start Test" for the
+  comprehension modes (listening, reading). It opens `/test/<slug>/prestudy?type=<mode>`.
+- **Page.** `templates/test_prestudy.html` + `static/js/prestudy/prestudy.js`, ported from the demo:
+  Preview (passage with new words highlighted, furigana/pinyin on new words, tap-to-gloss popover,
+  ranked key words) → Word prime (typed reading → meaning → typed reading → reverse meaning →
+  passage cloze → two ladder exercises, interleaved; "I don't know" on every item, retries and
+  booster turns) → readiness check (up to five typed readings, 80% to pass, one extra round, never
+  blocks) → Ready. Every string is an i18n key in en/es/zh/ja.
+- **API.** `GET /api/tests/<id>/prestudy` (`services/prestudy.build_prestudy_payload`: passage, word
+  map, glosses in the learner's definition language, their BKT rows, trimmed ladder exercises, and
+  only the *sense ids* of each question — never question text, choices or answers).
+  `POST /api/tests/<id>/prestudy/evidence` records one word-test evidence point per sense (majority
+  of its answers; "I don't know" counts as wrong; senses outside the test are dropped) through
+  `update_from_word_tests_batch(side_effects=False)`, so nothing is admitted to the ladder or
+  counted against `new_words_per_day`.
+- **ELO 0.5.** "Take the test" leaves a `sessionStorage` marker (6 h); `test.html` then submits
+  `prestudied: true`. `routes/tests.py` passes `p_prestudied` to `process_test_submission` only when
+  true and falls back to the 8-argument call if the function has no such parameter (PGRST202).
+  `migrations/prestudy_elo_factor.sql` adds `test_attempts.prestudied` and the 9-argument function
+  (first attempt: user and test K × 0.5, `elo_reduction_factor = 0.5`). Skipping from the preview
+  step without answering anything takes the test cold at full K.
+
+### Workflow completed (2026-10-31, second pass)
+
+- **Measurement.** `POST /api/tests/<id>/prestudy/session` opens a `prestudy_sessions` row when
+  the page loads (unknown share snapshotted at open). The evidence call completes it with the
+  measurement record (words shown and quizzed, exposures, first-try, IDK, boosters, ladder
+  exercises, readiness score and rounds, minutes, tests dropped), clamped server-side and
+  restricted to the test's senses.
+- **Server-verified ELO.** Submit checks for a completed prime session for this test in the
+  last 6 h; that, not the client flag, decides `prestudied`, and the session is marked
+  `consumed` with the attempt id. The client flag only counts while the table does not exist.
+- **Ladder exercises** answered in the prime write `exercise_attempts` rows with
+  `source = 'prestudy'` and exercise-type BKT (first attempt only); no ladder row, no practice
+  minutes. Primed words with no exercises are queued for generation (reason `prestudy`).
+- **Minutes** go to the ledger as kind `prestudy` (shown on the Study Plan's weekly minutes);
+  `minutes_source` is `tests_share` when run from the daily session, else `free`.
+- **Next-day review.** IDK twice and readiness misses (derived server-side from the answers),
+  primed-and-still-missed words (from the follow-up) and words omitted in Produce become
+  `prestudy_followups` rows due tomorrow (learner-local). Maintenance practice sessions serve
+  one exercise per due sense (at most 5); any attempt on the sense completes it.
+- **Post-test follow-up.** Test results (standalone and in the session) offer "Review the words
+  you missed": the prestudy page in `mode=followup` primes the unknown senses behind wrong
+  answers (typed reading, meaning, passage cloze; at most 5 words). That evidence is written
+  with side effects, so the words enter Queue A1 as the post-test quiz's do.
+- **Produce.** After the follow-up, `POST /api/tests/<id>/prestudy/produce` picks the 2-4
+  sentence window with the most primed senses (then wrong-question senses, then shorter) whose
+  references clear the language's tightness floor (ja 0.65, zh 0.70, en 0.60) and opens it
+  through the shared `open_range_passage` helper; the DT page grades it with the primed words as
+  target words. The result is stored on the prime session; omitted words go to next-day review.
+  From the daily session, "Back to today's session" makes the session's translation slot use
+  this window.
+- **Daily session.** `GET /api/study-session` adds `kind: 'prestudy'` items (setting `auto`):
+  full before new tests over 25% unknown, light (three words, reading and meaning, about a
+  minute, no readiness check) for 5-25%, and before every retry slot. The block's card
+  (`static/js/session/players/prestudy.js`) shows the minutes and "N fewer tests today"; when
+  pending blocks cost a test slot (`test_budget_minutes / tests`), that many plain new tests
+  move to the end as optional (`is_bonus`, `deferred_for_prestudy`). Every reading/listening test
+  card carries a "Study first" banner (highlighted under `ask`). Setting: "Study before hard
+  tests: Automatically / Ask me / Off" on the Study Plan's Daily session card
+  (`user_study_plans.prestudy_mode`).
+
+Still not built: lesson walkthrough (mode 3) and study-then-retry answer explanations (need the
+content spend), sentence-level audio, the dictation-mode preview variant.
 
 ## Demo
 

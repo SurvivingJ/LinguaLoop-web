@@ -50,6 +50,7 @@ def test_weekly_study_exact_shape(monkeypatch):
             'flashcard': {'seconds': 300, 'minutes': 5},
             'dual_translation': {'seconds': 240, 'minutes': 4},
             'drill': {'seconds': 0, 'minutes': 0},
+            'prestudy': {'seconds': 0, 'minutes': 0},
         },
     }
     assert body['current_week']['total_weekly_minutes'] == 210   # unchanged
@@ -64,7 +65,7 @@ def test_no_weekly_row_target_null_totals_present(monkeypatch):
     assert body['current_week'] is None
     ws = body['weekly_study']
     assert ws['target_minutes'] is None and ws['studied_minutes'] == 34
-    assert set(ws['by_kind']) == {'test', 'practice', 'flashcard', 'dual_translation', 'drill'}
+    assert set(ws['by_kind']) == {'test', 'practice', 'flashcard', 'dual_translation', 'drill', 'prestudy'}
 
 
 def test_empty_ledger_all_five_kinds_zero(monkeypatch):

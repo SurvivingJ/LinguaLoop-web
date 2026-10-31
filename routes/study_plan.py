@@ -10,7 +10,8 @@ Endpoints (all require auth):
   PUT  /api/study-plan
        Body: { language_id, daily_minutes?, weekday_shape?,
                skill_weight_overrides?, template_id?, timezone?,
-               excluded_modules?, budget_scope?, new_words_per_day? }
+               excluded_modules?, budget_scope?, new_words_per_day?,
+               prestudy_mode? }
        → updates whichever fields are present; updated_at touched via trigger.
        If only template_id is given, also resets daily_minutes from the
        template (delegates to apply_study_plan_template).
@@ -112,6 +113,7 @@ def _sps():
 
 
 BUDGET_SCOPES = ('tests_and_review', 'tests_only')
+PRESTUDY_MODES = ('auto', 'ask', 'off')   # = services.prestudy.PRESTUDY_MODES
 NEW_WORDS_MAX_PER_DAY = 50
 MODULE_PRACTICE = 'practice'
 
@@ -214,6 +216,11 @@ def get_study_plan() -> ApiResponse:
         db = get_supabase_admin()
         user_id = g.current_user_id
 
+        # Test prestudy trigger; read separately so a database without the
+        # column (migration pending) still serves the plan.
+        from services.prestudy import get_prestudy_mode
+        prestudy_mode = get_prestudy_mode(db, user_id, language_id)
+
         plan_resp = (
             db.table('user_study_plans')
             .select(
@@ -231,6 +238,7 @@ def get_study_plan() -> ApiResponse:
             return not_found("No study plan for this language")
 
         plan = plan_resp.data[0]
+        plan['prestudy_mode'] = prestudy_mode
 
         # Learner-local week (matches the ledger/record_session_progress writers).
         week_start = _monday_of(plan_today(db, user_id, language_id))
@@ -584,6 +592,12 @@ def update_study_plan() -> ApiResponse:
             k for k in ('excluded_modules', 'budget_scope', 'new_words_per_day') if k in data
         ]
 
+        # Test prestudy trigger (wiki/features/test-prestudy.md): auto | ask | off.
+        if 'prestudy_mode' in data:
+            if data['prestudy_mode'] not in PRESTUDY_MODES:
+                return bad_request("prestudy_mode must be 'auto', 'ask' or 'off'")
+            update['prestudy_mode'] = data['prestudy_mode']
+
         if 'budget_scope' in data:
             if data['budget_scope'] not in BUDGET_SCOPES:
                 return bad_request("budget_scope must be 'tests_and_review' or 'tests_only'")
@@ -654,13 +668,29 @@ def update_study_plan() -> ApiResponse:
                 or eff_npd != stored_npd
             )
 
-        resp = (
-            db.table('user_study_plans')
-            .update(update)
-            .eq('user_id', user_id)
-            .eq('language_id', language_id)
-            .execute()
-        )
+        try:
+            resp = (
+                db.table('user_study_plans')
+                .update(update)
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .execute()
+            )
+        except Exception as e:
+            # migrations/prestudy_workflow.sql not applied: save the rest.
+            if 'prestudy_mode' not in update or 'prestudy_mode' not in str(e):
+                raise
+            update.pop('prestudy_mode')
+            if not update:
+                return api_error("Prestudy settings are not available yet", 409,
+                                 error_code="PRESTUDY_MODE_UNAVAILABLE")
+            resp = (
+                db.table('user_study_plans')
+                .update(update)
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .execute()
+            )
         session_rebuilt = False
         if session_changed:
             session_rebuilt = _recompute_and_rebuild(db, user_id, language_id)

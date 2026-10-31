@@ -12,6 +12,7 @@ import { mount as mountPractice } from './players/practice.js';
 import { mount as mountFlashcards } from './players/flashcards.js';
 import { mount as mountDualTranslation } from './players/dual_translation.js';
 import { mount as mountSpeedRound } from './players/speed_round.js';
+import { mount as mountPrestudy } from './players/prestudy.js';
 
 // test_type -> mount fn. Phase 2/3 add dictation / pinyin / pitch_accent /
 // classifier_drill / practice. Anything still unmapped falls through to a
@@ -41,6 +42,10 @@ const KIND_PLAYERS = {
   // row carries ladder_level = NULL precisely so it stays out of the drill
   // rotation and is reachable only when something schedules it explicitly.
   speed_round: mountSpeedRound,
+  // Test prestudy block before a hard new test or a retry slot
+  // (wiki/features/test-prestudy.md). Opens the prestudy page, which completes
+  // the block and returns to the session.
+  prestudy: mountPrestudy,
 };
 
 const STANDALONE_URL = {
