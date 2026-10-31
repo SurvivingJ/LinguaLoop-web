@@ -1,8 +1,8 @@
 -- ============================================================================
 -- Sense vectors: one per sense (native standard row only), halfvec(768) -> halfvec(512)
--- Status: PENDING (not yet applied to live), ships with the Python writers that embed only the
+-- Status: APPLIED 2026-10-29 (SQL Editor), with the Python writers that embed only the
 --         native standard row and truncate to 512-d (scripts/backfill_sense_embeddings.py,
---         services/vocabulary/sense_generator.py). ADR-037.
+--         services/vocabulary/sense_generator.py). ADR-038.
 -- ============================================================================
 --
 -- WHY

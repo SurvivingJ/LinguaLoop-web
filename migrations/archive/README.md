@@ -126,3 +126,17 @@ after phase14 dropped the reduced-volatility path). TASK-704
 (`task704_process_test_submission_retry_elo.sql`) **re-lands the ADR-006 path**,
 so the column is written again — the applied factor on an eligible daily-load
 retry-slot repeat, NULL otherwise. It is no longer orphaned; do not drop it.
+
+## 2026-10-29 — sense vectors moved to native standard rows, 512-d (ADR-038)
+
+| Archived file | Object | New canonical file | Marker verified on live |
+|---|---|---|---|
+| `shrink_sense_embeddings_halfvec768.sql` | `semantic_distractors(integer,smallint,smallint,integer,real,real,real,text,integer,boolean)`, `dim_word_senses.embedding` type + comment | `sense_vectors_native_standard_512.sql` | function body contains `sense_embedding(s.id)`; column is `halfvec(512)` (2026-10-29) |
+| `dim_word_senses_embedding.sql` | `sense_similarity_to_lemmas(integer,smallint,text[])`, `nearest_senses(...)`, `idx_dim_word_senses_embedding`, `dim_word_senses.embedding` | `sense_vectors_native_standard_512.sql` | function body contains `sense_embedding(p_sense_id)`; `nearest_senses` and `idx_dim_word_senses_embedding` absent from live (dropped by `calibration_sense_word_language_and_partial_hnsw.sql` / the halfvec768 move); column is `halfvec(512)` (2026-10-29) |
+
+Both files were fully superseded: every object they define is either redefined by
+`sense_vectors_native_standard_512.sql` or no longer exists live. The
+`CREATE EXTENSION IF NOT EXISTS vector` in `dim_word_senses_embedding.sql` is also
+recorded in `create_all_tables.sql`. Their entries were removed from
+`HISTORICAL_DEFINER_FILES` in `tests/test_migration_security_lint.py`, which
+requires every allowlisted file to exist.

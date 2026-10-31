@@ -538,7 +538,7 @@ class SenseGenerator:
         Only the native standard row is embedded (``is_embedded_row``): the
         simple row and every cross-language gloss borrow its vector through
         ``sense_embedding()``, and the database rejects a vector on any other
-        row (ADR-037). The backfill applies the same rule, so the two cannot
+        row (ADR-038). The backfill applies the same rule, so the two cannot
         drift.
 
         Failure is logged and swallowed. An embedding is an enrichment; a word
