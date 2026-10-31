@@ -78,6 +78,7 @@ export function mount(container, ctx) {
   document.body.classList.add('test-page');
 
   container.innerHTML = MARKUP;
+  renderPrestudyOffer();
 
   init();
 
@@ -556,6 +557,33 @@ export function mount(container, ctx) {
     submitTest();
   }
 
+  // Test prestudy (wiki/features/test-prestudy.md): "Study first" on the
+  // session test card. Opt-in from here is always available; the server marks
+  // the offer `recommended` for hard tests when the learner chose "ask".
+  function renderPrestudyOffer() {
+    const offer = ctx.item && ctx.item.prestudy_offer;
+    const L = window.LinguaPrestudyLinks;
+    if (!offer || !ctx.item.slug || (L && L.isPrestudied(ctx.item.slug))) return;
+    const pct = Math.round((Number(offer.unknown_share) || 0) * 100);
+    const minutes = Number(offer.minutes_est) || 2;
+    const params = new URLSearchParams({ type: mode, trigger: 'opt_in', return: 'session' });
+    const bar = document.createElement('div');
+    bar.className = 'container mt-3';
+    bar.dataset.prestudyOffer = '1';
+    bar.innerHTML = `<div class="alert ${offer.recommended ? 'alert-warning' : 'alert-light border'} d-flex flex-wrap align-items-center gap-2 mb-0 py-2">
+        <i class="bi bi-book-half" aria-hidden="true"></i>
+        <span class="flex-grow-1 small"></span>
+        <a class="btn btn-sm ${offer.recommended ? 'btn-primary' : 'btn-outline-primary'}"></a></div>`;
+    bar.querySelector('span').textContent = offer.recommended
+      ? T('session.prestudy.offer_recommended', { pct, n: minutes }, `${pct}% of the key words are new to you. Study first? About ${minutes} min.`)
+      : T('session.prestudy.offer', { pct, n: minutes }, `${pct}% of the key words are new to you. Study first (about ${minutes} min).`);
+    const a = bar.querySelector('a');
+    a.textContent = T('session.prestudy.title', null, 'Study first');
+    a.href = `/test/${encodeURIComponent(ctx.item.slug)}/prestudy?${params.toString()}`;
+    const header = container.querySelector('.test-header');
+    if (header && header.parentNode) header.parentNode.insertBefore(bar, header.nextSibling);
+  }
+
   async function submitTest() {
     try {
       showLoading(true);
@@ -577,10 +605,12 @@ export function mount(container, ctx) {
           furigana_used: state.furiganaUsedThisAttempt,
           started_at: startedAtIso,
           finished_at: finishedAtIso,
+          prestudied: !!(window.LinguaPrestudyLinks && window.LinguaPrestudyLinks.isPrestudied(state.slug)),
         }),
       });
       if (!response.ok) throw new Error('Failed to submit test');
       const result = await response.json();
+      if (window.LinguaPrestudyLinks) window.LinguaPrestudyLinks.clearMarker(state.slug);
       state.isSubmitted = true;
       showResults(result);
       showLoading(false);
@@ -655,6 +685,26 @@ export function mount(container, ctx) {
       `${score}/${total} (${percentage}%)`
     );
     q('successMessage').style.display = 'block';
+    const offerBar = container.querySelector('[data-prestudy-offer]');
+    if (offerBar) offerBar.remove();
+
+    // Test prestudy: follow-up prime on the words behind wrong answers, then
+    // Produce. Leaving the session for it completes this test first, so the
+    // session resumes on the next item when the learner comes back.
+    if (window.LinguaPrestudyLinks && !container.querySelector('[data-prestudy-actions]')) {
+      window.LinguaPrestudyLinks.renderResultActions(q('successScoreText').parentElement, {
+        slug: state.slug,
+        type: state.mode,
+        wrong: Math.max(0, total - score),
+        prestudied: !!(res && res.prestudied),
+        returnTo: 'session',
+        beforeLeave: () =>
+          window.authFetch('/api/tests/daily-load/complete', {
+            method: 'POST',
+            body: JSON.stringify({ test_id: ctx.item.id, language_id: ctx.languageId }),
+          }),
+      });
+    }
 
     // Replace the Submit button with a "Next" button that advances the
     // session (clone to drop the submit listener).

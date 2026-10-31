@@ -576,6 +576,12 @@ def _register_web_routes(app):
         """Render test preview page (client-side rendered)"""
         return render_template('test_preview.html')
 
+    @app.route('/test/<slug>/prestudy')
+    def test_prestudy_page(slug):
+        """Render the test prestudy page: study a test's words before taking it
+        (client-side rendered; wiki/features/test-prestudy.md)."""
+        return render_template('test_prestudy.html')
+
     @app.route('/test/<slug>')
     def test_page(slug):
         """Render test taking page (client-side rendered)"""

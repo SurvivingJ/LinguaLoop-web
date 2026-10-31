@@ -30,7 +30,7 @@ def test_caps_reuse_existing_constants():
     assert st.KIND_CAPS_SECONDS == {
         'test': MAX_CREDITED_ATTEMPT_SECONDS, 'drill': MAX_CREDITED_ATTEMPT_SECONDS,
         'practice': PRACTICE_ATTEMPT_MAX_SECONDS, 'flashcard': 120,
-        'dual_translation': 900,
+        'dual_translation': 900, 'prestudy': 900,
     }
     assert MAX_CREDITED_ATTEMPT_SECONDS == 1200 and PRACTICE_ATTEMPT_MAX_SECONDS == 300
 
@@ -110,9 +110,10 @@ def test_summary_shape_and_rounding():
             'flashcard': {'seconds': 300, 'minutes': 5},
             'dual_translation': {'seconds': 240, 'minutes': 4},
             'drill': {'seconds': 0, 'minutes': 0},
+            'prestudy': {'seconds': 0, 'minutes': 0},
         },
     }
-    assert list(out['by_kind']) == ['test', 'practice', 'flashcard', 'dual_translation', 'drill']
+    assert list(out['by_kind']) == ['test', 'practice', 'flashcard', 'dual_translation', 'drill', 'prestudy']
 
 
 def test_summary_missing_keys_default_zero_and_null_target():

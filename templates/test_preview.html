@@ -345,6 +345,17 @@
                         <i class="bi bi-play-circle-fill"></i>
                         <span id="buttonText" data-i18n="test_preview.start_test">Start Test</span>
                     </button>
+                    <!-- Test prestudy (wiki/features/test-prestudy.md): comprehension modes only -->
+                    <div id="studyFirstBlock" class="mt-3">
+                        <button type="button"
+                                class="btn btn-outline-primary w-100 study-first-btn"
+                                id="studyFirstBtn"
+                                onclick="startPrestudy()">
+                            <i class="bi bi-book-half"></i>
+                            <span data-i18n="test_preview.study_first">Study first</span>
+                        </button>
+                        <p class="text-slate-500 small mt-2 mb-0 text-center" data-i18n="test_preview.study_first_hint">Learn the key words before you take the test. Your first attempt then counts at half weight for your rating.</p>
+                    </div>
                 </div>
             </div>
 
@@ -372,6 +383,7 @@
     let testData = null;
     let skillRatings = null;
     let selectedTestType = 'listening';
+    const PRESTUDY_TYPES = ['listening', 'reading'];
     let testSlug = null;
 
     /**
@@ -539,6 +551,12 @@
             buttonTextEl.textContent = LinguaI18n.t('test_preview.start_type_test', {type: testTypeLabel});
         }
 
+        // Prestudy is offered for the comprehension modes (listening, reading)
+        const studyBlock = document.getElementById('studyFirstBlock');
+        if (studyBlock) {
+            studyBlock.hidden = !PRESTUDY_TYPES.includes(testType);
+        }
+
         // Reset button state for all test types
         const startBtn = document.getElementById('startTestBtn');
         if (startBtn) {
@@ -652,6 +670,14 @@
     }
 
     /**
+     * Open the prestudy page for this test in the selected comprehension mode.
+     */
+    function startPrestudy() {
+        if (!testSlug || !PRESTUDY_TYPES.includes(selectedTestType)) return;
+        window.location.href = `/test/${encodeURIComponent(testSlug)}/prestudy?type=${encodeURIComponent(selectedTestType)}`;
+    }
+
+    /**
      * Initialize the page
      */
     async function initializePage() {
@@ -707,6 +733,7 @@
     // Make functions globally accessible
     window.updateDifficultyDisplay = updateDifficultyDisplay;
     window.startTest = startTest;
+    window.startPrestudy = startPrestudy;
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {

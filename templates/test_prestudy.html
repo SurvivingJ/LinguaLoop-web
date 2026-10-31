@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Study First | LinguaDojo{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Test prestudy (wiki/features/test-prestudy.md). Scoped to .ps-*; colours from the app tokens. */
+.ps-wrap { max-width: 860px; margin: 0 auto; padding: 16px 16px 120px; }
+.ps-cjk { font-family: "Noto Sans JP", "Noto Sans SC", "Hiragino Sans", "PingFang SC", var(--font-sans), sans-serif; }
+.ps-note { color: var(--text-secondary); font-size: var(--text-sm, 14px); }
+.ps-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ps-between { justify-content: space-between; }
+.ps-gap { margin-top: 10px; }
+.ps-sub { margin: 4px 0 8px; }
+.ps-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg, 12px); padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+.ps-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--radius-pill, 999px); font-size: 13px; background: var(--bg-muted); color: var(--text-secondary); border: 1px solid var(--border-default); white-space: nowrap; }
+.ps-chip.ok { background: var(--success-bg); color: var(--success); border-color: transparent; }
+.ps-chip.bad { background: var(--danger-bg); color: var(--danger); border-color: transparent; }
+.ps-chip.warn { background: var(--warning-bg); color: var(--warning-text, var(--warning)); border-color: transparent; }
+.ps-chip.info { background: var(--info-bg); color: var(--info); border-color: transparent; }
+.ps-chip.primary { background: var(--selected-bg); color: var(--primary); border-color: transparent; }
+.ps-chip-lg { font-size: 15px; padding: 4px 12px; }
+
+/* steps */
+.ps-steps { display: flex; gap: 6px; margin: 8px 0 16px; }
+.ps-step { flex: 1; text-align: center; padding: 8px 6px; border-radius: var(--radius-md, 8px); background: var(--bg-muted); color: var(--text-secondary); font-size: 14px; cursor: pointer; border: 1px solid transparent; user-select: none; }
+.ps-step.active { background: var(--selected-bg); color: var(--primary); border-color: var(--primary); font-weight: 600; }
+.ps-step:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* passage */
+.ps-passage { font-size: 19px; line-height: 2.2; word-break: break-word; white-space: pre-wrap; margin-top: 12px; }
+.ps-passage:lang(en) { line-height: 1.8; }
+.ps-tok.linked { cursor: pointer; border-radius: 4px; }
+.ps-tok.linked:focus-visible { outline: 2px solid var(--primary); }
+.ps-passage.hl .ps-tok.unknown { background: var(--danger-bg); box-shadow: inset 0 -2px 0 var(--danger); }
+.ps-passage.hl .ps-tok.encountered { background: var(--warning-bg); box-shadow: inset 0 -2px 0 var(--warning); }
+.ps-passage.hl .ps-tok.learning { box-shadow: inset 0 -2px 0 var(--info); }
+.ps-tok.quizzed { font-weight: 600; }
+.ps-passage rt { font-size: 0.55em; color: var(--text-secondary); }
+.ps-audio { width: 100%; margin-top: 12px; }
+
+/* key words */
+.ps-wordlist { display: grid; gap: 8px; margin-top: 10px; }
+.ps-word { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; text-align: left; width: 100%; padding: 10px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-md, 8px); background: var(--bg-surface); color: var(--text-primary); }
+.ps-word:hover { background: var(--bg-surface-hover); }
+.ps-word-main { min-width: 0; flex: 1 1 220px; }
+.ps-lem { font-family: "Noto Sans JP", "Noto Sans SC", var(--font-sans), sans-serif; font-size: 18px; font-weight: 600; margin-right: 8px; }
+.ps-rd { color: var(--text-secondary); font-size: 14px; }
+.ps-g { color: var(--text-secondary); font-size: 14px; margin-top: 2px; }
+.ps-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-start; }
+.ps-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; background: var(--slate-400); }
+.ps-dot.unknown { background: var(--danger); } .ps-dot.encountered { background: var(--warning); } .ps-dot.learning { background: var(--info); }
+
+/* popover */
+.ps-pop { position: absolute; z-index: 1060; max-width: min(360px, calc(100vw - 16px)); background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md, 8px); box-shadow: var(--shadow-lg); padding: 12px 14px; }
+.ps-pop-w { font-family: "Noto Sans JP", "Noto Sans SC", var(--font-sans), sans-serif; font-size: 22px; font-weight: 600; margin-right: 8px; }
+.ps-pop-r { color: var(--text-secondary); }
+.ps-pop-d { margin-top: 6px; }
+.ps-pop-ex { margin-top: 6px; color: var(--text-secondary); font-size: 14px; }
+.ps-pop-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ps-pop-close { margin-top: 10px; }
+.ps-scrim { position: fixed; inset: 0; z-index: 1050; background: transparent; }
+
+/* quiz */
+.ps-progress { display: flex; gap: 3px; flex-wrap: wrap; margin: 10px 0 14px; }
+.ps-progress i { flex: 1 0 8px; max-width: 28px; height: 6px; border-radius: 3px; background: var(--bg-muted); border: 1px solid var(--border-default); }
+.ps-progress i.cur { background: var(--primary); border-color: var(--primary); }
+.ps-progress i.c { background: var(--success); border-color: var(--success); }
+.ps-progress i.w { background: var(--danger); border-color: var(--danger); }
+.ps-progress i.k { background: var(--warning); border-color: var(--warning); }
+.ps-qhead { margin-bottom: 8px; }
+.ps-qword { font-family: "Noto Sans JP", "Noto Sans SC", var(--font-sans), sans-serif; font-size: 34px; font-weight: 600; text-align: center; margin: 14px 0 4px; }
+.ps-qword.ps-gloss-prompt { font-family: var(--font-sans); font-size: 20px; font-weight: 500; line-height: 1.5; }
+.ps-qread { text-align: center; color: var(--text-secondary); font-size: 14px; }
+.ps-ctx { background: var(--bg-muted); border-radius: var(--radius-md, 8px); padding: 12px 14px; font-family: "Noto Sans JP", "Noto Sans SC", var(--font-sans), sans-serif; font-size: 18px; line-height: 1.9; margin-top: 6px; word-break: break-word; }
+.ps-ctx mark { background: var(--warning-bg); padding: 0 2px; }
+.ps-blank { color: var(--primary); font-weight: 700; }
+.ps-opts { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
+@media (min-width: 640px) { .ps-opts { grid-template-columns: 1fr 1fr; } }
+.ps-opt { text-align: left; min-height: 48px; padding: 10px 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-md, 8px); background: var(--bg-surface); color: var(--text-primary); font-size: 16px; }
+.ps-opt.ps-big { font-size: 19px; }
+.ps-opt:hover:not(:disabled) { border-color: var(--primary); background: var(--bg-surface-hover); }
+.ps-opt.correct { border-color: var(--success); background: var(--success-bg); }
+.ps-opt.wrong { border-color: var(--danger); background: var(--danger-bg); }
+.ps-opt:disabled { cursor: default; }
+.ps-form { margin-top: 14px; flex-wrap: nowrap; }
+.ps-input { flex: 1; min-width: 0; font-size: 18px; min-height: 48px; }
+.ps-idk-input { border-color: var(--border-strong); }
+.ps-idkrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+.ps-reveal { margin-top: 14px; padding: 12px 14px; border-radius: var(--radius-md, 8px); border: 1px solid var(--border-default); background: var(--bg-muted); }
+.ps-reveal.ok { border-color: var(--success); }
+.ps-reveal.bad { border-color: var(--danger); }
+.ps-reveal .ps-note { margin-top: 4px; }
+.ps-reveal-foot { display: flex; justify-content: flex-end; margin-top: 10px; }
+.ps-tonegrid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.ps-tonesyl { text-align: center; }
+.ps-syl { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.ps-tonebtns { display: flex; gap: 4px; }
+.ps-tone { min-width: 40px; min-height: 40px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm, 6px); background: var(--bg-surface); color: var(--text-primary); }
+.ps-tone.picked { border-color: var(--primary); background: var(--selected-bg); }
+.ps-tone.correct { border-color: var(--success); background: var(--success-bg); }
+.ps-tone.wrong { border-color: var(--danger); background: var(--danger-bg); }
+.ps-chunks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ps-chunk { padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-md, 8px); background: var(--bg-surface); color: var(--text-primary); font-size: 17px; font-family: "Noto Sans JP", "Noto Sans SC", var(--font-sans), sans-serif; }
+.ps-chunk.on { display: inline-block; margin: 2px; background: var(--selected-bg); border-color: var(--primary); }
+.ps-built { min-height: 2.6em; }
+.ps-statrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+.ps-stat { background: var(--bg-muted); border-radius: var(--radius-md, 8px); padding: 12px; font-size: 22px; font-weight: 600; }
+.ps-stat small { display: block; font-size: 13px; font-weight: 400; color: var(--text-secondary); margin-top: 4px; }
+.ps-callout { padding: 12px 14px; border-radius: var(--radius-md, 8px); background: var(--info-bg); color: var(--text-primary); }
+.ps-table { margin-top: 6px; }
+
+/* action bar */
+.ps-actionbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1030; background: var(--bg-surface); border-top: 1px solid var(--border-default); box-shadow: var(--shadow-md); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+.ps-actionbar-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
+.ps-actionbar .ps-note { flex: 1; min-width: 0; }
+.ps-notice { position: fixed; top: 76px; left: 50%; transform: translateX(-50%); z-index: 1070; max-width: calc(100vw - 32px); }
+@media (max-width: 480px) {
+  .ps-card { padding: 14px; }
+  .ps-qword { font-size: 30px; }
+  .ps-actionbar .ps-note { display: none; }
+  .ps-actionbar-inner .btn { flex: 1; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ps-wrap">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2">
+            <li class="breadcrumb-item"><a href="/tests" data-i18n="test_preview.breadcrumb_tests">Tests</a></li>
+            <li class="breadcrumb-item"><a href="#" id="psBackToPreview" data-i18n="test_preview.breadcrumb_preview">Test Preview</a></li>
+            <li class="breadcrumb-item active" data-i18n="prestudy.page_title">Study first</li>
+        </ol>
+    </nav>
+
+    <div id="psLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-3 ps-note" data-i18n="prestudy.loading">Preparing your study session...</p>
+    </div>
+
+    <div id="psError" class="ps-card" hidden>
+        <p id="psErrorMsg" class="mb-3"></p>
+        <a class="btn btn-primary" id="psErrorSkip" href="#" data-i18n="prestudy.take_cold">Skip and take the test</a>
+    </div>
+
+    <div id="psNotice" class="alert alert-warning ps-notice" role="status" hidden></div>
+
+    <div id="psMain" hidden>
+        <div class="ps-steps" role="tablist">
+            <div class="ps-step active" data-step="1" tabindex="0" role="tab" data-i18n="prestudy.step_preview">Preview</div>
+            <div class="ps-step" data-step="2" tabindex="0" role="tab" data-i18n="prestudy.step_prime">Word prime</div>
+            <div class="ps-step" data-step="3" tabindex="0" role="tab" data-i18n="prestudy.step_ready">Ready</div>
+        </div>
+
+        <!-- Step 1: preview -->
+        <section id="psS1">
+            <div class="ps-card">
+                <h1 class="h4 ps-cjk mb-2" id="psTitle"></h1>
+                <div class="ps-row" id="psChips"></div>
+                <audio id="psAudio" class="ps-audio" controls preload="none" hidden></audio>
+                <div class="ps-note" id="psAudioNote" hidden data-i18n="prestudy.audio_unavailable">Audio could not be loaded.</div>
+                <div class="ps-row ps-gap">
+                    <label class="form-check-label ps-note"><input type="checkbox" class="form-check-input me-1" id="psHl" checked> <span data-i18n="prestudy.highlight">Highlight new words</span></label>
+                    <label class="ps-note ms-2" id="psAidsWrap"><span data-i18n="prestudy.aids_label">Reading aids</span>
+                        <select id="psAids" class="form-select form-select-sm d-inline-block w-auto ms-1">
+                            <option value="unknown" data-i18n="prestudy.aids_unknown">On new words</option>
+                            <option value="all" data-i18n="prestudy.aids_all">On every word</option>
+                            <option value="off" data-i18n="prestudy.aids_off">Off</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="ps-passage" id="psPassage"></div>
+                <div class="ps-note ps-gap" id="psStats"></div>
+            </div>
+            <div class="ps-card">
+                <div class="ps-row ps-between">
+                    <h2 class="h5 mb-0" data-i18n="prestudy.key_words">Key words</h2>
+                    <span class="ps-note" id="psKwCount"></span>
+                </div>
+                <div class="ps-wordlist" id="psWordlist"></div>
+            </div>
+            <div class="text-center mb-3"><a href="#" id="psSkip" class="ps-note" data-i18n="prestudy.take_cold">Skip and take the test</a></div>
+        </section>
+
+        <!-- Step 2: word prime and readiness check -->
+        <section id="psS2" class="ps-card" hidden>
+            <div class="ps-row ps-between">
+                <h2 class="h5 mb-0" data-i18n="prestudy.step_prime">Word prime</h2>
+                <span class="ps-chip primary" id="psQuizMode"></span>
+            </div>
+            <div class="ps-progress" id="psQProg"></div>
+            <div id="psQBody"></div>
+        </section>
+
+        <!-- Step 3: ready -->
+        <section id="psS3" class="ps-card" hidden>
+            <h2 class="h5" id="psReadyTitle" data-i18n="prestudy.ready_title">Ready for the test</h2>
+            <div class="ps-statrow" id="psReadyStats"></div>
+            <p class="ps-note" id="psSaveState"></p>
+            <p class="ps-note" id="psEloNote" data-i18n="prestudy.elo_note">Your first attempt after studying counts at half weight for your rating.</p>
+            <button type="button" class="btn btn-primary w-100" id="psTakeTest"><i class="bi bi-play-circle-fill"></i> <span data-i18n="prestudy.take_test">Take the test</span></button>
+            <!-- After the attempt: Produce = dual translation of the window with the most primed words -->
+            <div id="psProduceBox" hidden>
+                <p class="ps-note" data-i18n="prestudy.produce_intro">Now produce them: translate two to four sentences of this passage back into the language you are learning, from a reference in your language. Each primed word you use is marked.</p>
+                <button type="button" class="btn btn-primary w-100" id="psProduce"><i class="bi bi-pencil-square"></i> <span data-i18n="prestudy.produce_start">Translate a passage (about 5 min)</span></button>
+                <p class="ps-note mt-2" id="psProduceMsg" role="status"></p>
+            </div>
+            <button type="button" class="btn btn-outline-secondary w-100 mt-2" id="psBackToSession" hidden data-i18n="prestudy.back_to_session">Back to today's session</button>
+        </section>
+    </div>
+</div>
+
+<div id="psScrim" class="ps-scrim" hidden></div>
+<div id="psPop" class="ps-pop" role="dialog" hidden></div>
+
+<div class="ps-actionbar" id="psActionBar">
+    <div class="ps-actionbar-inner">
+        <button type="button" class="btn btn-outline-secondary" id="psBack" hidden data-i18n="prestudy.back">Back</button>
+        <span class="ps-note" id="psBarNote"></span>
+        <button type="button" class="btn btn-primary" id="psNextStep" data-i18n="prestudy.start_prime">Start the word prime</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/active-timer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/prestudy/prestudy-links.js') }}"></script>
+<script src="{{ url_for('static', filename='js/prestudy/prestudy.js') }}"></script>
+{% endblock %}

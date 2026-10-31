@@ -2066,6 +2066,52 @@ L1 reference translations per sentence, with authoring/review provenance. At mos
 
 ---
 
+## 12. Test Prestudy (planned, migrations written, not applied live)
+
+Migrations: `migrations/prestudy_elo_factor.sql`, then `migrations/prestudy_workflow.sql`
+(applies and re-applies cleanly on scratch PG16). Spec: [[features/test-prestudy]]. Both new
+tables are service-role only (RLS on, all client privileges revoked, no policy).
+
+### `prestudy_sessions`
+One row per prestudy session (the Measurement record).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid PK | `gen_random_uuid()` |
+| `user_id` | uuid | FK `auth.users` ON DELETE CASCADE |
+| `language_id` | smallint | FK `dim_languages` |
+| `test_id` | uuid | FK `tests` ON DELETE CASCADE |
+| `test_type` | text | `reading` \| `listening` |
+| `mode` | text | `prime` (before the attempt) \| `followup` (after it) |
+| `trigger` | text | `opt_in` \| `auto` \| `retry` |
+| `plan_mode` | text | `full` \| `light` \| `none` |
+| `session_block_id`, `load_date` | text, date | set when run from the daily session |
+| `unknown_share_at_open` | numeric(4,3) | snapshot, never recomputed |
+| `words_shown`, `words_quizzed`, `next_day_review_senses` | int[] | restricted to the test's senses |
+| `exposures`, `first_try_correct`, `first_try_total`, `idk_count`, `boosters`, `ladder_exercises` | int | |
+| `readiness_score`, `readiness_n`, `readiness_rounds`, `ready` | smallint, smallint, smallint, boolean | |
+| `minutes_est`, `active_seconds`, `minutes_source`, `tests_dropped_today` | | `minutes_source` `tests_share` \| `free` |
+| `followup`, `produce` | jsonb | follow-up prime and Produce results |
+| `status` | text | `open` → `completed` → `consumed` (spent on an attempt) |
+| `attempt_id`, `started_at`, `completed_at`, `consumed_at` | | |
+
+Indexes: `(user_id, test_id, started_at DESC)`, `(user_id, language_id, started_at DESC)`.
+A completed `prime` row in the last 6 h makes the next submit `prestudied` (server-verified).
+
+### `prestudy_followups`
+Next-day review senses. `UNIQUE (user_id, sense_id, due_date)`; partial index on
+`(user_id, language_id, due_date) WHERE completed_at IS NULL`. `reason` ∈ `idk_twice`,
+`readiness_missed`, `primed_missed_in_test`, `omitted_in_produce`. Served (one exercise each,
+at most 5) inside Maintenance practice sessions; completed by any attempt on that sense.
+
+### Column and function changes
+- `test_attempts.prestudied boolean NOT NULL DEFAULT false`; `process_test_submission` gains
+  `p_prestudied boolean DEFAULT false` (first attempt: user and test K × 0.5).
+- `exercise_attempts.source text` (`NULL` | `prestudy`): ladder exercises answered in a prime.
+- `user_study_plans.prestudy_mode text NOT NULL DEFAULT 'auto'` (`auto` | `ask` | `off`).
+- `study_time_ledger.kind` adds `prestudy`; `credit_study_time` caps it at 900 s;
+  `get_weekly_study_seconds` returns a `prestudy` key.
+
 ## Enum Types
 
 ### `exercise_source_type`
