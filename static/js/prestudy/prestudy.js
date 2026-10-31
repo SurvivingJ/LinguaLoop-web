@@ -42,8 +42,14 @@
     test: null, glossLang: null, ability: 5.0, hl: true, aids: 'unknown',
     know: {}, snapshot: 0, shown: new Set(),
     quiz: null, prime: null, ready: null, phase: 'prime',
-    answers: [], evidencePosted: false, exUsed: new Set(), step: 1,
+    answers: [], exAnswers: [], evidencePosted: false, exUsed: new Set(), step: 1,
+    // 'prime' before the attempt; 'followup' after it (words behind wrong answers)
+    mode: 'prime', trigger: 'opt_in', planOverride: null, block: null, returnTo: null,
+    droppedToday: 0, sessionId: null, timer: null, followSenses: [],
   };
+  const FOLLOWUP_STAGES = ['read_typed', 'def_mc', 'cloze_mc'];
+  const FOLLOWUP_MAX_WORDS = 5;
+  const LIGHT_STAGES = ['read_typed', 'def_mc'];   // the one-minute warm-up for 5-25% unknown
 
   const $ = (id) => document.getElementById(id);
   const T = (key, params) => (window.LinguaI18n ? window.LinguaI18n.t(key, params) : key);
@@ -88,6 +94,7 @@
   }
   function exercisesFor(sid) { return (D.exercises && D.exercises[String(sid)]) || []; }
   function estMinutes(a) {
+    if (currentPlanMode() === 'light') return 1;
     const k = Math.min(8, a.unknown);
     const ex = a.ranked.slice(0, k).filter((r) => exercisesFor(r.sid).length).length;
     return Math.min(10, Math.max(2, Math.round((60 + k * 5 * 8 + ex * 2 * 20 + 5 * 8) / 60)));
@@ -407,20 +414,30 @@
   }
   function newPerWord(sid) { return { exposures: 0, correct: 0, wrong: 0, idk: 0, boosters: 0, pBefore: pNow(sid), stages: {} }; }
   function buildQuiz() {
-    const a = analyse(), tr = trigger(S.snapshot);
-    const n = tr.mode === 'light' ? Math.min(3, a.ranked.length) : Math.min(8, a.ranked.length);
-    const words = a.ranked.slice(0, n).map((r) => r.sid);
+    const a = analyse(), planMode = currentPlanMode();
+    let words;
+    if (S.mode === 'followup') {
+      // the unknown senses behind the questions answered wrong, in question order
+      words = S.followSenses.filter((sid) => D.senses[sid] && pNow(sid) < 0.5).slice(0, FOLLOWUP_MAX_WORDS);
+    } else {
+      const n = planMode === 'light' ? Math.min(3, a.ranked.length) : Math.min(8, a.ranked.length);
+      words = a.ranked.slice(0, n).map((r) => r.sid);
+    }
     S.exUsed = new Set();
     const queue = [];
-    STAGES.forEach((st) => {
+    const allowed = S.mode === 'followup' ? FOLLOWUP_STAGES : (planMode === 'light' ? LIGHT_STAGES : null);
+    STAGES.filter((st) => !allowed || allowed.includes(st.k)).forEach((st) => {
       const round = shuffle(words.map((sid) => buildItem(st.k, sid, a)).filter(Boolean));
       if (queue.length && round.length > 1 && round[0].sid === queue[queue.length - 1].sid) round.push(round.shift());
       queue.push(...round);
     });
     const perWord = {}; words.forEach((sid) => { perWord[sid] = newPerWord(sid); });
-    S.quiz = { words, queue, i: 0, mode: tr.mode, perWord };
+    S.quiz = { words, queue, i: 0, mode: planMode, perWord };
     $('psQuizMode').textContent = T('prestudy.prime_header', { words: words.length, items: queue.length });
     drawQuiz();
+  }
+  function currentPlanMode() {
+    return ['full', 'light', 'none'].includes(S.planOverride) ? S.planOverride : trigger(S.snapshot).mode;
   }
   function ensureIdk() {
     const rv = $('psReveal'); if (!rv || $('psIdk')) return;
@@ -445,7 +462,7 @@
           ${rd.length ? `<div class="ps-stat">${rd.filter((i) => i.ok).length} / ${rd.length}<small>${esc(T('prestudy.done_reading'))}</small></div>` : ''}
           <div class="ps-stat">${mn.filter((i) => i.ok).length} / ${mn.length}<small>${esc(T('prestudy.done_meaning'))}</small></div>
           <div class="ps-stat">${q.queue.filter((it) => it.idk).length}<small>${esc(T('prestudy.done_idk'))}</small></div></div>
-        <div class="ps-callout">${esc(readinessWords().length ? T(S.phase === 'boost' ? 'prestudy.next_readiness2' : 'prestudy.next_readiness') : T('prestudy.next_ready'))}</div>`;
+        <div class="ps-callout">${esc(S.mode === 'followup' ? T('prestudy.next_produce') : (readinessWords().length && currentPlanMode() !== 'light' ? T(S.phase === 'boost' ? 'prestudy.next_readiness2' : 'prestudy.next_readiness') : T('prestudy.next_ready')))}</div>`;
       updateActionBar();
       return;
     }
@@ -488,7 +505,9 @@
     };
     $('psTyped').focus(); ensureIdk();
   }
-  function recordAnswer(sid, correct, idk) { S.answers.push({ sense_id: Number(sid), correct: !!correct, idk: !!idk }); }
+  function recordAnswer(sid, correct, idk, stage) {
+    S.answers.push({ sense_id: Number(sid), correct: !!correct, idk: !!idk, stage: stage || (S.mode === 'followup' ? 'followup' : 'prime') });
+  }
   function answer(ok, given, extra) {
     extra = extra || {};
     const q = S.quiz, it = q.queue[q.i]; if (!it || it.answered != null) return;
@@ -496,7 +515,10 @@
     const idk = !!extra.idk; it.answered = idk ? '' : given; it.ok = ok; it.idk = idk;
     const w = q.perWord[it.sid]; w.exposures++; if (ok) w.correct++; else w.wrong++; if (idk) w.idk++; if (!it.retry) w.stages[it.stage] = ok;
     const p0 = pNow(it.sid); S.know[it.sid] = idk ? bktUpdateIdk(p0) : bktUpdate(p0, ok);
-    recordAnswer(it.sid, ok, idk);
+    // ladder exercises are exercise evidence (exercise_attempts, source prestudy),
+    // everything else is word-test evidence
+    if (it.kind === 'ex') S.exAnswers.push({ exercise_id: it.ex.id, correct: !!ok, idk, given: given == null ? '' : String(given).slice(0, 200) });
+    else recordAnswer(it.sid, ok, idk);
     const willRetry = !ok && (it.retries || 0) < (idk ? 3 : 2);
     if (willRetry) {
       const again = Object.assign({}, it, { answered: null, ok: null, idk: false, retry: true, retries: (it.retries || 0) + 1 });
@@ -559,7 +581,7 @@
         rows.forEach((r) => {
           const w = q.perWord[r.sid]; if (w) { w.readiness = w.readiness || []; w.readiness.push(r.ok); }
           S.know[r.sid] = r.u ? bktUpdate(pNow(r.sid), r.ok) : bktUpdateIdk(pNow(r.sid));
-          recordAnswer(r.sid, r.ok, !r.u);
+          recordAnswer(r.sid, r.ok, !r.u, 'readiness');
         });
       }
       const res = R.results;
@@ -594,12 +616,48 @@
   }
 
   // ---------- ready ----------
+  // The measurement record for prestudy_sessions (wiki/features/test-prestudy.md, Measurement).
+  function metrics() {
+    const q = S.prime || S.quiz || { queue: [], words: [], perWord: {} };
+    const answered = q.queue.filter((it) => it.answered != null);
+    const first = answered.filter((it) => !it.retry);
+    const R = S.ready && S.ready.results;
+    const a = analyse();
+    const nextDay = q.words.filter((sid) => {
+      const w = q.perWord[sid] || {};
+      return (w.idk || 0) >= 2 || (w.readiness || []).some((x) => !x);
+    });
+    return {
+      words_shown: Array.from(S.shown).map(Number),
+      words_quizzed: q.words.map(Number),
+      exposures: answered.length,
+      first_try_correct: first.filter((it) => it.ok).length,
+      first_try_total: first.length,
+      idk_count: answered.filter((it) => it.idk).length,
+      boosters: q.queue.filter((it) => it.booster).length,
+      ladder_exercises: answered.filter((it) => it.kind === 'ex').length,
+      readiness_score: R ? R.score : null,
+      readiness_n: R ? R.n : null,
+      readiness_rounds: S.ready ? S.ready.round : 0,
+      ready: R ? !!R.pass : null,
+      next_day_review_senses: nextDay.map(Number),
+      minutes_est: estMinutes(a),
+      active_seconds: S.timer ? Math.round(S.timer.stop() / 1000) : 0,
+      tests_dropped_today: S.droppedToday,
+    };
+  }
   async function postEvidence() {
-    if (S.evidencePosted || !S.answers.length) return true;
+    if (S.evidencePosted) return true;
+    if (!S.answers.length && !S.exAnswers.length && !S.sessionId) return true;
     S.evidencePosted = true;
     try {
       const res = await window.authFetch(`/api/tests/${encodeURIComponent(S.slug)}/prestudy/evidence`, {
-        method: 'POST', body: JSON.stringify({ answers: S.answers.slice(0, 400) }),
+        method: 'POST',
+        body: JSON.stringify({
+          session_id: S.sessionId, mode: S.mode,
+          answers: S.answers.slice(0, 400), exercise_answers: S.exAnswers.slice(0, 40),
+          metrics: metrics(),
+        }),
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return true;
@@ -617,25 +675,76 @@
       <div class="ps-stat">${first.filter((it) => it.ok).length} / ${first.length}<small>${esc(T('prestudy.summary_first_try'))}</small></div>
       ${R && R.n ? `<div class="ps-stat">${R.score} / ${R.n}<small>${esc(T('prestudy.summary_readiness'))}</small></div>` : ''}`;
     const st = $('psSaveState');
-    if (!S.answers.length) { st.textContent = ''; return; }
+    $('psReadyTitle').textContent = T(S.mode === 'followup' ? 'prestudy.followup_done_title' : 'prestudy.ready_title');
+    $('psEloNote').hidden = S.mode === 'followup';
+    $('psTakeTest').hidden = S.mode === 'followup';
+    $('psProduceBox').hidden = S.mode !== 'followup';
+    $('psBackToSession').hidden = !(S.mode === 'followup' && S.returnTo === 'session');
+    if (!S.answers.length && !S.exAnswers.length) {
+      st.textContent = '';
+      postEvidence();
+      return;
+    }
     st.textContent = T('prestudy.saving');
     postEvidence().then((ok) => { st.textContent = T(ok ? 'prestudy.saved' : 'prestudy.save_failed'); });
   }
   function testUrl() {
     return `/test/${encodeURIComponent(S.slug)}?type=${encodeURIComponent(S.testType)}`;
   }
+  // Mark the session's prestudy block done (opened from the daily session).
+  async function completeBlock() {
+    if (!S.block) return;
+    try {
+      await window.authFetch('/api/study-session/complete-block', {
+        method: 'POST', body: JSON.stringify({ block_id: S.block, language_id: S.test.language_id }),
+      });
+    } catch (e) { console.warn('[prestudy] block not completed:', e); }
+  }
   async function takeTest(prestudied) {
     if (prestudied) {
       await postEvidence();
       try { sessionStorage.setItem(MARKER_PREFIX + S.slug, JSON.stringify({ at: Date.now(), test_id: S.test.id })); } catch { /* storage blocked: the attempt counts at full weight */ }
     }
-    window.location.href = testUrl();
+    await completeBlock();
+    // from the daily session: go back, where the session resumes on this test
+    window.location.href = S.returnTo === 'session' ? '/session' : testUrl();
+  }
+
+  // ---------- Produce (after the follow-up) ----------
+  async function startProduce() {
+    const btn = $('psProduce'), msg = $('psProduceMsg');
+    btn.disabled = true; msg.textContent = T('prestudy.produce_loading');
+    await postEvidence();
+    const fallback = analyse().ranked.slice(0, 8).map((r) => Number(r.sid));
+    try {
+      const res = await window.authFetch(`/api/tests/${encodeURIComponent(S.slug)}/prestudy/produce`, {
+        method: 'POST', body: JSON.stringify({ fallback_sense_ids: fallback }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.submission_id) {
+        msg.textContent = T(data.error_code === 'NO_WINDOW' ? 'prestudy.produce_none' : 'prestudy.produce_failed');
+        btn.disabled = false;
+        return;
+      }
+      sessionStorage.setItem('dt_produce_session', JSON.stringify(data));
+      window.location.href = '/dual-translation';
+    } catch (e) {
+      console.warn('[prestudy] Produce failed:', e);
+      msg.textContent = T('prestudy.produce_failed');
+      btn.disabled = false;
+    }
+  }
+  async function backToSession() {
+    await postEvidence();
+    // today's translation slot in the session will use this test's window
+    if (S.mode === 'followup' && window.LinguaPrestudyLinks) window.LinguaPrestudyLinks.setProduceRequest(S.slug, S.test.id);
+    window.location.href = '/session';
   }
 
   // ---------- navigation ----------
   function updateActionBar() {
     const back = $('psBack'), next = $('psNextStep'), note = $('psBarNote');
-    back.hidden = S.step === 1;
+    back.hidden = S.step === 1 || (S.mode === 'followup' && S.step === 2);
     if (S.step === 1) {
       next.textContent = T('prestudy.start_prime'); note.textContent = T('prestudy.elo_note');
     } else if (S.step === 2) {
@@ -669,7 +778,7 @@
     if (q && q.i < q.queue.length) { notice(T('prestudy.finish_round_first')); return; }
     if (S.phase === 'prime') {
       S.prime = S.quiz;
-      if (!readinessWords().length) { S.phase = 'done'; go(3); return; }
+      if (S.mode === 'followup' || currentPlanMode() === 'light' || !readinessWords().length) { S.phase = 'done'; go(3); return; }
       startReadiness(1); return;
     }
     if (S.phase === 'boost') { S.quiz = S.prime; startReadiness(2); return; }
@@ -678,6 +787,19 @@
   function onBack() { if (S.step > 1) go(S.step - 1); }
 
   // ---------- boot ----------
+  // Open the prestudy_sessions row; unknown share is the snapshot at open.
+  async function startSession() {
+    try {
+      const res = await window.authFetch(`/api/tests/${encodeURIComponent(S.slug)}/prestudy/session`, {
+        method: 'POST',
+        body: JSON.stringify({
+          test_type: S.testType, trigger: S.trigger, plan_mode: S.mode === 'followup' ? null : currentPlanMode(), mode: S.mode,
+          unknown_share: Math.round(S.snapshot * 1000) / 1000, session_block_id: S.block,
+        }),
+      });
+      if (res.ok) S.sessionId = (await res.json()).session_id || null;
+    } catch (e) { console.warn('[prestudy] session not recorded:', e); }
+  }
   function showError(msg) { $('psLoading').hidden = true; $('psError').hidden = false; $('psErrorMsg').textContent = msg; }
   async function init() {
     if (window.LinguaI18n && window.LinguaI18n.init) { try { await window.LinguaI18n.init(); } catch { /* English fallback */ } }
@@ -685,14 +807,21 @@
     S.slug = decodeURIComponent(parts[1] || '');
     const params = new URLSearchParams(window.location.search);
     S.testType = params.get('type') === 'listening' ? 'listening' : 'reading';
+    S.mode = params.get('mode') === 'followup' ? 'followup' : 'prime';
+    S.trigger = ['auto', 'retry', 'opt_in'].includes(params.get('trigger')) ? params.get('trigger') : 'opt_in';
+    S.planOverride = params.get('plan');
+    S.block = /^prestudy_[0-9a-f-]{36}$/.test(params.get('block') || '') ? params.get('block') : null;
+    S.returnTo = params.get('return') === 'session' ? 'session' : null;
+    S.droppedToday = Math.max(0, Math.min(3, parseInt(params.get('dropped') || '0', 10) || 0));
     $('psSkip').href = testUrl();
     $('psSkip').onclick = (e) => { e.preventDefault(); takeTest(S.answers.length > 0); };
     $('psBackToPreview').href = `/test/${encodeURIComponent(S.slug)}/preview?type=${encodeURIComponent(S.testType)}`;
     $('psErrorSkip').href = testUrl();
     try {
-      const res = await window.authFetch(`/api/tests/${encodeURIComponent(S.slug)}/prestudy`);
+      const res = await window.authFetch(`/api/tests/${encodeURIComponent(S.slug)}/prestudy${S.mode === 'followup' ? '?mode=followup' : ''}`);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       D = await res.json();
+      S.followSenses = (D.followup_sense_ids || []).map(String);
     } catch (e) {
       console.error('[prestudy] load failed:', e);
       showError(T('prestudy.error_load'));
@@ -709,6 +838,8 @@
     // exercises the renderers cannot draw are dropped up front
     Object.keys(D.exercises || {}).forEach((sid) => { D.exercises[sid] = D.exercises[sid].filter(exerciseUsable); });
     S.snapshot = analyse().share;
+    if (window.ActiveTimer && window.ActiveTimer.create) { S.timer = window.ActiveTimer.create(); S.timer.start(); }
+    startSession();
 
     $('psAids').onchange = (e) => { S.aids = e.target.value; drawPreview(); };
     $('psAidsWrap').hidden = !(S.test.language_id === ZH || S.test.language_id === JA);
@@ -716,6 +847,8 @@
     $('psNextStep').onclick = onNext;
     $('psBack').onclick = onBack;
     $('psTakeTest').onclick = () => takeTest(true);
+    $('psProduce').onclick = startProduce;
+    $('psBackToSession').onclick = backToSession;
     $('psScrim').onclick = hidePop;
     document.addEventListener('click', (e) => { const POP = $('psPop'); if (POP && !POP.contains(e.target)) hidePop(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePop(); });
@@ -730,7 +863,15 @@
     });
 
     $('psLoading').hidden = true; $('psMain').hidden = false;
-    go(1);
+    if (S.mode === 'followup') {
+      // after the attempt: no preview, a short prime, then Produce
+      const s1 = document.querySelector('.ps-step[data-step="1"]'); if (s1) s1.hidden = true;
+      const s2 = document.querySelector('.ps-step[data-step="2"]'); if (s2) s2.textContent = T('prestudy.step_followup');
+      const s3 = document.querySelector('.ps-step[data-step="3"]'); if (s3) s3.textContent = T('prestudy.step_produce');
+      go(2);
+    } else {
+      go(1);
+    }
   }
 
   // exposed for unit-style checks in the browser console and tests

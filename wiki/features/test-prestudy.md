@@ -361,11 +361,48 @@ Built (repo; the ELO migration is not yet applied live):
   (first attempt: user and test K × 0.5, `elo_reduction_factor = 0.5`). Skipping from the preview
   step without answering anything takes the test cold at full K.
 
-Not built yet: `prestudy_sessions` / measurement row, `prestudy_followups` next-day review,
-post-test follow-up prime, Produce step, session-card trigger and the automatic block above 25%
-unknown, tests-share minutes in the study-time ledger, `exercise_attempts` rows for ladder items
-(evidence is word-test only). The prestudied flag is client-asserted; a server-side check that a
-prestudy session exists needs the `prestudy_sessions` table.
+### Workflow completed (2026-10-31, second pass)
+
+- **Measurement.** `POST /api/tests/<id>/prestudy/session` opens a `prestudy_sessions` row when
+  the page loads (unknown share snapshotted at open). The evidence call completes it with the
+  measurement record (words shown and quizzed, exposures, first-try, IDK, boosters, ladder
+  exercises, readiness score and rounds, minutes, tests dropped), clamped server-side and
+  restricted to the test's senses.
+- **Server-verified ELO.** Submit checks for a completed prime session for this test in the
+  last 6 h; that, not the client flag, decides `prestudied`, and the session is marked
+  `consumed` with the attempt id. The client flag only counts while the table does not exist.
+- **Ladder exercises** answered in the prime write `exercise_attempts` rows with
+  `source = 'prestudy'` and exercise-type BKT (first attempt only); no ladder row, no practice
+  minutes. Primed words with no exercises are queued for generation (reason `prestudy`).
+- **Minutes** go to the ledger as kind `prestudy` (shown on the Study Plan's weekly minutes);
+  `minutes_source` is `tests_share` when run from the daily session, else `free`.
+- **Next-day review.** IDK twice and readiness misses (derived server-side from the answers),
+  primed-and-still-missed words (from the follow-up) and words omitted in Produce become
+  `prestudy_followups` rows due tomorrow (learner-local). Maintenance practice sessions serve
+  one exercise per due sense (at most 5); any attempt on the sense completes it.
+- **Post-test follow-up.** Test results (standalone and in the session) offer "Review the words
+  you missed": the prestudy page in `mode=followup` primes the unknown senses behind wrong
+  answers (typed reading, meaning, passage cloze; at most 5 words). That evidence is written
+  with side effects, so the words enter Queue A1 as the post-test quiz's do.
+- **Produce.** After the follow-up, `POST /api/tests/<id>/prestudy/produce` picks the 2-4
+  sentence window with the most primed senses (then wrong-question senses, then shorter) whose
+  references clear the language's tightness floor (ja 0.65, zh 0.70, en 0.60) and opens it
+  through the shared `open_range_passage` helper; the DT page grades it with the primed words as
+  target words. The result is stored on the prime session; omitted words go to next-day review.
+  From the daily session, "Back to today's session" makes the session's translation slot use
+  this window.
+- **Daily session.** `GET /api/study-session` adds `kind: 'prestudy'` items (setting `auto`):
+  full before new tests over 25% unknown, light (three words, reading and meaning, about a
+  minute, no readiness check) for 5-25%, and before every retry slot. The block's card
+  (`static/js/session/players/prestudy.js`) shows the minutes and "N fewer tests today"; when
+  pending blocks cost a test slot (`test_budget_minutes / tests`), that many plain new tests
+  move to the end as optional (`is_bonus`, `deferred_for_prestudy`). Every reading/listening test
+  card carries a "Study first" banner (highlighted under `ask`). Setting: "Study before hard
+  tests: Automatically / Ask me / Off" on the Study Plan's Daily session card
+  (`user_study_plans.prestudy_mode`).
+
+Still not built: lesson walkthrough (mode 3) and study-then-retry answer explanations (need the
+content spend), sentence-level audio, the dictation-mode preview variant.
 
 ## Demo
 

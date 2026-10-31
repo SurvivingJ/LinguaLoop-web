@@ -195,11 +195,18 @@
 
         <!-- Step 3: ready -->
         <section id="psS3" class="ps-card" hidden>
-            <h2 class="h5" data-i18n="prestudy.ready_title">Ready for the test</h2>
+            <h2 class="h5" id="psReadyTitle" data-i18n="prestudy.ready_title">Ready for the test</h2>
             <div class="ps-statrow" id="psReadyStats"></div>
             <p class="ps-note" id="psSaveState"></p>
-            <p class="ps-note" data-i18n="prestudy.elo_note">Your first attempt after studying counts at half weight for your rating.</p>
+            <p class="ps-note" id="psEloNote" data-i18n="prestudy.elo_note">Your first attempt after studying counts at half weight for your rating.</p>
             <button type="button" class="btn btn-primary w-100" id="psTakeTest"><i class="bi bi-play-circle-fill"></i> <span data-i18n="prestudy.take_test">Take the test</span></button>
+            <!-- After the attempt: Produce = dual translation of the window with the most primed words -->
+            <div id="psProduceBox" hidden>
+                <p class="ps-note" data-i18n="prestudy.produce_intro">Now produce them: translate two to four sentences of this passage back into the language you are learning, from a reference in your language. Each primed word you use is marked.</p>
+                <button type="button" class="btn btn-primary w-100" id="psProduce"><i class="bi bi-pencil-square"></i> <span data-i18n="prestudy.produce_start">Translate a passage (about 5 min)</span></button>
+                <p class="ps-note mt-2" id="psProduceMsg" role="status"></p>
+            </div>
+            <button type="button" class="btn btn-outline-secondary w-100 mt-2" id="psBackToSession" hidden data-i18n="prestudy.back_to_session">Back to today's session</button>
         </section>
     </div>
 </div>
@@ -217,5 +224,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/active-timer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/prestudy/prestudy-links.js') }}"></script>
 <script src="{{ url_for('static', filename='js/prestudy/prestudy.js') }}"></script>
 {% endblock %}

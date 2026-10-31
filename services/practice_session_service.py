@@ -123,6 +123,11 @@ DEMAND_GENERATION_MAX_PER_CALL = 5
 # short acquisition session is topped up from the maintenance (FSRS/BKT) pool.
 PRACTICE_SESSION_MIN_ITEMS = 20
 
+# Test prestudy next-day review (prestudy_followups): at most this many
+# follow-up senses per Maintenance session, each one exercise long.
+PRESTUDY_FOLLOWUPS_PER_SESSION = 5
+PRESTUDY_FOLLOWUP_EXPECTED_SECONDS = 30
+
 # TASK-701: practice time accrues at seconds granularity. An attempt whose
 # measured elapsed exceeds this (a tab left open, a coffee break) is treated as
 # absurd and falls back to the exercise's expected_seconds estimate.
@@ -235,6 +240,18 @@ class PracticeSessionService:
                     'lang=%s: %s', user_id, language_id, e,
                 )
 
+        # Test prestudy next-day review: senses flagged by yesterday's prestudy
+        # (prestudy_followups) get one exercise each inside Maintenance. Not a
+        # ladder admission, not counted against new_words_per_day.
+        if mode in ('maintenance', 'auto') and not tail:
+            try:
+                self._inject_prestudy_followups(payload, user_id, language_id)
+            except Exception as e:
+                logger.warning(
+                    'prestudy follow-up injection failed (non-fatal) for user=%s '
+                    'lang=%s: %s', user_id, language_id, e,
+                )
+
         # Session-budget-settings: serve never-attempted admitted words first
         # (oldest admission first), and maintenance reviews most-overdue first.
         try:
@@ -299,6 +316,63 @@ class PracticeSessionService:
             )
 
         return payload
+
+    def _inject_prestudy_followups(
+        self, payload: Dict[str, Any], user_id: str, language_id: int,
+    ) -> int:
+        """Add one exercise per due prestudy next-day review sense, in place.
+
+        Senses already in the session are only marked served; senses with no
+        active exercise stay due (they were sent to generation when primed).
+        Items carry ``mode: 'maintenance'`` and ``prestudy_followup: true``;
+        the review completes when the learner answers any exercise of that
+        sense (``record_attempt_with_updates``).
+        """
+        from services import prestudy
+        from services.day_boundary import plan_today_iso
+        today = plan_today_iso(self.db, user_id, language_id)
+        due = prestudy.due_followup_senses(
+            self.db, user_id, language_id, today, limit=PRESTUDY_FOLLOWUPS_PER_SESSION)
+        if not due:
+            return 0
+        items = payload.get('items') or []
+        in_session = {i.get('sense_id') for i in items if i.get('sense_id') is not None}
+        need = [s for s in due if s not in in_session]
+        extras: List[Dict[str, Any]] = []
+        if need:
+            rows = (
+                self.db.table('exercises')
+                .select('id, word_sense_id, exercise_type, content, ladder_level')
+                .eq('is_active', True).in_('word_sense_id', need)
+                .order('ladder_level').execute().data or []
+            )
+            seen = {i.get('exercise_id') for i in items}
+            picked: Dict[int, Dict[str, Any]] = {}
+            for r in rows:
+                sid = r.get('word_sense_id')
+                if sid in picked or r.get('id') in seen:
+                    continue
+                picked[sid] = {
+                    'exercise_id':      r['id'],
+                    'sense_id':         sid,
+                    'exercise_type':    r.get('exercise_type'),
+                    'family':           None,
+                    'content':          r.get('content'),
+                    'ladder_level':     r.get('ladder_level'),
+                    'p_known':          None,
+                    'expected_seconds': PRESTUDY_FOLLOWUP_EXPECTED_SECONDS,
+                    'mode':             'maintenance',
+                    'prestudy_followup': True,
+                }
+            extras = [picked[s] for s in need if s in picked]
+        if extras:
+            payload['items'] = self._interleave_extras(items, extras)
+            payload['prestudy_followups'] = len(extras)
+            if payload.get('no_content_reason'):
+                payload['no_content_reason'] = None
+        served = [s for s in due if s in in_session] + [e['sense_id'] for e in extras]
+        prestudy.mark_followups(self.db, user_id, served, 'served_at')
+        return len(extras)
 
     # ------------------------------------------------------------------
     # Extra rounds (practice-extra-rounds, ADR-036)
@@ -863,6 +937,15 @@ class PracticeSessionService:
             'is_first_attempt': is_first_attempt,
         }
 
+        # 4b. Test prestudy next-day review: answering any exercise of a due
+        # follow-up sense completes it. Best-effort; no-op without the table.
+        if sense_id:
+            try:
+                from services import prestudy
+                prestudy.mark_followups(self.db, user_id, [sense_id], 'completed_at')
+            except Exception as e:
+                logger.info('prestudy follow-up not completed for sense %s: %s', sense_id, e)
+
         # 5. BKT + FSRS for sense-linked items
         if sense_id and eff_language_id:
             if is_first_attempt:
@@ -937,6 +1020,69 @@ class PracticeSessionService:
                     attempt_id, e,
                 )
 
+        return result
+
+    def record_prestudy_exercise_attempt(
+        self,
+        user_id: str,
+        exercise: Dict[str, Any],
+        is_correct: bool,
+        user_response: Optional[dict] = None,
+    ) -> Dict[str, Any]:
+        """Record a ladder exercise answered inside a test prestudy prime.
+
+        Unlike ``record_attempt_with_updates`` this never touches the ladder,
+        FSRS, Study Plan counters or the practice minutes ledger: prestudy is
+        same-day priming, not a ladder admission, and its minutes are credited
+        once for the whole prestudy session (kind ``prestudy``). The row is
+        tagged ``source = 'prestudy'`` and the BKT update uses the exercise's
+        own type parameters, on the first attempt at that exercise only (the
+        same first-attempt gate as practice).
+
+        ``exercise`` is an ``exercises`` row (id, exercise_type, word_sense_id,
+        language_id) the caller has already checked belongs to the test.
+        If ``exercise_attempts.source`` does not exist yet
+        (migrations/prestudy_workflow.sql not applied), no row is written, so
+        a prestudy answer is never mistaken for a practice attempt; the BKT
+        evidence is still recorded.
+        """
+        exercise_id = exercise.get('id')
+        sense_id = exercise.get('word_sense_id')
+        exercise_type = exercise.get('exercise_type')
+        language_id = exercise.get('language_id')
+        prior = (
+            self.db.table('exercise_attempts').select('id')
+            .eq('user_id', user_id).eq('exercise_id', exercise_id).limit(1).execute()
+        )
+        is_first_attempt = not bool(prior.data)
+        attempt_id = None
+        try:
+            inserted = self.db.table('exercise_attempts').insert({
+                'user_id':       user_id,
+                'exercise_id':   exercise_id,
+                'user_response': user_response or {},
+                'is_correct':    bool(is_correct),
+                'exercise_type': exercise_type,
+                'sense_id':      sense_id,
+                'source':        'prestudy',
+                'created_at':    datetime.now(timezone.utc).isoformat(),
+            }).execute()
+            attempt_id = (inserted.data or [{}])[0].get('id')
+        except Exception as e:
+            logger.info('prestudy exercise attempt row not written (%s); BKT only', e)
+        result: Dict[str, Any] = {'attempt_id': attempt_id, 'is_first_attempt': is_first_attempt}
+        if sense_id and language_id and is_first_attempt:
+            try:
+                bkt = VocabularyKnowledgeService(self.db).update_from_word_test(
+                    user_id=user_id, sense_id=sense_id, is_correct=bool(is_correct),
+                    language_id=language_id, exercise_type=exercise_type,
+                )
+                if bkt:
+                    result['bkt_update'] = bkt
+                    if attempt_id:
+                        self._capture_knowledge_outcome(attempt_id, bkt)
+            except Exception as e:
+                logger.error('prestudy BKT update failed for sense %s: %s', sense_id, e)
         return result
 
     # ------------------------------------------------------------------

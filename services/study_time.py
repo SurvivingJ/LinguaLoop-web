@@ -27,9 +27,10 @@ KIND_CAPS_SECONDS: Dict[str, int] = {
     'practice': PRACTICE_ATTEMPT_MAX_SECONDS,
     'flashcard': 120,
     'dual_translation': 900,
+    'prestudy': 900,
 }
 
-KINDS = ('test', 'practice', 'flashcard', 'dual_translation', 'drill')
+KINDS = ('test', 'practice', 'flashcard', 'dual_translation', 'drill', 'prestudy')
 
 
 def _cap(kind: str) -> int:

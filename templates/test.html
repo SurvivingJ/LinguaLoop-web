@@ -232,6 +232,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/prestudy/prestudy-links.js') }}"></script>
 <script>
 // ============================================================================
 // STATE MANAGEMENT
@@ -491,13 +492,9 @@ async function submitTest() {
         const finishedAtIso = new Date().toISOString();
 
         // Test prestudy: a study session for this test in the last 6 hours makes
-        // this a prestudied attempt (first attempt earns 0.5x ELO server-side).
-        const prestudyKey = 'prestudy:' + decodeURIComponent(testState.slug || '');
-        let prestudied = false;
-        try {
-            const marker = JSON.parse(sessionStorage.getItem(prestudyKey) || 'null');
-            prestudied = !!(marker && marker.at && (Date.now() - marker.at) < 6 * 3600 * 1000);
-        } catch (e) { prestudied = false; }
+        // this a prestudied attempt (first attempt earns 0.5x ELO; the server
+        // verifies it against prestudy_sessions).
+        const prestudied = !!(window.LinguaPrestudyLinks && LinguaPrestudyLinks.isPrestudied(testState.slug));
 
         // Submit to API
         const response = await window.authFetch(`/api/tests/${testState.slug}/submit`, {
@@ -521,7 +518,7 @@ async function submitTest() {
         const result = await response.json();
 
         // The prestudy marker is spent on the attempt it was made for
-        try { sessionStorage.removeItem(prestudyKey); } catch (e) { /* storage blocked */ }
+        if (window.LinguaPrestudyLinks) LinguaPrestudyLinks.clearMarker(testState.slug);
 
         // Mark as submitted
         testState.isSubmitted = true;
@@ -1091,6 +1088,14 @@ function showResults(result) {
     const successScoreText = document.getElementById('successScoreText');
     successScoreText.textContent = LinguaI18n.t('test.success_score', {score: score, total: total, percentage: percentage});
     successMessage.style.display = 'block';
+
+    // Test prestudy: follow-up prime on the words behind wrong answers, then Produce
+    if (window.LinguaPrestudyLinks && !successMessage.querySelector('[data-prestudy-actions]')) {
+        LinguaPrestudyLinks.renderResultActions(successScoreText.parentElement, {
+            slug: testState.slug, type: testState.testType,
+            wrong: Math.max(0, total - score), prestudied: !!result.result?.prestudied,
+        });
+    }
 
     // Scroll to top to show success message
     window.scrollTo({ top: 0, behavior: 'smooth' });
