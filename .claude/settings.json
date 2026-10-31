@@ -7,11 +7,12 @@
       "Bash(python scripts/export_exercise_worklist.py:*)",
       "Bash(python scripts/upload_exercises.py:*)",
       "Bash(ls:*)",
-      "mcp__claude_ai_Supabase__execute_sql"
+      "mcp__claude_ai_Supabase__execute_sql",
+      "Bash(python scripts/audit_transcript_preambles.py:*)",
+      "Bash(python scripts/build_test_sentences.py:*)",
+      "Bash(python scripts/upload_sentence_references.py:*)"
     ],
     "deny": [
-      "Bash(git commit:*)",
-      "Bash(git push:*)"
     ]
   },
   "env": {

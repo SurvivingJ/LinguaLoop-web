@@ -125,7 +125,17 @@
     timer: null,
     activeMs: null,
     eventId: null,
+    // TASK-909/910: the prestudy Produce stage opens this page with a session
+    // from POST /passage-from-sentences (stashed under PRODUCE_STORAGE_KEY by the
+    // runner). The signed primed-sense token is echoed on submit so the grader
+    // reports one row per primed word.
+    primedToken: null,
   };
+
+  // sessionStorage key the prestudy runner writes the passage-from-sentences
+  // response to: {submission_id, l1_text, age_tier, rubric_descriptors,
+  // correction_style, primed_token}. Consumed (removed) on first read.
+  const PRODUCE_STORAGE_KEY = 'dt_produce_session';
 
   const el = {};
 
@@ -209,6 +219,7 @@
       'dtSelfRateRecall',
       'dtDiff',
       'dtHighlights',
+      'dtTargetWords',
       'dtDims',
       'dtNaturalnessToggleWrap',
       'dtNaturalnessToggle',
@@ -231,9 +242,29 @@
   }
 
   // -------------------------------------------------------------- GET /next
+  // TASK-909: a Produce session handed over by the prestudy runner replaces the
+  // GET /next pull for one passage. Returns null when there is none.
+  function takeProduceSession() {
+    try {
+      const raw = window.sessionStorage && window.sessionStorage.getItem(PRODUCE_STORAGE_KEY);
+      if (!raw) return null;
+      window.sessionStorage.removeItem(PRODUCE_STORAGE_KEY);
+      const data = JSON.parse(raw);
+      return data && data.submission_id ? data : null;
+    } catch {
+      return null;
+    }
+  }
+
   async function loadNext() {
     showPhase('loading');
     resetReproduceUI();
+    const produce = takeProduceSession();
+    if (produce) {
+      state.primedToken = produce.primed_token || null;
+      return startPassage(produce);
+    }
+    state.primedToken = null;
     let resp;
     try {
       resp = await window.authFetch('/api/dual-translation/next');
@@ -255,7 +286,10 @@
     if (data.type === 'error_card') {
       return showErrorCard(data);
     }
+    startPassage(data);
+  }
 
+  function startPassage(data) {
     // TASK-617: the server assigns the correction-style A/B arm per user and
     // returns it here; it overrides the static `.dt-wrap` dataset default (which
     // stays as a safe fallback when the field is absent, e.g. an older backend).
@@ -379,6 +413,7 @@
         method: 'POST',
         body: JSON.stringify({
           reproduction: reproduction,
+          primed_token: state.primedToken || undefined,
           active_ms: state.activeMs === null ? undefined : state.activeMs,
           client_event_id: state.eventId || undefined,
           idempotency_key:
@@ -430,6 +465,7 @@
 
     renderDiff(contract.diff || []);
     renderHighlights(contract.highlights || [], state.reproduction || '');
+    renderTargetWords(contract.target_words || []);
     renderDims(contract.scores || {});
     renderNextFocus(contract.errors || []);
     renderErrors(contract.errors || []);
@@ -523,6 +559,60 @@
       '</div>' +
       cards;
     el.highlights.style.display = 'flex';
+  }
+
+  // TASK-910: per primed word — the surface in the gold, what the learner
+  // wrote (surface / lemma / the typed learner form), and produced / variant /
+  // omitted. Hidden when the contract has no target words (ordinary DT).
+  function renderTargetWords(rows) {
+    if (!el.targetWords) return;
+    if (!rows || !rows.length) {
+      el.targetWords.style.display = 'none';
+      el.targetWords.innerHTML = '';
+      return;
+    }
+    const head =
+      '<tr><th>' +
+      escapeHtml(label('dual_translation.target_word', 'Word')) +
+      '</th><th>' +
+      escapeHtml(label('dual_translation.target_in_gold', 'In the passage')) +
+      '</th><th>' +
+      escapeHtml(label('dual_translation.target_in_yours', 'In yours')) +
+      '</th><th>' +
+      escapeHtml(label('dual_translation.target_status', 'Status')) +
+      '</th></tr>';
+    const body = rows
+      .map(function (r) {
+        const status = r.status === 'produced' || r.status === 'variant' ? r.status : 'omitted';
+        const sub = r.error_subtype
+          ? '<span class="dt-target-sub">' + escapeHtml(humanize(r.error_subtype)) + '</span>'
+          : '';
+        return (
+          '<tr><td>' +
+          escapeHtml(r.lemma || r.in_gold || '') +
+          '</td><td>' +
+          escapeHtml(r.in_gold || '—') +
+          '</td><td>' +
+          escapeHtml(r.in_yours || '—') +
+          '</td><td><span class="dt-target-status ' +
+          status +
+          '">' +
+          escapeHtml(label('dual_translation.target_' + status, humanize(status))) +
+          '</span>' +
+          sub +
+          '</td></tr>'
+        );
+      })
+      .join('');
+    el.targetWords.innerHTML =
+      '<div class="dt-target-words-label">' +
+      escapeHtml(label('dual_translation.target_words_heading', 'Your primed words')) +
+      '</div><table class="dt-target-table"><thead>' +
+      head +
+      '</thead><tbody>' +
+      body +
+      '</tbody></table>';
+    el.targetWords.style.display = 'block';
   }
 
   // TASK-631: feed-forward "next focus" — the most frequent subtype among this

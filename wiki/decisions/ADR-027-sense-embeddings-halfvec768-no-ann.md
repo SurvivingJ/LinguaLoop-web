@@ -7,7 +7,7 @@ date: 2026-09-22
 # ADR-027: Sense embeddings stored as halfvec(768) with no ANN index
 
 > **2026-10-29:** the storage half (halfvec(768) on every row) is superseded by
-> [[decisions/ADR-037-one-sense-vector-native-standard-512]]: one halfvec(512) vector per
+> [[decisions/ADR-038-one-sense-vector-native-standard-512]]: one halfvec(512) vector per
 > meaning, on the native standard row only. The no-ANN, exact-scan decision still holds.
 
 ## Context

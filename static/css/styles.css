@@ -1366,6 +1366,24 @@ footer,
     color: var(--slate-700);
   }
 
+  /* TASK-911: per-sentence blocks with a hidden-by-default L1 reference line. */
+  .transcript-text .ll-sentence {
+    display: inline;
+  }
+
+  .transcript-text .ll-sentence-ref {
+    display: block;
+    margin: 2px 0 10px;
+    padding-left: 10px;
+    border-left: 3px solid var(--border-default);
+    font-size: 0.9em;
+    color: var(--text-secondary);
+  }
+
+  .transcript-text .ll-sentence-ref[hidden] {
+    display: none;
+  }
+
   .audio-player-card {
     background: linear-gradient(135deg, var(--bg-body) 0%, var(--bg-muted) 100%);
     border-radius: 12px;

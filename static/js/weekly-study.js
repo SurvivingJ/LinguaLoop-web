@@ -4,12 +4,12 @@
 //
 // Input is the `weekly_study` field of GET /api/study-plan:
 //   { week_start_date, studied_seconds, studied_minutes, target_minutes|null,
-//     by_kind: { test, practice, flashcard, dual_translation, drill: {seconds, minutes} } }
+//     by_kind: { test, practice, flashcard, dual_translation, drill, prestudy: {seconds, minutes} } }
 // buildModel() is pure (unit-tested); render() writes with textContent only.
 (function (root) {
   'use strict';
 
-  const KIND_ORDER = ['test', 'practice', 'flashcard', 'dual_translation', 'drill'];
+  const KIND_ORDER = ['test', 'practice', 'flashcard', 'dual_translation', 'drill', 'prestudy'];
 
   function num(v) {
     const n = Number(v);

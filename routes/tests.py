@@ -14,6 +14,8 @@ from services.attempt_timing import (
     AttemptTimingError, clamp_time_taken, validate_attempt_window, validate_counts,
 )
 from services.study_time import credit_study_time
+from services.day_boundary import local_day_start_utc, plan_timezone
+from services.dual_translation.sentence_refs import LANG_ID as SENTENCE_L1_IDS
 from services.dictation.cap import MAX_STORED_DIFF_ENTRIES
 from services.test_service import (
     TestService, DimensionService, NoMatchingAttemptError, get_test_service,
@@ -22,7 +24,7 @@ from services.test_service import (
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from utils.responses import (
     api_success, api_error, bad_request, not_found, server_error,
-    service_unavailable, unauthorized,
+    service_unavailable, unauthorized, forbidden,
 )
 
 logger = logging.getLogger(__name__)
@@ -394,7 +396,18 @@ def _unwrap_rpc_response(rpc_name, response_data, on_success):
     return _submission_failure_response(rpc_name, response_data)
 
 
-def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False, idempotency_key=None):
+def _is_missing_function_error(exc) -> bool:
+    """PostgREST's "no function matches these argument names" (PGRST202)."""
+    text = str(exc)
+    try:
+        payload = exc.json() if hasattr(exc, 'json') else {}
+    except Exception:
+        payload = {}
+    code = (payload or {}).get('code') if isinstance(payload, dict) else None
+    return code == 'PGRST202' or 'PGRST202' in text or 'Could not find the function' in text
+
+
+def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False, idempotency_key=None, prestudied=False):
     """Call the process_test_submission RPC and handle JSONB response quirks.
 
     Returns the parsed RPC result dict on success, or a
@@ -407,18 +420,35 @@ def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db
             data.get('attempt_id'),
         )
 
+    params = {
+        'p_user_id': user_id,
+        'p_test_id': test_id,
+        'p_language_id': language_id,
+        'p_test_type_id': test_type_id,
+        'p_responses': db_responses,
+        'p_was_free_test': True,
+        'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
+        'p_furigana_used': bool(furigana_used),
+    }
+    if prestudied:
+        # Only sent when true, so a database without migrations/prestudy_elo_factor.sql
+        # keeps working for every ordinary submission.
+        params['p_prestudied'] = True
     try:
-        response = client.rpc('process_test_submission', {
-            'p_user_id': user_id,
-            'p_test_id': test_id,
-            'p_language_id': language_id,
-            'p_test_type_id': test_type_id,
-            'p_responses': db_responses,
-            'p_was_free_test': True,
-            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
-            'p_furigana_used': bool(furigana_used),
-        }).execute()
+        response = client.rpc('process_test_submission', params).execute()
     except Exception as e:
+        if prestudied and _is_missing_function_error(e):
+            # The 0.5x ELO migration is not applied yet: grade the attempt at
+            # full K rather than fail it.
+            current_app.logger.warning(
+                "process_test_submission has no p_prestudied yet; submitting without it")
+            params.pop('p_prestudied', None)
+            try:
+                response = client.rpc('process_test_submission', params).execute()
+            except Exception as e2:
+                error_data = e2.json() if hasattr(e2, 'json') else (e2.args[0] if e2.args else {})
+                return _unwrap_rpc_response('process_test_submission', error_data, _on_success)
+            return _unwrap_rpc_response('process_test_submission', response.data, _on_success)
         # supabase-py raises on JSONB responses; rescue the payload here so
         # we can dispatch both success and failure paths uniformly.
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
@@ -652,6 +682,7 @@ def submit_test_attempt(slug):
         responses = data.get('responses', [])
         test_mode = data.get('test_mode', 'reading').lower()
         furigana_used = bool(data.get('furigana_used', False))
+        prestudied = data.get('prestudied') is True
         idempotency_key = data.get('idempotency_key') or str(uuid4())
 
         if not responses:
@@ -685,11 +716,25 @@ def submit_test_attempt(slug):
         # Transform responses: strip 'is_correct' field (DB will calculate).
         db_responses = [{"question_id": str(r['question_id']), "selected_answer": r['selected_answer']} for r in responses]
 
+        # Test prestudy: the attempt is prestudied when a completed prime for
+        # this test exists in the last 6 hours (server-verified). The client
+        # flag only counts while prestudy_sessions does not exist yet.
+        prestudy_session_id = None
+        try:
+            from services import prestudy as _prestudy
+            prestudy_session_id, verifiable = _prestudy.find_prestudy_for_attempt(
+                current_app.supabase_service, current_user_id, test_id)
+            if verifiable:
+                prestudied = prestudy_session_id is not None
+        except Exception as e:
+            logger.warning("prestudy verification skipped: %s", e)
+
         # Call database RPC for validation, ELO calculation and attempt recording
         rpc_result = _call_submission_rpc(
             current_app.supabase_service, current_user_id,
             test_id, language_id, test_type_id, db_responses,
             furigana_used=furigana_used, idempotency_key=idempotency_key,
+            prestudied=prestudied,
         )
         if isinstance(rpc_result, tuple):
             return rpc_result  # Error response
@@ -721,6 +766,11 @@ def submit_test_attempt(slug):
 
         result = _build_submission_response(rpc_result, test_mode, word_quiz)
         _attach_explanations(result, test_id)
+        if prestudied:
+            result['prestudied'] = True
+            if prestudy_session_id:
+                _prestudy.consume_session(current_app.supabase_service, prestudy_session_id,
+                                          rpc_result.get('attempt_id'))
         return api_success(data={'result': result})
 
     except Exception as e:
@@ -1340,3 +1390,408 @@ def get_test_history():
         logger.error(f"Error getting test history: {e}")
         logger.error(traceback.format_exc())
         return server_error('Failed to get test history')
+
+# ============================================================================
+# TASK-909 — sentence spans + L1 references (ADR-037)
+# ============================================================================
+
+# Fallback L1 while users.native_language_id is unset for most rows — id 2 =
+# English (config.py LANGUAGES); mirrors routes/dual_translation.py.
+_DEFAULT_L1_LANGUAGE_ID = 2
+
+_SENTENCE_COLUMNS = 'id, idx, l2_text, char_start, char_end, token_start, token_end, transcript_hash'
+
+
+def _find_test_for_sentences(db, identifier):
+    """Active test by slug, then by uuid; the columns the sentences endpoint needs."""
+    cols = 'id, slug, language_id, transcript_hash'
+    res = db.table('tests').select(cols).eq('slug', identifier).eq('is_active', True).execute()
+    if not res.data:
+        res = db.table('tests').select(cols).eq('id', identifier).eq('is_active', True).execute()
+    return res.data[0] if res.data else None
+
+
+def _resolve_sentence_l1(db, user_id, l1_code):
+    """``?l1=<code>`` -> dim_languages id; absent -> users.native_language_id,
+    else English. Unknown codes return None (400 at the route)."""
+    if l1_code:
+        return SENTENCE_L1_IDS.get(str(l1_code).lower())
+    try:
+        resp = db.table('users').select('native_language_id').eq('id', user_id).limit(1).execute()
+        if resp.data and resp.data[0].get('native_language_id'):
+            return int(resp.data[0]['native_language_id'])
+    except Exception as e:  # best-effort; the default is always usable
+        logger.warning("native_language_id lookup failed for %s: %s", user_id, e)
+    return _DEFAULT_L1_LANGUAGE_ID
+
+
+def _has_attempt_today(db, user_id, test_id, language_id):
+    """True when the user has a ``test_attempts`` row for this test since the
+    start of their local day (ADR-022) — the same check
+    ``TestService.mark_daily_test_complete`` makes. This is the ``?mode=produce``
+    withholding rule: before today's attempt is submitted the L2 text stays
+    hidden, exactly as ``?mode=dictation`` hides the transcript."""
+    day_start = local_day_start_utc(plan_timezone(db, user_id, language_id))
+    resp = (
+        db.table('test_attempts').select('id')
+        .eq('user_id', user_id).eq('test_id', test_id)
+        .gte('created_at', day_start.isoformat())
+        .limit(1).execute()
+    )
+    return bool(resp.data)
+
+
+def _load_sentence_rows(db, test_id):
+    resp = (
+        db.table('test_sentences').select(_SENTENCE_COLUMNS)
+        .eq('test_id', test_id).order('idx').execute()
+    )
+    return resp.data or []
+
+
+def _load_active_references(db, sentence_ids, l1_language_id):
+    """``{sentence_id: {l1_text, tightness, review_verdict}}`` for the active
+    reference of each sentence in this L1 (at most one active per pair)."""
+    if not sentence_ids:
+        return {}
+    resp = (
+        db.table('test_sentence_references')
+        .select('sentence_id, l1_text, tightness, review_verdict')
+        .in_('sentence_id', list(sentence_ids))
+        .eq('l1_language_id', l1_language_id)
+        .eq('is_active', True)
+        .execute()
+    )
+    return {row['sentence_id']: row for row in (resp.data or [])}
+
+
+def build_sentence_payload(rows, references, withhold_l2):
+    """Shape the endpoint's ``sentences`` list from ``test_sentences`` rows and
+    the active-reference map. ``l2_text`` is dropped when ``withhold_l2``."""
+    out = []
+    for row in rows:
+        ref = references.get(row.get('id'))
+        item = {
+            'idx': row['idx'],
+            'char_start': row['char_start'],
+            'char_end': row['char_end'],
+            'token_start': row.get('token_start'),
+            'token_end': row.get('token_end'),
+            'reference': (
+                {'l1_text': ref['l1_text'], 'tightness': ref.get('tightness')} if ref else None
+            ),
+        }
+        if not withhold_l2:
+            item['l2_text'] = row['l2_text']
+        out.append(item)
+    return out
+
+
+@tests_bp.route('/<identifier>/sentences', methods=['GET'])
+@supabase_jwt_required
+def get_test_sentences(identifier):
+    """Sentence spans of a test with the learner's L1 references (TASK-909).
+
+    ``?l1=<code>`` picks the reference language (default: the user's native
+    language, else English). ``?mode=produce`` withholds ``l2_text`` until the
+    user has submitted an attempt today — the Produce stage must not leak the
+    passage before the test. 404 unknown test; 409 when the sentence rows were
+    segmented from a different transcript than the one now stored (stale —
+    the backfill script re-segments); an empty ``sentences`` list means the
+    test has no rows yet (the client falls back to its own split).
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return service_unavailable("Service not available")
+
+        test = _find_test_for_sentences(db, identifier)
+        if not test:
+            return not_found("Test not found")
+
+        l1_language_id = _resolve_sentence_l1(db, g.current_user_id, request.args.get('l1'))
+        if l1_language_id is None:
+            return bad_request("Unknown l1 language code")
+
+        rows = _load_sentence_rows(db, test['id'])
+        stored_hash = test.get('transcript_hash')
+        if rows and stored_hash and any(r.get('transcript_hash') != stored_hash for r in rows):
+            return api_error(
+                "Sentence rows are stale for this transcript", 409, error_code="SENTENCES_STALE",
+            )
+
+        mode = (request.args.get('mode') or '').lower()
+        withhold = mode == 'produce' and not _has_attempt_today(
+            db, g.current_user_id, test['id'], test.get('language_id'),
+        )
+
+        references = _load_active_references(db, [r['id'] for r in rows], l1_language_id)
+        return api_success(data={
+            'test_id': test['id'],
+            'l1_language_id': l1_language_id,
+            'l2_withheld': withhold,
+            'sentences': build_sentence_payload(rows, references, withhold),
+        })
+
+    except Exception as e:
+        logger.error("Error loading sentences for %s: %s", identifier, e)
+        logger.error(traceback.format_exc())
+        return server_error('Failed to load sentences')
+
+
+# ============================================================================
+# Test prestudy (wiki/features/test-prestudy.md)
+# ============================================================================
+
+_PRESTUDY_TEST_COLUMNS = (
+    'id, slug, title, language_id, transcript, audio_url, difficulty, target_age_tier, '
+    'vocab_sense_ids, vocab_token_map, furigana_payload, pinyin_payload'
+)
+_PRESTUDY_MAX_ANSWERS = 400
+_PRESTUDY_MAX_EXERCISE_ANSWERS = 40
+
+
+def _find_test_for_prestudy(db, identifier):
+    """Active test by slug, then by uuid, with the columns prestudy needs."""
+    res = db.table('tests').select(_PRESTUDY_TEST_COLUMNS).eq('slug', identifier).eq('is_active', True).execute()
+    if not res.data:
+        try:
+            res = db.table('tests').select(_PRESTUDY_TEST_COLUMNS).eq('id', identifier).eq('is_active', True).execute()
+        except Exception:  # a non-uuid identifier that matched no slug
+            return None
+    return res.data[0] if res.data else None
+
+
+@tests_bp.route('/<identifier>/prestudy', methods=['GET'])
+@supabase_jwt_required
+def get_test_prestudy(identifier):
+    """Study material for one test: passage, word map, glosses in the learner's
+    language, their knowledge of each word, and ladder exercises.
+
+    ``?mode=followup`` (after an attempt) adds ``followup_sense_ids``: the
+    senses behind the questions answered wrong on the latest attempt.
+
+    Never returns the scored questions' text, choices or answers; only each
+    question's linked senses, so the page can rank the words the test turns on.
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return service_unavailable("Service not available")
+        test = _find_test_for_prestudy(db, identifier)
+        if not test:
+            return not_found("Test not found")
+        from services import prestudy
+        from services.vocabulary.gloss_lookup import get_user_definition_language_id
+        gloss_lang = get_user_definition_language_id(db, g.current_user_id)
+        payload = prestudy.build_prestudy_payload(db, test, g.current_user_id, gloss_lang)
+        if request.args.get('mode') == 'followup':
+            attempt_id, senses = prestudy.wrong_question_senses(db, g.current_user_id, test['id'])
+            if not attempt_id:
+                return bad_request("Take the test before its follow-up")
+            prime = prestudy.latest_prime_session(db, g.current_user_id, test['id'])
+            payload['followup_sense_ids'] = senses
+            payload['attempt_id'] = attempt_id
+            payload['primed_sense_ids'] = (prime or {}).get('words_quizzed') or []
+        return api_success(data=payload)
+    except Exception as e:
+        logger.error("Error loading prestudy for %s: %s", identifier, e)
+        logger.error(traceback.format_exc())
+        return server_error('Failed to load prestudy')
+
+
+@tests_bp.route('/<identifier>/prestudy/session', methods=['POST'])
+@supabase_jwt_required
+def start_test_prestudy_session(identifier):
+    """Open a prestudy_sessions row when the page loads.
+
+    Body: {test_type, trigger, plan_mode, unknown_share, mode, session_block_id}.
+    ``unknown_share`` is the snapshot at open and is never recomputed.
+    Returns {session_id} (null until migrations/prestudy_workflow.sql is applied).
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return service_unavailable("Service not available")
+        test = _find_test_for_prestudy(db, identifier)
+        if not test:
+            return not_found("Test not found")
+        body = request.get_json(silent=True) or {}
+        from services import prestudy
+        load_date = None
+        if body.get('session_block_id'):
+            from services.day_boundary import plan_today_iso
+            load_date = plan_today_iso(db, g.current_user_id, int(test['language_id']))
+        session_id = prestudy.start_session(
+            db, g.current_user_id, test,
+            test_type=body.get('test_type') or 'reading', trigger=body.get('trigger') or 'opt_in',
+            plan_mode=body.get('plan_mode'), unknown_share=body.get('unknown_share'),
+            mode=body.get('mode') or 'prime', session_block_id=body.get('session_block_id'),
+            load_date=load_date,
+        )
+        return api_success(data={'session_id': session_id})
+    except Exception as e:
+        logger.error("Error starting prestudy session for %s: %s", identifier, e)
+        return server_error('Failed to start prestudy')
+
+
+def _record_prestudy_exercises(db, user_id, exercise_answers, allowed):
+    """Ladder exercises answered in the prime -> exercise_attempts (source
+    prestudy) + exercise BKT. Only exercises of this test's senses count."""
+    from services.practice_session_service import get_practice_session_service
+    ids = []
+    by_id = {}
+    for a in exercise_answers[:_PRESTUDY_MAX_EXERCISE_ANSWERS]:
+        if isinstance(a, dict) and isinstance(a.get('exercise_id'), str) and a['exercise_id'] not in by_id:
+            by_id[a['exercise_id']] = a
+            ids.append(a['exercise_id'])
+    if not ids:
+        return 0
+    rows = db.table('exercises').select('id, exercise_type, word_sense_id, language_id') \
+        .in_('id', ids).eq('is_active', True).execute().data or []
+    svc = get_practice_session_service()
+    recorded = 0
+    for ex in rows:
+        if ex.get('word_sense_id') not in allowed:
+            continue
+        a = by_id.get(str(ex['id'])) or {}
+        try:
+            svc.record_prestudy_exercise_attempt(
+                user_id, ex, bool(a.get('correct')) and not a.get('idk'),
+                user_response={'given': str(a.get('given') or '')[:500], 'idk': bool(a.get('idk'))},
+            )
+            recorded += 1
+        except Exception as e:
+            logger.warning("prestudy exercise %s not recorded: %s", ex.get('id'), e)
+    return recorded
+
+
+@tests_bp.route('/<identifier>/prestudy/evidence', methods=['POST'])
+@supabase_jwt_required
+def submit_test_prestudy_evidence(identifier):
+    """Record a finished prime (or post-test follow-up) in one call.
+
+    Body: {session_id?, mode?: 'prime'|'followup', answers: [{sense_id, correct,
+    idk, stage}], exercise_answers?: [{exercise_id, correct, idk, given}],
+    metrics?: {...}}.
+
+    * Word answers: one word-test evidence point per sense (majority of its
+      answers; "I don't know" counts as wrong). The prime writes with
+      side_effects=False (no ladder admission, no new-word quota); the
+      follow-up writes with side effects, so its senses enter Queue A1 as the
+      post-test quiz's do.
+    * Exercise answers: exercise_attempts tagged source=prestudy + exercise BKT.
+    * Session: measurement record, minutes to the ledger (kind prestudy),
+      next-day review rows, generation requests for primed words that have no
+      exercises.
+    Only senses of this test are accepted.
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return service_unavailable("Service not available")
+        test = _find_test_for_prestudy(db, identifier)
+        if not test:
+            return not_found("Test not found")
+        body = request.get_json(silent=True) or {}
+        answers = body.get('answers') or []
+        exercise_answers = body.get('exercise_answers') or []
+        if not isinstance(answers, list) or not isinstance(exercise_answers, list):
+            return bad_request("answers and exercise_answers must be lists")
+        if not answers and not exercise_answers and not body.get('session_id'):
+            return bad_request("answers must be a non-empty list")
+        if len(answers) > _PRESTUDY_MAX_ANSWERS:
+            return bad_request(f"at most {_PRESTUDY_MAX_ANSWERS} answers")
+        from services import prestudy
+        user_id = g.current_user_id
+        language_id = int(test['language_id'])
+        allowed = prestudy.test_sense_ids(db, test)
+        session = prestudy.get_session(db, user_id, body.get('session_id'))
+        if session and session.get('test_id') != test['id']:
+            session = None
+        mode = 'followup' if (body.get('mode') == 'followup' or (session or {}).get('mode') == 'followup') else 'prime'
+
+        rows = prestudy.evidence_rows(answers, allowed)
+        updates = []
+        if rows:
+            updates = VocabularyKnowledgeService(db).update_from_word_tests_batch(
+                user_id=user_id, language_id=language_id,
+                results=rows, side_effects=(mode == 'followup'),
+            ) or []
+        n_ex = _record_prestudy_exercises(db, user_id, exercise_answers, allowed) if exercise_answers else 0
+
+        out = {'updates': updates, 'recorded': len(rows), 'exercises_recorded': n_ex, 'session': None}
+        if session and session.get('status') == 'open':
+            reasons = prestudy.followups_from_answers(answers, allowed)
+            if mode == 'followup':
+                prime = prestudy.latest_prime_session(db, user_id, test['id'])
+                reasons.update(prestudy.primed_missed((prime or {}).get('words_quizzed'), answers, allowed))
+            metrics = body.get('metrics') if isinstance(body.get('metrics'), dict) else {}
+            out['session'] = prestudy.complete_session(db, user_id, session, metrics, allowed, reasons)
+            if mode == 'prime':
+                # Primed words with no ladder exercises -> generation (reason prestudy)
+                quizzed = [int(s) for s in (metrics.get('words_quizzed') or []) if str(s).isdigit()]
+                quizzed = [s for s in quizzed if s in allowed]
+                have = prestudy.senses_with_exercises(db, quizzed) if quizzed else set()
+                out['generation_queued'] = prestudy.request_generation(
+                    db, quizzed, language_id, {str(s): [True] for s in have})
+        return api_success(data=out)
+    except Exception as e:
+        logger.error("Error recording prestudy evidence for %s: %s", identifier, e)
+        logger.error(traceback.format_exc())
+        return server_error('Failed to record prestudy answers')
+
+
+@tests_bp.route('/<identifier>/prestudy/produce', methods=['POST'])
+@supabase_jwt_required
+def start_test_prestudy_produce(identifier):
+    """Produce: open a dual-translation passage on the window of this test with
+    the most primed senses (tie-break: senses behind wrong questions, then
+    shorter). Requires an attempt (DT's rule). Body: {l1_language_id?}.
+
+    Returns the same object as POST /api/dual-translation/passage-from-sentences
+    plus ``sentence_start``/``sentence_end``; 422 NO_WINDOW when no 2-4
+    sentence window has usable references in the learner's language.
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return service_unavailable("Service not available")
+        test = _find_test_for_prestudy(db, identifier)
+        if not test:
+            return not_found("Test not found")
+        from services import prestudy
+        from services.vocabulary.gloss_lookup import get_user_definition_language_id
+        user_id = g.current_user_id
+        body = request.get_json(silent=True) or {}
+        try:
+            l1 = int(body.get('l1_language_id') or get_user_definition_language_id(db, user_id) or 2)
+        except (TypeError, ValueError):
+            return bad_request("l1_language_id must be a language id")
+        if l1 == int(test['language_id']):
+            l1 = 2 if int(test['language_id']) != 2 else None
+        if not l1:
+            return api_error("No reference language for this test", 422, error_code="NO_WINDOW")
+        attempt_id, wrong = prestudy.wrong_question_senses(db, user_id, test['id'])
+        if not attempt_id:
+            return forbidden("Take the test before Produce")
+        prime = prestudy.latest_prime_session(db, user_id, test['id'])
+        primed = [int(s) for s in ((prime or {}).get('words_quizzed') or [])]
+        if not primed:
+            # prime skipped or not recorded: target the words the client says
+            # were unknown (still restricted to this test's senses below)
+            primed = [int(s) for s in (body.get('fallback_sense_ids') or []) if str(s).isdigit()][:24]
+        allowed = prestudy.test_sense_ids(db, test)
+        primed = [s for s in primed if s in allowed][:24]
+        window = prestudy.choose_produce_window(db, test, l1, primed, wrong)
+        if not window:
+            return api_error("No sentence window with references in your language", 422, error_code="NO_WINDOW")
+        from routes.dual_translation import open_range_passage
+        return open_range_passage(
+            db, user_id, str(test['id']), window[0], window[1], l1, primed,
+            extra={'sentence_start': window[0], 'sentence_end': window[1], 'test_id': test['id']},
+        )
+    except Exception as e:
+        logger.error("Error starting Produce for %s: %s", identifier, e)
+        logger.error(traceback.format_exc())
+        return server_error('Failed to start Produce')

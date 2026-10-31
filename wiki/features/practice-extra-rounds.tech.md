@@ -3,7 +3,7 @@ title: Practice Extra Rounds — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: practice-extra-rounds.md
-last_updated: 2026-10-18
+last_updated: 2026-10-29
 dependencies:
   - "get_practice_session (RPC)"
   - "get_review_ahead_items (RPC, new)"
@@ -50,9 +50,11 @@ Practice mode summary → "Keep practising" panel (controller.js)
 - **Auth:** `supabase_jwt_required`.
 - **Side effects:** may admit up to `new_words` ladder rows past the daily quota.
 
-### `GET /api/study-session?...&scope=practice`
-Same as before, except `scope=practice` makes the tail gate (`_is_main_complete`) ignore
-`kind:'test'` items. The queue, `progress` and `next_index` are unchanged.
+### `GET /api/study-session` (tail gate)
+The tail gate (`_is_main_complete`) is computed over the non-`kind:'test'` items in every mode
+(2026-10-29; before that only `scope=practice` did this, so a skipped test hid "Keep going" in the
+daily session). `scope=practice` is still sent by the Practice-mode client but no longer changes
+the response. The queue, `progress` and `next_index` are unchanged: tests stay required.
 
 ### `get_review_ahead_items(p_user_id uuid, p_language_id smallint, p_limit int=10, p_exclude_recent_minutes int=10, p_exclude_sense_ids int[]='{}') → jsonb`
 Array of items `{exercise_id, sense_id, exercise_type, family, content, ladder_level, p_known,
@@ -93,7 +95,8 @@ the RPC is service_role only with a fixed `search_path`.
 - `tests/test_practice_extra_rounds.py`: route validation and forwarding; admission past the
   quota, unstarted words first, per-round cap, beyond-quota count, due-then-ahead reviews,
   round size, interleave, empty round.
-- `tests/test_study_session_tail.py`: `scope=practice` gate.
+- `tests/test_study_session_tail.py`: tail gate ignores open tests (daily and Practice mode); an
+  open practice block still hides it.
 - `tests/unit/session-tail.test.js`: extra-round helpers.
 - Not covered: a SQL test of `get_review_ahead_items` (no local Postgres); a manual check
   after the live apply is needed.

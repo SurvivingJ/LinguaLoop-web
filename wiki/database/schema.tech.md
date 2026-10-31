@@ -324,7 +324,7 @@ stored at **two definition levels** (`simple` + `standard`) sharing one
 | `source` | text | NO | 'llm' | CHECK: llm/manual/llm_gloss. `manual` (admin-curated) is never overwritten by backfill; `llm_gloss` = cross-language gloss |
 | `source_ref` | text | YES | | Provenance, e.g. `"deepseek/deepseek-v4-flash v2"` |
 | `validation_notes` | text | YES | | |
-| `embedding` | halfvec(512) | YES | | text-embedding-3-small of `"{lemma}: {definition}"` (TASK-521), truncated to 512 dims + L2-normalised (≡ API `dimensions=512`), stored fp16. **Only on the native standard row** of a sense (`definition_level='standard'` AND `definition_language_id = word_language_id`), enforced by CHECK `dim_word_senses_embedding_native_standard_chk`; every other row of the sense reads its twin's vector through `sense_embedding(id)` ([[decisions/ADR-037-one-sense-vector-native-standard-512]]). vector(1536) until 2026-09-22, halfvec(768) on every row until 2026-10-29. Writers must use `scripts/backfill_sense_embeddings.py::is_embedded_row` + `sense_vector` — see *Storage* below |
+| `embedding` | halfvec(512) | YES | | text-embedding-3-small of `"{lemma}: {definition}"` (TASK-521), truncated to 512 dims + L2-normalised (≡ API `dimensions=512`), stored fp16. **Only on the native standard row** of a sense (`definition_level='standard'` AND `definition_language_id = word_language_id`), enforced by CHECK `dim_word_senses_embedding_native_standard_chk`; every other row of the sense reads its twin's vector through `sense_embedding(id)` ([[decisions/ADR-038-one-sense-vector-native-standard-512]]). vector(1536) until 2026-09-22, halfvec(768) on every row until 2026-10-29. Writers must use `scripts/backfill_sense_embeddings.py::is_embedded_row` + `sense_vector` — see *Storage* below |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
 
@@ -361,7 +361,7 @@ rebuilt on the new vectors. Growth: ~2 MB per 1,000 new senses. If a language pa
 ~100k senses, an HNSW index on halfvec(768) costs ~2 KB/row. Undo = re-embed at 1536-d (~$0.03).
 
 **After (2026-10-29, `migrations/sense_vectors_native_standard_512.sql`,
-[[decisions/ADR-037-one-sense-vector-native-standard-512]]):** 33 MB; whole database **193 MB**.
+[[decisions/ADR-038-one-sense-vector-native-standard-512]]):** 33 MB; whole database **193 MB**.
 One vector per meaning, on the native standard row only (14,230 vectors, was 55,002), halfvec(512).
 512-d vs 768-d: correlation 0.983–0.988, top-20 neighbour overlap 90–92%. p95 shift: zh +0.016,
 en +0.016, ja +0.012. Bands now: zh pairs `cos_min` 0.445, ja pairs 0.463, en/en 0.366,
@@ -369,7 +369,7 @@ en +0.016, ja +0.012. Bands now: zh pairs `cos_min` 0.445, ja pairs 0.463, en/en
 native-definition vectors. `sense_neighbours.BAND_MIN` 0.365 → 0.377. The definition-mode
 `calibration_distractor_cache` was dropped and rebuilt (162,613 rows). Projected at 10k zh + 10k
 ja words: ~75 MB. Since 2026-10-30 that cache is packed one row per anchor and mode (46 → 7 MB,
-[[decisions/ADR-038-packed-calibration-distractor-cache]]).
+[[decisions/ADR-039-packed-calibration-distractor-cache]]).
 
 #### Two-level sense generation
 
@@ -650,6 +650,7 @@ Generated comprehension tests with transcript, audio, and vocabulary annotations
 | `age_tier_model` | text | YES | | Dated jev snapshot that served the answer |
 | `age_tier_calibration` | text | YES | | Which score→tier table: `default`, `ja-2026-09-27`, `zh-2026-09-27` |
 | `age_tier_assessed_at` | timestamptz | YES | | |
+| `transcript_hash` | text | YES | | Hex sha256 of `transcript`, written by `scripts/audit_transcript_preambles.py` for every active test and read by the sentence segmenter to detect transcript changes (TASK-900, `migrations/tests_transcript_hash.sql`, **planned — not yet applied live**). No trigger: transcripts are edited only by admin tooling. See [[features/test-sentence-references.tech]] |
 | `created_at` | timestamptz | YES | now() | |
 | `updated_at` | timestamptz | YES | now() | |
 
@@ -659,7 +660,7 @@ Generated comprehension tests with transcript, audio, and vocabulary annotations
 - **Foreign Keys:** `gen_user` -> `users.id`, `language_id` -> `dim_languages.id`, `organization_id` -> `organizations.id`, `topic_id` -> `topics.id`
 - **Triggers:** BEFORE UPDATE -> `update_updated_at_column()`
 - **RLS:** Enabled
-- **Referenced by:** test_attempts, questions, test_skill_ratings, token_transactions, user_reports
+- **Referenced by:** test_attempts, questions, test_skill_ratings, token_transactions, user_reports, test_sentences (planned, TASK-901)
 
 
 **Tier backup tables** (service role only: RLS on, no policies). Restore statements are in `migrations/task819_jev_tier_assignment.sql` and `task821_tier_calibration.sql`.
@@ -2004,6 +2005,126 @@ AI-generated content flagged by safety checks.
 
 ---
 
+## 11. Test Sentence References (TASK-901 — planned, migration written, not applied live)
+
+Sentence-level L2 segmentation of test transcripts and their L1 reference translations
+([[features/test-sentence-references.tech]], [[decisions/ADR-037-sentence-level-l1-references]]).
+Migration: `migrations/test_sentence_references_schema.sql`; SQL test:
+`tests/sql/test_sentence_references.sql`. Both tables are service-role only (RLS on, every
+client privilege revoked, no policies — [[decisions/ADR-034-no-client-db-writes]]).
+
+### `test_sentences`
+
+One row per sentence of an active test's transcript, written by `scripts/build_test_sentences.py` (TASK-902).
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | bigint | NO | identity | PK |
+| `test_id` | uuid | NO | | FK -> tests ON DELETE CASCADE |
+| `idx` | smallint | NO | | 0-based sentence index. CHECK >= 0. UNIQUE (test_id, idx) |
+| `char_start` | integer | NO | | Half-open code-point span in `tests.transcript`. CHECK >= 0 |
+| `char_end` | integer | NO | | CHECK char_end > char_start |
+| `token_start` | integer | YES | | Half-open span in `tests.vocab_token_map`. NULL when the test has no token map |
+| `token_end` | integer | YES | | CHECK: both token_* NULL, or both set with token_end > token_start >= 0 |
+| `l2_text` | text | NO | | The sentence, terminator attached. CHECK length > 0; trigger enforces `l2_text = substr(transcript, char_start+1, char_end-char_start)` |
+| `transcript_hash` | text | NO | | sha256 of the transcript at segmentation time; differs from `tests.transcript_hash` when the rows are stale |
+| `created_at` | timestamptz | YES | now() | |
+
+- **Primary Key:** `test_sentences_pkey (id)`
+- **Unique:** `test_sentences_test_id_idx_key (test_id, idx)`
+- **Indexes:** `idx_test_sentences_test_idx (test_id, idx)`
+- **Foreign Keys:** `test_id` -> `tests.id` (CASCADE)
+- **Triggers:** BEFORE INSERT OR UPDATE OF test_id, char_start, char_end, l2_text -> `test_sentences_check_l2_text()` (check_violation on mismatch or span past the transcript end)
+- **RLS:** Enabled, no policies; `REVOKE ALL FROM PUBLIC, anon, authenticated`; `GRANT ALL TO service_role`
+- **Referenced by:** test_sentence_references
+
+### `test_sentence_references`
+
+L1 reference translations per sentence, with authoring/review provenance. At most one active row per (sentence, L1).
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `id` | bigint | NO | identity | PK |
+| `sentence_id` | bigint | NO | | FK -> test_sentences ON DELETE CASCADE |
+| `l1_language_id` | smallint | NO | | FK -> dim_languages |
+| `l1_text` | text | NO | | The reference. CHECK length > 0; trigger rejects the test's L2 script (Han for zh; Han or kana for ja; none for en) |
+| `author_model` | text | NO | | e.g. `claude-sonnet-5-5` (the authoring subagent's model) |
+| `prompt_version` | text | NO | | Skill version string, e.g. `sr-1.0` |
+| `arm` | text | YES | | CHECK: `sentencewise` \| `aligned` (pilot) or NULL |
+| `reviewer_model` | text | YES | | |
+| `review_verdict` | text | NO | 'pending' | CHECK: `pending` \| `pass` \| `rewritten` \| `fail` |
+| `tightness` | real | YES | | Tier 0 similarity of the reviewer's blind back-translation to `l2_text`. CHECK 0–1 |
+| `entailment_ok` | boolean | YES | | Reviewer's mutual-entailment judgement |
+| `is_active` | boolean | NO | false | Partial unique index: one active row per (sentence_id, l1_language_id) |
+| `run_id` | text | YES | | RUN directory name (provenance) |
+| `created_at` | timestamptz | YES | now() | |
+
+- **Primary Key:** `test_sentence_references_pkey (id)`
+- **Unique:** `uq_test_sentence_references_active (sentence_id, l1_language_id) WHERE is_active`
+- **Indexes:** `idx_test_sentence_references_sentence (sentence_id, l1_language_id)`, `idx_test_sentence_references_run (run_id WHERE NOT NULL)`
+- **Foreign Keys:** `sentence_id` -> `test_sentences.id` (CASCADE), `l1_language_id` -> `dim_languages.id`
+- **Triggers:** BEFORE INSERT OR UPDATE OF sentence_id, l1_text -> `test_sentence_references_check_l1_script()` (looks up the test's `dim_languages.language_code` through the sentence; check_violation on a script leak)
+- **RLS:** Enabled, no policies; `REVOKE ALL FROM PUBLIC, anon, authenticated`; `GRANT ALL TO service_role`
+
+### `dt_passage` — columns added by the same migration
+
+`dt_passage` itself is specified in [[features/dual-translation.tech]] (`migrations/dual_translation_groundwork.sql`). TASK-901 adds:
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `sentence_start` | smallint | YES | | Inclusive first `test_sentences.idx` of the passage within `source_ref_id`. NULL on pre-existing rows |
+| `sentence_end` | smallint | YES | | Inclusive last index. CHECK `dt_passage_sentence_range_chk`: both NULL, or both set with 0 <= sentence_start <= sentence_end (added NOT VALID, then validated) |
+
+- **Unique:** `uq_dt_passage_sentence_range (source_ref_id, sentence_start, sentence_end) WHERE both NOT NULL` — a sentence range of a test is extracted once and reused.
+
+---
+
+## 12. Test Prestudy (planned, migrations written, not applied live)
+
+Migrations: `migrations/prestudy_elo_factor.sql`, then `migrations/prestudy_workflow.sql`
+(applies and re-applies cleanly on scratch PG16). Spec: [[features/test-prestudy]]. Both new
+tables are service-role only (RLS on, all client privileges revoked, no policy).
+
+### `prestudy_sessions`
+One row per prestudy session (the Measurement record).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | uuid PK | `gen_random_uuid()` |
+| `user_id` | uuid | FK `auth.users` ON DELETE CASCADE |
+| `language_id` | smallint | FK `dim_languages` |
+| `test_id` | uuid | FK `tests` ON DELETE CASCADE |
+| `test_type` | text | `reading` \| `listening` |
+| `mode` | text | `prime` (before the attempt) \| `followup` (after it) |
+| `trigger` | text | `opt_in` \| `auto` \| `retry` |
+| `plan_mode` | text | `full` \| `light` \| `none` |
+| `session_block_id`, `load_date` | text, date | set when run from the daily session |
+| `unknown_share_at_open` | numeric(4,3) | snapshot, never recomputed |
+| `words_shown`, `words_quizzed`, `next_day_review_senses` | int[] | restricted to the test's senses |
+| `exposures`, `first_try_correct`, `first_try_total`, `idk_count`, `boosters`, `ladder_exercises` | int | |
+| `readiness_score`, `readiness_n`, `readiness_rounds`, `ready` | smallint, smallint, smallint, boolean | |
+| `minutes_est`, `active_seconds`, `minutes_source`, `tests_dropped_today` | | `minutes_source` `tests_share` \| `free` |
+| `followup`, `produce` | jsonb | follow-up prime and Produce results |
+| `status` | text | `open` → `completed` → `consumed` (spent on an attempt) |
+| `attempt_id`, `started_at`, `completed_at`, `consumed_at` | | |
+
+Indexes: `(user_id, test_id, started_at DESC)`, `(user_id, language_id, started_at DESC)`.
+A completed `prime` row in the last 6 h makes the next submit `prestudied` (server-verified).
+
+### `prestudy_followups`
+Next-day review senses. `UNIQUE (user_id, sense_id, due_date)`; partial index on
+`(user_id, language_id, due_date) WHERE completed_at IS NULL`. `reason` ∈ `idk_twice`,
+`readiness_missed`, `primed_missed_in_test`, `omitted_in_produce`. Served (one exercise each,
+at most 5) inside Maintenance practice sessions; completed by any attempt on that sense.
+
+### Column and function changes
+- `test_attempts.prestudied boolean NOT NULL DEFAULT false`; `process_test_submission` gains
+  `p_prestudied boolean DEFAULT false` (first attempt: user and test K × 0.5).
+- `exercise_attempts.source text` (`NULL` | `prestudy`): ladder exercises answered in a prime.
+- `user_study_plans.prestudy_mode text NOT NULL DEFAULT 'auto'` (`auto` | `ask` | `off`).
+- `study_time_ledger.kind` adds `prestudy`; `credit_study_time` caps it at 900 s;
+  `get_weekly_study_seconds` returns a `prestudy` key.
+
 ## Enum Types
 
 ### `exercise_source_type`
@@ -2053,6 +2174,8 @@ Exercise accuracy percentages grouped by exercise type, complexity tier, and lan
 | `test_attempts` | AFTER INSERT | -- | `update_test_attempts_count()` | O(1) increment tests.total_attempts (Phase 3: was COUNT(*)) |
 | `test_attempts` | AFTER INSERT | -- | `update_skill_attempts_count()` | O(1) increment test_skill_ratings.total_attempts (Phase 3: was COUNT(*)) |
 | `exercise_attempts` | AFTER INSERT | `trigger_sync_exercise_history` | `sync_exercise_history()` | Copy to user_exercise_history for anti-repetition (Phase 4) |
+| `test_sentences` | BEFORE INSERT/UPDATE | `test_sentences_check_l2_text` | `test_sentences_check_l2_text()` | l2_text must equal the transcript span (TASK-901, planned) |
+| `test_sentence_references` | BEFORE INSERT/UPDATE | `test_sentence_references_check_l1_script` | `test_sentence_references_check_l1_script()` | Reject L2 script (Han / kana) in l1_text (TASK-901, planned) |
 
 **Note:** Duplicate trigger `update_skill_attempts_count_trigger` on test_attempts was removed in Phase 1.
 

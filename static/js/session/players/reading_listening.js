@@ -5,6 +5,15 @@
 // to it, tracks listeners/timers for clean teardown, and calls
 // ctx.onComplete(result) when the learner finishes instead of redirecting.
 
+import {
+  fetchTestSentences,
+  resolveSentences,
+  renderSentenceBlocks,
+  hasVisibleReferences,
+  hasTokenSpans,
+  setReferencesVisible,
+} from '../sentences.js';
+
 const LANGUAGE_LOCALE_MAP = { cn: 'zh', jp: 'ja', en: 'en', es: 'es' };
 
 const T = (key, params, fallback) =>
@@ -37,6 +46,13 @@ export function mount(container, ctx) {
     furiganaEnabled: false,
     furiganaUsedThisAttempt: false,
     _timer: null,
+    // TASK-911: server sentence spans (test_sentences) or the client split; the
+    // transcript renders as per-sentence blocks with a hidden-by-default L1
+    // reference line. `produce` (the prestudy Produce stage) never shows it.
+    sentences: null,
+    sentenceSource: null,
+    sentenceMode: ctx.item && ctx.item.prestudy_stage === 'produce' ? 'produce' : null,
+    referencesShown: false,
   };
 
   // --- lifecycle plumbing -------------------------------------------------
@@ -62,6 +78,7 @@ export function mount(container, ctx) {
   document.body.classList.add('test-page');
 
   container.innerHTML = MARKUP;
+  renderPrestudyOffer();
 
   init();
 
@@ -86,6 +103,7 @@ export function mount(container, ctx) {
     try {
       showLoading(true);
       await loadTestData();
+      await loadSentences();
       initializeUI();
       state.startTime = Date.now();
       startTimer();
@@ -120,6 +138,59 @@ export function mount(container, ctx) {
       explanation: null,
       type: qd.question_type,
     }));
+  }
+
+  // ====================================================================
+  // SENTENCES (TASK-911)
+  // ====================================================================
+  async function loadSentences() {
+    const transcript = (state.testData && state.testData.transcript) || '';
+    let serverRows = null;
+    try {
+      serverRows = await fetchTestSentences(state.slug, {
+        mode: state.sentenceMode,
+        transcript,
+      });
+    } catch (e) {
+      console.warn('sentences: unexpected failure, using client split', e);
+    }
+    const resolved = resolveSentences(transcript, serverRows);
+    state.sentences = resolved.sentences;
+    state.sentenceSource = resolved.source;
+  }
+
+  // Whole-transcript furigana is positional over the full text, so when it is
+  // on we keep the single-block rendering; otherwise the transcript is a list
+  // of sentence blocks sharing the same container (and word-popover handlers).
+  function renderTranscript() {
+    const el = q('transcriptText');
+    if (!el) return;
+    const transcript = state.testData.transcript || '';
+    const furiganaTokens = state.furiganaPayload && state.furiganaPayload.transcript;
+    const furiganaOn = state.furiganaEnabled && Array.isArray(furiganaTokens) && furiganaTokens.length;
+    if (!state.sentences || !state.sentences.length || furiganaOn) {
+      el.innerHTML = renderJpText(transcript, furiganaTokens);
+      updateReferenceToggle(false);
+      return;
+    }
+    renderSentenceBlocks(el, state.sentences, {
+      mode: state.sentenceMode,
+      renderText: (t) => escapeHtmlForFurigana(t),
+      showReferences: state.referencesShown,
+    });
+    updateReferenceToggle(true);
+  }
+
+  function updateReferenceToggle(sentenceView) {
+    const btn = q('toggleReferences');
+    if (!btn) return;
+    const show = sentenceView && hasVisibleReferences(state.sentences, state.sentenceMode);
+    btn.style.display = show ? '' : 'none';
+    btn.innerHTML =
+      '<i class="fas fa-language me-1"></i>' +
+      (state.referencesShown
+        ? T('test.hide_translation', null, 'Hide translation')
+        : T('test.show_translation', null, 'Show translation'));
   }
 
   // ====================================================================
@@ -198,12 +269,8 @@ export function mount(container, ctx) {
         /* non-fatal */
       }
       if (state.mode === 'reading') {
-        const t = q('transcriptText');
-        if (t)
-          t.innerHTML = renderJpText(
-            state.testData.transcript,
-            state.furiganaPayload && state.furiganaPayload.transcript
-          );
+        if (state.isSubmitted) wrapTranscriptWords();
+        else renderTranscript();
       }
       renderQuestions();
     });
@@ -236,10 +303,7 @@ export function mount(container, ctx) {
 
   function initializeReadingTest() {
     q('transcriptCard').style.display = 'block';
-    q('transcriptText').innerHTML = renderJpText(
-      state.testData.transcript,
-      state.furiganaPayload && state.furiganaPayload.transcript
-    );
+    renderTranscript();
   }
 
   function initializeListeningTest() {
@@ -429,6 +493,15 @@ export function mount(container, ctx) {
     });
     on(q('submitBtn'), 'click', confirmSubmit);
 
+    const refBtn = q('toggleReferences');
+    if (refBtn) {
+      on(refBtn, 'click', () => {
+        if (state.sentenceMode === 'produce') return;
+        state.referencesShown = setReferencesVisible(q('transcriptText'), !state.referencesShown);
+        updateReferenceToggle(true);
+      });
+    }
+
     const toggleBtn = q('toggleTranscript');
     if (toggleBtn) {
       on(toggleBtn, 'click', function () {
@@ -484,6 +557,33 @@ export function mount(container, ctx) {
     submitTest();
   }
 
+  // Test prestudy (wiki/features/test-prestudy.md): "Study first" on the
+  // session test card. Opt-in from here is always available; the server marks
+  // the offer `recommended` for hard tests when the learner chose "ask".
+  function renderPrestudyOffer() {
+    const offer = ctx.item && ctx.item.prestudy_offer;
+    const L = window.LinguaPrestudyLinks;
+    if (!offer || !ctx.item.slug || (L && L.isPrestudied(ctx.item.slug))) return;
+    const pct = Math.round((Number(offer.unknown_share) || 0) * 100);
+    const minutes = Number(offer.minutes_est) || 2;
+    const params = new URLSearchParams({ type: mode, trigger: 'opt_in', return: 'session' });
+    const bar = document.createElement('div');
+    bar.className = 'container mt-3';
+    bar.dataset.prestudyOffer = '1';
+    bar.innerHTML = `<div class="alert ${offer.recommended ? 'alert-warning' : 'alert-light border'} d-flex flex-wrap align-items-center gap-2 mb-0 py-2">
+        <i class="bi bi-book-half" aria-hidden="true"></i>
+        <span class="flex-grow-1 small"></span>
+        <a class="btn btn-sm ${offer.recommended ? 'btn-primary' : 'btn-outline-primary'}"></a></div>`;
+    bar.querySelector('span').textContent = offer.recommended
+      ? T('session.prestudy.offer_recommended', { pct, n: minutes }, `${pct}% of the key words are new to you. Study first? About ${minutes} min.`)
+      : T('session.prestudy.offer', { pct, n: minutes }, `${pct}% of the key words are new to you. Study first (about ${minutes} min).`);
+    const a = bar.querySelector('a');
+    a.textContent = T('session.prestudy.title', null, 'Study first');
+    a.href = `/test/${encodeURIComponent(ctx.item.slug)}/prestudy?${params.toString()}`;
+    const header = container.querySelector('.test-header');
+    if (header && header.parentNode) header.parentNode.insertBefore(bar, header.nextSibling);
+  }
+
   async function submitTest() {
     try {
       showLoading(true);
@@ -505,10 +605,12 @@ export function mount(container, ctx) {
           furigana_used: state.furiganaUsedThisAttempt,
           started_at: startedAtIso,
           finished_at: finishedAtIso,
+          prestudied: !!(window.LinguaPrestudyLinks && window.LinguaPrestudyLinks.isPrestudied(state.slug)),
         }),
       });
       if (!response.ok) throw new Error('Failed to submit test');
       const result = await response.json();
+      if (window.LinguaPrestudyLinks) window.LinguaPrestudyLinks.clearMarker(state.slug);
       state.isSubmitted = true;
       showResults(result);
       showLoading(false);
@@ -529,10 +631,6 @@ export function mount(container, ctx) {
     // Reveal transcript for listening, make words clickable + add hint.
     if (state.mode !== 'reading') {
       q('transcriptCard').style.display = 'block';
-      q('transcriptText').innerHTML = renderJpText(
-        state.testData.transcript,
-        state.furiganaPayload && state.furiganaPayload.transcript
-      );
     }
     wrapTranscriptWords();
     const transcriptCard = q('transcriptCard');
@@ -587,6 +685,26 @@ export function mount(container, ctx) {
       `${score}/${total} (${percentage}%)`
     );
     q('successMessage').style.display = 'block';
+    const offerBar = container.querySelector('[data-prestudy-offer]');
+    if (offerBar) offerBar.remove();
+
+    // Test prestudy: follow-up prime on the words behind wrong answers, then
+    // Produce. Leaving the session for it completes this test first, so the
+    // session resumes on the next item when the learner comes back.
+    if (window.LinguaPrestudyLinks && !container.querySelector('[data-prestudy-actions]')) {
+      window.LinguaPrestudyLinks.renderResultActions(q('successScoreText').parentElement, {
+        slug: state.slug,
+        type: state.mode,
+        wrong: Math.max(0, total - score),
+        prestudied: !!(res && res.prestudied),
+        returnTo: 'session',
+        beforeLeave: () =>
+          window.authFetch('/api/tests/daily-load/complete', {
+            method: 'POST',
+            body: JSON.stringify({ test_id: ctx.item.id, language_id: ctx.languageId }),
+          }),
+      });
+    }
 
     // Replace the Submit button with a "Next" button that advances the
     // session (clone to drop the submit listener).
@@ -615,7 +733,19 @@ export function mount(container, ctx) {
   function wrapTranscriptWords() {
     const transcriptEl = q('transcriptText');
     const tokenMap = state.vocabTokenMap;
+    // TASK-911: with server token spans the clickable view keeps the sentence
+    // blocks (and their reference lines); the fallback is the flat token list.
+    if (tokenMap && tokenMap.length && state.sentences && hasTokenSpans(state.sentences)) {
+      renderSentenceBlocks(transcriptEl, state.sentences, {
+        mode: state.sentenceMode,
+        tokenMap,
+        showReferences: state.referencesShown,
+      });
+      updateReferenceToggle(true);
+      return;
+    }
     transcriptEl.innerHTML = '';
+    updateReferenceToggle(false);
     if (!tokenMap || !tokenMap.length) {
       transcriptEl.textContent = state.testData.transcript;
       return;
@@ -990,9 +1120,14 @@ const MARKUP = `
     <div id="transcriptCard" class="transcript-card" style="display:none;">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="mb-0 h4"><i class="fas fa-file-alt text-primary me-2"></i><span data-i18n="test.reading_passage">Reading Passage</span></h2>
-            <button class="btn btn-sm btn-secondary" id="toggleTranscript">
-                <i class="fas fa-eye me-1"></i><span data-i18n="test.hide">Hide</span>
-            </button>
+            <div>
+                <button class="btn btn-sm btn-outline-secondary me-1" id="toggleReferences" type="button" style="display:none;">
+                    <i class="fas fa-language me-1"></i><span data-i18n="test.show_translation">Show translation</span>
+                </button>
+                <button class="btn btn-sm btn-secondary" id="toggleTranscript">
+                    <i class="fas fa-eye me-1"></i><span data-i18n="test.hide">Hide</span>
+                </button>
+            </div>
         </div>
         <div class="transcript-text" id="transcriptText"></div>
     </div>

@@ -18,7 +18,7 @@ dependencies:
   - "RPCs: calibration_next_anchor, calibration_ability, calibration_zipf_band, calibration_band_midpoint (new)"
   - "routes/calibration.py, services/calibration_service.py, templates/calibration.html (new)"
   - "tables: calibration_anchor_pool, calibration_distractor_cache (TASK-772/773, DERIVED - rebuild on dictionary change)"
-  - "RPCs: calibration_record_answer, calibration_build_items, calibration_next_anchors, calibration_discard_unanswered, calibration_refresh_anchor_pool, calibration_fill_distractor_cache, calibration_cache_distractors_chunk, calibration_distractor_cache_coverage, calibration_cached_options (TASK-769/770/772/773, ADR-038)"
+  - "RPCs: calibration_record_answer, calibration_build_items, calibration_next_anchors, calibration_discard_unanswered, calibration_refresh_anchor_pool, calibration_fill_distractor_cache, calibration_cache_distractors_chunk, calibration_distractor_cache_coverage, calibration_cached_options (TASK-769/770/772/773, ADR-039)"
   - "script: scripts/build_calibration_distractor_cache.py (TASK-773)"
 breaking_change_risk: low
 ---
@@ -623,7 +623,7 @@ in place.
    approximation; ADR-025 still holds word for word. Verified byte-for-byte against a
    live call. `pronunciation_distractors()` **does** contain `random()`, so it is
    cached as a pool of 8 and sampled at serve time, keeping the variety it has today.
-   **Since 2026-10-30 the cache is packed** ([[decisions/ADR-038-packed-calibration-distractor-cache]]):
+   **Since 2026-10-30 the cache is packed** ([[decisions/ADR-039-packed-calibration-distractor-cache]]):
    one row per `(anchor_sense_id, mode)` holding ranked `sense_ids[]`, `similarities[]`
    (definition mode) and `freq_tiers[]` (edit distance in pronunciation mode).
    `calibration_cached_options(mode, anchor)` expands it to the old row-per-option shape

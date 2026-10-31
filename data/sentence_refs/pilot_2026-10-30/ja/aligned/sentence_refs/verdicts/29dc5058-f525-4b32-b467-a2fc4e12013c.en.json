@@ -1,0 +1,43 @@
+{
+  "test_id": "29dc5058-f525-4b32-b467-a2fc4e12013c",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "高校生は学校でスポーツをします。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Low tightness: 外傷 rendered as 'injuries'; けがをします is an equally faithful rendering.",
+      "tightness": 0.5,
+      "back_translation": "けがをします。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Low tightness: 救急箱/かばん vs gold 救急処置のキット/カバン; equally faithful for 'first-aid kit'.",
+      "tightness": 0.4828,
+      "back_translation": "かばんに救急箱を入れます。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Low tightness: kana ばんそうこう vs gold kanji 絆創膏; same word.",
+      "tightness": 0.5263,
+      "back_translation": "ばんそうこうも入れます。"
+    }
+  ]
+}

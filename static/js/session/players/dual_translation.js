@@ -31,7 +31,7 @@ function esc(s) {
 export function mount(container, ctx) {
   const timer =
     window.ActiveTimer && typeof window.ActiveTimer.create === 'function' ? window.ActiveTimer.create() : null;
-  const state = { submissionId: null, submitting: false, destroyed: false, card: null };
+  const state = { submissionId: null, submitting: false, destroyed: false, card: null, primedToken: null };
 
   container.innerHTML = `
     <div class="session-card"><div class="card"><div class="card-body p-4">
@@ -52,7 +52,38 @@ export function mount(container, ctx) {
     },
   };
 
+  // Test prestudy Produce (wiki/features/test-prestudy.md): when the learner
+  // finished a prestudy follow-up in this session, today's translation slot
+  // uses the window of that test with the most primed words. Falls back to the
+  // ordinary next passage on any failure (e.g. no references in this language).
+  async function loadProduce() {
+    const L = window.LinguaPrestudyLinks;
+    const req = L && L.takeProduceRequest ? L.takeProduceRequest() : null;
+    if (!req) return null;
+    try {
+      const res = await window.authFetch(`/api/tests/${encodeURIComponent(req.slug)}/prestudy/produce`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) return null;
+      const payload = await res.json();
+      const data = payload.data || payload;
+      return data && data.submission_id ? data : null;
+    } catch (e) {
+      console.warn('dual_translation: prestudy Produce unavailable, using next passage', e);
+      return null;
+    }
+  }
+
   async function load() {
+    const produce = await loadProduce();
+    if (state.destroyed) return;
+    if (produce) {
+      state.submissionId = produce.submission_id;
+      state.primedToken = produce.primed_token || null;
+      renderPassage(produce);
+      return;
+    }
     let data;
     try {
       const res = await window.authFetch('/api/dual-translation/next');
@@ -151,6 +182,7 @@ export function mount(container, ctx) {
 
     let grade = null;
     const payload = { reproduction };
+    if (state.primedToken) payload.primed_token = state.primedToken;
     if (timer) {
       payload.active_ms = timer.stop();
       payload.client_event_id = window.ActiveTimer.newEventId();
@@ -193,6 +225,7 @@ export function mount(container, ctx) {
                 T('session.dt_graded_no_score', null, 'Your work has been recorded.')
               )}</p>`
         }
+        ${renderTargetWords(grade && grade.target_words)}
         <a class="btn btn-outline-secondary me-2" href="/dual-translation">${esc(
           T('session.dt_see_details', null, 'See full feedback')
         )}</a>
@@ -201,6 +234,26 @@ export function mount(container, ctx) {
         )}</button>
       </div>`;
     body().querySelector('[data-dt-continue]').onclick = finish;
+  }
+
+  // Produce: one row per primed word (produced / different form / omitted).
+  function renderTargetWords(rows) {
+    if (!Array.isArray(rows) || !rows.length) return '';
+    const label = (st) =>
+      st === 'produced'
+        ? T('prestudy.produce_produced', null, 'Produced')
+        : st === 'variant'
+          ? T('prestudy.produce_variant', null, 'Different form')
+          : T('prestudy.produce_omitted', null, 'Missing: back tomorrow');
+    const cls = (st) => (st === 'produced' ? 'text-bg-success' : st === 'variant' ? 'text-bg-warning' : 'text-bg-danger');
+    return `<div class="text-start mb-3"><div class="small text-muted mb-1">${esc(
+      T('prestudy.produce_words', null, 'Your primed words')
+    )}</div><ul class="list-unstyled mb-0">${rows
+      .map(
+        (r) =>
+          `<li class="d-flex justify-content-between gap-2 py-1 border-bottom"><span>${esc(r.lemma || '')}</span><span class="badge ${cls(r.status)}">${esc(label(r.status))}</span></li>`
+      )
+      .join('')}</ul></div>`;
   }
 
   function finish() {

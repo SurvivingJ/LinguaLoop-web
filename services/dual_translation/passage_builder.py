@@ -164,6 +164,122 @@ def _join_sentences(sentences: list[str], language_code: str) -> str:
     return ' '.join(sentences)
 
 
+def join_sentences(sentences: list[str], language_code: str) -> str:
+    """Public alias of ``_join_sentences`` for callers outside this module
+    (TASK-909: ``passage-from-sentences`` assembles a window's ``l2_text`` and
+    ``l1_text`` with exactly the convention the batch builder uses)."""
+    return _join_sentences(sentences, language_code)
+
+
+# ---------------------------------------------------------------------------
+# Primed-window selection (TASK-909, ADR-037)
+# ---------------------------------------------------------------------------
+
+def _sentence_senses(sentence: dict, token_map: Optional[list]) -> set[int]:
+    """Sense ids a ``test_sentences`` row covers.
+
+    Prefers an explicit ``sense_ids`` list on the row (fixtures, pre-computed
+    callers); otherwise slices ``token_map`` (``tests.vocab_token_map``,
+    ``[[surface, sense_id], ...]``) by the row's half-open token span. A row
+    with no token span and no sense list covers nothing.
+    """
+    explicit = sentence.get('sense_ids')
+    if explicit is not None:
+        return {int(s) for s in explicit if s}
+    ts, te = sentence.get('token_start'), sentence.get('token_end')
+    if token_map is None or ts is None or te is None:
+        return set()
+    return {int(sid) for _, sid in token_map[int(ts):int(te)] if sid}
+
+
+def _sentence_chars(sentence: dict) -> int:
+    text = sentence.get('l2_text')
+    if text is not None:
+        return len(text)
+    cs, ce = sentence.get('char_start'), sentence.get('char_end')
+    if cs is not None and ce is not None:
+        return max(0, int(ce) - int(cs))
+    return 0
+
+
+def select_window_for_primed(
+    sentences: list[dict],
+    primed_sense_ids,
+    wrong_sense_ids,
+    refs_ok: set[int],
+    tightness: dict[int, float],
+    floor: float,
+    min_size: int = MIN_WINDOW,
+    max_size: int = MAX_WINDOW,
+    token_map: Optional[list] = None,
+) -> Optional[tuple[int, int]]:
+    """Pick the Produce window for a prestudied test (TASK-909).
+
+    Pure function; the demo's ``chooseWindow`` (wiki/demos/test-prestudy-demo.html)
+    is the reference implementation. Every contiguous range of ``min_size``..
+    ``max_size`` sentences is scored
+
+        primed senses covered * 10 + wrong-question senses covered * 3 - chars / 100
+
+    and the best range wins; ties go to the first candidate found, which —
+    because lengths are tried ascending and starts ascending — means the
+    shorter, then the earlier, window. A range is only eligible when every
+    sentence index is in ``refs_ok`` (has an active ``pass``/``rewritten``
+    reference for the learner's L1) and the mean ``tightness`` of its
+    references is at least ``floor``; sentences with no recorded tightness are
+    left out of the mean, and a range with no recorded tightness at all only
+    passes a ``floor`` of 0.
+
+    Args:
+        sentences: ``test_sentences`` rows (``idx``, ``l2_text`` or
+            ``char_start``/``char_end``, ``token_start``/``token_end``, or an
+            explicit ``sense_ids`` list), in index order.
+        primed_sense_ids / wrong_sense_ids: sense ids the learner primed and
+            the senses behind questions answered wrongly.
+        refs_ok: sentence indices with a usable reference.
+        tightness: ``{idx: tightness}`` for those references (may be sparse).
+        token_map: ``tests.vocab_token_map``; needed when rows carry token
+            spans rather than ``sense_ids``.
+
+    Returns ``(start_idx, end_idx)`` inclusive, or ``None`` when no eligible
+    range exists (too few sentences, or no fully covered window).
+    """
+    rows = sorted(sentences or [], key=lambda r: int(r['idx']))
+    n = len(rows)
+    if n == 0 or min_size < 1 or max_size < min_size:
+        return None
+    primed = {int(s) for s in (primed_sense_ids or []) if s}
+    wrong = {int(s) for s in (wrong_sense_ids or []) if s}
+    covered = [_sentence_senses(r, token_map) for r in rows]
+    chars = [_sentence_chars(r) for r in rows]
+    idxs = [int(r['idx']) for r in rows]
+
+    best: Optional[tuple[float, int, int]] = None
+    for length in range(min_size, min(max_size, n) + 1):
+        for a in range(0, n - length + 1):
+            window = range(a, a + length)
+            if any(idxs[k] not in refs_ok for k in window):
+                continue
+            vals = [tightness[idxs[k]] for k in window
+                    if tightness.get(idxs[k]) is not None]
+            if vals:
+                if sum(vals) / len(vals) < floor:
+                    continue
+            elif floor > 0:
+                continue
+            senses: set[int] = set()
+            for k in window:
+                senses |= covered[k]
+            p = len(senses & primed)
+            w = len(senses & wrong)
+            score = p * 10 + w * 3 - sum(chars[k] for k in window) / 100
+            if best is None or score > best[0]:
+                best = (score, idxs[a], idxs[a + length - 1])
+    if best is None:
+        return None
+    return best[1], best[2]
+
+
 # ---------------------------------------------------------------------------
 # Passage rows
 # ---------------------------------------------------------------------------

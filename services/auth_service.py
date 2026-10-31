@@ -195,7 +195,7 @@ class AuthService:
                 user_record = {
                     'id': user_id,
                     'email': email,
-                    'subscription_tier': 'free',
+                    'subscription_tier_id': 1,  # dim_subscription_tiers 'free'
                     'email_verified': True,
                     'total_tests_taken': 0,
                     'total_tests_generated': 0,

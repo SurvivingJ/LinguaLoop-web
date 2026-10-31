@@ -522,6 +522,113 @@ def build_session_queue(
 
 
 # ---------------------------------------------------------------------------
+# Test prestudy blocks (wiki/features/test-prestudy.md, Triggers) -- pure,
+# unit-tested in tests/test_prestudy_session.py.
+# ---------------------------------------------------------------------------
+
+_PRESTUDY_PREFIX = 'prestudy_'
+_PRESTUDY_KIND = 'prestudy'
+
+
+def prestudy_block_id(test_id: Any) -> str:
+    return f"{_PRESTUDY_PREFIX}{test_id}"
+
+
+def apply_prestudy(
+    queue: List[Dict[str, Any]],
+    plans: Dict[str, Dict[str, Any]],
+    completed_blocks: List[str],
+    prestudy_mode: str,
+    test_budget_minutes: float,
+) -> List[Dict[str, Any]]:
+    """Insert prestudy blocks before the tests that need one and say honestly
+    what they cost.
+
+    * ``auto``: a block before every unfinished retry slot, every unfinished
+      new test over 25% unknown (full) and every new test between 5% and 25%
+      (light, about a minute).
+    * ``ask``: no blocks; those same tests carry ``prestudy_offer.recommended``.
+    * ``off``: no blocks, no recommendation.
+    Every reading/listening test with linked words carries ``prestudy_offer``
+    (the session card's "Study first" button) in every mode.
+
+    The blocks spend tests-share minutes. When their unfinished total reaches
+    the cost of a test slot (``test_budget_minutes / number of tests``), that
+    many unstarted new tests without a block move to the end as optional
+    (``is_bonus``, ``deferred_for_prestudy``), and each block says so.
+    """
+    done = set(completed_blocks or [])
+    tests = [q for q in queue if q.get('kind') == 'test']
+    out: List[Dict[str, Any]] = []
+    blocks: List[Dict[str, Any]] = []
+    for item in queue:
+        plan = plans.get(str(item.get('id'))) if item.get('kind') == 'test' else None
+        if not plan:
+            out.append(item)
+            continue
+        is_retry = item.get('slot_type') == 'retry'
+        wants = is_retry or plan['plan_mode'] in ('full', 'light')
+        item['prestudy_offer'] = {
+            'unknown_share': plan['unknown_share'],
+            'minutes_est': plan['minutes_est'],
+            'recommended': bool(prestudy_mode == 'ask' and (is_retry or plan['plan_mode'] == 'full')),
+        }
+        if prestudy_mode == 'auto' and wants and not item.get('is_completed'):
+            block_id = prestudy_block_id(item['id'])
+            block = {
+                'kind':          _PRESTUDY_KIND,
+                'id':            block_id,
+                'test_id':       item['id'],
+                'slug':          item.get('slug'),
+                'test_type':     item.get('test_type'),
+                'title':         item.get('title'),
+                'trigger':       'retry' if is_retry else 'auto',
+                'plan_mode':     'full' if is_retry and plan['plan_mode'] != 'full' else plan['plan_mode'],
+                'unknown_share': plan['unknown_share'],
+                'minutes_est':   plan['minutes_est'] if not (is_retry and plan['plan_mode'] != 'full')
+                                 else max(2, plan['minutes_est']),
+                'tests_dropped_today': 0,
+                'is_completed':  block_id in done,
+            }
+            out.append(block)
+            blocks.append(block)
+        out.append(item)
+
+    pending = [b for b in blocks if not b['is_completed']]
+    per_test = (float(test_budget_minutes or 0) / len(tests)) if tests else 0.0
+    if not pending or per_test <= 0:
+        return out
+    n_drop = int(sum(b['minutes_est'] for b in pending) // per_test)
+    blocked = {b['test_id'] for b in blocks}
+    candidates = [t for t in tests if t.get('slot_type', 'new') == 'new' and not t.get('is_completed')
+                  and t.get('id') not in blocked and not t.get('is_bonus')]
+    n_drop = min(n_drop, len(candidates), max(0, len(tests) - 1))
+    if n_drop <= 0:
+        return out
+    deferred = candidates[-n_drop:]
+    ids = {id(t) for t in deferred}
+    for t in deferred:
+        t['is_bonus'] = True
+        t['deferred_for_prestudy'] = True
+    for b in pending:
+        b['tests_dropped_today'] = n_drop
+    kept = [q for q in out if id(q) not in ids]
+    # optional tests go after the planned work, before any bonus speed round
+    tail_at = next((i for i, q in enumerate(kept) if q.get('kind') == _SPEED_ROUND_KIND), len(kept))
+    return kept[:tail_at] + deferred + kept[tail_at:]
+
+
+def _today_prestudy_ids(test_ids: Any) -> set:
+    """Prestudy block ids POST /complete-block accepts: one per test in today's load."""
+    out = set()
+    for t in test_ids or []:
+        tid = t.get('test_id') if isinstance(t, dict) else t
+        if tid:
+            out.add(prestudy_block_id(tid))
+    return out
+
+
+# ---------------------------------------------------------------------------
 # GET /api/study-session?language_id=L
 # ---------------------------------------------------------------------------
 
@@ -600,6 +707,21 @@ def get_study_session() -> ApiResponse:
             speed_round_available=speed_round_available,
         )
 
+        # Test prestudy: blocks before hard new tests and retry slots, the
+        # session card's "Study first" offer, and honest minutes. Best effort:
+        # a planning failure leaves the queue exactly as the planner made it.
+        try:
+            from services import prestudy as _prestudy
+            plans = _prestudy.plan_for_tests(db, user_id, language_id, tests)
+            if plans:
+                queue = apply_prestudy(
+                    queue, plans, completed_blocks,
+                    _prestudy.get_prestudy_mode(db, user_id, language_id),
+                    float(targets.get('test_budget_minutes') or 0),
+                )
+        except Exception as exc:
+            logger.warning("prestudy planning failed (non-fatal): %s", exc)
+
         total = len(queue)
         completed = sum(1 for q in queue if q['is_completed'])
 
@@ -609,13 +731,10 @@ def get_study_session() -> ApiResponse:
         extras: Dict[str, Any] = {'governor': None, 'tail': None, 'tail_queue': []}
         try:
             state = practice_service.new_word_state(user_id, language_id)
-            # Practice mode (/session?mode=practice) hides tests, so it asks
-            # with scope=practice: the tail gate then ignores test items.
-            gate_queue = (
-                [q for q in queue if q.get('kind') != 'test']
-                if (request.args.get('scope') or '').lower() == 'practice'
-                else queue
-            )
+            # The tail gate ignores test items: "Keep going" is offered once the
+            # practice part is done, even if tests were skipped. (Practice mode
+            # still sends scope=practice; it no longer changes anything.)
+            gate_queue = [q for q in queue if q.get('kind') != 'test']
             extras = compute_governor_and_tail(
                 state, gate_queue, completed_blocks, _mpnw(db, language_id))
         except Exception as exc:
@@ -671,7 +790,7 @@ def complete_block() -> ApiResponse:
 
         row = (
             db.table('daily_test_loads')
-            .select('id, completed_blocks, daily_session_targets')
+            .select('id, completed_blocks, daily_session_targets, test_ids')
             .eq('user_id', user_id)
             .eq('language_id', language_id)
             .eq('load_date', today)
@@ -687,7 +806,8 @@ def complete_block() -> ApiResponse:
         targets = row.data[0].get('daily_session_targets') or {}
         valid_ids = _valid_block_ids(
             targets,
-            extra_ids=_tail_window_ids(row.data[0].get('completed_blocks') or []),
+            extra_ids=_tail_window_ids(row.data[0].get('completed_blocks') or [])
+            | _today_prestudy_ids(row.data[0].get('test_ids')),
         )
         if block_id not in valid_ids:
             return bad_request(

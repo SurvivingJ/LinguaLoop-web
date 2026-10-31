@@ -20,7 +20,7 @@ Only the native standard row of a sense is embedded (definition_level
 'standard', definition language = word language). Its simple row and every
 cross-language gloss row borrow that vector through the ``sense_embedding()``
 SQL function, and a CHECK constraint rejects a vector on any other row
-(migrations/sense_vectors_native_standard_512.sql, ADR-037).
+(migrations/sense_vectors_native_standard_512.sql, ADR-038).
 
 Idempotent: senses that already carry an embedding are skipped, so an
 interrupted run resumes and a re-run after adding senses pays only for the new

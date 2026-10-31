@@ -127,7 +127,7 @@ after phase14 dropped the reduced-volatility path). TASK-704
 so the column is written again — the applied factor on an eligible daily-load
 retry-slot repeat, NULL otherwise. It is no longer orphaned; do not drop it.
 
-## 2026-10-29 — sense vectors moved to native standard rows, 512-d (ADR-037)
+## 2026-10-29 — sense vectors moved to native standard rows, 512-d (ADR-038)
 
 | Archived file | Object | New canonical file | Marker verified on live |
 |---|---|---|---|

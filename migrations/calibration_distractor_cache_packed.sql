@@ -1,11 +1,11 @@
 -- ============================================================================
 -- calibration_distractor_cache: one row per (anchor, mode), options as arrays
--- Status: APPLIED 2026-10-30 (SQL Editor). ADR-038. Vocabulary storage phase 2.
+-- Status: APPLIED 2026-10-30 (SQL Editor). ADR-039. Vocabulary storage phase 2.
 -- ============================================================================
 --
 -- WHY
 --   Supabase Free caps the database at 500 MB; the content target is 10k zh + 10k ja
---   words with full ladders (ADR-037). Measured 2026-10-29: calibration_distractor_cache
+--   words with full ladders (ADR-038). Measured 2026-10-29: calibration_distractor_cache
 --   was 46 MB for 211,692 rows (one row per option: 162,613 definition + 49,079
 --   pronunciation, ~133 B heap + ~60 B of index each). At target scale that grows to
 --   ~110 MB.

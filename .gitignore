@@ -66,3 +66,9 @@ logs/llm_usage/
 # 2026-09-21 module/data archives — contain table rows (user ids, LLM prompt logs). Local only.
 archive/modules/
 archive/db_backups/
+
+# Offline DB shim snapshots (table rows) and one-off fat-seed hand-fix scripts. Local only.
+scratch_offline/snap/
+scratch_offline/gen/
+scratch_offline/inflight.txt
+scratch_offline/rv0*_*.py

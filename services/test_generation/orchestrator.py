@@ -1980,3 +1980,55 @@ class TestGenerationOrchestrator:
         logger.info("  " + "-" * 40)
         logger.info("  %-12s %-10d %-8d %-6d", "TOTAL", total_gen, total_skip, total_err)
         logger.info("=" * 50)
+
+
+# ---------------------------------------------------------------------------
+# Standalone token-map rebuild (TASK-900)
+# ---------------------------------------------------------------------------
+
+def build_token_map_for_test(
+    db, transcript: str, language_code: str, language_id: int,
+    sense_ids: list[int] | None = None,
+) -> list:
+    """Re-derive ``tests.vocab_token_map`` for one transcript without running
+    generation.
+
+    A thin module-level wrapper around
+    :meth:`TestGenerationOrchestrator._build_token_map` for admin tooling
+    (``scripts/audit_transcript_preambles.py``) that must produce exactly the
+    map the generator would, including the kana-homophone resolution. The
+    full orchestrator constructor validates the LLM configuration and builds
+    every agent, none of which the token map needs, so a bare instance is
+    created and only the three attributes ``_build_token_map`` reads are set:
+
+    * ``vocab_pipeline`` — for ``tokenize_full`` (no LLM: the phrase detector
+      is constructed but never called);
+    * ``_vocab_cache`` — normally filled during generation; here pre-seeded
+      from ``dim_vocabulary`` for every content lemma in the transcript so the
+      Strategy 2 fallback behaves as it does after a real generation run;
+    * ``_vocab_cache_lock`` — unused by the builder, present for parity.
+
+    ``db`` is any client exposing ``.table(...)`` (the service-role Supabase
+    client). ``sense_ids`` should be the test's ``vocab_sense_ids`` so the
+    reverse lookup (Strategy 1) links the senses the test already carries.
+    """
+    orch = TestGenerationOrchestrator.__new__(TestGenerationOrchestrator)
+    orch.vocab_pipeline = VocabularyExtractionPipeline(openai_client=None, db_client=db)
+    orch._vocab_cache = {}
+    orch._vocab_cache_lock = threading.Lock()
+
+    tokens = orch.vocab_pipeline.tokenize_full(transcript, language_code)
+    lemmas = sorted({lemma for _d, lemma, is_content, _r in tokens if is_content and lemma})
+    for i in range(0, len(lemmas), 200):
+        chunk = lemmas[i:i + 200]
+        result = db.table('dim_vocabulary') \
+            .select('id, lemma') \
+            .eq('language_id', language_id) \
+            .in_('lemma', chunk) \
+            .execute()
+        for row in (result.data or []):
+            orch._vocab_cache.setdefault((row['lemma'], language_id), row['id'])
+
+    return orch._build_token_map(
+        db, transcript, language_code, language_id, sense_ids=sense_ids or [],
+    )

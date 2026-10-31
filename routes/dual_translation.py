@@ -47,7 +47,13 @@ from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.dimension_service import DimensionService
 from services.dual_translation import cards as dt_cards
+from services.dual_translation import primed_token
 from services.dual_translation.grader_cascade import grade_submission, get_active_rubric
+from services.dual_translation.passage_builder import (
+    MAX_WINDOW, SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
+)
+from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE
+from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.vocabulary.fsrs import AGAIN, CardState, schedule_review
 from utils.responses import (
@@ -168,6 +174,7 @@ def submit(submission_id: int) -> ApiResponse:
         data = request.get_json() or {}
         reproduction = data.get('reproduction')
         idempotency_key = data.get('idempotency_key')
+        primed = data.get('primed_token')
 
         if not reproduction or not isinstance(reproduction, str):
             return bad_request("reproduction required")
@@ -195,6 +202,19 @@ def submit(submission_id: int) -> ApiResponse:
         # never hard-fails on this, it just fails Tier 2's dimensions open.
         max_tier = 'tier1' if _tokens_used_today(db, g.current_user_id) >= Config.DT_DAILY_TOKEN_BUDGET else 'tier2'
 
+        # TASK-910: the prestudy Produce stage echoes the signed primed-sense
+        # token issued by /passage-from-sentences; its senses become the
+        # grader's target words. A bad token is a 400, never a silent drop —
+        # the per-word rows are the whole point of that stage.
+        target_ctx = None
+        if primed is not None:
+            try:
+                target_ids = primed_token.load(primed, g.current_user_id, passage['id'])
+            except primed_token.PrimedTokenError as e:
+                return bad_request(str(e))
+            if target_ids:
+                target_ctx = _target_word_context(db, passage, target_ids)
+
         contract = grade_submission(
             db,
             passage_id=passage['id'],
@@ -204,6 +224,7 @@ def submit(submission_id: int) -> ApiResponse:
             l1_language_id=submission_row['l1_language_id'],
             age_tier=passage['age_tier'],
             max_tier=max_tier,
+            **(target_ctx or {}),
         )
 
         # TASK-628: a v2 grade with no scores (both the Detector and the Verifier
@@ -216,6 +237,23 @@ def submit(submission_id: int) -> ApiResponse:
             return api_success(contract)
 
         _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
+
+        # TASK-910: one production-evidence row per primed sense. Not part of
+        # _persist_grade (whose ordering contract is about dt_grade caching);
+        # best-effort, like the dictation BKT write.
+        if contract.get('target_words'):
+            _record_target_word_evidence(
+                db, g.current_user_id, passage['l2_language_id'], submission_id,
+                contract['target_words'],
+            )
+            # Test prestudy: store the Produce result on the prime session and
+            # send omitted primed words to next-day review. Best-effort.
+            if passage.get('source_ref_id'):
+                from services import prestudy
+                prestudy.record_produce(
+                    db, g.current_user_id, str(passage['source_ref_id']),
+                    passage['l2_language_id'], submission_id, contract['target_words'],
+                )
 
         # Weekly minutes: credit once, on the first persisted grading only
         # (the cached path above returns early). Best-effort, clamped to 900 s.
@@ -235,6 +273,295 @@ def submit(submission_id: int) -> ApiResponse:
     except Exception as e:
         logger.error("Error submitting dual-translation reproduction %s: %s", submission_id, e)
         return server_error("Failed to submit reproduction")
+
+
+# ============================================================================
+# POST /passage-from-sentences  (TASK-909, ADR-037)
+# ============================================================================
+
+@dual_translation_bp.route('/passage-from-sentences', methods=['POST'])
+@supabase_jwt_required
+def passage_from_sentences() -> ApiResponse:
+    """Find or create the ``dt_passage`` for a sentence range of a test and
+    open a submission on it — the prestudy Produce stage's entry point.
+
+    Body: ``{test_id, sentence_start, sentence_end, l1_language_id,
+    primed_sense_ids[]}`` (indices inclusive, into ``test_sentences.idx``).
+
+    * 403 when the user has no attempt on the test (DT's existing rule:
+      passages come only from attempted tests);
+    * 422 when any sentence in the range lacks an active ``pass``/``rewritten``
+      reference in that L1 (``missing_idx`` names them so the client can fall
+      back to the best fully covered window), or the range has no sentence
+      rows;
+    * 409 when the sentence rows are stale for the stored transcript.
+
+    The passage is keyed by ``(source_ref_id, sentence_start, sentence_end)``
+    (partial unique index) so the same range always yields the same
+    ``passage_id``; ``l2_text`` is never returned. The primed senses are not
+    stored: they come back signed as ``primed_token``, which the client echoes
+    on ``POST /<submission_id>/submit`` (see services/dual_translation/primed_token.py).
+
+    Deviation from the tech page's "dt_passage insert, nothing else": a
+    ``dt_submission`` row is created too (as ``GET /next`` does), because the
+    existing submit route grades a submission, not a passage — without it the
+    client could not submit the reproduction.
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return server_error("Database service not configured")
+        user_id = g.current_user_id
+
+        data = request.get_json(silent=True) or {}
+        test_id = data.get('test_id')
+        try:
+            start = int(data.get('sentence_start'))
+            end = int(data.get('sentence_end'))
+            l1_language_id = int(data.get('l1_language_id'))
+        except (TypeError, ValueError):
+            return bad_request("test_id, sentence_start, sentence_end and l1_language_id required")
+        if not test_id or not isinstance(test_id, str):
+            return bad_request("test_id required")
+        n_sentences = end - start + 1
+        if start < 0 or n_sentences < 1 or n_sentences > MAX_WINDOW:
+            return bad_request(f"sentence range must cover 1-{MAX_WINDOW} sentences")
+        primed_ids = data.get('primed_sense_ids') or []
+        if not isinstance(primed_ids, list):
+            return bad_request("primed_sense_ids must be a list")
+
+        return open_range_passage(db, user_id, test_id, start, end, l1_language_id, primed_ids)
+
+    except Exception as e:
+        logger.error("Error building passage from sentences: %s", e)
+        return server_error("Failed to build passage")
+
+
+def open_range_passage(db, user_id: str, test_id: str, start: int, end: int, l1_language_id: int,
+                       primed_ids: list, extra: Optional[dict] = None) -> ApiResponse:
+    """Core of POST /passage-from-sentences, shared with the prestudy Produce
+    route (POST /api/tests/<id>/prestudy/produce), which picks the window
+    itself. ``extra`` keys are merged into the success payload."""
+    n_sentences = end - start + 1
+    if not _user_has_attempted(db, user_id, test_id):
+        return forbidden("Dual translation passages come only from tests you have attempted")
+
+    test = _get_test_for_passage(db, test_id)
+    if not test:
+        return not_found("Test not found")
+    if l1_language_id == int(test['language_id']):
+        return bad_request("l1_language_id must differ from the test's language")
+
+    sentences = _get_sentence_range(db, test_id, start, end)
+    if len(sentences) != n_sentences:
+        return api_error(
+            "No sentence rows for this range", 422, error_code="SENTENCES_MISSING",
+        )
+    stored_hash = test.get('transcript_hash')
+    if stored_hash and any(sr.get('transcript_hash') != stored_hash for sr in sentences):
+        return api_error(
+            "Sentence rows are stale for this transcript", 409, error_code="SENTENCES_STALE",
+        )
+
+    refs = _get_usable_references(db, [sr['id'] for sr in sentences], l1_language_id)
+    missing = [sr['idx'] for sr in sentences if sr['id'] not in refs]
+    if missing:
+        return api_error(
+            "A sentence in this range has no reference in that language", 422,
+            error_code="REFERENCE_MISSING", details={'missing_idx': missing},
+        )
+
+    l2_code = _LANG_CODE.get(int(test['language_id']), 'en')
+    l1_code = _LANG_CODE.get(l1_language_id, 'en')
+    passage = _find_or_create_range_passage(
+        db, test, start, end,
+        l2_text=join_sentences([sr['l2_text'] for sr in sentences], l2_code),
+    )
+    if not passage:
+        return server_error("Failed to create passage")
+    l1_text = join_sentences([refs[sr['id']]['l1_text'] for sr in sentences], l1_code)
+
+    correction_style = Config.resolve_correction_style(user_id)
+    submission_resp = db.table('dt_submission').insert({
+        'user_id': user_id,
+        'passage_id': passage['id'],
+        'l1_language_id': l1_language_id,
+        'reproduction': '',
+        'correction_style': correction_style,
+    }).execute()
+    if not submission_resp.data:
+        return server_error("Failed to create submission")
+
+    return api_success({
+        **(extra or {}),
+        'passage_id': passage['id'],
+        'l1_text': l1_text,
+        'n_sentences': n_sentences,
+        'submission_id': submission_resp.data[0]['id'],
+        'age_tier': passage['age_tier'],
+        'rubric_descriptors': _rubric_descriptors_for(db, passage['age_tier'], l2_code),
+        'correction_style': correction_style,
+        'primed_token': primed_token.issue(user_id, passage['id'], primed_ids),
+    })
+
+
+def _user_has_attempted(db, user_id: str, test_id: str) -> bool:
+    resp = (
+        db.table('test_attempts').select('id')
+        .eq('user_id', user_id).eq('test_id', test_id).limit(1).execute()
+    )
+    return bool(resp.data)
+
+
+def _get_test_for_passage(db, test_id: str) -> Optional[dict]:
+    resp = (
+        db.table('tests').select('id, language_id, difficulty, transcript_hash')
+        .eq('id', test_id).eq('is_active', True).limit(1).execute()
+    )
+    return resp.data[0] if resp.data else None
+
+
+def _get_sentence_range(db, test_id: str, start: int, end: int) -> list:
+    resp = (
+        db.table('test_sentences')
+        .select('id, idx, l2_text, token_start, token_end, transcript_hash')
+        .eq('test_id', test_id).gte('idx', start).lte('idx', end).order('idx').execute()
+    )
+    return resp.data or []
+
+
+_USABLE_VERDICTS = ('pass', 'rewritten')
+
+
+def _get_usable_references(db, sentence_ids: list, l1_language_id: int) -> dict:
+    """``{sentence_id: row}`` for active references with a usable review verdict."""
+    if not sentence_ids:
+        return {}
+    resp = (
+        db.table('test_sentence_references')
+        .select('sentence_id, l1_text, tightness, review_verdict')
+        .in_('sentence_id', sentence_ids)
+        .eq('l1_language_id', l1_language_id)
+        .eq('is_active', True)
+        .in_('review_verdict', list(_USABLE_VERDICTS))
+        .execute()
+    )
+    return {
+        row['sentence_id']: row for row in (resp.data or [])
+        if row.get('review_verdict') in _USABLE_VERDICTS
+    }
+
+
+def _find_or_create_range_passage(db, test: dict, start: int, end: int, *, l2_text: str) -> Optional[dict]:
+    """The ``dt_passage`` for (test, start, end): existing row, else inserted.
+    A lost race on the partial unique index re-reads the winner's row."""
+    existing = _select_range_passage(db, str(test['id']), start, end)
+    if existing:
+        return existing
+    payload = {
+        'l2_language_id': test['language_id'],
+        'source_kind': SOURCE_KIND,
+        'source_ref_id': str(test['id']),
+        'l2_text': l2_text,
+        'age_tier': difficulty_to_age_tier(test.get('difficulty')),
+        'register': None,
+        'status': DEFAULT_STATUS,
+        'sentence_start': start,
+        'sentence_end': end,
+    }
+    try:
+        resp = db.table('dt_passage').insert(payload).execute()
+        if resp.data:
+            return resp.data[0]
+    except Exception as e:
+        logger.info("dt_passage range insert lost a race or failed (%s); re-reading", e)
+    return _select_range_passage(db, str(test['id']), start, end)
+
+
+def _select_range_passage(db, source_ref_id: str, start: int, end: int) -> Optional[dict]:
+    resp = (
+        db.table('dt_passage').select('id, age_tier, l2_language_id, status')
+        .eq('source_ref_id', source_ref_id)
+        .eq('sentence_start', start).eq('sentence_end', end)
+        .limit(1).execute()
+    )
+    return resp.data[0] if resp.data else None
+
+
+# ============================================================================
+# TASK-910 — target words (per-word production evidence)
+# ============================================================================
+
+def _target_word_context(db, passage: dict, target_ids: list) -> dict:
+    """The ``grade_submission`` kwargs for target-word classification: the
+    token-map slice covering the passage's sentence range and the senses'
+    lemmas. A passage without range columns (a pre-ADR-037 window) gets the
+    whole test's token map — surfaces are then located in the gold by text."""
+    token_map: list = []
+    lemmas: dict = {}
+    try:
+        test_resp = (
+            db.table('tests').select('vocab_token_map')
+            .eq('id', passage.get('source_ref_id')).limit(1).execute()
+        )
+        full_map = (test_resp.data[0].get('vocab_token_map') if test_resp.data else None) or []
+        start, end = passage.get('sentence_start'), passage.get('sentence_end')
+        if full_map and start is not None and end is not None:
+            rows = _get_sentence_range(db, passage['source_ref_id'], int(start), int(end))
+            spans = [r for r in rows if r.get('token_start') is not None and r.get('token_end') is not None]
+            if spans and len(spans) == len(rows):
+                token_map = full_map[int(spans[0]['token_start']):int(spans[-1]['token_end'])]
+            else:
+                token_map = full_map
+        else:
+            token_map = full_map
+        sense_resp = (
+            db.table('dim_word_senses').select('id, dim_vocabulary(lemma)')
+            .in_('id', [int(t) for t in target_ids]).execute()
+        )
+        for row in (sense_resp.data or []):
+            lemma = (row.get('dim_vocabulary') or {}).get('lemma')
+            if lemma:
+                lemmas[int(row['id'])] = lemma
+    except Exception as e:
+        logger.warning("target-word context lookup failed (non-fatal): %s", e)
+    return {
+        'target_sense_ids': [int(t) for t in target_ids],
+        'target_token_map': token_map,
+        'target_lemmas': lemmas,
+    }
+
+
+def _record_target_word_evidence(db, user_id: str, language_id: int, submission_id: int, rows: list) -> None:
+    """One ``user_vocabulary_knowledge`` evidence point per primed sense via
+    the batch BKT RPC with ``side_effects=False`` (no flashcard creation, no
+    ladder seeding, no frequency inference): Produce is evidence, never
+    admission ([[features/test-prestudy]]). Never raises.
+
+    TODO(TASK-910): no exercise_attempts row is written. exercise_attempts has
+    no `source` column and `exercise_id` is the only link to an exercise
+    (migrations/create_all_tables.sql); a write path for non-exercise sources
+    (`source = 'prestudy_produce'`) does not exist yet. Add the column + a
+    nullable-exercise insert path, then record one row per sense here.
+    Omitted senses go to next-day review through ``prestudy.record_produce``
+    (called by the submit route after this).
+    """
+    results = [
+        {'sense_id': int(r['sense_id']), 'is_correct': bool(r.get('is_correct'))}
+        for r in (rows or []) if r.get('sense_id')
+    ]
+    if not results:
+        return
+    try:
+        updated = VocabularyKnowledgeService(db).update_from_word_tests_batch(
+            user_id=user_id, language_id=language_id, results=results, side_effects=False,
+        )
+        logger.info(
+            "DT target words: user=%s submission=%s %d senses -> %d BKT rows",
+            user_id, submission_id, len(results), len(updated or []),
+        )
+    except Exception as e:
+        logger.warning("DT target-word evidence write failed (non-fatal): %s", e)
 
 
 # ============================================================================
@@ -482,7 +809,7 @@ def _get_submission(db, submission_id: int) -> Optional[dict]:
 def _get_passage(db, passage_id: int) -> Optional[dict]:
     resp = (
         db.table('dt_passage')
-        .select('id, l2_text, l2_language_id, age_tier, status')
+        .select('id, l2_text, l2_language_id, age_tier, status, source_ref_id, sentence_start, sentence_end')
         .eq('id', passage_id)
         .limit(1)
         .execute()
