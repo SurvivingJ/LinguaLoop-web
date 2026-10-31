@@ -396,7 +396,18 @@ def _unwrap_rpc_response(rpc_name, response_data, on_success):
     return _submission_failure_response(rpc_name, response_data)
 
 
-def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False, idempotency_key=None):
+def _is_missing_function_error(exc) -> bool:
+    """PostgREST's "no function matches these argument names" (PGRST202)."""
+    text = str(exc)
+    try:
+        payload = exc.json() if hasattr(exc, 'json') else {}
+    except Exception:
+        payload = {}
+    code = (payload or {}).get('code') if isinstance(payload, dict) else None
+    return code == 'PGRST202' or 'PGRST202' in text or 'Could not find the function' in text
+
+
+def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False, idempotency_key=None, prestudied=False):
     """Call the process_test_submission RPC and handle JSONB response quirks.
 
     Returns the parsed RPC result dict on success, or a
@@ -409,18 +420,35 @@ def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db
             data.get('attempt_id'),
         )
 
+    params = {
+        'p_user_id': user_id,
+        'p_test_id': test_id,
+        'p_language_id': language_id,
+        'p_test_type_id': test_type_id,
+        'p_responses': db_responses,
+        'p_was_free_test': True,
+        'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
+        'p_furigana_used': bool(furigana_used),
+    }
+    if prestudied:
+        # Only sent when true, so a database without migrations/prestudy_elo_factor.sql
+        # keeps working for every ordinary submission.
+        params['p_prestudied'] = True
     try:
-        response = client.rpc('process_test_submission', {
-            'p_user_id': user_id,
-            'p_test_id': test_id,
-            'p_language_id': language_id,
-            'p_test_type_id': test_type_id,
-            'p_responses': db_responses,
-            'p_was_free_test': True,
-            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
-            'p_furigana_used': bool(furigana_used),
-        }).execute()
+        response = client.rpc('process_test_submission', params).execute()
     except Exception as e:
+        if prestudied and _is_missing_function_error(e):
+            # The 0.5x ELO migration is not applied yet: grade the attempt at
+            # full K rather than fail it.
+            current_app.logger.warning(
+                "process_test_submission has no p_prestudied yet; submitting without it")
+            params.pop('p_prestudied', None)
+            try:
+                response = client.rpc('process_test_submission', params).execute()
+            except Exception as e2:
+                error_data = e2.json() if hasattr(e2, 'json') else (e2.args[0] if e2.args else {})
+                return _unwrap_rpc_response('process_test_submission', error_data, _on_success)
+            return _unwrap_rpc_response('process_test_submission', response.data, _on_success)
         # supabase-py raises on JSONB responses; rescue the payload here so
         # we can dispatch both success and failure paths uniformly.
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
@@ -654,6 +682,7 @@ def submit_test_attempt(slug):
         responses = data.get('responses', [])
         test_mode = data.get('test_mode', 'reading').lower()
         furigana_used = bool(data.get('furigana_used', False))
+        prestudied = data.get('prestudied') is True
         idempotency_key = data.get('idempotency_key') or str(uuid4())
 
         if not responses:
@@ -692,6 +721,7 @@ def submit_test_attempt(slug):
             current_app.supabase_service, current_user_id,
             test_id, language_id, test_type_id, db_responses,
             furigana_used=furigana_used, idempotency_key=idempotency_key,
+            prestudied=prestudied,
         )
         if isinstance(rpc_result, tuple):
             return rpc_result  # Error response
@@ -1489,3 +1519,92 @@ def get_test_sentences(identifier):
         logger.error("Error loading sentences for %s: %s", identifier, e)
         logger.error(traceback.format_exc())
         return server_error('Failed to load sentences')
+
+
+# ============================================================================
+# Test prestudy (wiki/features/test-prestudy.md)
+# ============================================================================
+
+_PRESTUDY_TEST_COLUMNS = (
+    'id, slug, title, language_id, transcript, audio_url, difficulty, target_age_tier, '
+    'vocab_sense_ids, vocab_token_map, furigana_payload, pinyin_payload'
+)
+_PRESTUDY_MAX_ANSWERS = 400
+
+
+def _find_test_for_prestudy(db, identifier):
+    """Active test by slug, then by uuid, with the columns prestudy needs."""
+    res = db.table('tests').select(_PRESTUDY_TEST_COLUMNS).eq('slug', identifier).eq('is_active', True).execute()
+    if not res.data:
+        try:
+            res = db.table('tests').select(_PRESTUDY_TEST_COLUMNS).eq('id', identifier).eq('is_active', True).execute()
+        except Exception:  # a non-uuid identifier that matched no slug
+            return None
+    return res.data[0] if res.data else None
+
+
+@tests_bp.route('/<identifier>/prestudy', methods=['GET'])
+@supabase_jwt_required
+def get_test_prestudy(identifier):
+    """Study material for one test: passage, word map, glosses in the learner's
+    language, their knowledge of each word, and ladder exercises.
+
+    Never returns the scored questions' text, choices or answers; only each
+    question's linked senses, so the page can rank the words the test turns on.
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return service_unavailable("Service not available")
+        test = _find_test_for_prestudy(db, identifier)
+        if not test:
+            return not_found("Test not found")
+        from services.prestudy import build_prestudy_payload
+        from services.vocabulary.gloss_lookup import get_user_definition_language_id
+        gloss_lang = get_user_definition_language_id(db, g.current_user_id)
+        return api_success(data=build_prestudy_payload(db, test, g.current_user_id, gloss_lang))
+    except Exception as e:
+        logger.error("Error loading prestudy for %s: %s", identifier, e)
+        logger.error(traceback.format_exc())
+        return server_error('Failed to load prestudy')
+
+
+@tests_bp.route('/<identifier>/prestudy/evidence', methods=['POST'])
+@supabase_jwt_required
+def submit_test_prestudy_evidence(identifier):
+    """Record the word prime and readiness answers as word-test evidence.
+
+    Body: {answers: [{sense_id, correct, idk}]}. One evidence point per word
+    (majority of its answers); "I don't know" counts as wrong. Only senses of
+    this test are accepted. side_effects=False: prestudy never seeds the
+    ladder or counts against the daily new-word quota.
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return service_unavailable("Service not available")
+        test = _find_test_for_prestudy(db, identifier)
+        if not test:
+            return not_found("Test not found")
+        body = request.get_json(silent=True) or {}
+        answers = body.get('answers')
+        if not isinstance(answers, list) or not answers:
+            return bad_request("answers must be a non-empty list")
+        if len(answers) > _PRESTUDY_MAX_ANSWERS:
+            return bad_request(f"at most {_PRESTUDY_MAX_ANSWERS} answers")
+        from services.prestudy import evidence_rows
+        allowed = {int(s) for s in (test.get('vocab_sense_ids') or []) if s}
+        q_rows = db.table('questions').select('sense_ids').eq('test_id', test['id']).execute().data or []
+        allowed |= {int(s) for q in q_rows for s in (q.get('sense_ids') or []) if s}
+        rows = evidence_rows(answers, allowed)
+        if not rows:
+            return api_success(data={'updates': [], 'recorded': 0})
+        updates = VocabularyKnowledgeService(db).update_from_word_tests_batch(
+            user_id=g.current_user_id, language_id=int(test['language_id']),
+            results=rows, side_effects=False,
+        )
+        return api_success(data={'updates': updates or [], 'recorded': len(rows)})
+    except Exception as e:
+        logger.error("Error recording prestudy evidence for %s: %s", identifier, e)
+        logger.error(traceback.format_exc())
+        return server_error('Failed to record prestudy answers')

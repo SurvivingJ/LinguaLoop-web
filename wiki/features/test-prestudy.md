@@ -1,9 +1,9 @@
 ---
 title: Test Prestudy (tests as teaching material)
 type: feature
-status: planned
+status: in-progress
 tech_page: ./test-prestudy.tech.md (not yet written — pending the open questions below)
-last_updated: 2026-10-30
+last_updated: 2026-10-31
 demo: ../demos/test-prestudy-demo.html
 open_questions:
   - "ANSWERED 2026-10-29: ELO for a first attempt made after prestudy = reduced K with factor 0.5 (`test_attempts.prestudied = true`, `elo_reduction_factor = 0.5`, existing badge)."
@@ -334,6 +334,38 @@ for [[features/lookahead-preteaching]] once the supply gate is lifted: words the
 prestudy and still missed in the attempt are the strongest demand signal for exercise generation
 (`_request_generation`). ADR-026 chose a pool over a pinned test for *multi-day* pre-teaching;
 prestudy is same-day priming, so the two coexist — note the tension in the tech page.
+
+## Implementation — "Study first" on the preview page (2026-10-31)
+
+Built (repo; the ELO migration is not yet applied live):
+
+- **Entry point.** The test preview page shows a "Study first" button under "Start Test" for the
+  comprehension modes (listening, reading). It opens `/test/<slug>/prestudy?type=<mode>`.
+- **Page.** `templates/test_prestudy.html` + `static/js/prestudy/prestudy.js`, ported from the demo:
+  Preview (passage with new words highlighted, furigana/pinyin on new words, tap-to-gloss popover,
+  ranked key words) → Word prime (typed reading → meaning → typed reading → reverse meaning →
+  passage cloze → two ladder exercises, interleaved; "I don't know" on every item, retries and
+  booster turns) → readiness check (up to five typed readings, 80% to pass, one extra round, never
+  blocks) → Ready. Every string is an i18n key in en/es/zh/ja.
+- **API.** `GET /api/tests/<id>/prestudy` (`services/prestudy.build_prestudy_payload`: passage, word
+  map, glosses in the learner's definition language, their BKT rows, trimmed ladder exercises, and
+  only the *sense ids* of each question — never question text, choices or answers).
+  `POST /api/tests/<id>/prestudy/evidence` records one word-test evidence point per sense (majority
+  of its answers; "I don't know" counts as wrong; senses outside the test are dropped) through
+  `update_from_word_tests_batch(side_effects=False)`, so nothing is admitted to the ladder or
+  counted against `new_words_per_day`.
+- **ELO 0.5.** "Take the test" leaves a `sessionStorage` marker (6 h); `test.html` then submits
+  `prestudied: true`. `routes/tests.py` passes `p_prestudied` to `process_test_submission` only when
+  true and falls back to the 8-argument call if the function has no such parameter (PGRST202).
+  `migrations/prestudy_elo_factor.sql` adds `test_attempts.prestudied` and the 9-argument function
+  (first attempt: user and test K × 0.5, `elo_reduction_factor = 0.5`). Skipping from the preview
+  step without answering anything takes the test cold at full K.
+
+Not built yet: `prestudy_sessions` / measurement row, `prestudy_followups` next-day review,
+post-test follow-up prime, Produce step, session-card trigger and the automatic block above 25%
+unknown, tests-share minutes in the study-time ledger, `exercise_attempts` rows for ladder items
+(evidence is word-test only). The prestudied flag is client-asserted; a server-side check that a
+prestudy session exists needs the `prestudy_sessions` table.
 
 ## Demo
 
