@@ -137,6 +137,12 @@
   // correction_style, primed_token}. Consumed (removed) on first read.
   const PRODUCE_STORAGE_KEY = 'dt_produce_session';
 
+  // localStorage key the daily-session player writes when the learner taps
+  // "See full feedback": {at, submission_id, l1_text, reproduction, contract}.
+  // Rendered once (removed on read) instead of pulling a new passage.
+  const FEEDBACK_STORAGE_KEY = 'dt_feedback_view';
+  const FEEDBACK_MAX_AGE_MS = 30 * 60 * 1000;
+
   const el = {};
 
   function tr(key, params) {
@@ -256,9 +262,36 @@
     }
   }
 
+  // The grade handed over by the daily-session player, or null.
+  function takeFeedbackView() {
+    try {
+      const raw = window.localStorage && window.localStorage.getItem(FEEDBACK_STORAGE_KEY);
+      if (!raw) return null;
+      window.localStorage.removeItem(FEEDBACK_STORAGE_KEY);
+      const data = JSON.parse(raw);
+      if (!data || !data.contract || !data.at || Date.now() - data.at > FEEDBACK_MAX_AGE_MS) {
+        return null;
+      }
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
   async function loadNext() {
     showPhase('loading');
     resetReproduceUI();
+    const feedback = takeFeedbackView();
+    if (feedback) {
+      state.submissionId = feedback.submission_id;
+      state.ageTier = feedback.age_tier;
+      state.selfRating = null;
+      state.naturalnessShown = false;
+      state.lastContract = feedback.contract;
+      state.reproduction = feedback.reproduction || '';
+      el.reference.textContent = feedback.l1_text || '';
+      return renderResult(feedback.contract);
+    }
     const produce = takeProduceSession();
     if (produce) {
       state.primedToken = produce.primed_token || null;
