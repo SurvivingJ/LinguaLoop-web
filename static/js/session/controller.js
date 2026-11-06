@@ -16,6 +16,7 @@ import {
   isRunnableExtraChoice,
   extraBeyondQuota,
   makeExtraItem,
+  splitPracticeQueue,
 } from './tail.js';
 
 const $ = (id) => document.getElementById(id);
@@ -42,13 +43,17 @@ const session = {
   index: 0,
   player: null, // { destroy() } handle for the currently-mounted player
   _completing: false, // re-entrancy latch for onItemComplete (M3)
-  // Practice-only mode (`/session?mode=practice`, nav "Practice" link): the
-  // queue is the same daily-session queue, just with every `kind:'test'` item
-  // dropped client-side before it ever renders. This needs no server change —
-  // completion still POSTs per-item exactly as it does today — but it does
-  // mean next_index (computed server-side over the FULL queue) can't be
-  // trusted once we've filtered; see loadSession().
+  // Practice-only mode (`/session?mode=practice`, nav "Practice" link):
+  // exercises only. The queue is the daily-session queue filtered client-side
+  // to its review (maintenance) practice chunks — tests, flashcards, dual
+  // translation, speed round and prestudy never render here. Today's new-word
+  // (acquisition) chunks are held in `newWordItems` and offered only once the
+  // exercises are done ("Learn new words"). Completion still POSTs per-item
+  // exactly as in the daily session, but next_index (computed server-side over
+  // the FULL queue) can't be trusted once we've filtered; see loadSession().
   practiceOnly: false,
+  newWordItems: [],
+  newWordsDeclined: false,
   // Optional end-of-session tail (session-budget-settings). The learner said
   // "Done for today"; stop re-offering until the page is reloaded.
   tailDeclined: false,
@@ -143,7 +148,9 @@ async function loadSession() {
 
   let queue = data.queue || [];
   if (session.practiceOnly) {
-    queue = queue.filter((q) => q.kind !== 'test');
+    const { exercises, newWords } = splitPracticeQueue(queue);
+    queue = exercises;
+    session.newWordItems = newWords;
   }
   session.queue = queue;
 
@@ -421,12 +428,63 @@ function showSummary() {
   const resultsLabel = T('session.results_title', null, 'Your results');
   $('sessionSummaryBody').innerHTML =
     `<p class="lead mb-1">${done} / ${total}</p>` +
-    `<p class="text-muted">${escapeHtml(T('session.done_line', null, 'Nice work — you finished today’s load.'))}</p>` +
+    `<p class="text-muted">${escapeHtml(doneLine())}</p>` +
     `<ul class="session-results" aria-label="${escapeHtml(resultsLabel)}">${rows}</ul>`;
   $('sessionSummary').classList.remove('d-none');
   hideTailPrompt();
   hideExtraPanel();
+  renderNewWordsPrompt();
   offerTail();
+}
+
+function doneLine() {
+  return session.practiceOnly
+    ? T('session.done_line_practice', null, 'Nice work — you finished today’s exercises.')
+    : T('session.done_line', null, 'Nice work — you finished today’s load.');
+}
+
+// ---- Learn new words (practice mode only) -----------------------------------
+// Once the allotted exercises are done, offer today's new-word chunks. They are
+// ordinary daily blocks, so they persist through complete-block as usual.
+
+function newWordsPending() {
+  return session.practiceOnly && !session.newWordsDeclined && session.newWordItems.length > 0;
+}
+
+function hideNewWordsPrompt() {
+  const box = $('sessionNewWordsPrompt');
+  if (box) box.classList.add('d-none');
+}
+
+function renderNewWordsPrompt() {
+  const box = $('sessionNewWordsPrompt');
+  if (!box) return;
+  if (!newWordsPending()) {
+    box.classList.add('d-none');
+    return;
+  }
+  $('sessionNewWordsStart').onclick = startNewWords;
+  $('sessionNewWordsLater').onclick = () => {
+    session.newWordsDeclined = true;
+    hideNewWordsPrompt();
+    renderExtraPanel();
+  };
+  box.classList.remove('d-none');
+}
+
+function startNewWords() {
+  const items = session.newWordItems;
+  if (!items.length) return;
+  session.newWordItems = [];
+  // Drop skipped (still incomplete) optional items, as appendTailRound does.
+  const kept = session.queue.filter((q) => !(q.is_tail && !q.is_completed));
+  session.queue = kept.concat(items);
+  session.index = kept.length;
+  hideNewWordsPrompt();
+  hideTailPrompt();
+  hideExtraPanel();
+  $('sessionSummary').classList.add('d-none');
+  runCurrent();
 }
 
 // ---- Optional tail ("Session done — N reviews and M new words left today") ---
@@ -525,6 +583,8 @@ function hideExtraPanel() {
 function renderExtraPanel() {
   const box = $('sessionExtraPanel');
   if (!box || !session.practiceOnly || session.extraDeclined) return;
+  // Today's allotted new words come first; extra rounds are for after.
+  if (newWordsPending()) return;
   const choice = normalizeExtraChoice(session.extraChoice);
   $('sessionExtraReviews').checked = choice.reviews;
   $('sessionExtraNewWords').value = String(choice.newWords);
@@ -583,7 +643,7 @@ function startExtraRound(choice) {
 
 function emptyMessage() {
   return session.practiceOnly
-    ? T('session.empty_practice_page', null, 'No practice due right now.')
+    ? T('session.empty_practice_page', null, 'No exercises due right now.')
     : T(
         'session.empty',
         null,
@@ -596,6 +656,7 @@ function showEmpty() {
     // Practice mode always has something to offer: open-ended extra rounds.
     $('sessionLoading').classList.add('d-none');
     showEmptyWithTail();
+    renderNewWordsPrompt();
     offerTail();
     return;
   }

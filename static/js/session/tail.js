@@ -142,3 +142,28 @@ export function makeExtraItem(choice, n, excludeSenseIds) {
     extra: { ...c, exclude: (excludeSenseIds || []).slice(0, 200) },
   };
 }
+
+// ---- Practice-mode queue (nav "Practice" link) -------------------------------
+// Practice is exercises only: the daily session's tests, flashcards, dual
+// translation, speed round and prestudy blocks never appear there. Of the
+// practice chunks, review (maintenance) chunks are the allotted exercises; the
+// new-word (acquisition) chunks are held back and offered only once those are
+// done, as "Learn new words".
+
+/** True for a daily practice chunk that teaches new words. */
+function isNewWordChunk(q) {
+  return q.kind === 'practice' && q.mode === 'acquisition';
+}
+
+/**
+ * Split the daily-session queue for practice mode.
+ * Returns { exercises, newWords }: the allotted exercise chunks to run, and
+ * today's incomplete new-word chunks to offer afterwards.
+ */
+export function splitPracticeQueue(queue) {
+  const practice = (queue || []).filter((q) => q && q.kind === 'practice');
+  return {
+    exercises: practice.filter((q) => !isNewWordChunk(q)),
+    newWords: practice.filter((q) => isNewWordChunk(q) && !q.is_completed),
+  };
+}

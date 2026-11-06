@@ -13,6 +13,7 @@ import {
   normalizeTailItems,
   appendTailRound,
   requiredProgress,
+  splitPracticeQueue,
 } from '../../static/js/session/tail.js';
 
 const tail = (reviews, words) => ({
@@ -184,5 +185,32 @@ describe('practice extra rounds', () => {
       extra: { reviews: false, newWords: 5, exclude: [1] },
     });
     expect(requiredProgress([item])).toEqual({ done: 0, total: 0 });
+  });
+});
+
+describe('splitPracticeQueue', () => {
+  const queue = [
+    { kind: 'test', id: 1 },
+    { kind: 'practice', id: 'practice_maint_1', mode: 'maintenance', is_completed: false },
+    { kind: 'flashcards', id: 'flashcards_1' },
+    { kind: 'dual_translation', id: 'dt_1' },
+    { kind: 'speed_round', id: 'speed_round' },
+    { kind: 'prestudy', id: 'prestudy_1' },
+    { kind: 'practice', id: 'practice_acq_1', mode: 'acquisition', is_completed: false },
+    { kind: 'practice', id: 'practice_acq_2', mode: 'acquisition', is_completed: true },
+  ];
+
+  it('keeps only review exercise chunks in the practice queue', () => {
+    const { exercises } = splitPracticeQueue(queue);
+    expect(exercises.map((q) => q.id)).toEqual(['practice_maint_1']);
+  });
+
+  it('holds back incomplete new-word chunks to offer afterwards', () => {
+    const { newWords } = splitPracticeQueue(queue);
+    expect(newWords.map((q) => q.id)).toEqual(['practice_acq_1']);
+  });
+
+  it('tolerates an empty or missing queue', () => {
+    expect(splitPracticeQueue(null)).toEqual({ exercises: [], newWords: [] });
   });
 });
