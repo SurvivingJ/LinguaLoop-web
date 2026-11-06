@@ -3,7 +3,7 @@ title: Practice Extra Rounds
 type: feature
 status: in-progress
 tech_page: practice-extra-rounds.tech.md
-last_updated: 2026-10-29
+last_updated: 2026-11-06
 open_questions: []
 ---
 
@@ -18,6 +18,12 @@ with no limit: more reviews, more new words, or both, one round at a time.
 learn a few more new words, as many rounds as I like."
 
 ## How It Works
+0. Practice mode is exercises only (changed 2026-11-06). It shows today's review exercise chunks
+   from the daily session and nothing else: no tests, flashcards, dual translation, speed round or
+   prestudy blocks. Today's new-word chunks are held back. Once the exercises are done (or if there
+   are none), the summary card asks **Learn new words** / **Not now**. Learning them runs today's
+   new-word chunks, which count toward the daily session as normal. The **Keep practising** panel
+   below appears once that question is answered or there are no new words left today.
 1. When Practice mode runs out of work (or has nothing to start with), the summary card shows
    **Keep practising**:
    - **Reviews**: a checkbox. Up to 10 review items per round: due words first, then words

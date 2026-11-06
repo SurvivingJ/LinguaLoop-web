@@ -107,6 +107,14 @@
                     <button type="button" class="btn btn-outline-secondary btn-sm" id="sessionTailDone" data-i18n="session.tail.done">Done for today</button>
                 </div>
             </div>
+            <!-- Learn new words (practice mode only): today's new-word chunks, offered once the exercises are done -->
+            <div id="sessionNewWordsPrompt" class="alert alert-info text-start mt-3 mb-0 d-none" role="status">
+                <p class="mb-2 fw-semibold" data-i18n="session.new_words.prompt">Exercises done — want to learn some new words?</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-primary btn-sm" id="sessionNewWordsStart" data-i18n="session.new_words.start">Learn new words</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="sessionNewWordsLater" data-i18n="session.new_words.later">Not now</button>
+                </div>
+            </div>
             <!-- Practice extra rounds (practice mode only): open-ended reviews / new words past today's budget -->
             <div id="sessionExtraPanel" class="alert alert-secondary text-start mt-3 mb-0 d-none">
                 <p class="mb-2 fw-semibold" data-i18n="session.extra.title">Keep practising</p>
