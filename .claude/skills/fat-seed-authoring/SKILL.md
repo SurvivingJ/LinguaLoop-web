@@ -49,13 +49,21 @@ Steps 2–6 resume: re-running a step skips finished work and never re-pays.
     the offline shim `scratch_offline/run.py`. The shim serves reads from
     `scratch_offline/snap/<table>.json` (gitignored: they hold table rows)
     and records writes to `writes.jsonl` instead of executing them.
-  - To snapshot a language through the Supabase MCP, run one
-    `SELECT json_agg(t) AS <table> FROM (…rows for that language…) t` per
-    table. Then run `python3 scratch_offline/spill.py <saved tool result> <table>`.
-  - Tables to snapshot: `dim_languages`, `dim_vocabulary`, `dim_word_senses`,
-    `prompt_templates`, `tests`, `exercises`, `word_assets`,
-    `corpus_collocations`, `calibration_anchor_blocklist`. Check
-    `snap/_queries.log` for `MISSING` tables after a dry run.
+  - **Snapshot the language first**, in a new container or after the
+    database changes, with `scratch_offline/nt_snapshot.py`. It needs the
+    Supabase MCP and is read-only.
+    1. `nt_snapshot.py sizes --lang <lang>` prints one query. Run it with
+       `execute_sql`.
+    2. `nt_snapshot.py queries --lang <lang> --sizes '<result>'` writes
+       `snap/_snapshot_<lang>.sql`. That is ~10–20 paged queries; zh needs 18.
+    3. Run each query with `execute_sql`. Every result is large enough to be
+       saved to a tool-results file, so the rows never enter the conversation.
+       Then run `nt_snapshot.py add <file>` on each file.
+    4. `nt_snapshot.py status --lang <lang>` compares local and expected row
+       counts.
+    This is mechanical, so it is a good job for a subagent. Rows of other
+    languages already in `snap/` are kept. Check `snap/_queries.log` for
+    `MISSING` tables after a dry run.
 - **Lints:** `nt_pipeline.py` sets `FAT_SEED_LINT_ALL_BLOCKS=1` with
   `FAT_SEED_LINT_SKIP=l3_generic_expl,l6_shared_expl,l6_copied_expl,l7_edit_far`.
   It keeps only the rules that paid for themselves: A/B overlap, level_7
