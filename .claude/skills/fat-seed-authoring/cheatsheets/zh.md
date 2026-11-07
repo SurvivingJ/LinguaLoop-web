@@ -1,4 +1,4 @@
-# Fat-seed ZH authoring (v1, from the ja v7 structure)
+# Fat-seed ZH authoring (q3: v1 + in-place fixes for level_1 / level_6 / level_7 / level_3)
 
 Block shapes and plan values (anchor sentence, correct answer, `given`) are
 fixed by the Block reference below; never choose them yourself. Everything
@@ -15,6 +15,10 @@ where documents lose points.
   学生, 电 in 电脑, 起来 in 一起来吧) or carry another reading. For 多音字, say
   the reading to yourself: 行 xíng/háng, 长 cháng/zhǎng, 得 dé/de/děi,
   重 zhòng/chóng, 还 hái/huán, 觉 jué/jiào, 种 zhǒng/zhòng.
+- Single characters that are mostly bound in modern Chinese (国, 语, 民, 业)
+  may appear only where they truly stand alone. 「他走过很多国」 is wrong:
+  use 国家. If no such context exists at the tier, skip the sense as a
+  fragment.
 - Respect the tier: count 汉字 (T1 ≤10, T2 ≤16, T3 ≤22, T4 ≤30, T5 ≤40). Grammar
   ceilings: T1 has no 了/着/过, T2 adds 了, T3 adds 着/过 and simple 把, and
   T4 adds 被 and 如果…就….
@@ -28,26 +32,37 @@ where documents lose points.
   forms, real 复合 words, 重叠 only if the word reduplicates, and 繁体 only
   when it differs.
 
-## 2. level_1 (listening): tone neighbours, real words
-- Correct = the headword. Distractors are real words that differ from it ONLY
-  in the tone of one syllable:
-  - One syllable: 妈 mā → 麻 má, 马 mǎ, 骂 mà; 买 mǎi → 卖 mài.
-  - Two syllables, one tone changed: 老师 lǎoshī → 老是 lǎoshì;
-    主人 zhǔrén → 主任 zhǔrèn; 同意 tóngyì → 同一 tóngyī.
-  - Not valid: 练习 liànxí → 联系 liánxì, because both syllables change.
-- Never: a word with the same syllable AND tone (pure homophone), a synonym,
-  a non-word, a word that differs in the initial or final as well.
-- Explanation states the tone contrast: 「mǎ（第三声）与 mā（第一声）声调不同，意思是马」.
-- B uses different words. Another character with the same contrasting
-  syllable is fine: A 马 mǎ, B 码 mǎ. If a variant cannot get 3 real tone
-  neighbours unused by the other variant, write `{"declined":
-  "no_minimal_pairs"}` for that variant.
+## 2. level_1 (listening): sounds confusable, real words
+zh has no phonetic trie: a declined level_1 means the sense gets NO
+listening exercise. Find neighbours; declining is the last resort.
+- Correct = the headword. Each distractor is a real, common word with the
+  same syllables in other tones, or with ONE sound changed in ONE syllable:
+  - **Tone, on any syllable or several:** 妈 mā → 马 mǎ; 老师 lǎoshī → 老是 lǎoshì;
+    主人 zhǔrén → 主任 zhǔrèn; 练习 liànxí → 联系 liánxì; 时间 shíjiān → 实践 shíjiàn;
+    美丽 měilì → 魅力 mèilì; 汉语 hànyǔ → 韩语 hányǔ.
+  - **One sound:** an initial or final pair learners confuse, with the tone
+    the same or changed.
+    - n/l: 男 nán → 蓝 lán. z/zh, c/ch, s/sh: 四 sì → 是 shì.
+    - an/ang: 山 shān → 伤 shāng. en/eng: 门 mén → 盟 méng.
+    - in/ing: 心 xīn → 星 xīng.
+    - Two syllables: 新娘 xīnniáng → 新粮 xīnliáng (n/l, other syllable kept).
+- Never: a pure homophone (same sound AND tone, e.g. 地利/地力 are homophones
+  of each other: use only one per variant), a synonym, a non-word, a rare or
+  literary word (墨刑, 魔星), or sounds changed in two syllables (放松 fàngsōng →
+  防守 fángshǒu).
+- Explanation states the contrast: 「mǎ（第三声）与 mā（第一声）声调不同，意思是马」;
+  「lán 与 nán 声母不同，意思是蓝色」.
+- B uses different words from A. Another character with the same contrasting
+  sound is fine: A 马 mǎ, B 码 mǎ. Decline (`{"declined": "no_minimal_pairs"}`)
+  only after trying tone AND one-sound neighbours on EVERY syllable; write 5–6
+  candidates (a judge drops weak ones; 3 must survive).
 
 ## 3. level_6 wrong sentences: grammatical, wrong only in how THIS word is used
 Each wrong sentence reads as grammatical Chinese. A native speaker says
 「这个词不这么用」, not 「语法错了」. Build each with one move:
-- **Move A, near-synonym swap:** write a natural sentence for a word learners
-  confuse with the target, then put the target in its place.
+- **Move A, near-synonym swap:** first write a natural sentence for a word X
+  learners confuse with the target (X not already in the sentence), then put
+  the target in X's place. That X, and only X, is the explanation's 〈X〉.
   - 提高 ← 增加: 「这个月我的体重提高了三公斤」
   - 发现 ← 发明: 「爱迪生发现了电灯」
   - 参观 ← 看望: 「周末我去医院参观生病的奶奶」
@@ -55,18 +70,21 @@ Each wrong sentence reads as grammatical Chinese. A native speaker says
   - 安静 ← 平静: 「听到这个消息，她的心情很安静」
 - **Move B, other sense:** a sentence natural for another sense of the same
   form. Teaching 意思 = meaning, use 「这是我的一点小意思」 (a small gift).
+  Its explanation names that sense and offers no replacement word.
 - **Move C, nouns only, wrong measure word for THIS noun:** 「我买了一只书」.
 - Never use these in level_6; they belong to level_7: an aspect-marker or
   word-order slip, or a 离合词 used as transitive (见面老师).
 - Also never: a sentence that is merely odd or false but uses the word
-  correctly (「我在超市睡觉」), a nonsense pairing, an error on another word,
-  or two problems at once.
+  correctly (「我在超市睡觉」「这位投资者每月给孤儿院捐钱」「缩聚时不会产生水」),
+  an inanimate subject for a feeling (「椅子分外害羞」), an error on another
+  word, or two problems at once.
 - Explanation names the confusion: 「这里应该用〈增加〉。提高用于水平、质量，体重、人数等数量要用增加」.
   The three sentences use different moves or partners, and B uses none of A's.
 
 ## 4. level_7: one span, on the target
-- A new sentence. Not a core sentence, and corrected_sentence equals no core
-  sentence.
+- Write corrected_sentence FIRST: a new, plain sentence a native would say,
+  using the target in THIS sense, equal to no core sentence. Then break one
+  thing on the target to get incorrect_sentence.
 - The incorrect and corrected sentences differ in exactly ONE span. That span
   is the target or a word attached to it: its measure word, its 了/着/过, its
   complement, its position, its 离合 split. Examples:
@@ -74,7 +92,11 @@ Each wrong sentence reads as grammatical Chinese. A native speaker says
   - 「他慢慢站下来了。」→「他慢慢站起来了。」
   - 「我买了三只书。」→「我买了三本书。」 (target 书)
 - The error must be one a native spots at once: a common learner error, not
-  something natives also say.
+  something natives also say. Patterns natives use are NOT errors: V过了
+  (看过了), 放/摆 + place without 在 (放箱底), 垂直地面 without 于, a fronted
+  topic. Not on the target: a stray 了, 把+被, 比…很, the measure word of
+  another noun (teaching 骑: 一只马 is about 马). The corrected sentence must itself be fully grammatical: re-check
+  the measure word and the rest of the sentence.
 - error_description, in Chinese, names the wrong form, the right form and why.
 
 ## 5. synonym_antonym_match: decline unless a dictionary lists the pair
@@ -96,7 +118,9 @@ Each wrong sentence reads as grammatical Chinese. A native speaker says
   the definition.
 - level_3 distractors have the same part of speech and are grammatical in the
   slot, but must not fit when the sentence is read as plain Chinese. Read each
-  one in the blank. Run the substitution check: if a near-synonym of the target
+  in the blank as a whole sentence: if a native accepts it (我从不坐地铁上班,
+  爷爷年轻时讨厌过马), replace it with a word that clashes with a cue already in
+  the sentence. Run the substitution check: if a near-synonym of the target
   would make a distractor right, replace it. No homophones or near-homophones
   of the target in level_3 (those belong to level_1).
 - A and B: B shares no distractor word, wrong sentence or error type with A.

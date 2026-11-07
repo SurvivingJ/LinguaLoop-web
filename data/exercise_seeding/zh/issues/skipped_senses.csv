@@ -1,0 +1,418 @@
+sense_id,lemma,part_of_speech,definition,category,author_reason,run
+10106,毕,vg,完成；结束。,bound_morpheme_fragment,单字「毕」在现代汉语中多为黏着语素（完毕、毕业），难以独立成词；已有例句中的「毕昇」为人名，不是此义，故按碎片跳过。,r0373
+10138,机,n,指机器，由零件组成，能完成特定工作的装置。,bound_morpheme_fragment,单字黏着语素，现代汉语中几乎只在复合词（飞机、机器）里出现，T3 没有可独立使用的语境，属于词素片段,r0375
+10168,坊,ng,指城市中里巷、街区，也用于某些店铺或作坊的名称。,bound_morpheme_fragment,"坊 is a bound morpheme (街坊, 作坊, 牌坊); no natural standalone contexts at the T3 tier",r0377
+10250,伏尔泰,nr,法国启蒙思想家，主张理性与自由,proper_noun,proper noun (person name),r0036
+10251,卢梭,nr,卢梭是18世纪法国启蒙思想家、哲学家，代表作有《社会契约论》和《爱弥儿》，主张人民主权和自然教育。,proper_noun,proper noun (person name),r0370
+10284,脑,n,人体头部的主要器官，主管思维、记忆和感觉。,bound_morpheme_fragment,单字“脑”在现代汉语中基本是黏着语素，多出现在大脑、脑部、脑子等词里，很难作为独立的词自然使用，按碎片处理。,r0019
+10306,出口,vn,指从建筑物或场所出去的门或通道。,mined_sentence_wrong_sense,"Mined sentences all use 出口 in the export (trade) sense, but the given definition is the exit (door/passage) sense, so the mined set conflicts with the sense. Exit sense is covered by sense 21272.",r0000
+10322,子,ng,指婴儿或儿童。,mined_sentence_wrong_sense,"子 in the sense of 婴儿或儿童 is a bound morpheme (儿子, 孩子) and cannot stand alone as a word at this tier; the mined sentences use 子 as a noun suffix (袋子, 杯子), which does not match the sense, so it is skipped as a fragment",r0311
+10325,被装,n,被装指军队、警察等单位为个人配发的服装、被褥等生活用品的统称。,mined_sentence_wrong_sense,"The only mined sentence, 「然后，咖啡豆被装进大袋子。」, uses 被装 as 被 (passive marker) + 装 (to load), not the word 被装 (military-issue clothing and bedding). The mined sentence must stay byte-for-byte and first, so no valid 10-sentence set exists for this sense. The same word is covered by sense 21288.",r0311
+10344,南美洲,ns,位于西半球的一个大陆，包括巴西、阿根廷等国家,proper_noun,proper noun: geographic name of a continent,r0002
+10428,东非,ns,非洲东部的高原地区，以高海拔和特殊气候著称,proper_noun,专有名词（地名），不适合作为词汇练习目标,r0054
+10430,东南亚,ns,指亚洲东南部地区，包括越南、泰国、马来西亚、新加坡等国家。,proper_noun,Proper noun (place name).,r0000
+10441,阿拉比,nrt,阿拉比是一种咖啡豆品种，常用于制作高品质咖啡。,mined_sentence_wrong_sense,“阿拉比”只是“阿拉比卡”的截短片段，现代汉语中不能独立成词；挖掘句里出现的是“阿拉比卡”，无法写出以“阿拉比”为独立词的自然句子。,r0418
+10464,将生豆,n,将未经烹饪的豆类原料进行加热处理，使其达到可食用状态。,bound_morpheme_fragment,不是独立的词，而是由介词「将」和名词「生豆」拼成的片段,r0420
+10480,国,n,指拥有土地、人民和主权的政治实体，也指一个国家的简称。,bound_morpheme_fragment,单字「国」在现代汉语中多为黏着语素，已有例句中的「各国」「跨国」「进口国」均为词内用法，无法在T3水平下独立成词，按碎片处理。,r0004
+10501,方,n,指四个角都是直角的四边形，也指方向、方法。,bound_morpheme_fragment,释义把方形、方向、方法混在一起，“方”在这些义项里多为黏着语素（方向、方法），难以独立成词；方形义与21616重复，当事一方义与13394重复。,r0424
+10585,链,n,用金属环连接而成的长条，用于传动、悬挂等；也比喻连续相关的事物。,bound_morpheme_fragment,"fragment: 链 is bound in this sense (区块链, 供应链, 产业链) and does not stand alone as a word at this tier",r0002
+10622,人用,n,供人使用的。,mined_sentence_wrong_sense,"Mined sentences use 人 and 用 as two separate words (people use...), not the sense 供人使用的, so the mined set conflicts with the given definition. Treated as a mis-segmented fragment.",r0000
+10634,人学,n,指研究人的本质、存在和发展规律的理论学科。,mined_sentence_wrong_sense,mined sentence 现在，很多人学音乐 is 人 + 学 (not the word 人学); 人学 is a rare academic term with no natural T3 context,r0086
+10668,两条线,n,在几何或日常生活中，指两根具有一定长度、没有宽度的细长线条。,bound_morpheme_fragment,fragment: 数词+量词+名词的自由短语，不是独立词汇,r0345
+10676,谱,v,指用符号记录音乐或歌曲的书面形式。,mined_sentence_wrong_sense,"fragment: 谱 is a bound morpheme (记谱法, 线谱, 五线谱, 工尺谱, 图形谱); the mined sentences only contain it inside other words, never as an independent word",r0060
+10728,纽姆,nrt,纽姆是一种用面粉和鸡蛋做成的蓬松小点心，常在节日或聚会时食用。,mined_sentence_wrong_sense,"fragment: 纽姆 is only a transliteration of 'neume' (as in 纽姆谱, a medieval music notation), not a standalone word; the given definition (a flour-and-egg snack) does not match the real word, and there are no mined sentences to ground it",r0442
+10734,圭多,ns,圭多，通常指意大利作家、哲学家或历史人物，如圭多·卡瓦尔坎蒂（诗人）或圭多·达雷佐（音乐理论家）。,proper_noun,proper noun (personal name),r0443
+10735,达莱佐,nr,11世纪发展四线谱的意大利音乐家,proper_noun,专有名词（人名「圭多·达莱佐」的姓氏片段），不是可独立练习的词汇,r0057
+10742,化,n,变化；改变事物的形态或性质。,mined_sentence_wrong_sense,fragment: 化 here is a bound suffix/morpheme (分化、演化、转化、工业化、机动化) that never stands alone as a word in this sense; every mined sentence has it inside another word,r0000
+10761,深刻影响,i,形容某事物对另一事物产生了非常重大和深远的作用或改变。,bound_morpheme_fragment,fragment: 副词＋动词的自由搭配，不是独立词条,r0430
+10771,通奏,n,（音乐）贯穿全曲、持续不断地演奏，多用于“通奏低音”一词。,bound_morpheme_fragment,"fragment: 通奏 is a bound form that occurs only inside the fixed term 通奏低音, never as an independent word",r0432
+10776,声,n,指由物体振动产生的、通过介质传播并能被听觉器官感知的波动现象。,bound_morpheme_fragment,单字多为黏着语素，现代汉语中很少独立成词（多见于和声、大声、声音等），在T3层级找不到可独立使用的语境，按碎片跳过,r0432
+10795,勋伯格,n,阿诺德·勋伯格是二十世纪奥地利作曲家，创立了十二音技法，对现代音乐影响深远。,proper_noun,专有名词（人名），不作为词汇练习,r0434
+10801,序列,n,按一定顺序排列的一组事物。,mined_sentence_wrong_sense,已挖掘的句子里「序列」只出现在「序列主义」这个复合词中，不是独立的词，与核心句规则冲突；该句又必须排在首位，因此跳过,r0434
+10804,时值,n,指时间上的某个具体时刻或时间段。,mined_sentence_wrong_sense,给定释义「时间上的某个具体时刻或时间段」与已挖掘句中的实际用法（音符的时长）不符，无法在同一义项下写出自然的核心句，因此跳过,r0434
+10805,参数均,n,指所有涉及到的参数或变量,bound_morpheme_fragment,「参数均」是从句子中截出的片段（名词加副词），不是独立的词，因此跳过,r0434
+10809,约翰,nrt,男子名，通常指约翰这个名字。,proper_noun,proper noun (personal name),r0435
+10810,凯奇,nrt,凯奇通常指美国演员尼古拉斯·凯奇（Nicolas Cage），也用作姓氏。,proper_noun,proper noun (personal name / surname),r0435
+10925,人会,n,指人类普遍具有的能力或情况，即每个人都会如此。,not_a_word,片段：「人会」是名词「人」加情态动词「会」的临时组合，不是独立词语,r0308
+10927,西班牙,ns,位于欧洲西南部的国家。,proper_noun,专有名词（国名）,r0308
+10928,巴西,ns,指南美洲最大的国家，以足球、桑巴舞和亚马逊雨林闻名。,proper_noun,专有名词（国名）,r0308
+10936,合作项目,n,指两个或多个个人或团体为了共同的目标而协作进行的工作任务。,mined_sentence_wrong_sense,自由短语（合作＋项目），不是独立词条；挖掘句里“合作项目”是动宾结构，与释义中的名词义不一致,r0309
+10967,日耳曼语,nz,印欧语系的一个语族，包括英语、德语、荷兰语等语言。,mined_sentence_wrong_sense,唯一的挖掘句中“日耳曼语”嵌在“日耳曼语系”里，不是独立词，且该句必须原样保留；同一词的另一义项22456另行制作,r0256
+10968,系,v,表示‘是’，多用于书面或正式场合。,mined_sentence_wrong_sense,唯一的挖掘句中“系”只出现在“关系”“维系”里，不是表示“是”的独立词，且该句必须原样保留；同义项22464另行制作,r0256
+10974,制,n,制造；制作。,bound_morpheme_fragment,fragment: 在“制造、制作”义上，制是黏着语素（制造、制作、自制），现代汉语里不能单独成词,r0257
+11030,视,vg,用眼睛看；观察。,mined_sentence_wrong_sense,单字「视」在现代汉语中多为黏着语素（审视、视为、近视），难以作为独立的词表示「用眼睛看；观察」，且已挖掘的例句二中「视」只出现在「审视」内部，无法写出8个自然的独立用法例句，按碎片处理。,r0046
+11059,观,vg,看，观察。,mined_sentence_wrong_sense,fragment: 观 is a bound morpheme (观察、观看、观点) and does not stand alone at T3. The mined sentence also does not contain 观.,r0047
+11085,东京,ns,日本的首都，位于本州岛东部,proper_noun,专有名词（地名），按要求跳过。,r0021
+11148,张得,nr,张开到某种程度，通常指动作的幅度。,bound_morpheme_fragment,"fragment: 张 plus structural particle 得 (verb + complement construction), not an independent word",r0013
+11330,温,nr,温度适中，不冷不热。,mined_sentence_wrong_sense,唯一的挖掘例句中，「温」只出现在「体温」一词内部，不是独立成词，也不是「温度适中」这一义项；该义项与 20474 重复，故跳过。,r0112
+11375,土能,n,土地所具有的使植物生长、孕育万物的能力。,not_a_word,「土能」不是独立词语，是「土」加「能」的误切分；释义描述的是土地肥力，属于片段,r0221
+11413,干,v,做，从事。,mined_sentence_wrong_sense,"mismatch: the given definition is 做，从事 (gàn), but all six mined sentences use 干 gān 'dry', which must stay first and unchanged; the sense cannot be authored consistently",r0000
+11442,会长,n,指某些团体、协会或组织的最高负责人。,mined_sentence_wrong_sense,"Both mined sentences are mis-segmented: 「植物会长得更好」 is 会 (will) + 长 (zhǎng, grow), not the noun 会长 (huìzhǎng). The rules say to discard such sentences, but the brief requires mined sentences to come first and unchanged, so no valid 10-sentence set exists. Sense 23006 covers the same word.",r0016
+11500,温菌,n,温菌指在温暖环境中容易繁殖的细菌，常导致食物腐败。,mined_sentence_wrong_sense,"fragment: 温菌 is not an independent modern Chinese word; the only mined sentence has it inside 嗜温菌群, so no natural standalone sentences can be written",r0331
+11501,群向,n,指群体共同朝向或倾向的方向。,bound_morpheme_fragment,fragment: 在唯一的例句里，群向只是“菌群”与“向”相邻形成的字符串，并不是独立的词,r0332
+11584,施,nr,给予，或者施行的动作。,bound_morpheme_fragment,"fragment: in this sense (给予/施行) 施 is a bound morpheme that occurs only inside compounds such as 施用, 施舍, 施恩; no standalone usage at T3",r0339
+11639,公,n,属于国家或集体的，跟‘私’相对；也指公平、公正。,bound_morpheme_fragment,公在现代汉语中几乎只作语素，如公地、公交、公共，难以单独成词；已有例句里的“公”都在别的词内部，不能作为独立的词使用，按片段跳过。,r0062
+11640,勤,a,勤：尽力多做或不断地做；勤奋。,bound_morpheme_fragment,勤在现代汉语中多为黏着语素（通勤、勤奋、勤快），唯一的例句里它位于通勤一词内部，无法作为独立的词使用，属于词素碎片,r0388
+11653,修更,v,对原有的内容进行修改和更改。,bound_morpheme_fragment,修更不是现代汉语中的独立词，唯一的例句里是动词修加上更多的更，属于词语碎片,r0388
+11686,骑车去,i,骑着自行车或乘坐机动车前往某处。,bound_morpheme_fragment,动宾短语（骑车＋去），不是独立词条，属于片段,r0237
+11730,物,n,指客观存在的物体或事物。,bound_morpheme_fragment,单字「物」在现代汉语中多为黏着语素（生物、物品、动物），在T3水平难以找到独立成词的自然语境；唯一的已有例句中「物」只出现在「生物」内，不能作为独立词使用，故作为词素碎片跳过,r0131
+11750,仍较,d,表示程度上有所增加或对比之下更明显。,bound_morpheme_fragment,"fragment: 仍较 is a sequence of two words (副词仍 + 副词较), not an independent word",r0133
+11798,率,v,指带领、引导，如率领；也指比例、比率，如效率。,bound_morpheme_fragment,黏着语素：表比例的“率”只出现在效率、成功率等复合词中，不能单独使用；释义又混入“带领”义（与另一义项重复），无法给出独立成词的例句。,r0020
+11800,正,副词,表示具有积极促进作用的，用于描述良性循环或正面效应,bound_morpheme_fragment,此义项（正循环、正效应中的“积极的”）只作黏着语素，不能单独成词，属于词素碎片。,r0124
+11821,汇,v,水流会合；聚集；综合。,mined_sentence_wrong_sense,"fragment: 汇 is a bound character in modern Chinese (碳汇, 汇入, 汇合); both mined sentences contain it only inside 碳汇, and no standalone context exists at T3",r0021
+11839,以具身化,l,将抽象的概念、理论或情感通过身体动作、姿态或具体情境表现出来，使其变得可感知、可操作。,bound_morpheme_fragment,"fragment: 以具身化 is only part of the phrase 以具身化的方式 (介词 以 + 具身化), not a standalone word",r0126
+11869,人玩,n,指人进行玩耍、游戏或玩弄某物的行为。,not_a_word,fragment: 人玩 is not a word; 人 and 玩 belong to different constituents (一个人 / 玩),r0383
+11876,让玩家,v,让玩家：使玩游戏的人进行某项操作或活动。,bound_morpheme_fragment,片段：「让」加「玩家」是自由短语，不是独立的词，没有可单独教学的词义。,r0384
+11919,着零,v,未找到释义。该词可能是笔误或非标准用词。,bound_morpheme_fragment,非词语片段：来自「容纳着零和博弈」的切分错误，「着」是助词，「零和」是另一个词的一部分，没有独立词义,r0137
+11994,南美,ns,南美指南美洲，是位于西半球南部的大陆，北邻北美洲，东临大西洋，西靠太平洋。,proper_noun,专有名词（地名），不作为词汇练习,r0147
+12062,天上飞,nr,指物体在天空中飞行或飘动。,not_a_word,"free phrase (方位词+动词), not a lexical word; fragment",r0001
+12073,工程师学,n,工程师学是研究如何应用科学原理进行设计、建造和操作工程系统的学科。,not_a_word,fragment: 「工程师学」是误切分，「工程师」与「学」是两个词，不是一个独立词条,r0361
+12125,快又稳,l,形容动作或过程既快速又平稳，没有颠簸或差错。,bound_morpheme_fragment,fragment: 「又快又稳」的一部分，不是独立的词,r0158
+12154,伯努利,nr,一种描述流体速度与压力关系的物理原理,proper_noun,专有名词（人名），不是可独立练习的普通词,r0031
+12165,牛顿,nr,英国物理学家，提出作用力与反作用力定律,proper_noun,proper noun (person name: Isaac Newton),r0035
+12181,多种类型,n,表示种类或类别很多。,bound_morpheme_fragment,自由短语（多＋种类型），不是独立词条，属于片段,r0319
+12185,处,n,处指某个地点或位置。,bound_morpheme_fragment,处作“地点、位置”讲时是黏着语素，现代汉语中几乎不能单独成词（只见于住处、用处、此处等复合形式），无法写出把“处”当独立词使用的自然句子，按词素片段跳过,r0320
+12234,纳维,nr,纳维，指科幻电影《阿凡达》中潘多拉星球上的智慧蓝色类人种族。,proper_noun,proper noun (character/ethnic name from Avatar); the mined sentence is about Navier (纳维-斯托克斯) and does not match the sense,r0324
+12235,斯托克斯,nrt,英国数学家、物理学家乔治·斯托克斯的姓，常见于流体力学中的“纳维-斯托克斯方程”。,proper_noun,proper noun (surname of a British mathematician and physicist),r0027
+12385,时会,n,时机和机会，指适当的时刻或有利的机遇。,mined_sentence_wrong_sense,片段：「时会」是文言词，现代汉语几乎不独立使用；挖掘句中的「战时会被」是「战时」加「会」，并非词「时会」，因此无法在 T3 写出自然的核心句。,r0230
+12403,史,nr,记载或讲述过去发生的事情，也指历史。,bound_morpheme_fragment,"fragment: 史 is a bound morpheme in modern Chinese (历史, 史书, 中国史) and does not stand alone as an independent word at the tier",r0232
+12440,知要,v,指事物的要领或关键部分。,mined_sentence_wrong_sense,不是现代汉语常用词，是碎片：挖掘句中的「知要」其实是「知」加「要」，无法写出作为独立词使用的自然句子,r0155
+12508,感,v,对外界刺激产生的知觉、情绪或态度体验。,bound_morpheme_fragment,黏着语素，现代汉语中不能单独成词（如“能量感”“感动”“感谢”中的“感”），找不到独立使用的语境，按词素碎片跳过,r0195
+12518,联合国环境规划署,nt,负责全球环境事务的国际组织,proper_noun,proper noun (organization name),r0001
+12519,斯德哥尔摩,nrt,瑞典首都，位于北欧的一个城市,proper_noun,proper noun (place name: Stockholm),r0017
+12565,相,v,表示动作或状态涉及双方，互相。,bound_morpheme_fragment,"fragment: 相 in this sense is a bound adverbial morpheme (相爱, 相约, 相遇) and has no independent use at T3",r0032
+12579,简之,d,意思是‘简单地说’或‘总而言之’，用来总结或简化前面的叙述。,bound_morpheme_fragment,不是独立成词的片段，常见说法是「简言之」，「简之」单用不自然,r0202
+12580,形,v,物体或人的外观、样子。,bound_morpheme_fragment,「形」在现代汉语中多为黏着语素（圆形、形状），在T3难以找到独立成词的自然语境,r0202
+12711,正试图,n,表示此时此刻尝试做某事，强调动作正在进行。,bound_morpheme_fragment,fragment: 副词「正」加动词「试图」的短语，不是独立词条,r0214
+12750,水不多,l,表示水的数量少，不够用或不足。,bound_morpheme_fragment,自由的主谓短语（水＋不多），不是独立的词，属于片段,r0217
+12760,不下雨,l,指没有雨水从天降落的状态。,bound_morpheme_fragment,否定式动词短语（不+下雨），是自由组合的片段，不是独立词条,r0365
+12804,中亚,ns,中亚指亚洲中部地区，通常包括哈萨克斯坦、乌兹别克斯坦、土库曼斯坦、吉尔吉斯斯坦和塔吉克斯坦五个国家。,proper_noun,proper noun (geographic name),r0180
+12910,太冷,ns,表示温度非常低，或形容态度冷漠。,bound_morpheme_fragment,太冷是副词太加形容词冷的自由短语，不是独立词条，属于片段,r0342
+12912,出更,v,（指香港警察）夜间或特定时段外出执勤。,mined_sentence_wrong_sense,唯一的已挖掘句「设计出更环保的塑料」里，出更是跨词误切（设计出+更环保），不是香港警察夜间执勤这个词义，且已挖掘句必须原样保留，无法使用,r0342
+12919,极难,d,形容难度极大，几乎无法完成。,mined_sentence_wrong_sense,"fragment: free combination of 极 + 难, not a lexicalised word; the mined sentence also exceeds the T3 length ceiling",r0269
+12921,不腐,a,不会腐烂、变质或腐朽。,mined_sentence_wrong_sense,"fragment: negation 不 + 腐, a literary phrase rather than an independent word; the mined sentence also exceeds the T3 length ceiling",r0269
+12927,链能,n,指区块链网络中用于支付交易费用或执行智能合约的能源或资源，通常以代币形式存在。,not_a_word,fragment: 「链能」is not a word; it comes from a mis-segmentation of 「聚合物链／能被…」 in the mined sentence,r0271
+12950,脂肪酸,n,脂肪酸是构成脂肪的基本成分，分为饱和与不饱和两种，对维持人体健康很重要。,mined_sentence_wrong_sense,唯一的挖掘例句中，脂肪酸只出现在复合词「聚羟基脂肪酸酯」内部，不是独立的词，且句子远超T3字数上限；按规则应舍弃，但挖掘例句必须保留在首位，因此跳过此义项（同形词义项25510另行制作）,r0274
+12951,酯,ng,有机化合物，由酸和醇反应生成，常用于香料、油脂等。,bound_morpheme_fragment,单字黏着语素，现代汉语中只出现在聚酯、酯键、脂肪酸酯等复合词里，T3层级没有可独立成词的语境，视为词素碎片,r0274
+12953,对苯二甲,nz,一种有机化合物，是聚酯纤维和塑料瓶的重要原料。,bound_morpheme_fragment,fragment: 对苯二甲 is a truncated form of 对苯二甲酸 and does not stand alone as a word,r0275
+12963,热菌,n,热菌是引起发热症状的细菌或微生物的俗称。,bound_morpheme_fragment,fragment: 「热菌」不是现代汉语中独立使用的词，只是「嗜热菌」「嗜热菌群」等词的片段，找不到自然的独立用法,r0276
+12980,微,n,形容事物体积小、数量少或程度浅。,bound_morpheme_fragment,fragment: 微 is bound in modern Chinese (微小、微笑、微风); no natural standalone context at T3,r0279
+12999,基,a,事物的根本或起点。,bound_morpheme_fragment,单字「基」在现代汉语中是黏着语素（如地基、基础、生物基），无法作为独立的词使用，属于词素片段,r0281
+13000,粮争,n,指因粮食短缺而引发的争夺或冲突。,not_a_word,「粮争」不是现代汉语中的词，来自「与粮争地」的错误切分（与粮食争地），属于片段,r0281
+13028,厨余会,n,厨余会是指将厨房产生的剩菜剩饭等有机废弃物进行集中收集、处理，以减少垃圾并资源化利用的活动或组织。,not_a_word,不是词语：「厨余会」是误切分，实为「厨余」加情态动词「会」（厨余会变成土），没有「活动或组织」的义项,r0040
+13041,可,副词,可以、能够，表示许可或可能。,mined_sentence_wrong_sense,已挖掘的句子里“可”只出现在“可持续”“不可替代”等词内部，是黏着语素，不能作独立的词使用，按片段跳过。,r0045
+13044,渣和,nz,“渣和”并非标准汉语词汇，可能是“渣滓”或“和”的误写，或方言、网络用语，通常无明确释义。,bound_morpheme_fragment,非标准词汇的片段（“咖啡渣和蛋壳”中“渣”与连词“和”被误切），不是独立词语,r0244
+13061,了买,v,'了买'不是标准汉语词语，可能是'买了'的笔误。,bound_morpheme_fragment,不是标准汉语词语，是「买了」的笔误，属于片段，不适合做词汇练习,r0246
+13066,中占比,ns,某个部分在整体中所占的比例。,bound_morpheme_fragment,"fragment: 「中」+「占比」 is a sentence-internal span, not an independent word",r0404
+13111,即散,v,立即散开，指很快地分开或解散。,bound_morpheme_fragment,"fragment: 即散 is not an independent word, it only occurs inside the phrase 轻触即散",r0409
+13236,出对,v,指在对话中，一方提出上句，另一方接续下句，构成一对问答或对仗。,mined_sentence_wrong_sense,"mined sentence does not contain 出对 (target_word cannot appear verbatim); 出对 is also a rare, non-standard fragment of 出对子",r0073
+13286,买新,v,购买新的物品。,not_a_word,动词加形容词的临时组合，不是独立词语，属于片段,r0003
+13289,水用,n,指水在生活或生产中的用途，如饮用、洗涤、灌溉等。,mined_sentence_wrong_sense,"fragment: 水用 is not an independent word. In the mined sentences 水 is the object and 用 a separate verb (有干净的水用), and 用水 is the real word.",r0003
+13293,水流,n,指水流动的样子或流动的水体。,mined_sentence_wrong_sense,"the mined sentences do not use the word: in 脏水流到河里 the characters straddle 脏水 + 流到, so they cannot be kept byte-for-byte without breaking the whole-word rule. The same meaning is covered by sense 26126.",r0003
+13392,包,v,用纸、布等把东西裹起来。,mined_sentence_wrong_sense,"The only mined sentence uses 包 inside 外包 (outsourcing), not the independent verb 包 'wrap up'. It must stay first and unchanged, so it cannot show this sense.",r0458
+13407,可验,v,指能够通过实验或检查来证明真假。,bound_morpheme_fragment,"fragment: 可+验 is a bound construction, not an independent word in modern Chinese; no natural standalone T3 contexts",r0459
+13442,美的,nr,具有美感或令人愉悦的；好看。,proper_noun,fragment: 「美的」只是形容词「美」加结构助词「的」（如「美的短暂性」），不是独立词条；另一常见用法是品牌名（专有名词），均不适合作词汇练习,r0463
+13488,华北平原,ns,华北平原是中国第二大平原，由黄河、海河、淮河等河流冲积而成，地势平坦，是中国重要的农业区。,proper_noun,proper noun (place name),r0162
+13496,绿脉,n,指植物叶子上像线一样的绿色通道，也用来比喻绿色的道路或连接绿色地方的路线。,mined_sentence_wrong_sense,"not an established dictionary word; the mined sentence uses it only inside the project name 「绿脉计划」, so no natural independent-word sentences at T3",r0164
+13497,为名,v,指追求或贪图名声。,mined_sentence_wrong_sense,"mined sentence uses 「以……为名」 (named as), which does not match the given sense (追求名声), and the form is a fragment of 以…为名 / 为名为利",r0164
+13505,杨,nr,杨树，落叶乔木，叶子互生，种类很多，常见的有银白杨、毛白杨等。,bound_morpheme_fragment,单字「杨」在现代汉语中多为黏着语素（杨树、白杨），难以作为独立词使用，属于词素片段。,r0165
+13568,仿,d,模仿；效法。,bound_morpheme_fragment,"仿 is a bound character (仿照、模仿、仿制). It rarely stands alone as an independent word in modern Chinese, so this is a fragment.",r0175
+13592,志,n,指人们内心想要达到某种目的或实现某种理想的决心和愿望。,mined_sentence_wrong_sense,"fragment: 志 is a bound morpheme (志向、志愿、意志). The mined sentence only has it inside 植物志, which is a different sense (记载的书) from the given definition. No natural standalone context at T3.",r0177
+13608,最富,a,表示在财富方面排名第一，拥有的金钱或财产最多。,mined_sentence_wrong_sense,"The only mined sentence uses 最富 in the pattern 最富+抽象名词 (最富生命力, 'most full of'), not the wealth sense in the definition, and it exceeds the T3 length ceiling. The wealth sense is covered by sense 26688.",r0179
+13614,风一吹,i,指风开始吹起来或持续吹动的状态，常用来形容风吹到物体上使其飘动或摇晃。,bound_morpheme_fragment,不是独立的词，而是由“风”“一”“吹”组成的小句片段,r0101
+13623,风吹,v,指风吹动或吹拂，形容风的力量。,bound_morpheme_fragment,fragment: 主谓短语（风+吹），不是独立词条,r0102
+13653,会用,n,表示有实际能力或经验去做某件事。,mined_sentence_wrong_sense,「会用」是情态动词「会」加动词「用」的自由组合，不是独立的词；唯一的挖掘例句里「会」表示将来，与该义项不符，属于片段。,r0395
+13762,源,ng,事物开始或产生的地方。,mined_sentence_wrong_sense,"源 is a bound morpheme here: every mined sentence uses it only inside 能源 and it does not stand alone in this sense, so it is a fragment.",r0290
+13763,荷,ng,指莲科植物，夏季开花，花大而美丽，有粉红、白色等颜色，可供观赏；也指荷叶或莲子。,mined_sentence_wrong_sense,"The mined sentence uses 荷 only inside the abbreviation 源荷 (power source and load), a bound technical fragment. The sense definition does not match it, and 荷 does not stand alone in this sense.",r0290
+13796,花里,n,指花朵的内部或花丛之中。,bound_morpheme_fragment,fragment: 名词「花」加方位词「里」的短语，不是独立词语,r0369
+13800,一朵花,n,指一朵盛开的花，通常用于形容花朵的数量或外观。,not_a_word,fragment: 数词+量词+名词的自由短语，不是词条,r0011
+13854,下降时,n,当某种生物的数量或程度开始减少的时候,bound_morpheme_fragment,短语片段：由动词「下降」加「时」构成，不是独立词条,r0469
+19937,美国联邦贸易委员会,,美国负责保护消费者和促进市场竞争的政府机构,proper_noun,专有名词（机构名称），不适合作为词汇梯度练习的目标词,r0043
+19954,故,noun,指旧的、原来的；也指朋友、原因、死亡等。,mined_sentence_wrong_sense,单字「故」在此义项（旧的、原来的；朋友、原因、死亡）中基本是黏着语素，只出现在故人、故乡、已故、因故等词内部，现代汉语里没有可独立使用的语境；已挖掘句里的「故」是连词「所以」，与本义项不符。按碎片处理，跳过。,r0403
+19957,差分,noun,差分指两个数值之间的差值，常用于数学和计算机中表示变化量。,mined_sentence_wrong_sense,已挖掘句中的「差分」只出现在复合词「差分隐私」内部，不是独立的词，也与本义项（两数之差）不符；该句必须原样保留在首位，因此无法生成合格的例句集。跳过。,r0403
+19964,明教,noun,明教是历史上一个源自波斯的宗教组织，在中国古代曾秘密活动，崇拜光明之神。,proper_noun,"明教 is a proper noun (the name of a religion/sect). The only mined sentence 「小明教它说话、写字。」 has 明教 across the word boundary of 小明 + 教, so it is not this word, and it cannot be dropped because mined sentences must stay first.",r0252
+20011,耦,adjective,通“偶”，指双数、成对。,bound_morpheme_fragment,"fragment: 耦 is a bound, archaic form (通“偶”) that appears only inside words like 解耦 and 耦合, never as an independent word at T3",r0348
+20041,图灵,noun,艾伦·图灵是英国数学家、逻辑学家和计算机科学之父，对现代计算机和人工智能理论有开创性贡献。,proper_noun,proper noun (person name),r0353
+20076,收更,verb,指在傍晚或夜间将晾晒或摆放的物品收回室内。,bound_morpheme_fragment,fragment: 在「收更多的税」中，「收」和「更多」是两个词，「收更」并不是一个独立的词。,r0088
+20264,几本书,n,就是很少的几本可以看的书。,bound_morpheme_fragment,fragment: 数词+量词+名词的自由短语，不是独立词条,r0540
+20462,达,动词,到了某个地方。,bound_morpheme_fragment,单字「达」在现代汉语中多为黏着语素（到达、抵达、达到、直达），在T3水平下找不到能独立成词、表示「到了某个地方」的自然语境，按词素片段跳过。,r0433
+20546,便,副词,表示事情很容易做，不费力气。,bound_morpheme_fragment,fragment: 在“容易、不费力”这个义项上，便是黏着语素（如便于、轻便），现代汉语中不能作为独立的词使用，无法写出自然的独立用例。,r0521
+20564,毕,vg,一件事做完叫毕。,bound_morpheme_fragment,单字「毕」在现代汉语中多为黏着语素（完毕、毕业），T3 水平下没有自然的独立用法，按碎片跳过。,r0373
+20624,机,n,机器是一种能帮人做事情的设备。,bound_morpheme_fragment,单字黏着语素，现代汉语中几乎只在复合词（飞机、机器）里出现，T3 没有可独立使用的语境，属于词素片段,r0375
+20676,坊,ng,一个小胡同或小区。,bound_morpheme_fragment,"坊 is a bound morpheme (街坊, 作坊, 牌坊); no natural standalone contexts at the T3 tier",r0377
+20784,放肉,动词,把肉放到锅里或碗里。,bound_morpheme_fragment,"free verb-object phrase (放 + 肉), not a lexical word: fragment",r0533
+20808,土能,n,土地可以让东西长大。,not_a_word,「土能」不是独立词语，是「土」加「能」的误切分，属于片段,r0221
+20850,温菌,n,温菌是一种很小很小的东西，会让食物变坏。,bound_morpheme_fragment,"fragment: 温菌 is not an independent modern Chinese word (only a piece of 嗜温菌), so natural standalone sentences cannot be written",r0331
+20860,群向,n,大家往同一个方向走。,bound_morpheme_fragment,fragment: 群向不是现代汉语中的独立词，给定释义是临时拼出来的说法，无法写出自然的例句,r0332
+20972,卢梭,nr,卢梭是一个很久以前的外国人，他写了很多书，告诉人们要自由。,proper_noun,proper noun (person name),r0370
+21044,脑,n,脑袋，里面有帮助我们想事情和记东西的部分。,bound_morpheme_fragment,单字“脑”在现代汉语中基本是黏着语素，多出现在脑袋、脑子、大脑等词里，很难作为独立的词自然使用，按碎片处理。,r0019
+21202,宜,vg,意思是说某件事是好的、对的。,other,单独作形容词表示「好的、对的」只见于文言，现代汉语中 宜 只在 不宜、适宜 等结构里出现，无法在 T3 层级写出自然、独立使用该义的句子；情态用法已由 sense 11539 覆盖,r0336
+21282,子,ng,孩子。,bound_morpheme_fragment,"子 meaning 孩子 is a bound morpheme that does not stand alone in modern Chinese at this tier, so it is skipped as a fragment",r0311
+21476,东南亚,ns,东南亚是亚洲南边的一片地方，那里有泰国和越南等国家。,proper_noun,Proper noun (place name).,r0000
+21492,阿拉比,nrt,一种用来做咖啡的咖啡豆的名字。,bound_morpheme_fragment,“阿拉比”只是“阿拉比卡”的截短片段，现代汉语中不能独立成词，无法写出以“阿拉比”为独立词的自然句子。,r0418
+21526,罗布,nr,罗布的意思是抓住或得到。,proper_noun,人名（nr）专有名词，所给释义「抓住或得到」与该词不符，不是可独立使用的普通词义,r0487
+21536,将生豆,n,把生豆子放在水里煮，让豆子变熟。,bound_morpheme_fragment,不是独立的词，而是由介词「将」和名词「生豆」拼成的片段,r0420
+21572,国,n,国家，比如我们住的地方，像中国、美国这样的地方。,bound_morpheme_fragment,单字「国」在现代汉语中多为黏着语素，通常只出现在「国家」「中国」「外国」等词内，T3水平下找不到可独立使用的语境，按碎片处理。,r0004
+21584,比例,n,两个东西放在一起比一比，看它们的大小或多少。,bound_morpheme_fragment,现代汉语中“比例”没有“放在一起比较大小多少”的独立义项，该义项是碎片，不适合出练习,r0423
+21750,时,名词,指一段时间，比如白天、晚上。,bound_morpheme_fragment,单字 时 在现代汉语中多为黏着成分（当时、有时、小时），表示“一段时间”这一义项时没有可以独立使用的语境，属于词素碎片,r0592
+21762,链,n,链子，像小圆圈连起来的长条。,bound_morpheme_fragment,"fragment: 链 does not stand alone in this sense; natives say 链子 or 铁链, so the bare character has no natural independent context",r0002
+21864,音,n,声音，就是耳朵能听到的东西。,bound_morpheme_fragment,"fragment: 音 is a bound character in modern Chinese (声音, 音乐); the standalone word for this sense is 声音",r0002
+21874,人学,n,研究人的学问。,other,"人学 is a rare academic term (philosophical discipline); no natural, ordinary-collocation sentences exist at the T3 tier",r0086
+21930,两条线,n,两条线是两根长长的、直直的画出来的东西。,bound_morpheme_fragment,fragment: 数词+量词+名词的自由短语，不是独立词汇,r0345
+21952,谱,v,谱就是写下来的歌的符号。,bound_morpheme_fragment,"fragment: 谱 is mostly bound in modern Chinese (乐谱, 五线谱, 谱子) and has no natural standalone context at T3",r0060
+22030,纽姆,nrt,纽姆是一种像泡芙的小点心。,mined_sentence_wrong_sense,"fragment: 纽姆 is only a transliteration of 'neume' (as in 纽姆谱, a medieval music notation), not a standalone word; the given definition (a puff-like snack) does not match the real word, and there are no mined sentences to ground it",r0442
+22044,圭多,ns,圭多是一个人的名字。,proper_noun,proper noun (personal name),r0443
+22098,深刻影响,i,让别的东西变得很有影响。,bound_morpheme_fragment,fragment: 副词＋动词的自由搭配，不是独立词条,r0430
+22102,通奏,n,音乐里从头到尾一直弹奏的意思。,bound_morpheme_fragment,"fragment: 通奏 is a bound form that occurs only inside the fixed term 通奏低音, never as an independent word",r0432
+22116,声,n,声音就是耳朵听到的东西。,bound_morpheme_fragment,单字多为黏着语素，此义在现代汉语中通常说“声音”，「声」很难独立使用，按碎片跳过,r0432
+22162,勋伯格,n,写音乐的人，他做新的、不一样的歌。,proper_noun,专有名词（人名），不作为词汇练习,r0434
+22168,时值,n,一个时间点或一段时间。,other,给定释义「一个时间点或一段时间」不是「时值」的通行义，无法写出自然、搭配正常的句子，因此跳过,r0434
+22174,参数均,n,所有参数,bound_morpheme_fragment,「参数均」是从句子中截出的片段（名词加副词），不是独立的词，因此跳过,r0434
+22178,约翰,nrt,一个人名，可以是一个男的名字。,proper_noun,proper noun (personal name),r0435
+22188,凯奇,nrt,凯奇是一个人的名字，可以指一个叫尼古拉斯·凯奇的演员。,proper_noun,proper noun (personal name / surname),r0435
+22198,权,n,“权”可以指一个人拥有的做事情或管事情的力量。,bound_morpheme_fragment,单字「权」多为黏着语素，此义项与义项10821（权力）重叠，没有可单独成词且区别于前者的语境，按碎片处理,r0183
+22318,面,n,脸上的前部，有眼睛、鼻子和嘴巴的地方。,bound_morpheme_fragment,表示“脸”义的“面”在现代汉语中多为黏着语素（满面、面带笑容、洗面），T3 水平下找不到能独立成词的自然语境，按碎片义项跳过。,r0090
+22348,性,名词,指男孩或女孩，比如男生和女生。,bound_morpheme_fragment,黏着语素，只出现在男性、女性、异性等词内，没有独立成词的用法，属于词素碎片,r0499
+22388,西班牙,ns,一个国家的名字，在欧洲。,proper_noun,专有名词（国名）,r0308
+22390,人会,n,所有人都会这样。,not_a_word,片段：「人会」是名词「人」加情态动词「会」的临时组合，不是独立词语,r0308
+22400,合作项目,n,两个人或两个团队一起做一件工作。,bound_morpheme_fragment,自由短语片段（合作＋项目），释义只是“合作”的意思，不是独立词条,r0309
+22484,制,n,把东西做成一定样子。,bound_morpheme_fragment,fragment: 在“把东西做成一定样子”义上，制是黏着语素（制成、制作、手制），不能单独成词,r0257
+22616,观,vg,用眼睛看东西。,bound_morpheme_fragment,fragment: 观 as 用眼睛看 is a bound morpheme and does not stand alone as an independent word at T3.,r0047
+22832,下降时,n,东西往下掉的时候。,bound_morpheme_fragment,短语片段：由动词「下降」加「时」构成，不是独立词条,r0469
+22848,越,d,从一个地方到另一个地方，比如从路这边走到路那边。,bound_morpheme_fragment,动词义“跨过”中的“越”在现代汉语中基本不单独成词，只出现在越过、翻山越岭等结构里，T3 水平没有可独立使用的自然语境，属于语素碎片。,r0012
+23100,厌氧,v,没有氧气的地方。,bound_morpheme_fragment,"fragment: as a noun meaning 'a place without oxygen', 厌氧 is a bound modifier (厌氧区, 厌氧菌) and has no natural independent noun usage at T3",r0338
+23214,公,n,公是大家都能用的。,bound_morpheme_fragment,公在现代汉语中几乎只作语素，如公共、公用、公园，难以单独成词，在T3水平没有可以独立使用的语境，按片段跳过。,r0062
+23216,勤,a,勤就是很努力做事情。,bound_morpheme_fragment,勤在现代汉语中多为黏着语素（勤奋、勤快、勤劳），在T3难度内找不到它能独立使用的自然语境，属于词素碎片,r0388
+23252,修更,v,让东西变得更好或不同。,bound_morpheme_fragment,修更不是现代汉语中的独立词（常见说法是修改、更改），无法写出把它当作整词使用的自然句子，属于词语碎片,r0388
+23306,骑车去,i,坐着或开着车去一个地方。,bound_morpheme_fragment,动宾短语（骑车＋去），不是独立词条，属于片段,r0237
+23380,物,n,物就是东西，比如玩具、食物。,bound_morpheme_fragment,单字「物」在现代汉语中多为黏着语素，口语中说「东西」而不单说「物」，在T3水平没有可独立成词的自然语境，作为词素碎片跳过,r0131
+23428,仍较,d,还是比之前多一些。,bound_morpheme_fragment,"fragment: 仍较 is a sequence of two words (副词仍 + 副词较), not an independent word",r0133
+23570,汇,v,水聚集在一起，或者很多东西合起来。,bound_morpheme_fragment,"汇 is mostly a bound character in modern Chinese (汇入, 汇成, 汇合, 汇报). It has no natural stand-alone context at T3, so it is skipped as a fragment.",r0021
+23574,以具身化,l,把看不见的想法和感觉，变成能用手或身体做出来的动作。,bound_morpheme_fragment,"fragment: 以具身化 is only part of the phrase 以具身化的方式 (介词 以 + 具身化), not a standalone word",r0126
+23628,人玩,n,人玩就是人做游戏。,not_a_word,fragment: 人玩 is not a word; it is just 人 plus 玩 and has no independent sense,r0383
+23658,让玩家,v,让玩家做某事的意思是叫玩游戏的人去做那件事。,bound_morpheme_fragment,片段：「让」加「玩家」是自由短语，不是独立的词，没有可单独教学的词义。,r0384
+23734,着零,v,这个词不是日常用的词，可能是一个记号或写法上的错误。,bound_morpheme_fragment,非词语片段：不是独立的词，释义也说明是记号或写法错误，无法写出自然的例句,r0137
+23836,担与,v,“担与”不是常用的词，可能是写错了，比如想写“担忧”或“参与”。,other,not a real word; likely a typo for 担忧 or 参与,r0531
+23958,天上飞,nr,东西在空中移动。,not_a_word,"free phrase (方位词+动词), not a lexical word; fragment",r0001
+23990,工程师学,n,工程师学是讲怎么造东西的学问。,bound_morpheme_fragment,fragment: 「工程师学」不是现代汉语中的独立词，应为「工程学」或「工程师」+「学」,r0361
+24086,快又稳,l,又快又稳，意思是速度很快而且很安全。,bound_morpheme_fragment,fragment: 「又快又稳」的一部分，不是独立的词,r0158
+24172,多种类型,n,好多种不一样的。,bound_morpheme_fragment,自由短语（多＋种类型），不是独立词条，属于片段,r0319
+24184,处,n,处是一个地方。,bound_morpheme_fragment,处作“地方”讲时是黏着语素，不能单独成词（只见于到处、好处、此处等复合形式），无法写出把“处”当独立词使用的自然句子，按词素片段跳过,r0320
+24272,纳维,nr,纳维是电影《阿凡达》里一个外星蓝色人的名字。,proper_noun,proper noun (name of an alien race in the film Avatar),r0324
+24304,控系统,n,控系统是控制机器或设备工作的部分。,bound_morpheme_fragment,不是独立的词，是被截断的片段（来自“操控系统／控制系统”），没有可用的完整词义,r0532
+24562,史,nr,过去的事情，比如很久以前发生的事。,bound_morpheme_fragment,"fragment: 史 is a bound morpheme in modern Chinese (历史, 史书, 中国史) and does not stand alone as an independent word at the tier",r0232
+24628,知要,v,指最重要的内容或关键点。,bound_morpheme_fragment,不是现代汉语常用词，属于文言或碎片，T3 水平下无法写出自然、独立使用该词的句子,r0155
+24740,感,v,心里觉得高兴或受到触动。,bound_morpheme_fragment,黏着语素，现代汉语中不能单独成词（只出现在“感动”“感谢”“感到”等词内），找不到独立使用的语境，按词素碎片跳过,r0195
+24844,相,v,两个人互相看着对方。,bound_morpheme_fragment,"fragment: 相 meaning 'look at each other' is bound (相视, 相看) and appears only inside fixed expressions, not as an independent word at T3",r0032
+24852,形,v,东西的样子。,bound_morpheme_fragment,「形」在现代汉语中多为黏着语素（形状、形式），在T3难以找到独立成词的自然语境,r0202
+24864,简之,d,把一件事情说得更简单。,bound_morpheme_fragment,不是独立成词的片段，现代汉语中没有「简之」这一独立用法,r0202
+25114,正试图,n,就是正在试着做某件事。,bound_morpheme_fragment,fragment: 副词「正」加动词「试图」的短语，不是独立词条,r0214
+25176,水不多,l,水不多就是水很少，快要没有了。,bound_morpheme_fragment,自由的主谓短语（水＋不多），不是独立的词，属于片段,r0217
+25194,不下雨,l,没有下雨。,bound_morpheme_fragment,否定式动词短语（不+下雨），是自由组合的片段，不是独立词条,r0365
+25260,中亚,ns,中亚是亚洲中间的一块地方，那里有几个国家。,proper_noun,proper noun (geographic name),r0180
+25324,列为,v,把东西一个一个排好。,bound_morpheme_fragment,"fragment: 「列为」is not an independent word meaning 把东西一个一个排好; that sense belongs to 排列/排好, and 列为 only means 归入某一类别",r0185
+25446,太冷,ns,很冷，让人不舒服。,bound_morpheme_fragment,太冷是副词太加形容词冷的自由短语，不是独立词条，属于片段,r0342
+25468,极难,d,非常难，很难做到。,bound_morpheme_fragment,"fragment: free combination of 极 + 难, not a lexicalised word",r0269
+25474,不腐,a,不会坏掉。,bound_morpheme_fragment,"fragment: negation 不 + 腐, a literary phrase rather than an independent word",r0269
+25480,链能,n,链能是一种可以连起来用的能量。,bound_morpheme_fragment,fragment: 「链能」is not an established word in modern Chinese; the definition is invented and no natural independent usage exists,r0271
+25512,酯,ng,一种化学物质。,bound_morpheme_fragment,单字黏着语素，现代汉语中只出现在聚酯、酯键等复合词里，T3层级没有可独立成词的语境，视为词素碎片,r0274
+25520,对苯二甲,nz,一种用来做塑料瓶的化学品。,bound_morpheme_fragment,fragment: 对苯二甲 is a truncated form of 对苯二甲酸 and does not stand alone as a word,r0275
+25532,热菌,n,一种很小的、会让人发烧生病的菌。,bound_morpheme_fragment,fragment: 「热菌」不是现代汉语中独立使用的词，只是「嗜热菌」「嗜热菌群」等词的片段，找不到自然的独立用法,r0276
+25562,微,n,很小，不多。,bound_morpheme_fragment,fragment: 微 is bound in modern Chinese (微小、微弱、略微); no natural standalone context at T3,r0279
+25598,基,a,基就是东西的最下面部分，比如房子的地基。,bound_morpheme_fragment,单字「基」在现代汉语中不能独立成词，只出现在地基、基础等复合词中，属于词素片段,r0281
+25610,粮争,n,粮食不够时，大家抢粮食。,not_a_word,「粮争」不是现代汉语中的词，是错误切分出的片段，没有自然的独立用法,r0281
+25670,厨余会,n,吃剩下的饭菜可以一起收集起来变成有用的东西，这个活动叫厨余会。,not_a_word,不是词语：「厨余会」是误切分，实为「厨余」加情态动词「会」，该定义没有词典依据,r0040
+25676,渣和,nz,“渣和”不是常用的词，可能是一个写错了的词。,bound_morpheme_fragment,非标准词汇的片段，可能是误写，无明确释义,r0244
+25704,中占比,ns,在一群人里，这个人占了多少。,bound_morpheme_fragment,"fragment: 「中」+「占比」 is a sentence-internal span, not an independent word",r0404
+25708,了买,v,这个词没有意思。,bound_morpheme_fragment,不是标准汉语词语，没有独立意义，属于片段，不适合做词汇练习,r0246
+25760,比约,d,两个人互相见面，好像约好了一样。,bound_morpheme_fragment,不是独立的现代汉语词，是片段；释义对应的是「不约而同」之类的成语，无法写出自然的例句,r0502
+25784,即散,v,就是散开。,bound_morpheme_fragment,"fragment: 即散 is not an independent word, it only occurs inside the phrase 轻触即散",r0409
+26050,出对,v,一个人说了一句上句，另一个人用下句来回答。,other,"出对 is not an established standalone word (the usual form is 出对子 / 对对子); no natural, ordinary sentences available at T3",r0073
+26112,买新,v,买新的东西。,not_a_word,动词加形容词的临时组合，不是独立词语，属于片段,r0003
+26116,水用,n,水是用来喝的，也可以用来洗东西。,bound_morpheme_fragment,"fragment: 水用 is not a standard independent word, and the definition just describes 水 and 用 separately.",r0003
+26152,越多,d,指数量很大。,bound_morpheme_fragment,"fragment: 越多 is only the 越…越… construction, not a standalone word meaning 数量很大; no natural sentences exist for this sense",r0013
+26194,臭,a,臭是难闻的气味。,bound_morpheme_fragment,名词义的“臭”在现代汉语中几乎不单独成词，只出现在臭味、臭气、除臭等词中，属于黏着成分，T3 难度下找不到独立使用的自然语境，按碎片义跳过,r0391
+26208,更对,d,意思是“更加”，表示程度变得更高。,not_a_word,「更对」是副词「更」加形容词「对」的临时组合，不是词；释义对应的是「更」，不能作为独立词条造句,r0502
+26334,可验,v,可以验证看看对不对。,bound_morpheme_fragment,"fragment: 可+验 is a bound construction, not an independent word in modern Chinese; no natural standalone T3 contexts",r0459
+26370,侧,v,东西的旁边或身体的右边。,bound_morpheme_fragment,单字黏着语素（多见于「两侧」「侧面」「左侧」），在T3水平没有可以独立成词、表示「旁边」的自然语境，按碎片处理,r0465
+26482,美的,nr,好看，漂亮，让人看着心里高兴。,bound_morpheme_fragment,fragment: 「美的」是「美」加「的」的组合，或是品牌名，没有可独立使用的词义,r0463
+26492,绿脉,n,绿色的线。,bound_morpheme_fragment,fragment: a free description 「绿色的线」 rather than an established word; no natural independent use at T3,r0164
+26504,华北平原,ns,华北平原是一大片平平的土地，在中国北方。,proper_noun,proper noun (place name),r0162
+26510,杨,nr,杨是一种树，它的叶子在秋天会变黄。,bound_morpheme_fragment,单字「杨」在现代汉语中多为黏着语素（杨树、白杨），难以作为独立词使用，属于词素片段。,r0165
+26624,仿,d,照着样子做。,bound_morpheme_fragment,"仿 is a bound character (仿照、模仿、仿制). It rarely stands alone as an independent word in modern Chinese, so this is a fragment.",r0175
+26640,了近,v,快到了的意思,bound_morpheme_fragment,不是独立的词，是片段（「了」加「近」），无法给出自然的独立用法,r0501
+26654,志,n,心里想要做成什么事或达到什么目标的念头。,bound_morpheme_fragment,fragment: 志 in the sense of 志向 is a bound morpheme (立志、志愿、意志) and does not stand alone as an ordinary word at T3.,r0177
+26720,风一吹,i,风在吹动东西。,bound_morpheme_fragment,不是独立的词，而是由“风”“一”“吹”组成的小句片段,r0101
+26724,风吹,v,风在吹。,bound_morpheme_fragment,fragment: 主谓短语（风+吹），不是独立词条,r0102
+26760,会用,n,表示自己能做到或会做某事。,bound_morpheme_fragment,「会用」是「会」加「用」的自由短语，不是独立的词，属于片段。,r0395
+26970,源,ng,水开始流出来的地方，比如河水的开始。,bound_morpheme_fragment,"源 (the place where water starts) does not appear as an independent word in modern Chinese. It occurs only in compounds such as 水源 and 源头, so it is a fragment.",r0290
+26972,荷,ng,荷花是一种长在水里的花，有粉红色或白色的花瓣。,bound_morpheme_fragment,"In modern Chinese the lotus is called 荷花 or 荷叶. 荷 on its own is bound, so no natural sentence has it as an independent word.",r0290
+27048,花里,n,花朵的里面。,bound_morpheme_fragment,fragment: 名词「花」加方位词「里」的短语，不是独立词语,r0369
+27228,图灵,noun,图灵是一个人的名字，他发明了电脑和人工智能的想法。,proper_noun,proper noun (person name),r0353
+27308,收更,verb,到晚上把外面的东西收起来。,bound_morpheme_fragment,fragment: 「收更」不是现代汉语中的独立词语，没有可靠的用法语境。,r0088
+27522,明教,noun,明教是一个古代的秘密组织，人们一起信一个叫摩尼的神。,proper_noun,"明教 is a proper noun (the name of a religion/sect), so it is not suitable for a vocabulary ladder.",r0252
+27530,故,noun,过去发生的事，或者事情的原因。,bound_morpheme_fragment,单字「故」表示「过去发生的事、事情的原因」时是黏着语素（事故、变故、缘故、无故），不能在T3水平独立成词使用。按碎片处理，跳过。,r0403
+27626,耦,adjective,成双的，一对的。,bound_morpheme_fragment,"fragment: 耦 is a bound, archaic form (成双、一对) with no standalone modern use at T3",r0348
+27698,视,vg,用眼睛看东西。,bound_morpheme_fragment,单字「视」在现代汉语中多为黏着语素（视力、近视、视而不见），在T3水平上不存在「用眼睛看东西」的独立词用法，按碎片处理。,r0046
+27702,巴西,ns,巴西是一个国家的名字，那里的人喜欢踢足球和跳舞。,proper_noun,专有名词（国名）,r0308
+27734,南美,ns,南美是地球上一块很大很大的地方，那里有巴西和阿根廷。,proper_noun,专有名词（地名），不作为词汇练习,r0147
+27750,时会,n,时候和机会。,bound_morpheme_fragment,片段：「时会」在现代汉语中不是常用的独立词，「时候和机会」只是对「时」与「会」的拆解，没有自然的 T3 语境。,r0230
+27814,一朵花,n,一朵花就是一朵长在植物上的漂亮小花。,not_a_word,fragment: 数词+量词+名词的自由短语，不是词条,r0011
+34992,莉莉,nrt,莉莉是一个小女孩的名字。,proper_noun,proper noun (personal name),r0524
+34993,莉莉,nrt,指人名，常用于女孩。,proper_noun,proper noun (personal name),r0524
+39860,和笔来教,nz,用笔和蜡板来教写字。,bound_morpheme_fragment,fragment: 并非独立词语，而是句子片段，没有可独立使用的词义,r0446
+39861,和笔来教,nz,指使用蜡板和笔进行教学的行为。,bound_morpheme_fragment,fragment: 并非独立词语，而是句子片段「用蜡板和笔来教」的一部分,r0446
+85935,者,,“者”放在字的后面，说明是做这件事的人。,bound_morpheme_fragment,"fragment: 者 is a bound suffix that never stands alone as an independent word (only inside words such as 记者、学者), so no valid core sentence exists",r0545
+85936,者,,后缀，用在动词或形容词后面，指做某事的人或有某种特点的人。,bound_morpheme_fragment,"fragment: 者 is a bound suffix that never stands alone as an independent word (only inside words such as 爱好者、劳动者), so no valid core sentence exists",r0545
+86047,复,verb,复是再做一次。,bound_morpheme_fragment,「复」在现代汉语中是黏着语素（复习、重复、回复、恢复），不能作为独立的词表示「再做一次」，按碎片处理。,r0658
+86048,复,verb,重复；再次；也有恢复、回答之意。,bound_morpheme_fragment,「复」表示重复、恢复、回答时只出现在复合词或书面固定格式中，不能独立使用，按碎片处理。,r0658
+86081,注,verb,注是把水倒进去。,bound_morpheme_fragment,单字多为黏着语素（注入、注水、注意），现代汉语中不能单独作动词使用，属于词素碎片,r0598
+86082,注,verb,灌入；集中；也指解释、记载。,bound_morpheme_fragment,单字多为黏着语素（注入、注射、注解、注意），现代汉语中不能单独成词，属于词素碎片,r0598
+86131,女,noun,“女”是说女孩和女人。,bound_morpheme_fragment,单字多为黏着语素，现代汉语中独立成词的语境极少（多见于“女的”“男女”等），难以在T3写出十句自然的独立用法，按碎片跳过,r0586
+86132,女,noun,女性，与“男”相对。,bound_morpheme_fragment,单字多为黏着语素，现代汉语中独立成词的语境极少（多见于“女的”“男女”等），难以在T3写出十句自然的独立用法，按碎片跳过,r0586
+86533,馆,noun,馆是给大家看东西、学东西的房子。,bound_morpheme_fragment,单字「馆」在现代汉语中多为黏着语素（图书馆、博物馆），在T3水平下找不到自然的独立用法，作为片段跳过。,r0603
+86534,馆,noun,招待宾客的房屋；招待或开展文化活动的场所。,bound_morpheme_fragment,单字「馆」在现代汉语中多为黏着语素（宾馆、使馆），在T3水平下找不到自然的独立用法，作为片段跳过。,r0603
+86817,轮,noun,轮是圆圆的，会转，车上有轮。,bound_morpheme_fragment,单字「轮」现代汉语中多为黏着语素（车轮、轮子、轮胎），指车轮时很少独立成词，T3 水平下找不到真正独立使用的语境，按碎片跳过,r0711
+86818,轮,noun,车辆等用来转动的圆形部件。,bound_morpheme_fragment,单字「轮」指车辆部件时通常说车轮或轮子，难以作为独立的词自然使用，T3 水平下无合适语境，按碎片跳过,r0711
+86855,室,noun,室是房子里的一间屋子。,bound_morpheme_fragment,单字 室 在现代汉语中几乎不能独立使用，只出现在教室、卧室、室内等词中，属于词素片段，T3 没有可独立成词的语境,r0692
+86856,室,noun,房间；屋子。,bound_morpheme_fragment,单字 室 在现代汉语中几乎不能独立使用，只出现在教室、卧室、室内等词中，属于词素片段，T3 没有可独立成词的语境,r0692
+86877,式,noun,式是东西的样子。,bound_morpheme_fragment,"fragment: 式 is a bound morpheme in modern Chinese (新式, 中式, 方式) and has no context where it stands alone as an independent word at T3",r0608
+86878,式,noun,样式；一定的格式或类型。,bound_morpheme_fragment,"fragment: 式 is a bound morpheme in modern Chinese (样式, 格式, 公式) and has no context where it stands alone as an independent word at T3",r0608
+86921,知,verb,知是知道，明白。,bound_morpheme_fragment,单字「知」在现代汉语中多为黏着语素（知道、知识、通知），在T3水平下找不到可独立使用的语境，属于词素片段。,r0712
+86922,知,verb,知道；了解。,bound_morpheme_fragment,单字「知」在现代汉语中多为黏着语素（知道、知识、通知），在T3水平下找不到可独立使用的语境，属于词素片段。,r0712
+87053,林,noun,林是很多树长在一起的地方。,bound_morpheme_fragment,"fragment: 林 is a bound character in modern Chinese (树林, 森林); no natural standalone use at T3",r0662
+87054,林,noun,成片生长的许多树木；树林。,bound_morpheme_fragment,"fragment: 林 is a bound character in modern Chinese (树林, 森林); no natural standalone use at T3",r0662
+87761,色,noun,色是我们的眼睛看到的东西的样子，比如红色、绿色。,bound_morpheme_fragment,单字「色」在现代汉语中多为黏着语素（红色、绿色、颜色），难以在T3句子中独立使用，按片段跳过,r0666
+87762,色,noun,颜色。,bound_morpheme_fragment,单字「色」在现代汉语中多为黏着语素（颜色、红色、掉色），难以在T3句子中作为独立的词表示「颜色」，按片段跳过,r0666
+87951,团,noun,团是很多人聚在一起，成了一伙。,bound_morpheme_fragment,fragment：此义（人聚在一起成一伙）的「团」在现代汉语中只出现在团聚、团结、团圆等词里，不能作为独立的词使用，T3 层级没有合适的独立语境。,r0659
+88285,现,,"现是现在的意思,就是说话的这个时候。",bound_morpheme_fragment,"fragment: 现 in the sense of 现在 is a bound morpheme (现任, 现有, 现在). It does not stand alone as a word at the T3 tier.",r0616
+88286,现,,现在;当前;目前。,bound_morpheme_fragment,"fragment: 现 in the sense of 现在 is a bound morpheme (现任, 现有, 现在). It does not stand alone as a word at the T3 tier.",r0616
+88309,乡,noun,"乡是在城外面的地方,那里有田地和房子。",bound_morpheme_fragment,"fragment: in the 'countryside' sense 乡 is bound (乡下, 家乡, 下乡) and has no natural stand-alone context at T3",r0615
+88625,辖,verb,辖是一个地方由另一个地方管着。,bound_morpheme_fragment,"fragment: 辖 is a bound character (管辖, 直辖, 统辖) and does not stand alone as a word in modern Chinese",r0725
+88626,辖,verb,管理；管辖。,bound_morpheme_fragment,"fragment: 辖 is a bound character (管辖, 辖区) and does not stand alone as a word in modern Chinese",r0725
+88851,圣,adjective,圣是特别好、特别高，让人尊敬的。,bound_morpheme_fragment,单字「圣」在现代汉语中基本是黏着语素（神圣、圣人、圣诞），难以作为独立词出现在T3句子中，按片段跳过,r0698
+88852,圣,adjective,形容词，最崇高的；神圣的。,bound_morpheme_fragment,单字「圣」在现代汉语中基本是黏着语素（神圣、圣地、圣经），难以作为独立词出现在T3句子中，按片段跳过,r0698
+88983,古,adjective,古是很久很久以前的。,bound_morpheme_fragment,"fragment: 古 is a bound morpheme in modern Chinese (古代, 古老, 古典); it has no natural independent use at T3",r0699
+88984,古,adjective,形容词，经历年代久远的；古代的。,bound_morpheme_fragment,"fragment: 古 is a bound morpheme in modern Chinese (古代, 古老, 古典); it has no natural independent use at T3",r0699
+89185,体,noun,体是人或动物的身子。,bound_morpheme_fragment,"Bound morpheme meaning body (as in 身体, 体重). It has no natural standalone use at T3, so this is a fragment.",r0620
+89186,体,noun,身体。,bound_morpheme_fragment,"Bound morpheme meaning body (as in 身体, 体力). It has no natural standalone use at T3, and the definition just repeats 身体, so this is a fragment.",r0620
+89241,居,verb,住在某个地方。,bound_morpheme_fragment,"fragment: 居 is a bound character in modern Chinese (居住, 居民, 住居); no natural independent use at T3",r0728
+89242,居,verb,居住；住在某处。,bound_morpheme_fragment,"fragment: 居 is a bound character in modern Chinese (居住, 居民, 住居); no natural independent use at T3",r0728
+89447,明,adjective,明是亮的意思。,bound_morpheme_fragment,fragment: 明 is mostly a bound morpheme (明亮、明白、明天); no natural standalone context at T3,r0640
+89448,明,adjective,亮;清楚。,bound_morpheme_fragment,fragment: 明 is mostly a bound morpheme (明亮、明白、明天); no natural standalone context at T3,r0640
+89563,邻,noun,邻是住得很近、挨在一起的人家。,bound_morpheme_fragment,单字「邻」在现代汉语中基本是黏着语素（邻居、近邻、邻国），难以作为独立的词出现，属于词素片段，应使用「邻居」,r0529
+89564,邻,noun,相邻的人家；住处接近的人。,bound_morpheme_fragment,单字「邻」在现代汉语中基本是黏着语素（邻居、近邻、邻国），难以作为独立的词出现，属于词素片段，应使用「邻居」,r0529
+89663,样,noun,一个东西看起来是什么模样。,bound_morpheme_fragment,黏着语素：表示“看起来的模样”时，单用的「样」基本不能独立成词，只出现在样子、这样、一样、变样等词中，T3 水平没有合适的独立语境，按碎片义项跳过,r0535
+89664,样,noun,形状；模样。,bound_morpheme_fragment,黏着语素：表示“形状、模样”时，单用的「样」基本不能独立成词，只出现在样子、这样、一样、变样等词中，T3 水平没有合适的独立语境，按碎片义项跳过,r0535
+89795,初,adjective,初是刚刚开始的时候。,bound_morpheme_fragment,"fragment: 初 in this sense (刚开始的时候) is a bound morpheme (年初, 月初, 初夏) and does not stand alone as a word at T3",r0660
+89796,初,adjective,开始的;最早的。,bound_morpheme_fragment,"fragment: 初 meaning 开始的/最早的 only occurs bound (初次, 初期, 初步), never as an independent word",r0660
+89847,格,noun,格是一个小小的方块。,bound_morpheme_fragment,"fragment: 格 is bound in modern Chinese (格子, 方格, 表格, 性格); the standalone word is 格子, so there is no natural context for the bare character",r0623
+89848,格,noun,划分成的方形空间;格子。,bound_morpheme_fragment,"fragment: 格 as a square space appears in compounds (格子, 空格, 方格); the bare character is not an independent word at T3",r0623
+89863,工,noun,做事出力的人。,bound_morpheme_fragment,黏着语素：表示「做事出力的人」时「工」只出现在木工、电工、工人等复合词中，不能独立成词，按词语片段跳过,r0731
+89864,工,noun,工人；也指工作、劳动。,bound_morpheme_fragment,黏着语素：现代汉语中「工」极少单独成词，多见于工人、工作、做工等复合词，T3 难度下找不到可独立使用的语境，按词语片段跳过,r0731
+89871,言,noun,言是说出来的话。,bound_morpheme_fragment,"fragment: 言 is a bound literary morpheme in modern Chinese (言语, 语言, 发言) and has no natural standalone use at T3",r0623
+89872,言,noun,话;言语。,bound_morpheme_fragment,"fragment: 言 meaning 话 is bound or literary (言论, 名言) and has no natural standalone use at T3",r0623
+90053,论,verb,"论是说一说,讨一讨一件事。",bound_morpheme_fragment,"fragment: 论 is almost always bound (讨论, 理论, 论文, 不论); no natural T3 context where it stands alone doing the 'discuss' sense with a cue that excludes 说/谈",r0530
+90054,论,verb,分析说明;讨论。,bound_morpheme_fragment,"fragment: 论 is almost always bound (讨论, 论述, 议论); no natural T3 context where it stands alone doing the 'analyze/discuss' sense",r0530
+90071,价,noun,东西卖多少钱。,bound_morpheme_fragment,单字「价」在现代汉语中是黏着语素，几乎不能独立成词（只见于涨价、价钱、原价等复合词），T3 难度下找不到可独立使用的语境，按词素碎片跳过,r0761
+90072,价,noun,价格。,bound_morpheme_fragment,单字「价」在现代汉语中是黏着语素，几乎不能独立成词（只见于降价、价格、物价等复合词），T3 难度下找不到可独立使用的语境，按词素碎片跳过,r0761
+90183,口,noun,口是脸上吃东西、说话的地方。,bound_morpheme_fragment,单字「口」在现代汉语中多为黏着语素（张口、开口、口语），表示嘴时口语里说「嘴」，在T3难度下找不到能独立成词的自然语境，按碎片处理。,r0658
+90184,口,noun,人和动物吃东西、发声的器官;嘴。,bound_morpheme_fragment,与义项90183同为「嘴」义，「口」多用于张口、开口、口语等复合词内部，很难作为独立的词自然使用，按碎片处理。,r0658
+90243,兽,noun,有四条腿、全身有毛的野生动物。,bound_morpheme_fragment,fragment: 兽 is a bound morpheme (野兽、兽医、怪兽) and has no natural standalone use at T3,r0734
+90244,兽,noun,泛指有毛、四足的哺乳动物，尤指野生的。,bound_morpheme_fragment,fragment: 兽 is a bound morpheme (野兽、兽医、怪兽) and has no natural standalone use at T3,r0734
+90265,负,verb,负是背在身上，或者把事情担起来。,bound_morpheme_fragment,"fragment: 负 in the sense of carrying on the back is bound and literary (负重, 背负, 肩负). In modern Chinese 背 is used instead, so no natural sentence at T3 has 负 standing alone in this sense.",r0716
+90743,理,noun,理是做事的道理，说话的道理。,bound_morpheme_fragment,单字「理」多为黏着语素，现代汉语里只在讲理、有理等固定搭配中出现，没有能独立成词的自然语境，按碎片处理,r0676
+90744,理,noun,事物的规律；道理。,bound_morpheme_fragment,单字「理」多为黏着语素，表示「事物的规律；道理」时需要组成道理、原理、真理等词，T3 层级没有能独立成词的自然语境，按碎片处理,r0676
+90843,职,noun,职是一个人在工作里做的事，也是他的位子。,bound_morpheme_fragment,单字「职」是黏着语素，只出现在辞职、职业、职务、尽职等词里，不能独立使用，按碎片处理,r0676
+90844,职,noun,职务；职责；职业。,bound_morpheme_fragment,单字「职」是黏着语素，只出现在辞职、职业、职务、尽职等词里，不能独立使用，按碎片处理,r0676
+90951,年前,noun,年前是几年以前，或者过年以前。,bound_morpheme_fragment,"Sense 'several years ago' does not occur as an independent word 年前; it only appears inside 几年前/多年前/三年前, so no valid core sentences exist (fragment).",r0702
+91067,盗,verb,偷别人的东西。,bound_morpheme_fragment,"fragment: 盗 is a bound character in modern Chinese (偷盗, 盗窃, 强盗) and does not stand alone as a verb at the T3 tier",r0795
+91068,盗,verb,偷窃；窃取。,bound_morpheme_fragment,"fragment: 盗 is a bound character in modern Chinese (盗窃, 盗取, 强盗) and does not stand alone as a verb at the T3 tier",r0795
+91210,界,noun,边界；一定范围；职业或工作的类别。,bound_morpheme_fragment,"fragment: 界 in the sense of 范围/职业类别 only occurs as a bound suffix (教育界, 科学界) and never stands alone as an independent word at T3",r0703
+91351,始,verb,头一次做，从这里开头。,bound_morpheme_fragment,片段：此义的“始”在现代汉语中是黏着语素，只出现在始创、始作俑者等固定结构里，无法单独成词；独立用法（始于…）已由另一义项 91352 覆盖。,r0796
+91705,架,noun,架是用来放东西的架子。,bound_morpheme_fragment,"fragment: 架 as a noun is a bound form (书架, 衣架, 架子) and does not stand alone as an independent word at T3",r0705
+91706,架,noun,用来支撑或放置东西的用具或结构。,bound_morpheme_fragment,"fragment: 架 as a noun is a bound form (货架, 支架, 架子) and does not stand alone as an independent word at T3",r0705
+91749,置,verb,置是把东西放在一个地方。,bound_morpheme_fragment,"fragment: 置 is a bound, literary verb (设置, 位置, 购置, 置于) and does not stand alone in ordinary modern Chinese at T3",r0705
+91750,置,verb,放；摆；设立。,bound_morpheme_fragment,"fragment: 置 is a bound, literary verb (设置, 布置, 置身) and does not stand alone in ordinary modern Chinese at T3",r0705
+91783,余,verb,余是剩下的。,bound_morpheme_fragment,"fragment: 余 is a bound morpheme in modern Chinese (剩余, 多余, 余下) and has no natural independent use at T3, so the sense is skipped",r0720
+91784,余,verb,剩下；多出。,bound_morpheme_fragment,"fragment: 余 is a bound morpheme in modern Chinese (剩余, 多余, 余下) and has no natural independent verb use at T3, so the sense is skipped",r0720
+91791,世,noun,世是很长的一段时间，也是人生活的这个地方。,bound_morpheme_fragment,单字「世」表示时间长度或生活的地方时，现代汉语里都要组成「世界」「世上」「世纪」等词才自然，不能独立使用，按片段处理。,r0680
+91792,世,noun,人的一生；时代；世界。,bound_morpheme_fragment,单字「世」在现代汉语中基本是黏着语素（一世、世上、世界、世纪等），在T3难度下找不到十个能独立成词、自然使用的句子，按片段处理。,r0680
+91863,国中,noun,国中是国家里面。,bound_morpheme_fragment,「国家里面」不是现代汉语里自然独立使用的词义，难以写出自然的例句，按碎片处理,r0681
+92079,参,verb,参是加入进去，和大家一起。,bound_morpheme_fragment,单字语素，现代汉语中不能独立成词（多见于参加、参军、人参等词内），属于词素片段,r0706
+92080,参,verb,加入；参加。,bound_morpheme_fragment,单字语素，现代汉语中不能独立成词，只出现在参加、参赛等复合词内，属于词素片段,r0706
+92185,码,noun,码是用来表示数字的记号。,bound_morpheme_fragment,"fragment: 码 in the sense of a number symbol is a bound morpheme (号码, 数码, 页码) and does not stand alone as an independent word at T3",r0684
+92186,码,noun,表示数目的符号；也指表示数目的文字、标记。,bound_morpheme_fragment,"fragment: 码 in the sense of a number mark or symbol only occurs inside compounds (号码, 数码, 密码), so no natural standalone sentence exists at T3",r0684
+92211,孙,noun,儿子的孩子。,bound_morpheme_fragment,单字多为黏着语素（孙子、孙女、子孙），现代汉语中几乎不能独立成词，无法写出自然的独立用法，按词素碎片跳过,r0800
+92212,孙,noun,儿子的儿子；泛指后代。,bound_morpheme_fragment,单字多为黏着语素（子孙、祖孙、儿孙），现代汉语中几乎不能独立成词，无法写出自然的独立用法，按词素碎片跳过,r0800
+92629,币,noun,币是用来买东西的钱。,bound_morpheme_fragment,fragment: 币 is a bound character (硬币、货币、人民币) with no natural standalone use in this sense at T3,r0686
+92630,币,noun,货币；通行的钱。,bound_morpheme_fragment,fragment: 币 is a bound character (硬币、货币、人民币) with no natural standalone use in this sense at T3,r0686
+92709,众,adjective,众是很多的意思。,bound_morpheme_fragment,"fragment: 众 is a bound morpheme (大众、观众、众人、寡不敌众), so it has no natural standalone context at T3",r0708
+92710,众,adjective,很多的；许多人。,bound_morpheme_fragment,"fragment: 众 meaning 许多人 only occurs inside other words (观众、群众、众人), never as an independent word",r0708
+92747,宗,noun,宗是一家人最早、很久以前的长辈。,bound_morpheme_fragment,"fragment: 宗 in the sense of earliest elder of a family is a bound morpheme (祖宗, 宗族) and has no natural independent use at T3",r0862
+92748,宗,noun,祖宗；同一祖先的家族；也指宗派。,bound_morpheme_fragment,"fragment: 宗 in the sense of ancestor/clan/sect is a bound morpheme (祖宗, 宗族, 宗派) and has no natural independent use at T3",r0862
+92777,何,pronoun,何是书上用的字，意思是什么或为什么。,bound_morpheme_fragment,"fragment: 何 is a bound literary character in modern Chinese; it occurs only inside words (何必, 何时, 如何, 何况) or fixed phrases, so there is no T3 context where it stands alone as an independent word",r0723
+92778,何,pronoun,文言和书面语中的疑问词，表示“什么”“为什么”“哪里”。,bound_morpheme_fragment,fragment: literary interrogative 何 does not stand alone as an independent word at the T3 tier; it appears only in compounds and set phrases,r0723
+92789,奇,adjective,奇是很少见，让人觉得很特别。,bound_morpheme_fragment,fragment: 奇 is a bound character in modern Chinese (奇怪、奇特、神奇); no natural T3 context where it stands alone as an independent adjective,r0688
+92790,奇,adjective,稀罕，少见；不寻常。,bound_morpheme_fragment,fragment: 奇 is a bound character in modern Chinese (奇怪、奇特、神奇); no natural T3 context where it stands alone as an independent adjective,r0688
+93069,证,noun,证是可以说明事情是真的的东西。,bound_morpheme_fragment,单字多为黏着语素（证件、证据、证明），现代汉语中很少独立成词，在T3难以写出自然的独立用法，按碎片处理,r0710
+93070,证,noun,凭据；证明事实的东西，如证件。,bound_morpheme_fragment,单字多为黏着语素（证件、证据、凭证），现代汉语中很少独立成词，在T3难以写出自然的独立用法，按碎片处理,r0710
+93369,品,noun,品是东西。我们买的、用的东西，都可以叫品。,bound_morpheme_fragment,fragment: 品 is a bound morpheme (物品、用品) and does not stand alone as a word at T3,r0738
+93370,品,noun,物品；东西。也指种类、等级，常构成复合词，如“商品”“食品”。,bound_morpheme_fragment,fragment: 品 is a bound morpheme (商品、食品) and does not stand alone as a word at T3,r0738
+93615,历,noun,历是过去经过的事，也指日历，上面有日子。,bound_morpheme_fragment,单字「历」在现代汉语中基本是黏着语素（日历、经历、历史、农历），在T3水平下找不到能独立成词、表示「过去经过的事」或「日历」义的自然句子，按碎片处理。,r0783
+93616,历,noun,经历；过去的经过。也指历法、日历。,bound_morpheme_fragment,单字「历」在现代汉语中基本是黏着语素（日历、经历、历史、农历），在T3水平下找不到能独立成词、表示「经历／过去的经过」或「历法」义的自然句子，按碎片处理。,r0783
+93675,罚,verb,罚是做错了事，就要受的惩罚。,bound_morpheme_fragment,名词义的“罚”在现代汉语中是黏着语素，只出现在受罚、挨罚、处罚等词里，不能作为独立的词使用，属于词素碎片。,r0896
+93695,石,noun,石是又硬又重的东西，在山上和河边常常能看到。,bound_morpheme_fragment,"fragment: 石 is a bound character in modern Chinese (石头, 岩石); no natural independent use at tier T3",r0740
+93696,石,noun,构成地壳的坚硬矿物质，即石头。,bound_morpheme_fragment,"fragment: 石 is a bound character in modern Chinese (石头, 岩石); no natural independent use at tier T3",r0740
+93921,摄,verb,摄是用照相机拍下一张照片。,bound_morpheme_fragment,"fragment: 摄 is a bound character in modern Chinese (拍摄, 摄影, 摄取) and does not stand alone as a word at T3",r0768
+93922,摄,verb,拍摄；照相。也指吸取。,bound_morpheme_fragment,"fragment: 摄 is a bound character in modern Chinese (拍摄, 摄影, 摄取) and does not stand alone as a word at T3",r0768
+93923,旁,noun,旁是在一个东西的边上。,bound_morpheme_fragment,单字多为黏着语素（路旁、身旁、旁边），现代汉语中几乎不能独立使用，T3 层级找不到可独立成词的语境，按碎片跳过,r0744
+93924,旁,noun,旁边；侧面。,bound_morpheme_fragment,单字多为黏着语素（路旁、身旁、旁边），现代汉语中几乎不能独立使用，T3 层级找不到可独立成词的语境，按碎片跳过,r0744
+94157,控,verb,控是管住，不让它乱动。,bound_morpheme_fragment,"控 is a bound morpheme (控制、控告、控球); no natural context at T3 where it stands alone as an independent word, so the sense is a fragment.",r0786
+94158,控,verb,控制，掌握使其不超出范围；也指控告。,bound_morpheme_fragment,"控 is a bound morpheme (控制、控告); no natural context at T3 where it stands alone as an independent word, so the sense is a fragment.",r0786
+94221,食,verb,食是把东西放进嘴里吃下去，也指可以吃的东西。,bound_morpheme_fragment,"fragment: 食 is a bound morpheme in modern Chinese (饮食, 食物, 素食); no natural T3 context where it stands alone as an independent word in this sense",r0772
+94222,食,verb,吃；也指吃的东西。,bound_morpheme_fragment,"fragment: 食 is a bound morpheme in modern Chinese (食品, 食堂, 吃食); no natural T3 context where it stands alone as an independent word in this sense",r0772
+94251,堂,noun,堂是一间大房子，很多人可以在里面聚会。,bound_morpheme_fragment,堂在现代汉语中是黏着语素，只出现在食堂、礼堂、教堂等词里，T3 水平没有能独立使用的语境，按词素碎片跳过,r0787
+94252,堂,noun,正房，专供某种活动用的大房间。,bound_morpheme_fragment,堂在现代汉语中是黏着语素，只出现在食堂、礼堂、教堂等词里，T3 水平没有能独立使用的语境，按词素碎片跳过,r0787
+94314,胡,verb,随意地、没有道理地（做）；也指胡子。,bound_morpheme_fragment,fragment: 此义项混合了「乱来」和「胡子」。「乱来」的胡只作词素（胡说、胡闹、胡来），「胡子」的胡不能单独成词，没有合适的独立语境，且与 94313 重复。,r0751
+94483,园,noun,园是种花、种菜或让人玩的地方。,bound_morpheme_fragment,单字「园」在现代汉语中基本是黏着语素（公园、花园、果园），T3 难度下没有能独立使用的自然语境，按碎片处理。,r0754
+94484,园,noun,种植花果蔬菜的地方；供人游玩的场所。,bound_morpheme_fragment,单字「园」在现代汉语中基本是黏着语素（公园、花园、果园），T3 难度下没有能独立使用的自然语境，按碎片处理。,r0754
+94485,埃,noun,埃是飘在空气里的很细的灰尘。,bound_morpheme_fragment,fragment: in the 'fine dust' sense 埃 is bound (尘埃) and does not stand alone in modern Chinese,r0788
+94489,失,verb,失是原来有的东西没有了。,bound_morpheme_fragment,单字「失」是黏着语素，只出现在失去、丢失、失败等词里，T3 难度下没有能独立作动词使用的自然语境，按碎片处理。,r0754
+94490,失,verb,丢掉，失去。,bound_morpheme_fragment,单字「失」是黏着语素，只出现在失去、丢失、失败等词里，T3 难度下没有能独立作动词使用的自然语境，按碎片处理。,r0754
+94621,展,verb,展是把东西打开，摆出来让人看。,bound_morpheme_fragment,单字「展」在现代汉语中基本是黏着语素（展开、展出、画展），T3 水平没有能独立成词的自然语境，作为片段跳过。,r0776
+94622,展,verb,张开，铺开；陈列出来给人看。,bound_morpheme_fragment,单字「展」在现代汉语中基本是黏着语素（展翅、展览、展开），T3 水平没有能独立成词的自然语境，作为片段跳过。,r0776
+94657,母,noun,母是生了小孩的女人，也就是妈妈。,bound_morpheme_fragment,fragment: 母 in the 'mother' sense is a bound morpheme in modern Chinese (the free word is 母亲/妈妈); no natural T3 context where it stands alone,r0777
+94953,末,noun,末是最后的一头，或最后的时候。,bound_morpheme_fragment,"fragment: 末 is a bound character in modern Chinese (月末, 周末, 末尾) and does not stand alone as an independent word at T3",r0805
+94954,末,noun,最后，尽头；也指细小的粉状物。,bound_morpheme_fragment,"fragment: 末 is a bound character in modern Chinese (粉末, 肉末, 末端) and does not stand alone as an independent word at T3",r0805
+95080,木,noun,树木；也指木材。,bound_morpheme_fragment,fragment: 在现代汉语中，「树木」义的木不能单独成词，只出现在树木、草木、木头等词里,r0831
+95123,识,verb,识是看到后知道是什么。,bound_morpheme_fragment,"fragment: 识 is a bound morpheme in modern Chinese (识别, 识破, 识货). It has no natural standalone verb use at T3 that does this sense.",r0809
+95124,识,verb,认得，知道；也指见识。,bound_morpheme_fragment,"fragment: 识 is a bound morpheme in modern Chinese (认识, 知识, 识字, 见识). It has no natural standalone verb use at T3 that does this sense.",r0809
+95407,父,noun,爸爸。,bound_morpheme_fragment,"fragment: 父 is a bound morpheme in modern Chinese (父亲, 父母, 祖父); a native speaker says 爸爸 or 父亲 for this sense, and no natural T3 context has 父 standing alone as an independent word",r0834
+95408,父,noun,父亲。,bound_morpheme_fragment,"fragment: 父 is a bound morpheme in modern Chinese (父亲, 父母, 祖父); a native speaker says 父亲 for this sense, and no natural T3 context has 父 standing alone as an independent word",r0834
+95621,财,noun,钱和值钱的东西。,bound_morpheme_fragment,"fragment: 财 is a bound character; it does not stand alone as a word at T3 (only inside 发财, 财产, 爱财, etc.)",r0852
+95622,财,noun,钱财；财物。,bound_morpheme_fragment,"fragment: 财 is a bound character; it does not stand alone as a word at T3 (only inside 发财, 财产, 爱财, etc.)",r0852
+95659,君,noun,古时候管一个国家的人，或对人的尊称。,bound_morpheme_fragment,单字黏着语素，现代汉语中几乎不能独立使用，T3 难度下找不到自然的独立用法，作为碎片跳过,r0818
+95660,君,noun,君主；也用作对人的敬称。,bound_morpheme_fragment,单字黏着语素，现代汉语中几乎不能独立使用，T3 难度下找不到自然的独立用法，作为碎片跳过,r0818
+95745,终,verb,终是事情走到最后，没有了。,bound_morpheme_fragment,单字「终」在现代汉语中基本是黏着语素（终于、终点、始终、年终），在T3水平下找不到作为独立词表示「事情走到最后」的自然句子，只能出现在成语或其他词内部，按碎片处理。,r0853
+95746,终,verb,完结，结束；也指末了、最后。,bound_morpheme_fragment,单字「终」在现代汉语中基本是黏着语素（终于、终点、始终、年终），在T3水平下找不到作为独立词表示「完结、结束」的自然句子，只能出现在成语或其他词内部，按碎片处理。,r0853
+95763,觉,verb,觉是心里有了感受，知道了。,bound_morpheme_fragment,单字黏着语素：表示感到、醒悟的 jué 在现代汉语中基本不能独立成词，只出现在觉得、感觉、发觉等词内，找不到 T3 层级里能独立使用的语境，按碎片跳过,r0853
+95764,觉,verb,感到；感觉到，也指醒悟。,bound_morpheme_fragment,单字黏着语素：表示感到、感觉到的 jué 在现代汉语中基本不能独立成词，只出现在觉得、感觉、觉悟等词内，找不到 T3 层级里能独立使用的语境，按碎片跳过,r0853
+95799,似,verb,似是像的意思，两样东西看起来差不多。,bound_morpheme_fragment,单字多为黏着成分（似乎、相似、好似），现代汉语中几乎不能作为独立的词在T3句子里使用，属于词素片段,r0819
+95800,似,verb,好像；相像。,bound_morpheme_fragment,单字多为黏着成分（似乎、相似、好似），现代汉语中几乎不能作为独立的词在T3句子里使用，属于词素片段,r0819
+95815,博,adjective,博是很多、很丰富的意思。,bound_morpheme_fragment,单字为黏着语素（博学、博大、广博），现代汉语中不能独立成词，属于词素片段,r0819
+95816,博,adjective,多；丰富；广博。,bound_morpheme_fragment,单字为黏着语素（博学、博大、广博），现代汉语中不能独立成词，属于词素片段,r0819
+95837,宁,adjective,宁是平静，没有吵闹，也没有麻烦。,bound_morpheme_fragment,单字「宁」在现代汉语中多为黏着语素（安宁、宁静），难以独立成词，作为片段跳过,r0818
+95838,宁,adjective,安宁；平静。,bound_morpheme_fragment,单字「宁」在现代汉语中多为黏着语素（安宁、宁静），难以独立成词，作为片段跳过,r0818
+95901,索,noun,索是一种又粗又长的绳子。,bound_morpheme_fragment,"fragment: 索 is a bound morpheme in modern Chinese (绳索, 铁索, 锁链) and does not stand alone as a noun at T3, so there is no natural independent context.",r0820
+95902,索,noun,粗大的绳子或链子。,bound_morpheme_fragment,"fragment: 索 is a bound morpheme in modern Chinese (绳索, 铁索, 锁链) and does not stand alone as a noun at T3, so there is no natural independent context.",r0820
+96021,旅,verb,旅是离开家，到别的地方去走一走。,bound_morpheme_fragment,"fragment: 旅 is a bound character in modern Chinese (旅行, 旅游, 旅客) and does not stand alone as a verb at T3",r0870
+96022,旅,verb,在外地行走；旅行。,bound_morpheme_fragment,"fragment: 旅 is a bound character in modern Chinese (旅行, 旅居, 旅途) and does not stand alone as a verb at T3",r0870
+96233,乌,adjective,乌是黑色的。,bound_morpheme_fragment,单字「乌」在现代汉语中几乎不能独立表示“黑色”，只作词素出现（乌黑、乌云、乌鸦），属于黏着成分，在T3层级找不到可独立使用的语境，按词素片段跳过。,r0899
+96234,乌,adjective,黑色的。,bound_morpheme_fragment,单字「乌」在现代汉语中几乎不能独立表示“黑色”，只作词素出现（乌黑、乌云、乌鸦），属于黏着成分，在T3层级找不到可独立使用的语境，按词素片段跳过。,r0899
+96457,贝,noun,生活在水里、有硬硬外壳的小动物。,bound_morpheme_fragment,单字“贝”在现代汉语中基本不单用，多见于贝壳、扇贝、贝类等词中，属于黏着语素，没有可独立使用的自然语境,r0876
+96458,贝,noun,软体动物的一类，体外有一或两片硬壳，如蛤、蚌。,bound_morpheme_fragment,单字“贝”在现代汉语中基本不单用，多见于贝壳、扇贝、贝类等词中，属于黏着语素，没有可独立使用的自然语境,r0876
+96625,艺,noun,做得很好的本事，比如画画、唱歌。,bound_morpheme_fragment,单字「艺」是黏着语素，现代汉语中不能独立成词（只见于手艺、才艺等词内），在T3水平没有可独立使用的语境，该义项属于词素碎片。,r0880
+96626,艺,noun,技能；才能；艺术。,bound_morpheme_fragment,单字「艺」是黏着语素，现代汉语中不能独立成词，只出现在才艺、手艺、艺术等词里，该义项属于词素碎片。,r0880
+96959,止,verb,停下来，不再动了。,bound_morpheme_fragment,单字多为黏着语素（止步、不止、停止），在T3水平没有可独立成词的自然语境，按碎片处理,r0883
+96960,止,verb,停止；使不再继续。,bound_morpheme_fragment,单字多为黏着语素（止血、禁止、制止、到此为止），在T3水平没有可独立成词的自然语境，按碎片处理,r0883

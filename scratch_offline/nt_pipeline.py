@@ -39,6 +39,10 @@ AUTHOR_ARGS = ['--model', 'haiku', '--effort', 'medium', '--core-model', 'sonnet
 # (services/vocabulary_ladder/l1_lookup.py); their level_1 is not authored.
 TRIE_LANGS = {'ja'}
 REVIEW_ARGS = ['--model', 'haiku', '--effort', 'medium']
+# Per-language review overrides, each from a gold-set comparison under the Opus/medium rubric-3 judge.
+# zh: review effort high scored +0.4 over medium for +$0.003/sense (data/exercise_seeding/zh/opt, arms
+# q_revhigh, q_q3rh, confirmed on gold100b as q_q3rh_b). ja was not re-measured, so it keeps medium.
+REVIEW_ARGS_BY_LANG = {'zh': ['--model', 'haiku', '--effort', 'high']}
 LINT_ENV = {'FAT_SEED_LINT_ALL_BLOCKS': '1',
             'FAT_SEED_LINT_SKIP': 'l3_generic_expl,l6_shared_expl,l6_copied_expl,l7_edit_far'}
 
@@ -65,7 +69,7 @@ def process(run, args):
     os.makedirs(os.path.join(run, 'fat_seed'), exist_ok=True)  # a fresh run has no fat_seed/ yet
     log = open(os.path.join(run, 'fat_seed', 'nt_pipeline.log'), 'a')
     env = dict(os.environ, NT_LANG=args.lang, **LINT_ENV)
-    review_args = list(REVIEW_ARGS)
+    review_args = list(REVIEW_ARGS_BY_LANG.get(args.lang, REVIEW_ARGS))
     if glob.glob(os.path.join(run, 'fat_seed', 'reviewed', '*.json')):
         review_args.append('--resume')  # a relaunch must not re-review (re-pay) finished senses
     author_args = [*AUTHOR_ARGS, '--cheatsheet', args.cheatsheet]
