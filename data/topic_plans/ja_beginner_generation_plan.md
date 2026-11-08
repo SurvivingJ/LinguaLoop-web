@@ -1,7 +1,41 @@
 # Plan — Generating the 100 N5/N4 Japanese tests through headless Claude
 
-Status: **proposed** (2026-11-08). Nothing in this plan has been built or run yet.
-Topic list: [`ja_n5_n4_topics.md`](ja_n5_n4_topics.md).
+Status: **built, not yet run** (2026-11-08). Topic list: [`ja_n5_n4_topics.md`](ja_n5_n4_topics.md).
+
+## Update 2026-11-08: decisions and what was built
+
+Decisions: (1) the nine past-tense N5 topics target **T2** (now a `Tier` column in the
+topic plan); (2) a test that jev rates above its target tier is **kept** at the assigned
+tier and only flagged in the report; (3) **Daily Life, Travel and Japanese Culture**
+categories are added, created on first import; (4) **listening and reading**: every test
+is generated as `listening` (audio + transcript), which gives it both skill ratings.
+
+Built as a **separate script**, `scripts/run_claude_test_generation.py`, rather than by
+editing the shared pipeline. Sections 3–4 below describe the original proposal; the
+differences are:
+
+- C1 and C4 live in the script, in a `TestGenerationOrchestrator` subclass that wraps
+  `prose_writer.generate_prose`, `topic_translator.translate` and `db.insert_test` on its
+  own instance and rebuilds `vocab_pipeline` on the Claude client. `orchestrator.py` is
+  unchanged.
+- C3 lives in the script too: the `import` phase inserts topics (with tier) and queue rows
+  itself, so `json_importer`/`import_orchestrator` are unchanged.
+- C2 is the only shared change: `CLAUDE_CLI_MODEL_BY_TASK` in
+  `services/claude_cli_client.py`, consulted by `llm_service._resolve_model` (opt-in;
+  nothing changes when it is unset).
+- The plan's Japanese title replaces the topic-translation call.
+- `run_single` drops `test_type`, so the subclass applies `--test-type` itself.
+
+Phases are `import, preflight, canary, tests, assets, report` (default
+`import,tests,report`). `assets` runs `run_content_build`'s own select + ladder over this
+run's tests; the state file is in `data/content_builds/` in the same format.
+Tests: `tests/test_claude_test_generation.py`.
+
+```bash
+python scripts/run_claude_test_generation.py --dry-run --only 1-5     # briefs only
+python scripts/run_claude_test_generation.py --only 1-5               # trial
+python scripts/run_claude_test_generation.py --resume <RUN_ID> --phases import,tests,assets,report --yes
+```
 
 ## 1. What already exists (and is reused unchanged)
 
@@ -163,7 +197,7 @@ are cheap reuse decisions. Call it about 40–60 CLI calls per test.
   4–5 questions survive; `vocab_sense_ids` is non-empty; furigana and pitch
   payloads are present; audio plays.
 
-## 8. Open questions (need an answer before C4/C5)
+## 8. Open questions (all ANSWERED 2026-11-08 — see the update at the top)
 
 - **Q1: N5 versus the T1 prompt.** The ja `prose_generation` T1 definition
   allows *present tense only*, but N5 grammar includes 〜ました, and 9 of the

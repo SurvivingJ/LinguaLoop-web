@@ -198,11 +198,13 @@ def _resolve_model(
     model: str | None,
     language: str | None,
     provider: str | None,
+    task_name: str | None = None,
 ) -> str:
     """Resolve which model to use.
 
     Priority:
-    1. claude_cli → always the Claude model the CLI actually serves
+    1. claude_cli → always the Claude model the CLI actually serves (per task
+       when CLAUDE_CLI_MODEL_BY_TASK maps ``task_name``, else CLAUDE_CLI_MODEL)
     2. Explicit model param
     3. Language-based lookup (OpenRouter → Config.AI_MODELS, Ollama → OLLAMA_MODELS)
     4. Provider default
@@ -214,13 +216,14 @@ def _resolve_model(
         # requested slug — keeps llm_calls.model honest: otherwise every eval,
         # judge-flag-rate run and A/B in scripts/measure_*.py would pool Claude
         # output under a qwen or gemini label and compare two models as one.
-        from services.claude_cli_client import CLAUDE_CLI_MODEL
+        from services.claude_cli_client import model_for_task
+        served = model_for_task(task_name)
         if model:
             logger.debug(
                 "claude_cli provider: ignoring requested model %r, serving %r",
-                model, CLAUDE_CLI_MODEL,
+                model, served,
             )
-        return f'claude-cli:{CLAUDE_CLI_MODEL}'
+        return f'claude-cli:{served}'
 
     if model:
         return model
@@ -999,7 +1002,7 @@ def call_llm(
         Various OpenAI/network errors after 3 retries.
     """
     client = get_client(provider)
-    resolved_model = _resolve_model(model, language, provider)
+    resolved_model = _resolve_model(model, language, provider, task_name)
 
     messages: list[dict[str, str]] = []
     if system_prompt:

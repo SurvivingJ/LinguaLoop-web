@@ -59,6 +59,7 @@ would inflate every budget ceiling that reads that column
 is reported as 0.0 and the notional figure is logged at INFO for comparison.
 """
 
+import fnmatch
 import json
 import logging
 import os
@@ -80,6 +81,47 @@ CLAUDE_CLI_BASE_URL = 'claude-cli://local'
 # Sonnet by default rather than Opus: backfills are thousands of calls against a
 # subscription rate limit, where throughput matters more than peak quality.
 CLAUDE_CLI_MODEL = os.getenv('CLAUDE_CLI_MODEL', 'sonnet')
+
+# Optional per-task override, read at call time so a script can set it after
+# import: comma-separated ``<task_name glob>=<model>`` pairs, first match wins,
+# e.g. ``prose_generation=opus,title_generation=opus,question_*=opus``. Lets one
+# run put the expensive, few-per-test authoring calls on a stronger model while
+# the high-volume sense/judge calls stay on CLAUDE_CLI_MODEL.
+CLAUDE_CLI_MODEL_BY_TASK_ENV = 'CLAUDE_CLI_MODEL_BY_TASK'
+
+
+def parse_model_map(spec: str | None) -> list[tuple[str, str]]:
+    """Parse ``glob=model,glob=model`` into ordered (glob, model) pairs.
+
+    Raises:
+        ValueError: on an entry without ``=`` or with an empty side, so a typo
+            fails the run at startup instead of silently serving the default.
+    """
+    pairs: list[tuple[str, str]] = []
+    for raw in (spec or '').split(','):
+        entry = raw.strip()
+        if not entry:
+            continue
+        pattern, sep, model = entry.partition('=')
+        if not sep or not pattern.strip() or not model.strip():
+            raise ValueError(
+                f"Bad {CLAUDE_CLI_MODEL_BY_TASK_ENV} entry {entry!r}; "
+                "expected <task glob>=<model>"
+            )
+        pairs.append((pattern.strip(), model.strip()))
+    return pairs
+
+
+def model_for_task(task_name: str | None) -> str:
+    """The Claude model to serve ``task_name`` under this process's settings."""
+    if task_name:
+        for pattern, model in parse_model_map(
+            os.getenv(CLAUDE_CLI_MODEL_BY_TASK_ENV)
+        ):
+            if fnmatch.fnmatchcase(task_name, pattern):
+                return model
+    return CLAUDE_CLI_MODEL
+
 
 # Per-call ceiling. The CLI has no --max-turns in 2.1.x, but with tools disabled
 # there is nothing to loop on; this guards against a pathological hang.
