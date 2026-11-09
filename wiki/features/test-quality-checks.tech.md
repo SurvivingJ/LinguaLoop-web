@@ -1,7 +1,7 @@
 ---
 title: Test Quality Checks — Technical Specification
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: test-quality-checks.md
 last_updated: 2026-11-09
 dependencies:
@@ -68,15 +68,16 @@ and quoted vocab spans. Three of its checks are no-ops or broken:
 |---|---|---|---|
 | `is_cjk` | True | True | False |
 | `tokenize(s)` | char bigrams of `s` with whitespace/punctuation removed | same | lowercase `\w+` words |
-| `copy_min_len` | 10 chars | 10 chars | 6 words |
+| `copy_min_len` | 15 chars | 15 chars | 6 words |
 | `absolutes` | すべて, 全て, 完全に, 決して, 常に, 全く, 一切, 必ず, 絶対 | 所有, 完全, 绝对, 从不, 总是, 一切, 全部, 永远 | all, always, never, completely, entirely, only, every, none |
 
 `get_profile` raises `KeyError` for an unknown code. Adding a language = adding a profile + a
 script rule in `check_foreign_script`.
 
 ### `CHECK_MODES: dict[str, Literal['off','flag','reject']]`
-Module-level. **Every new check ships as `'flag'`.** TASK-920 promotes individual checks to
-`'reject'`. Pre-existing validator behaviour (structure, duplicate choices, quoted span) stays
+Module-level. Calibrated 2026-11-09 ([[evaluations/test-quality-checks-calibration-2026-11-09]]):
+`reject` — `absolute_distractors`, `answer_copies_passage`, `duplicate_answer`, `latin_in_cjk`,
+`script_above_level`; everything else `flag`. TASK-924 tests this against all-flag and all-reject. Pre-existing validator behaviour (structure, duplicate choices, quoted span) stays
 rejecting and is not routed through `CHECK_MODES`.
 
 ### `run_passage_checks(transcript: str, title: str | None, profile) -> list[CheckResult]`
@@ -93,15 +94,15 @@ Each returns `[]` when clean. None raise on bad content; they raise only on prog
 | `latin_in_cjk` | question | ja/zh: a run `[A-Za-z]{2,}` in stem or a choice that does not occur in the passage (catches "dramatize", "sandwich"). | ja, zh |
 | `script_above_level` | question | ja only: if the passage has zero kanji (`[一-鿿]`), any kanji in a choice or the answer. Stem templates are excluded (they are fixed per language and tracked separately). | ja |
 | `choice_label_prefix` | question | a choice matches `^\s*(\(?[A-DＡ-Ｄa-d]\)?|[1-4１-４]|[①-④])\s*[.．)）:：、]\s*`. `fix_question` strips the prefix from every choice **and** the answer when all four carry one; the check then only fires if a prefix survives. | all |
-| `answer_length_outlier` | question | `len(answer) > 1.5 × max(len(d) for d in distractors)` **or** (answer is strictly longest and `len(answer) > 1.3 × mean(distractor lens)` and `len(answer) ≥ 20`). Length = chars for CJK, words for en. | all |
+| `answer_length_outlier` | question | answer length ≥ 1.4 × the longest distractor **and** ≥ 4 characters longer. Length = characters (punctuation/space stripped) in every language. *(Calibrated; the original mean-based rule was mostly false alarms.)* | all |
 | `absolute_distractors` | question | ≥ 2 distractors contain a token from `profile.absolutes` and the answer contains none. | all |
-| `answer_copies_passage` | question | for `type_code ∈ {main_idea, inference, author_purpose, supporting_detail}`: `difflib.SequenceMatcher(None, passage, answer).find_longest_match()` (over tokens for en) has length ≥ `copy_min_len` **and** ≥ 2 × the longest such match of any distractor. | all |
+| `answer_copies_passage` | question | tier ≥ 3 and `type_code ∈ {main_idea, inference, author_purpose, supporting_detail}`: `difflib.SequenceMatcher(None, passage, answer).find_longest_match()` (over words for en) has length ≥ `copy_min_len` (15 chars CJK, 6 words en) **and** ≥ 2 × the longest such match of any distractor. | all |
 | `vocab_target_missing` | question | extend `_QUOTE_PATTERNS` with `（([^）]+?)）` and `\(([^)]+?)\)` **only for `vocabulary_context`**; for CJK use a span-length limit of ≤ 12 chars instead of `≤ 6 words`. Lives in the existing `check_quoted_phrase_in_passage` (stays rejecting). | all |
 | `duplicate_answer` | test | answer–answer similarity = Jaccard of `profile.tokenize`. ≥ 0.6 → fires. Pairs of the same `type_code` use 0.45. | all |
-| `duplicate_vocab_target` | test | two `vocabulary_context` questions whose extracted target spans are equal. | all |
+| `duplicate_vocab_target` | test | two `vocabulary_context` questions whose target (the **shortest** quoted/bracketed span) is equal. | all |
 | `duplicate_stem` | test | replace `_check_overlap`'s `str.split()` with `profile.tokenize`; compare stems only for `literal_detail` / `supporting_detail` (other types use rotated templates — see `stem_rotation.py` — and would always collide). Threshold unchanged (0.65). | all |
-| `type_mix` | test | more than one `author_purpose` or `main_idea`; or `len(questions) ≥ 4` and no `literal_detail`/`supporting_detail`. | all |
-| `too_few_questions` | test | `len(questions) < 4` and `tier ≥ 2` (T1 floor of 3 is deliberate — orchestrator ~752). | all |
+| `type_mix` | test | more than one `author_purpose` or `main_idea`; or `len(questions) ≥ 4`, tier ≤ 4 and no `literal_detail`/`supporting_detail`. | all |
+| `too_few_questions` | test | `len(questions) < 4` and `tier ≥ 3`. | all |
 | `missing_title` | passage | `title` is None or blank (orchestrator continues with NULL title on title-gen failure, ~691). | all |
 
 Out of scope (need a model): wrong answer key, two defensible answers, ungrammatical or

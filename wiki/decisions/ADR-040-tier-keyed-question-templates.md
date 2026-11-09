@@ -33,7 +33,12 @@ Use is behind `TEST_GEN_TIER_TEMPLATES` (default off) until the template experim
   test-generation loader, `prompt_service.get_template_config`, and the model/provider resolution
   that reads `model`/`provider` from template rows (`_resolve_models`). Tier rows must carry the
   same `model`/`provider` as their base row, or resolution must be pinned to the base row.
-- Up to 3 tiers × 4 types × 3 languages = 36 new rows to keep in step with base-row edits.
+- 27 rows (the types each of T1–T3 uses × 3 languages) to keep in step with base-row edits. They are
+  generated as `base.template_text || level block` by `scripts/build_tier_question_templates.py`, so
+  after a base edit, refresh them by deleting the tier rows for that task and re-running the seed
+  (it skips rows that already exist).
+- The unique index `(task_name, language_id, version)` stays (other migrations upsert on it), so tier
+  rows use versions 100 + tier.
 
 ## Alternatives Considered
 - **Task-name suffix** (`question_vocabulary_context__t1`): no migration, but every reader that

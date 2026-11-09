@@ -4,7 +4,7 @@ feature: test-quality-checks
 prose_page: ../features/test-quality-checks.md
 tech_page: ../features/test-quality-checks.tech.md
 total_tasks: 16
-done: 0
+done: 11
 ---
 
 # Test Quality Checks — Task Breakdown
@@ -29,7 +29,7 @@ duplicate each other, **drop the second one**; (3) write level-specific question
 
 ## TASK-912: Check framework — `quality_checks.py`, profiles, modes
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09)
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -63,7 +63,7 @@ filled in by the runner), test checks `(questions, passage, profile, tier)`.
 
 ## TASK-913: Script checks — `foreign_script`, `latin_in_cjk`, `script_above_level`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09)
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -99,7 +99,7 @@ module load (`OpenCC('t2s')`), compare per character. Stem templates are exclude
 
 ## TASK-914: Choice-format checks — `choice_label_prefix`, `answer_length_outlier`, `absolute_distractors`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09)
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -132,7 +132,7 @@ words, case-insensitive; in ja/zh, substring match.
 
 ## TASK-915: `answer_copies_passage`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09) — thresholds changed by calibration: 15 chars CJK, T3+ only
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -160,7 +160,7 @@ matching.
 
 ## TASK-916: Vocabulary target check — fullwidth brackets and CJK span length
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09)
 **Feature:** test-quality-checks
 **Type:** bug
 **Complexity:** XS (<1h)
@@ -192,7 +192,7 @@ pass `True` from the `vocabulary_context` branch in `validate_question`.
 
 ## TASK-917: Within-test duplicates — `duplicate_answer`, `duplicate_vocab_target`, `duplicate_stem`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09)
 **Feature:** test-quality-checks
 **Type:** bug
 **Complexity:** M (3-8h)
@@ -229,7 +229,7 @@ behaviour (orchestrator ~747) doesn't change until TASK-921 opts in.
 
 ## TASK-918: Test-shape checks — `type_mix`, `too_few_questions`, `missing_title`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09)
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** XS (<1h)
@@ -261,7 +261,7 @@ before that table existed.
 
 ## TASK-919: Read-only library audit — `scripts/audit_test_quality.py`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09)
 **Feature:** test-quality-checks
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -294,11 +294,13 @@ Tier for checks = `target_age_tier`; if NULL, treat as ≥ 2 and note it in the 
 
 ## TASK-920: Calibrate against the ja gold set; set `CHECK_MODES`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-09) — see [[evaluations/test-quality-checks-calibration-2026-11-09]]
 **Feature:** test-quality-checks
 **Type:** test
 **Complexity:** M (3-8h)
 **Depends On:** TASK-919
+
+**Outcome (2026-11-09):** 242 findings sampled (≤ 20 per check × language), labelled real / false alarm by three fresh-context reviewers (one per language). Thresholds retuned from the false-alarm patterns; five checks moved to `reject`. Full table: [[evaluations/test-quality-checks-calibration-2026-11-09]]. The answer-copy and length checks were tuned on the same labels, so their precision is in-sample — TASK-924 is the out-of-sample test.
 
 **Description:**
 Measure each check's precision on real content and decide which ones may reject. ja is scored
@@ -319,7 +321,7 @@ The evaluation page exists and every code in `CHECK_MODES` has a row with its de
 
 ## TASK-921: Wire checks into generation and the review queue
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo, 2026-11-09) — the live smoke run is not done: generation needs an OpenRouter key this environment lacks
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -359,7 +361,7 @@ shows `qc:` reasons in `generation_review_queue` (read-only SQL:
 
 ## TASK-922: Remediate existing content from the audit (LIVE-DB, approval)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting developer apply of `data/test_quality/remediation_2026-11-09.sql`
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -389,11 +391,13 @@ Post-apply audit `summary.md` shows the remediated codes reduced to the `ignore`
 
 ## TASK-923: Experiment harness — inactive runs, fixed topics, arm-blind review, scoring
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo, 2026-11-09)
 **Feature:** test-quality-checks
 **Type:** infra
 **Complexity:** M (3-8h)
 **Depends On:** TASK-919, TASK-921
+
+**Implementation note (2026-11-09):** added `--no-dedup` as well — arms generate the same topic and tier on purpose, and passage dedup (keyed on topic + tier, inactive tests included) would otherwise mark arm B a duplicate of arm A. Topic lists `data/test_quality/experiments/e1_topics.json` / `e2_topics.json` and the runbook `README.md` are committed. Cost is attributed per arm by run window, so arms run one after another.
 
 **Description:**
 Everything both experiments (TASK-924, TASK-927) need: generate the same topics under different
@@ -425,7 +429,7 @@ each experiment task states its budget up front.
 
 ## TASK-924: Experiment E1 — which check mode should generation ship with? (LIVE writes, approval)
 
-**Status:** [ ] Not Started
+**Status:** [?] Blocked — needs the mix migration applied, an OpenRouter key, and budget approval (est. $2–5)
 **Feature:** test-quality-checks
 **Type:** test
 **Complexity:** L (1-2d)
@@ -451,11 +455,13 @@ The evaluation page has the pre-registered rule, the per-arm table and the decis
 
 ## TASK-925: Tier-keyed question templates — migration + loader (LIVE-DB, approval)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting developer apply of `migrations/prompt_templates_tier_id.sql`
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** M (3-8h)
 **Depends On:** none
+
+**Implementation note (2026-11-09):** the existing unique index `(task_name, language_id, version)` is kept — other migrations upsert `ON CONFLICT` on it — so tier rows use their own version range, 100 + tier. Readers that can see `question_*` rows (`prompt_service.get_template_config` / `get_template_text`, the test-generation loader) filter `tier_id IS NULL` through `prompt_service.base_rows`, which is skipped until the column exists. `TEST_GEN_TIER_TEMPLATES` accepts `off`, `on`/`all`, or a comma list of language codes. Banded stems live in `stem_rotation.TIER_STEM_POOLS` (main_idea: ja 1-2 kana-only, ja 3-3, zh 1-3, en 1-3).
 
 **Description:**
 Implement [[decisions/ADR-040-tier-keyed-question-templates]]: `prompt_templates.tier_id`, a
@@ -483,11 +489,13 @@ logs the same template versions as before.
 
 ## TASK-926: Author tier templates for T1–T3 (zh, en, ja)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting developer apply of `migrations/seed_tier_question_templates.sql`; native read-through owed
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** L (1-2d)
 **Depends On:** TASK-925
+
+**Implementation note (2026-11-09):** templates are generated, not hand-copied: `scripts/build_tier_question_templates.py` writes `migrations/seed_tier_question_templates.sql`, where each row is `base.template_text || level block` selected from the live base row, so the JSON output section stays byte-identical. 27 rows: T1 literal_detail + vocabulary_context; T2 + main_idea; T3 + supporting_detail (the fixed tier mix), × zh/en/ja. Verified: all 27 render through `str.format` with the generator's placeholders, no Latin in ja/zh blocks beyond HSK/JLPT/JSON.
 
 **Description:**
 Write tier-specific question templates for the types the tier table uses at T1–T3
@@ -521,7 +529,7 @@ Pull the current base rows first (`select id, task_name, language_id, version, t
 
 ## TASK-927: Experiment E2 — do tier templates make better T1–T3 tests? (LIVE writes, approval)
 
-**Status:** [ ] Not Started
+**Status:** [?] Blocked — needs TASK-925/926 applied, an OpenRouter key, and budget approval
 **Feature:** test-quality-checks
 **Type:** test
 **Complexity:** L (1-2d)

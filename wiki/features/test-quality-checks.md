@@ -1,7 +1,7 @@
 ---
 title: Test Quality Checks
 type: feature
-status: planned
+status: in-progress
 tech_page: test-quality-checks.tech.md
 last_updated: 2026-11-09
 open_questions:
