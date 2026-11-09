@@ -183,7 +183,9 @@ class TestServiceHelpers:
         assert prestudy.estimate_minutes(8, 4, 'full') == 10
         assert prestudy.estimate_minutes(3, 0, 'full') == 4
         assert prestudy.estimate_minutes(0, 0, 'full') == 2
-        assert prestudy.estimate_minutes(9, 9, 'light') == 1
+        assert prestudy.estimate_minutes(9, 9, 'light') == 2   # 2 items x 8 s per word
+        assert prestudy.estimate_minutes(3, 0, 'light') == 1
+        assert prestudy.estimate_minutes(40, 40, 'full') == 30   # every drill word counts, capped
 
     def test_plan_for_tests_uses_knowledge_then_the_zipf_prior(self):
         db = _DB({

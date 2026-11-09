@@ -3,7 +3,7 @@ title: Test Prestudy (tests as teaching material)
 type: feature
 status: in-progress
 tech_page: ./test-prestudy.tech.md (not yet written — pending the open questions below)
-last_updated: 2026-10-31
+last_updated: 2026-11-09
 demo: ../demos/test-prestudy-demo.html
 open_questions:
   - "ANSWERED 2026-10-29: ELO for a first attempt made after prestudy = reduced K with factor 0.5 (`test_attempts.prestudied = true`, `elo_reduction_factor = 0.5`, existing badge)."
@@ -102,13 +102,13 @@ Prestudy is one feature with four **modes** (cheap to expensive) and four **trig
    learner's unknown senses highlighted (three strengths: unknown / encountered / learning),
    tappable glosses in the learner's definition language, the example sentence, and for ja/zh the
    reading. Listening tests get the audio player plus the text — the point of prestudy is that the
-   text is *not* hidden. A side panel lists the K highest-value unknown words (see "Which words").
+   text is *not* hidden. A side panel lists every word the prime will drill (see "Which words").
    Furigana (ja) and pinyin with sandhi-adjusted tone marks (zh) are laid over the passage from
    the test's existing `furigana_payload` / `pinyin_payload`, aligned to the token map by
    character offset. Default: shown only on words below p 0.5, so the support fades as knowledge
    grows; the learner can switch to every word or off. Finishing the preview unlocks the prime.
-2. **Word prime** (no content generation). A staged, interleaved drill on the K highest-value
-   unknown senses, about **five exposures per word in random order** (decided 2026-10-30). For
+2. **Word prime** (no content generation). A staged, interleaved drill on every unknown and
+   learning sense plus the words the learner added, about **five exposures per word in random order** (decided 2026-10-30). For
    Japanese and Chinese the learner is tested on **reading before meaning**, so the word can be
    heard in the head before its sense is attached:
    1. *Reading, typed*: see the word, type its reading. No multiple choice for reading, so the
@@ -188,11 +188,20 @@ Prestudy is one feature with four **modes** (cheap to expensive) and four **trig
 
 ### Which words
 
-For a given test and learner, rank the test's unknown senses (`p_known < 0.5`, or no row and a
-Zipf prior below 0.5) by: appears in a question's `sense_ids` (the words the test actually turns
-on) first; then occurrences in the passage; then lower frequency rank. Take the top K, where K is
-5 for the light prime, 8 for the word prime and unlimited for highlighting. Words already in the
-learner's ladder or with a flashcard are shown but not quizzed.
+The prime **always drills every unknown and learning word** in the test (decided 2026-11-09):
+every linked sense below probably_known (`p_known < 0.75`, or no row and a Zipf prior below
+0.75 — the unknown, encountered and learning bands), with no top-K cap, in both the full and the
+light prime (the light prime still runs only the reading and meaning stages). On top of that the
+learner can **add any other word**: tapping a passage word opens its popover, which carries an
+"I don't know this — add to study" button (and "Remove from study" to undo). Added words are
+marked in the passage and in the word list and are drilled like the rest. If a word is added
+after the prime has started, its items are appended to the end of the queue; if nothing has been
+answered yet the prime is rebuilt. Adding a word records no evidence by itself — the drill does.
+
+The drill list is ordered: appears in a question's `sense_ids` (the words the test actually turns
+on) first; then occurrences in the passage; then lower frequency rank. The **unknown share** that
+picks the plan mode (full / light / none) still counts only `p_known < 0.5`. The follow-up
+prime after an attempt is unchanged (up to five unknown senses behind wrong answers).
 
 ### What it writes
 
