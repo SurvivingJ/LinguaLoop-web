@@ -6291,3 +6291,6 @@ Developer: "Practice" should only be for doing exercises; once the allotted ones
 
 ## [2026-11-09] fix | Practice mode stuck on "Session complete!"
 Pages updated: 1 ([[features/practice-extra-rounds]]). The Keep practising panel only rendered after a second GET /api/study-session (the tail check); when that call failed or was slow the learner was left on a finished card with no way to practise more. The panel now renders immediately in showSummary/showEmpty and again on tail-check failure; the practice summary title is "Exercises done!".
+
+## [2026-11-09] fix | Session summary card pushed half a screen down on phones
+`templates/study_session.html`: the empty exercise area (`.session-stage`, min-height 50vh) still took space on the summary/start screens; `.session-stage:empty` now has no min-height. Checked at iPhone 13 size in headless Chromium: the card's top moved from y=364 to y=32. Pages updated: none.
