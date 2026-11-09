@@ -123,6 +123,12 @@ function applyModeLabels() {
     browseLink.setAttribute('href', '/session');
   }
 
+  const doneTitle = $('sessionDoneTitle');
+  if (doneTitle) {
+    doneTitle.setAttribute('data-i18n', 'session.done_title_practice');
+    doneTitle.textContent = T('session.done_title_practice', null, 'Exercises done!');
+  }
+
   const doneLink = $('sessionDoneBrowseLink');
   if (doneLink) {
     doneLink.setAttribute('data-i18n', 'session.done_browse_practice');
@@ -434,6 +440,10 @@ function showSummary() {
   hideTailPrompt();
   hideExtraPanel();
   renderNewWordsPrompt();
+  // Practice mode: show "Keep practising" now. It must not wait on (or depend
+  // on) the tail fetch below, which re-builds the whole session server-side
+  // and can fail or be slow; offerTail only refines it with today's quota.
+  renderExtraPanel();
   offerTail();
 }
 
@@ -513,11 +523,15 @@ async function offerTail({ fromEmpty = false } = {}) {
   let data;
   try {
     const res = await window.authFetch(studySessionUrl());
-    if (!res || !res.ok) return;
+    if (!res || !res.ok) {
+      if (token === session._tailToken) renderExtraPanel();
+      return;
+    }
     const body = await res.json();
     data = body.data || body;
   } catch (e) {
     console.warn('Could not check for optional work:', e);
+    if (token === session._tailToken) renderExtraPanel();
     return;
   }
   if (token !== session._tailToken) return;
@@ -585,9 +599,13 @@ function renderExtraPanel() {
   if (!box || !session.practiceOnly || session.extraDeclined) return;
   // Today's allotted new words come first; extra rounds are for after.
   if (newWordsPending()) return;
-  const choice = normalizeExtraChoice(session.extraChoice);
-  $('sessionExtraReviews').checked = choice.reviews;
-  $('sessionExtraNewWords').value = String(choice.newWords);
+  // Re-rendered when the tail fetch lands (to refresh the quota warning); only
+  // reset the controls on first show so a selection in progress is kept.
+  if (box.classList.contains('d-none')) {
+    const choice = normalizeExtraChoice(session.extraChoice);
+    $('sessionExtraReviews').checked = choice.reviews;
+    $('sessionExtraNewWords').value = String(choice.newWords);
+  }
 
   const update = () => {
     const c = readExtraChoice();
@@ -657,6 +675,7 @@ function showEmpty() {
     $('sessionLoading').classList.add('d-none');
     showEmptyWithTail();
     renderNewWordsPrompt();
+    renderExtraPanel();
     offerTail();
     return;
   }

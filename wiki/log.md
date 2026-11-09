@@ -6288,3 +6288,6 @@ Developer: "Build everything that you haven't built yet". Added `migrations/pres
 
 ## [2026-11-06] implement | Practice mode is exercises only, new words offered after
 Developer: "Practice" should only be for doing exercises; once the allotted ones are done, offer new words. `static/js/session/tail.js` `splitPracticeQueue` keeps only review (maintenance) practice chunks in practice mode and holds back incomplete new-word (acquisition) chunks; `controller.js` offers them with a "Learn new words / Not now" prompt (`templates/study_session.html`) on the summary card, before the Keep practising panel. 4 new i18n keys + 1 reworded × 4 locales. Tests: 3 new vitest cases; vitest 223/223, eslint clean (warnings pre-existing), i18n locale tests pass. Not browser-checked. Pages updated: [[features/practice-extra-rounds]].
+
+## [2026-11-09] fix | Practice mode stuck on "Session complete!"
+Pages updated: 1 ([[features/practice-extra-rounds]]). The Keep practising panel only rendered after a second GET /api/study-session (the tail check); when that call failed or was slow the learner was left on a finished card with no way to practise more. The panel now renders immediately in showSummary/showEmpty and again on tail-check failure; the practice summary title is "Exercises done!".
