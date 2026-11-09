@@ -5,8 +5,8 @@ status: planned
 tech_page: test-quality-checks.tech.md
 last_updated: 2026-11-09
 open_questions:
-  - "OPEN: which checks move from 'flag' to 'reject' — decided per check by TASK-920 calibration, not up front"
-  - "OPEN: should a test that fails a test-level check (e.g. two near-identical author's-purpose questions) be regenerated whole, or just lose the duplicate question?"
+  - "OPEN: which check mode generation ships with — settled by experiment E1 (TASK-924)"
+  - "OPEN: whether tier-specific question templates beat the current ones at T1–T3 — settled by experiment E2 (TASK-927)"
 ---
 
 # Test Quality Checks
@@ -56,13 +56,15 @@ learner complaints.
 
 ## Business Rules
 - A rejected question is regenerated; it never ships.
+- When two questions duplicate each other, the second one is dropped; the test ships if it still meets the minimum question count.
 - A flagged question ships and appears in `generation_review_queue`.
 - The audit script never writes to the database. Fixes to existing content go through a
   reviewed SQL file the developer applies.
 
 ## Open Questions
-- OPEN: flag vs reject per check — decided by calibration (TASK-920).
-- OPEN: whole-test regeneration vs dropping the duplicate question.
+- OPEN: which check mode ships — calibration (TASK-920) proposes one, an experiment comparing flag-only, calibrated and reject-everything on the same topics decides (TASK-924).
+- ANSWERED (developer, 2026-11-09): when two questions in a test duplicate each other, drop the second one; never regenerate the whole test.
+- OPEN: level-specific question templates (developer, 2026-11-09: write them) — beginner tests get questions written in beginner language; whether they help is settled by an experiment (TASK-925–927, [[decisions/ADR-040-tier-keyed-question-templates]]).
 
 ## Related Pages
 - [[features/test-quality-checks.tech]]

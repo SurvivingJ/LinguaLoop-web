@@ -3,7 +3,7 @@ title: "Test Quality Checks — Task Breakdown"
 feature: test-quality-checks
 prose_page: ../features/test-quality-checks.md
 tech_page: ../features/test-quality-checks.tech.md
-total_tasks: 11
+total_tasks: 16
 done: 0
 ---
 
@@ -16,8 +16,14 @@ are mechanically detectable. Live library at time of writing: zh 125 tests / 616
 en 121 / 551, ja 58 / 253.
 
 Sequence: framework (912) → checks (913–918, parallelisable) → audit (919) → calibration (920)
-→ wiring (921) → remediation of existing content (922). Wiring comes **after** calibration so the
-generator never rejects on an unmeasured rule.
+→ wiring with a switchable mode (921) → experiment harness (923) → **check-mode experiment (924)**
+→ remediation of existing content (922). In parallel after 923: level-specific templates
+(925 mechanism → 926 authoring → **template experiment 927**).
+
+Developer decisions 2026-11-09: (1) breakdown approved; *which* check mode ships is settled by an
+experiment, not by the calibration rule alone (TASK-924); (2) when two questions in a test
+duplicate each other, **drop the second one**; (3) write level-specific question templates
+([[decisions/ADR-040-tier-keyed-question-templates]], TASK-925–927).
 
 ---
 
@@ -234,14 +240,13 @@ Flag tests whose question set is badly shaped: two author's-purpose questions, n
 supporting-detail question, fewer than 4 questions above T1, or no title.
 
 **Acceptance Criteria:**
-- [ ] `type_mix` fires on > 1 `author_purpose`, or on ≥ 4 questions with neither `literal_detail` nor `supporting_detail`.
+- [ ] `type_mix` fires on > 1 `author_purpose`, > 1 `main_idea` (a passage has one main idea), or on ≥ 4 questions with neither `literal_detail` nor `supporting_detail`.
 - [ ] `too_few_questions` fires on < 4 questions at tier ≥ 2 only.
 - [ ] `missing_title` (passage scope) fires on `None` / whitespace title.
-- [ ] Read-only SQL in the task notes run once against live: report whether any `question_type_distributions_by_tier` row requests more than one `author_purpose`. Record the result in the log entry; if any do, raise it with the developer (that table is a design decision, not a fix this task makes).
+- [x] Live table checked 2026-11-09 (`question_type_distributions_by_tier`, columns `tier_id, question_type_1..5`): no tier requests more than one `author_purpose`. **T3 requests `main_idea` twice** (and T5, T6 request `inference` twice). So `type_mix` will fire on every new T3 test until the table changes — raise with the developer before TASK-921 makes it reject; until then it stays `flag`.
 
 **Technical Notes:**
-Inspect the table's columns first (`select * from question_type_distributions_by_tier limit 5`)
-and write the aggregate from what is there. `report_question_mix` (question_mix.py) compares
+`report_question_mix` (question_mix.py) compares
 realised vs requested; `type_mix` is the content rule and must fire on legacy tests generated
 before that table existed.
 
@@ -326,12 +331,13 @@ existing regenerate loop, flag-mode results go to `generation_review_queue`, tes
 drop the later question, a passage in the wrong script skips the test.
 
 **Acceptance Criteria:**
+- [ ] Mode is switchable per run: env `TEST_QC_MODES` = `flag` (all checks flag) | `reject` (all checks reject) | `calibrated` (use `CHECK_MODES`, the default). Read once per batch and logged at batch start; the CLI's `--qc-modes` (TASK-923) sets it.
 - [ ] `QuestionValidator.validate_question` accepts optional `language_code`, `tier`, `previous` keyword args (old positional call still works) and behaves as in the tech spec "Wiring" section.
 - [ ] `question_generator.py` validator call (~line 411) passes them; a reject-mode finding produces the existing `stage: 'validator'` rejection record and a regeneration attempt.
-- [ ] Orchestrator runs `run_passage_checks` after prose generation and `run_test_checks` after `validate_all_questions`; a reject `duplicate_*` drops the later question, then the existing survival floor applies.
+- [ ] Orchestrator runs `run_passage_checks` after prose generation and `run_test_checks` after `validate_all_questions`; a reject `duplicate_*` **drops the second question of the pair (developer decision 2026-11-09)** — never regenerates the whole test — then the existing survival floor applies.
 - [ ] `_write_review_queue_rows` writes rows for questions with `_quality_flags` (alone or with `_judge_flags`); `flag_reasons` has `qc:<code>` entries; `judge_scores.quality_checks` holds the result dicts.
 - [ ] Checks run when `tier_id == 1` (no dependency on `run_judges`).
-- [ ] A 6-test run per language (`python scripts/run_test_generation_cli.py --language <zh|en|ja> --count 6 --type reading`, one test per tier 1–6) completes; record realised rejects/flags per check and whether any test fell below the survival floor because of a new check. (Writes real tests — confirm with the developer before running.)
+- [ ] Smoke run with `--dry-run` per language completes with checks active (no DB writes). The measured runs are TASK-924.
 
 **Technical Notes:**
 Watch T1: the survival floor is 3 of 5 and the orchestrator comment (~747) records T1
@@ -357,7 +363,7 @@ shows `qc:` reasons in `generation_review_queue` (read-only SQL:
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** TASK-920
+**Depends On:** TASK-920, TASK-924
 
 **Description:**
 Turn the calibrated audit into fixes for the live library across all three languages. Mechanical
@@ -378,3 +384,163 @@ The ja kana/kanji level of **stem templates** (`文中の「…」の意味と�
 
 **Verification:**
 Post-apply audit `summary.md` shows the remediated codes reduced to the `ignore`d residue.
+
+---
+
+## TASK-923: Experiment harness — inactive runs, fixed topics, arm-blind review, scoring
+
+**Status:** [ ] Not Started
+**Feature:** test-quality-checks
+**Type:** infra
+**Complexity:** M (3-8h)
+**Depends On:** TASK-919, TASK-921
+
+**Description:**
+Everything both experiments (TASK-924, TASK-927) need: generate the same topics under different
+arms without exposing the tests to learners, review the output without the reviewer knowing the
+arm, and score the arms on one sheet.
+
+**Acceptance Criteria:**
+- [ ] `scripts/run_test_generation_cli.py` gains `--inactive` (tests inserted with `is_active = false`), `--topics-file PATH` (JSON list of `{topic_id, tier}`; generates exactly those, in order, ignoring `--count`/`--tier`), `--qc-modes {flag,reject,calibrated}` (sets `TEST_QC_MODES`), `--tier-templates {on,off}` (sets `TEST_GEN_TIER_TEMPLATES`, TASK-925) and `--run-tag TAG`.
+- [ ] With `--run-tag`, every generated test id, arm settings, wall clock and survival outcome (including tests that failed the floor) are appended to `data/test_quality/experiments/<TAG>/tests.jsonl`.
+- [ ] `scripts/build_experiment_review_packs.py <TAG>...`: merges the runs, shuffles, strips arm labels, and writes review packs of ~15 tests each (`review_NN.md`) with the 2026-11-09 rubric (per question: ok / minor / major + group from [[evaluations/ja-test-review-2026-11-09]] + a `level_fit` verdict: ok / too hard / too easy) and a hidden key file mapping test → arm.
+- [ ] `scripts/score_experiment.py <TAG>...` writes `summary.md`: per arm × language × tier — tests attempted, tests failing the survival floor, regenerations per question, $ per test (from `llm_calls`), audit findings per 100 questions (re-run `audit_test_quality.py --test-id …`), review major/minor rates and level-fit rate, with 95% bootstrap intervals for the rates.
+- [ ] `--dry-run` still writes nothing.
+
+**Technical Notes:**
+Reviews are done by Claude reviewer subagents in fresh contexts, one pack each, like the
+2026-11-09 review (no OpenRouter spend for review). Generation itself spends OpenRouter credit —
+each experiment task states its budget up front.
+
+**Files to Create / Modify:**
+- `scripts/run_test_generation_cli.py`, `services/test_generation/orchestrator.py` (honour `inactive`)
+- `scripts/build_experiment_review_packs.py`, `scripts/score_experiment.py` — new
+- `tests/test_experiment_scoring.py` — scoring on a synthetic two-arm fixture
+
+**Verification:**
+`python scripts/run_test_generation_cli.py --language en --topics-file f.json --inactive --run-tag smoke --dry-run`;
+`python scripts/score_experiment.py smoke` on a fixture produces `summary.md`.
+
+---
+
+## TASK-924: Experiment E1 — which check mode should generation ship with? (LIVE writes, approval)
+
+**Status:** [ ] Not Started
+**Feature:** test-quality-checks
+**Type:** test
+**Complexity:** L (1-2d)
+**Depends On:** TASK-923
+
+**Description:**
+Generate the same topics under three check modes and pick the one that produces the best tests at
+acceptable cost: **A** `flag` (control: today's behaviour plus review-queue rows), **B** `calibrated`
+(TASK-920's `CHECK_MODES`), **C** `reject` (every check rejects).
+
+**Acceptance Criteria:**
+- [ ] Topics file: 12 topics per language (2 per tier T1–T6), unused by any active test; same file for all three arms. 3 arms × 3 languages × 12 = **108 tests**, all `--inactive`. Developer approves the run and its OpenRouter budget before it starts.
+- [ ] Review: all 108 tests reviewed arm-blind via TASK-923 packs.
+- [ ] Decision rule, written into the evaluation before unblinding: choose the arm with the lowest (major + minor) per question; **but** reject an arm whose survival-floor failure rate exceeds 10% of tests or whose $/test exceeds 1.5 × arm A. A tie (overlapping 95% intervals) goes to the cheaper arm. The rule may pick different arms per tier band (T1–T3, T4–T6) if the data say so.
+- [ ] Winning modes written into `CHECK_MODES` / the default of `TEST_QC_MODES`.
+- [ ] Clean-up: the winning arm's tests that the review rated with no major issues are activated; all other experiment tests are deleted (inactive, no attempts — check `test_attempts` count = 0 first).
+- [ ] Results: `wiki/evaluations/test-qc-mode-experiment-<date>.md`.
+
+**Verification:**
+The evaluation page has the pre-registered rule, the per-arm table and the decision; `CHECK_MODES` in code matches it.
+
+---
+
+## TASK-925: Tier-keyed question templates — migration + loader (LIVE-DB, approval)
+
+**Status:** [ ] Not Started
+**Feature:** test-quality-checks
+**Type:** feature
+**Complexity:** M (3-8h)
+**Depends On:** none
+
+**Description:**
+Implement [[decisions/ADR-040-tier-keyed-question-templates]]: `prompt_templates.tier_id`, a
+tier-aware loader for question templates behind `TEST_GEN_TIER_TEMPLATES` (default off), and
+tier-banded stem pools.
+
+**Acceptance Criteria:**
+- [ ] `migrations/prompt_templates_tier_id.sql`: `alter table prompt_templates add column tier_id smallint null references dim_complexity_tiers(id)`; index on `(task_name, language_id, tier_id, is_active)`. Idempotent (`if not exists`). Developer applies.
+- [ ] `DatabaseClient.get_prompt_template(task_name, language_id, required=True, tier_id=None)`: when `tier_id` is given **and** `TEST_GEN_TIER_TEMPLATES` is on, tries the exact-tier row first; otherwise and on miss, uses only `tier_id IS NULL` rows (so existing behaviour is unchanged even after tier rows exist). English fallback unchanged.
+- [ ] Every other reader of `prompt_templates` (grep `prompt_templates` and `get_prompt_template(` — 11 call sites today, plus `prompt_service.get_template_config` and `_resolve_models`) filters `tier_id IS NULL` unless it is the question-template path; a test proves model/provider resolution is unchanged when a tier row with a different `model` exists.
+- [ ] Orchestrator passes `tier_id` when loading `question_{type}` templates (~line 696).
+- [ ] `stem_rotation.STEM_POOLS` accepts an optional band level: `STEM_POOLS[lang][type]` may be a dict `{'1-3': (...), '4-6': (...)}`; `pick_stem` takes `tier` and resolves the band; a plain tuple keeps meaning "all tiers".
+
+**Files to Create / Modify:**
+- `migrations/prompt_templates_tier_id.sql` — new
+- `services/test_generation/database_client.py`, `services/test_generation/orchestrator.py`, `services/test_generation/stem_rotation.py`, `services/prompt_service.py` (filter)
+- `tests/test_tier_templates.py` — new
+
+**Verification:**
+`pytest tests/test_tier_templates.py tests/test_stem_rotation.py -q`; after the migration,
+`select count(*) from prompt_templates where tier_id is not null` = 0 and a generation `--dry-run`
+logs the same template versions as before.
+
+---
+
+## TASK-926: Author tier templates for T1–T3 (zh, en, ja)
+
+**Status:** [ ] Not Started
+**Feature:** test-quality-checks
+**Type:** feature
+**Complexity:** L (1-2d)
+**Depends On:** TASK-925
+
+**Description:**
+Write tier-specific question templates for the types the tier table uses at T1–T3
+(`literal_detail`, `vocabulary_context`, `main_idea`, `supporting_detail` — 3 + 2 + 3 types per
+tier as in `question_type_distributions_by_tier`) in each language, and T1–T3 stem pools for
+`main_idea`. Each template starts from the current base row and changes the **language of the
+question**, not what is asked.
+
+**Acceptance Criteria:**
+- [ ] Level rules written into each template (and summarised in the task's log entry):
+  - **ja T1–T2:** stem, choices and answer use only kana plus kanji that appear in the passage; spaced phrasing if the passage is spaced; stem ≤ 25 characters (e.g. `「てつだい」は どういう いみ ですか。`); choices ≤ 15 characters; no 文中の／最も適切なもの register. **ja T3:** kanji at roughly JLPT N4, plain polite stems.
+  - **zh T1–T2:** choices use only characters from the passage or HSK 1–2; stem ≤ 15 characters; no 下列/最恰当 register. **zh T3:** HSK ≤ 3 wording.
+  - **en T1–T2:** stem ≤ 10 words, choices ≤ 6 words, A1–A2 vocabulary only, no "best expresses / primarily". **en T3:** B1.
+  - All tiers: one correct answer stated in the passage (literal) or, for vocab, a meaning a learner at that level could recognise; distractors plausible but clearly wrong from the passage.
+- [ ] Rows inserted with `tier_id` set, same `model`/`provider` as the base row, `is_active = true` (inert while `TEST_GEN_TIER_TEMPLATES` is off). Up to 3 tiers × 3 languages × the types each tier uses. Insert SQL in `migrations/seed_tier_question_templates.sql`; developer applies.
+- [ ] ja and zh templates pass `scripts/audit_prompt_latin.py` with no content leaks.
+- [ ] A `--dry-run` per language × tier with `--tier-templates on` loads the tier rows (logged template id/version).
+- [ ] Native-speaker read-through is flagged as owed in the log entry (as with the stem pools); not a blocker for the experiment.
+
+**Technical Notes:**
+Pull the current base rows first (`select id, task_name, language_id, version, template_text, model, provider from prompt_templates where is_active and task_name like 'question_%' and tier_id is null`) and keep their output-format sections byte-identical — the parser depends on them.
+
+**Files to Create / Modify:**
+- `migrations/seed_tier_question_templates.sql` — new
+- `services/test_generation/stem_rotation.py` — T1–T3 `main_idea` pools per language
+
+**Verification:**
+`select language_id, tier_id, count(*) from prompt_templates where tier_id is not null group by 1,2` matches the tier table's type counts.
+
+---
+
+## TASK-927: Experiment E2 — do tier templates make better T1–T3 tests? (LIVE writes, approval)
+
+**Status:** [ ] Not Started
+**Feature:** test-quality-checks
+**Type:** test
+**Complexity:** L (1-2d)
+**Depends On:** TASK-923, TASK-926
+
+**Description:**
+Generate the same T1–T3 topics with base templates (**arm A**, `--tier-templates off`) and tier
+templates (**arm B**, `on`), with check mode held at E1's winner if TASK-924 is done (else
+`flag`), and decide per language × tier whether to switch the default on.
+
+**Acceptance Criteria:**
+- [ ] Topics file: 4 topics per tier T1–T3 per language, unused by active tests; same file both arms. 2 arms × 3 languages × 12 = **72 tests**, all `--inactive`. Developer approves run and budget.
+- [ ] Arm-blind review of all 72 via TASK-923 packs; `level_fit` is the primary metric.
+- [ ] Pre-registered rule: switch a language × tier to tier templates when its `level_fit = ok` rate is higher than arm A's with non-overlapping 95% intervals **and** its (major + minor) rate is not higher. Otherwise keep base templates for that cell.
+- [ ] Also reported per arm: `script_above_level` hits (ja), survival-floor failures, $ per test.
+- [ ] Default of `TEST_GEN_TIER_TEMPLATES` set per language (e.g. env `TEST_GEN_TIER_TEMPLATES=ja,en`) to the winning cells; losing tier rows set `is_active = false`.
+- [ ] Clean-up as in TASK-924 (activate winning-arm tests with no major issues; delete the rest after checking `test_attempts` = 0).
+- [ ] Results: `wiki/evaluations/tier-template-experiment-<date>.md`.
+
+**Verification:**
+The evaluation page shows the rule, per-cell table and decisions; a `--dry-run` with defaults loads tier rows exactly for the winning cells.
+
