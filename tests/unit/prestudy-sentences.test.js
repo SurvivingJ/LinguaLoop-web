@@ -15,6 +15,7 @@ import {
   setReferencesVisible,
   hasVisibleReferences,
   hasTokenSpans,
+  deriveTokenSpans,
 } from '../../static/js/session/sentences.js';
 
 const TRANSCRIPT = '猫がいる。犬もいる！鳥は？';
@@ -214,5 +215,51 @@ describe('renderSentenceBlocks', () => {
     expect(el.querySelector('.ll-sentence-text').innerHTML).toBe('a&lt;b&gt;。');
     renderSentenceBlocks(el, rows, { renderText: (t) => '<b>' + t.length + '</b>' });
     expect(el.querySelector('.ll-sentence-text').innerHTML).toBe('<b>5</b>');
+  });
+});
+
+describe('deriveTokenSpans', () => {
+  const TOKENS = [
+    ['猫', 11],
+    ['が', null],
+    ['いる', 12],
+    ['。', null],
+    ['犬', 13],
+    ['も', null],
+    ['いる', 12],
+    ['！', null],
+    ['鳥', 14],
+    ['は？', null],
+  ];
+
+  it('assigns contiguous token spans from sentence text', () => {
+    const derived = deriveTokenSpans(clientSplitSentences(TRANSCRIPT), TOKENS);
+    expect(derived.map((s) => [s.token_start, s.token_end])).toEqual([
+      [0, 4],
+      [4, 8],
+      [8, 10],
+    ]);
+    expect(hasTokenSpans(derived)).toBe(true);
+  });
+
+  it('keeps clickable words and references together when rendered', () => {
+    const sentences = clientSplitSentences(TRANSCRIPT).map((s, i) => ({
+      ...s,
+      reference: i === 0 ? { l1_text: 'There is a cat.' } : null,
+    }));
+    const el = document.createElement('div');
+    renderSentenceBlocks(el, deriveTokenSpans(sentences, TOKENS), {
+      tokenMap: TOKENS,
+      showReferences: true,
+    });
+    expect(el.querySelectorAll('.word-clickable').length).toBe(5);
+    expect(el.querySelector('.ll-sentence-ref').textContent).toBe('There is a cat.');
+  });
+
+  it('returns null when a sentence cannot be located', () => {
+    const bad = [{ idx: 0, l2_text: '全然違う。' }];
+    expect(deriveTokenSpans(bad, TOKENS)).toBeNull();
+    expect(deriveTokenSpans([], TOKENS)).toBeNull();
+    expect(deriveTokenSpans(clientSplitSentences(TRANSCRIPT), [])).toBeNull();
   });
 });

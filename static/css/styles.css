@@ -1360,6 +1360,30 @@ footer,
     box-shadow: var(--shadow-sm);
   }
 
+  .transcript-card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+  }
+
+  .transcript-card-header > h2 {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .transcript-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .transcript-card-actions .btn {
+    white-space: nowrap;
+  }
+
   .transcript-text {
     font-size: 16px;
     line-height: 1.8;

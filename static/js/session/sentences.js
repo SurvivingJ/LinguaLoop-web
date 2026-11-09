@@ -153,6 +153,47 @@ export function hasTokenSpans(sentences) {
   );
 }
 
+/**
+ * Derive token spans for sentences that lack them by locating each sentence's
+ * l2_text, in order, inside the concatenated token surfaces. Lets the
+ * post-submit view keep both the per-sentence translation toggle and the
+ * clickable `.word-clickable` words when the server sent no token spans.
+ * A token belongs to the sentence its first character falls in; tokens in the
+ * gap between sentences (whitespace) stay with the preceding sentence.
+ * Returns new sentence objects, or null when any sentence cannot be located.
+ */
+export function deriveTokenSpans(sentences, tokenMap) {
+  if (!Array.isArray(sentences) || !sentences.length) return null;
+  if (!Array.isArray(tokenMap) || !tokenMap.length) return null;
+  const starts = [];
+  let full = '';
+  tokenMap.forEach((tok) => {
+    starts.push(full.length);
+    full += String((tok && tok[0]) == null ? '' : tok[0]);
+  });
+  const charStarts = [];
+  let cursor = 0;
+  for (const s of sentences) {
+    const text = s && typeof s.l2_text === 'string' ? s.l2_text.trim() : '';
+    if (!text) return null;
+    const at = full.indexOf(text, cursor);
+    if (at < 0) return null;
+    charStarts.push(at);
+    cursor = at + text.length;
+  }
+  const tokenStarts = charStarts.map((cs, i) => {
+    if (i === 0) return 0;
+    let t = 0;
+    while (t < starts.length && starts[t] < cs) t++;
+    return t;
+  });
+  return sentences.map((s, i) => ({
+    ...s,
+    token_start: tokenStarts[i],
+    token_end: i + 1 < sentences.length ? tokenStarts[i + 1] : tokenMap.length,
+  }));
+}
+
 function escapeHtml(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;')
