@@ -100,7 +100,7 @@ Each returns `[]` when clean. None raise on bad content; they raise only on prog
 | `duplicate_answer` | test | answer–answer similarity = Jaccard of `profile.tokenize`. ≥ 0.6 → fires. Pairs of the same `type_code` use 0.45. | all |
 | `duplicate_vocab_target` | test | two `vocabulary_context` questions whose extracted target spans are equal. | all |
 | `duplicate_stem` | test | replace `_check_overlap`'s `str.split()` with `profile.tokenize`; compare stems only for `literal_detail` / `supporting_detail` (other types use rotated templates — see `stem_rotation.py` — and would always collide). Threshold unchanged (0.65). | all |
-| `type_mix` | test | more than one `author_purpose`; or `len(questions) ≥ 4` and no `literal_detail`/`supporting_detail`. | all |
+| `type_mix` | test | more than one `author_purpose` or `main_idea`; or `len(questions) ≥ 4` and no `literal_detail`/`supporting_detail`. | all |
 | `too_few_questions` | test | `len(questions) < 4` and `tier ≥ 2` (T1 floor of 3 is deliberate — orchestrator ~752). | all |
 | `missing_title` | passage | `title` is None or blank (orchestrator continues with NULL title on title-gen failure, ~691). | all |
 
@@ -115,9 +115,10 @@ judge and the planned authoring/review skill.
   (the generator's existing regen loop handles it); `flag` results are appended to
   `question['_quality_flags']`. `previous` (list of already-accepted question dicts) feeds the
   per-pair `duplicate_*` checks so a duplicate is caught while it can still be regenerated.
+- Mode switch: env `TEST_QC_MODES` = `flag` | `reject` | `calibrated` (default), so experiment arms differ by one variable.
 - `question_generator.py` passes `language_code`, `tier`, `previous` at its validator call (~411).
 - Orchestrator: after `validate_all_questions`, call `run_test_checks`; for a `reject`
-  `duplicate_*`, drop the later question of the pair and re-apply the survival floor. Call
+  `duplicate_*`, drop the second question of the pair (developer decision 2026-11-09) and re-apply the survival floor. Call
   `run_passage_checks` right after prose generation; a `reject` `foreign_script` on the passage
   raises `ValueError` so the test is skipped (the batch runner already counts and continues).
 - `_write_review_queue_rows` includes questions with `_quality_flags` as well as `_judge_flags`;
@@ -132,7 +133,10 @@ judge and the planned authoring/review skill.
    - **Alternatives rejected:** reject-by-default (would have made T1 survival worse — see the T1 Jaccard note at orchestrator ~747).
 3. **Decision:** run at all tiers including T1.
    - **Rationale:** T1 runs no LLM judges, so today it has the least protection; the 2026-11-09 review's only incoherent test was a beginner test.
-4. **Decision:** CJK similarity via character bigrams rather than fugashi/jieba.
+4. **Decision:** the shipped check mode is chosen by experiment (TASK-924: flag vs calibrated vs reject on identical topics, arm-blind review), not by the calibration rule alone.
+   - **Rationale:** precision on old content doesn't show the cost of rejecting during generation (regenerations, survival-floor losses at T1).
+5. **Decision:** level-specific question templates, keyed by tier ([[decisions/ADR-040-tier-keyed-question-templates]]), authored for T1–T3 and adopted per language × tier only where experiment E2 (TASK-927) shows they help.
+6. **Decision:** CJK similarity via character bigrams rather than fugashi/jieba.
    - **Rationale:** no tokenizer dependency inside the hot path; bigram Jaccard is a standard proxy and is enough for near-duplicate detection. Revisit only if calibration shows it is not.
 
 ## Security Considerations

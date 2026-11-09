@@ -19,14 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 37 |
+| Not Started | 42 |
 | In Progress (`[~]`) | 11 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 219 |
 
-*2026-11-09 (NEW — Test Quality Checks, TASK-912–922):* deterministic, model-free checks for comprehension tests in zh/en/ja — wrong script (simplified chars in ja, traditional/kana in zh, CJK in en, stray Latin), kanji choices on hiragana passages, label prefixes, answer-length and absolute-word giveaways, answer copied from passage, vocab target missing (now incl. （…）), within-test duplicates (the existing overlap check is a no-op for ja/zh), test shape and missing titles. Read-only audit, calibration against the [[evaluations/ja-test-review-2026-11-09]] gold set before anything rejects, then wiring at every tier incl. T1, then remediation (TASK-922 LIVE-DB, approval). See [[features/test-quality-checks]], [[tasklist/test-quality-checks.tasks]]. Counts: Not Started 26→37.
+*2026-11-09 (NEW — Test Quality Checks, TASK-912–922):* deterministic, model-free checks for comprehension tests in zh/en/ja — wrong script (simplified chars in ja, traditional/kana in zh, CJK in en, stray Latin), kanji choices on hiragana passages, label prefixes, answer-length and absolute-word giveaways, answer copied from passage, vocab target missing (now incl. （…）), within-test duplicates (the existing overlap check is a no-op for ja/zh), test shape and missing titles. Read-only audit, calibration against the [[evaluations/ja-test-review-2026-11-09]] gold set before anything rejects, then wiring at every tier incl. T1, then remediation (TASK-922 LIVE-DB, approval). See [[features/test-quality-checks]], [[tasklist/test-quality-checks.tasks]]. Counts: Not Started 26→37. *Same day, developer decisions:* check mode chosen by experiment (TASK-923 harness, TASK-924 E1), duplicates drop the second question, level-specific templates ([[decisions/ADR-040-tier-keyed-question-templates]], TASK-925–927 incl. experiment E2); TASK-922 now waits on TASK-924. Not Started 37→42.
 
 *2026-10-30 (executed, repo side):* TASK-900–907 Done (repo): migrations + SQL test, audit (2 affected en tests live), segmenter, runner, two skills, upload path, and the pilot ([[evaluations/sentence-refs-pilot-2026-10-30]]: arm = sentencewise, 2,072 reviewed references assembled). TASK-908 unblocked; TASK-909–911 Done (repo; two TASK-910 gaps noted in the tasks file). LIVE-DB applies still await approval.
 
@@ -1163,7 +1163,12 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-919 | test-quality-checks | Read-only library audit `audit_test_quality.py` | [ ] | M | TASK-913–918 |
 | TASK-920 | test-quality-checks | Calibrate vs ja gold set; set CHECK_MODES | [ ] | M | TASK-919 |
 | TASK-921 | test-quality-checks | Wire into generation (all tiers) + review queue | [ ] | M | TASK-920 |
-| TASK-922 | test-quality-checks | Remediate existing content (LIVE-DB, approval) | [ ] | M | TASK-920 |
+| TASK-922 | test-quality-checks | Remediate existing content (LIVE-DB, approval) | [ ] | M | TASK-920, TASK-924 |
+| TASK-923 | test-quality-checks | Experiment harness — inactive runs, fixed topics, arm-blind review, scoring | [ ] | M | TASK-919, TASK-921 |
+| TASK-924 | test-quality-checks | Experiment E1 — check mode (flag / calibrated / reject), 108 tests (LIVE, approval) | [ ] | L | TASK-923 |
+| TASK-925 | test-quality-checks | Tier-keyed templates — migration + loader + banded stem pools (LIVE-DB, approval) | [ ] | M | — |
+| TASK-926 | test-quality-checks | Author T1–T3 tier templates, zh/en/ja | [ ] | L | TASK-925 |
+| TASK-927 | test-quality-checks | Experiment E2 — tier vs base templates at T1–T3, 72 tests (LIVE, approval) | [ ] | L | TASK-923, TASK-926 |
 
 ### Language Packs (existing — unchanged)
 
