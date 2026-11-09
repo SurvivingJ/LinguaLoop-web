@@ -149,6 +149,7 @@ def _record_run(config, index, tier, topic_id, outcome, generated, seconds, erro
         'run_tag': config.run_tag, 'index': index, 'language': config.language_code,
         'target_tier': tier, 'topic_id': topic_id, 'outcome': outcome,
         'seconds': round(seconds, 1), 'error': error,
+        'finished_at': datetime.now(timezone.utc).isoformat(),
         'qc_modes': os.environ.get('TEST_QC_MODES') or 'calibrated',
         'tier_templates': os.environ.get('TEST_GEN_TIER_TEMPLATES') or 'off',
         'inactive': bool(config.inactive), 'dry_run': bool(config.dry_run),
@@ -219,6 +220,7 @@ class BatchConfig:
     topics: Optional[List[dict]] = None
     inactive: bool = False
     run_tag: Optional[str] = None
+    skip_dedup: bool = False                          # experiment arms reuse topic+tier
 
 
 class NoQueueItemsError(Exception):
@@ -638,6 +640,13 @@ class TestGenerationOrchestrator:
             dedup_result, passage_hash, passage_embedding = (
                 dedup_checker.check_duplicate(topic.id, tier_id, prose)
             )
+        if getattr(self, 'skip_dedup', False) and dedup_result.is_duplicate:
+            # TASK-923 experiment arms generate the SAME topic+tier on
+            # purpose; a match against another arm's test is expected. Keep
+            # the hash/embedding (stored on the row), ignore the verdict.
+            from services.test_generation.dedup import DedupResult
+            logger.info("Dedup match ignored for experiment run (%s)", dedup_result.reason)
+            dedup_result = DedupResult(is_duplicate=False)
 
         if dedup_result.is_duplicate:
             logger.warning(
@@ -788,7 +797,8 @@ class TestGenerationOrchestrator:
         for type_code in set(question_types):
             question_templates[type_code] = self.db.get_prompt_template(
                 f'question_{type_code}',
-                lang_config.id  # Use language_id, not language_code
+                lang_config.id,  # Use language_id, not language_code
+                tier_id=tier_id,  # ADR-040: tier row when enabled, else base
             )
 
         # Skip the LLM judges (answer-entailment + distractor-plausibility) at
@@ -1820,6 +1830,7 @@ class TestGenerationOrchestrator:
             logger.info("=" * 60)
 
             self.insert_inactive = bool(config.inactive)
+            self.skip_dedup = bool(config.skip_dedup)
             if config.topics:
                 # TASK-923: fixed topic list — same topics for every arm.
                 tier_schedule = [int(t['tier']) for t in config.topics]

@@ -712,14 +712,31 @@ class TestDatabaseClient:
     # PROMPT TEMPLATES
     # ============================================================
 
+    def _language_code_for(self, language_id: int) -> str:
+        cache = self.__dict__.setdefault('_lang_code_cache', {})
+        if language_id not in cache:
+            try:
+                rows = self.client.table('dim_languages').select('language_code') \
+                    .eq('id', language_id).limit(1).execute().data
+                cache[language_id] = rows[0]['language_code'] if rows else ''
+            except Exception:
+                cache[language_id] = ''
+        return cache[language_id]
+
     def get_prompt_template(
         self,
         task_name: str,
         language_id: int,
-        required: bool = True
+        required: bool = True,
+        tier_id: Optional[int] = None,
     ) -> Optional[str]:
         """
         Fetch prompt template by task name and language ID.
+
+        ADR-040: with ``tier_id`` given and tier templates enabled for the
+        language (``TEST_GEN_TIER_TEMPLATES``), an active row for exactly that
+        tier wins; otherwise only base rows (``tier_id IS NULL``) are used, so
+        tier rows never change behaviour while the switch is off.
 
         Uses language_id (integer) to match actual prompt_templates table structure.
         Falls back to English (language_id=2) if not found for specific language.
@@ -741,12 +758,31 @@ class TestDatabaseClient:
             RuntimeError: required=True and no active template for the task in the
                 requested language or the English fallback.
         """
+        from services.prompt_service import (
+            base_rows, tier_column_present, tier_templates_enabled,
+        )
+        if (tier_id is not None and tier_column_present(self.client)
+                and tier_templates_enabled(self._language_code_for(language_id))):
+            response = self.client.table('prompt_templates') \
+                .select('template_text, version') \
+                .eq('task_name', task_name) \
+                .eq('language_id', language_id) \
+                .eq('tier_id', tier_id) \
+                .eq('is_active', True) \
+                .order('version', desc=True) \
+                .limit(1) \
+                .execute()
+            if response.data:
+                logger.info("Loaded tier template: %s lang=%s tier=%s v%s",
+                            task_name, language_id, tier_id, response.data[0].get('version'))
+                return response.data[0]['template_text']
+
         # Try language-specific template first
-        response = self.client.table('prompt_templates') \
+        response = base_rows(self.client.table('prompt_templates') \
             .select('template_text') \
             .eq('task_name', task_name) \
             .eq('language_id', language_id) \
-            .eq('is_active', True) \
+            .eq('is_active', True), self.client) \
             .order('version', desc=True) \
             .limit(1) \
             .execute()
@@ -757,11 +793,11 @@ class TestDatabaseClient:
 
         # Fallback to English (language_id=2) if not found
         if language_id != 2:
-            response = self.client.table('prompt_templates') \
+            response = base_rows(self.client.table('prompt_templates') \
                 .select('template_text') \
                 .eq('task_name', task_name) \
                 .eq('language_id', 2) \
-                .eq('is_active', True) \
+                .eq('is_active', True), self.client) \
                 .order('version', desc=True) \
                 .limit(1) \
                 .execute()

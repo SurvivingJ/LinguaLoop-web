@@ -103,6 +103,10 @@ def main():
         help='Use tier-keyed question templates (sets TEST_GEN_TIER_TEMPLATES)',
     )
     parser.add_argument(
+        '--no-dedup', action='store_true',
+        help='Ignore passage-dedup matches (experiment arms reuse the same topic+tier)',
+    )
+    parser.add_argument(
         '--run-tag', default=None,
         help='Append one record per slot to data/test_quality/experiments/<TAG>/tests.jsonl',
     )
@@ -177,6 +181,7 @@ def main():
             topics=topics,
             inactive=args.inactive,
             run_tag=args.run_tag,
+            skip_dedup=args.no_dedup,
         )
 
         metrics = orchestrator.run_batch(config)

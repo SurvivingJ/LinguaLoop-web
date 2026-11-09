@@ -236,6 +236,7 @@ class QuestionGenerator:
                 type_code,
                 rotation_key or '',
                 (recent_stems_by_type or {}).get(type_code),
+                tier=tier,
             ) if rotation_key else ''
             for type_code in set(question_type_codes)
         }

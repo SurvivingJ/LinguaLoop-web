@@ -142,17 +142,90 @@ def is_enabled() -> bool:
     )
 
 
-def pool_for(language_code: Optional[str], question_type: str) -> tuple[str, ...]:
-    """The stem pool for a (language, type), or () when there isn't one."""
+#: ADR-040 — level-banded pools. ``TIER_STEM_POOLS[lang][type][band]`` where
+#: band is ``'lo-hi'`` (inclusive tiers). Used only when tier templates are
+#: enabled for the language (TEST_GEN_TIER_TEMPLATES); otherwise, or when no
+#: band covers the tier, the tier-agnostic STEM_POOLS entry applies. The
+#: beginner stems are plain, short and (ja T1-2) kana-only; they have not had
+#: a native review pass yet.
+TIER_STEM_POOLS: dict[str, dict[str, dict[str, tuple[str, ...]]]] = {
+    'ja': {
+        'main_idea': {
+            '1-2': (
+                'このおはなしは、なにについてかいてありますか。',
+                'このぶんしょうで、いちばんつたえたいことはなんですか。',
+                'このおはなしは、どんなはなしですか。',
+                'このぶんしょうは、おもになんのはなしですか。',
+                'かいたひとが、いちばんいいたいことはなんですか。',
+                'このおはなしをみじかくいうと、どれですか。',
+            ),
+            '3-3': (
+                'この文章は何について書いていますか。',
+                'この文章で一番言いたいことは何ですか。',
+                'この文章は主に何の話ですか。',
+                '書いた人が一番伝えたいことは何ですか。',
+                'この文章の内容に一番合うものはどれですか。',
+                'この話を短くまとめると、どれですか。',
+            ),
+        },
+    },
+    'zh': {
+        'main_idea': {
+            '1-3': (
+                '这篇短文主要讲了什么？',
+                '这段话主要说的是什么？',
+                '这篇文章讲的是什么事？',
+                '这个故事主要讲了什么？',
+                '作者最想告诉我们什么？',
+                '这段话的主要意思是什么？',
+            ),
+        },
+    },
+    'en': {
+        'main_idea': {
+            '1-3': (
+                'What is this story mostly about?',
+                'What is the main idea?',
+                'What does the writer mostly tell us?',
+                'Which sentence tells what the text is about?',
+                'What is this text about?',
+                'What is the big idea of this story?',
+            ),
+        },
+    },
+}
+
+
+def _band_pool(language_code: str, question_type: str, tier: int) -> tuple[str, ...]:
+    bands = TIER_STEM_POOLS.get(language_code, {}).get(question_type, {})
+    for band, pool in bands.items():
+        lo, hi = (int(x) for x in band.split('-'))
+        if lo <= tier <= hi:
+            return pool
+    return ()
+
+
+def pool_for(
+    language_code: Optional[str], question_type: str, tier: Optional[int] = None,
+) -> tuple[str, ...]:
+    """The stem pool for a (language, type[, tier]), or () when there isn't one."""
     if not language_code:
         return ()
-    return STEM_POOLS.get(language_code.lower(), {}).get(question_type, ())
+    lang = language_code.lower()
+    if tier is not None:
+        from services.prompt_service import tier_templates_enabled
+        if tier_templates_enabled(lang):
+            banded = _band_pool(lang, question_type, tier)
+            if banded:
+                return banded
+    return STEM_POOLS.get(lang, {}).get(question_type, ())
 
 
 def select_stem(
     language_code: Optional[str],
     question_type: str,
     rotation_key: str,
+    tier: Optional[int] = None,
 ) -> Optional[str]:
     """Pick this test's stem for ``question_type``, or None when not rotated.
 
@@ -163,7 +236,7 @@ def select_stem(
     """
     if not is_enabled():
         return None
-    pool = pool_for(language_code, question_type)
+    pool = pool_for(language_code, question_type, tier)
     if not pool:
         return None
     digest = hashlib.sha256(
@@ -177,6 +250,7 @@ def build_directive(
     question_type: str,
     rotation_key: str,
     recent_stems: Optional[Sequence[str]] = None,
+    tier: Optional[int] = None,
 ) -> str:
     """The prompt fragment to append, or '' when there is nothing to say.
 
@@ -194,7 +268,7 @@ def build_directive(
     """
     parts: List[str] = []
 
-    stem = select_stem(language_code, question_type, rotation_key)
+    stem = select_stem(language_code, question_type, rotation_key, tier)
     if stem:
         parts.append(
             'QUESTION STEM — use this exact wording for the question itself:\n'

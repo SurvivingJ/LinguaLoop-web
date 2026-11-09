@@ -4,6 +4,42 @@ from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
+# ADR-040: prompt_templates.tier_id. Rows with a tier are level-specific
+# question templates, read only by the tier-aware question loader. Every
+# other reader must see only base rows (tier_id IS NULL). Until the column
+# exists (migrations/prompt_templates_tier_id.sql), the filter is skipped.
+_TIER_COLUMN: Dict[int, bool] = {}
+
+
+def tier_column_present(db) -> bool:
+    key = id(db)
+    if key not in _TIER_COLUMN:
+        try:
+            db.table('prompt_templates').select('tier_id').limit(1).execute()
+            _TIER_COLUMN[key] = True
+        except Exception:
+            _TIER_COLUMN[key] = False
+    return _TIER_COLUMN[key]
+
+
+def base_rows(query, db):
+    """Restrict a prompt_templates query to base (tier-less) rows."""
+    if tier_column_present(db):
+        return query.is_('tier_id', 'null')
+    return query
+
+
+def tier_templates_enabled(language_code: str) -> bool:
+    """``TEST_GEN_TIER_TEMPLATES``: off (default) | on/all | comma list of
+    language codes (e.g. ``ja,en``) — the per-language default set by the
+    TASK-927 experiment."""
+    value = (os.environ.get('TEST_GEN_TIER_TEMPLATES') or 'off').strip().lower()
+    if value in ('', 'off', '0', 'false', 'no'):
+        return False
+    if value in ('on', 'all', '1', 'true', 'yes'):
+        return True
+    return language_code in {v.strip() for v in value.split(',')}
+
 
 def get_template_config(db, task_name: str, language_id: int) -> dict:
     """Fetch the active prompt template, model, and provider for a task/language.
@@ -24,11 +60,11 @@ def get_template_config(db, task_name: str, language_id: int) -> dict:
             No silent fallback — operator must populate the table.
     """
     resp = (
-        db.table('prompt_templates')
+        base_rows(db.table('prompt_templates')
         .select('template_text, model, provider, version')
         .eq('task_name', task_name)
         .eq('language_id', language_id)
-        .eq('is_active', True)
+        .eq('is_active', True), db)
         .order('version', desc=True)
         .limit(1)
         .execute()
@@ -79,11 +115,11 @@ def get_template_text(db, task_name: str, language_id: int) -> str:
             cross-language fallback — a missing per-language prompt fails loud.
     """
     resp = (
-        db.table('prompt_templates')
+        base_rows(db.table('prompt_templates')
         .select('template_text, version')
         .eq('task_name', task_name)
         .eq('language_id', language_id)
-        .eq('is_active', True)
+        .eq('is_active', True), db)
         .order('version', desc=True)
         .limit(1)
         .execute()
