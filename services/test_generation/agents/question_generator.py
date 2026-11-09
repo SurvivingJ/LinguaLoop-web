@@ -162,6 +162,7 @@ class QuestionGenerator:
         language_code: Optional[str] = None,
         rotation_key: Optional[str] = None,
         recent_stems_by_type: Optional[Dict[str, Sequence[str]]] = None,
+        tier: Optional[int] = None,
     ) -> List[Dict]:
         """Generate multiple questions for prose content.
 
@@ -201,6 +202,9 @@ class QuestionGenerator:
         # Texts of the questions we have KEPT so far — the "what we already have"
         # signal fed to the next type so it avoids overlap.
         kept_texts: List[str] = []
+        # Full dicts of kept questions, for the within-test duplicate quality
+        # checks (quality_checks.pairwise_duplicate_checks).
+        kept_entries: List[Dict] = []
         # Per-question rejection reasons for THIS run (judge hard-rejects AND
         # validator failures across all regen attempts), surfaced to the
         # orchestrator for funnel diagnostics. Reset on every call.
@@ -246,6 +250,7 @@ class QuestionGenerator:
             if not wave:
                 continue
             kept_snapshot = list(kept_texts)  # frozen for this wave's parallel calls
+            kept_entries_snapshot = list(kept_entries)
             with BatchModeThreadPoolExecutor(max_workers=len(wave)) as pool:
                 futures = {
                     pool.submit(
@@ -267,6 +272,8 @@ class QuestionGenerator:
                         subject_keywords=subject_keywords,
                         language_code=language_code,
                         stem_directive=stem_directives.get(type_code, ''),
+                        tier=tier,
+                        kept_entries=kept_entries_snapshot,
                     ): type_code
                     for type_code in wave
                 }
@@ -295,6 +302,7 @@ class QuestionGenerator:
 
                 questions.append(q_entry)
                 kept_texts.append(q_entry['question'])
+                kept_entries.append(q_entry)
 
         logger.info(f"Generated {len(questions)}/{len(question_type_codes)} questions")
         return questions
@@ -316,6 +324,8 @@ class QuestionGenerator:
         subject_keywords: str = '',
         language_code: Optional[str] = None,
         stem_directive: str = '',
+        tier: Optional[int] = None,
+        kept_entries: Optional[List[Dict]] = None,
     ) -> Tuple[Optional[Dict], List[Dict]]:
         """Generate one question of a type, retrying with feedback on rejection.
 
@@ -408,8 +418,11 @@ class QuestionGenerator:
                 q_entry = judged_entry
 
             # --- Validator gate (structure, content, overlap vs kept) ---
+            # Quality checks (TASK-921) run whenever language_code is known,
+            # at every tier — they don't depend on the LLM judges being on.
             is_valid, error = self._validator.validate_question(
-                q_entry, prose, kept_questions
+                q_entry, prose, kept_questions,
+                language_code=language_code, tier=tier, previous=kept_entries,
             )
             if not is_valid:
                 attempt_rejections.append({

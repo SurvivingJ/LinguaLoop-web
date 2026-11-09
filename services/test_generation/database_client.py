@@ -122,6 +122,8 @@ class GeneratedTest:
     # TASK-740 Phase 5: dedup fields, see services/test_generation/dedup.py.
     passage_hash: Optional[str] = None
     passage_embedding: Optional[List[float]] = None
+    # TASK-923: experiment runs insert tests hidden from learners.
+    is_active: bool = True
 
 
 @dataclass
@@ -621,7 +623,9 @@ class TestDatabaseClient:
         # already validated tier_id via get_tier_config); a missing
         # distribution row is a seed-data gap, not a reason to raise.
         logger.warning(f"No question distribution found for tier {tier_id}, using default")
-        return ['literal_detail', 'literal_detail', 'main_idea', 'main_idea', 'inference']
+        # One of each type, no whole-passage type twice (see
+        # migrations/fix_question_type_mix_t3_t5_t6.sql).
+        return ['literal_detail', 'vocabulary_context', 'main_idea', 'supporting_detail', 'inference']
 
     def _load_tier_distribution_cache(self) -> None:
         """Load tier-keyed question type distributions into cache."""
@@ -824,6 +828,9 @@ class TestDatabaseClient:
 
         if test.passage_embedding is not None:
             data['passage_embedding'] = test.passage_embedding
+
+        if not test.is_active:
+            data['is_active'] = False
 
         self.client.table('tests') \
             .insert(data) \

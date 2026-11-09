@@ -62,8 +62,11 @@ class Harness:
         o.title_generator.generate_title.return_value = 'A title'
         o.question_generator = MagicMock()
         o.question_generator.generate_questions.return_value = [
-            {'type_code': 'x', 'question': f'q{i}', 'choices': ['a', 'b', 'c', 'd'],
-             'answer': 'a'} for i in range(4)
+            # Distinct answers: identical ones would be dropped by the
+            # within-test duplicate quality check (calibrated to reject).
+            {'type_code': 'x', 'question': f'q{i}',
+             'choices': [w, 'zz', 'yy', 'xx'],
+             'answer': w} for i, w in enumerate(['apple', 'river', 'stone', 'cloud'])
         ]
         o.question_validator = MagicMock()
         o.question_validator.validate_all_questions.side_effect = (

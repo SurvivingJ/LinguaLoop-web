@@ -11,6 +11,7 @@ Coordinates the test generation workflow:
 5. Extract vocabulary and generate word sense definitions
 """
 
+import json
 import os
 import time
 import logging
@@ -23,6 +24,7 @@ from uuid import UUID, uuid4
 
 from .config import get_test_gen_config
 from .question_mix import report_question_mix
+from . import quality_checks as qc
 from .enrichment_metrics import (
     format_summary, log_enrichment_hit_rate, split_inline_enrichment,
     summarise_batch,
@@ -111,14 +113,20 @@ def _write_review_queue_rows(
     try:
         rows = []
         for q_entry, gq in zip(valid_questions, db_questions):
-            flags = q_entry.get('_judge_flags')
-            if not flags:
+            flags = q_entry.get('_judge_flags') or {}
+            qc_flags = q_entry.get('_quality_flags') or []
+            if not flags and not qc_flags:
                 continue
+            reasons = _flag_reasons(flags) if flags else []
+            scores = dict(flags)
+            if qc_flags:
+                reasons += sorted({f"qc:{f['code']}" for f in qc_flags})
+                scores['quality_checks'] = qc_flags
             rows.append({
                 'artifact_kind': 'test_question',
                 'artifact_id':   str(gq.id),
-                'flag_reasons':  _flag_reasons(flags),
-                'judge_scores':  flags,
+                'flag_reasons':  reasons,
+                'judge_scores':  scores,
                 'status':        'pending',
             })
         if rows:
@@ -126,6 +134,71 @@ def _write_review_queue_rows(
             logger.info("Queued %d flagged question(s) for review", len(rows))
     except Exception as exc:
         logger.warning("Failed to write review_queue rows (non-fatal): %s", exc)
+
+
+_RUN_LOG_LOCK = threading.Lock()
+
+
+def _record_run(config, index, tier, topic_id, outcome, generated, seconds, error=None) -> None:
+    """Append one slot outcome to data/test_quality/experiments/<tag>/tests.jsonl."""
+    if not getattr(config, 'run_tag', None):
+        return
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    out_dir = os.path.join(root, 'data', 'test_quality', 'experiments', config.run_tag)
+    rec = {
+        'run_tag': config.run_tag, 'index': index, 'language': config.language_code,
+        'target_tier': tier, 'topic_id': topic_id, 'outcome': outcome,
+        'seconds': round(seconds, 1), 'error': error,
+        'qc_modes': os.environ.get('TEST_QC_MODES') or 'calibrated',
+        'tier_templates': os.environ.get('TEST_GEN_TIER_TEMPLATES') or 'off',
+        'inactive': bool(config.inactive), 'dry_run': bool(config.dry_run),
+        **(generated or {}),
+    }
+    with _RUN_LOG_LOCK:
+        os.makedirs(out_dir, exist_ok=True)
+        with open(os.path.join(out_dir, 'tests.jsonl'), 'a', encoding='utf-8') as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + '\n')
+
+
+def apply_test_quality_checks(
+    questions: list,
+    prose: str,
+    title,
+    language_code: str,
+    tier_id,
+    passage_results=None,
+) -> list:
+    """Run test-scope quality checks; drop rejected duplicates; attach flags.
+
+    Returns the (possibly shorter) question list. A rejecting
+    ``duplicate_*`` result drops the SECOND question of the pair. Other
+    rejecting test-scope results cannot be fixed by dropping a question, so
+    they are logged and attached as flags. Pure apart from mutating the
+    ``_quality_flags`` lists on the question dicts.
+    """
+    if language_code not in ('ja', 'zh', 'en') or not questions:
+        return questions
+    profile = qc.get_profile(language_code)
+    results = qc.run_test_checks(questions, prose, profile, tier_id)
+    results += [r for r in qc.run_passage_checks('', title, profile)]  # title only
+    results += list(passage_results or [])
+
+    drop = sorted({
+        r.question_index for r in results
+        if r.severity == 'reject' and r.code.startswith('duplicate_')
+        and r.question_index is not None
+    }, reverse=True)
+    for r in results:
+        if r.code.startswith('duplicate_') and r.question_index in drop and r.severity == 'reject':
+            logger.info("Dropping Q%d: %s", r.question_index + 1, r.message)
+            continue
+        idx = r.question_index if r.question_index is not None else 0
+        if idx < len(questions):
+            questions[idx].setdefault('_quality_flags', []).append(r.to_dict())
+    for i in drop:
+        if i < len(questions):
+            del questions[i]
+    return questions
 
 
 @dataclass
@@ -140,6 +213,12 @@ class BatchConfig:
     start_index: int = 0                              # resume from index
     delay_ms: int = 0                                 # ms between LLM calls
     stop_check: Optional[Callable[[], bool]] = field(default=None, repr=False)
+    # TASK-923 experiment harness: generate exactly these (topic_id, tier)
+    # pairs instead of reading production_queue; insert tests inactive;
+    # append one record per slot to data/test_quality/experiments/<run_tag>/.
+    topics: Optional[List[dict]] = None
+    inactive: bool = False
+    run_tag: Optional[str] = None
 
 
 class NoQueueItemsError(Exception):
@@ -607,6 +686,19 @@ class TestGenerationOrchestrator:
                 )
                 return False
 
+        # TASK-921: passage-scope quality checks (wrong writing system). A
+        # reject here skips the test; flags ride along to the review queue.
+        passage_qc = []
+        if lang_config.language_code in ('ja', 'zh', 'en'):
+            passage_qc = [
+                r for r in qc.run_passage_checks(
+                    prose, '-', qc.get_profile(lang_config.language_code))
+                if r.code != 'missing_title'   # title doesn't exist yet
+            ]
+            rejects = [r for r in passage_qc if r.severity == 'reject']
+            if rejects:
+                raise ValueError(f"qc:{rejects[0].code}: {rejects[0].message}")
+
         # Everything below is keyed off the ASSIGNED tier.
         tier_config = self.db.get_tier_config(tier_id)
         tier_initial_elo = self.db.get_tier_initial_elo(tier_id)
@@ -730,6 +822,7 @@ class TestGenerationOrchestrator:
                 recent_stems_by_type=self.db.get_recent_question_stems(
                     lang_config.id, question_types,
                 ),
+                tier=tier_id,
             )
 
         # Step 3: Validate questions. generate_questions now runs the validator
@@ -743,6 +836,16 @@ class TestGenerationOrchestrator:
         if errors:
             for error in errors:
                 logger.warning(f"Question validation: {error}")
+
+        # TASK-921: test-scope quality checks. A rejecting duplicate drops the
+        # SECOND question of the pair (developer decision 2026-11-09) — never
+        # the whole test; the survival floor below then decides. Flags are
+        # attached to the question they point at (or the first question for
+        # test-level findings) so they reach generation_review_queue.
+        valid_questions = apply_test_quality_checks(
+            valid_questions, prose, title, lang_config.language_code, tier_id,
+            passage_results=passage_qc,
+        )
 
         cfg = get_test_gen_config()
         # Survival floor. At the lowest tier (T1 toddler passages, ~74 words)
@@ -849,6 +952,7 @@ class TestGenerationOrchestrator:
                 age_tier_calibration=assessment.calibration,
                 passage_hash=passage_hash,
                 passage_embedding=passage_embedding,
+                is_active=not getattr(self, 'insert_inactive', False),
             )
             self.db.insert_test(test)
 
@@ -953,6 +1057,12 @@ class TestGenerationOrchestrator:
         else:
             logger.info(f"[DRY RUN] Would save test: {slug}")
 
+        # Per-thread: batch workers run _generate_test concurrently.
+        self.__dict__.setdefault('_last_generated', {})[threading.get_ident()] = {
+            'test_id': str(test_id), 'slug': slug, 'tier_id': tier_id,
+            'n_questions': len(valid_questions),
+            'stage_seconds': {k: round(v, 1) for k, v in stage_seconds.items()},
+        }
         logger.info(
             "Stage timing for %s: %s (total %.1fs)",
             slug, {k: round(v, 1) for k, v in stage_seconds.items()},
@@ -1709,16 +1819,25 @@ class TestGenerationOrchestrator:
             logger.info(f"Dry run: {config.dry_run}")
             logger.info("=" * 60)
 
-            # Fetch queue items
-            pending_status_id = self.db._get_status_id('pending')
-            queue_resp = self.db.client.table('production_queue') \
-                .select('*') \
-                .eq('status_id', pending_status_id) \
-                .eq('language_id', lang_config.id) \
-                .limit(config.count) \
-                .execute()
+            self.insert_inactive = bool(config.inactive)
+            if config.topics:
+                # TASK-923: fixed topic list — same topics for every arm.
+                tier_schedule = [int(t['tier']) for t in config.topics]
+                queue_items = [
+                    {'id': f"topic-{i}", 'topic_id': t['topic_id']}
+                    for i, t in enumerate(config.topics)
+                ]
+            else:
+                # Fetch queue items
+                pending_status_id = self.db._get_status_id('pending')
+                queue_resp = self.db.client.table('production_queue') \
+                    .select('*') \
+                    .eq('status_id', pending_status_id) \
+                    .eq('language_id', lang_config.id) \
+                    .limit(config.count) \
+                    .execute()
 
-            queue_items = queue_resp.data or []
+                queue_items = queue_resp.data or []
             if not queue_items:
                 logger.warning("No pending queue items for %s", config.language_code)
                 return self._finalize(start_time)
@@ -1765,6 +1884,7 @@ class TestGenerationOrchestrator:
                 # the aggregate submission rate is now workers/delay rather
                 # than 1/delay — a deliberate consequence of adding
                 # concurrency, not a silent drop of the --delay flag's effect.
+                t0 = time.time()
                 try:
                     success = self._generate_test(
                         topic=topic,
@@ -1774,9 +1894,15 @@ class TestGenerationOrchestrator:
                         test_type=config.test_type,
                         dry_run=config.dry_run,
                     )
+                    _record_run(config, i, tier, qi_row['topic_id'],
+                                'pass' if success else 'skip',
+                                self.__dict__.get('_last_generated', {}).get(threading.get_ident()) if success else None,
+                                time.time() - t0)
                 except JudgeUnavailable:
                     raise
-                except Exception:
+                except Exception as exc:
+                    _record_run(config, i, tier, qi_row['topic_id'], 'error', None,
+                                time.time() - t0, error=str(exc))
                     if config.delay_ms > 0:
                         time.sleep(config.delay_ms / 1000.0)
                     raise
@@ -1861,7 +1987,7 @@ class TestGenerationOrchestrator:
 
             # Mark processed queue items complete, using per-item counts so that
             # cycled batches (count > len(queue_items)) record accurate per-item totals.
-            if not config.dry_run and self.metrics.tests_generated > 0:
+            if not config.dry_run and self.metrics.tests_generated > 0 and not config.topics:
                 for qi_row in queue_items:
                     item_count = per_item_counts.get(qi_row['id'], 0)
                     try:

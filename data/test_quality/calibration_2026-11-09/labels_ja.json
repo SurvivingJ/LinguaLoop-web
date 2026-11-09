@@ -1,0 +1,446 @@
+[
+ {
+  "finding_id": "ja-absolute_distractors-0",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "Two distractors hinge on すべて/完全に and the third on 既に十分, so the hedged answer stands out by wording alone."
+ },
+ {
+  "finding_id": "ja-absolute_distractors-1",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "Distractors with すべての/完全に are eliminable by test-wise wording cues, leaving a 50/50."
+ },
+ {
+  "finding_id": "ja-answer_copies_passage-0",
+  "code": "answer_copies_passage",
+  "label": "real",
+  "reason": "Answer reproduces the passage clause verbatim while no distractor appears in the text, enabling string matching."
+ },
+ {
+  "finding_id": "ja-answer_copies_passage-1",
+  "code": "answer_copies_passage",
+  "label": "real",
+  "reason": "Answer is a verbatim passage sentence (and actually the reason for growing vegetables, not for checking weather), distractors are unrelated to the text."
+ },
+ {
+  "finding_id": "ja-answer_copies_passage-2",
+  "code": "answer_copies_passage",
+  "label": "false_alarm",
+  "reason": "Only the short phrase 効率的な生産システム is shared; attitude choice still requires judging objectivity."
+ },
+ {
+  "finding_id": "ja-answer_copies_passage-3",
+  "code": "answer_copies_passage",
+  "label": "false_alarm",
+  "reason": "Answer is a light paraphrase and a distractor also reuses passage vocabulary (収量/収益性), so string matching alone does not decide it."
+ },
+ {
+  "finding_id": "ja-answer_copies_passage-4",
+  "code": "answer_copies_passage",
+  "label": "real",
+  "reason": "Answer copies 視覚的な雑音を減らし、心の豊かさを追求 verbatim and distractors share nothing with the text."
+ },
+ {
+  "finding_id": "ja-answer_copies_passage-5",
+  "code": "answer_copies_passage",
+  "label": "real",
+  "reason": "Answer is the passage's own reason clause word for word; distractors are invented."
+ },
+ {
+  "finding_id": "ja-answer_copies_passage-6",
+  "code": "answer_copies_passage",
+  "label": "real",
+  "reason": "Answer copies a 26-char passage clause and is also far longer than the short distractors."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-0",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "At tier 2 the answer is the only long, specific option against three short parallel stubs, an obvious giveaway."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-1",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer is nearly twice as long and the only hedged option among short absolute claims."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-2",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Main-idea choices are all sentence-length and one distractor is close in length; no real cue."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-3",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Longest distractor (22) is near the answer (26); lengths are comparable."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-4",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Definition-style choices; answer is modestly longer but not a giveaway."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-5",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer is noticeably longer and more elaborated than three short distractors."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-6",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "A distractor of 22 chars sits close to the 25-char answer."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-7",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Vocabulary definitions of similar length; small difference is not a cue."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-8",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "A distractor is as long as the answer; length gives nothing away."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-9",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Distractors range up to ~36 chars against 42; differences are within normal variation."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-10",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Answer is only modestly longer than distractors of ~30 chars."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-11",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "All four choices are long full clauses of similar length."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-12",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Distractors of 35-38 chars vs 48; all are full sentences and length is not a clear cue."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-13",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Short choices; answer only a few characters longer than the longest distractor."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-14",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Short attitude choices of comparable length."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-15",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "One distractor is nearly as long as the answer."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-16",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "All choices are long parallel ロボット製作は… sentences; modest length gap."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-17",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Definition choices; the answer is somewhat longer but not conspicuously so."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-18",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer is 50% longer and is the only noun-phrase (…点) among parallel ～している distractors, making it stand out."
+ },
+ {
+  "finding_id": "ja-answer_length_outlier-19",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Distractors of 26-33 chars against 40; all are …ため clauses and length is not decisive."
+ },
+ {
+  "finding_id": "ja-choice_label_prefix-0",
+  "code": "choice_label_prefix",
+  "label": "real",
+  "reason": "Choices carry stray A./B./C./D. labels that will duplicate the app's own labels."
+ },
+ {
+  "finding_id": "ja-choice_label_prefix-1",
+  "code": "choice_label_prefix",
+  "label": "real",
+  "reason": "Stray B. label embedded in the choice text."
+ },
+ {
+  "finding_id": "ja-choice_label_prefix-2",
+  "code": "choice_label_prefix",
+  "label": "real",
+  "reason": "Stray C. label embedded in the choice text."
+ },
+ {
+  "finding_id": "ja-choice_label_prefix-3",
+  "code": "choice_label_prefix",
+  "label": "real",
+  "reason": "Stray D. label embedded in the choice text."
+ },
+ {
+  "finding_id": "ja-duplicate_answer-0",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Both author_purpose answers say the author analyses VC and affirms its social significance; one understanding earns two marks."
+ },
+ {
+  "finding_id": "ja-duplicate_stem-0",
+  "code": "duplicate_stem",
+  "label": "real",
+  "reason": "Q1 and Q2 ask the same question (what the wall does) with the same answer 町を防衛する."
+ },
+ {
+  "finding_id": "ja-duplicate_vocab_target-0",
+  "code": "duplicate_vocab_target",
+  "label": "real",
+  "reason": "Two vocabulary questions target 進化 with essentially the same correct definition."
+ },
+ {
+  "finding_id": "ja-foreign_script-0",
+  "code": "foreign_script",
+  "label": "real",
+  "reason": "变 is the simplified form; Japanese requires 変 (質的変化)."
+ },
+ {
+  "finding_id": "ja-foreign_script-1",
+  "code": "foreign_script",
+  "label": "real",
+  "reason": "纹 is simplified Chinese; Japanese would use 紋 (紋理) or 文理."
+ },
+ {
+  "finding_id": "ja-latin_in_cjk-0",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "English 'sandwich' inside a Japanese choice is unnatural; should be サンドイッチ, and it marks the choice as odd."
+ },
+ {
+  "finding_id": "ja-latin_in_cjk-1",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "English 'dramatize' in a Japanese choice is unnatural and confusing; should be 劇的に描いて or similar."
+ },
+ {
+  "finding_id": "ja-missing_title-0",
+  "code": "missing_title",
+  "label": "real",
+  "reason": "The test genuinely has no title."
+ },
+ {
+  "finding_id": "ja-script_above_level-0",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "Tier-1 kana-only passage, but the choice uses kanji (同じ学校に通う子供) a beginner cannot read."
+ },
+ {
+  "finding_id": "ja-script_above_level-1",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "心を許せる存在 is kanji-heavy and abstract, unreadable for a tier-1 kana reader."
+ },
+ {
+  "finding_id": "ja-script_above_level-2",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "一緒に遊ぶ相手 uses kanji a tier-1 kana reader is unlikely to know."
+ },
+ {
+  "finding_id": "ja-script_above_level-3",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "同じ家に住む人 uses kanji absent from the kana-only passage; the sibling question shows kana choices were possible."
+ },
+ {
+  "finding_id": "ja-script_above_level-4",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "石を運んで持っていく puts kanji in a choice for a passage written entirely in kana."
+ },
+ {
+  "finding_id": "ja-script_above_level-5",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "The answer 石を積み重ねていく uses kanji (積) a tier-1 reader of a kana passage cannot read."
+ },
+ {
+  "finding_id": "ja-script_above_level-6",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "石を削って形に uses kanji above the passage's kana-only level."
+ },
+ {
+  "finding_id": "ja-script_above_level-7",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "石を並べて飾る uses kanji above the passage's kana-only level."
+ },
+ {
+  "finding_id": "ja-script_above_level-8",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "ローマに住んでいる人々 introduces kanji into a kana-only tier-1 item."
+ },
+ {
+  "finding_id": "ja-script_above_level-9",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "訪れている観光客 is kanji-heavy vocabulary far above a kana-only passage."
+ },
+ {
+  "finding_id": "ja-script_above_level-10",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "働いている建設業者 is kanji-heavy vocabulary far above a kana-only passage."
+ },
+ {
+  "finding_id": "ja-script_above_level-11",
+  "code": "script_above_level",
+  "label": "real",
+  "reason": "歴史を研究している学者 is kanji-heavy vocabulary far above a kana-only passage."
+ },
+ {
+  "finding_id": "ja-too_few_questions-0",
+  "code": "too_few_questions",
+  "label": "real",
+  "reason": "Tier-2 test has only three questions and two of them are near-identical literal recalls of the same sentence."
+ },
+ {
+  "finding_id": "ja-type_mix-0",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "The two author_purpose items ask stance vs. argument movement and have clearly different answers."
+ },
+ {
+  "finding_id": "ja-type_mix-1",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Four questions with half on author stance and none checking a stated fact leaves the test lopsided."
+ },
+ {
+  "finding_id": "ja-type_mix-2",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude and tone answers are both 'praises dyeing as a nature-human craft' with parallel distractors; redundant."
+ },
+ {
+  "finding_id": "ja-type_mix-3",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "No detail question: two of four items are stance/structure, so comprehension of stated content is never tested."
+ },
+ {
+  "finding_id": "ja-type_mix-4",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude answer (賛美) and tone answer (賛美し…畏敬) test the same understanding."
+ },
+ {
+  "finding_id": "ja-type_mix-5",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "No detail question; three of four items probe the author's evaluation of VC."
+ },
+ {
+  "finding_id": "ja-type_mix-6",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude (神聖視し) and tone (神聖視する荘重な調子) answers are essentially identical."
+ },
+ {
+  "finding_id": "ja-type_mix-7",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Tone vs. structure items have distinct answers (praise vs. stepwise depiction of process)."
+ },
+ {
+  "finding_id": "ja-type_mix-8",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude and structure answers both say 'warns of QE's structural danger', and the inference item asks the stance again."
+ },
+ {
+  "finding_id": "ja-type_mix-9",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude and structure answers both say the author warns of irreversible change and urges transformation."
+ },
+ {
+  "finding_id": "ja-type_mix-10",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "No detail question; half the test is stance/tone with overlapping answers."
+ },
+ {
+  "finding_id": "ja-type_mix-11",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude (静かに祈るような気持ちで見守る) and tone (静かに見守る厳粛な祈り) are the same answer reworded."
+ },
+ {
+  "finding_id": "ja-type_mix-12",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "No detail question; all non-vocab items are interpretive, so factual comprehension is untested."
+ },
+ {
+  "finding_id": "ja-type_mix-13",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "The two author_purpose answers are near-paraphrases (objective analysis affirming social significance)."
+ },
+ {
+  "finding_id": "ja-type_mix-14",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "No detail question; test checks only inference, vocab and two stance items."
+ },
+ {
+  "finding_id": "ja-type_mix-15",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude and structure answers both stress CCUS's importance, overlapping also with the inference item."
+ },
+ {
+  "finding_id": "ja-type_mix-16",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude and tone answers are near-verbatim (philosophical/spiritual endeavour, praised)."
+ },
+ {
+  "finding_id": "ja-type_mix-17",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Attitude and structure answers are near-verbatim (科学的・哲学的に再定義し価値を高める)."
+ },
+ {
+  "finding_id": "ja-type_mix-18",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "No detail question despite a procedure-rich passage (cyanoacrylate, minutiae) that invites one."
+ },
+ {
+  "finding_id": "ja-type_mix-19",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "No detail question; half the test probes the same stance (quiet prayerful watching)."
+ }
+]

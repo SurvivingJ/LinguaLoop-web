@@ -1,0 +1,506 @@
+[
+ {
+  "finding_id": "zh-absolute_distractors-0",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "Distractors '所有国家'/'完全一致' are overgeneralizations easily dismissed, leaving the one hedged answer."
+ },
+ {
+  "finding_id": "zh-absolute_distractors-1",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "'完全取代' and '全球所有产品' distractors are implausible extremes, cutting the field to two."
+ },
+ {
+  "finding_id": "zh-absolute_distractors-2",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "'完全转移' and '所有社区平等' distractors are easy to eliminate on absolute wording alone."
+ },
+ {
+  "finding_id": "zh-absolute_distractors-3",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "Both '完全脱离' and '完全自动化' distractors are obvious overstatements vs the moderate answer."
+ },
+ {
+  "finding_id": "zh-absolute_distractors-4",
+  "code": "absolute_distractors",
+  "label": "false_alarm",
+  "reason": "'所有衣服中最…' is a superlative comparison mirroring the stem's '最重要', not an absolute overclaim cue."
+ },
+ {
+  "finding_id": "zh-absolute_distractors-5",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "'处理所有类型的伤势' and '完全消除受伤可能' are absurd extremes that a test-wise learner drops."
+ },
+ {
+  "finding_id": "zh-absolute_distractors-6",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "Two '完全…' distractors (incl. '唯一方法') are easily eliminated, leaving the hedged '略带警示'."
+ },
+ {
+  "finding_id": "zh-absolute_distractors-7",
+  "code": "absolute_distractors",
+  "label": "real",
+  "reason": "'所有潜在副作用' and '所有患者…最昂贵的药物' are absurd absolutes, trivially eliminated."
+ },
+ {
+  "finding_id": "zh-answer_copies_passage-0",
+  "code": "answer_copies_passage",
+  "label": "real",
+  "reason": "Answer '能更清楚地表示音的高低' is lifted verbatim from the passage, so string-matching suffices."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-0",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (20) is visibly the most elaborated option vs 11-16-char distractors at an author-purpose item."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-1",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Answer 26 vs a 21-char distractor; all are full sentences and length does not single it out."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-2",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "All four are parallel action phrases; the 4-char difference comes from a natural definition, not a giveaway."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-3",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer 23 vs max 15 and the only hedged statement among '唯一/必须' distractors; length plus content cue it."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-4",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "20 vs 14-char distractors at tier 6 with parallel structure; the length gap is not a meaningful cue."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-5",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Answer 23 vs a 20-char distractor; lengths are comparable."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-6",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (16) is twice as long as the terse 7-9-char distractors and the only full explanation."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-7",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Answer 22 vs a 21-char distractor; no length giveaway."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-8",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (11) is notably longer than 6-7-char distractors that are also silly, making it easy to guess."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-9",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (29) is far more elaborated than 17-20-char distractors, a typical longest-is-right cue."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-10",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "At tier 1, '令人愉快的或吸引人的' (10) stands out against three parallel 5-char options."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-11",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (17) adds '组织或方法' hedging vs uniform 10-11-char distractors; noticeably longer."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-12",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (32) is far longer than 15-19-char options and the only nuanced statement."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-13",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (24) is clearly the longest and most elaborated vs 14-18-char distractors."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-14",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (15) is much longer than 7-9-char distractors and the only substantive reason."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-15",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (27) with a two-part clause clearly outweighs 14-18-char distractors."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-16",
+  "code": "answer_length_outlier",
+  "label": "real",
+  "reason": "Answer (28) is markedly longer and more qualified than the other inferences."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-17",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Answer 25 vs a 20-char distractor; all are full sentences so length is not decisive."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-18",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "Answer 20 vs 13-15-char full-sentence distractors; modest gap, not a real giveaway."
+ },
+ {
+  "finding_id": "zh-answer_length_outlier-19",
+  "code": "answer_length_outlier",
+  "label": "false_alarm",
+  "reason": "'肥皂和水' (4) vs 2-char words is a trivial absolute gap at tier 1, not a length cue."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-0",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q3 both ask where the beans are processed (工厂)."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-1",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q3 and Q4 both ask the meaning of '时间可以慢一点' with the same answer."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-2",
+  "code": "duplicate_answer",
+  "label": "false_alarm",
+  "reason": "Q2 asks data-check frequency and Q3 report frequency; same answer '每周' but different facts."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-3",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q2 are the same question reworded with the same answer."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-4",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q2 both ask the sweater colour (蓝色)."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-5",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q3 both ask the sweater colour (蓝色)."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-6",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q3 both ask the sweater colour; the test has three colour questions."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-7",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q4 both ask the sweater colour; Q4 is a near-verbatim repeat."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-8",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Main-idea and inference answers are both 'emotional anchor and childhood memory', testing the same point."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-9",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q2 are the same inference about the author's view of '简单' with near-identical answers."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-10",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q2 both ask what cleans hands (肥皂和水)."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-11",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q2 both ask what tool the dentist used (小镜子)."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-12",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q3 and Q4 both ask the purpose of pharmacogenomics with near-identical answers."
+ },
+ {
+  "finding_id": "zh-duplicate_answer-13",
+  "code": "duplicate_answer",
+  "label": "real",
+  "reason": "Q1 and Q2 both test that printing affected the Reformation."
+ },
+ {
+  "finding_id": "zh-duplicate_stem-0",
+  "code": "duplicate_stem",
+  "label": "real",
+  "reason": "Q2 and Q3 both ask what kind of toy Teddy is (a bear)."
+ },
+ {
+  "finding_id": "zh-duplicate_stem-1",
+  "code": "duplicate_stem",
+  "label": "real",
+  "reason": "Q1 and Q2 (and Q3-Q5) all test the same 'keep calm/think good thoughts' detail."
+ },
+ {
+  "finding_id": "zh-duplicate_vocab_target-0",
+  "code": "duplicate_vocab_target",
+  "label": "real",
+  "reason": "Both vocab items target '时间可以慢一点' with the same answer."
+ },
+ {
+  "finding_id": "zh-duplicate_vocab_target-1",
+  "code": "duplicate_vocab_target",
+  "label": "real",
+  "reason": "Same target, and Q5's stem even reveals Q4's answer '传染性现象'."
+ },
+ {
+  "finding_id": "zh-duplicate_vocab_target-2",
+  "code": "duplicate_vocab_target",
+  "label": "false_alarm",
+  "reason": "Same quoted sentence but different targets ('变少' vs '有机的东西')."
+ },
+ {
+  "finding_id": "zh-duplicate_vocab_target-3",
+  "code": "duplicate_vocab_target",
+  "label": "false_alarm",
+  "reason": "Different targets ('叙事' vs '一种') from the same sentence; distinct items."
+ },
+ {
+  "finding_id": "zh-duplicate_vocab_target-4",
+  "code": "duplicate_vocab_target",
+  "label": "false_alarm",
+  "reason": "Different targets ('城市规划' vs '好好设计') from the same sentence."
+ },
+ {
+  "finding_id": "zh-duplicate_vocab_target-5",
+  "code": "duplicate_vocab_target",
+  "label": "false_alarm",
+  "reason": "Different targets ('想' vs '舒服'), though Q4 is defective because '舒服' is not in the quoted sentence."
+ },
+ {
+  "finding_id": "zh-foreign_script-0",
+  "code": "foreign_script",
+  "label": "false_alarm",
+  "reason": "昇 is the standard Simplified form in the name 毕昇; not a foreign character."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-0",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Distractor ends with English 'without personal tone', a leaked untranslated fragment."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-1",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Same leaked English fragment 'without personal tone' in a Chinese choice."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-2",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Same leaked English fragment 'without personal tone' in a Chinese choice."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-3",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item quotes English 'risk assessment model' though the passage only has 风险评估模型."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-4",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item targets an English phrase absent from the Chinese passage."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-5",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item targets an English phrase absent from the Chinese passage."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-6",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item asks about English 'make a decision' while the passage says 做出决定."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-7",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item asks about English 'make a decision' not present in the passage."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-8",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item asks about English 'make a decision' not present in the passage."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-9",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item asks about English 'make a decision' not present in the passage."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-10",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item asks about English 'build in' while the passage says 嵌入."
+ },
+ {
+  "finding_id": "zh-latin_in_cjk-11",
+  "code": "latin_in_cjk",
+  "label": "real",
+  "reason": "Vocab item asks about English 'build in' while the passage says 嵌入."
+ },
+ {
+  "finding_id": "zh-type_mix-0",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Tier-6 test of inference/vocab/purpose items is a deliberate higher-order mix, not lopsided."
+ },
+ {
+  "finding_id": "zh-type_mix-1",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "The two author-purpose items target different things (closing vision vs terminology choice)."
+ },
+ {
+  "finding_id": "zh-type_mix-2",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Author-purpose items differ (closing statement intent vs argumentation method)."
+ },
+ {
+  "finding_id": "zh-type_mix-3",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Author-purpose items differ (closing concept intent vs tone of word choice)."
+ },
+ {
+  "finding_id": "zh-type_mix-4",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Both author-purpose items ask the author's attitude toward the T-shirt with equivalent answers."
+ },
+ {
+  "finding_id": "zh-type_mix-5",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Tier-5 academic passage; inference-heavy set without literal items is acceptable and balanced."
+ },
+ {
+  "finding_id": "zh-type_mix-6",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Author-purpose items differ (intent of economic framing vs credibility technique)."
+ },
+ {
+  "finding_id": "zh-type_mix-7",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Author-purpose items differ (overall thesis vs intent of closing remark)."
+ },
+ {
+  "finding_id": "zh-type_mix-8",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Both author-purpose items ask the overall intent of describing notation's evolution; redundant."
+ },
+ {
+  "finding_id": "zh-type_mix-9",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Author-purpose items differ (closing framing vs computer-cooling metaphor)."
+ },
+ {
+  "finding_id": "zh-type_mix-10",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Tier-6 test with higher-order items only is by design; the questions are distinct."
+ },
+ {
+  "finding_id": "zh-type_mix-11",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Author-purpose items differ (closing rhetorical question vs a specific phrase)."
+ },
+ {
+  "finding_id": "zh-type_mix-12",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Tier-6 test with no literal item is acceptable; questions are distinct."
+ },
+ {
+  "finding_id": "zh-type_mix-13",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Author-purpose items contrast philosophical vs scientific register; distinct enough."
+ },
+ {
+  "finding_id": "zh-type_mix-14",
+  "code": "type_mix",
+  "label": "false_alarm",
+  "reason": "Tier-6 test with no literal item is acceptable at this level."
+ },
+ {
+  "finding_id": "zh-type_mix-15",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Tier-3 test with no literal/detail item and duplicated attitude questions is lopsided."
+ },
+ {
+  "finding_id": "zh-type_mix-16",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Both main-idea items say 'how to build a simple robot arm'; the literal and detail items also both test servo motors."
+ },
+ {
+  "finding_id": "zh-type_mix-17",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "The two author-purpose items have near-identical stems and answers."
+ },
+ {
+  "finding_id": "zh-type_mix-18",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Both author-purpose items reduce to 'reveal the symbol's deeper social meaning'."
+ },
+ {
+  "finding_id": "zh-type_mix-19",
+  "code": "type_mix",
+  "label": "real",
+  "reason": "Tier-4 test lacks any literal item and instead has duplicate inference and duplicate tone questions."
+ }
+]

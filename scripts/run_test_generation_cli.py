@@ -84,12 +84,45 @@ def main():
         '--delay', type=int, default=0,
         help='Delay in milliseconds between tests (default: 0)',
     )
+    # TASK-923 experiment harness.
+    parser.add_argument(
+        '--inactive', action='store_true',
+        help='Insert tests with is_active=false (hidden from learners)',
+    )
+    parser.add_argument(
+        '--topics-file', default=None,
+        help='JSON list of {"topic_id", "tier"}: generate exactly these, in '
+             'order, instead of reading production_queue (ignores --count/--tier)',
+    )
+    parser.add_argument(
+        '--qc-modes', choices=['flag', 'reject', 'calibrated'], default=None,
+        help='Quality-check mode for this run (sets TEST_QC_MODES)',
+    )
+    parser.add_argument(
+        '--tier-templates', choices=['on', 'off'], default=None,
+        help='Use tier-keyed question templates (sets TEST_GEN_TIER_TEMPLATES)',
+    )
+    parser.add_argument(
+        '--run-tag', default=None,
+        help='Append one record per slot to data/test_quality/experiments/<TAG>/tests.jsonl',
+    )
     from scripts.provider_arg import add_provider_arg, apply_provider
     add_provider_arg(parser)
     args = parser.parse_args()
 
     setup_logging()
     logger = logging.getLogger(__name__)
+
+    topics = None
+    if args.topics_file:
+        import json
+        with open(args.topics_file, encoding='utf-8') as f:
+            topics = json.load(f)
+        args.count = len(topics)
+    if args.qc_modes:
+        os.environ['TEST_QC_MODES'] = args.qc_modes
+    if args.tier_templates:
+        os.environ['TEST_GEN_TIER_TEMPLATES'] = args.language if args.tier_templates == 'on' else 'off'
 
     # Before any orchestrator is constructed: agents cache an LLM client at
     # __init__, so a later switch would leave them pointed at the old provider.
@@ -107,6 +140,14 @@ def main():
     logger.info('  Type: %s', args.type)
     logger.info('  Tier: %s', args.tier or 'balanced [1-6]')
     logger.info('  Dry Run: %s', args.dry_run)
+    logger.info('  QC modes: %s', os.environ.get('TEST_QC_MODES') or 'calibrated')
+    logger.info('  Tier templates: %s', os.environ.get('TEST_GEN_TIER_TEMPLATES') or 'off')
+    if topics:
+        logger.info('  Topics file: %s (%d topics)', args.topics_file, len(topics))
+    if args.inactive:
+        logger.info('  Inactive: tests hidden from learners')
+    if args.run_tag:
+        logger.info('  Run tag: %s', args.run_tag)
     if args.start_index > 0:
         logger.info('  Start Index: %d', args.start_index)
     if args.delay > 0:
@@ -133,6 +174,9 @@ def main():
             dry_run=args.dry_run,
             start_index=args.start_index,
             delay_ms=args.delay,
+            topics=topics,
+            inactive=args.inactive,
+            run_tag=args.run_tag,
         )
 
         metrics = orchestrator.run_batch(config)

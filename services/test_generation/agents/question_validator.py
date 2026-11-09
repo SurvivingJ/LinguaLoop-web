@@ -8,6 +8,8 @@ import logging
 import re
 from typing import List, Dict, Optional, Tuple
 
+from services.test_generation import quality_checks as qc
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,13 +26,26 @@ _QUOTE_PATTERNS = [
     re.compile('『([^』]+?)』'),                # CJK white corner 『 』
 ]
 
+# Bracket spans — only for vocabulary_context stems (TASK-916). Many ja stems
+# mark the target as 文中の（他の人）の意味…, which the quote patterns miss.
+_BRACKET_PATTERNS = [
+    re.compile('（([^）]+?)）'),                # full-width （ ）
+    re.compile(r'\(([^)]+?)\)'),                # ASCII ( )
+]
+
+#: Longest span (in characters) treated as a vocabulary item when it has no
+#: spaces. "≤ 6 words" is meaningless for CJK: a 30-char span is one "word".
+_MAX_SPAN_CHARS_NO_SPACE = 12
+
 
 def _normalize_text(s: str) -> str:
     """Lowercase + collapse whitespace for a forgiving substring match."""
     return re.sub(r'\s+', ' ', s).strip().lower()
 
 
-def check_quoted_phrase_in_passage(question_text: str, prose: str) -> Optional[str]:
+def check_quoted_phrase_in_passage(
+    question_text: str, prose: str, include_brackets: bool = False,
+) -> Optional[str]:
     """Catch hallucinated quoted phrases in a vocabulary-in-context question.
 
     Vocabulary questions often quote the target word/phrase (e.g. "What does
@@ -49,15 +64,20 @@ def check_quoted_phrase_in_passage(question_text: str, prose: str) -> Optional[s
         return None
 
     norm_prose = _normalize_text(prose)
+    patterns = _QUOTE_PATTERNS + (_BRACKET_PATTERNS if include_brackets else [])
 
-    for pattern in _QUOTE_PATTERNS:
+    for pattern in patterns:
         for raw_span in pattern.findall(question_text):
             span = raw_span.strip()
             if not span:
                 continue
             # Only short spans (likely a word/idiom) — long quotes may be
-            # legitimately paraphrased excerpts.
-            if len(span.split()) > 6:
+            # legitimately paraphrased excerpts. Spaced text: ≤ 6 words;
+            # unspaced (CJK): ≤ 12 characters.
+            if ' ' in span:
+                if len(span.split()) > 6:
+                    continue
+            elif len(span) > _MAX_SPAN_CHARS_NO_SPACE:
                 continue
             if _normalize_text(span) not in norm_prose:
                 return (
@@ -78,7 +98,11 @@ class QuestionValidator:
         self,
         question: Dict,
         prose: str,
-        previous_questions: List[str] = None
+        previous_questions: List[str] = None,
+        *,
+        language_code: Optional[str] = None,
+        tier: Optional[int] = None,
+        previous: Optional[List[Dict]] = None,
     ) -> Tuple[bool, Optional[str]]:
         """
         Validate a single question.
@@ -90,6 +114,13 @@ class QuestionValidator:
 
         Returns:
             Tuple of (is_valid, error_message)
+
+        With ``language_code`` set, the deterministic quality checks
+        (services/test_generation/quality_checks.py) also run: results in
+        ``reject`` mode fail validation (the generator regenerates); ``flag``
+        results are stored on ``question['_quality_flags']``. ``previous``
+        (already-kept question dicts) feeds the within-test duplicate checks so
+        a duplicate is caught while it can still be regenerated.
         """
         try:
             # Validate structure
@@ -102,14 +133,34 @@ class QuestionValidator:
             # the passage never contains (hallucinated). Catch it for free.
             if question.get('type_code') == 'vocabulary_context':
                 phrase_error = check_quoted_phrase_in_passage(
-                    question.get('question', ''), prose
+                    question.get('question', ''), prose, include_brackets=True,
                 )
                 if phrase_error:
                     raise ValueError(phrase_error)
 
+            profile = qc.get_profile(language_code) if language_code in ('ja', 'zh', 'en') else None
+
             # Check for semantic overlap
             if previous_questions:
+                # Legacy whitespace overlap stays as-is (it rejects); the
+                # language-aware comparison is the `duplicate_stem` quality
+                # check below, which runs in its calibrated mode.
                 self._check_overlap(question['question'], previous_questions)
+
+            if profile is not None:
+                results = qc.run_question_checks(question, prose, profile, tier)
+                # Pairwise duplicates only matter here when they reject (so the
+                # generator can regenerate); flags for them come from the
+                # test-scope pass in the orchestrator, once, not per attempt.
+                dup = qc.pairwise_duplicate_checks(question, previous or [], profile)
+                rejects = [r for r in results + dup if r.severity == 'reject']
+                if rejects:
+                    raise ValueError(f"qc:{rejects[0].code}: {rejects[0].message}")
+                flags = [r.to_dict() for r in results]
+                if flags:
+                    question['_quality_flags'] = flags
+                else:
+                    question.pop('_quality_flags', None)
 
             return (True, None)
 
@@ -203,21 +254,15 @@ class QuestionValidator:
         if len(unique_choices) < 4:
             raise ValueError("Duplicate choices detected")
 
-        # Check choice length variety (all shouldn't be same length)
-        lengths = [len(c.strip()) for c in choices]
-        if len(set(lengths)) == 1 and max(lengths) > 20:
-            logger.debug("All choices have same length - may indicate pattern")
-
-        # Check answer isn't obviously the longest or shortest
-        answer_len = len(answer.strip())
-        if answer_len == max(lengths) and answer_len > 1.5 * min(lengths):
-            logger.debug("Answer is notably longest option")
+        # Answer-length giveaways are the `answer_length_outlier` quality
+        # check (quality_checks.py), which flags/rejects instead of logging.
 
     def _check_overlap(
         self,
         new_question: str,
         previous_questions: List[str],
-        threshold: float = 0.65
+        threshold: float = 0.65,
+        profile: Optional['qc.LanguageProfile'] = None,
     ) -> None:
         """
         Check for semantic overlap with previous questions.
@@ -230,10 +275,14 @@ class QuestionValidator:
         Raises:
             ValueError: If overlap exceeds threshold
         """
-        new_words = set(new_question.lower().split())
+        # Without a profile: whitespace tokens (legacy). With one: the
+        # language's tokenizer — ja/zh have no spaces, so whitespace Jaccard
+        # never fired for them except on identical strings.
+        tok = profile.tokenize if profile is not None else (lambda s: s.lower().split())
+        new_words = set(tok(new_question))
 
         for prev in previous_questions:
-            prev_words = set(prev.lower().split())
+            prev_words = set(tok(prev))
 
             # Calculate Jaccard similarity
             intersection = new_words.intersection(prev_words)
@@ -280,6 +329,12 @@ class QuestionValidator:
 
         if 'answer' in fixed:
             fixed['answer'] = fixed['answer'].strip()
+
+        # Strip "A. "-style labels the model added itself (the UI labels
+        # choices). Only when all four carry one; the answer follows its choice.
+        if isinstance(fixed.get('choices'), list) and isinstance(fixed.get('answer'), str):
+            fixed['choices'], fixed['answer'], _ = qc.strip_label_prefixes(
+                fixed['choices'], fixed['answer'])
 
         # Fix answer if it's a letter index
         if 'answer' in fixed and 'choices' in fixed:

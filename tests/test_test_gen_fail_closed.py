@@ -55,6 +55,15 @@ from services.test_generation.orchestrator import (
     TestGenerationOrchestrator,
 )
 from services.tier_classifier import TierAssessment
+
+
+@pytest.fixture(autouse=True)
+def _quality_checks_flag_only(monkeypatch):
+    """These fixtures hand back one identical question for every type; the
+    within-test duplicate quality check (calibrated to reject) would drop the
+    copies and trip the survival floor. This file tests batch-mode judging,
+    not quality checks, so they only flag here."""
+    monkeypatch.setenv('TEST_QC_MODES', 'flag')
 from services.test_generation.schemas import (
     AnswerEntailmentVerdict,
     DistractorPlausibilityVerdict,
