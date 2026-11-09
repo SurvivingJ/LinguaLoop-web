@@ -133,3 +133,31 @@ def test_beginner_ja_stems_are_kana_only():
     import re
     for stem in stem_rotation.TIER_STEM_POOLS['ja']['main_idea']['1-2']:
         assert not re.search(r'[一-鿿]', stem), stem
+
+
+def test_seed_sql_matches_level_blocks():
+    """The compact seed carries every level text once and the T1-T3 mix.
+
+    Byte-equality of the SQL-assembled templates with level_block() was also
+    checked against the live base rows on 2026-11-09 (27/27 md5 match)."""
+    import importlib.util, os
+    path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'build_tier_question_templates.py')
+    spec = importlib.util.spec_from_file_location('btqt', path)
+    b = importlib.util.module_from_spec(spec); spec.loader.exec_module(b)
+    sql = b.build_sql()
+    for beginner, t3, per_type, end in b.BLOCKS.values():
+        for text in (beginner, t3, end, *per_type.values()):
+            assert f'$lvl${text}$lvl$' in sql
+    assert sql.count("'question_") >= 9
+    # SQL assembly == level_block() for every row
+    for lang in b.LANG_IDS:
+        beginner, t3, per_type, end = b.BLOCKS[lang]
+        for tier, types in b.TIER_TYPES.items():
+            for t in types:
+                head = (beginner if tier <= 2 else t3).replace('{tier}', str(tier))
+                extra = per_type.get((tier <= 2, t))
+                assembled = head + (('\n' + extra) if extra else '') + '\n' + end
+                assert assembled == b.level_block(lang, tier, t)
+    with open(os.path.join(os.path.dirname(__file__), '..', 'migrations',
+                           'seed_tier_question_templates.sql'), encoding='utf-8') as f:
+        assert f.read() == sql, 'regenerate: python scripts/build_tier_question_templates.py > migrations/seed_tier_question_templates.sql'
