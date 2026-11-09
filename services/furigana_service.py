@@ -202,7 +202,36 @@ def process_passage(text: str) -> list[dict]:
         logger.warning("furigana tokenization failed: %s", e)
         return [{"kind": "plain", "text": text}]
 
-    return [_token_for_word(w) for w in words if w.surface]
+    return _with_gaps(text, words)
+
+
+def _with_gaps(text: str, words) -> list[dict]:
+    """Emit tokens for `words`, re-inserting the text MeCab skips.
+
+    MeCab treats whitespace (spaces, the "\\n\\n" between paragraphs) as a
+    separator and returns no node for it, so a token list built from the
+    nodes alone is not a lossless copy of the input. Readers that place
+    readings by character offset into the transcript (the prestudy page)
+    then drift after every gap. Each skipped run is emitted as a plain token,
+    so the concatenated token text equals `text`.
+    """
+    tokens: list[dict] = []
+    cursor = 0
+    for w in words:
+        surface = w.surface
+        if not surface:
+            continue
+        idx = text.find(surface, cursor)
+        if idx >= 0 and text[cursor:idx].isspace():
+            tokens.append({"kind": "plain", "text": text[cursor:idx]})
+            cursor = idx
+        if text.startswith(surface, cursor):
+            cursor += len(surface)
+        tokens.append(_token_for_word(w))
+    tail = text[cursor:]
+    if tail.isspace():
+        tokens.append({"kind": "plain", "text": tail})
+    return tokens
 
 
 def process_test_payload(transcript: str, questions: list[dict]) -> dict:
