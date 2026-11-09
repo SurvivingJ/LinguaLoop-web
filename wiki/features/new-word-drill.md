@@ -10,9 +10,9 @@ open_questions:
   - "ANSWERED 2026-11-09: tight schedule, sessions on day 0, 1, 2 and 4."
   - "ANSWERED 2026-11-09: the four intro sessions REPLACE ladder ring 1; finishing session 4 puts the word in ring 2."
   - "ANSWERED 2026-11-09: words drilled in test prestudy enter the ladder (reverses the 2026-10-29 'prestudy never admits' decision); the prime counts as session 1 when it meets the session-1 criterion."
-  - "OPEN: do prestudy words count against new_words_per_day? Default in this spec: yes; words over today's remaining quota go to the front of the nomination queue. A hard test can carry 30–40 unknown words, so not counting them could put 100+ words into intro at once."
-  - "OPEN: should existing plans stored at 5 new words a day be moved to 10, or only new plans? Default in this spec: only new plans; the learner changes their own in settings."
-  - "OPEN: a ring-2 word that is demoted goes back to intro session 3 (one 2-correct session, then session 4). Confirm, or prefer a full restart at session 1."
+  - "ANSWERED 2026-11-09: prestudy words count against new_words_per_day. When a prime drills more words than today's remaining quota, the learner is told and chooses: queue the extra words for later days (default) or add them all now (overload)."
+  - "ANSWERED 2026-11-09: existing plans move to 10 too (rows still at the old default of 5 are updated; any other value was the learner's own choice and is kept)."
+  - "ANSWERED 2026-11-09: a demoted ring-2 word makes a full restart at intro session 1."
 ---
 
 # New-Word Drill (criterion-based intro sessions)
@@ -109,6 +109,10 @@ so the plan stays honest.
   what is possible and the session target stays the same.
 - **Legacy words** already on ring 1 when this ships keep the old ring-1 path. Only newly
   admitted words use the drill.
+- **Falling back from ring 2:** a word that is demoted from ring 2 (three first-try misses in a
+  row on a ring-2 skill) makes a **full restart** of the intro at session 1. Words demoted from
+  ring 3 or 4 stay on the ladder, as today. A mastered word that lapses follows the existing
+  relearning path, not the intro.
 
 ## Business Rules
 
@@ -117,8 +121,13 @@ so the plan stays honest.
 - Only one knowledge-score update per word per intro session. Repeated right answers in one
   session must not inflate the word's score; the ladder's existing rule that a ring needs
   successes on 2 different days still applies after the intro.
-- Prestudy words that enter the drill count against today's new-word quota (default, see open
-  questions).
+- Prestudy words that enter the drill count against today's new-word quota.
+- **Overload is the learner's choice.** When a prime drills more words than today's remaining
+  quota, the end of the prime shows a notice: how many words fit, how many are over, and roughly
+  how many extra minutes a day the overload adds for the next four days. Two buttons: **Queue the
+  rest for later** (default: the extra words go to the front of the new-word queue for the coming
+  days) or **Add them all now**. Overloaded words start their intro today like any other word. The
+  review-load governor still reduces *future* new-word intake if the backlog grows.
 
 ## Research basis
 
@@ -135,8 +144,7 @@ See [[decisions/ADR-040-criterion-based-new-word-drill]] for the evidence. In sh
 
 ## Open Questions
 
-See frontmatter. Three remain OPEN: whether prestudy words count against the quota, whether
-existing plans move to 10 words a day, and where a demoted ring-2 word re-enters the intro.
+All answered 2026-11-09 (see frontmatter).
 
 ## Related Pages
 

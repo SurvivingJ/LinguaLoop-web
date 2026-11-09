@@ -54,13 +54,17 @@ Evidence:
 4. Per-session item caps of **12 / 8 / 6 / 6**. Reaching the cap without the target repeats the
    stage the next day.
 5. The intro **replaces ring 1** for new admissions. Passing session 4 places the word on ring 2
-   with `form_recognition ≥ 0.55`, and its intro dates satisfy the 2-distinct-days gate.
+   with `form_recognition ≥ 0.55`, and its intro dates satisfy the 2-distinct-days gate. A word
+   demoted from ring 2 makes a full restart at intro session 1.
 6. **One knowledge-evidence point per word per session.** Stage 1 uses the majority rule;
    stages 2–4 use the cold recall.
 7. **Test prestudy words enter the ladder through this drill.** A prime that meets the stage-1
    criterion counts as session 1. This reverses the 2026-10-29 decision that prestudy never
-   admits words to the ladder.
-8. The `new_words_per_day` default rises from 5 to 10.
+   admits words to the ladder. Prestudy words count against the daily quota. Words over it are
+   queued for later days unless the learner chooses to overload, after a notice that shows the
+   extra daily minutes.
+8. The `new_words_per_day` default rises from 5 to 10, and plans still at the old default of 5
+   move to 10.
 
 ## Consequences
 

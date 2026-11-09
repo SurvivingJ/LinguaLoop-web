@@ -9,8 +9,7 @@ done: 0
 
 # New-Word Drill — Task Breakdown
 
-Draft for developer review (2026-11-09). Three design questions are still OPEN on the prose page.
-The tasks they touch carry the spec's default and say so.
+Draft for developer review (2026-11-09). All design questions answered 2026-11-09.
 
 ---
 
@@ -30,7 +29,7 @@ and applied live only with approval.
 **Acceptance Criteria:**
 - [ ] `user_word_ladder` has `intro_stage smallint NULL CHECK 1–4`, `intro_due_date date NULL`, `intro_history jsonb NOT NULL DEFAULT '[]'`, and the partial index `idx_user_word_ladder_intro_due`.
 - [ ] `exercise_attempts_source_check` accepts `'intro'` and every existing value.
-- [ ] `user_study_plans.new_words_per_day` default is 10. Existing rows are unchanged.
+- [ ] `user_study_plans.new_words_per_day` default is 10. Rows at 5 (the old default) become 10. Other values are unchanged.
 - [ ] The migration is idempotent (re-run is a no-op).
 
 **Technical Notes:** see the tech spec, "Migration". Keep the existing values of the source CHECK from `migrations/prestudy_workflow.sql`.
@@ -55,14 +54,14 @@ and applied live only with approval.
 Write `intro_due_words` and `intro_complete_session`. Exclude intro rows from the
 `get_practice_session` ladder pool. Teach `ladder_new_word_state` that intro words are servable
 with intro content. Change the ring-2 demotion branch of `ladder_record_attempt` to send the word
-back to intro stage 3 (OPEN-question default).
+back to intro stage 1 (full restart).
 
 **Acceptance Criteria:**
 - [ ] `intro_due_words` returns due words ordered stage DESC, due date, admission time.
 - [ ] `intro_complete_session` advances, repeats or graduates exactly as the tech spec says. Due dates are completion date + 1 / +1 / +2. Replays with a stale `stage` change nothing.
 - [ ] Graduation sets ring 2, `word_state = 'active'`, `form_recognition ≥ 0.55`, two form_recognition success dates, `review_due_at = now()`.
 - [ ] No ladder exercise for an intro word appears in `get_practice_session` output.
-- [ ] A ring-2 demotion sets `intro_stage = 3`, due tomorrow, and does not touch rings 3–4 behaviour.
+- [ ] A ring-2 demotion sets `intro_stage = 1`, due tomorrow, clears form_recognition success dates and `gate_a`, keeps `intro_history`, and does not touch rings 3–4 behaviour.
 - [ ] Both new functions are SECURITY DEFINER and EXECUTE-able only by `service_role`.
 
 **Technical Notes:** the existing ladder functions live in `migrations/phase8_momentum_bands.sql` and its Phase 10 successors. Change them with CREATE OR REPLACE in the new migration file, copying the current live body first. Compare with `pg_get_functiondef` on the branch so no later patch is lost.
@@ -203,12 +202,15 @@ create new rows with `intro_stage = 1`, `intro_due_date = today` (learner-local,
 **Description:**
 After a prime is recorded, admit drilled senses through `admit_prestudy_words`. A sense that met
 the stage-1 criterion enters at stage 2, due tomorrow, with a `source: 'prestudy'` history entry.
-Otherwise it enters at stage 1, due today. Words over today's remaining quota go to the front of
-Queue A1 (OPEN-question default). Skip `prestudy_followups` for admitted senses.
+Otherwise it enters at stage 1, due today. When the prime drills more words than today's remaining
+quota, show the overload notice: words that fit, words over, and extra minutes a day. The
+choices are **Queue for later** (default: front of Queue A1) or **Add them all now**
+(`POST /api/tests/<id>/prestudy/admit-overflow`). Skip `prestudy_followups` for admitted senses.
 
 **Acceptance Criteria:**
 - [ ] A ja prime of 6 words that all met the criterion leaves 6 rows at stage 2, due tomorrow, when the quota allows.
-- [ ] With the quota exhausted, the words are nominated and no row is created.
+- [ ] With the quota exhausted, the evidence response returns `overflow` and nothing over quota is admitted. The notice shows fit / over / extra minutes. "Queue for later" (or leaving the page) nominates them. "Add them all now" admits them, and the route rejects ids not in the overflow list.
+- [ ] Overload notice i18n keys exist in en/zh/ja/es.
 - [ ] Existing ladder rows are left alone.
 - [ ] `wiki/features/test-prestudy.md` reflects the reversed "never admits" rule.
 

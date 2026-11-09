@@ -53,7 +53,8 @@ services/intro_drill.complete() ── exercise_attempts rows (source='intro')
 | `INTRO_MIN_GAP_ITEMS` | `4` | intervening items required before a correct answer counts; effective gap = `min(4, block_items_available)` |
 | `INTRO_REQUEUE` | wrong: 3–5 places; idk: 2–4 places | as prestudy |
 | `INTRO_GRADUATE_FORM_RECOGNITION` | `0.55` | `family_confidence.form_recognition := GREATEST(current, 0.55)` on graduation |
-| `INTRO_DEMOTE_TO_STAGE` | `3` | a ring-2 word demoted by `ladder_record_attempt` re-enters intro at stage 3 (OPEN question) |
+| `INTRO_DEMOTE_TO_STAGE` | `1` | a ring-2 word demoted by `ladder_record_attempt` makes a full intro restart (decided 2026-11-09) |
+| `INTRO_STAGE_ITEMS_EST` | `{1: 7, 2: 4, 3: 3, 4: 3}` | expected items per word per stage, for estimates and the overload notice |
 
 ## Formats per stage and language
 
@@ -86,7 +87,8 @@ ALTER TABLE public.user_word_ladder
 CREATE INDEX IF NOT EXISTS idx_user_word_ladder_intro_due
   ON public.user_word_ladder (user_id, intro_due_date) WHERE intro_stage IS NOT NULL;
 -- exercise_attempts.source: add 'intro' to exercise_attempts_source_check
--- user_study_plans.new_words_per_day: ALTER ... SET DEFAULT 10 (existing rows unchanged)
+-- user_study_plans.new_words_per_day: ALTER ... SET DEFAULT 10;
+--   UPDATE ... SET new_words_per_day = 10 WHERE new_words_per_day = 5  (old default; other values kept)
 ```
 
 - `intro_stage` = the **next** stage to run; NULL = not in intro (legacy row or graduated).
@@ -108,7 +110,7 @@ per-attempt exercise BKT.
 
 - `get_practice_session`: ladder candidate pool adds `AND uwl.intro_stage IS NULL`.
 - `ladder_new_word_state`: `servable` becomes `(intro_stage IS NOT NULL AND has_intro_content) OR (>= 3 active exercises)`, where `has_intro_content` = sense has a gloss in the learner's definition language and an example sentence (and a reading for ja/zh). This relaxes the supply gate for admission (see Decision 4).
-- `ladder_record_attempt` demotion branch: when demoting from ring 2, set `intro_stage := 3`, `intro_due_date := p_today + 1`, `word_state := 'new'` instead of `current_ring := 1`.
+- `ladder_record_attempt` demotion branch: when demoting from ring 2, set `intro_stage := 1`, `intro_due_date := p_today + 1`, `word_state := 'new'`, `review_due_at := NULL`, reset `family_success_dates.form_recognition := []` and `gates_passed.gate_a := false`, instead of `current_ring := 1`. `intro_history` is kept (append `{event:'restart', date}`).
 
 ### New RPCs (SECURITY DEFINER, `service_role` EXECUTE only — ADR-034)
 
@@ -154,7 +156,9 @@ other due/known senses of the same language and part of speech (prestudy's rule 
 ### Prestudy integration (`routes/tests.py` evidence route, `services/prestudy.py`)
 After a `prime` is recorded: for each drilled sense, `met = all five stage-1 formats answered correct at least once with prestudy's interleaving` (the client already records per-stage results). Admit via `PracticeSessionService.admit_prestudy_words(user_id, language_id, [(sid, met)])`:
 - within today's remaining quota (`new_word_state.effective − (unstarted + started_today)`): insert/upsert row with `intro_stage = 2 if met else 1`, `intro_due_date = tomorrow if met else today`, and an `intro_history` entry `{stage:1, source:'prestudy', …}` when met;
-- over quota (default; OPEN): nominate at the front of Queue A1 with reason `prestudy`; when admitted later, `intro_stage = 1`.
+- over quota: the evidence response carries `overflow: {fits, over, sense_ids:[…], extra_minutes_per_day}` where `extra_minutes_per_day = over × Σ INTRO_STAGE_ITEMS_EST / 4 × review_item_seconds / 60` (rounded up). Nothing is admitted for the over-quota words until the learner chooses:
+  - **Queue for later** (default, also applied if the learner closes the page): nominate at the front of Queue A1 with reason `prestudy`; when admitted on a later day, `intro_stage = 1`.
+  - **Add them all now**: `POST /api/tests/<id>/prestudy/admit-overflow` `{session_id, sense_ids}` → admitted exactly as within-quota words (stage 2 if met, else 1). Validated: sense_ids ⊆ the session's overflow list, session ≤ 6 h old, each id at most once. Logged in the prime session's metrics as `overloaded: n`.
 - Existing ladder rows (any state) are left alone. `prestudy_followups` rows are not created for senses admitted here (their next-day review *is* intro stage 2).
 
 ## Component Specification (UI)

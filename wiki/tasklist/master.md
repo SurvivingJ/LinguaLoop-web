@@ -26,7 +26,7 @@ below.
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 219 |
 
-*2026-11-09 (NEW — New-Word Drill, TASK-912–921):* every newly admitted word goes through four criterion-based intro sessions (day 0/1/2/4; 5/3/2/2 counted correct answers, +1 on a missed cold recall) that replace ladder ring 1; prestudy words enter the drill; `new_words_per_day` default 5 → 10. See [[features/new-word-drill]], [[decisions/ADR-040-criterion-based-new-word-drill]], [[tasklist/new-word-drill.tasks]]. Draft for review; 3 OPEN questions. TASK-912 and TASK-920 are LIVE-DB (approval). Counts: Not Started 26→36.
+*2026-11-09 (NEW — New-Word Drill, TASK-912–921):* every newly admitted word goes through four criterion-based intro sessions (day 0/1/2/4; 5/3/2/2 counted correct answers, +1 on a missed cold recall) that replace ladder ring 1; prestudy words enter the drill; `new_words_per_day` default 5 → 10. See [[features/new-word-drill]], [[decisions/ADR-040-criterion-based-new-word-drill]], [[tasklist/new-word-drill.tasks]]. All design questions answered 2026-11-09 (overload with notice, existing plans 5→10, full restart on ring-2 demotion). TASK-912 and TASK-920 are LIVE-DB (approval). Counts: Not Started 26→36.
 
 *2026-10-30 (executed, repo side):* TASK-900–907 Done (repo): migrations + SQL test, audit (2 affected en tests live), segmenter, runner, two skills, upload path, and the pilot ([[evaluations/sentence-refs-pilot-2026-10-30]]: arm = sentencewise, 2,072 reviewed references assembled). TASK-908 unblocked; TASK-909–911 Done (repo; two TASK-910 gaps noted in the tasks file). LIVE-DB applies still await approval.
 
@@ -1154,12 +1154,12 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
 | TASK-912 | new-word-drill | Migration: intro columns, attempt source 'intro', quota default 10 (LIVE-DB, approval) | [ ] | S | — |
-| TASK-913 | new-word-drill | SQL: intro RPCs, ladder-pool exclusion, admission gate, R2 demotion → intro stage 3 | [ ] | L | TASK-912 |
+| TASK-913 | new-word-drill | SQL: intro RPCs, ladder-pool exclusion, admission gate, R2 demotion → full intro restart | [ ] | L | TASK-912 |
 | TASK-914 | new-word-drill | Shared drill engine extracted from prestudy (criterion counting) | [ ] | M | — |
 | TASK-915 | new-word-drill | Server: intro block builder + POST /api/practice/intro/complete | [ ] | M | TASK-913, TASK-914 |
 | TASK-916 | new-word-drill | Session player, practice-mode split, i18n | [ ] | M | TASK-915 |
 | TASK-917 | new-word-drill | Admission creates intro rows; relaxed supply gate | [ ] | S | TASK-913 |
-| TASK-918 | new-word-drill | Prestudy words enter the drill | [ ] | M | TASK-917 |
+| TASK-918 | new-word-drill | Prestudy words enter the drill; overload notice and choice | [ ] | M | TASK-917 |
 | TASK-919 | new-word-drill | Time estimate and review governor count intro load | [ ] | S | TASK-915 |
 | TASK-920 | new-word-drill | Feature flag and rollout (LIVE-DB, approval) | [ ] | S | TASK-912..919 |
 | TASK-921 | new-word-drill | Measurement script and baseline | [ ] | S | TASK-920 |
