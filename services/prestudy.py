@@ -647,15 +647,22 @@ def prior_p_known(freq, ability: float) -> float:
     return 1.0 / (1.0 + math.exp(-(_PRIOR_K * (float(freq) - ability) + _PRIOR_B)))
 
 
+# The prime drills every word below probably_known (p < 0.75): unknown,
+# encountered and learning. The unknown share that picks the plan mode still
+# counts only p < 0.5.
+DRILL_MAX_P = 0.75
+MAX_EST_MINUTES = 30
+
+
 def estimate_minutes(unknown: int, with_exercises: int, plan_mode: str) -> int:
-    """Study-first estimate: ~5 exposures x 8 s per primed word, two ladder
+    """Study-first estimate: ~5 exposures x 8 s per drilled word, two ladder
     exercises x 20 s where the word has them, the readiness check and a
     minute of preview. Same formula as static/js/prestudy/prestudy.js."""
     if plan_mode == 'light':
-        return 1
-    k = min(8, unknown)
+        return max(1, round(unknown * 2 * 8 / 60))
+    k = unknown
     ex = min(k, with_exercises)
-    return int(min(10, max(2, round((60 + k * 5 * 8 + ex * 2 * 20 + 5 * 8) / 60))))
+    return int(min(MAX_EST_MINUTES, max(2, round((60 + k * 5 * 8 + ex * 2 * 20 + 5 * 8) / 60))))
 
 
 def get_prestudy_mode(db, user_id: str, language_id: int) -> str:
@@ -698,7 +705,8 @@ def plan_for_tests(db, user_id: str, language_id: int, tests: list[dict]) -> dic
         return float(k['p']) if k else prior_p_known(freq.get(sid), ability)
 
     unknown_by_test = {tid: [s for s in ids if p(s) < 0.5] for tid, ids in senses_by_test.items()}
-    top = sorted({s for u in unknown_by_test.values() for s in u[:8]})
+    drill_by_test = {tid: [s for s in ids if p(s) < DRILL_MAX_P] for tid, ids in senses_by_test.items()}
+    top = sorted({s for d in drill_by_test.values() for s in d})
     have_ex = senses_with_exercises(db, top) if top else set()
     plans: dict[str, dict] = {}
     for tid, ids in senses_by_test.items():
@@ -712,6 +720,6 @@ def plan_for_tests(db, user_id: str, language_id: int, tests: list[dict]) -> dic
             'unknown': len(unknown),
             'n': len(ids),
             'plan_mode': plan_mode,
-            'minutes_est': estimate_minutes(len(unknown), len([s for s in unknown[:8] if s in have_ex]), plan_mode),
+            'minutes_est': estimate_minutes(len(drill_by_test[tid]), len([s for s in drill_by_test[tid] if s in have_ex]), plan_mode),
         }
     return plans

@@ -46,10 +46,15 @@
     // 'prime' before the attempt; 'followup' after it (words behind wrong answers)
     mode: 'prime', trigger: 'opt_in', planOverride: null, block: null, returnTo: null,
     droppedToday: 0, sessionId: null, timer: null, followSenses: [],
+    added: new Set(),        // senses the learner marked "I don't know this" in the preview
   };
   const FOLLOWUP_STAGES = ['read_typed', 'def_mc', 'cloze_mc'];
   const FOLLOWUP_MAX_WORDS = 5;
-  const LIGHT_STAGES = ['read_typed', 'def_mc'];   // the one-minute warm-up for 5-25% unknown
+  const LIGHT_STAGES = ['read_typed', 'def_mc'];   // the short warm-up for 5-25% unknown
+  // The prime drills every unknown, encountered and learning word (below
+  // probably_known), plus any word the learner adds from the passage.
+  const DRILL_MAX_P = 0.75;
+  const MAX_EST_MINUTES = 30;
 
   const $ = (id) => document.getElementById(id);
   const T = (key, params) => (window.LinguaI18n ? window.LinguaI18n.t(key, params) : key);
@@ -84,7 +89,10 @@
     const unknown = rows.filter((r) => r.p < 0.5).length;
     const share = senses.length ? unknown / senses.length : 0;
     // key words: question-linked, then most frequent in the passage, then rarer words first
-    const ranked = rows.filter((r) => r.p < 0.5).sort((a, b) => (b.inQ - a.inQ) || (b.occ - a.occ) || ((a.freq == null ? 9 : a.freq) - (b.freq == null ? 9 : b.freq)));
+    // drill list: every word below probably_known, plus the ones the learner added;
+    // ranked question-linked first, then most frequent in the passage, then rarer words
+    rows.forEach((r) => { r.added = S.added.has(r.sid); });
+    const ranked = rows.filter((r) => r.added || r.p < DRILL_MAX_P).sort((a, b) => (b.inQ - a.inQ) || (b.occ - a.occ) || ((a.freq == null ? 9 : a.freq) - (b.freq == null ? 9 : b.freq)));
     return { rows, unknown, share, ranked, n: senses.length };
   }
   function trigger(share) {
@@ -94,10 +102,10 @@
   }
   function exercisesFor(sid) { return (D.exercises && D.exercises[String(sid)]) || []; }
   function estMinutes(a) {
-    if (currentPlanMode() === 'light') return 1;
-    const k = Math.min(8, a.unknown);
-    const ex = a.ranked.slice(0, k).filter((r) => exercisesFor(r.sid).length).length;
-    return Math.min(10, Math.max(2, Math.round((60 + k * 5 * 8 + ex * 2 * 20 + 5 * 8) / 60)));
+    const k = a.ranked.length;
+    if (currentPlanMode() === 'light') return Math.max(1, Math.round(k * 2 * 8 / 60));
+    const ex = a.ranked.filter((r) => exercisesFor(r.sid).length).length;
+    return Math.min(MAX_EST_MINUTES, Math.max(2, Math.round((60 + k * 5 * 8 + ex * 2 * 20 + 5 * 8) / 60)));
   }
   function sentences() {
     const out = []; let cur = [];
@@ -277,16 +285,16 @@
     });
     P.classList.toggle('hl', S.hl);
     $('psStats').textContent = T('prestudy.passage_stats', { n: a.n, unknown: a.unknown, inq: a.rows.filter((r) => r.inQ && r.p < 0.5).length });
+    P.querySelectorAll('.ps-tok[data-sid]').forEach((e) => { e.classList.toggle('added', S.added.has(e.dataset.sid)); });
 
     const W = $('psWordlist'); W.innerHTML = '';
-    const K = tr.mode === 'light' ? Math.min(3, a.ranked.length) : Math.min(12, a.ranked.length);
-    $('psKwCount').textContent = T('prestudy.key_words_count', { shown: K, total: a.ranked.length });
-    a.ranked.slice(0, K).forEach((r) => {
+    $('psKwCount').textContent = T('prestudy.drill_words_count', { n: a.ranked.length });
+    a.ranked.forEach((r) => {
       const s = D.senses[r.sid], g = gloss(r.sid), nEx = exercisesFor(r.sid).length;
       const el = document.createElement('button'); el.type = 'button'; el.className = 'ps-word';
       el.innerHTML = `<div class="ps-word-main"><span class="ps-dot ${r.st}"></span><span class="ps-lem">${esc(s.lemma)}</span><span class="ps-rd">${esc((readingParts(s) || {}).shown || '')}</span>
           <div class="ps-g">${esc(g.def || T('prestudy.no_gloss'))}</div></div>
-        <div class="ps-tags">${r.inQ ? `<span class="ps-chip primary">${esc(T('prestudy.in_question'))}</span>` : ''}<span class="ps-chip">${esc(T('prestudy.occurrences', { n: r.occ }))}</span>${nEx ? `<span class="ps-chip ok">${esc(T('prestudy.exercises_count', { count: nEx }))}</span>` : ''}</div>`;
+        <div class="ps-tags">${r.added ? `<span class="ps-chip warn">${esc(T('prestudy.added_chip'))}</span>` : ''}${r.inQ ? `<span class="ps-chip primary">${esc(T('prestudy.in_question'))}</span>` : ''}<span class="ps-chip">${esc(T('prestudy.occurrences', { n: r.occ }))}</span>${nEx ? `<span class="ps-chip ok">${esc(T('prestudy.exercises_count', { count: nEx }))}</span>` : ''}</div>`;
       el.onclick = (ev) => {
         ev.stopPropagation();
         const tok = P.querySelector(`.ps-tok[data-sid="${r.sid}"]`);
@@ -307,13 +315,40 @@
       <div class="ps-pop-d">${esc(g.def || T('prestudy.no_gloss'))}</div>
       ${g.ex ? `<div class="ps-pop-ex">${esc(g.ex)}</div>` : ''}
       <div class="ps-pop-meta"><span class="ps-chip ${p < 0.2 ? 'bad' : p < 0.5 ? 'warn' : p < 0.75 ? 'primary' : 'ok'}">${esc(T('prestudy.status_' + status(p)))}</span><span class="ps-chip">${esc(T('prestudy.pop_in_passage', { n: r.occ || 0 }))}</span>${r.inQ ? `<span class="ps-chip primary">${esc(T('prestudy.in_question'))}</span>` : ''}</div>
-      <button type="button" class="btn btn-sm btn-outline-secondary ps-pop-close" id="psPopClose">${esc(T('prestudy.pop_close'))}</button>`;
+      <div class="ps-row ps-pop-actions">${popAddButton(sid, p)}<button type="button" class="btn btn-sm btn-outline-secondary ps-pop-close" id="psPopClose">${esc(T('prestudy.pop_close'))}</button></div>`;
     $('psPopClose').onclick = (ev) => { ev.stopPropagation(); hidePop(); };
+    const addBtn = $('psPopAdd');
+    if (addBtn) addBtn.onclick = (ev) => { ev.stopPropagation(); toggleAdded(sid); hidePop(); };
     POP.hidden = false; $('psScrim').hidden = false;
     const rc = anchor.getBoundingClientRect();
     POP.style.top = (rc.bottom + window.scrollY + 6) + 'px'; POP.style.left = '0px';
     const w = POP.offsetWidth;
     POP.style.left = Math.max(8, Math.min(rc.left + window.scrollX, document.documentElement.clientWidth - w - 8)) + 'px';
+  }
+  // Words below probably_known are always drilled; any other linked word can be
+  // added by the learner ("I don't know this") and removed again.
+  function popAddButton(sid, p) {
+    if (S.mode === 'followup') return '';
+    if (p < DRILL_MAX_P && !S.added.has(sid)) return `<span class="ps-note">${esc(T('prestudy.pop_in_drill'))}</span>`;
+    const on = S.added.has(sid);
+    return `<button type="button" class="btn btn-sm ${on ? 'btn-outline-secondary' : 'btn-primary'}" id="psPopAdd">${esc(T(on ? 'prestudy.pop_remove' : 'prestudy.pop_add'))}</button>`;
+  }
+  function toggleAdded(sid) {
+    if (S.added.has(sid)) S.added.delete(sid); else S.added.add(sid);
+    syncQuizWithAdded(sid);
+    drawPreview();
+  }
+  // A word added or removed after the prime was built: rebuild it if nothing has
+  // been answered yet, otherwise append the new word's items to the end.
+  function syncQuizWithAdded(sid) {
+    const q = S.quiz;
+    if (!q || S.mode === 'followup' || S.phase !== 'prime') return;
+    if (!q.queue.some((it) => it.answered != null)) { S.quiz = null; return; }
+    if (!S.added.has(sid) || q.words.includes(sid)) return;
+    const a = analyse(), allowed = currentPlanMode() === 'light' ? LIGHT_STAGES : null;
+    STAGES.filter((st) => !allowed || allowed.includes(st.k)).forEach((st) => { const it = buildItem(st.k, sid, a); if (it) q.queue.push(it); });
+    q.words.push(sid); q.perWord[sid] = newPerWord(sid);
+    $('psQuizMode').textContent = T('prestudy.prime_header', { words: q.words.length, items: q.queue.length });
   }
   function hidePop() { const POP = $('psPop'); if (POP) POP.hidden = true; const sc = $('psScrim'); if (sc) sc.hidden = true; }
 
@@ -436,8 +471,8 @@
       // the unknown senses behind the questions answered wrong, in question order
       words = S.followSenses.filter((sid) => D.senses[sid] && pNow(sid) < 0.5).slice(0, FOLLOWUP_MAX_WORDS);
     } else {
-      const n = planMode === 'light' ? Math.min(3, a.ranked.length) : Math.min(8, a.ranked.length);
-      words = a.ranked.slice(0, n).map((r) => r.sid);
+      // every unknown and learning word, plus the words the learner added
+      words = a.ranked.map((r) => r.sid);
     }
     S.exUsed = new Set();
     const queue = [];
