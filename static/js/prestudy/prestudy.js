@@ -135,9 +135,25 @@
   function charAids() {
     const t = S.test, n = (t.transcript || '').length, out = new Array(n).fill(null);
     if (t.language_id === JA && t.furigana_payload && Array.isArray(t.furigana_payload.transcript)) {
+      // The payload's tokens are not a lossless copy of the transcript: the
+      // tokenizer drops whitespace (e.g. the "\n\n" between paragraphs), so a
+      // running character count drifts and readings land on the wrong kanji.
+      // Re-anchor each token on the transcript text before placing its aids.
+      const src = t.transcript || '';
       let pos = 0, gid = 0;
       for (const tok of t.furigana_payload.transcript) {
         const text = tok.base || tok.text || '';
+        if (!text) continue;
+        if (!src.startsWith(text, pos)) {
+          let p = pos;
+          while (p < n && /\s/.test(src[p])) p++;
+          if (!src.startsWith(text, p)) {
+            const found = src.indexOf(text, pos);
+            if (found < 0 || found - pos > 8) break;   // lost alignment: show no aids rather than wrong ones
+            p = found;
+          }
+          pos = p;
+        }
         if (tok.kind === 'ruby') {
           const segs = (tok.segments && tok.segments.length ? tok.segments : [{ base: tok.base, rt: tok.rt }]);
           let p = pos;
