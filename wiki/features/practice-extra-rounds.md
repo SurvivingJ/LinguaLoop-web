@@ -3,7 +3,7 @@ title: Practice Extra Rounds
 type: feature
 status: in-progress
 tech_page: practice-extra-rounds.tech.md
-last_updated: 2026-11-06
+last_updated: 2026-11-09
 open_questions: []
 ---
 
@@ -24,6 +24,9 @@ learn a few more new words, as many rounds as I like."
    are none), the summary card asks **Learn new words** / **Not now**. Learning them runs today's
    new-word chunks, which count toward the daily session as normal. The **Keep practising** panel
    below appears once that question is answered or there are no new words left today.
+   (2026-11-09) The panel is shown as soon as the summary appears; it no longer waits on the
+   optional-tail check, so a slow or failed check can't leave the learner stuck on a finished
+   card. In Practice mode the card's title reads **Exercises done!**, not "Session complete!".
 1. When Practice mode runs out of work (or has nothing to start with), the summary card shows
    **Keep practising**:
    - **Reviews**: a checkbox. Up to 10 review items per round: due words first, then words

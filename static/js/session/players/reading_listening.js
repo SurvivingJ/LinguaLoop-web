@@ -11,6 +11,7 @@ import {
   renderSentenceBlocks,
   hasVisibleReferences,
   hasTokenSpans,
+  deriveTokenSpans,
   setReferencesVisible,
 } from '../sentences.js';
 
@@ -735,6 +736,12 @@ export function mount(container, ctx) {
     const tokenMap = state.vocabTokenMap;
     // TASK-911: with server token spans the clickable view keeps the sentence
     // blocks (and their reference lines); the fallback is the flat token list.
+    // Without server spans, derive them client-side so the translation toggle
+    // and clickable words can coexist.
+    if (tokenMap && tokenMap.length && state.sentences && !hasTokenSpans(state.sentences)) {
+      const derived = deriveTokenSpans(state.sentences, tokenMap);
+      if (derived) state.sentences = derived;
+    }
     if (tokenMap && tokenMap.length && state.sentences && hasTokenSpans(state.sentences)) {
       renderSentenceBlocks(transcriptEl, state.sentences, {
         mode: state.sentenceMode,
@@ -1118,13 +1125,13 @@ const MARKUP = `
     </div>
 
     <div id="transcriptCard" class="transcript-card" style="display:none;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="transcript-card-header mb-3">
             <h2 class="mb-0 h4"><i class="fas fa-file-alt text-primary me-2"></i><span data-i18n="test.reading_passage">Reading Passage</span></h2>
-            <div>
-                <button class="btn btn-sm btn-outline-secondary me-1" id="toggleReferences" type="button" style="display:none;">
+            <div class="transcript-card-actions">
+                <button class="btn btn-sm btn-outline-secondary" id="toggleReferences" type="button" style="display:none;">
                     <i class="fas fa-language me-1"></i><span data-i18n="test.show_translation">Show translation</span>
                 </button>
-                <button class="btn btn-sm btn-secondary" id="toggleTranscript">
+                <button class="btn btn-sm btn-secondary" id="toggleTranscript" type="button">
                     <i class="fas fa-eye me-1"></i><span data-i18n="test.hide">Hide</span>
                 </button>
             </div>
