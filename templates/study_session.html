@@ -24,6 +24,9 @@
     .session-dot.current { background: var(--primary, #4f46e5); box-shadow: 0 0 0 3px rgba(79, 70, 229, .2); }
     .session-dot.skipped { background: var(--warning, #f59e0b); opacity: .55; }
     .session-stage { min-height: 50vh; }
+    /* Emptied between items and on the summary/start screens: take no space,
+       or the card below sits half a screen down on phones. */
+    .session-stage:empty { min-height: 0; }
     .session-card { max-width: 680px; margin: 2rem auto; }
     .session-results { list-style: none; margin: 1rem 0 0; padding: 0; text-align: left; }
     .session-results li {

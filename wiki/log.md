@@ -6297,3 +6297,6 @@ Developer report: on the prestudy page for 食の基盤を支えるブロイラ�
 
 ## [2026-11-09] implement | Prestudy drills every unknown and learning word; learner can add words
 Developer: in pre study mode the learner should be able to select a word they do not know and add it; pre study should always drill all unknown and learning words. `static/js/prestudy/prestudy.js`: the drill list is every linked sense with p < 0.75 (unknown, encountered, learning) plus learner-added senses, with no top-K cap (full and light prime); the passage popover has "I don't know this — add to study" / "Remove from study"; added words are marked in passage and word list; adding mid-prime appends that word's items (or rebuilds if nothing answered). Unknown share for plan mode still p < 0.5. Minutes estimate counts every drill word (cap 30; light scales at 2 items × 8 s per word), mirrored in `services/prestudy.py` `estimate_minutes` / `plan_for_tests`. 5 new i18n keys × 4 locales. Pages updated: [[features/test-prestudy]].
+
+## [2026-11-09] fix | Session summary card pushed half a screen down on phones
+`templates/study_session.html`: the empty exercise area (`.session-stage`, min-height 50vh) still took space on the summary/start screens; `.session-stage:empty` now has no min-height. Checked at iPhone 13 size in headless Chromium: the card's top moved from y=364 to y=32. Pages updated: none.
