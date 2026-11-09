@@ -602,10 +602,10 @@
     $('psReveal').innerHTML = `<div class="ps-reveal ${ok ? 'ok' : (idk ? 'idk' : 'bad')}"><b>${esc(T(ok ? 'prestudy.correct' : (idk ? 'prestudy.idk_reveal' : 'prestudy.wrong')))}</b> <b class="ps-cjk">${esc(s.lemma)}</b>${readingTxt}${isRead || !g.def ? '' : ' — ' + esc(g.def)}
       ${lines.map((l) => `<div class="ps-note">${l}</div>`).join('')}${ctx}
       ${extra.detail ? `<div class="ps-note">${esc(extra.detail)}</div>` : ''}
-      ${follow || booster ? `<div class="ps-note">${esc(follow)}${booster ? ' ' + esc(T('prestudy.booster_added')) : ''}</div>` : ''}
-      <div class="ps-reveal-foot"><button type="button" class="btn btn-primary" id="psNext">${esc(T(q.i + 1 < q.queue.length ? 'prestudy.next' : 'prestudy.finish'))}</button></div></div>`;
-    $('psNext').onclick = () => { q.i++; drawQuiz(); };
-    $('psNext').focus();
+      ${follow || booster ? `<div class="ps-note">${esc(follow)}${booster ? ' ' + esc(T('prestudy.booster_added')) : ''}</div>` : ''}</div>`;
+    // the sticky action bar button moves on to the next item
+    updateActionBar();
+    $('psNextStep').focus();
   }
 
   // ---------- readiness check ----------
@@ -648,7 +648,7 @@
     const sid = R.words[R.i], s = D.senses[sid];
     B.innerHTML = `<div class="ps-row ps-between ps-qhead"><span class="ps-note">${esc(T('prestudy.check_of', { i: R.i + 1, n: R.words.length }))} · <span class="ps-chip info">${esc(T('prestudy.stage_reading'))}</span> ${esc(T('prestudy.ask_read'))}</span><span class="ps-note">${esc(T('prestudy.no_feedback'))}</span></div>
       <div class="ps-qword">${esc(s.lemma)}</div><div class="ps-qread">${esc(T(zh ? 'prestudy.ready_hint_zh' : 'prestudy.ready_hint_ja'))}</div>
-      <form id="psReadyForm" class="ps-row ps-form"><input id="psReadyIn" class="form-control ps-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" lang="${zh ? 'zh-Latn' : 'ja'}" placeholder="${esc(T(zh ? 'prestudy.placeholder_pinyin' : 'prestudy.placeholder_kana'))}"><button class="btn btn-primary" type="submit">${esc(T('prestudy.next'))}</button></form>
+      <form id="psReadyForm" class="ps-row ps-form"><input id="psReadyIn" class="form-control ps-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" lang="${zh ? 'zh-Latn' : 'ja'}" placeholder="${esc(T(zh ? 'prestudy.placeholder_pinyin' : 'prestudy.placeholder_kana'))}"></form>
       <div class="ps-idkrow"><button type="button" class="btn btn-outline-secondary" id="psReadyIdk">${esc(T('prestudy.idk'))}</button></div>`;
     $('psReadyForm').onsubmit = (e) => { e.preventDefault(); R.answers.push($('psReadyIn').value.trim()); R.i++; drawReadiness(); };
     $('psReadyIdk').onclick = () => { R.answers.push(''); R.i++; drawReadiness(); };
@@ -794,13 +794,19 @@
 
   // ---------- navigation ----------
   function updateActionBar() {
-    const back = $('psBack'), next = $('psNextStep'), note = $('psBarNote');
-    back.hidden = S.step === 1 || (S.mode === 'followup' && S.step === 2);
+    const next = $('psNextStep'), note = $('psBarNote');
+    next.disabled = false;
     if (S.step === 1) {
       next.textContent = T('prestudy.start_prime'); note.textContent = T('prestudy.elo_note');
     } else if (S.step === 2) {
       note.textContent = '';
-      if (S.phase === 'ready' && S.ready && S.ready.results && !S.ready.results.pass && S.ready.round < 2) next.textContent = T('prestudy.extra_round');
+      const q = S.quiz, it = q && q.queue[q.i], R = S.ready;
+      if (S.phase !== 'ready' && it) {
+        // mid-round: the bar is the next-item button, live once this item is answered
+        next.textContent = T(q.i + 1 < q.queue.length ? 'prestudy.next' : 'prestudy.finish');
+        next.disabled = it.answered == null;
+      } else if (S.phase === 'ready' && R && !R.results && R.i < R.words.length) next.textContent = T('prestudy.next');
+      else if (S.phase === 'ready' && S.ready && S.ready.results && !S.ready.results.pass && S.ready.round < 2) next.textContent = T('prestudy.extra_round');
       else next.textContent = T('prestudy.continue');
     }
     $('psActionBar').hidden = S.step === 3;
@@ -822,11 +828,16 @@
     if (S.step !== 2) return;
     const q = S.quiz;
     if (S.phase === 'ready') {
-      if (!S.ready.results) { notice(T('prestudy.finish_round_first')); return; }
+      const R = S.ready, f = $('psReadyForm');
+      if (!R.results && f) { f.requestSubmit(); return; }
+      if (!R.results) { notice(T('prestudy.finish_round_first')); return; }
       if (S.ready.results.pass || S.ready.round >= 2) { S.phase = 'done'; go(3); return; }
       startBoost(); updateActionBar(); return;
     }
-    if (q && q.i < q.queue.length) { notice(T('prestudy.finish_round_first')); return; }
+    if (q && q.i < q.queue.length) {
+      if (q.queue[q.i].answered == null) return;
+      q.i++; drawQuiz(); return;
+    }
     if (S.phase === 'prime') {
       S.prime = S.quiz;
       if (S.mode === 'followup' || currentPlanMode() === 'light' || !readinessWords().length) { S.phase = 'done'; go(3); return; }
@@ -835,7 +846,6 @@
     if (S.phase === 'boost') { S.quiz = S.prime; startReadiness(2); return; }
     go(3);
   }
-  function onBack() { if (S.step > 1) go(S.step - 1); }
 
   // ---------- boot ----------
   // Open the prestudy_sessions row; unknown share is the snapshot at open.
@@ -896,7 +906,6 @@
     $('psAidsWrap').hidden = !(S.test.language_id === ZH || S.test.language_id === JA);
     $('psHl').onchange = (e) => { S.hl = e.target.checked; $('psPassage').classList.toggle('hl', S.hl); };
     $('psNextStep').onclick = onNext;
-    $('psBack').onclick = onBack;
     $('psTakeTest').onclick = () => takeTest(true);
     $('psProduce').onclick = startProduce;
     $('psBackToSession').onclick = backToSession;
