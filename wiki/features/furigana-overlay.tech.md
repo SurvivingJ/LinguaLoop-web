@@ -106,6 +106,16 @@ index alignment is safe.
      - The remaining middle becomes ruby segments. If there's exactly one
        kanji-run in the middle, the entire remaining reading attaches to it
        (group ruby for jukujikun like 今日→きょう).
+  6. `_with_gaps(text, words)`: MeCab returns no node for whitespace
+     (spaces, the `\n\n` between paragraphs), so each skipped run is
+     re-inserted as `{"kind": "plain", "text": <whitespace>}`.
+- **Invariant:** the concatenated token text (`base` for ruby, `text` for
+  plain) equals the input exactly. The prestudy page places readings by
+  character offset into `tests.transcript`, so any drift puts readings on the
+  wrong kanji (before 2026-11-09 every reading after a paragraph break landed
+  two characters early). `prestudy.js` `charAids()` also re-anchors each token
+  on the transcript, so a payload that breaks the invariant shows fewer
+  readings, never misplaced ones.
 - **Determinism:** UniDic readings + jaconv conversion are pure functions.
   Same input → same output.
 - **Errors:** tokenizer exceptions degrade to a single plain token containing
