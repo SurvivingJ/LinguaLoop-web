@@ -50,7 +50,7 @@
   };
   const FOLLOWUP_STAGES = ['read_typed', 'def_mc', 'cloze_mc'];
   const FOLLOWUP_MAX_WORDS = 5;
-  const LIGHT_STAGES = ['read_typed', 'def_mc'];   // the one-minute warm-up for 5-25% unknown
+  const LIGHT_STAGES = ['read_typed', 'def_mc'];   // the short warm-up for 5-25% unknown
   // The prime drills every unknown, encountered and learning word (below
   // probably_known), plus any word the learner adds from the passage.
   const DRILL_MAX_P = 0.75;

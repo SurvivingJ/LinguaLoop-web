@@ -2,7 +2,7 @@
 // Test prestudy block in the daily session (wiki/features/test-prestudy.md, Triggers).
 //
 // The server inserts a `kind: 'prestudy'` item before a new test over 25% unknown
-// words (full), a new test between 5% and 25% (light, about a minute) and every
+// words (full), a new test between 5% and 25% (light: reading and meaning only) and every
 // retry slot, when the learner's setting is "auto". This card says what it costs
 // and opens the prestudy page for that test; the page completes the block
 // (POST /api/study-session/complete-block) and returns here, where the session
@@ -46,7 +46,7 @@ export function mount(container, ctx) {
     item.trigger === 'retry'
       ? T('session.prestudy.why_retry', null, 'You are retrying this test. Study its key words first.')
       : light
-        ? T('session.prestudy.why_light', { pct }, `${pct}% of this test's key words are new to you: a one-minute warm-up on three of them.`)
+        ? T('session.prestudy.why_light', { pct }, `${pct}% of this test's key words are new to you: a quick warm-up on the words you don't know yet.`)
         : T('session.prestudy.why_full', { pct }, `${pct}% of this test's key words are new to you. Learn them first, then take the test.`);
 
   container.innerHTML = `
