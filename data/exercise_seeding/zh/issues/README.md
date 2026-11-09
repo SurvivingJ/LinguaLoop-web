@@ -1,15 +1,17 @@
-# zh fat-seed issues (interim, runs finished by 2026-11-07)
+# zh fat-seed issues (final, 2026-11-09)
 
-Senses from the zh fat-seed pipeline (`data/exercise_seeding/zh/wf2`) that produced no word assets.
-Both lists are dictionary-data problems: regenerating does not fix them.
+Senses from the zh fat-seed pipeline that are not in the upload package, with the reason.
+Totals over the 19,233 exported senses: 16,342 packaged, 805 skipped, 1,851 rejected, 235 not packaged.
 
-- `skipped_senses.csv`: the author declined to write the sense. `category` is a keyword grouping of `author_reason`:
-  - `bound_morpheme_fragment`: a character that does not stand alone at the learner tier (率, 视, 谱).
-  - `proper_noun`: place, person or organisation names.
-  - `mined_sentence_wrong_sense`: the mined corpus sentences use another sense, or only a compound.
-  - `not_a_word`: a segmentation artifact or free phrase in `dim_vocabulary` (厨余会, 天上飞).
-  - `other`: read the reason.
-- `rejected_senses.csv`: the reviewer rejected the core (duplicate sibling sense, definition ≠ usage, wrong POS).
-  Its notes and issues say why.
-
-Covers only the 900 runs that had finished when the pipeline was paused. The rest are added when it completes.
+- `skipped_senses.csv` (805): the author declined to write the sense. `category` groups `author_reason`:
+  - `bound_morpheme_fragment` (681): a character that does not stand alone at the learner tier (率, 视, 谱).
+  - `proper_noun` (48): place, person or organisation names.
+  - `mined_sentence_wrong_sense` (42): the mined corpus sentences use another sense, or only a compound.
+  - `not_a_word` (19): a segmentation artifact or free phrase in `dim_vocabulary` (厨余会, 天上飞).
+  - `other` (15): read the reason.
+- `rejected_senses.csv` (1,851): a reviewer rejected the core. `rejected_by` is the first-pass Haiku review (1,498)
+  or the Opus second review (353). Typical causes: duplicate sibling senses, definition ≠ usage, wrong POS.
+  These are dictionary-data problems: regenerating does not fix them.
+- `not_packaged_senses.csv` (235): documents that did not pass the final validation check
+  (147 after the Opus second review, 88 after the first pass). Their first-pass versions in `wf2/` may still be
+  valid; re-review or re-author them to recover them.
