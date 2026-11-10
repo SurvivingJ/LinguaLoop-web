@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 27 |
-| In Progress (`[~]`) | 12 |
+| Not Started | 26 |
+| In Progress (`[~]`) | 11 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 219 |
+
+*2026-11-10 (second pass):* New-Word Drill fully done — TASK-919, 921 Done; TASK-922–924 added and Done: Practice attempts now move the ladder ([[decisions/ADR-041-practice-moves-the-ladder]] — no word had left ring 1 since Vocab Dojo was retired), gate/stress batteries in the Practice player, atomic drill commits, spacers, shared counting. Counts: Not Started 27→26, In Progress 12→11.
 
 *2026-11-10 (New-Word Drill built):* TASK-912–918 and 920 Done (migration applied live, browser walkthrough with the test account: session 1 → 2 → 3 → 4 → ring 2, prestudy admission and overload notice); TASK-919 In Progress (governor/forecast remain); TASK-921 Not Started. Counts: Not Started 36→27, In Progress 11→12.
 
@@ -1162,9 +1164,12 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-916 | new-word-drill | Session player, practice-mode split, i18n | Done | M | TASK-915 |
 | TASK-917 | new-word-drill | Admission creates intro rows; relaxed supply gate | Done | S | TASK-913 |
 | TASK-918 | new-word-drill | Prestudy words enter the drill; overload notice and choice | Done | M | TASK-917 |
-| TASK-919 | new-word-drill | Time estimate and review governor count intro load | [~] | S | TASK-915 |
+| TASK-919 | new-word-drill | Time estimate and review governor count intro load | Done | S | TASK-915 |
 | TASK-920 | new-word-drill | Feature flag and rollout (LIVE-DB, approval) | Done | S | TASK-912..919 |
-| TASK-921 | new-word-drill | Measurement script and baseline | [ ] | S | TASK-920 |
+| TASK-921 | new-word-drill | Measurement script and baseline | Done | S | TASK-920 |
+| TASK-922 | new-word-drill | Practice attempts move the ladder (ladder_apply_progress, ADR-041) | Done | M | — |
+| TASK-923 | new-word-drill | Practice player runs gate/stress-test batteries | Done | M | TASK-922 |
+| TASK-924 | new-word-drill | Drill cleanups: atomic commit, spacers, shared counting | Done | M | TASK-915 |
 
 ### Language Packs (existing — unchanged)
 

@@ -326,7 +326,8 @@ def _daily_session_extras(
         or getattr(Config, 'REVIEW_ITEM_SECONDS_DEFAULT', _REVIEW_ITEM_SECONDS_FALLBACK)
     )
     reviews_per_word = (
-        getattr(Config, 'REVIEWS_PER_NEW_WORD_30D', None)
+        (sps.reviews_per_new_word_30d() if hasattr(sps, 'reviews_per_new_word_30d') else None)
+        or getattr(Config, 'REVIEWS_PER_NEW_WORD_30D', None)
         or getattr(sps, 'REVIEWS_PER_NEW_WORD_30D', None)
         or _REVIEWS_PER_NEW_WORD_FALLBACK
     )

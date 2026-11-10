@@ -229,4 +229,9 @@
 <script src="{{ url_for('static', filename='js/active-timer.js') }}"></script>
 <script src="{{ url_for('static', filename='js/prestudy/prestudy-links.js') }}"></script>
 <script src="{{ url_for('static', filename='js/prestudy/prestudy.js') }}"></script>
+<script type="module">
+  // The new-word drill's counting rule, so a prime that counts as intro session 1 is judged the same way.
+  import { countWord } from "{{ url_for('static', filename='js/session/players/intro_drill.js') }}";
+  window.IntroDrillCount = { countWord };
+</script>
 {% endblock %}

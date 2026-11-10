@@ -77,14 +77,7 @@ class LadderService:
                 'p_ladder_level': ladder_level,
                 'p_exercise_context': exercise_context,
             }).execute()
-            result = resp.data if resp.data else {}
-            try:
-                from services import intro_drill
-                if intro_drill.restart_if_demoted(self.db, user_id, sense_id, language_id, result):
-                    result['intro_restart'] = True
-            except Exception as e:
-                logger.warning("intro restart check failed: sense=%s: %s", sense_id, e)
-            return result
+            return resp.data if resp.data else {}
         except Exception as e:
             logger.error("ladder_record_attempt failed: user=%s sense=%s: %s",
                          user_id, sense_id, e)

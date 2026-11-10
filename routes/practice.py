@@ -168,6 +168,9 @@ def submit_practice_attempt() -> ApiResponse:
                         exercises.language_id.
         tail / is_tail: optional bool; the attempt belongs to an optional-tail
                         round (echoed from the session payload).
+        exercise_context: optional 'standard' | 'gate' | 'stress_test' — an item
+                        of a threshold-gate or stress-test battery moves the
+                        ladder with that battery's learn/slip rates.
     """
     try:
         data = request.get_json() or {}
@@ -236,6 +239,7 @@ def submit_practice_attempt() -> ApiResponse:
                 language_id=data.get('language_id'),
                 expected_seconds=data.get('expected_seconds'),
                 is_tail=_truthy(data.get('is_tail', data.get('tail'))),
+                exercise_context=data.get('exercise_context') or 'standard',
             )
 
         if isinstance(result, dict) and result.get('error'):

@@ -9,7 +9,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { createDrill, effGap, gradeRecall, buildItem } from '../../static/js/session/players/intro_drill.js';
+import { createDrill, effGap, gradeRecall, buildItem, countWord } from '../../static/js/session/players/intro_drill.js';
 
 const cases = JSON.parse(readFileSync(join(process.cwd(), 'tests/fixtures/intro_drill/engine_cases.json'), 'utf8'));
 
@@ -112,5 +112,51 @@ describe('grading and items', () => {
     expect(item.opts.filter((o) => o === 'tree').length).toBe(1);
     expect(item.opts.length).toBe(4);
     expect(buildItem({ word: block.words[0], format: 'ex_use' }, block, new Map())).toBe(null);
+  });
+});
+
+describe('countWord (mirror of the server recount)', () => {
+  for (const c of cases) {
+    it(`${c.name}: agrees with the engine on every word`, () => {
+      for (const r of c.results) {
+        const rc = countWord(r.stage, r.attempts, r.n_words, r.formats);
+        expect([rc.passed, rc.counted, rc.target]).toEqual([r.expect.passed, r.expect.counted, r.expect.target]);
+      }
+    });
+  }
+});
+
+describe('spacers', () => {
+  it('puts spacers between repeats of a lone word and then runs out', () => {
+    const w = [{ sense_id: 1, stage: 2, target: 3, cap: 8, cold: true, formats: ['read_typed', 'def_mc'] }];
+    const d = createDrill(w, { rng: lcg(3), spacers: 2 });
+    const seq = [];
+    let it;
+    let guard = 0;
+    while ((it = d.next()) && guard++ < 30) {
+      if (it.spacer) {
+        seq.push('S');
+        d.skip(it);
+      } else {
+        seq.push('W');
+        d.answer(it, { correct: true });
+      }
+    }
+    expect(seq.filter((x) => x === 'S').length).toBe(2);
+    expect(seq[0]).toBe('W');
+    expect(seq.slice(0, 4)).toEqual(['W', 'S', 'S', 'W']);
+  });
+
+  it('never uses spacers when there are enough words', () => {
+    const fmts = ['read_typed', 'def_mc', 'read_typed2', 'rev_mc', 'cloze_mc'];
+    const ws = [1, 2, 3, 4, 5].map((sid) => ({ sense_id: sid, stage: 1, target: 5, cap: 12, cold: false, formats: fmts }));
+    const d = createDrill(ws, { rng: lcg(5), spacers: 3 });
+    let it;
+    let spacers = 0;
+    let n = 0;
+    while ((it = d.next()) && n++ < 25) {
+      if (it.spacer) { spacers++; d.skip(it); } else d.answer(it, { correct: true });
+    }
+    expect(spacers).toBe(0);
   });
 });

@@ -3,8 +3,8 @@ title: "New-Word Drill — Task Breakdown"
 feature: new-word-drill
 prose_page: ../features/new-word-drill.md
 tech_page: ../features/new-word-drill.tech.md
-total_tasks: 10
-done: 8
+total_tasks: 13
+done: 13
 ---
 
 # New-Word Drill — Task Breakdown
@@ -225,7 +225,7 @@ choices are **Queue for later** (default: front of Queue A1) or **Add them all n
 
 ## TASK-919: Time estimate and review governor count the intro load
 
-**Status:** [~] In Progress — block est_minutes and the `intro_reviews` chunk done; governor/forecast not yet
+**Status:** Done — governor counts weighted drill reviews (live), forecast adds 10 items per word
 **Feature:** new-word-drill
 **Type:** feature
 **Complexity:** S
@@ -273,7 +273,7 @@ developer account in ja.
 
 ## TASK-921: Measurement script and baseline
 
-**Status:** [ ] Not Started
+**Status:** Done — baseline [[evaluations/new-word-drill-baseline-2026-11-10]]; re-run at 30 days
 **Feature:** new-word-drill
 **Type:** test
 **Complexity:** S
@@ -290,5 +290,35 @@ words (baseline) and intro words. Write the baseline now and re-run at 30 days.
 **Files to Create / Modify:** `scripts/eval_new_word_drill.py`, `wiki/evaluations/…`
 
 **Verification:** the script runs read-only against live and writes the page.
+
+---
+
+## TASK-922: Practice attempts move the ladder (ADR-041)
+
+**Status:** Done (live function applied 2026-11-10)
+**Feature:** new-word-drill · **Type:** bug · **Complexity:** M · **Depends On:** none
+
+`ladder_apply_progress` + call from `record_attempt_with_updates`; `exercise_context` on
+`POST /api/practice/attempt`; ring-2 restart hook moved here. Tests:
+`tests/test_practice_ladder_progress.py`.
+
+---
+
+## TASK-923: Practice player runs gate and stress-test batteries (ADR-041)
+
+**Status:** Done
+**Feature:** new-word-drill · **Type:** feature · **Complexity:** M · **Depends On:** TASK-922
+
+Markers open their battery in place; first-try answers with the battery context; results
+submitted to the existing endpoints. Test: `tests/unit/practice-player-battery.test.js`.
+
+---
+
+## TASK-924: Drill cleanups — atomic commit, spacers, shared counting
+
+**Status:** Done
+**Feature:** new-word-drill · **Type:** refactor · **Complexity:** M · **Depends On:** TASK-915
+
+`intro_commit_word` (live), spacer items for small drills, `countWord` shared with prestudy.
 
 ---

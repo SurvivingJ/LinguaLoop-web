@@ -386,6 +386,14 @@ Url-prefix `/admin/arena` (mounted by `admin_app.py`). ⚠ No auth decorators.
 
 ---
 
+### New-word drill and ladder fix (2026-11-10)
+
+- `ladder_apply_progress(p_user_id uuid, p_sense_id int, p_exercise_id uuid, p_is_correct bool, p_is_first_attempt bool, p_exercise_context text DEFAULT 'standard') → jsonb` — ladder-only part of `ladder_record_attempt` (no attempt row, BKT or FSRS); `{skipped: retry|no_ladder_level|not_on_ladder|intro}` or the ladder summary. Caller: `PracticeSessionService._apply_ladder_progress`. service_role only. [[decisions/ADR-041-practice-moves-the-ladder]]
+- `intro_commit_word(p_user_id uuid, p_sense_id int, p_stage smallint, p_attempts jsonb, p_update jsonb) → boolean` — one drill word's attempt rows + ladder-row update in one transaction; false when the row is no longer at `p_stage`. Caller: `services/intro_drill.complete_word`. service_role only.
+- `review_governor_state` — now also counts due drill reviews, weighted by expected items (`migrations/new_word_drill_governor.sql`).
+- `ladder_new_word_state` — counts intro rows (`migrations/new_word_drill.sql`).
+- HTTP: `POST /api/practice/intro/complete`, `POST /api/tests/<id>/prestudy/admit-overflow`; `POST /api/practice/attempt` accepts `exercise_context`.
+
 ## RPC Call Site Map
 
 Every Supabase RPC currently invoked from Python, with its caller. See [database/rpcs.tech.md](../database/rpcs.tech.md) for the full RPC signatures.

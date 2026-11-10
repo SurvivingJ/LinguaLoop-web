@@ -703,6 +703,22 @@
   // at least three of them) starts the drill at session 2.
   const INTRO_S1 = ['read_typed', 'def_mc', 'read_typed2', 'rev_mc', 'cloze_mc'];
   function metSenses(q) {
+    // The drill's own counting rule (window.IntroDrillCount, from
+    // static/js/session/players/intro_drill.js): 5 counted right answers,
+    // spaced and in different formats, as in intro session 1.
+    const C = window.IntroDrillCount;
+    if (C && C.countWord) {
+      const answered = q.queue.filter((it) => it.answered != null);
+      const K = q.words.length;
+      return q.words.filter((sid) => {
+        const atts = [];
+        answered.forEach((it, pos) => {
+          if (String(it.sid) === String(sid)) atts.push({ pos, format: it.stage, correct: !!it.ok, idk: !!it.idk });
+        });
+        const formats = [...new Set(atts.map((x) => x.format))];
+        return atts.length > 0 && C.countWord(1, atts, K, formats).passed;
+      }).map(Number);
+    }
     return q.words.filter((sid) => {
       const items = q.queue.filter((it) => String(it.sid) === String(sid) && INTRO_S1.includes(it.stage));
       const stages = new Set(items.map((it) => it.stage));

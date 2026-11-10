@@ -897,6 +897,7 @@ class PracticeSessionService:
         language_id: Optional[int] = None,
         expected_seconds: Optional[int] = None,
         is_tail: bool = False,
+        exercise_context: str = 'standard',
     ) -> Dict[str, Any]:
         """Record an attempt and propagate BKT / FSRS / Tier-B progress.
 
@@ -1010,6 +1011,15 @@ class PracticeSessionService:
                 user_id, sense_id, is_correct, time_taken_ms
             )
 
+        # 5a. Ladder progress (rings, gates, demotion). The attempt row, BKT
+        # and FSRS are written above; ladder_apply_progress only moves the
+        # ladder, for words on it, on first attempts.
+        if sense_id:
+            self._apply_ladder_progress(
+                result, user_id, sense_id, exercise_id, is_correct,
+                is_first_attempt, eff_language_id, exercise_context,
+            )
+
         # 5b. Weekly minutes ledger (ADR-035): credit every attempt, in or out
         # of a planned session, once per exercise_attempts id. Best-effort and
         # independent of STUDY_PLAN_ENABLED / session_mode; planner math below
@@ -1063,6 +1073,42 @@ class PracticeSessionService:
                 )
 
         return result
+
+    def _apply_ladder_progress(
+        self, result: Dict[str, Any], user_id: str, sense_id: int,
+        exercise_id: str, is_correct: bool, is_first_attempt: bool,
+        language_id: Optional[int], exercise_context: str,
+    ) -> None:
+        """Move the word's ladder (best effort; adds ``result['ladder']``).
+
+        A word demoted from ring 2 that came through the new-word drill
+        restarts the drill (ADR-040).
+        """
+        try:
+            resp = self.db.rpc('ladder_apply_progress', {
+                'p_user_id':          user_id,
+                'p_sense_id':         sense_id,
+                'p_exercise_id':      exercise_id,
+                'p_is_correct':       bool(is_correct),
+                'p_is_first_attempt': bool(is_first_attempt),
+                'p_exercise_context': exercise_context
+                if exercise_context in ('standard', 'gate', 'stress_test') else 'standard',
+            }).execute()
+            ladder = resp.data if isinstance(resp.data, dict) else None
+        except Exception as e:
+            logger.warning('ladder progress failed (non-fatal) for sense %s: %s', sense_id, e)
+            return
+        if not ladder or ladder.get('skipped'):
+            return
+        result['ladder'] = {k: ladder.get(k) for k in (
+            'family', 'current_ring', 'word_state', 'gate_pending',
+            'stress_test_ready', 'demoted', 'is_lapse')}
+        try:
+            from services import intro_drill
+            if intro_drill.restart_if_demoted(self.db, user_id, sense_id, language_id, ladder):
+                result['ladder']['intro_restart'] = True
+        except Exception as e:
+            logger.warning('intro restart check failed for sense %s: %s', sense_id, e)
 
     def record_prestudy_exercise_attempt(
         self,

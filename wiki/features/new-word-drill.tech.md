@@ -59,8 +59,22 @@ account). Where the build differs from the plan above, **this section wins**:
    (`routes/study_plan.py`); the DB default is 10.
 10. **Flag:** `NEW_WORD_DRILL_ENABLED` (env, default true). Off: new words go to ring 1 as before;
     existing intro rows keep being served.
-11. **Not built yet:** the review governor and Study Plan forecast do not count intro load
-    (TASK-919 remainder); the measurement script (TASK-921).
+11. **Done 2026-11-10 (second pass):** the review governor counts due drill reviews weighted by
+    expected items (`migrations/new_word_drill_governor.sql`); the forecast adds 10 drill review
+    items per new word (`study_plan_service.reviews_per_new_word_30d`); measurement script
+    `scripts/eval_new_word_drill.py` with a baseline at
+    [[evaluations/new-word-drill-baseline-2026-11-10]].
+12. **Atomic word commit:** `intro_commit_word` (`migrations/intro_commit_word.sql`) locks the
+    row, checks it is still at the posted stage, inserts the attempt rows and updates the ladder
+    row in one transaction; evidence, ledger and generation follow in Python.
+13. **Spacers:** with fewer than 5 drill words, up to 3 of the session's ordinary items go
+    between two showings of the same word when fewer than 2 items would separate them
+    (`SPACER_MIN_GAP`); they are recorded as normal practice attempts and not served again.
+14. **Shared counting:** `countWord` in `intro_drill.js` mirrors the server `recount` (pinned by
+    the shared fixture); the prestudy page loads it and uses it to decide which primed words met
+    session 1. Prestudy keeps its own staged UI (readiness check, boosters).
+15. **Ladder handoff:** the ring-2 restart now fires from Practice attempts — see
+    [[decisions/ADR-041-practice-moves-the-ladder]].
 
 ## Architecture Overview
 

@@ -138,6 +138,18 @@ class _Db:
     def table(self, name):
         return _Q(self, name)
 
+    def rpc(self, name, params):
+        assert name == 'intro_commit_word'
+        rows = [r for r in self.tables.get('user_word_ladder', [])
+                if r['user_id'] == params['p_user_id'] and r['sense_id'] == params['p_sense_id']]
+        ok = bool(rows) and rows[0].get('word_state') == 'intro' and rows[0].get('intro_stage') == params['p_stage']
+        if ok:
+            self.tables.setdefault('exercise_attempts', []).extend(
+                {**a, 'user_id': params['p_user_id'], 'sense_id': params['p_sense_id'], 'source': 'intro'}
+                for a in params['p_attempts'])
+            rows[0].update(params['p_update'])
+        return type('R', (), {'execute': lambda self_: type('D', (), {'data': ok})()})()
+
 
 @pytest.fixture
 def db(monkeypatch):

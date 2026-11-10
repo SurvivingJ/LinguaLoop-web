@@ -430,8 +430,20 @@ def complete_word(db, user_id: str, result: dict) -> dict:
             'created_at': now,
         })
         seen_fmt.add(a['format'])
-    if ins:
-        db.table('exercise_attempts').insert(ins).execute()
+
+    entry = {'stage': stage, 'date': today.isoformat(), 'at': now, 'target': rc['target'],
+             'counted': rc['counted'], 'items': rc['items'], 'cold_correct': rc['cold_correct'],
+             'passed': rc['passed'], 'formats': sorted({a['format'] for a in attempts})}
+    upd = advance(row, stage, rc['passed'], today, entry)
+    # Attempt rows + ladder row in one transaction; false = the row is no
+    # longer at this stage (a replay or a concurrent post): record nothing.
+    committed = db.rpc('intro_commit_word', {
+        'p_user_id': user_id, 'p_sense_id': sid, 'p_stage': stage,
+        'p_attempts': [{k: v for k, v in r.items() if k not in ('user_id', 'sense_id', 'source')} for r in ins],
+        'p_update': {k: v for k, v in upd.items() if k != 'updated_at'},
+    }).execute().data
+    if committed is not True:
+        return {'sense_id': sid, 'ok': False, 'reason': 'not_due'}
 
     # one knowledge-evidence point per word per session
     if stage == 1:
@@ -447,12 +459,6 @@ def complete_word(db, user_id: str, result: dict) -> dict:
                 results=[{'sense_id': sid, 'is_correct': evidence}], side_effects=False)
         except Exception as e:
             logger.warning('intro evidence failed for sense %s: %s', sid, e)
-
-    entry = {'stage': stage, 'date': today.isoformat(), 'at': now, 'target': rc['target'],
-             'counted': rc['counted'], 'items': rc['items'], 'cold_correct': rc['cold_correct'],
-             'passed': rc['passed'], 'formats': sorted({a['format'] for a in attempts})}
-    upd = advance(row, stage, rc['passed'], today, entry)
-    db.table('user_word_ladder').update(upd).eq('user_id', user_id).eq('sense_id', sid).execute()
 
     if total_ms and language_id:
         from services.study_time import credit_study_time

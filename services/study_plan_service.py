@@ -432,6 +432,23 @@ def effective_new_words(quota: int, level: str) -> int:
     return q
 
 
+def reviews_per_new_word_30d() -> int:
+    """Review items one new word costs in its first 30 days.
+
+    Config.REVIEWS_PER_NEW_WORD_30D ladder/FSRS reviews, plus the new-word
+    drill's review sessions 2-4 when the drill is on (ADR-040, about 4 + 3 + 3
+    items; session 1 is new-word time, not review time).
+    """
+    n = int(Config.REVIEWS_PER_NEW_WORD_30D)
+    try:
+        from services import intro_drill
+        if intro_drill.ENABLED:
+            n += sum(intro_drill.INTRO_STAGE_ITEMS_EST[s] for s in (2, 3, 4))
+    except Exception:  # pragma: no cover - import guard only
+        pass
+    return n
+
+
 def review_forecast_min_per_day(
     avg_new_words_per_day: float, item_seconds: float,
 ) -> float:
@@ -446,7 +463,7 @@ def review_forecast_min_per_day(
     """
     return (
         float(avg_new_words_per_day)
-        * Config.REVIEWS_PER_NEW_WORD_30D
+        * reviews_per_new_word_30d()
         * float(item_seconds)
         / 60.0
     )

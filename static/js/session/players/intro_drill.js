@@ -33,9 +33,52 @@ function esc(s) {
 // ---------------------------------------------------------------------------
 
 export const MIN_GAP_ITEMS = 4;
+// With only 1-3 words left, a spacer goes between two showings of the same
+// word that would otherwise have fewer than this many items between them.
+export const SPACER_MIN_GAP = 2;
+export const TARGETS = { 1: 5, 2: 3, 3: 2, 4: 2 };
+export const CAPS = { 1: 12, 2: 8, 3: 6, 4: 6 };
+export const COLD_MISS_BUMP = 1;
+const KNOWN_FORMATS = new Set(['read_typed', 'read_typed2', 'def_mc', 'rev_mc', 'cloze_mc', 'cloze_typed', 'recall_typed', 'ex_use', 'ex_judge']);
 
 export function effGap(nWords) {
   return Math.min(MIN_GAP_ITEMS, Math.max(0, nWords - 1));
+}
+
+/**
+ * Re-count one word's attempts with the drill's rules. Mirror of
+ * services/intro_drill.py `recount` (the shared fixture pins both); also
+ * used by the prestudy page to decide whether a prime met session 1.
+ * attempts: [{pos, gap, format, correct, idk}] in serving order.
+ */
+export function countWord(stage, attempts, nWords, formats) {
+  let target = TARGETS[stage];
+  const cap = CAPS[stage];
+  const maxGap = effGap(nWords);
+  const distinct = new Set((formats || []).filter((f) => KNOWN_FORMATS.has(f))).size >= 2;
+  let counted = 0;
+  let lastPos = null;
+  let lastFmt = null;
+  let coldCorrect = null;
+  let items = 0;
+  for (const a of attempts.slice().sort((x, y) => x.pos - y.pos).slice(0, cap)) {
+    const ok = !!a.correct && !a.idk;
+    const g = Number(a.gap);
+    const gap = a.gap == null || !Number.isFinite(g) ? maxGap : Math.min(Math.max(Math.trunc(g), 0), maxGap);
+    if (items === 0 && stage >= 2) {
+      coldCorrect = ok;
+      if (!ok) target += COLD_MISS_BUMP;
+    }
+    const spaced = lastPos === null || a.pos - lastPos - 1 >= gap;
+    if (ok && spaced && (!distinct || a.format !== lastFmt)) {
+      counted += 1;
+      lastFmt = a.format;
+    }
+    lastPos = a.pos;
+    items += 1;
+    if (counted >= target) break;
+  }
+  return { target, counted, passed: counted >= target, cold_correct: coldCorrect, items };
 }
 
 /**
@@ -44,6 +87,7 @@ export function effGap(nWords) {
  */
 export function createDrill(words, opts = {}) {
   const rng = opts.rng || Math.random;
+  let spacersLeft = opts.spacers || 0;
   const order = words.map((_, i) => i);
   for (let i = order.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
@@ -72,6 +116,11 @@ export function createDrill(words, opts = {}) {
     const cands = a.length > 1 ? a.filter((x) => x.w.sense_id !== lastSid) : a;
     cands.sort((x, y) => x.nextAt - y.nextAt);
     const x = cands[0];
+    // Too few words to keep repeats apart: put an ordinary practice item
+    // (a spacer) between them while any are left.
+    if (spacersLeft > 0 && x.lastPos !== null && pos - x.lastPos - 1 < SPACER_MIN_GAP) {
+      return { spacer: true, pos };
+    }
     const f = x.w.formats;
     const format = x.retryFmt || f[x.fi % f.length];
     // The spacing rule follows the words still being drilled, so the last
@@ -127,9 +176,17 @@ export function createDrill(words, opts = {}) {
     };
   }
 
+  // A spacer was answered: it takes a place in the order, no word moves.
+  function skip(item) {
+    spacersLeft -= 1;
+    pos = item.pos + 1;
+    lastSid = null;
+  }
+
   return {
     next,
     answer,
+    skip,
     remaining: () => active().length,
     progress: (sid) => {
       const x = W.get(sid);
@@ -291,7 +348,9 @@ export function runIntroDrill(cardEl, block, opts = {}) {
       resolve({ words: 0, passed: 0 });
       return;
     }
-    const drill = createDrill(words);
+    const spacers = (opts.spacers || []).slice();
+    let usedSpacers = 0;
+    const drill = createDrill(words, { spacers: spacers.length });
     const byId = new Map(words.map((w) => [w.sense_id, w]));
     const exUsed = new Map();
     let passed = 0;
@@ -320,6 +379,10 @@ export function runIntroDrill(cardEl, block, opts = {}) {
     function step() {
       header();
       let p = drill.next();
+      if (p && p.spacer) {
+        renderSpacer(p, spacers[usedSpacers]);
+        return;
+      }
       let item = null;
       // A format that cannot be built here falls through to the word's next one.
       for (let guard = 0; p && guard < 6; guard++) {
@@ -329,7 +392,7 @@ export function runIntroDrill(cardEl, block, opts = {}) {
       }
       if (!p) {
         cardEl.innerHTML = `<p style="text-align:center;color:var(--text-secondary);padding:32px">${esc(T('intro.saving', null, 'Saving your new words…'))}</p>`;
-        Promise.allSettled(sends).then(() => resolve({ words: words.length, passed }));
+        Promise.allSettled(sends).then(() => resolve({ words: words.length, passed, usedSpacers }));
         return;
       }
       current = { pick: p, item };
@@ -423,6 +486,45 @@ export function runIntroDrill(cardEl, block, opts = {}) {
             done(v === item.correct, false, v);
           })
         );
+      }
+    }
+
+    // An ordinary practice item between two showings of the same word; the
+    // host records it (opts.onSpacer) as a normal practice attempt.
+    function renderSpacer(p, ex) {
+      usedSpacers += 1;
+      let answered = false;
+      const started = performance.now();
+      ER.init({
+        cardEl,
+        isAnswered: () => answered,
+        setAnswered: (v) => {
+          answered = v;
+        },
+        showFeedback: (ok, expl) => {
+          const fb = document.createElement('div');
+          fb.className = `exercise-feedback show ${ok ? 'correct' : 'incorrect'}`;
+          fb.innerHTML = `${esc(T(ok ? 'intro.right' : 'intro.wrong', null, ok ? 'Right!' : 'Not quite.'))}${expl ? `<div style="margin-top:8px">${esc(expl)}</div>` : ''}`;
+          const slot = cardEl.querySelector('#exerciseFeedback');
+          if (slot) slot.replaceWith(fb);
+          else cardEl.appendChild(fb);
+          const nb = cardEl.querySelector('#nextBtn');
+          if (nb) nb.classList.add('show');
+        },
+        submitAttempt: (ok, resp) => {
+          if (opts.onSpacer) opts.onSpacer(ex, ok, resp, Math.round(performance.now() - started));
+        },
+        nextExercise: () => {
+          drill.skip(p);
+          step();
+        },
+      });
+      try {
+        ER.dispatch(ex.exercise_type, ex, ex.content || {}, '');
+      } catch (e) {
+        console.error('[intro] spacer render failed', e);
+        drill.skip(p);
+        step();
       }
     }
 
