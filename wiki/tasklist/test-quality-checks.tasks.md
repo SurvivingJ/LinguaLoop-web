@@ -4,7 +4,7 @@ feature: test-quality-checks
 prose_page: ../features/test-quality-checks.md
 tech_page: ../features/test-quality-checks.tech.md
 total_tasks: 16
-done: 11
+done: 14
 ---
 
 # Test Quality Checks — Task Breakdown
@@ -361,7 +361,7 @@ shows `qc:` reasons in `generation_review_queue` (read-only SQL:
 
 ## TASK-922: Remediate existing content from the audit (LIVE-DB, approval)
 
-**Status:** [~] Done (repo), awaiting developer apply of `data/test_quality/remediation_2026-11-09.sql`
+**Status:** [x] Done — SQL applied by developer 2026-11-10, verified live (the 133 tests needing regeneration remain in the CSV)
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -429,7 +429,7 @@ each experiment task states its budget up front.
 
 ## TASK-924: Experiment E1 — which check mode should generation ship with? (LIVE writes, approval)
 
-**Status:** [?] Blocked — needs the mix migration applied, an OpenRouter key, and budget approval (est. $2–5)
+**Status:** [?] Blocked — needs an OpenRouter key and budget approval (est. $2–5); migrations are in
 **Feature:** test-quality-checks
 **Type:** test
 **Complexity:** L (1-2d)
@@ -455,7 +455,7 @@ The evaluation page has the pre-registered rule, the per-arm table and the decis
 
 ## TASK-925: Tier-keyed question templates — migration + loader (LIVE-DB, approval)
 
-**Status:** [~] Done (repo), awaiting developer apply of `migrations/prompt_templates_tier_id.sql`
+**Status:** [x] Done — applied 2026-11-10, verified live
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -489,7 +489,7 @@ logs the same template versions as before.
 
 ## TASK-926: Author tier templates for T1–T3 (zh, en, ja)
 
-**Status:** [~] Done (repo), awaiting developer apply of `migrations/seed_tier_question_templates.sql`; native read-through owed
+**Status:** [x] Done — 27 rows applied 2026-11-10, verified live (same model as base, text = base + level block); native read-through owed
 **Feature:** test-quality-checks
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -529,7 +529,7 @@ Pull the current base rows first (`select id, task_name, language_id, version, t
 
 ## TASK-927: Experiment E2 — do tier templates make better T1–T3 tests? (LIVE writes, approval)
 
-**Status:** [?] Blocked — needs TASK-925/926 applied, an OpenRouter key, and budget approval
+**Status:** [?] Blocked — needs an OpenRouter key and budget approval; templates are in
 **Feature:** test-quality-checks
 **Type:** test
 **Complexity:** L (1-2d)

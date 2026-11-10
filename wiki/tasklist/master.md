@@ -1163,12 +1163,12 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-919 | test-quality-checks | Read-only library audit `audit_test_quality.py` | Done | M | TASK-913–918 |
 | TASK-920 | test-quality-checks | Calibrate vs ja gold set; set CHECK_MODES | Done | M | TASK-919 |
 | TASK-921 | test-quality-checks | Wire into generation (all tiers) + review queue | Done (repo) | M | TASK-920 |
-| TASK-922 | test-quality-checks | Remediate existing content (LIVE-DB, approval) | Done (repo), awaiting live apply | M | TASK-920, TASK-924 |
+| TASK-922 | test-quality-checks | Remediate existing content (LIVE-DB, approval) | Done | M | TASK-920, TASK-924 |
 | TASK-923 | test-quality-checks | Experiment harness — inactive runs, fixed topics, arm-blind review, scoring | Done (repo) | M | TASK-919, TASK-921 |
-| TASK-924 | test-quality-checks | Experiment E1 — check mode (flag / calibrated / reject), 108 tests (LIVE, approval) | [?] Blocked (key, migration, budget) | L | TASK-923 |
-| TASK-925 | test-quality-checks | Tier-keyed templates — migration + loader + banded stem pools (LIVE-DB, approval) | Done (repo), awaiting live apply | M | — |
-| TASK-926 | test-quality-checks | Author T1–T3 tier templates, zh/en/ja | Done (repo), awaiting live apply | L | TASK-925 |
-| TASK-927 | test-quality-checks | Experiment E2 — tier vs base templates at T1–T3, 72 tests (LIVE, approval) | [?] Blocked (key, 925/926 applied, budget) | L | TASK-923, TASK-926 |
+| TASK-924 | test-quality-checks | Experiment E1 — check mode (flag / calibrated / reject), 108 tests (LIVE, approval) | [?] Blocked (OpenRouter key, budget) | L | TASK-923 |
+| TASK-925 | test-quality-checks | Tier-keyed templates — migration + loader + banded stem pools (LIVE-DB, approval) | Done | M | — |
+| TASK-926 | test-quality-checks | Author T1–T3 tier templates, zh/en/ja | Done | L | TASK-925 |
+| TASK-927 | test-quality-checks | Experiment E2 — tier vs base templates at T1–T3, 72 tests (LIVE, approval) | [?] Blocked (OpenRouter key, budget) | L | TASK-923, TASK-926 |
 
 ### Language Packs (existing — unchanged)
 
