@@ -154,12 +154,12 @@ class TestNewRowDefault:
         client, svc = install(monkeypatch, db)
         return client, db, svc
 
-    def test_new_row_gets_minutes_div_6_words_per_day(self, monkeypatch):
+    def test_new_row_gets_at_least_ten_words_per_day(self, monkeypatch):
         client, db, svc = self._client(monkeypatch, existed=False)
         r = put(client, template_id=101)
         assert r.status_code == 200
         assert db.rpcs and db.rpcs[0][0] == 'apply_study_plan_template'
-        assert {'new_words_per_day': 7} in db.updates_for('user_study_plans')  # 45 // 6
+        assert {'new_words_per_day': 10} in db.updates_for('user_study_plans')  # max(10, 45 // 6)
         assert len(svc.calls.compute) == 1  # template seeding still runs
 
     def test_existing_row_is_not_touched(self, monkeypatch):
@@ -168,7 +168,7 @@ class TestNewRowDefault:
         assert r.status_code == 200
         assert db.updates_for('user_study_plans') == []
 
-    def test_minimum_is_one_word(self, monkeypatch):
+    def test_minimum_is_ten_words(self, monkeypatch):
         calls = []
 
         def plan_rows(q):
@@ -186,7 +186,7 @@ class TestNewRowDefault:
         db = FakeDB(tables)
         client, _ = install(monkeypatch, db)
         put(client, template_id=101)
-        assert {'new_words_per_day': 1} in db.updates_for('user_study_plans')  # max(1, 10 // 6)
+        assert {'new_words_per_day': 10} in db.updates_for('user_study_plans')  # max(10, 10 // 6)
 
 
 class TestGetShape:

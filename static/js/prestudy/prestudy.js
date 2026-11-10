@@ -695,7 +695,20 @@
       minutes_est: estMinutes(a),
       active_seconds: S.timer ? Math.round(S.timer.stop() / 1000) : 0,
       tests_dropped_today: S.droppedToday,
+      met_sense_ids: S.mode === 'prime' ? metSenses(q) : [],
     };
+  }
+  // New-word drill (ADR-040): a word whose prime met intro session 1's target
+  // (every reading/meaning/use stage it was given eventually answered right,
+  // at least three of them) starts the drill at session 2.
+  const INTRO_S1 = ['read_typed', 'def_mc', 'read_typed2', 'rev_mc', 'cloze_mc'];
+  function metSenses(q) {
+    return q.words.filter((sid) => {
+      const items = q.queue.filter((it) => String(it.sid) === String(sid) && INTRO_S1.includes(it.stage));
+      const stages = new Set(items.map((it) => it.stage));
+      if (stages.size < 3) return false;
+      return [...stages].every((st) => items.some((it) => it.stage === st && it.ok && !it.idk));
+    }).map(Number);
   }
   async function postEvidence() {
     if (S.evidencePosted) return true;
@@ -711,6 +724,10 @@
         }),
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
+      try {
+        const j = await res.json();
+        S.intro = ((j && j.data) || j || {}).intro || null;
+      } catch { S.intro = null; }
       return true;
     } catch (e) {
       console.warn('[prestudy] evidence not saved:', e);
@@ -737,7 +754,37 @@
       return;
     }
     st.textContent = T('prestudy.saving');
-    postEvidence().then((ok) => { st.textContent = T(ok ? 'prestudy.saved' : 'prestudy.save_failed'); });
+    postEvidence().then((ok) => { st.textContent = T(ok ? 'prestudy.saved' : 'prestudy.save_failed'); drawOverflow(); });
+  }
+  // More drilled words than today's new-word room: queue the rest (default) or add them all now.
+  function drawOverflow() {
+    const o = S.intro && S.intro.overflow;
+    const old = $('psOverflow'); if (old) old.remove();
+    if (!o || !o.over) return;
+    const box = document.createElement('div');
+    box.id = 'psOverflow';
+    box.className = 'ps-overflow';
+    box.innerHTML = `<p><strong>${esc(T('prestudy.overflow_title', { total: o.fits + o.over, fits: o.fits }))}</strong></p>
+      <p>${esc(T('prestudy.overflow_body', { over: o.over, min: o.extra_minutes_per_day }))}</p>
+      <div class="ps-overflow-actions"><button type="button" class="btn btn-outline-secondary" id="psOverflowQueue">${esc(T('prestudy.overflow_queue'))}</button>
+      <button type="button" class="btn btn-primary" id="psOverflowAdd">${esc(T('prestudy.overflow_add', { over: o.over }))}</button></div>`;
+    $('psSaveState').after(box);
+    $('psOverflowQueue').onclick = () => { box.innerHTML = `<p>${esc(T('prestudy.overflow_queued', { over: o.over }))}</p>`; };
+    $('psOverflowAdd').onclick = async () => {
+      $('psOverflowAdd').disabled = true;
+      try {
+        const res = await window.authFetch(`/api/tests/${encodeURIComponent(S.slug)}/prestudy/admit-overflow`, {
+          method: 'POST', body: JSON.stringify({ sense_ids: o.sense_ids }),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const j = await res.json();
+        const n = (((j && j.data) || j || {}).started || []).length;
+        box.innerHTML = `<p>${esc(T('prestudy.overflow_added', { n }))}</p>`;
+      } catch (e) {
+        console.warn('[prestudy] overflow not added:', e);
+        $('psOverflowAdd').disabled = false;
+      }
+    };
   }
   function testUrl() {
     return `/test/${encodeURIComponent(S.slug)}?type=${encodeURIComponent(S.testType)}`;
@@ -863,6 +910,8 @@
   }
   function showError(msg) { $('psLoading').hidden = true; $('psError').hidden = false; $('psErrorMsg').textContent = msg; }
   async function init() {
+    // Also loaded on the session page for its reading graders (window.LinguaPrestudy).
+    if (!$('psSkip')) return;
     if (window.LinguaI18n && window.LinguaI18n.init) { try { await window.LinguaI18n.init(); } catch { /* English fallback */ } }
     const parts = window.location.pathname.split('/').filter(Boolean);   // ['test', slug, 'prestudy']
     S.slug = decodeURIComponent(parts[1] || '');

@@ -385,11 +385,11 @@ def _plan_row_exists(db, user_id: str, language_id: int) -> Optional[bool]:
 
 
 def _apply_new_words_default(db, user_id: str, language_id: int, rpc_data: Any) -> None:
-    """Set new_words_per_day = max(1, daily_minutes // 6) on a freshly created plan row.
+    """Set new_words_per_day = max(10, daily_minutes // 6) on a freshly created plan row.
 
-    Words PER DAY (5 per day at 30 min). apply_study_plan_template does not set
-    the column, so without this the DB safety default (5) would apply whatever
-    the template. Existing rows are never touched. Best-effort.
+    Words PER DAY: at least 10 (new-word drill, ADR-040, decided 2026-11-09),
+    more for plans over 60 min/day. apply_study_plan_template does not set the
+    column. Existing rows are never touched. Best-effort.
     """
     try:
         resp = (
@@ -402,7 +402,7 @@ def _apply_new_words_default(db, user_id: str, language_id: int, rpc_data: Any) 
         )
         if not resp.data:
             return
-        default = max(1, int(resp.data[0]['daily_minutes']) // 6)
+        default = max(10, int(resp.data[0]['daily_minutes']) // 6)
         (
             db.table('user_study_plans')
             .update({'new_words_per_day': default})

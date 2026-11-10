@@ -380,6 +380,20 @@ def test_supply_gate_admits_only_covered_senses():
     assert sorted(fresh) == [1, 3]
 
 
+def test_drill_admits_starved_words_and_still_queues_generation(monkeypatch):
+    """New-word drill (ADR-040): intro session 1 needs no ladder exercises, so
+    nominations are admitted without 3+ exercises; the starved ones are still
+    sent to generation."""
+    from services import intro_drill
+    monkeypatch.setattr(intro_drill, 'ENABLED', True)
+    svc = _service(_StubDB(eligible_count=0, evidence=_missed([1, 2])))
+    queued = []
+    svc._request_generation = lambda sids, _lang: queued.extend(sids)
+    got = svc._gate_and_admit([1, 2], 2, 1)
+    assert got == [1, 2]
+    assert sorted(queued) == [1, 2]
+
+
 def test_supply_gate_fails_closed_when_the_lookup_breaks():
     """An unverifiable sense must not be admitted — that is the dead end."""
     db = _StubDB(eligible_count=0, evidence=_missed([1, 2, 3]))
@@ -573,3 +587,13 @@ def test_unservable_subscriptions_are_queued_for_generation(monkeypatch):
         supply=_supply_for([1]),
     )
     assert set(queued) == {-2, -3, -4, -5}
+
+
+@pytest.fixture(autouse=True)
+def _legacy_supply_gate(monkeypatch):
+    """These tests pin the pre-drill supply gate (a word needs 3+ exercises to
+    be admitted). With the new-word drill on, admission no longer waits for
+    exercises; see test_drill_admits_starved_words_and_still_queues_generation."""
+    from services import intro_drill
+    monkeypatch.setattr(intro_drill, 'ENABLED', False)
+

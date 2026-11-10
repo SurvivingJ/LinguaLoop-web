@@ -424,3 +424,13 @@ def test_no_rebuild_when_the_plan_can_be_served(governor):
     targets = {'new_words_in_budget': 1, 'new_words_supply_checked': False}
     db = QuotaDB(npd=5, evidence=_missed([1, 2]), supply=_supply_for([1, 2]), targets=targets)
     assert _admit(db)['needs_rebuild'] is False
+
+
+@pytest.fixture(autouse=True)
+def _legacy_supply_gate(monkeypatch):
+    """These tests pin the pre-drill supply gate (a word needs 3+ exercises to
+    be admitted). With the new-word drill on, admission no longer waits for
+    exercises; see test_drill_admits_starved_words_and_still_queues_generation."""
+    from services import intro_drill
+    monkeypatch.setattr(intro_drill, 'ENABLED', False)
+

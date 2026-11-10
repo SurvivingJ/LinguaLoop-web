@@ -4,7 +4,7 @@ feature: new-word-drill
 prose_page: ../features/new-word-drill.md
 tech_page: ../features/new-word-drill.tech.md
 total_tasks: 10
-done: 0
+done: 8
 ---
 
 # New-Word Drill — Task Breakdown
@@ -15,7 +15,7 @@ Draft for developer review (2026-11-09). All design questions answered 2026-11-0
 
 ## TASK-912: Migration — intro columns, attempt source, quota default (LIVE-DB, approval)
 
-**Status:** [ ] Not Started
+**Status:** Done (live applied 2026-11-10)
 **Feature:** new-word-drill
 **Type:** infra
 **Complexity:** S
@@ -44,7 +44,7 @@ and applied live only with approval.
 
 ## TASK-913: SQL — intro RPCs, ladder-pool exclusion, admission gate, demotion
 
-**Status:** [ ] Not Started
+**Status:** Done — built as word_state 'intro' + Python stage logic (see tech spec "Implementation notes")
 **Feature:** new-word-drill
 **Type:** feature
 **Complexity:** L
@@ -77,7 +77,7 @@ back to intro stage 1 (full restart).
 
 ## TASK-914: Shared drill engine extracted from prestudy
 
-**Status:** [ ] Not Started
+**Status:** Done — engine in static/js/session/players/intro_drill.js; prestudy graders reused, not extracted
 **Feature:** new-word-drill
 **Type:** refactor
 **Complexity:** M
@@ -105,7 +105,7 @@ distinct formats, the cold-first bump, caps and spacers. Prestudy must behave ex
 
 ## TASK-915: Server — intro block builder and completion route
 
-**Status:** [ ] Not Started
+**Status:** Done
 **Feature:** new-word-drill
 **Type:** feature
 **Complexity:** M
@@ -136,7 +136,7 @@ TASK-914 fixtures' rules.
 
 ## TASK-916: Session player, practice-mode split, i18n
 
-**Status:** [ ] Not Started
+**Status:** Done
 **Feature:** new-word-drill
 **Type:** feature
 **Complexity:** M
@@ -165,7 +165,7 @@ for the "Learn new words" prompt.
 
 ## TASK-917: Admission — intro rows and relaxed supply gate
 
-**Status:** [ ] Not Started
+**Status:** Done
 **Feature:** new-word-drill
 **Type:** feature
 **Complexity:** S
@@ -193,7 +193,7 @@ create new rows with `intro_stage = 1`, `intro_due_date = today` (learner-local,
 
 ## TASK-918: Prestudy words enter the drill
 
-**Status:** [ ] Not Started
+**Status:** Done
 **Feature:** new-word-drill
 **Type:** feature
 **Complexity:** M
@@ -225,7 +225,7 @@ choices are **Queue for later** (default: front of Queue A1) or **Add them all n
 
 ## TASK-919: Time estimate and review governor count the intro load
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress — block est_minutes and the `intro_reviews` chunk done; governor/forecast not yet
 **Feature:** new-word-drill
 **Type:** feature
 **Complexity:** S
@@ -250,7 +250,7 @@ Otherwise 10 new words a day silently adds 25–30 minutes.
 
 ## TASK-920: Feature flag and rollout (LIVE-DB, approval)
 
-**Status:** [ ] Not Started
+**Status:** Done — env flag NEW_WORD_DRILL_ENABLED (default on); live smoke test passed
 **Feature:** new-word-drill
 **Type:** infra
 **Complexity:** S

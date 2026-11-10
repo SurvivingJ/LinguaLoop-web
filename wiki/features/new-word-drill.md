@@ -1,9 +1,9 @@
 ---
 title: New-Word Drill (criterion-based intro sessions)
 type: feature
-status: planned
+status: in-progress
 tech_page: ./new-word-drill.tech.md
-last_updated: 2026-11-09
+last_updated: 2026-11-10
 open_questions:
   - "ANSWERED 2026-11-09: schedule = Option B (successive relearning), targets 5 / 3 / 2 / 2 counted correct answers, +1 when the cold recall that opens sessions 2–4 is missed."
   - "ANSWERED 2026-11-09: new_words_per_day default raised to 10 (was 5)."

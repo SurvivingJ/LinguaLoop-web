@@ -252,6 +252,30 @@ class PracticeSessionService:
                     'lang=%s: %s', user_id, language_id, e,
                 )
 
+        # New-word drill (ADR-040): due intro words run first as one block.
+        # Stage 2-4 words in every mode; brand-new stage-1 words only where new
+        # words are taught (acquisition / auto), within today's quota. Optional
+        # tail rounds serve them too: that is where today's leftover words go.
+        try:
+            from services import intro_drill
+            if intro_drill.ENABLED:
+                # Intro words are drilled only by the drill: drop them from
+                # the regular items (BKT/FSRS reviews can still pick them).
+                intro_ids = intro_drill.intro_sense_ids(self.db, user_id)
+                if intro_ids and payload.get('items'):
+                    payload['items'] = [i for i in payload['items']
+                                        if i.get('sense_id') not in intro_ids]
+                block = intro_drill.block_for_session(self, user_id, language_id, mode)
+                if block:
+                    payload['intro_drill'] = block
+                    if payload.get('no_content_reason'):
+                        payload['no_content_reason'] = None
+        except Exception as e:
+            logger.warning(
+                'intro drill block failed (non-fatal) for user=%s lang=%s: %s',
+                user_id, language_id, e,
+            )
+
         # Session-budget-settings: serve never-attempted admitted words first
         # (oldest admission first), and maintenance reviews most-overdue first.
         try:
@@ -408,6 +432,7 @@ class PracticeSessionService:
 
         acq_items: List[Dict[str, Any]] = []
         admitted: List[int] = []
+        targets: List[int] = []
         beyond_quota = 0
         if new_words:
             admitted, targets, beyond_quota = self._admit_extra_new_words(
@@ -434,6 +459,23 @@ class PracticeSessionService:
             },
             'no_content_reason': None if items else 'all_complete',
         }
+        # New-word drill: extra new words are intro words, so they come as an
+        # intro block (session 1), not ladder items.
+        if new_words and targets:
+            try:
+                from services import intro_drill
+                if intro_drill.ENABLED:
+                    rows = self.db.table('user_word_ladder').select(
+                        'sense_id, intro_stage, intro_due_date, intro_history, created_at'
+                    ).eq('user_id', user_id).eq('word_state', 'intro').in_(
+                        'sense_id', list(targets)).execute().data or []
+                    block = intro_drill.build_block(self.db, user_id, language_id, rows)
+                    if block:
+                        payload['intro_drill'] = block
+                        payload['extra']['new_words_served'] = len(block['words'])
+                        payload['no_content_reason'] = None
+            except Exception as e:
+                logger.warning('extra round: intro block failed (non-fatal): %s', e)
         try:
             self._apply_script_variant(payload, user_id, language_id)
         except Exception as e:
@@ -466,7 +508,7 @@ class PracticeSessionService:
                 subscribed = self._subscribed_sense_ids(user_id)
                 fresh = self._nominate_new_words(
                     user_id, language_id, want, subscribed)
-                if fresh and self._insert_ladder_rows(user_id, fresh):
+                if fresh and self._insert_ladder_rows(user_id, fresh, language_id):
                     admitted = list(fresh)
             except Exception as e:
                 logger.warning(
@@ -1340,7 +1382,7 @@ class PracticeSessionService:
         subscribed = self._subscribed_sense_ids(user_id)
         fresh = self._nominate_new_words(user_id, language_id, want, subscribed)
 
-        inserted = bool(fresh) and self._insert_ladder_rows(user_id, fresh)
+        inserted = bool(fresh) and self._insert_ladder_rows(user_id, fresh, language_id)
         if fresh and not inserted:
             return empty
         admitted = list(fresh) if inserted else []
@@ -1474,8 +1516,15 @@ class PracticeSessionService:
             return []
         head = candidates[:max(want * NOMINATION_OVERFETCH, want)]
         supplied = self._senses_with_supply(head, language_id)
-        admitted = [sid for sid in head if sid in supplied]
-        starved = [sid for sid in head if sid not in supplied]
+        from services import intro_drill
+        if intro_drill.ENABLED:
+            # Intro session 1 needs no ladder exercises (gloss + sentence +
+            # reading); starved words are still queued for generation below.
+            starved = [sid for sid in head[:want] if sid not in supplied]
+            admitted = head[:want]
+        else:
+            admitted = [sid for sid in head if sid in supplied]
+            starved = [sid for sid in head if sid not in supplied]
         if starved:
             logger.info(
                 'ladder intake: %d of %d nominated sense(s) for lang=%s have '
@@ -2005,7 +2054,7 @@ class PracticeSessionService:
 
     # -- subscription --------------------------------------------------
 
-    def _insert_ladder_rows(self, user_id: str, sense_ids: List[int]) -> bool:
+    def _insert_ladder_rows(self, user_id: str, sense_ids: List[int], language_id: Optional[int] = None) -> bool:
         """Seed ladder rows for ``sense_ids``. True if the insert landed.
 
         ``user_word_ladder`` has no language_id column (see
@@ -2032,6 +2081,12 @@ class PracticeSessionService:
             }
             for sid in sense_ids
         ]
+        from services import intro_drill
+        if intro_drill.ENABLED and rows:
+            from services.day_boundary import plan_today_iso, utc_today_iso
+            today = plan_today_iso(self.db, user_id, language_id) if language_id else utc_today_iso()
+            for r in rows:
+                r.update(intro_drill.new_intro_fields(today))
         try:
             self.db.table('user_word_ladder').insert(rows).execute()
         except Exception as e:

@@ -224,6 +224,11 @@ class Config:
     # Set STUDY_PLAN_ENABLED=false in the env to roll back without a deploy.
     STUDY_PLAN_ENABLED = os.getenv('STUDY_PLAN_ENABLED', 'True').lower() == 'true'
 
+    # New-word drill (ADR-040): new ladder words go through four criterion-based
+    # intro sessions before ring 2. Set NEW_WORD_DRILL_ENABLED=false to admit
+    # new words straight to ring 1 as before (existing intro rows keep running).
+    NEW_WORD_DRILL_ENABLED = os.getenv('NEW_WORD_DRILL_ENABLED', 'True').lower() == 'true'
+
     # Default daily-minutes assigned at onboarding / backfill.
     STUDY_PLAN_DEFAULT_DAILY_MINUTES = 30
 

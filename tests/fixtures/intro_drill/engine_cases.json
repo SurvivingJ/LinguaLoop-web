@@ -1,0 +1,686 @@
+[
+ {
+  "name": "stage1_three_words_all_right",
+  "words": [
+   {
+    "sense_id": 1,
+    "stage": 1,
+    "target": 5,
+    "cap": 12,
+    "cold": false,
+    "formats": [
+     "read_typed",
+     "def_mc",
+     "read_typed2",
+     "rev_mc",
+     "cloze_mc"
+    ]
+   },
+   {
+    "sense_id": 2,
+    "stage": 1,
+    "target": 5,
+    "cap": 12,
+    "cold": false,
+    "formats": [
+     "read_typed",
+     "def_mc",
+     "read_typed2",
+     "rev_mc",
+     "cloze_mc"
+    ]
+   },
+   {
+    "sense_id": 3,
+    "stage": 1,
+    "target": 5,
+    "cap": 12,
+    "cold": false,
+    "formats": [
+     "def_mc",
+     "rev_mc",
+     "recall_typed"
+    ]
+   }
+  ],
+  "pattern": "C",
+  "results": [
+   {
+    "sense_id": 1,
+    "stage": 1,
+    "n_words": 3,
+    "formats": [
+     "read_typed",
+     "def_mc",
+     "read_typed2",
+     "rev_mc",
+     "cloze_mc"
+    ],
+    "attempts": [
+     {
+      "pos": 0,
+      "gap": 2,
+      "format": "read_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 3,
+      "gap": 2,
+      "format": "def_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 6,
+      "gap": 2,
+      "format": "read_typed2",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 9,
+      "gap": 2,
+      "format": "rev_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 12,
+      "gap": 2,
+      "format": "cloze_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     }
+    ],
+    "expect": {
+     "passed": true,
+     "counted": 5,
+     "target": 5
+    }
+   },
+   {
+    "sense_id": 3,
+    "stage": 1,
+    "n_words": 3,
+    "formats": [
+     "def_mc",
+     "rev_mc",
+     "recall_typed"
+    ],
+    "attempts": [
+     {
+      "pos": 1,
+      "gap": 2,
+      "format": "def_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 4,
+      "gap": 2,
+      "format": "rev_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 7,
+      "gap": 2,
+      "format": "recall_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 10,
+      "gap": 2,
+      "format": "def_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 13,
+      "gap": 1,
+      "format": "rev_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     }
+    ],
+    "expect": {
+     "passed": true,
+     "counted": 5,
+     "target": 5
+    }
+   },
+   {
+    "sense_id": 2,
+    "stage": 1,
+    "n_words": 3,
+    "formats": [
+     "read_typed",
+     "def_mc",
+     "read_typed2",
+     "rev_mc",
+     "cloze_mc"
+    ],
+    "attempts": [
+     {
+      "pos": 2,
+      "gap": 2,
+      "format": "read_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 5,
+      "gap": 2,
+      "format": "def_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 8,
+      "gap": 2,
+      "format": "read_typed2",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 11,
+      "gap": 2,
+      "format": "rev_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 14,
+      "gap": 0,
+      "format": "cloze_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     }
+    ],
+    "expect": {
+     "passed": true,
+     "counted": 5,
+     "target": 5
+    }
+   }
+  ]
+ },
+ {
+  "name": "mixed_with_misses_and_idk",
+  "words": [
+   {
+    "sense_id": 10,
+    "stage": 2,
+    "target": 3,
+    "cap": 8,
+    "cold": true,
+    "formats": [
+     "read_typed",
+     "ex_use",
+     "def_mc"
+    ]
+   },
+   {
+    "sense_id": 11,
+    "stage": 1,
+    "target": 5,
+    "cap": 12,
+    "cold": false,
+    "formats": [
+     "read_typed",
+     "def_mc",
+     "read_typed2",
+     "rev_mc",
+     "cloze_mc"
+    ]
+   },
+   {
+    "sense_id": 12,
+    "stage": 4,
+    "target": 2,
+    "cap": 6,
+    "cold": true,
+    "formats": [
+     "recall_typed",
+     "rev_mc"
+    ]
+   },
+   {
+    "sense_id": 13,
+    "stage": 3,
+    "target": 2,
+    "cap": 6,
+    "cold": true,
+    "formats": [
+     "read_typed",
+     "ex_judge",
+     "cloze_mc"
+    ]
+   }
+  ],
+  "pattern": "WCCICWCCCCWCCCICCCCCCCWCCCCCCCC",
+  "results": [
+   {
+    "sense_id": 13,
+    "stage": 3,
+    "n_words": 4,
+    "formats": [
+     "read_typed",
+     "ex_judge",
+     "cloze_mc"
+    ],
+    "attempts": [
+     {
+      "pos": 1,
+      "gap": 3,
+      "format": "read_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 5,
+      "gap": 3,
+      "format": "ex_judge",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 9,
+      "gap": 3,
+      "format": "ex_judge",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     }
+    ],
+    "expect": {
+     "passed": true,
+     "counted": 2,
+     "target": 2
+    }
+   },
+   {
+    "sense_id": 10,
+    "stage": 2,
+    "n_words": 4,
+    "formats": [
+     "read_typed",
+     "ex_use",
+     "def_mc"
+    ],
+    "attempts": [
+     {
+      "pos": 0,
+      "gap": 3,
+      "format": "read_typed",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 4,
+      "gap": 3,
+      "format": "read_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 8,
+      "gap": 3,
+      "format": "ex_use",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 12,
+      "gap": 2,
+      "format": "def_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 15,
+      "gap": 2,
+      "format": "read_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     }
+    ],
+    "expect": {
+     "passed": true,
+     "counted": 4,
+     "target": 4
+    }
+   },
+   {
+    "sense_id": 12,
+    "stage": 4,
+    "n_words": 4,
+    "formats": [
+     "recall_typed",
+     "rev_mc"
+    ],
+    "attempts": [
+     {
+      "pos": 3,
+      "gap": 3,
+      "format": "recall_typed",
+      "correct": false,
+      "idk": true,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 7,
+      "gap": 3,
+      "format": "recall_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 11,
+      "gap": 2,
+      "format": "rev_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 14,
+      "gap": 2,
+      "format": "recall_typed",
+      "correct": false,
+      "idk": true,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 17,
+      "gap": 1,
+      "format": "recall_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     }
+    ],
+    "expect": {
+     "passed": true,
+     "counted": 3,
+     "target": 3
+    }
+   },
+   {
+    "sense_id": 11,
+    "stage": 1,
+    "n_words": 4,
+    "formats": [
+     "read_typed",
+     "def_mc",
+     "read_typed2",
+     "rev_mc",
+     "cloze_mc"
+    ],
+    "attempts": [
+     {
+      "pos": 2,
+      "gap": 3,
+      "format": "read_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 6,
+      "gap": 3,
+      "format": "def_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 10,
+      "gap": 2,
+      "format": "read_typed2",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 13,
+      "gap": 2,
+      "format": "read_typed2",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 16,
+      "gap": 1,
+      "format": "rev_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 18,
+      "gap": 0,
+      "format": "cloze_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     }
+    ],
+    "expect": {
+     "passed": true,
+     "counted": 5,
+     "target": 5
+    }
+   }
+  ]
+ },
+ {
+  "name": "single_word_gap_zero_cap_hit",
+  "words": [
+   {
+    "sense_id": 20,
+    "stage": 2,
+    "target": 3,
+    "cap": 8,
+    "cold": true,
+    "formats": [
+     "read_typed",
+     "def_mc"
+    ]
+   }
+  ],
+  "pattern": "WWCWCWWW",
+  "results": [
+   {
+    "sense_id": 20,
+    "stage": 2,
+    "n_words": 1,
+    "formats": [
+     "read_typed",
+     "def_mc"
+    ],
+    "attempts": [
+     {
+      "pos": 0,
+      "gap": 0,
+      "format": "read_typed",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 1,
+      "gap": 0,
+      "format": "read_typed",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 2,
+      "gap": 0,
+      "format": "read_typed",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 3,
+      "gap": 0,
+      "format": "def_mc",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 4,
+      "gap": 0,
+      "format": "def_mc",
+      "correct": true,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 5,
+      "gap": 0,
+      "format": "read_typed",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 6,
+      "gap": 0,
+      "format": "read_typed",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     },
+     {
+      "pos": 7,
+      "gap": 0,
+      "format": "read_typed",
+      "correct": false,
+      "idk": false,
+      "ms": null,
+      "given": "",
+      "exercise_id": null
+     }
+    ],
+    "expect": {
+     "passed": false,
+     "counted": 2,
+     "target": 4
+    }
+   }
+  ]
+ }
+]

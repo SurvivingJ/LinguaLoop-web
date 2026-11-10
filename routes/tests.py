@@ -1735,11 +1735,54 @@ def submit_test_prestudy_evidence(identifier):
                 have = prestudy.senses_with_exercises(db, quizzed) if quizzed else set()
                 out['generation_queued'] = prestudy.request_generation(
                     db, quizzed, language_id, {str(s): [True] for s in have})
+        if mode == 'prime':
+            # New-word drill (ADR-040): drilled words enter the ladder's intro
+            # drill; a word that met session 1's target in the prime starts at
+            # session 2. Words over today's quota come back as `overflow`.
+            try:
+                from services import intro_drill
+                from services.practice_session_service import PracticeSessionService
+                metrics = body.get('metrics') if isinstance(body.get('metrics'), dict) else {}
+                drilled = [int(s) for s in (metrics.get('words_quizzed') or []) if str(s).isdigit() and int(s) in allowed]
+                met = {int(s) for s in (metrics.get('met_sense_ids') or []) if str(s).isdigit()}
+                out['intro'] = intro_drill.admit_prestudy(
+                    PracticeSessionService(db), user_id, language_id, drilled, met)
+            except Exception as e:
+                logger.warning("prestudy intro admission failed for %s: %s", identifier, e)
         return api_success(data=out)
     except Exception as e:
         logger.error("Error recording prestudy evidence for %s: %s", identifier, e)
         logger.error(traceback.format_exc())
         return server_error('Failed to record prestudy answers')
+
+
+@tests_bp.route('/<identifier>/prestudy/admit-overflow', methods=['POST'])
+@supabase_jwt_required
+def admit_prestudy_overflow(identifier):
+    """'Add them all now': start the prime's over-quota words today.
+
+    Body: {sense_ids: [...]}. Only words of this test that the prime queued in
+    the last 6 hours qualify (services.intro_drill.overload).
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return service_unavailable("Service not available")
+        test = _find_test_for_prestudy(db, identifier)
+        if not test:
+            return not_found("Test not found")
+        body = request.get_json(silent=True) or {}
+        ids = body.get('sense_ids')
+        if not isinstance(ids, list) or not ids or len(ids) > 200:
+            return bad_request("sense_ids must be a list of 1-200 ids")
+        from services import prestudy, intro_drill
+        allowed = prestudy.test_sense_ids(db, test)
+        ids = [int(s) for s in ids if str(s).isdigit() and int(s) in allowed]
+        done = intro_drill.overload(db, g.current_user_id, int(test['language_id']), ids)
+        return api_success(data={'started': done})
+    except Exception as e:
+        logger.error("Error admitting prestudy overflow for %s: %s", identifier, e)
+        return server_error('Failed to add words')
 
 
 @tests_bp.route('/<identifier>/prestudy/produce', methods=['POST'])

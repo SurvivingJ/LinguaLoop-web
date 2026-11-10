@@ -1,9 +1,9 @@
 ---
 title: New-Word Drill — Technical Specification
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: ./new-word-drill.md
-last_updated: 2026-11-09
+last_updated: 2026-11-10
 dependencies:
   - "table: user_word_ladder (new intro_* columns)"
   - "table: exercise_attempts (source column from migrations/prestudy_workflow.sql; new source value 'intro')"
@@ -17,6 +17,50 @@ breaking_change_risk: medium
 ---
 
 # New-Word Drill — Technical Specification
+
+## Implementation notes (as built, 2026-11-10)
+
+Built and live (migration applied 2026-11-10; walked through in the browser with the test
+account). Where the build differs from the plan above, **this section wins**:
+
+1. **State:** a new `word_state = 'intro'` instead of new RPCs. Every existing ladder function
+   filters `word_state` by an explicit list, so intro rows are invisible to `get_practice_session`,
+   `get_ladder_session` and `build_daily_session` with no change to them. Stage logic lives in
+   Python (`services/intro_drill.py`); the only SQL change besides columns/CHECKs is
+   `ladder_new_word_state` (intro rows are servable; a word counts as started at its first intro
+   session entry). Migration: `migrations/new_word_drill.sql`.
+2. **Spacing rule:** the required gap is `min(4, active_words − 1)` *at the time each item is
+   served* (it shrinks as the block's other words finish) and is sent with every attempt; the
+   server clamps it to `0..min(4, n_words − 1)`. A fixed per-block gap made the last 2–3 words of a
+   block unable to count anything (found by the shared fixture).
+3. **Client:** engine + player in one module, `static/js/session/players/intro_drill.js`, run by
+   the practice player (`players/practice.js`) before the regular items whenever the session
+   payload has `intro_drill`. Reading graders are reused from `prestudy.js`
+   (`window.LinguaPrestudy`), now also loaded on the session page (its `init` returns early when
+   the prestudy DOM is absent). Ladder exercises render through `ExRenderers`; types that need
+   server grading or preparation (`cloze_typed` exercises, `jumbled_sentence`) are not used.
+4. **Posting:** one `POST /api/practice/intro/complete` per finished word (results list of 1–40),
+   so a learner who stops mid-block keeps the words already finished. Failed posts retry once and
+   are kept in `sessionStorage` for the next session.
+5. **Where words are served:** stage 2–4 words (and stage-1 restarts/overloads) in every mode;
+   brand-new stage-1 words only in acquisition/auto, within `effective quota − started today`,
+   prestudy-queued first. When intro reviews are due and the day has no open maintenance chunk,
+   `GET /api/study-session` adds an `intro_reviews` maintenance chunk (Practice mode shows it as
+   the day's exercises). Intro words are filtered out of regular practice items (BKT/FSRS reviews
+   could otherwise pick them).
+6. **Extra rounds:** "new words" in an extra round are served as an intro block (session 1).
+7. **Admission:** all three insert paths (`_insert_ladder_rows`, `LadderService.init_ladder`,
+   prestudy) create intro rows; the 3-exercise supply gate is bypassed while the drill is on
+   (starved words are still sent to generation).
+8. **Ring-2 restart:** hooked in `LadderService.record_attempt`. Note: only Vocab Dojo records
+   ladder attempts; Practice-engine attempts update BKT/FSRS but never call
+   `ladder_record_attempt` (pre-existing behaviour, not changed here).
+9. **Quota default:** new plans get `max(10, daily_minutes // 6)` new words a day
+   (`routes/study_plan.py`); the DB default is 10.
+10. **Flag:** `NEW_WORD_DRILL_ENABLED` (env, default true). Off: new words go to ring 1 as before;
+    existing intro rows keep being served.
+11. **Not built yet:** the review governor and Study Plan forecast do not count intro load
+    (TASK-919 remainder); the measurement script (TASK-921).
 
 ## Architecture Overview
 

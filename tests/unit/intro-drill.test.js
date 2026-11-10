@@ -1,0 +1,116 @@
+/**
+ * Unit tests for static/js/session/players/intro_drill.js — the new-word drill
+ * engine (wiki/features/new-word-drill.tech.md). The shared fixture
+ * tests/fixtures/intro_drill/engine_cases.json is also replayed by
+ * tests/test_intro_drill.py against services/intro_drill.recount, so the client
+ * and server count the same way.
+ */
+
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { createDrill, effGap, gradeRecall, buildItem } from '../../static/js/session/players/intro_drill.js';
+
+const cases = JSON.parse(readFileSync(join(process.cwd(), 'tests/fixtures/intro_drill/engine_cases.json'), 'utf8'));
+
+function lcg(seed) {
+  let s = seed;
+  return () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+}
+
+function run(words, pattern) {
+  const d = createDrill(words, { rng: lcg(42) });
+  const results = [];
+  const served = [];
+  let i = 0;
+  let it;
+  while ((it = d.next())) {
+    served.push(it);
+    const ch = pattern[i % pattern.length];
+    i += 1;
+    const r = d.answer(it, { correct: ch === 'C', idk: ch === 'I' });
+    if (r.result) results.push({ r, progress: d.progress(it.sid) });
+    if (i > 500) throw new Error('drill did not end');
+  }
+  return { results, served };
+}
+
+describe('effGap', () => {
+  it('is at most 4 and at most words-1', () => {
+    expect(effGap(1)).toBe(0);
+    expect(effGap(3)).toBe(2);
+    expect(effGap(10)).toBe(4);
+  });
+});
+
+describe('createDrill (shared fixture)', () => {
+  for (const c of cases) {
+    it(`${c.name} reproduces the fixture`, () => {
+      const { results } = run(c.words, c.pattern);
+      expect(results.map((x) => x.r.result.attempts)).toEqual(c.results.map((x) => x.attempts));
+      expect(results.map((x) => x.r.passed)).toEqual(c.results.map((x) => x.expect.passed));
+    });
+  }
+});
+
+describe('createDrill rules', () => {
+  const fmts = ['read_typed', 'def_mc', 'read_typed2', 'rev_mc', 'cloze_mc'];
+  const words = [1, 2, 3, 4, 5].map((sid) => ({ sense_id: sid, stage: 1, target: 5, cap: 12, cold: false, formats: fmts }));
+
+  it('never serves the same word twice in a row while others remain', () => {
+    const { served } = run(words, 'CWCCI');
+    for (let k = 1; k < served.length; k++) {
+      const others = served.slice(k).some((s) => s.sid !== served[k - 1].sid);
+      if (others && served[k].sid === served[k - 1].sid) {
+        // allowed only when it is the last word left
+        expect(served.slice(k).every((s) => s.sid === served[k].sid)).toBe(true);
+      }
+    }
+  });
+
+  it('all right answers: every word passes in exactly target items', () => {
+    const { results } = run(words, 'C');
+    for (const { r } of results) {
+      expect(r.passed).toBe(true);
+      expect(r.result.attempts.length).toBe(5);
+    }
+  });
+
+  it("'I don't know' never counts and the cold miss raises the target", () => {
+    const w = [{ sense_id: 9, stage: 2, target: 3, cap: 8, cold: true, formats: ['read_typed', 'def_mc'] }];
+    const d = createDrill(w, { rng: lcg(1) });
+    const first = d.next();
+    const r = d.answer(first, { correct: false, idk: true });
+    expect(r.counted).toBe(false);
+    expect(d.progress(9).target).toBe(4);
+  });
+
+  it('stops a word at its cap as not passed', () => {
+    const w = [{ sense_id: 7, stage: 3, target: 2, cap: 6, cold: true, formats: ['read_typed', 'ex_judge'] }];
+    const { results } = run(w, 'W');
+    expect(results[0].r.passed).toBe(false);
+    expect(results[0].r.result.attempts.length).toBe(6);
+  });
+});
+
+describe('grading and items', () => {
+  it('English recall is case- and space-insensitive', () => {
+    expect(gradeRecall('  Apple ', { lemma: 'apple' }, 'en')).toBe(true);
+    expect(gradeRecall('appel', { lemma: 'apple' }, 'en')).toBe(false);
+  });
+
+  it('builds MC options that include the right answer once', () => {
+    const block = {
+      lang: 'ja',
+      words: [
+        { sense_id: 1, lemma: '木', gloss: 'tree', reading: { shown: 'き' } },
+        { sense_id: 2, lemma: '水', gloss: 'water', reading: { shown: 'みず' } },
+      ],
+      pool: [{ lemma: '火', def: 'fire' }, { lemma: '山', def: 'mountain' }],
+    };
+    const item = buildItem({ word: block.words[0], format: 'def_mc' }, block, new Map());
+    expect(item.opts.filter((o) => o === 'tree').length).toBe(1);
+    expect(item.opts.length).toBe(4);
+    expect(buildItem({ word: block.words[0], format: 'ex_use' }, block, new Map())).toBe(null);
+  });
+});

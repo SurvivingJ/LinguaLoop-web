@@ -77,7 +77,14 @@ class LadderService:
                 'p_ladder_level': ladder_level,
                 'p_exercise_context': exercise_context,
             }).execute()
-            return resp.data if resp.data else {}
+            result = resp.data if resp.data else {}
+            try:
+                from services import intro_drill
+                if intro_drill.restart_if_demoted(self.db, user_id, sense_id, language_id, result):
+                    result['intro_restart'] = True
+            except Exception as e:
+                logger.warning("intro restart check failed: sense=%s: %s", sense_id, e)
+            return result
         except Exception as e:
             logger.error("ladder_record_attempt failed: user=%s sense=%s: %s",
                          user_id, sense_id, e)
@@ -231,6 +238,11 @@ class LadderService:
             'current_ring': 1,
             'updated_at': datetime.now(timezone.utc).isoformat(),
         }
+        from services import intro_drill
+        if intro_drill.ENABLED:
+            # New-word drill (ADR-040): new words start in intro session 1.
+            from services.day_boundary import plan_today_iso
+            row.update(intro_drill.new_intro_fields(plan_today_iso(self.db, user_id, language_id)))
 
         try:
             self.db.table('user_word_ladder').upsert(

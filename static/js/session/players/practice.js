@@ -16,6 +16,7 @@
 // silently corrupt the recurrence metric the feature exists to measure.
 
 import { extraRequestUrl } from '../tail.js';
+import { runIntroDrill, INTRO_STYLES } from './intro_drill.js';
 
 const T = (key, params, fallback) =>
   window.LinguaI18n && typeof LinguaI18n.t === 'function'
@@ -55,13 +56,14 @@ export function mount(container, ctx) {
   };
 
   const q = (id) => container.querySelector('#' + id);
-  container.innerHTML = MARKUP;
+  container.innerHTML = MARKUP + `<style>${INTRO_STYLES}</style>`;
 
   const ER = window.ExRenderers;
   const escHtml = ER && ER.escHtml ? ER.escHtml : localEsc;
   const shuffleArr = ER && ER.shuffleArr ? ER.shuffleArr : (a) => a.slice();
 
-  if (ER && ER.init) {
+  function initRenderers() {
+    if (!ER || !ER.init) return;
     ER.init({
       cardEl: q('exerciseCard'),
       isAnswered: () => state.isAnswered,
@@ -73,6 +75,7 @@ export function mount(container, ctx) {
       nextExercise: () => nextExercise(),
     });
   }
+  initRenderers();
 
   load();
 
@@ -111,6 +114,24 @@ export function mount(container, ctx) {
       );
       if (!canRenderErrorCards) {
         console.error('practice: DTErrorCard global not loaded — error cards dropped');
+      }
+
+      // New-word drill (ADR-040): due intro words run first, then the items.
+      const intro = data.intro_drill;
+      if (res.ok && intro && Array.isArray(intro.words) && intro.words.length) {
+        const headEl = container.querySelector('[data-i18n="session.practice_heading"]');
+        const done = await runIntroDrill(q('exerciseCard'), intro, {
+          setHeader: (t) => {
+            if (headEl) headEl.textContent = t;
+          },
+        });
+        state.introWords = done.words;
+        if (headEl) headEl.textContent = T('session.practice_heading', null, 'Practice');
+        initRenderers();
+        if (items.length === 0) {
+          showComplete();
+          return;
+        }
       }
 
       if (!res.ok || items.length === 0) {
@@ -312,7 +333,8 @@ export function mount(container, ctx) {
             <div style="text-align:center;padding:24px">
                 <div style="font-size:2.5rem">✅</div>
                 <h2 class="h4 mb-3">${T('session.practice_done', null, 'Practice complete!')}</h2>
-                <div class="d-flex gap-4 justify-content-center mb-3">
+                ${state.introWords ? `<p class="text-muted">${T('intro.done', { n: state.introWords }, 'New-word drill done: {n} words.')}</p>` : ''}
+                <div class="d-flex gap-4 justify-content-center mb-3"${state.introWords && !state.totalAnswered ? ' hidden' : ''}>
                     <div><div style="font-size:1.6rem;font-weight:700;color:var(--primary)">${state.correctCount}/${state.totalAnswered}</div><div class="text-muted small">${T('session.correct_label', null, 'Correct')}</div></div>
                     <div><div style="font-size:1.6rem;font-weight:700;color:var(--primary)">${acc}%</div><div class="text-muted small">${T('session.accuracy', null, 'Accuracy')}</div></div>
                 </div>

@@ -1,6 +1,6 @@
 ---
 title: "ADR-040: Criterion-based intro drill for new words (5 / 3 / 2 / 2), replacing ladder ring 1"
-status: proposed
+status: accepted
 date: 2026-11-09
 ---
 
