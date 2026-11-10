@@ -100,7 +100,7 @@ def _svc(state, rpc_data, admitted=()):
         return list(admitted)[:want]
 
     s._nominate_new_words = nominate
-    s._insert_ladder_rows = lambda u, ids: True
+    s._insert_ladder_rows = lambda u, ids, *a: True
     s._apply_script_variant = lambda *a, **k: None
     s._prepare_jumbled_items = lambda *a, **k: None
     s._most_overdue_first = lambda items, u: None

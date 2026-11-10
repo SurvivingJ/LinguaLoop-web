@@ -10,6 +10,10 @@ open_questions:
 
 # Vocabulary Ladder
 
+> **Fixed (2026-11-10):** from TASK-220 (2026-07-14) until 2026-11-10 Practice attempts never moved the ladder and gates/stress tests were skipped, so no word left ring 1. Practice now calls `ladder_apply_progress` and runs the batteries — see [[decisions/ADR-041-practice-moves-the-ladder]].
+
+> **Planned (2026-11-09):** for newly admitted words, ring 1 is replaced by four criterion-based intro sessions; a word that passes them starts at ring 2. Legacy ring-1 words keep the path below. See [[features/new-word-drill]] and [[decisions/ADR-040-criterion-based-new-word-drill]].
+
 > **Update (2026-05-21):** Ladder priority (rings, families, gates A/B, stress test, ring demotion, cross-session advancement) feeds the unified score in the merged [[features/practice-engine|Practice Engine]] as its `ladder_priority` term, weighted heavily in Acquisition mode (α=0.40) and lightly in Maintenance (α=0.05). All mechanics described below are preserved verbatim. See [[decisions/ADR-007-merge-exercises-vocab-dojo]] and [[algorithms/practice-unified-score.tech]].
 
 ## Purpose

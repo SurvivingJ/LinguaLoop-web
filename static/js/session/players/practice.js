@@ -16,11 +16,14 @@
 // silently corrupt the recurrence metric the feature exists to measure.
 
 import { extraRequestUrl } from '../tail.js';
+import { runIntroDrill, INTRO_STYLES } from './intro_drill.js';
 
-const T = (key, params, fallback) =>
-  window.LinguaI18n && typeof LinguaI18n.t === 'function'
-    ? LinguaI18n.t(key, params) || fallback || key
-    : fallback || key;
+const fill = (s, params) =>
+  params ? String(s).replace(/\{(\w+)\}/g, (m, k) => (k in params ? params[k] : m)) : s;
+const T = (key, params, fallback) => {
+  const v = window.LinguaI18n && typeof LinguaI18n.t === 'function' ? LinguaI18n.t(key, params) : null;
+  return v && v !== key ? v : fill(fallback || key, params);
+};
 
 function localEsc(s) {
   const d = document.createElement('div');
@@ -55,13 +58,14 @@ export function mount(container, ctx) {
   };
 
   const q = (id) => container.querySelector('#' + id);
-  container.innerHTML = MARKUP;
+  container.innerHTML = MARKUP + `<style>${INTRO_STYLES}</style>`;
 
   const ER = window.ExRenderers;
   const escHtml = ER && ER.escHtml ? ER.escHtml : localEsc;
   const shuffleArr = ER && ER.shuffleArr ? ER.shuffleArr : (a) => a.slice();
 
-  if (ER && ER.init) {
+  function initRenderers() {
+    if (!ER || !ER.init) return;
     ER.init({
       cardEl: q('exerciseCard'),
       isAnswered: () => state.isAnswered,
@@ -73,6 +77,7 @@ export function mount(container, ctx) {
       nextExercise: () => nextExercise(),
     });
   }
+  initRenderers();
 
   load();
 
@@ -103,14 +108,45 @@ export function mount(container, ctx) {
       // rendered by renderErrorCard below (TASK-731). If the shared renderer
       // global is missing, drop them rather than showing a broken item.
       const canRenderErrorCards = !!window.DTErrorCard;
+      // Gate / stress-test markers stay in the queue: renderExercise opens
+      // their battery (POST /api/vocab-dojo/gate | /stress-test) in place.
       const items = (data.items || data.exercises || []).filter(
-        (it) =>
-          !it.is_gate_marker &&
-          !it.is_stress_test_marker &&
-          (canRenderErrorCards || !it.is_error_exercise)
+        (it) => canRenderErrorCards || !it.is_error_exercise
       );
       if (!canRenderErrorCards) {
         console.error('practice: DTErrorCard global not loaded — error cards dropped');
+      }
+
+      // New-word drill (ADR-040): due intro words run first, then the items.
+      const intro = data.intro_drill;
+      if (res.ok && intro && Array.isArray(intro.words) && intro.words.length) {
+        const headEl = container.querySelector('[data-i18n="session.practice_heading"]');
+        // With only a few drill words, up to 3 ordinary items go between their
+        // repeats (recorded as normal practice attempts) and are then not
+        // served again below.
+        const spacers = intro.words.length < 5
+          ? items.filter((it) => !it.is_gate_marker && !it.is_stress_test_marker && !it.is_error_exercise).slice(0, 3)
+          : [];
+        const done = await runIntroDrill(q('exerciseCard'), intro, {
+          setHeader: (t) => {
+            if (headEl) headEl.textContent = t;
+          },
+          spacers,
+          onSpacer: (ex, ok, response, ms) => {
+            state.totalAnswered++;
+            if (ok) state.correctCount++;
+            postAttempt(ex, ok, response, ms).catch((e) => console.error('spacer attempt error:', e));
+          },
+        });
+        const used = new Set(spacers.slice(0, done.usedSpacers || 0));
+        for (let i = items.length - 1; i >= 0; i--) if (used.has(items[i])) items.splice(i, 1);
+        state.introWords = done.words;
+        if (headEl) headEl.textContent = T('session.practice_heading', null, 'Practice');
+        initRenderers();
+        if (items.length === 0) {
+          showComplete();
+          return;
+        }
       }
 
       if (!res.ok || items.length === 0) {
@@ -153,6 +189,13 @@ export function mount(container, ctx) {
 
     const ex = state.exercises[state.currentIndex];
 
+    // Ladder checkpoint (gate) or final test (stress test): fetch its battery
+    // and run it in place of the marker.
+    if (ex.is_gate_marker || ex.is_stress_test_marker) {
+      openBattery(ex);
+      return;
+    }
+
     // DT error cards bypass ER.dispatch entirely — different renderer,
     // different grade endpoint, no sense linkage.
     if (ex.is_error_exercise) {
@@ -179,7 +222,15 @@ export function mount(container, ctx) {
     if (ex.ladder_level) {
       ladderBadge = `<div class="ladder-badge"><span class="ladder-level">L${ex.ladder_level}</span> ${escHtml(ex.ladder_name || '')}</div>`;
     }
-    const w = idBadge + ribbon + ladderBadge;
+    let batteryBadge = '';
+    if (ex.battery) {
+      const b = ex.battery;
+      const label = b.kind === 'gate'
+        ? T('session.checkpoint_badge', { i: b.results.length + 1, n: b.size }, 'Checkpoint · {i} of {n}')
+        : T('session.final_test_badge', { i: b.results.length + 1, n: b.size }, 'Final test · {i} of {n}');
+      batteryBadge = `<div class="ladder-badge"><i class="fas fa-flag-checkered"></i> ${escHtml(label)}</div>`;
+    }
+    const w = idBadge + batteryBadge + ribbon + ladderBadge;
 
     // Start the per-item timer as the exercise becomes visible (TASK-701).
     state.renderedAt = window.performance && performance.now ? performance.now() : Date.now();
@@ -244,6 +295,7 @@ export function mount(container, ctx) {
           extra && (ex.mode === 'acquisition' || ex.mode === 'maintenance') ? ex.mode : mode,
         language_id: languageId,
         ...(isTail ? { is_tail: true } : {}),
+        ...(ex.battery ? { exercise_context: ex.battery.kind === 'gate' ? 'gate' : 'stress_test' } : {}),
       }),
     });
     if (!r || !r.ok) return null;
@@ -278,9 +330,102 @@ export function mount(container, ctx) {
           T('session.save_failed', null, 'Couldn’t save your progress — check your connection.')
         );
       }
-    } else if (data.requeue && !ok) {
+    } else if (data.requeue && !ok && !ex.battery) {
       state.retryQueue.push({ ...ex, _retry: true });
     }
+    // Battery items are first-try only; the last one submits the battery.
+    if (ex.battery) {
+      ex.battery.results.push({ exercise_id: ex.exercise_id, is_correct: !!ok });
+      if (ex.battery.results.length === ex.battery.size) await submitBattery(ex.battery);
+    }
+  }
+
+  // ---- Ladder checkpoints and final test (ADR-005) ---------------------
+
+  async function openBattery(marker) {
+    const isGate = !!marker.is_gate_marker;
+    q('exerciseCard').innerHTML =
+      `<p style="text-align:center;color:var(--text-secondary);padding:32px">${escHtml(T('session.checkpoint_loading', null, 'Getting your checkpoint ready…'))}</p>`;
+    let battery = null;
+    try {
+      const r = await window.authFetch(isGate ? '/api/vocab-dojo/gate' : '/api/vocab-dojo/stress-test', {
+        method: 'POST',
+        body: JSON.stringify({
+          sense_id: marker.sense_id,
+          language_id: languageId,
+          ...(isGate ? { gate_name: marker.gate_name } : {}),
+        }),
+      });
+      const j = r && r.ok ? await r.json() : null;
+      battery = j ? j.data || j : null;
+    } catch (e) {
+      console.warn('[practice] battery not loaded:', e);
+    }
+    const exercises = (battery && battery.exercises) || [];
+    if (!exercises.length || (isGate && !['gate_a', 'gate_b'].includes(marker.gate_name))) {
+      // Nothing to run (no exercises yet): skip the marker, the word stays gated.
+      state.exercises.splice(state.currentIndex, 1);
+      renderExercise();
+      return;
+    }
+    const b = {
+      kind: isGate ? 'gate' : 'stress',
+      gate_name: marker.gate_name,
+      sense_id: marker.sense_id,
+      token: battery.battery_token,
+      size: exercises.length,
+      results: [],
+    };
+    const items = exercises.map((e) => ({
+      ...e,
+      sense_id: e.sense_id || marker.sense_id,
+      expected_seconds: 30,
+      mode: marker.mode || mode,
+      battery: b,
+    }));
+    state.exercises.splice(state.currentIndex, 1, ...items);
+    renderExercise();
+  }
+
+  async function submitBattery(b) {
+    let res = null;
+    try {
+      const r = await window.authFetch(
+        b.kind === 'gate' ? '/api/vocab-dojo/gate/result' : '/api/vocab-dojo/stress-test/result',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            sense_id: b.sense_id,
+            language_id: languageId,
+            battery_token: b.token,
+            results: b.results,
+            ...(b.kind === 'gate' ? { gate_name: b.gate_name } : {}),
+          }),
+        }
+      );
+      const j = r && r.ok ? await r.json() : null;
+      res = j ? j.data || j : null;
+    } catch (e) {
+      console.warn('[practice] battery result not saved:', e);
+    }
+    const fb = container.querySelector('#exerciseFeedback');
+    if (!fb || !res) return;
+    const passed = res.passed !== false && !res.error;
+    const score = `${res.correct}/${res.battery_size}`;
+    const key = b.kind === 'gate'
+      ? (passed ? 'session.checkpoint_passed' : 'session.checkpoint_failed')
+      : (passed ? 'session.final_test_passed' : 'session.final_test_failed');
+    const fallback = {
+      'session.checkpoint_passed': 'Checkpoint passed ({score}) — this word moves up a ring.',
+      'session.checkpoint_failed': 'Checkpoint not passed ({score}) — keep practising this word and it will come back.',
+      'session.final_test_passed': 'Final test passed ({score}) — this word is mastered and moves to long-term review.',
+      'session.final_test_failed': 'Final test not passed ({score}) — a little more practice first.',
+    }[key];
+    const div = document.createElement('div');
+    div.className = 'battery-result';
+    div.style.cssText = 'margin-top:10px;font-weight:600';
+    div.textContent = T(key, { score }, fallback);
+    fb.appendChild(div);
   }
 
   function nextExercise() {
@@ -312,7 +457,8 @@ export function mount(container, ctx) {
             <div style="text-align:center;padding:24px">
                 <div style="font-size:2.5rem">✅</div>
                 <h2 class="h4 mb-3">${T('session.practice_done', null, 'Practice complete!')}</h2>
-                <div class="d-flex gap-4 justify-content-center mb-3">
+                ${state.introWords ? `<p class="text-muted">${T('intro.done', { n: state.introWords }, 'New-word drill done: {n} words.')}</p>` : ''}
+                <div class="d-flex gap-4 justify-content-center mb-3"${state.introWords && !state.totalAnswered ? ' hidden' : ''}>
                     <div><div style="font-size:1.6rem;font-weight:700;color:var(--primary)">${state.correctCount}/${state.totalAnswered}</div><div class="text-muted small">${T('session.correct_label', null, 'Correct')}</div></div>
                     <div><div style="font-size:1.6rem;font-weight:700;color:var(--primary)">${acc}%</div><div class="text-muted small">${T('session.accuracy', null, 'Accuracy')}</div></div>
                 </div>

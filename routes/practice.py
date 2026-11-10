@@ -168,6 +168,9 @@ def submit_practice_attempt() -> ApiResponse:
                         exercises.language_id.
         tail / is_tail: optional bool; the attempt belongs to an optional-tail
                         round (echoed from the session payload).
+        exercise_context: optional 'standard' | 'gate' | 'stress_test' — an item
+                        of a threshold-gate or stress-test battery moves the
+                        ladder with that battery's learn/slip rates.
     """
     try:
         data = request.get_json() or {}
@@ -236,6 +239,7 @@ def submit_practice_attempt() -> ApiResponse:
                 language_id=data.get('language_id'),
                 expected_seconds=data.get('expected_seconds'),
                 is_tail=_truthy(data.get('is_tail', data.get('tail'))),
+                exercise_context=data.get('exercise_context') or 'standard',
             )
 
         if isinstance(result, dict) and result.get('error'):
@@ -341,3 +345,44 @@ def get_speed_round() -> ApiResponse:
     except Exception as e:
         logger.error("Error composing speed round: %s", e)
         return server_error("Failed to compose speed round")
+
+
+# ---------------------------------------------------------------------------
+# POST /api/practice/intro/complete — new-word drill (ADR-040)
+# ---------------------------------------------------------------------------
+
+@practice_bp.route('/intro/complete', methods=['POST'])
+@supabase_jwt_required
+def complete_intro_words() -> ApiResponse:
+    """Record finished words of an intro block and advance their sessions.
+
+    Body: {results: [{sense_id, stage, n_words, formats: [...],
+            attempts: [{pos, format, correct, idk, ms, exercise_id?, given?}]}]}
+
+    The server recounts each word with the drill's rules (the client's
+    "passed" is never read). A word that is not the caller's intro row at that
+    stage is reported ``ok: false`` (a replay of a finished word is a no-op).
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        results = data.get('results')
+        if not isinstance(results, list) or not results or len(results) > 40:
+            return bad_request("results must be a list of 1-40 words")
+        from services import intro_drill
+        from services.practice_session_service import get_practice_session_service
+        db = get_practice_session_service().db
+        out = []
+        for r in results:
+            if not isinstance(r, dict):
+                return bad_request("each result must be an object")
+            try:
+                sid, stage = int(r.get('sense_id')), int(r.get('stage'))
+            except (TypeError, ValueError):
+                return bad_request("sense_id and stage must be integers")
+            if stage not in intro_drill.INTRO_TARGETS or not isinstance(r.get('attempts'), list):
+                return bad_request("stage must be 1-4 and attempts a list")
+            out.append(intro_drill.complete_word(db, g.current_user_id, {**r, 'sense_id': sid, 'stage': stage}))
+        return api_success({'results': out})
+    except Exception as e:
+        logger.exception('intro complete failed: %s', e)
+        return server_error('Failed to record intro words')

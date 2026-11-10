@@ -1333,11 +1333,15 @@ Per-user vocabulary ladder progression. Canonical progression state is the Phase
 | `last_exercised_family` | text | YES | | Used by `consecutive_failures` heuristic |
 | **Phase 10 (advancement gating + demotion)** | | | | |
 | `family_success_dates` | jsonb | NO | `{form_recognition:[], meaning_recall:[], form_production:[], collocation:[], semantic_discrimination:[], contextual_use:[]}` | Per-family ISO date arrays of first-attempt successes, trimmed to most recent 2. Used by ring-advancement cross-session gate (≥ 2 distinct dates required) and reset on demotion for the demoted-into-ring families. |
+| **New-word drill (2026-11-10, ADR-040)** | | | | |
+| `intro_stage` | smallint | YES | | 1–4 = next intro session to run while `word_state = 'intro'`; NULL otherwise |
+| `intro_due_date` | date | YES | | Learner-local date the next intro session is due |
+| `intro_history` | jsonb | NO | `'[]'` | One entry per finished intro session `{stage, date, at, target, counted, items, cold_correct, passed, formats}` plus events `{event: queued/overload/restart, source?, met?, at}`; last 12 kept |
 
 - **Primary Key:** `user_word_ladder_pkey (user_id, sense_id)`
-- **Indexes:** `idx_user_word_ladder_user (user_id)`, `idx_user_word_ladder_review_due (user_id, review_due_at WHERE review_due_at IS NOT NULL)`, `idx_user_word_ladder_state (user_id, word_state)`, `idx_user_word_ladder_ring (user_id, current_ring)`
+- **Indexes:** `idx_user_word_ladder_user (user_id)`, `idx_user_word_ladder_review_due (user_id, review_due_at WHERE review_due_at IS NOT NULL)`, `idx_user_word_ladder_state (user_id, word_state)`, `idx_user_word_ladder_ring (user_id, current_ring)`, `idx_user_word_ladder_intro_due (user_id, intro_due_date) WHERE word_state = 'intro'`
 - **Foreign Keys:** `user_id` -> `users.id`, `sense_id` -> `dim_word_senses.id`
-- **CHECK constraints:** `user_word_ladder_word_state_check CHECK (word_state IN ('new','active','gated','pre_mastery','relearning','mastered'))`, `user_word_ladder_current_ring_check CHECK (current_ring BETWEEN 1 AND 4)`, `user_word_ladder_current_level_check CHECK (current_level BETWEEN 1 AND 9)`
+- **CHECK constraints:** `user_word_ladder_word_state_check CHECK (word_state IN ('new','active','gated','pre_mastery','relearning','mastered','intro'))` (`intro` added 2026-11-10), `user_word_ladder_intro_stage_check CHECK (intro_stage IS NULL OR intro_stage BETWEEN 1 AND 4)`, `user_word_ladder_current_ring_check CHECK (current_ring BETWEEN 1 AND 4)`, `user_word_ladder_current_level_check CHECK (current_level BETWEEN 1 AND 9)`
 - **RLS:** Enabled (2026-05-12 via [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)). Policies: `uwl_own_data` (ALL where `auth.uid() = user_id`), `uwl_service_role` (ALL where `auth.role() = 'service_role'`), `uwl_admin_view` (SELECT where `is_admin(auth.uid())`).
 
 ---

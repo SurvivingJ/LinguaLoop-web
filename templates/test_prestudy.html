@@ -8,6 +8,9 @@
 .ps-wrap { max-width: 860px; margin: 0 auto; padding: 16px 16px 120px; }
 .ps-cjk { font-family: "Noto Sans JP", "Noto Sans SC", "Hiragino Sans", "PingFang SC", var(--font-sans), sans-serif; }
 .ps-note { color: var(--text-secondary); font-size: var(--text-sm, 14px); }
+.ps-overflow { margin: 12px 0; padding: 12px 14px; border: 1px solid var(--border-default); border-radius: 12px; background: var(--bg-muted); }
+.ps-overflow p { margin: 0 0 8px; }
+.ps-overflow-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .ps-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .ps-between { justify-content: space-between; }
 .ps-gap { margin-top: 10px; }
@@ -226,4 +229,9 @@
 <script src="{{ url_for('static', filename='js/active-timer.js') }}"></script>
 <script src="{{ url_for('static', filename='js/prestudy/prestudy-links.js') }}"></script>
 <script src="{{ url_for('static', filename='js/prestudy/prestudy.js') }}"></script>
+<script type="module">
+  // The new-word drill's counting rule, so a prime that counts as intro session 1 is judged the same way.
+  import { countWord } from "{{ url_for('static', filename='js/session/players/intro_drill.js') }}";
+  window.IntroDrillCount = { countWord };
+</script>
 {% endblock %}

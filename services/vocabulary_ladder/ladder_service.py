@@ -231,6 +231,11 @@ class LadderService:
             'current_ring': 1,
             'updated_at': datetime.now(timezone.utc).isoformat(),
         }
+        from services import intro_drill
+        if intro_drill.ENABLED:
+            # New-word drill (ADR-040): new words start in intro session 1.
+            from services.day_boundary import plan_today_iso
+            row.update(intro_drill.new_intro_fields(plan_today_iso(self.db, user_id, language_id)))
 
         try:
             self.db.table('user_word_ladder').upsert(

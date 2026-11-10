@@ -429,8 +429,21 @@ class TestGovernor:
 
 
 class TestForecast:
+    @pytest.fixture(autouse=True)
+    def _drill_off(self, monkeypatch):
+        # The worked examples pin the ladder/FSRS reviews alone (N = 7);
+        # test_drill_adds_its_review_sessions covers the new-word drill.
+        from services import intro_drill
+        monkeypatch.setattr(intro_drill, 'ENABLED', False)
+
     def test_worked_example(self):
         assert review_forecast_min_per_day(5, 20.0) == pytest.approx(11.6667, abs=1e-3)
+
+    def test_drill_adds_its_review_sessions(self, monkeypatch):
+        from services import intro_drill
+        monkeypatch.setattr(intro_drill, 'ENABLED', True)
+        # 7 ladder reviews + 4 + 3 + 3 drill review items = 17 per word
+        assert review_forecast_min_per_day(5, 20.0) == pytest.approx(5 * 17 * 20 / 60, abs=1e-3)
 
     def test_no_division_by_thirty(self):
         # a stray "/ 30" would give 0.39

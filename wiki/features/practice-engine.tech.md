@@ -42,7 +42,7 @@ GET /api/practice/session?mode=auto&minutes=15&language_id=cn
 
 POST /api/practice/attempt
   → record_attempt_with_updates(...)
-  → ladder_record_attempt (if sense-linked) or exercise-only attempt log
+  → ladder_apply_progress (if sense-linked; added 2026-11-10, ADR-041 — before that this step was missing) or exercise-only attempt log
   → bkt_update_* + fsrs update (existing)
   → record_session_progress(user, language, attempt_id, 'practice_'||mode,
                             p_delta_seconds=effective_seconds_for_this_item)

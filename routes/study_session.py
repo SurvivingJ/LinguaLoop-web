@@ -722,6 +722,13 @@ def get_study_session() -> ApiResponse:
         except Exception as exc:
             logger.warning("prestudy planning failed (non-fatal): %s", exc)
 
+        # New-word drill (ADR-040): intro sessions 2-4 are reviews. When they are
+        # due and the planner made no review chunk to carry them, add one.
+        try:
+            queue = _with_intro_reviews(db, user_id, language_id, queue, targets, completed_blocks)
+        except Exception as exc:
+            logger.warning("intro review chunk failed (non-fatal): %s", exc)
+
         total = len(queue)
         completed = sum(1 for q in queue if q['is_completed'])
 
@@ -755,6 +762,33 @@ def get_study_session() -> ApiResponse:
     except Exception as e:
         logger.error("get_study_session failed: %s", e)
         return server_error("Failed to build study session")
+
+
+INTRO_REVIEWS_BLOCK_ID = 'intro_reviews'
+
+
+def _with_intro_reviews(db, user_id, language_id, queue, targets, completed_blocks):
+    """Add one maintenance chunk for due new-word-drill reviews (sessions 2-4)
+    when the queue has no incomplete maintenance chunk to serve them. Placed
+    where the practice part starts. Once done it stays in the queue as done."""
+    from services import intro_drill
+    if not intro_drill.ENABLED or 'practice' in (targets.get('excluded_modules') or []):
+        return queue
+    done = INTRO_REVIEWS_BLOCK_ID in (completed_blocks or [])
+    if not done:
+        if any(q.get('kind') == 'practice' and q.get('mode') == 'maintenance'
+               and not q.get('is_completed') for q in queue):
+            return queue
+        n = intro_drill.due_review_count(db, user_id, language_id)
+        if not n:
+            return queue
+        minutes = max(1, -(-n * 4 * intro_drill.INTRO_ITEM_SECONDS // 60))
+    else:
+        minutes = 1
+    block = {'kind': 'practice', 'id': INTRO_REVIEWS_BLOCK_ID, 'mode': 'maintenance',
+             'minutes': minutes, 'is_completed': done}
+    at = next((i for i, q in enumerate(queue) if q.get('kind') == 'practice'), len(queue))
+    return queue[:at] + [block] + queue[at:]
 
 
 # ---------------------------------------------------------------------------
@@ -807,7 +841,8 @@ def complete_block() -> ApiResponse:
         valid_ids = _valid_block_ids(
             targets,
             extra_ids=_tail_window_ids(row.data[0].get('completed_blocks') or [])
-            | _today_prestudy_ids(row.data[0].get('test_ids')),
+            | _today_prestudy_ids(row.data[0].get('test_ids'))
+            | {INTRO_REVIEWS_BLOCK_ID},
         )
         if block_id not in valid_ids:
             return bad_request(
