@@ -166,7 +166,7 @@ raise the compute size only while they run. Operational — the developer's call
 
 ## TASK-932: Consolidate multiple permissive RLS policies
 
-**Status:** [x] Done 2026-11-11 — applied live by the developer (self-verifying probes passed): 22 tables now have one policy per command (49 policies); only `tests` keeps overlapping SELECT policies (different role lists, skipped by design); advisor `multiple_permissive_policies` → 6 findings, all on `tests`. Rollback: `migrations/rls_consolidate_permissive_policies_rollback.sql`
+**Status:** [x] Done 2026-11-11 — applied live by the developer (self-verifying probes passed): 22 tables now have one policy per command (49 policies); only `tests` keeps overlapping SELECT policies (different role lists, skipped by design); advisor `multiple_permissive_policies` → 6 findings, all on `tests`. Follow-up `migrations/rls_tests_single_select_policy.sql` (written 2026-11-11, self-verifying, tested locally; developer applies) merges the three `tests` SELECT policies into `tests_select TO authenticated USING (is_active IS TRUE OR is_moderator(auth.uid()))`, which clears the last findings. Rollback: `migrations/rls_consolidate_permissive_policies_rollback.sql`
 **Feature:** latency
 **Type:** refactor
 **Complexity:** M (3-8h)
