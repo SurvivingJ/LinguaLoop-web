@@ -1324,8 +1324,24 @@ class PracticeSessionService:
             weight = 1.0
         quota = _plan.new_words_for_day(npd, weight)
 
-        if 'practice' in excluded:
+        with_governor = 'practice' not in excluded
+        day_start = local_day_start_utc(tz).isoformat()
+
+        # One round trip for both RPCs (ADR-043 option B). None when the
+        # bundle is not deployed yet or fails: then the two separate calls.
+        from services.optional_rpc import call_bundle
+        bundle = call_bundle(self.db, 'new_word_state_inputs', {
+            'p_user_id':       user_id,
+            'p_language_id':   language_id,
+            'p_date':          today.isoformat(),
+            'p_day_start':     day_start,
+            'p_with_governor': with_governor,
+        })
+
+        if not with_governor:
             gov: Dict[str, Any] = {'level': 'normal'}
+        elif bundle is not None:
+            gov = _plan.parse_review_governor(bundle.get('governor'))
         else:
             gov = _plan.get_review_governor(
                 self.db, user_id, language_id, today
@@ -1333,18 +1349,21 @@ class PracticeSessionService:
         level = gov.get('level') or 'normal'
         effective = _plan.effective_new_words(quota, level)
 
-        try:
-            st = self.db.rpc('ladder_new_word_state', {
-                'p_user_id':     user_id,
-                'p_language_id': language_id,
-                'p_day_start':   local_day_start_utc(tz).isoformat(),
-            }).execute().data
-        except Exception as e:
-            logger.warning(
-                'new-word state: ladder_new_word_state failed for user=%s '
-                'lang=%s: %s', user_id, language_id, e,
-            )
-            return None
+        if bundle is not None:
+            st = bundle.get('ladder')
+        else:
+            try:
+                st = self.db.rpc('ladder_new_word_state', {
+                    'p_user_id':     user_id,
+                    'p_language_id': language_id,
+                    'p_day_start':   day_start,
+                }).execute().data
+            except Exception as e:
+                logger.warning(
+                    'new-word state: ladder_new_word_state failed for user=%s '
+                    'lang=%s: %s', user_id, language_id, e,
+                )
+                return None
         if isinstance(st, list):
             st = st[0] if st else None
         if not isinstance(st, dict):
@@ -1453,6 +1472,9 @@ class PracticeSessionService:
 
         shortfall = max(0, want_raw - len(admitted))
         try:
+            # Rewrites today's daily_test_loads targets: drop the request copy.
+            from services.request_cache import invalidate
+            invalidate('daily_load_row', str(user_id))
             self.db.rpc('set_new_words_shortfall', {
                 'p_user_id':     user_id,
                 'p_language_id': language_id,

@@ -51,7 +51,8 @@ from services import study_plan_service as _plan
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.day_boundary import plan_today_iso
 from services.supabase_factory import get_supabase_admin
-from services.test_service import get_test_service, parse_language_id
+from services import request_cache
+from services.test_service import daily_load_row_key, get_test_service, parse_language_id
 from utils.responses import (
     ApiResponse, api_success, bad_request, not_found, server_error,
 )
@@ -663,6 +664,7 @@ def get_study_session() -> ApiResponse:
                 # The rebuild rewrites today's targets; recount below.
                 from services.request_cache import invalidate
                 invalidate('new_word_state')
+                invalidate('daily_load_row')
                 daily_load = get_test_service().get_or_create_daily_load(
                     user_id, language_id)
                 tests = daily_load.get('tests', []) or []
@@ -670,18 +672,26 @@ def get_study_session() -> ApiResponse:
             logger.warning("daily new-word intake failed (non-fatal): %s", exc)
 
         # 2. Practice targets + per-block completion from the persisted row.
+        #    Usually the row get_or_create_daily_load just read (request
+        #    cache); re-read only if something wrote it since (intake shortfall,
+        #    rebuild) or the dates differ.
         today = _today_iso(db, user_id, language_id)
-        row = (
-            db.table('daily_test_loads')
-            .select('daily_session_targets, completed_blocks')
-            .eq('user_id', user_id)
-            .eq('language_id', language_id)
-            .eq('load_date', today)
-            .limit(1)
-            .execute()
-        )
-        targets = (row.data[0].get('daily_session_targets') or {}) if row.data else {}
-        completed_blocks = (row.data[0].get('completed_blocks') or []) if row.data else []
+
+        def _load_row():
+            res = (
+                db.table('daily_test_loads')
+                .select('*')
+                .eq('user_id', user_id)
+                .eq('language_id', language_id)
+                .eq('load_date', today)
+                .limit(1)
+                .execute()
+            )
+            return res.data[0] if res.data else None
+
+        load_row = request_cache.memo(daily_load_row_key(user_id, language_id, today), _load_row)
+        targets = ((load_row or {}).get('daily_session_targets') or {})
+        completed_blocks = ((load_row or {}).get('completed_blocks') or [])
 
         # 3. Build the ordered queue: tests round-robined by type, practice
         #    split into ≤10-min chunks interleaved mid-session, deterministic

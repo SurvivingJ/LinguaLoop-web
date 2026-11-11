@@ -52,6 +52,14 @@ def memo(key: Hashable, loader: Callable[[], Any], *, cache_none: bool = True) -
     return value
 
 
+def put(key: Hashable, value: Any) -> None:
+    """Store a value a loader would have fetched (e.g. a row read for another
+    purpose earlier in the same GET). No-op outside a GET request."""
+    store = _store()
+    if store is not None:
+        store[key] = value
+
+
 def invalidate(*prefix: Any) -> None:
     """Drop every cached entry whose key is a tuple starting with ``prefix``."""
     if not has_request_context():
