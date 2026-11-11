@@ -112,15 +112,11 @@
                 <label for="difficulty" class="filter-label" data-i18n="test_list.difficulty">Difficulty</label>
                 <select id="difficulty" name="difficulty" class="form-select" onchange="applyFilters()">
                     <option value="" data-i18n="test_list.all_levels">All Levels</option>
-                    <option value="1">Level 1 - Beginner (0-1200)</option>
-                    <option value="2">Level 2 - Elementary (1200-1300)</option>
-                    <option value="3">Level 3 - Intermediate- (1300-1400)</option>
-                    <option value="4">Level 4 - Intermediate (1400-1500)</option>
-                    <option value="5">Level 5 - Intermediate+ (1500-1600)</option>
-                    <option value="6">Level 6 - Advanced- (1600-1700)</option>
-                    <option value="7">Level 7 - Advanced (1700-1800)</option>
-                    <option value="8">Level 8 - Advanced+ (1800-1900)</option>
-                    <option value="9">Level 9 - Expert (1900+)</option>
+                    <option value="BEGINNER" data-i18n="difficulty.beginner">Beginner</option>
+                    <option value="ELEMENTARY" data-i18n="difficulty.elementary">Elementary</option>
+                    <option value="INTERMEDIATE" data-i18n="difficulty.intermediate">Intermediate</option>
+                    <option value="ADVANCED" data-i18n="difficulty.advanced">Advanced</option>
+                    <option value="EXPERT" data-i18n="difficulty.expert">Expert</option>
                 </select>
             </div>
             
@@ -206,19 +202,10 @@
     const testTypeFilter = document.getElementById('test-type');
 
     // ELO Range Mapping
-    function getEloRange(difficultyLevel) {
-        const ranges = {
-            '1': { min: 0, max: 1200, label: 'Beginner' },
-            '2': { min: 1200, max: 1300, label: 'Elementary' },
-            '3': { min: 1300, max: 1400, label: 'Intermediate-' },
-            '4': { min: 1400, max: 1500, label: 'Intermediate' },
-            '5': { min: 1500, max: 1600, label: 'Intermediate+' },
-            '6': { min: 1600, max: 1700, label: 'Advanced-' },
-            '7': { min: 1700, max: 1800, label: 'Advanced' },
-            '8': { min: 1800, max: 1900, label: 'Advanced+' },
-            '9': { min: 1900, max: 9999, label: 'Expert' }
-        };
-        return ranges[difficultyLevel] || null;
+    function getEloRange(band) {
+        // The filter uses the same bands as the badges (static/js/utils.js ELO_RANGES).
+        const b = window.LinguaUtils && window.LinguaUtils.ELO_RANGES && window.LinguaUtils.ELO_RANGES[band];
+        return b ? { min: b.min, max: b.max + 1, label: b.label } : null;
     }
 
     // Utility Functions
@@ -282,14 +269,8 @@
         }
     }
     
-    function getDifficultyLabel(elo) {
-        if (elo < 1200) return 'Beginner';
-        if (elo < 1400) return 'Elementary';
-        if (elo < 1600) return 'Intermediate';
-        if (elo < 1800) return 'Advanced';
-        return 'Expert';
-    }
-    
+    // getDifficultyLabel / getDifficultyText come from static/js/utils.js (one scale).
+
     function createTestCard(test) {
         const eloRating = getTestEloRating(test);
         const difficulty = getDifficultyLabel(eloRating);
@@ -301,7 +282,7 @@
                     <div class="test-card-title">
                         <span>${escapeHtml(test.title || test.topic || 'Untitled Test')}</span>
                         <div class="test-badges">
-                            <span class="badge-difficulty ${difficultyClass}">${difficulty}</span>
+                            <span class="badge-difficulty ${difficultyClass}">${escapeHtml(getDifficultyText(eloRating))}</span>
                             ${test.is_custom ? '<span class="badge-difficulty badge-custom">Custom</span>' : ''}
                             ${test.is_featured ? '<span class="badge-difficulty badge-featured">Featured</span>' : ''}
                         </div>
@@ -608,7 +589,7 @@
             </div>
             <div class="recommended-title">${escapeHtml(test.title)}</div>
             <div class="recommended-meta">
-                <span class="badge-difficulty badge-${difficultyClass}">${difficultyLabel}</span>
+                <span class="badge-difficulty badge-${difficultyClass}">${escapeHtml(getDifficultyText(test.elo_rating))}</span>
                 <span class="elo-info">ELO ${test.elo_rating}</span>
             </div>
             <button class="btn btn-primary btn-sm recommended-btn" type="button">
@@ -786,7 +767,7 @@
             '</div>' +
             '<div class="daily-card-title">' + escapeHtml(test.title || 'Test') + '</div>' +
             '<div class="daily-card-meta">' +
-                '<span class="badge-difficulty badge-' + diffClass + '">' + diffLabel + '</span>' +
+                '<span class="badge-difficulty badge-' + diffClass + '">' + escapeHtml(getDifficultyText(test.elo_rating || 1400)) + '</span>' +
                 '<span class="elo-info">ELO ' + (test.elo_rating || 1400) + '</span>' +
             '</div>' +
             originalScoreHtml +

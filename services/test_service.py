@@ -568,11 +568,23 @@ class TestService:
                     and t.get('test_type', 'listening') not in excluded
                 ]
 
+                # One test per topic per day: two tests on the same topic let
+                # the first give away the second (a dictation and a reading
+                # on the same T-shirt, 2026-11-11 walkthrough).
+                topic_of = self._topics_for(
+                    [t.get('test_id') for t in new_tests] + list(selected_test_ids))
+                used_topics = {topic_of[tid] for tid in selected_test_ids if topic_of.get(tid)}
+
                 for t in new_tests:
                     if num_new <= 0:
                         break
                     if t.get('test_id') in selected_test_ids:
                         continue
+                    topic = topic_of.get(t.get('test_id'))
+                    if topic and topic in used_topics:
+                        continue
+                    if topic:
+                        used_topics.add(topic)
                     load_items.append({
                         'test_id': t['test_id'],
                         'slot_type': 'new',
@@ -798,6 +810,19 @@ class TestService:
             'total': total,
             'all_complete': len(completed) >= total
         }
+
+    def _topics_for(self, test_ids) -> Dict:
+        """{test_id: topic_id} for these tests (missing/None topics omitted).
+        Best effort: {} on failure, which simply skips the topic check."""
+        ids = [t for t in dict.fromkeys(test_ids) if t]
+        if not ids:
+            return {}
+        try:
+            rows = self.admin.table('tests').select('id, topic_id').in_('id', ids).execute().data or []
+        except Exception as e:
+            logger.warning("topic lookup for daily load failed: %s", e)
+            return {}
+        return {r['id']: r.get('topic_id') for r in rows if r.get('topic_id')}
 
     def mark_daily_slot_complete_on_submit(self, user_id: str, language_id: int,
                                            test_id: str) -> bool:

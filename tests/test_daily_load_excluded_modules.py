@@ -88,3 +88,31 @@ def test_plan_read_failure_fails_open(monkeypatch):
 
     svc.admin.table = table
     assert [i['test_id'] for i in svc._compute_daily_load('u1', 1)] == ['n1']
+
+
+def test_one_test_per_topic_per_day(monkeypatch):
+    # 2026-11-11: a dictation and a reading on the same T-shirt topic were
+    # served the same day; the first gave the second away.
+    rec = [
+        {'test_id': 'shirt_dict', 'test_type': 'dictation'},
+        {'test_id': 'shirt_read', 'test_type': 'reading'},
+        {'test_id': 'printing', 'test_type': 'reading'},
+        {'test_id': 'no_topic', 'test_type': 'listening'},
+    ]
+    svc = _svc({'test_attempts': [], 'test_skill_ratings': []},
+               {'get_recommended_tests': rec}, monkeypatch)
+    monkeypatch.setattr(svc, '_topics_for', lambda ids: {
+        'shirt_dict': 'T-shirt', 'shirt_read': 'T-shirt', 'printing': 'printing'})
+    items = svc._compute_daily_load('u1', 1)
+    assert [i['test_id'] for i in items] == ['shirt_dict', 'printing', 'no_topic']
+
+
+def test_retry_topic_is_not_repeated_by_a_new_test(monkeypatch):
+    rec = [{'test_id': 'shirt_read', 'test_type': 'reading'},
+           {'test_id': 'printing', 'test_type': 'reading'}]
+    svc = _svc({'test_attempts': [_attempt('shirt_dict', 40, 2)], 'test_skill_ratings': []},
+               {'get_recommended_tests': rec}, monkeypatch)
+    monkeypatch.setattr(svc, '_topics_for', lambda ids: {
+        'shirt_dict': 'T-shirt', 'shirt_read': 'T-shirt', 'printing': 'printing'})
+    items = svc._compute_daily_load('u1', 1)
+    assert [i['test_id'] for i in items] == ['shirt_dict', 'printing']

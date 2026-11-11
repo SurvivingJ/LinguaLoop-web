@@ -428,6 +428,7 @@ async function loadTestData() {
         }
         
         testState.testData = data.test_data;
+        testState.skillRatings = data.skill_ratings || {};
         testState.testId = data.test_data.id;
         testState.vocabTokenMap = data.vocab_token_map || [];
         testState.definitions = data.definitions || {};
@@ -542,7 +543,11 @@ function initializeUI() {
     // Set test metadata
     document.getElementById('testTitleText').textContent = testState.testData.title || testState.testData.topic;
     document.getElementById('testLanguage').textContent = LinguaMetadata.getNativeName(testState.testData.language) || testState.testData.language.toUpperCase();
-    document.getElementById('testDifficulty').textContent = LinguaI18n.t('test.level', {level: testState.testData.difficulty});
+    // Same difficulty scale as the test list and preview (static/js/utils.js).
+    const difficultyText = window.LinguaUtils.getTestDifficultyText(testState.skillRatings, testState.testType);
+    const difficultyEl = document.getElementById('testDifficulty');
+    difficultyEl.textContent = difficultyText;
+    difficultyEl.classList.toggle('d-none', !difficultyText);
     document.getElementById('testType').textContent = testState.testType.charAt(0).toUpperCase() + testState.testType.slice(1);
 
     // Furigana toggle: only meaningful when the test has a furigana payload

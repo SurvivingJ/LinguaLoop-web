@@ -287,3 +287,25 @@ describe('getAuthHeaders', () => {
     expect(headers['Authorization']).toBe('Bearer test.jwt.token');
   });
 });
+
+describe('one difficulty scale (ELO_RANGES)', () => {
+  it('bands ratings on the 200-point scale, edges included', () => {
+    const { getDifficultyBand } = getUtils();
+    expect(getDifficultyBand(875)).toBe('BEGINNER');
+    expect(getDifficultyBand(1199)).toBe('BEGINNER');
+    expect(getDifficultyBand(1199.5)).toBe('BEGINNER');
+    expect(getDifficultyBand(1200)).toBe('ELEMENTARY');
+    expect(getDifficultyBand(1399)).toBe('ELEMENTARY');
+    expect(getDifficultyBand(1400)).toBe('INTERMEDIATE');
+    expect(getDifficultyBand(1925)).toBe('EXPERT');
+  });
+
+  it('labels a test by its rating for the mode being taken', () => {
+    const { getTestDifficultyText } = getUtils();
+    const ratings = { reading: { elo_rating: 1199 }, listening: { elo_rating: 1222 } };
+    expect(getTestDifficultyText(ratings, 'reading')).toBe('Beginner');
+    expect(getTestDifficultyText(ratings, 'listening')).toBe('Elementary');
+    expect(getTestDifficultyText(ratings, 'dictation')).toBe('');
+    expect(getTestDifficultyText(null, 'reading')).toBe('');
+  });
+});

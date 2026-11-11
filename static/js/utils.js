@@ -80,16 +80,53 @@ function escapeHtml(text) {
 // =============================================================================
 
 /**
- * Get difficulty label from ELO rating
+ * The difficulty band (an ELO_RANGES key) for an ELO rating. ELO_RANGES is
+ * the one difficulty scale: test cards, the Browse filter, the preview page,
+ * the test page and the session player all use it (before 2026-11-11 there
+ * were four different scales, so one test read "Beginner", "Elementary" and
+ * "Level 5" in different places).
+ * @param {number} elo - ELO rating
+ * @returns {string} e.g. 'ELEMENTARY'
+ */
+function getDifficultyBand(elo) {
+  const r = Number(elo);
+  for (const [key, band] of Object.entries(ELO_RANGES)) {
+    if (r < band.max + 1) return key;
+  }
+  return 'EXPERT';
+}
+
+/**
+ * Get difficulty label from ELO rating (English; also the CSS class stem).
  * @param {number} elo - ELO rating
  * @returns {string} Difficulty label
  */
 function getDifficultyLabel(elo) {
-  if (elo < 1200) return 'Beginner';
-  if (elo < 1400) return 'Elementary';
-  if (elo < 1600) return 'Intermediate';
-  if (elo < 1800) return 'Advanced';
-  return 'Expert';
+  return ELO_RANGES[getDifficultyBand(elo)].label;
+}
+
+/**
+ * The difficulty label shown to the learner, in the UI language.
+ * @param {number} elo - ELO rating
+ * @returns {string}
+ */
+function getDifficultyText(elo) {
+  const label = getDifficultyLabel(elo);
+  const key = 'difficulty.' + label.toLowerCase();
+  const t = window.LinguaI18n && typeof window.LinguaI18n.t === 'function' ? window.LinguaI18n.t(key) : null;
+  return t && t !== key ? t : label;
+}
+
+/**
+ * Difficulty text for a test in one mode, from the test payload's
+ * skill_ratings ({reading: {elo_rating}, ...}); '' when unknown.
+ * @param {Object} skillRatings
+ * @param {string} mode - 'reading' | 'listening' | 'dictation' | ...
+ * @returns {string}
+ */
+function getTestDifficultyText(skillRatings, mode) {
+  const r = skillRatings && skillRatings[mode] && skillRatings[mode].elo_rating;
+  return r == null ? '' : getDifficultyText(r);
 }
 
 /**
@@ -377,7 +414,10 @@ window.LinguaUtils = {
   escapeHtml,
 
   // Difficulty
+  getDifficultyBand,
   getDifficultyLabel,
+  getDifficultyText,
+  getTestDifficultyText,
   getDifficultyInfo,
   getDifficultyColor,
 
