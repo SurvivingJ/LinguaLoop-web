@@ -156,6 +156,10 @@ async function loadSession() {
   if (!res.ok) throw new Error(`Session load failed (${res.status})`);
   const body = await res.json();
   const data = body.data || body;
+  // The start card is rendered with T(); make sure translations are in.
+  if (window.LinguaMetadata && typeof LinguaMetadata.i18nReady === 'function') {
+    await LinguaMetadata.i18nReady();
+  }
 
   let queue = data.queue || [];
   if (session.practiceOnly) {

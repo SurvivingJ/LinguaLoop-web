@@ -34,7 +34,8 @@ by the developer.
    `resolve_plan_timezone` looks names up there first and falls back to the old scan only for
    a name missing from the snapshot, so it accepts exactly the same names as before.
    `migrations/latency_2026_11_db.sql`; rollback in `latency_2026_11_db_rollback.sql`.
-   **Not yet applied live** (2026-11-11: the Supabase confirmation prompt timed out unanswered).
+   Applied live 2026-11-11 by the developer (verified: 0 mismatches over 1,205 inputs; policy
+   digest unchanged after unwrapping).
 2. **`services/request_cache.py`**: `memo(key, loader)` caches on `flask.g` for the life of
    one **GET/HEAD** request only. Writes (PUT/POST/…) never read from it, so a handler that
    writes a plan and reads it back always sees the database. Exceptions are never cached.
@@ -59,6 +60,13 @@ by the developer.
    today's queue needs; the test page reuses the preview's copy of `/api/tests/test/<slug>`;
    `authFetch` waits for the head script's token renewal and shares one renewal across all
    401s; `test-intro.js` loads only on test and drill pages.
+   **`LinguaMetadata.load()` also waits for the UI translations** (capped at 4 s;
+   `LinguaMetadata.i18nReady()`): every page treats it as its "ready to render" gate and
+   renders with `LinguaI18n.t()`, which returns the raw key until translations arrive. Once the
+   metadata round trip was gone, the test page (fed instantly by the preview hand-off) rendered
+   `test.level` / `test.question_of` — caught in the 2026-11-11 browser walkthrough, fixed
+   before shipping, pinned by `tests/unit/lingua-metadata.test.js`. The test, preview and
+   session pages fetch their data in parallel and await translations only before rendering.
 6. Advisor clean-up in the same migration: four duplicate indexes dropped; 18 indexes on
    foreign keys whose parent rows are actually deleted (`dim_word_senses`, `exercises`,
    `word_assets`, `tests`, …); RLS policies wrap `auth.uid()` / `auth.role()` in a scalar

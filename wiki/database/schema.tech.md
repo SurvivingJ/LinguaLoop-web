@@ -2245,15 +2245,15 @@ Exercise accuracy percentages grouped by exercise type, complexity tier, and lan
 - `anonymize_user_data(user_id)` -> void -- GDPR deletion
 
 ### Local day boundary (ADR-022)
-- `resolve_plan_timezone(p_tz text)` -> text -- the zone name if Postgres knows it, else `'UTC'`. **Pending live apply** (`migrations/latency_2026_11_db.sql`, written 2026-11-11): looks the name up in **`tz_names`** first and scans `pg_timezone_names` only for a name missing from the snapshot (that scan cost ~55 ms warm / ~300-500 ms cold per call). [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]]
+- `resolve_plan_timezone(p_tz text)` -> text -- the zone name if Postgres knows it, else `'UTC'`. Since 2026-11-11 (`migrations/latency_2026_11_db.sql`, applied live) looks the name up in **`tz_names`** first and scans `pg_timezone_names` only for a name missing from the snapshot (that scan cost ~55 ms warm / ~300-500 ms cold per call). [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]]
 - `plan_local_date(user, language, at)` / `plan_local_day_start(...)` -- learner-local date / midnight via `resolve_plan_timezone`.
 
-### `tz_names` (2026-11-11 — pending live apply)
+### `tz_names` (2026-11-11)
 | Column | Type | Notes |
 |---|---|---|
 | name | text PK | Snapshot of `pg_timezone_names.name` (~1,200 rows). RLS on, no policies, `SELECT` granted to `service_role` only; read by SECURITY DEFINER callers. Refresh after a Postgres/tzdata upgrade: `INSERT INTO tz_names SELECT name FROM pg_timezone_names ON CONFLICT DO NOTHING`. |
 
-### Indexes in `migrations/latency_2026_11_db.sql` (written 2026-11-11 — pending live apply)
+### Indexes in `migrations/latency_2026_11_db.sql` (applied live 2026-11-11)
 Foreign-key indexes on children of parents that really are deleted: `exercises(word_asset_id)`,
 `user_exercise_history(exercise_id)`, `user_exercise_history(sense_id)`,
 `user_vocabulary_knowledge(sense_id)`, `user_word_ladder(sense_id)`, `user_flashcards(sense_id)`,

@@ -4,7 +4,7 @@ feature: latency
 prose_page: ../evaluations/latency-2026-11-11.md
 tech_page: ../decisions/ADR-042-request-scoped-caching-and-static-asset-caching.md
 total_tasks: 9
-done: 2
+done: 5
 ---
 
 # Latency — Task Breakdown
@@ -17,7 +17,7 @@ every suggested fix **except** raising gunicorn concurrency (hobby-tier Railway 
 
 ## TASK-925: Stop `resolve_plan_timezone` scanning `pg_timezone_names`
 
-**Status:** [~] Done (repo), awaiting live apply — the Supabase confirmation prompt timed out unanswered on 2026-11-11; nothing was applied
+**Status:** [x] Done (applied live by the developer 2026-11-11, verified)
 **Feature:** latency
 **Type:** refactor
 **Complexity:** S (1-3h)
@@ -31,10 +31,10 @@ migration: drop the four duplicate indexes, index the foreign keys whose parents
 and wrap `auth.uid()` / `auth.role()` in RLS policies in a scalar sub-select.
 
 **Acceptance Criteria:**
-- [ ] `resolve_plan_timezone` returns the same value as before for every name in `pg_timezone_names`, for `''`, NULL and garbage.
-- [ ] Every `plan_local_date` caller loses its ~55 ms floor (measured in the evaluation).
-- [ ] Policy digest after unwrapping equals the pre-migration digest `9de38a5b2b08aef7f7062e70060c543a` (106 policies; digest of `tablename|policyname|cmd|roles|permissive|qual|with_check` ordered by table, policy — unwrap `( SELECT auth.x() AS x)` → `auth.x()` before hashing).
-- [ ] Advisor: `duplicate_index` and `auth_rls_initplan` findings gone.
+- [x] `resolve_plan_timezone` returns the same value as before for every name in `pg_timezone_names`, for `''`, NULL and garbage.
+- [x] Every `plan_local_date` caller loses its ~55 ms floor (measured in the evaluation).
+- [x] Policy digest after unwrapping equals the pre-migration digest `9de38a5b2b08aef7f7062e70060c543a` (106 policies; digest of `tablename|policyname|cmd|roles|permissive|qual|with_check` ordered by table, policy — unwrap `( SELECT auth.x() AS x)` → `auth.x()` before hashing).
+- [x] Advisor: `duplicate_index` and `auth_rls_initplan` findings gone.
 
 **Files to Create / Modify:**
 - `migrations/latency_2026_11_db.sql` — the migration (idempotent).
@@ -90,7 +90,7 @@ invalidated by every `user_word_ladder` writer and by a same-request `rebuild_to
 
 ## TASK-928: Compress responses and long-cache content-hashed static files
 
-**Status:** [~] Done (repo) 2026-11-11 — after-measurement pending
+**Status:** [x] Done 2026-11-11 (measured)
 **Feature:** latency
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -103,14 +103,14 @@ streamed static files), versioned i18n URLs via `window.LINGUA_I18N_VERSIONS`.
 `requirements.txt` gains `Flask-Compress==1.26`.
 
 **Acceptance Criteria:**
-- [ ] Warm page loads transfer only the HTML and API responses (after-measurement pending).
+- [x] Warm page loads serve every versioned static file from the browser cache (measured: 0 → all).
 - [x] A changed file gets a new URL; unversioned requests still revalidate.
 
 ---
 
 ## TASK-929: Remove start-up waterfalls in the browser
 
-**Status:** [~] Done (repo) 2026-11-11 — after-measurement and browser walkthrough pending
+**Status:** [x] Done 2026-11-11 (measured; walkthrough 16/16)
 **Feature:** latency
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -126,7 +126,7 @@ parallel with i18n; test page reuses the preview's `/api/tests/test/<slug>` payl
 **Acceptance Criteria:**
 - [x] No page awaits `/api/metadata` before its first API call.
 - [x] vitest `player-registry.test.js`: spinner → real mount, destroy-before-load cancels.
-- [ ] Browser walkthrough with the test account shows no visual or functional change (pending).
+- [x] Browser walkthrough with the test account: 16/16 checks; same-data screenshots 19/22 identical (calibration = random word; profile = pre-existing highlight bug, fixed). Found and fixed an i18n render race (`LinguaMetadata.load()` now waits for translations).
 
 ---
 

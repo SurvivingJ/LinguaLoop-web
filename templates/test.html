@@ -372,8 +372,9 @@ document.addEventListener('languageChanged', function() {
 
 async function initializeTest() {
     try {
-        // Load language metadata for native names
-        await LinguaMetadata.load();
+        // Language metadata + UI translations; awaited before rendering, but
+        // the test data loads in parallel with them.
+        const metadataReady = LinguaMetadata.load();
 
         // Get slug and type from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -392,7 +393,7 @@ async function initializeTest() {
         showLoading(true);
         
         // Load test data (includes pre-generated definitions)
-        await loadTestData();
+        await Promise.all([loadTestData(), metadataReady]);
 
         // Initialize UI
         initializeUI();

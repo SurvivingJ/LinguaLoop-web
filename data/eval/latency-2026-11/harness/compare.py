@@ -51,3 +51,15 @@ if 'browser' in which and os.path.exists(f'{R}/browser_after.json'):
         print(f"| `{url.replace(SLUG, '<slug>')}` | {f(b,'cold','transfer')/1024:.0f} | {f(a,'cold','transfer')/1024:.0f} | "
               f"{f(b,'warm','transfer')/1024:.0f} | {f(a,'warm','transfer')/1024:.0f} | {f(b,'cold','requests')} | {f(a,'cold','requests')} | "
               f"{len(b[url]['cold'][0]['apiCalls'])} | {len(a[url]['cold'][0]['apiCalls'])} |")
+if 'throttle' in which and os.path.exists(f'{R}/throttle_after.json'):
+    b, a = json.load(open(f'{R}/throttle_before.json')), json.load(open(f'{R}/throttle_after.json'))
+    for mode in ('cold', 'warm'):
+        rows = [(f'`{u.replace(SLUG, "<slug>")}`', [x['dataReady'] for x in b[u][mode]], [x['dataReady'] for x in a[u][mode]], '') for u in b if u in a]
+        table(f'Mobile-throttled (150 ms RTT, 1.6 Mbps): navigation start → last API response, {mode} cache, ms', rows, 'Page')
+    rows = [(f'`{u.replace(SLUG, "<slug>")}`', [x['firstApiStart'] for x in b[u]['cold']], [x['firstApiStart'] for x in a[u]['cold']], '') for u in b if u in a]
+    table('Mobile-throttled, cold: navigation start → FIRST API request starts, ms', rows, 'Page')
+    print('\n### Mobile-throttled: bytes per load (median KB)\n\n| Page | cold before | cold after | warm before | warm after |\n|---|---|---|---|---|')
+    med = lambda xs: sorted(xs)[len(xs) // 2]
+    for u in b:
+        f = lambda d, m: med([x['bytes'] for x in d[u][m]]) / 1024
+        print(f"| `{u.replace(SLUG, '<slug>')}` | {f(b,'cold'):.0f} | {f(a,'cold'):.0f} | {f(b,'warm'):.0f} | {f(a,'warm'):.0f} |")

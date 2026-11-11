@@ -688,8 +688,8 @@
      */
     async function initializePage() {
         try {
-            // Load language metadata for native names
-            await LinguaMetadata.load();
+            // Language metadata + UI translations, awaited with the data below.
+            const metadataReady = LinguaMetadata.load();
 
             // Parse URL
             const { testSlug: slug, selectedTestType: initialType } = parseUrlParams();
@@ -702,7 +702,8 @@
             // Fetch test data and skill ratings in parallel
             const [test, ratings] = await Promise.all([
                 fetchTestData(slug),
-                fetchSkillRatings(slug)
+                fetchSkillRatings(slug),
+                metadataReady
             ]);
 
             if (!test) {

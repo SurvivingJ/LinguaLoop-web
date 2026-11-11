@@ -20,11 +20,13 @@ below.
 | Status | Count |
 |--------|-------|
 | Not Started | 30 |
-| In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 28 |
+| In Progress (`[~]`) | 11 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 221 |
+| Done (cumulative, not listed here) | 224 |
+
+*2026-11-11 (Latency, second pass):* migration applied live by the developer and verified; TASK-925, 928, 929 Done after the before/after measurement and a 16/16 browser walkthrough ([[evaluations/latency-2026-11-11]]). Counts: In Progress 13→11, awaiting live apply 28→27, Done 221→224.
 
 *2026-11-11 (NEW — Latency, TASK-925–933):* latency audit + fixes ([[evaluations/latency-2026-11-11]], [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]]). TASK-926–927 Done (per-request plan-row / new-word-state cache, cached `dim_test_types`); TASK-928–929 Done in repo, after-measurement + browser walkthrough pending; TASK-925 (tz lookup + advisor fixes) written, awaiting live apply (Supabase confirmation timed out unanswered); TASK-930–933 Not Started follow-ups. Gunicorn concurrency deliberately unchanged (developer: hobby-tier Railway). Counts: Not Started 26→30, In Progress 11→13, awaiting live apply 27→28, Done 219→221.
 
@@ -1177,11 +1179,11 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-925 | latency | `tz_names` lookup in `resolve_plan_timezone`; duplicate/FK indexes; RLS initplan (LIVE-DB, approval) | Done (repo), awaiting live apply | S | — |
+| TASK-925 | latency | `tz_names` lookup in `resolve_plan_timezone`; duplicate/FK indexes; RLS initplan (LIVE-DB, approval) | Done (applied live) | S | — |
 | TASK-926 | latency | Per-request cache for the `user_study_plans` row | Done | M | — |
 | TASK-927 | latency | Memoise new-word state; cache `dim_test_types` minutes map | Done | S | TASK-926 |
-| TASK-928 | latency | Compression + content-hashed, long-cached static files | [~] Done (repo), measurement pending | S | — |
-| TASK-929 | latency | Remove browser start-up waterfalls | [~] Done (repo), walkthrough pending | M | TASK-928 |
+| TASK-928 | latency | Compression + content-hashed, long-cached static files | Done | S | — |
+| TASK-929 | latency | Remove browser start-up waterfalls | Done | M | TASK-928 |
 | TASK-930 | latency | Assemble the daily session in one RPC | [ ] | L | TASK-926 |
 | TASK-931 | latency | Keep content-generation batch jobs off learners' hours | [ ] | S | — |
 | TASK-932 | latency | Consolidate multiple permissive RLS policies | [ ] | M | TASK-925 |
