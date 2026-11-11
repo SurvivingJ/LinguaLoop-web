@@ -166,7 +166,7 @@ raise the compute size only while they run. Operational — the developer's call
 
 ## TASK-932: Consolidate multiple permissive RLS policies
 
-**Status:** [~] Migration written (`migrations/rls_consolidate_permissive_policies.sql`, guarded, self-verifying) — blocked on the remaining security-hardening policy drops (TASK-875 section 1, TASK-880, TASK-882)
+**Status:** [~] Unblocked 2026-11-11 (TASK-875, 880, 882 applied live) — awaiting the developer's apply; rollback captured in `migrations/rls_consolidate_permissive_policies_rollback.sql` (78 policies, 45 tables)
 **Feature:** latency
 **Type:** refactor
 **Complexity:** M (3-8h)
