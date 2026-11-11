@@ -372,8 +372,15 @@ class SenseGenerator:
         return bool(resp.data)
 
     def _maybe_set_pos(self, vocab_id: int, pos_code) -> None:
-        """Write the canonical POS to dim_vocabulary.part_of_speech when it's
-        currently blank. Best-effort; never raises into the pipeline."""
+        """Write the model's standard POS to dim_vocabulary.part_of_speech.
+
+        The model reads the word in context with its definition, so its label
+        replaces the tokenizer's guess made when the word was created (which
+        stays in part_of_speech_raw) -- e.g. jieba tagged 宗教改革 "nr"
+        (person name). Before 2026-11-11 this only filled a blank, so the
+        guess almost always won. 'other' never overwrites anything. Skips the
+        write when the label is already this one. Best-effort; never raises
+        into the pipeline."""
         if vocab_id < 0 or not isinstance(pos_code, int):
             return
         pos = self._pos_legend.get(pos_code)
@@ -383,7 +390,7 @@ class SenseGenerator:
             self._db.table('dim_vocabulary') \
                 .update({'part_of_speech': pos}) \
                 .eq('id', vocab_id) \
-                .or_('part_of_speech.is.null,part_of_speech.eq.') \
+                .or_(f'part_of_speech.is.null,part_of_speech.neq.{pos}') \
                 .execute()
         except Exception as e:
             logger.debug(f"POS update skipped for vocab {vocab_id}: {e}")
