@@ -421,8 +421,8 @@ Left over (not done, for the developer to decide):
 - `app_error_logs` "Authenticated insert error logs": any signed-in user can insert log rows
   through PostgREST. Only Flask writes this table (`app.py` via the service role), so the policy
   and the client grants can go.
-  **→ `migrations/security_revoke_inert_client_writes.sql` (written 2026-11-11, awaiting the
-  developer's apply).**
+  **→ `migrations/security_revoke_inert_client_writes.sql` — applied live by the developer
+  2026-11-11, verified.**
 - `dim_vocabulary` / `dim_word_senses` (and the other `dim_*` reference tables) are readable by
   anon with the public key — the whole dictionary can be downloaded. Intended or not is a
   product decision.

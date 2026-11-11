@@ -1,6 +1,7 @@
 -- Rollback for migrations/rls_consolidate_permissive_policies.sql (TASK-932).
 -- Captured 2026-11-11 by the developer with that file's ROLLBACK GENERATOR query,
--- after TASK-875 / 880 / 882 were applied and before the consolidation: 78 policies
+-- after TASK-875 / 880 / 882 were applied and before the consolidation: 78 policies (77 after
+-- security_revoke_inert_client_writes.sql dropped "Authenticated insert error logs"; removed here)
 -- on 45 tables. Restores exactly that policy set: drops every policy on those
 -- tables (the merged rls_* ones included), then recreates the captured ones.
 -- Only for undoing the consolidation; any policy added to these tables later is dropped too.
@@ -19,7 +20,6 @@ BEGIN
 END $$;
 
 CREATE POLICY "Admin and service read error logs" ON public.app_error_logs AS PERMISSIVE FOR SELECT TO public USING ((is_admin(( SELECT auth.uid() AS uid)) OR (( SELECT auth.role() AS role) = 'service_role'::text)));
-CREATE POLICY "Authenticated insert error logs" ON public.app_error_logs AS PERMISSIVE FOR INSERT TO public WITH CHECK (((( SELECT auth.uid() AS uid) IS NOT NULL) OR (( SELECT auth.role() AS role) = 'service_role'::text)));
 CREATE POLICY "Service role manage error logs" ON public.app_error_logs AS PERMISSIVE FOR ALL TO public USING ((( SELECT auth.role() AS role) = 'service_role'::text));
 CREATE POLICY calibration_blocklist_read ON public.calibration_anchor_blocklist AS PERMISSIVE FOR SELECT TO authenticated USING (true);
 CREATE POLICY "calibration_options_own (select)" ON public.calibration_response_options AS PERMISSIVE FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1
@@ -108,8 +108,8 @@ CREATE POLICY "wqr_own_data (select)" ON public.word_quiz_results AS PERMISSIVE 
 DO $$
 BEGIN
   IF (SELECT count(*) FROM pg_policies WHERE schemaname = 'public'
-        AND tablename = ANY (ARRAY['app_error_logs', 'calibration_anchor_blocklist', 'calibration_response_options', 'calibration_responses', 'calibration_sessions', 'daily_test_load_items', 'daily_test_loads', 'dim_character_components', 'dim_complexity_tiers', 'dim_counter_distractor_groups', 'dim_counter_noun_pairs', 'dim_counters', 'dim_distractor_bands', 'dim_languages', 'dim_lens', 'dim_question_types', 'dim_status', 'dim_study_plan_templates', 'dim_subscription_tiers', 'dim_test_types', 'dim_vocabulary', 'dim_word_senses', 'exercise_attempts', 'question_attempt_results', 'test_attempts', 'test_skill_ratings', 'tests', 'token_transactions', 'trusted_devices', 'user_calibration_state', 'user_exercise_history', 'user_exercise_sessions', 'user_flashcards', 'user_languages', 'user_reports', 'user_skill_rating_adjustments', 'user_skill_ratings', 'user_study_plans', 'user_tokens', 'user_vocabulary_knowledge', 'user_word_ladder', 'user_word_watchlist', 'users', 'weekly_plan_states', 'word_quiz_results'])) <> 78 THEN
-    RAISE EXCEPTION 'rollback: policy count differs from the captured 78';
+        AND tablename = ANY (ARRAY['app_error_logs', 'calibration_anchor_blocklist', 'calibration_response_options', 'calibration_responses', 'calibration_sessions', 'daily_test_load_items', 'daily_test_loads', 'dim_character_components', 'dim_complexity_tiers', 'dim_counter_distractor_groups', 'dim_counter_noun_pairs', 'dim_counters', 'dim_distractor_bands', 'dim_languages', 'dim_lens', 'dim_question_types', 'dim_status', 'dim_study_plan_templates', 'dim_subscription_tiers', 'dim_test_types', 'dim_vocabulary', 'dim_word_senses', 'exercise_attempts', 'question_attempt_results', 'test_attempts', 'test_skill_ratings', 'tests', 'token_transactions', 'trusted_devices', 'user_calibration_state', 'user_exercise_history', 'user_exercise_sessions', 'user_flashcards', 'user_languages', 'user_reports', 'user_skill_rating_adjustments', 'user_skill_ratings', 'user_study_plans', 'user_tokens', 'user_vocabulary_knowledge', 'user_word_ladder', 'user_word_watchlist', 'users', 'weekly_plan_states', 'word_quiz_results'])) <> 77 THEN
+    RAISE EXCEPTION 'rollback: policy count differs from the captured 77';
   END IF;
 END $$;
 
