@@ -50,11 +50,36 @@
 -- after 876/879 with Flask smoke tests, per the plan).
 --
 -- Idempotent and re-runnable. DDL only; no row is touched.
--- REQUIRES USER APPROVAL TO APPLY LIVE. Live policy names were not read (no project
--- ref available to this session), hence the dynamic policy handling; apply after 875 and 877.
+-- REQUIRES USER APPROVAL TO APPLY LIVE. Apply after 875 (policy drops) and 877.
+--
+-- REVISED 2026-11-11 against the live catalog (read-only review; TASK-877/876/879
+-- were found applied live on 2026-10-14, this file was not):
+--   * +6 tables that still had an own-row ALL/INSERT/UPDATE policy AND full client
+--     grants, i.e. were client-writable: user_calibration_state,
+--     calibration_response_options, daily_test_load_items, word_quiz_results,
+--     user_languages, user_exercise_sessions. All are written by Flask through
+--     service_role only.
+--   * `*_service_role` ALL policies (USING auth.role() = 'service_role') are
+--     dropped, not split: service_role has BYPASSRLS, so they never applied.
+--   * An ALL policy is not split into a SELECT copy when an equivalent own-row
+--     SELECT policy already exists (avoids duplicates such as
+--     user_study_plans_self_modify (select) next to user_study_plans_self_select).
+--   * dim_subscription_tiers: client write grants revoked and the admin-JWT write
+--     policy dim_tiers_admin_write dropped (ADR-034: no client DB writes; admin
+--     changes go through Flask). Public SELECT of active tiers is kept.
 -- =============================================================================
 
 BEGIN;
+
+-- Expression normaliser for "is there already an equivalent SELECT policy?":
+-- strips whitespace and parentheses and orders the two sides of a single `=`.
+CREATE OR REPLACE FUNCTION pg_temp.rls_norm(e text) RETURNS text LANGUAGE sql IMMUTABLE AS $f$
+  SELECT CASE WHEN array_length(parts, 1) = 2
+              THEN least(parts[1], parts[2]) || '=' || greatest(parts[1], parts[2])
+              ELSE flat END
+    FROM (SELECT regexp_replace(coalesce(e, ''), '[[:space:]()]', '', 'g') AS flat) f,
+         LATERAL (SELECT string_to_array(f.flat, '=') AS parts) p
+$f$;
 
 DO $$
 DECLARE
@@ -62,7 +87,10 @@ DECLARE
   tables text[] := ARRAY[
     'user_skill_ratings','test_attempts','exercise_attempts','question_attempt_results',
     'user_vocabulary_knowledge','user_word_ladder','daily_test_loads','user_flashcards',
-    'calibration_sessions','calibration_responses','weekly_plan_states','user_study_plans'];
+    'calibration_sessions','calibration_responses','weekly_plan_states','user_study_plans',
+    -- added 2026-11-11 (client-writable on the live catalog)
+    'user_calibration_state','calibration_response_options','daily_test_load_items',
+    'word_quiz_results','user_languages','user_exercise_sessions'];
   pol record;
   priv text;
   r text;
@@ -81,11 +109,18 @@ BEGIN
       SELECT policyname, cmd, roles, qual
         FROM pg_policies WHERE schemaname = 'public' AND tablename = tbl
     LOOP
-      IF pol.cmd = 'ALL' THEN
+      IF pol.cmd = 'ALL' AND pg_temp.rls_norm(pol.qual) = pg_temp.rls_norm('( SELECT auth.role() AS role) = ''service_role''::text') THEN
+        -- service_role bypasses RLS: this policy never applied to anyone. Drop it.
+        EXECUTE format('DROP POLICY %I ON public.%I', pol.policyname, tbl);
+      ELSIF pol.cmd = 'ALL' THEN
         new_name := left(pol.policyname, 50) || ' (select)';
         IF pol.qual IS NOT NULL AND NOT EXISTS (
              SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename=tbl
-                AND policyname = new_name) THEN
+                AND policyname = new_name)
+           AND NOT EXISTS (   -- an equivalent own-row SELECT policy already exists
+             SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename=tbl
+                AND cmd = 'SELECT' AND roles = pol.roles
+                AND pg_temp.rls_norm(qual) = pg_temp.rls_norm(pol.qual)) THEN
           EXECUTE format('CREATE POLICY %I ON public.%I FOR SELECT TO %s USING (%s)',
                          new_name, tbl, array_to_string(pol.roles, ','), pol.qual);
         END IF;
@@ -124,6 +159,22 @@ BEGIN
       RAISE NOTICE 'TASK-880: % now has NO SELECT policy (own-row reads return nothing for clients)', tbl;
     END IF;
   END LOOP;
+END $$;
+
+-- ---- dim_subscription_tiers: read-only for clients (ADR-034) ----
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS dim_tiers_admin_write ON public.dim_subscription_tiers;
+  REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER
+    ON TABLE public.dim_subscription_tiers FROM PUBLIC, anon, authenticated;
+  IF has_table_privilege('authenticated', 'public.dim_subscription_tiers', 'UPDATE')
+     OR has_table_privilege('anon', 'public.dim_subscription_tiers', 'INSERT') THEN
+    RAISE EXCEPTION 'TASK-880: client write privilege remains on dim_subscription_tiers';
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='dim_subscription_tiers'
+              AND cmd IN ('ALL','INSERT','UPDATE','DELETE')) THEN
+    RAISE EXCEPTION 'TASK-880: write-capable policy remains on dim_subscription_tiers';
+  END IF;
 END $$;
 
 -- ---- Default privileges (S12): new TABLES and SEQUENCES are not client-granted ----

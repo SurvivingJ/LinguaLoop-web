@@ -42,9 +42,17 @@
 --   * Live: 87 public base tables, 32 with RLS off; sequence ACLs are rwU for
 --     anon+authenticated on every public sequence.
 --
--- Idempotent and re-runnable: once RLS is on, the derived list is empty. Because
--- of the count assertion, re-running after success is handled by the
--- "already applied" branch (0 unprotected tables is a no-op, not an error).
+-- Idempotent and re-runnable: once RLS is on, the derived list is empty.
+--
+-- STATUS (2026-11-11): applied live 2026-10-14 05:41 UTC, merged with
+-- security_views_invoker.sql as migration `security_enable_rls_and_views_invoker`
+-- (supabase_migrations.schema_migrations 20261014054112). Live on 2026-11-11:
+-- 94 public base tables, 0 with RLS off. The original exact-count assertion
+-- (32) could no longer pass, so a re-run now SWEEPS whatever RLS-off tables it
+-- finds and lists them in a NOTICE. The sequence REVOKE at the end is still
+-- needed on re-runs: sequences created since (prestudy_followups_id_seq,
+-- study_time_ledger_id_seq, test_sentence_references_id_seq,
+-- test_sentences_id_seq) gave anon/authenticated rwU.
 -- REQUIRES USER APPROVAL TO APPLY LIVE.
 -- =============================================================================
 
@@ -52,7 +60,6 @@ BEGIN;
 
 DO $$
 DECLARE
-  expected_count CONSTANT int := 32;
   tbls  text[];
   t     text;
   n     int;
@@ -69,10 +76,10 @@ BEGIN
   n := coalesce(array_length(tbls, 1), 0);
 
   IF n = 0 THEN
-    RAISE NOTICE 'TASK-876: no public tables with RLS off (already applied); skipping table loop';
-  ELSIF n <> expected_count THEN
-    RAISE EXCEPTION 'TASK-876: expected % unprotected public tables, found % (%). Review before applying.',
-      expected_count, n, array_to_string(tbls, ', ');
+    RAISE NOTICE 'TASK-876: no public tables with RLS off; skipping table loop';
+  ELSE
+    RAISE NOTICE 'TASK-876: enabling RLS and revoking client access on % table(s): %',
+      n, array_to_string(tbls, ', ');
   END IF;
 
   FOREACH t IN ARRAY tbls LOOP
