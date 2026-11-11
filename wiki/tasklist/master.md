@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 30 |
-| In Progress (`[~]`) | 11 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
+| Not Started | 28 |
+| In Progress (`[~]`) | 12 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 28 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 224 |
+| Done (cumulative, not listed here) | 225 |
+
+*2026-11-11 (Latency, third pass):* TASK-933 Done (vendored Bootstrap/Font Awesome/Bootstrap Icons, non-blocking Latin fonts, CJK fonts lazily per language; first paint −58 to −62%, [[evaluations/first-paint-2026-11-11]]); TASK-934 added (pre-existing CLS, needs a layout decision); TASK-930 option B built (study-session 14→11 calls, 6 after `migrations/latency_2026_11_session_merges.sql`); TASK-932 migration written, blocked behind the security-hardening policy drops. Counts: Not Started 30→28, In Progress 11→12, awaiting/blocked 27→28, Done 224→225.
 
 *2026-11-11 (Latency, second pass):* migration applied live by the developer and verified; TASK-925, 928, 929 Done after the before/after measurement and a 16/16 browser walkthrough ([[evaluations/latency-2026-11-11]]). Counts: In Progress 13→11, awaiting live apply 28→27, Done 221→224.
 
@@ -1184,10 +1186,11 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-927 | latency | Memoise new-word state; cache `dim_test_types` minutes map | Done | S | TASK-926 |
 | TASK-928 | latency | Compression + content-hashed, long-cached static files | Done | S | — |
 | TASK-929 | latency | Remove browser start-up waterfalls | Done | M | TASK-928 |
-| TASK-930 | latency | Assemble the daily session in one RPC | [ ] | L | TASK-926 |
+| TASK-930 | latency | Daily-session read merges (ADR-043 option B; one-RPC option A deferred) | [~] built; migration awaits live apply | L | TASK-926 |
 | TASK-931 | latency | Keep content-generation batch jobs off learners' hours | [ ] | S | — |
-| TASK-932 | latency | Consolidate multiple permissive RLS policies | [ ] | M | TASK-925 |
-| TASK-933 | latency | Trim render-blocking fonts and CSS in base.html | [ ] | S | — |
+| TASK-932 | latency | Consolidate multiple permissive RLS policies (LIVE-DB, developer applies) | Blocked — after TASK-875 §1, 880, 882 | M | TASK-925, TASK-875, TASK-880, TASK-882 |
+| TASK-933 | latency | Trim render-blocking fonts and CSS in base.html | Done | S | — |
+| TASK-934 | latency | Stop late-loading sections from pushing the page down (CLS) | [ ] needs layout decision | S | — |
 
 ### Language Packs (existing — unchanged)
 

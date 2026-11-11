@@ -3,8 +3,8 @@ title: "Latency — Task Breakdown"
 feature: latency
 prose_page: ../evaluations/latency-2026-11-11.md
 tech_page: ../decisions/ADR-042-request-scoped-caching-and-static-asset-caching.md
-total_tasks: 9
-done: 5
+total_tasks: 10
+done: 6
 ---
 
 # Latency — Task Breakdown
@@ -132,7 +132,7 @@ parallel with i18n; test page reuses the preview's `/api/tests/test/<slug>` payl
 
 ## TASK-930: Assemble the daily session in one RPC
 
-**Status:** [?] Evaluated — awaiting the developer's choice of option ([[decisions/ADR-043-one-call-daily-session]])
+**Status:** [~] Option B (targeted merges) built in repo — study-session 14→11 DB calls (median −23%) before the migration; `migrations/latency_2026_11_session_merges.sql` awaits the developer's apply (then 11→6). Option A deferred ([[decisions/ADR-043-one-call-daily-session]])
 **Feature:** latency
 **Type:** refactor
 **Complexity:** L (1-2d)
@@ -144,7 +144,7 @@ intake, speed-round check, prestudy planning, governor). Moving the read side in
 function would cut it to 2–3. Needs a design pass: intake writes, prestudy planning lives in
 Python (`services/prestudy.py`).
 
-**Verification:** HTTP harness from [[evaluations/latency-2026-11-11]]: ≤ 4 DB calls.
+**Verification:** HTTP harness from [[evaluations/latency-2026-11-11]]: ≤ 4 DB calls (option A); option B target 6. After applying the migration: `python scripts/check_session_merges_parity.py` exits 0, and the harness shows `study-session` at 6 calls.
 
 ---
 
@@ -181,7 +181,7 @@ service role (ADR-034), so the latency impact today is small. Needs review befor
 
 ## TASK-933: Trim render-blocking fonts and CSS in `base.html`
 
-**Status:** [~] Built 2026-11-11 (vendored Bootstrap/FA/Bootstrap Icons, non-blocking Latin fonts, lazy per-language CJK fonts) — before/after measurement and walkthrough pending
+**Status:** [x] Done 2026-11-11 — first paint −58 to −62% on every logged-in page (phone network, cold), CLS unchanged, walkthrough 16/16 ([[evaluations/first-paint-2026-11-11]])
 **Feature:** latency
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -193,3 +193,25 @@ CSS and all of Font Awesome. Options: load CJK families only for the matching st
 subset Font Awesome, self-host with long caching (TASK-928's mechanism). The base scripts
 cannot simply be deferred: page inline scripts call `LinguaMetadata` / `authFetch` while
 parsing.
+
+---
+
+## TASK-934: Stop late-loading sections from pushing the page down (CLS)
+
+**Status:** [ ] Not Started — needs a layout decision
+**Feature:** latency
+**Type:** feature
+**Complexity:** S (1-3h)
+**Depends On:** none
+
+**Description:**
+Pre-existing layout shift measured 2026-11-11 ([[evaluations/first-paint-2026-11-11]]): on
+`/tests` (CLS ≈ 0.29) "Today's Test Load" (`#dailyLoadSection`, `display:none` until
+`/api/tests/daily-load` returns) is inserted above "Recommended for You" and pushes everything
+down; `/test/<slug>` (≈ 0.35) and `/study-plan` (≈ 0.16) have similar late insertions.
+Options: reserve the section's space with a skeleton while loading; render it below the fold;
+or load the daily load with the page. Google's "good" threshold is CLS ≤ 0.1.
+
+**Acceptance Criteria:**
+- [ ] CLS ≤ 0.1 on `/tests`, `/test/<slug>`, `/study-plan` in `harness/paint_bench.js`.
+- [ ] Same-data screenshots unchanged once loading has finished.

@@ -1,6 +1,6 @@
 ---
 title: "ADR-043: One database call for GET /api/study-session (read bundle) — evaluation"
-status: proposed
+status: accepted (option B, targeted merges; A deferred)
 date: 2026-11-11
 ---
 
@@ -118,6 +118,49 @@ per load from Railway) with none of the permanent two-sources-of-truth cost: eac
 still has exactly one implementation. If the remaining ~6 calls still matter after B, build A
 with the parity harness and bundle-wide invalidation in place from day one.
 
+## Decision (2026-11-11)
+
+Developer: "target merges first" — **option B**. Option A is deferred until B is live and
+measured.
+
 ## Consequences
 
-Pending the developer's choice.
+Built (repo, 2026-11-11); each merged read keeps its old per-table path as the fallback, so the
+app behaves the same before and after `migrations/latency_2026_11_session_merges.sql`:
+
+| # | Merge | Where | Needs migration |
+|---|-------|-------|-----------------|
+| #2→#7 | targets row reuses the daily-load row read earlier in the request (per-request cache, invalidated on rebuild and on `set_new_words_shortfall`) | `services/test_service.py` `daily_load_row_key`, `routes/study_session.py` | no |
+| #3+#4 | test rows + skill ratings in one PostgREST embedded select (falls back to two queries) | `TestService._enrich_daily_load` | no |
+| #5+#6 | `review_governor_state` + `ladder_new_word_state` → `new_word_state_inputs` | `PracticeSessionService._new_word_state` | **yes** |
+| #9–#13 | prestudy tests / knowledge / frequency / ability / exercise coverage → `prestudy_plan_inputs` | `services/prestudy.py` `plan_for_tests` | **yes** |
+| #14 | minutes-per-new-word p50 cached per process for 10 min (failures not cached) | `services/study_plan_service.py` | no |
+
+`services/optional_rpc.py` `call_bundle` treats a missing bundle function (PGRST202) as absent
+for 10 minutes, so before the migration each worker pays one failing probe per bundle per
+10 minutes.
+
+**Measured before the migration** (repo code vs 5896204, same sandbox → Supabase link, 30
+samples, wall ms; full method in [[evaluations/latency-2026-11-11]]):
+
+| Endpoint | run | DB calls | mean | median | p90 | p95 | p99 | max |
+|---|---|---|---|---|---|---|---|---|
+| `study-session` | before | 14 | 3892 | 3882 | 3943 | 4055 | 4132 | 4144 |
+| | after | **11** | 3016 | **3006 (−23%)** | 3056 | 3101 | 3190 | 3222 |
+| `practice/session` | before | 18 | 4896 | 4900 | 5019 | 5090 | 5218 | 5256 |
+| | after | 18 | 4937 | 4889 (0%) | 4982 | 5346 | 6099 | 6331 |
+| `study-plan` | before | 7 | 1901 | 1898 | 1929 | 1930 | 1932 | 1932 |
+| | after | **6** | 1703 | **1689 (−11%)** | 1753 | 1771 | 1786 | 1789 |
+
+`practice/session` is unchanged until the migration (its saving is the #5+#6 bundle); its p99
+outliers in the after run are single slow Supabase responses, not extra calls. Each round trip
+from this sandbox costs ~270 ms, so absolute times are larger than from Railway; the call counts
+carry over.
+
+**After the migration** (expected, not yet measured): `study-session` 11 → 6, `practice/session`
+18 → 17. Verify with `scripts/check_session_merges_parity.py` (bundle vs per-table reads for real
+learners, read-only) and re-run the HTTP harness. Tests: `tests/test_session_merges.py` (14).
+
+What stays harder: two more SQL functions whose outputs must match the Python fallbacks (pinned
+by the parity tests and script); the fallbacks can be removed once the bundles have been live for
+a while.
