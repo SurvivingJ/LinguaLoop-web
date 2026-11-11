@@ -3,7 +3,7 @@ title: API — Technical Specification
 type: api-tech
 status: complete
 prose_page: ./rpcs.md
-last_updated: 2026-09-22
+last_updated: 2026-11-11
 dependencies:
   - "Flask Blueprints (15 in `routes/`)"
   - "Supabase JWT middleware (`middleware/auth.py`)"
@@ -73,7 +73,7 @@ Defined inline in `_register_core_routes()` ([app.py:400](../../app.py#L400)) an
 |---|---|---|---|---|
 | GET | `/api/health` | none | Service liveness probe | `{status, timestamp, version: "2.2.0", services: {openai, supabase, auth, r2, stripe, vocabulary}}` |
 | GET | `/api/config` | none | Public feature flags | `{features: {...}, token_costs, daily_free_tokens}` |
-| GET | `/api/metadata` | none | Cached dimension data | `{languages[], test_types[], status: 'success'}` |
+| GET | `/api/metadata` | none | Cached dimension data | `{languages[], test_types[], status: 'success'}`. Since 2026-11-11 the same object is also embedded in every page as `window.LINGUA_METADATA` (context processor `_inline_metadata`, from DimensionService's in-memory cache), so `LinguaMetadata.load()` resolves without a request. |
 | POST | `/api/vocabulary/extract` | `@jwt_required` | LLM-based vocab extraction from arbitrary text | `{vocabulary: {...}}`. Body: `VocabularyExtractRequest = {text, language_code}`. Delegates to `VocabularyExtractionPipeline.extract()`. |
 | POST | `/api/errors/log` | `@jwt_required` | Frontend error reporting | 201. Body: `ErrorLogRequest = {error_type, error_message, url?, metadata?}`. Inserts to `app_error_logs` with the authenticated `user_id`. |
 
@@ -456,6 +456,8 @@ Non-application RPCs (`vector_*`, `halfvec_*`, `sparsevec_*`, `_int*`, `g_int*`,
 - [`models/requests.py`](../../models/requests.py) — Pydantic request schemas (`VocabularyExtractRequest`, `ErrorLogRequest`, `PaymentIntentRequest`, `WordQuizRequest`). Validation errors → `bad_request(e.errors()[0]['msg'])`.
 - [`utils/responses.py`](../../utils/responses.py) — JSON response shape helpers (see Authentication section).
 - [`utils/validation.py`](../../utils/validation.py) — `validate_email` and other shared validators.
+- [`services/request_cache.py`](../../services/request_cache.py) — per-request memo for **GET/HEAD** only (`flask.g`); used by `day_boundary.plan_row()` (the `user_study_plans` row) and `PracticeSessionService.new_word_state()`. A GET-path writer of either must call `request_cache.invalidate(...)`. [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]]
+- [`services/static_assets.py`](../../services/static_assets.py) — `?v=<content hash>` on `url_for('static')`, one-year `Cache-Control` for versioned requests, Flask-Compress (gzip/br/zstd), i18n versions for `i18n-manager.js`.
 
 ## Related Pages
 

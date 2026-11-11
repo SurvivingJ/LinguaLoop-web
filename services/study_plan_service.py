@@ -34,6 +34,8 @@ from __future__ import annotations
 import hashlib
 import logging
 import math
+import time as _time
+import weakref
 from decimal import Decimal, ROUND_FLOOR
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -543,6 +545,40 @@ def get_minutes_per_new_word(db, language_id: int) -> float:
     return float(Config.NEW_WORD_MINUTES_DEFAULT)
 
 
+# type_code -> expected_minutes_p50 for every test type, per client object.
+# The column is refreshed by the nightly cron (see refresh in this module), so a
+# 10-minute cache is always current to within one refresh. It replaced one
+# query per skill: GET /api/study-plan made seven identical round trips.
+_P50_TTL_SECONDS = 600
+_p50_cache: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
+
+
+def _observed_p50_minutes(db) -> Dict[str, Any]:
+    """{type_code: expected_minutes_p50} for all test types; {} on failure.
+
+    A failed read is not cached, so the next call retries.
+    """
+    try:
+        hit = _p50_cache.get(db)
+    except TypeError:  # an object that cannot be weakly referenced
+        hit = None
+    if hit and hit[0] > _time.monotonic():
+        return hit[1]
+    try:
+        resp = db.table('dim_test_types').select('type_code, expected_minutes_p50').execute()
+        mapping = {
+            r['type_code']: r.get('expected_minutes_p50')
+            for r in (resp.data or []) if isinstance(r, dict) and r.get('type_code')
+        }
+    except Exception:
+        return {}
+    try:
+        _p50_cache[db] = (_time.monotonic() + _P50_TTL_SECONDS, mapping)
+    except TypeError:
+        pass
+    return mapping
+
+
 def _test_time_estimate(skill: str, db) -> float:
     """Minutes per budgeted slot of ``skill``, preferring the observed P50.
 
@@ -556,20 +592,9 @@ def _test_time_estimate(skill: str, db) -> float:
     WARN, so a newly planned surface nobody seeded is visible in the logs rather
     than quietly budgeted at 5 minutes forever.
     """
-    try:
-        resp = (
-            db.table('dim_test_types')
-            .select('expected_minutes_p50')
-            .eq('type_code', skill)
-            .limit(1)
-            .execute()
-        )
-        if resp.data:
-            p50 = resp.data[0].get('expected_minutes_p50')
-            if p50 is not None:
-                return float(p50)
-    except Exception:
-        pass
+    p50 = _observed_p50_minutes(db).get(skill)
+    if p50 is not None:
+        return float(p50)
 
     seeded = Config.TEST_TYPE_MINUTES.get(skill)
     if seeded is None:
@@ -620,22 +645,12 @@ class StudyPlanService:
         week_start = week_start or _monday_of(date.today())
 
         # 1. Load plan
-        plan_resp = (
-            self.db.table('user_study_plans')
-            .select(
-                'template_id, daily_minutes, skill_weight_overrides, '
-                'weekday_shape, excluded_modules, budget_scope, new_words_per_day'
-            )
-            .eq('user_id', user_id)
-            .eq('language_id', language_id)
-            .limit(1)
-            .execute()
-        )
-        if not plan_resp.data:
+        from services.day_boundary import plan_row
+        plan = plan_row(self.db, user_id, language_id)
+        if not plan:
             logger.debug('no user_study_plan for user=%s lang=%s', user_id, language_id)
             self.last_failure = 'no_plan'
             return None
-        plan = plan_resp.data[0]
 
         # 2. Load template (for weekly_test_counts shape + flex + base_maint)
         template_resp = (

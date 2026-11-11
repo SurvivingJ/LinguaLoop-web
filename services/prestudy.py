@@ -667,9 +667,9 @@ def estimate_minutes(unknown: int, with_exercises: int, plan_mode: str) -> int:
 
 def get_prestudy_mode(db, user_id: str, language_id: int) -> str:
     try:
-        rows = db.table('user_study_plans').select('prestudy_mode').eq('user_id', user_id) \
-            .eq('language_id', language_id).limit(1).execute().data or []
-        mode = (rows[0].get('prestudy_mode') if rows else None) or 'auto'
+        from services.day_boundary import plan_row
+        row = plan_row(db, user_id, language_id)
+        mode = (row.get('prestudy_mode') if row else None) or 'auto'
         return mode if mode in PRESTUDY_MODES else 'auto'
     except Exception as e:
         logger.info("prestudy_mode not readable (%s); using auto", e)

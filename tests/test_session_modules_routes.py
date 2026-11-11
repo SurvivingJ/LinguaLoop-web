@@ -43,12 +43,15 @@ class TestGet:
 
     def test_get_selects_new_plan_and_week_columns(self, setup):
         client, db, _ = setup()
-        client.get('/api/study-plan?language_id=1')
+        r = client.get('/api/study-plan?language_id=1')
         selects = {t: [a[0] for n, a in ops if n == 'select']
                    for t, ops in db.executed}
-        assert 'excluded_modules' in selects['user_study_plans'][0]
-        assert 'budget_scope' in selects['user_study_plans'][0]
-        assert 'new_words_per_day' in selects['user_study_plans'][0]
+        # The plan row is read whole, once per request (services.request_cache;
+        # latency 2026-11), and GET projects the columns it returns.
+        assert selects['user_study_plans'] == ['*']
+        plan = r.get_json()['plan']
+        for col in ('excluded_modules', 'budget_scope', 'new_words_per_day'):
+            assert col in plan
         wk = selects['weekly_plan_states'][0]
         for col in ('review_target_minutes', 'new_words_target', 'new_words_completed',
                     'acq_target_minutes', 'tail_completed_min', 'tail_new_words_completed'):

@@ -311,6 +311,11 @@ const LinguaMetadata = {
    * @returns {Promise<Object>} Metadata response
    */
   load() {
+    // base.html embeds /api/metadata (window.LINGUA_METADATA) so pages do not
+    // wait on a round trip before their first real API call.
+    if (!this._cache && window.LINGUA_METADATA && Array.isArray(window.LINGUA_METADATA.languages)) {
+      this._cache = window.LINGUA_METADATA;
+    }
     if (this._cache) return Promise.resolve(this._cache);
     if (this._promise) return this._promise;
     this._promise = fetch('/api/metadata')

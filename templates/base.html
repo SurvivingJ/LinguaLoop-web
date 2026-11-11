@@ -159,7 +159,10 @@
                 bounceToLogin();
             }
 
-            fetch('/api/auth/refresh-token', {
+            // Published so authFetch waits for this renewal instead of firing
+            // page requests with the stale token and racing it with refreshes
+            // of its own (refresh tokens rotate: parallel refreshes collide).
+            window.__ldAuthRenewal = fetch('/api/auth/refresh-token', {
                 method: 'POST',
                 credentials: 'include',
             }).then(function(r) {
@@ -474,10 +477,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>window.LINGUA_METADATA = {{ lingua_metadata|tojson }};</script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script>window.LINGUA_I18N_VERSIONS = {{ i18n_versions|tojson }};</script>
     <script src="{{ url_for('static', filename='js/i18n-manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/test-intro.js') }}"></script>
+    {# Only the test / drill pages use it; they set load_test_intro. #}
+    {% if load_test_intro %}<script src="{{ url_for('static', filename='js/test-intro.js') }}"></script>{% endif %}
 
     <script>
         // -------------------------------------------------------------------
@@ -569,7 +575,56 @@
          * On 401: try the Supabase refresh token first; if that fails, try
          * the trusted-device cookie; only then bounce to /login.
          */
+        // One token renewal at a time, shared by every request that hit 401.
+        // Refresh tokens rotate on use, so N parallel refreshes would race each
+        // other (and cost N round trips). Resolves to the new JWT or null.
+        let _renewalInFlight = null;
+        function _renewTokenOnce() {
+            if (_renewalInFlight) return _renewalInFlight;
+            _renewalInFlight = (async () => {
+                // ---- Step 1: try the HttpOnly refresh cookie --------------
+                // The refresh token is never in JS storage; it rides as an
+                // HttpOnly cookie. credentials:'include' sends it; the server
+                // rotates it and returns only the new access token in the body.
+                try {
+                    const refreshResponse = await fetch('/api/auth/refresh-token', {
+                        method: 'POST',
+                        credentials: 'include',
+                    });
+                    if (refreshResponse.ok) {
+                        const data = await refreshResponse.json();
+                        if (data && data.jwt_token) {
+                            const store = _tokenStore();
+                            store.setItem('jwt_token', data.jwt_token);
+                            window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
+                            return data.jwt_token;
+                        }
+                    }
+                } catch (e) {
+                    console.error('refresh-token error:', e);
+                }
+                // ---- Step 2: try the trusted-device cookie ----------------
+                if (await _tryDeviceRestore()) return window.LINGUADOJO.JWT_TOKEN;
+                return null;
+            })();
+            _renewalInFlight.finally(() => { _renewalInFlight = null; });
+            return _renewalInFlight;
+        }
+
+        /**
+         * Authenticated fetch wrapper with automatic token refresh.
+         * On 401: try the Supabase refresh token first; if that fails, try
+         * the trusted-device cookie; only then bounce to /login.
+         */
         window.authFetch = async function(url, options = {}) {
+            // The head script may be renewing an expired token right now:
+            // wait for it (bounded) rather than send a request bound to 401.
+            if (window.__ldAuthRenewal) {
+                await Promise.race([
+                    window.__ldAuthRenewal.catch(() => {}),
+                    new Promise((r) => setTimeout(r, 3000)),
+                ]);
+            }
             const token = _getStored('jwt_token');
 
             options.headers = {
@@ -581,30 +636,18 @@
             let response = await fetch(url, options);
             if (response.status !== 401) return response;
 
-            // ---- Step 1: try the HttpOnly refresh cookie ------------------
-            // The refresh token is never in JS storage; it rides as an HttpOnly
-            // cookie. credentials:'include' sends it; the server rotates it and
-            // returns only the new access token in the body.
-            try {
-                const refreshResponse = await fetch('/api/auth/refresh-token', {
-                    method: 'POST',
-                    credentials: 'include',
-                });
-                if (refreshResponse.ok) {
-                    const data = await refreshResponse.json();
-                    const store = _tokenStore();
-                    store.setItem('jwt_token', data.jwt_token);
-                    window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
-                    options.headers['Authorization'] = `Bearer ${data.jwt_token}`;
-                    return await fetch(url, options);
-                }
-            } catch (e) {
-                console.error('refresh-token error:', e);
+            // Another request may already have renewed the token while this
+            // one was in flight: retry with it before renewing again.
+            const current = _getStored('jwt_token');
+            if (current && current !== token) {
+                options.headers['Authorization'] = `Bearer ${current}`;
+                response = await fetch(url, options);
+                if (response.status !== 401) return response;
             }
 
-            // ---- Step 2: try the trusted-device cookie --------------------
-            if (await _tryDeviceRestore()) {
-                options.headers['Authorization'] = `Bearer ${window.LINGUADOJO.JWT_TOKEN}`;
+            const fresh = await _renewTokenOnce();
+            if (fresh) {
+                options.headers['Authorization'] = `Bearer ${fresh}`;
                 return await fetch(url, options);
             }
 

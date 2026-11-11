@@ -466,6 +466,12 @@
 
             const result = await response.json();
             debugLog('Skill ratings received:', result);
+            // Hand the full payload to the test page so "Start" does not
+            // download the same test again (read once, 10-minute expiry).
+            try {
+                sessionStorage.setItem('ld_test_payload:' + slug,
+                    JSON.stringify({ at: Date.now(), body: result }));
+            } catch (_) { /* storage full or blocked: the test page fetches */ }
             return result.skill_ratings || {};
         } catch (error) {
             console.warn('Error fetching skill ratings:', error);

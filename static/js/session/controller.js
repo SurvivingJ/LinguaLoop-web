@@ -3,7 +3,7 @@
 // (tests + practice) inside one page, persists completion, and resumes from
 // server state. See plan we-now-have-the-swirling-haven.md.
 
-import { getPlayer } from './player_registry.js';
+import { getPlayer, preloadPlayers } from './player_registry.js';
 import {
   hasTail,
   tailCounts,
@@ -80,10 +80,15 @@ async function init() {
     return;
   }
   try {
-    if (window.LinguaMetadata && typeof LinguaMetadata.load === 'function') {
-      await LinguaMetadata.load();
-    }
+    // Metadata is only needed when a player mounts (resolveLanguageCode), so
+    // it loads alongside the session instead of in front of it. A metadata
+    // failure only leaves the stage's [lang] attribute empty.
+    const metadata =
+      window.LinguaMetadata && typeof LinguaMetadata.load === 'function'
+        ? Promise.resolve(LinguaMetadata.load()).catch((e) => console.warn('[session] metadata:', e))
+        : Promise.resolve();
     await loadSession();
+    await metadata;
   } catch (e) {
     console.error(e);
     showError(e.message || 'Failed to load session.');
@@ -159,6 +164,8 @@ async function loadSession() {
     session.newWordItems = newWords;
   }
   session.queue = queue;
+  // Start importing the players today's queue needs while the start card shows.
+  preloadPlayers(queue.concat(session.newWordItems || []));
 
   if (session.practiceOnly) {
     // Server's next_index indexes the FULL queue (tests included), which no

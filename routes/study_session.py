@@ -660,6 +660,9 @@ def get_study_session() -> ApiResponse:
             intake = practice_service.admit_daily_new_words(user_id, language_id)
             if intake.get('needs_rebuild') and Config.STUDY_PLAN_ENABLED:
                 _plan.StudyPlanService(db).rebuild_today(user_id, language_id)
+                # The rebuild rewrites today's targets; recount below.
+                from services.request_cache import invalidate
+                invalidate('new_word_state')
                 daily_load = get_test_service().get_or_create_daily_load(
                     user_id, language_id)
                 tests = daily_load.get('tests', []) or []

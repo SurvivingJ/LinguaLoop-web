@@ -45,7 +45,7 @@ from typing import Any, Dict, List, Optional
 from config import Config
 from services.supabase_factory import get_supabase_admin
 from services import study_plan_service as _plan
-from services.day_boundary import local_date, local_day_start_utc, plan_today_iso
+from services.day_boundary import local_date, local_day_start_utc, plan_row, plan_today_iso
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.vocabulary.fsrs import CardState, schedule_review, AGAIN, GOOD, EASY
 
@@ -1267,6 +1267,25 @@ class PracticeSessionService:
     def new_word_state(
         self, user_id: str, language_id: int
     ) -> Optional[Dict[str, Any]]:
+        """``_new_word_state``, computed at most once per GET request.
+
+        A Practice GET asked for it up to three times (intake, intro block,
+        ordering) and a daily-session GET twice; each costs the plan read plus
+        two RPCs. Writers of ``user_word_ladder`` call
+        ``request_cache.invalidate('new_word_state', ...)`` so a word admitted
+        mid-request is counted by the next read. A None (failed read) is never
+        cached.
+        """
+        from services.request_cache import memo
+        return memo(
+            ('new_word_state', str(user_id), str(language_id)),
+            lambda: self._new_word_state(user_id, language_id),
+            cache_none=False,
+        )
+
+    def _new_word_state(
+        self, user_id: str, language_id: int
+    ) -> Optional[Dict[str, Any]]:
         """Today's new-word quota state for a learner, or None.
 
         Reads the plan once (``new_words_per_day``, ``weekday_shape``,
@@ -1284,23 +1303,15 @@ class PracticeSessionService:
         Never raises.
         """
         try:
-            resp = (
-                self.db.table('user_study_plans')
-                .select('new_words_per_day, weekday_shape, timezone, excluded_modules')
-                .eq('user_id', user_id)
-                .eq('language_id', language_id)
-                .limit(1)
-                .execute()
-            )
+            plan = plan_row(self.db, user_id, language_id)
         except Exception as e:
             logger.warning(
                 'new-word state: plan read failed for user=%s lang=%s: %s',
                 user_id, language_id, e,
             )
             return None
-        if not getattr(resp, 'data', None):
+        if not plan:
             return None
-        plan = resp.data[0]
 
         tz = plan.get('timezone')
         npd = int(plan.get('new_words_per_day') or 0)
@@ -1801,16 +1812,9 @@ class PracticeSessionService:
 
     def _daily_minutes(self, user_id: str, language_id: int) -> int:
         """The learner's daily-minutes target, or the configured default."""
-        plan_resp = (
-            self.db.table('user_study_plans')
-            .select('daily_minutes')
-            .eq('user_id', user_id)
-            .eq('language_id', language_id)
-            .limit(1)
-            .execute()
-        )
-        if plan_resp.data:
-            return plan_resp.data[0].get(
+        row = plan_row(self.db, user_id, language_id)
+        if row:
+            return row.get(
                 'daily_minutes', Config.STUDY_PLAN_DEFAULT_DAILY_MINUTES
             )
         return Config.STUDY_PLAN_DEFAULT_DAILY_MINUTES
@@ -2138,6 +2142,9 @@ class PracticeSessionService:
         except Exception as e:
             logger.error('ladder subscribe insert failed: %s', e)
             return False
+        finally:
+            from services.request_cache import invalidate
+            invalidate('new_word_state', str(user_id))
         return True
 
     # ------------------------------------------------------------------

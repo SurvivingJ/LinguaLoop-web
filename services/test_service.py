@@ -11,7 +11,7 @@ import traceback
 from datetime import datetime, timezone, date
 
 from services.day_boundary import (
-    local_day_start_utc, plan_timezone, plan_today, plan_today_iso,
+    local_day_start_utc, plan_row, plan_timezone, plan_today, plan_today_iso,
 )
 from typing import Optional, Dict, List, Any, Tuple
 
@@ -459,13 +459,7 @@ class TestService:
     def _user_has_study_plan(self, user_id: str, language_id: int) -> bool:
         """Cheap probe: does user_study_plans have a row for (user, language)?"""
         try:
-            resp = self.admin.table('user_study_plans')\
-                .select('user_id', count='exact')\
-                .eq('user_id', user_id)\
-                .eq('language_id', language_id)\
-                .limit(1)\
-                .execute()
-            return bool(resp.count and resp.count > 0)
+            return plan_row(self.admin, user_id, language_id) is not None
         except Exception as e:
             logger.warning('user_study_plans probe failed: %s', e)
             return False
@@ -645,17 +639,9 @@ class TestService:
         path must keep producing a load).
         """
         try:
-            resp = (
-                self.admin.table('user_study_plans')
-                .select('excluded_modules')
-                .eq('user_id', user_id)
-                .eq('language_id', language_id)
-                .limit(1)
-                .execute()
-            )
-            rows = resp.data or []
-            if rows:
-                return {m for m in (rows[0].get('excluded_modules') or []) if isinstance(m, str)}
+            row = plan_row(self.admin, user_id, language_id)
+            if row:
+                return {m for m in (row.get('excluded_modules') or []) if isinstance(m, str)}
         except Exception as e:
             logger.warning(f"Could not read excluded_modules for daily load: {e}")
         return set()

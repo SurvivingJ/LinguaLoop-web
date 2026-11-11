@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-10
+last_updated: 2026-11-11
 ---
 
 # Master Task List
@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 26 |
-| In Progress (`[~]`) | 11 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
+| Not Started | 30 |
+| In Progress (`[~]`) | 13 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 28 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 219 |
+| Done (cumulative, not listed here) | 221 |
+
+*2026-11-11 (NEW — Latency, TASK-925–933):* latency audit + fixes ([[evaluations/latency-2026-11-11]], [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]]). TASK-926–927 Done (per-request plan-row / new-word-state cache, cached `dim_test_types`); TASK-928–929 Done in repo, after-measurement + browser walkthrough pending; TASK-925 (tz lookup + advisor fixes) written, awaiting live apply (Supabase confirmation timed out unanswered); TASK-930–933 Not Started follow-ups. Gunicorn concurrency deliberately unchanged (developer: hobby-tier Railway). Counts: Not Started 26→30, In Progress 11→13, awaiting live apply 27→28, Done 219→221.
 
 *2026-11-10 (second pass):* New-Word Drill fully done — TASK-919, 921 Done; TASK-922–924 added and Done: Practice attempts now move the ladder ([[decisions/ADR-041-practice-moves-the-ladder]] — no word had left ring 1 since Vocab Dojo was retired), gate/stress batteries in the Practice player, atomic drill commits, spacers, shared counting. Counts: Not Started 27→26, In Progress 12→11.
 
@@ -1170,6 +1172,20 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-922 | new-word-drill | Practice attempts move the ladder (ladder_apply_progress, ADR-041) | Done | M | — |
 | TASK-923 | new-word-drill | Practice player runs gate/stress-test batteries | Done | M | TASK-922 |
 | TASK-924 | new-word-drill | Drill cleanups: atomic commit, spacers, shared counting | Done | M | TASK-915 |
+
+### Latency (new 2026-11-11)
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-925 | latency | `tz_names` lookup in `resolve_plan_timezone`; duplicate/FK indexes; RLS initplan (LIVE-DB, approval) | Done (repo), awaiting live apply | S | — |
+| TASK-926 | latency | Per-request cache for the `user_study_plans` row | Done | M | — |
+| TASK-927 | latency | Memoise new-word state; cache `dim_test_types` minutes map | Done | S | TASK-926 |
+| TASK-928 | latency | Compression + content-hashed, long-cached static files | [~] Done (repo), measurement pending | S | — |
+| TASK-929 | latency | Remove browser start-up waterfalls | [~] Done (repo), walkthrough pending | M | TASK-928 |
+| TASK-930 | latency | Assemble the daily session in one RPC | [ ] | L | TASK-926 |
+| TASK-931 | latency | Keep content-generation batch jobs off learners' hours | [ ] | S | — |
+| TASK-932 | latency | Consolidate multiple permissive RLS policies | [ ] | M | TASK-925 |
+| TASK-933 | latency | Trim render-blocking fonts and CSS in base.html | [ ] | S | — |
 
 ### Language Packs (existing — unchanged)
 
