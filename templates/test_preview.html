@@ -67,33 +67,39 @@
     font-size: 14px;
 }
 
-.difficulty-badge.beginner {
-    background: var(--success-bg);
-    color: var(--success);
+.difficulty-badge.t1 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border: 2px solid var(--success);
 }
 
-.difficulty-badge.elementary {
-    background: var(--info-bg);
-    color: var(--info);
+.difficulty-badge.t2 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border: 2px solid var(--info);
 }
 
-.difficulty-badge.intermediate {
-    background: var(--warning-bg);
-    color: var(--warning);
+.difficulty-badge.t3 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 2px solid var(--primary);
+}
+
+.difficulty-badge.t4 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border: 2px solid var(--warning);
 }
 
-.difficulty-badge.advanced {
-    background: var(--warning-bg);
-    color: var(--warning);
-    border: 2px solid var(--warning);
+.difficulty-badge.t5 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 2px solid var(--accent);
 }
 
-.difficulty-badge.expert {
-    background: var(--danger-bg);
-    color: var(--danger);
+.difficulty-badge.t6 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border: 2px solid var(--danger);
 }
 
@@ -529,13 +535,9 @@
      * Get difficulty level and color based on ELO rating
      */
     function getDifficultyInfo(rating) {
-        // One scale for every page: static/js/utils.js ELO_RANGES.
-        const style = getComputedStyle(document.documentElement);
-        const label = window.LinguaUtils.getDifficultyLabel(rating);
-        const colorVar = { Beginner: '--success', Elementary: '--info', Intermediate: '--warning',
-                           Advanced: '--warning', Expert: '--danger' }[label] || '--text-muted';
-        return { level: label.toLowerCase(), label: window.LinguaUtils.getDifficultyText(rating),
-                 color: style.getPropertyValue(colorVar).trim() };
+        // One scale for every page: the age tiers in static/js/utils.js.
+        const info = window.LinguaUtils.getDifficultyInfo(rating);
+        return { level: info.band.toLowerCase(), label: info.label, color: info.color };
     }
 
     /**

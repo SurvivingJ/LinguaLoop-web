@@ -112,11 +112,12 @@
                 <label for="difficulty" class="filter-label" data-i18n="test_list.difficulty">Difficulty</label>
                 <select id="difficulty" name="difficulty" class="form-select" onchange="applyFilters()">
                     <option value="" data-i18n="test_list.all_levels">All Levels</option>
-                    <option value="BEGINNER" data-i18n="difficulty.beginner">Beginner</option>
-                    <option value="ELEMENTARY" data-i18n="difficulty.elementary">Elementary</option>
-                    <option value="INTERMEDIATE" data-i18n="difficulty.intermediate">Intermediate</option>
-                    <option value="ADVANCED" data-i18n="difficulty.advanced">Advanced</option>
-                    <option value="EXPERT" data-i18n="difficulty.expert">Expert</option>
+                    <option value="T1" data-i18n="difficulty.tier1">Toddler (4–5)</option>
+                    <option value="T2" data-i18n="difficulty.tier2">Primary school (8–9)</option>
+                    <option value="T3" data-i18n="difficulty.tier3">Young teen (13–14)</option>
+                    <option value="T4" data-i18n="difficulty.tier4">High school (16–17)</option>
+                    <option value="T5" data-i18n="difficulty.tier5">University (19–21)</option>
+                    <option value="T6" data-i18n="difficulty.tier6">Professional (30+)</option>
                 </select>
             </div>
             
@@ -269,12 +270,11 @@
         }
     }
     
-    // getDifficultyLabel / getDifficultyText come from static/js/utils.js (one scale).
+    // getDifficultyInfo / getDifficultyText come from static/js/utils.js (age tiers, one scale).
 
     function createTestCard(test) {
         const eloRating = getTestEloRating(test);
-        const difficulty = getDifficultyLabel(eloRating);
-        const difficultyClass = `badge-${difficulty.toLowerCase()}`;
+        const difficultyClass = getDifficultyInfo(eloRating).class;
         
         return `
             <div class="test-card" onclick="goToTestPreview('${test.slug}')">
@@ -578,8 +578,7 @@
 
         const testTypeIcon = getTestTypeIcon(test.test_type);
         const testTypeLabel = capitalizeFirst(test.test_type);
-        const difficultyLabel = getDifficultyLabel(test.elo_rating);
-        const difficultyClass = difficultyLabel.toLowerCase();
+        const difficultyClass = getDifficultyInfo(test.elo_rating).class;
         const tierBadge = test.tier !== 'free-tier' ? '<span class="tier-badge premium">Premium</span>' : '';
 
         card.innerHTML = `
@@ -589,7 +588,7 @@
             </div>
             <div class="recommended-title">${escapeHtml(test.title)}</div>
             <div class="recommended-meta">
-                <span class="badge-difficulty badge-${difficultyClass}">${escapeHtml(getDifficultyText(test.elo_rating))}</span>
+                <span class="badge-difficulty ${difficultyClass}">${escapeHtml(getDifficultyText(test.elo_rating))}</span>
                 <span class="elo-info">ELO ${test.elo_rating}</span>
             </div>
             <button class="btn btn-primary btn-sm recommended-btn" type="button">
@@ -741,8 +740,7 @@
 
         const testTypeIcon = getTestTypeIcon(test.test_type || 'listening');
         const testTypeLabel = capitalizeFirst(test.test_type || 'listening');
-        const diffLabel = getDifficultyLabel(test.elo_rating || 1400);
-        const diffClass = diffLabel.toLowerCase();
+        const diffClass = getDifficultyInfo(test.elo_rating || 1400).class;
 
         const slotBadgeClass = test.slot_type === 'retry' ? 'slot-badge-retry' : 'slot-badge-new';
         const slotLabel = test.slot_type === 'retry' ? 'Retry' : 'New';
@@ -767,7 +765,7 @@
             '</div>' +
             '<div class="daily-card-title">' + escapeHtml(test.title || 'Test') + '</div>' +
             '<div class="daily-card-meta">' +
-                '<span class="badge-difficulty badge-' + diffClass + '">' + escapeHtml(getDifficultyText(test.elo_rating || 1400)) + '</span>' +
+                '<span class="badge-difficulty ' + diffClass + '">' + escapeHtml(getDifficultyText(test.elo_rating || 1400)) + '</span>' +
                 '<span class="elo-info">ELO ' + (test.elo_rating || 1400) + '</span>' +
             '</div>' +
             originalScoreHtml +
