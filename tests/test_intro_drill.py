@@ -233,3 +233,17 @@ def test_intro_reviews_chunk_in_daily_queue(monkeypatch):
     # done today: stays as a completed item
     done = ss._with_intro_reviews(None, 'u', 3, queue, {}, ['intro_reviews'])
     assert done[1]['is_completed'] is True
+
+
+def test_review_chunk_added_for_due_prestudy_followups_alone(monkeypatch):
+    # A learner with no study plan row has no practice chunks; due prestudy
+    # next-day reviews still get a slot so Practice mode shows them.
+    from routes import study_session as ss
+    monkeypatch.setattr(idr, 'due_review_count', lambda *_a: 0)
+    monkeypatch.setattr(ss, '_due_followup_count', lambda *_a: 3)
+    queue = [{'kind': 'test', 'id': 't1', 'is_completed': True}]
+    out = ss._with_intro_reviews(None, 'u', 1, queue, {}, [])
+    assert [q['id'] for q in out] == ['t1', 'intro_reviews']
+    assert out[1]['mode'] == 'maintenance' and out[1]['minutes'] == 2   # 3 x 30 s
+    monkeypatch.setattr(ss, '_due_followup_count', lambda *_a: 0)
+    assert ss._with_intro_reviews(None, 'u', 1, queue, {}, []) == queue

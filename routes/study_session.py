@@ -767,10 +767,30 @@ def get_study_session() -> ApiResponse:
 INTRO_REVIEWS_BLOCK_ID = 'intro_reviews'
 
 
+def _due_followup_count(db, user_id, language_id) -> int:
+    """Prestudy next-day reviews due today (0 when unknown). Best effort."""
+    try:
+        from services import prestudy
+        from services.day_boundary import plan_today_iso
+        from services.practice_session_service import PRESTUDY_FOLLOWUPS_PER_SESSION
+        return len(prestudy.due_followup_senses(
+            db, user_id, language_id, plan_today_iso(db, user_id, language_id),
+            limit=PRESTUDY_FOLLOWUPS_PER_SESSION))
+    except Exception as exc:
+        logger.info("prestudy follow-up count skipped: %s", exc)
+        return 0
+
+
 def _with_intro_reviews(db, user_id, language_id, queue, targets, completed_blocks):
-    """Add one maintenance chunk for due new-word-drill reviews (sessions 2-4)
-    when the queue has no incomplete maintenance chunk to serve them. Placed
-    where the practice part starts. Once done it stays in the queue as done."""
+    """Add one maintenance chunk for due review work when the queue has no
+    incomplete maintenance chunk to serve it: new-word-drill reviews (sessions
+    2-4) and prestudy next-day reviews. The practice player's maintenance
+    request serves both (the drill block and the follow-up injection).
+
+    Without this, a learner with no study plan row for the language (whose day
+    has no practice chunks at all) saw "No exercises due" in Practice mode
+    while follow-ups were waiting. Placed where the practice part starts. Once
+    done it stays in the queue as done."""
     from services import intro_drill
     if not intro_drill.ENABLED or 'practice' in (targets.get('excluded_modules') or []):
         return queue
@@ -780,9 +800,12 @@ def _with_intro_reviews(db, user_id, language_id, queue, targets, completed_bloc
                and not q.get('is_completed') for q in queue):
             return queue
         n = intro_drill.due_review_count(db, user_id, language_id)
-        if not n:
+        f = _due_followup_count(db, user_id, language_id)
+        if not n and not f:
             return queue
-        minutes = max(1, -(-n * 4 * intro_drill.INTRO_ITEM_SECONDS // 60))
+        from services.practice_session_service import PRESTUDY_FOLLOWUP_EXPECTED_SECONDS
+        seconds = n * 4 * intro_drill.INTRO_ITEM_SECONDS + f * PRESTUDY_FOLLOWUP_EXPECTED_SECONDS
+        minutes = max(1, -(-seconds // 60))
     else:
         minutes = 1
     block = {'kind': 'practice', 'id': INTRO_REVIEWS_BLOCK_ID, 'mode': 'maintenance',

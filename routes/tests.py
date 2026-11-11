@@ -285,6 +285,23 @@ def _normalize_timing(request_body):
     request_body['finished_at'] = finished
 
 
+def _complete_daily_slot(user_id, language_id, test_id):
+    """Post-submission hook — mark today's daily-load slot for this test done.
+
+    Best-effort, like _apply_timing_and_progress: the learner already has
+    their result. Without this the slot was only marked on the results card's
+    "Next" button, so leaving from the results card re-served the test.
+    """
+    if not (user_id and language_id and test_id):
+        return
+    try:
+        TestService(supabase_admin=current_app.supabase_service)\
+            .mark_daily_slot_complete_on_submit(user_id, language_id, test_id)
+    except Exception as e:
+        current_app.logger.warning(
+            "daily slot completion on submit failed (test=%s): %s", test_id, e)
+
+
 def _apply_timing_and_progress(client, attempt_id, request_body,
                                user_id=None, language_id=None, kind='test'):
     """Post-submission hook — persist timing + bump Study Plan counter.
@@ -760,6 +777,7 @@ def submit_test_attempt(slug):
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
             user_id=current_user_id, language_id=language_id,
         )
+        _complete_daily_slot(current_user_id, language_id, test_id)
 
         # BKT vocabulary tracking
         word_quiz = _update_vocabulary_tracking(current_user_id, test_id, language_id, rpc_result)
@@ -849,6 +867,7 @@ def submit_pinyin_attempt(slug):
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
             user_id=current_user_id, language_id=language_id,
         )
+        _complete_daily_slot(current_user_id, language_id, test_id)
 
         result = {
             'accuracy': round(accuracy * 100, 1),
@@ -948,6 +967,7 @@ def submit_pitch_accent_attempt(slug):
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
             user_id=current_user_id, language_id=language_id,
         )
+        _complete_daily_slot(current_user_id, language_id, test_id)
 
         result = {
             'accuracy': round(accuracy * 100, 1),
@@ -1104,6 +1124,7 @@ def submit_dictation_attempt(slug):
             current_app.supabase_service, rpc_result.get('attempt_id'), data,
             user_id=current_user_id, language_id=language_id,
         )
+        _complete_daily_slot(current_user_id, language_id, test_id)
 
         # Per-word BKT updates — single batched RPC instead of N round-trips.
         # 'insert' ops (extra user words) have no canonical sense_id and are

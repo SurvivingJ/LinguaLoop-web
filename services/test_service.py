@@ -799,6 +799,50 @@ class TestService:
             'all_complete': len(completed) >= total
         }
 
+    def mark_daily_slot_complete_on_submit(self, user_id: str, language_id: int,
+                                           test_id: str) -> bool:
+        """Mark today's daily-load slot complete as soon as a test is submitted.
+
+        Called by the submit routes right after the submission RPC recorded the
+        attempt, so no attempt check is needed here. Before this, a slot was
+        only marked complete when the learner pressed "Next" on the results
+        card; closing the page there left the slot open, the session served the
+        same test again and a re-submit was scored again.
+
+        Only tests that are in today's load are marked; a test taken from
+        Browse Tests that is not in the load changes nothing. Idempotent: the
+        client's later POST to /daily-load/complete finds it already done.
+
+        Returns True when the slot is (now) complete, False when there is no
+        load today or the test is not in it.
+        """
+        today = plan_today_iso(self.admin, user_id, language_id)
+        rows = self.admin.table('daily_test_loads')\
+            .select('id, test_ids, completed_test_ids')\
+            .eq('user_id', user_id)\
+            .eq('language_id', language_id)\
+            .eq('load_date', today)\
+            .limit(1)\
+            .execute().data or []
+        if not rows:
+            return False
+        row = rows[0]
+        # test_ids holds slot objects ({test_id, slot_type, test_type}) from
+        # the Study Plan resolver, plain ids from the legacy path.
+        scheduled = {str(t.get('test_id') if isinstance(t, dict) else t)
+                     for t in (row.get('test_ids') or [])}
+        if str(test_id) not in scheduled:
+            return False
+        completed = list(row.get('completed_test_ids') or [])
+        if str(test_id) in {str(t) for t in completed}:
+            return True
+        completed.append(test_id)
+        self.admin.table('daily_test_loads')\
+            .update({'completed_test_ids': completed})\
+            .eq('id', row['id'])\
+            .execute()
+        return True
+
     # -------------------------------------------------------------------------
     # CONTENT MODERATION
     # -------------------------------------------------------------------------
