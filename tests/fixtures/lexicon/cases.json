@@ -1,0 +1,22 @@
+{
+  "pos_class": [
+    ["noun", "noun"], ["n", "noun"], ["nr", "noun"], ["ns", "noun"], ["nz", "noun"], ["vn", "noun"],
+    ["名词", "noun"], ["名詞", "noun"], ["NOUN", "noun"], ["PROPN", "noun"],
+    ["verb", "verb"], ["v", "verb"], ["动词", "verb"], ["動詞", "verb"], ["VERB", "verb"],
+    ["adjective", "adj"], ["a", "adj"], ["形容词", "adj"], ["形容詞", "adj"], ["形状詞", "adj"], ["ADJ", "adj"],
+    ["adverb", "adv"], ["d", "adv"], ["ad", "adv"], ["副词", "adv"], ["副詞", "adv"], ["ADV", "adv"],
+    ["measure_word", "measure"], ["q", "measure"], ["量词", "measure"], ["助数詞", "measure"],
+    ["pronoun", "pron"], ["r", "pron"], ["代词", "pron"], ["代名詞", "pron"], ["PRON", "pron"],
+    ["Conjunction", "conjunction"], ["  particle ", "particle"], ["", ""], [null, ""]
+  ],
+  "mask_headword": [
+    ["宗教改革是16世纪欧洲的一场运动。", "宗教改革", "～是16世纪欧洲的一场运动。"],
+    ["人们常说人要诚实。", "人", "～们常说～要诚实。"],
+    ["食べることが好きだ。", "食べる", "～ことが好きだ。"],
+    ["形容速度非常快。", "宗教改革", "形容速度非常快。"],
+    ["To run means to move fast. Run!", "run", "To ～ means to move fast. ～!"],
+    ["A runner is someone who runs.", "run", "A runner is someone who runs."],
+    ["", "run", ""],
+    ["No lemma here.", "", "No lemma here."]
+  ]
+}

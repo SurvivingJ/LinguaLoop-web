@@ -60,7 +60,6 @@ HISTORICAL_DEFINER_FILES: frozenset[str] = frozenset({
     "task716_local_day_boundary.sql",
     "task740_collapse_difficulty_to_tier_schema.sql",
     "task740_phase5_question_passage_dedup.sql",
-    "task740_phase5b_topic_recency_exclusion.sql",
     "task748_get_recommended_tests_vocab_aware.sql",
     "task767_sense_quarantine_guards.sql",
     "task773b_calibration_distractor_cache_misses.sql",

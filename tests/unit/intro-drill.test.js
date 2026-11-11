@@ -160,3 +160,34 @@ describe('spacers', () => {
     expect(spacers).toBe(0);
   });
 });
+
+describe('buildItem hides the answer and prefers the same part of speech', () => {
+  const w = { sense_id: 1, lemma: '宗教改革', gloss: '宗教改革是16世纪的运动。', pos: 'nr', stage: 1 };
+  const block = {
+    lang: 'zh',
+    words: [w, { sense_id: 2, lemma: '印刷术', gloss: '印刷术是复制文字的技术。', pos: 'n' }],
+    pool: [
+      { lemma: '快', def: '速度高。', pos: 'a' },
+      { lemma: '跑', def: '用脚快速移动。', pos: 'v' },
+      { lemma: '书', def: '装订成册的著作。', pos: '名词' },
+      { lemma: '城市', def: '人口集中的地方。', pos: 'noun' },
+    ],
+  };
+
+  it('masks the headword in the meaning options and the recall prompt', () => {
+    const mc = buildItem({ word: w, format: 'def_mc' }, block, new Map());
+    expect(mc.correct).toBe('～是16世纪的运动。');
+    expect(mc.opts).toContain('～是16世纪的运动。');
+    expect(mc.opts.every((o) => !o.includes('宗教改革'))).toBe(true);
+    expect(mc.opts).toContain('～是复制文字的技术。'); // another word's headword is hidden too
+    const recall = buildItem({ word: w, format: 'recall_typed' }, block, new Map());
+    expect(recall.prompt).toBe('～是16世纪的运动。');
+  });
+
+  it('fills wrong options from nouns first', () => {
+    for (let i = 0; i < 20; i++) {
+      const rev = buildItem({ word: w, format: 'rev_mc' }, block, new Map());
+      expect(rev.opts.filter((o) => o !== '宗教改革').sort()).toEqual(['书', '印刷术', '城市'].sort());
+    }
+  });
+});

@@ -14,6 +14,7 @@
 // it inside the practice player's card, reusing window.ExRenderers for ladder
 // exercises and window.LinguaPrestudy's reading graders.
 
+import { posClass, maskHeadword } from '../lexicon.js';
 const T = (key, params, fallback) => {
   if (window.LinguaI18n && typeof LinguaI18n.t === 'function') {
     const v = LinguaI18n.t(key, params);
@@ -235,9 +236,14 @@ function pick(arr, n, rng = Math.random) {
   return a.slice(0, n);
 }
 
-function options(correct, candidates) {
-  const others = [...new Set(candidates.filter((c) => c && c !== correct))];
-  return pick([correct, ...pick(others, 3)], 4);
+// Three wrong options, same part-of-speech class first (`preferred`), the rest
+// only to fill a shortfall.
+function options(correct, candidates, preferred = []) {
+  const keep = (list) => [...new Set(list.filter((c) => c && c !== correct))];
+  const same = keep(preferred);
+  const rest = keep(candidates).filter((c) => !same.includes(c));
+  const wrong = pick(same, 3);
+  return pick([correct, ...wrong, ...pick(rest, 3 - wrong.length)], 4);
 }
 
 function readingText(word, lang) {
@@ -250,22 +256,34 @@ export function buildItem(pickd, block, exUsed) {
   const w = pickd.word;
   const lang = block.lang;
   const others = block.words.filter((x) => x.sense_id !== w.sense_id);
-  const defs = others.map((x) => x.gloss).concat((block.pool || []).map((p) => p.def));
-  const lemmas = others.map((x) => x.lemma).concat((block.pool || []).map((p) => p.lemma));
+  // Every candidate as {lemma, def, pos}; definitions shown with their own
+  // headword hidden ("宗教改革是…" -> "～是…") so no option, and no recall
+  // prompt, contains the answer.
+  const cands = others
+    .map((x) => ({ lemma: x.lemma, def: x.gloss, pos: x.pos }))
+    .concat((block.pool || []).map((p) => ({ lemma: p.lemma, def: p.def, pos: p.pos })));
+  const cls = posClass(w.pos);
+  const sameCls = cands.filter((c) => cls && posClass(c.pos) === cls);
+  const masked = (c) => maskHeadword(c.def, c.lemma);
+  const defs = cands.map(masked);
+  const lemmas = cands.map((c) => c.lemma);
+  const sameDefs = sameCls.map(masked);
+  const sameLemmas = sameCls.map((c) => c.lemma);
+  const gloss = maskHeadword(w.gloss, w.lemma);
   switch (pickd.format) {
     case 'read_typed':
     case 'read_typed2':
       return { kind: 'typed', grade: 'reading', prompt: w.lemma, ask: T('intro.ask_reading', null, 'Type the reading'), hint: lang === 'zh' ? T('intro.pinyin_hint', null, 'pinyin with tone numbers, e.g. mu4 tou5') : T('intro.kana_hint', null, 'kana or romaji') };
     case 'recall_typed':
-      return { kind: 'typed', grade: 'recall', prompt: w.gloss, ask: T('intro.ask_recall', null, 'Type the word for this meaning'), hint: '' };
+      return { kind: 'typed', grade: 'recall', prompt: gloss, ask: T('intro.ask_recall', null, 'Type the word for this meaning'), hint: '' };
     case 'cloze_typed':
-      return { kind: 'typed', grade: 'recall', prompt: w.sentence, sub: w.gloss, ask: T('intro.ask_cloze_typed', null, 'Type the missing word'), hint: '' };
+      return { kind: 'typed', grade: 'recall', prompt: w.sentence, sub: gloss, ask: T('intro.ask_cloze_typed', null, 'Type the missing word'), hint: '' };
     case 'def_mc':
-      return { kind: 'mc', prompt: w.lemma, sub: readingText(w, lang), ask: T('intro.ask_meaning', null, 'What does it mean?'), opts: options(w.gloss, defs), correct: w.gloss };
+      return { kind: 'mc', prompt: w.lemma, sub: readingText(w, lang), ask: T('intro.ask_meaning', null, 'What does it mean?'), opts: options(gloss, defs, sameDefs), correct: gloss };
     case 'rev_mc':
-      return { kind: 'mc', prompt: w.gloss, ask: T('intro.ask_word', null, 'Which word means this?'), opts: options(w.lemma, lemmas), correct: w.lemma, big: true };
+      return { kind: 'mc', prompt: gloss, ask: T('intro.ask_word', null, 'Which word means this?'), opts: options(w.lemma, lemmas, sameLemmas), correct: w.lemma, big: true };
     case 'cloze_mc':
-      return { kind: 'mc', prompt: w.sentence, ask: T('intro.ask_cloze', null, 'Which word fills the gap?'), opts: options(w.lemma, lemmas), correct: w.lemma, big: true };
+      return { kind: 'mc', prompt: w.sentence, ask: T('intro.ask_cloze', null, 'Which word fills the gap?'), opts: options(w.lemma, lemmas, sameLemmas), correct: w.lemma, big: true };
     case 'ex_use':
     case 'ex_judge': {
       const list = (w.exercises || {})[pickd.format === 'ex_use' ? 'use' : 'judge'] || [];
