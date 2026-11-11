@@ -421,11 +421,16 @@ Left over (not done, for the developer to decide):
 - `app_error_logs` "Authenticated insert error logs": any signed-in user can insert log rows
   through PostgREST. Only Flask writes this table (`app.py` via the service role), so the policy
   and the client grants can go.
+  **→ `migrations/security_revoke_inert_client_writes.sql` (written 2026-11-11, awaiting the
+  developer's apply).**
 - `dim_vocabulary` / `dim_word_senses` (and the other `dim_*` reference tables) are readable by
   anon with the public key — the whole dictionary can be downloaded. Intended or not is a
   product decision.
 - 25 tables still grant anon INSERT/UPDATE/DELETE (26 for `authenticated`); RLS has no write
-  policy on them, so the grants are inert. The blanket revoke stays a follow-up (breaks only the
+  policy on them, so the grants are inert. **→ revoked by the same migration** (all public relations
+  except `user_reports` authenticated INSERT; plus the 4 client sequences); regression check 4b
+  added to `tests/sql/check_function_acls.sql`. Tested on a local Postgres 16 copy of the grant
+  layout (idempotent; reads untouched). The blanket revoke stays a follow-up (breaks only the
   anon fallbacks in `services/dimension_service.py` / `routes/tests.py:1328` when the service key
   is missing).
 - `supabase_admin` default privileges still grant new tables/sequences to anon/authenticated
