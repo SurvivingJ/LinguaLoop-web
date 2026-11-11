@@ -381,6 +381,12 @@ def block_for_session(service, user_id: str, language_id: int, mode: str) -> Opt
 # Completion
 # ---------------------------------------------------------------------------
 
+def _invalidate_new_word_state(user_id) -> None:
+    """A ladder write changes today's new-word counts; see request_cache."""
+    from services.request_cache import invalidate
+    invalidate('new_word_state', str(user_id))
+
+
 def complete_word(db, user_id: str, result: dict) -> dict:
     """Record one finished word of an intro block and advance its stage.
 
@@ -500,6 +506,7 @@ def restart_if_demoted(db, user_id: str, sense_id: int, language_id: Optional[in
     upd = new_intro_fields(today.isoformat(), history, 1, (today + timedelta(days=1)).isoformat())
     upd['family_success_dates'] = fsd
     db.table('user_word_ladder').update(upd).eq('user_id', user_id).eq('sense_id', sense_id).execute()
+    _invalidate_new_word_state(user_id)
     return True
 
 
@@ -547,6 +554,7 @@ def admit_prestudy(service, user_id: str, language_id: int, drilled: List[int], 
             out['queued'].append(sid)
         rows.append({'user_id': user_id, 'sense_id': sid, **_fresh_ladder_columns(), **fields})
     db.table('user_word_ladder').insert(rows).execute()
+    _invalidate_new_word_state(user_id)
     if out['queued']:
         out['overflow'] = {'fits': len(out['admitted']), 'over': len(out['queued']),
                            'sense_ids': out['queued'],
@@ -590,6 +598,7 @@ def overload(db, user_id: str, language_id: int, sense_ids: List[int]) -> List[i
             hist.append({'event': 'overload', 'at': now})
             upd = {'intro_history': hist, 'intro_due_date': today.isoformat()}
         db.table('user_word_ladder').update(upd).eq('user_id', user_id).eq('sense_id', r['sense_id']).execute()
+        _invalidate_new_word_state(user_id)
         done.append(int(r['sense_id']))
     return done
 

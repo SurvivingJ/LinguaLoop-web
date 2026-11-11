@@ -4,7 +4,7 @@ feature: security-hardening
 prose_page: ../features/security-hardening.md
 tech_page: ../features/security-hardening.tech.md
 total_tasks: 10
-done: 2
+done: 8
 ---
 
 # Security Hardening — Task Breakdown
@@ -43,7 +43,7 @@ Every task marked LIVE-DB requires explicit user approval before any `apply_migr
 
 ## TASK-875: Close the self-escalation and balance-forgery holes on `users`, `user_tokens` and `user_reports`
 
-**Status:** [x] Done (repo) — awaiting live apply approval
+**Status:** [x] Done — applied live by the developer 2026-11-11 (SQL editor), verified by catalog check
 **Repo status:** migrations/security_lock_users_tokens_reports.sql + migrations/audits/security_users_tokens_audit.sql + tests/sql/test_security_lock_users_tokens.sql. Counts-only audit run live read-only: 0 mismatches. SQL not executed (no local Postgres). Apply-order: independent.
 **Feature:** security-hardening
 **Type:** bug
@@ -84,7 +84,7 @@ user can PATCH their own `subscription_tier_id` to an admin tier and gain admin 
 
 ## TASK-876: Enable RLS and revoke client access on the 32 unprotected tables
 
-**Status:** [x] Done (repo) — awaiting live apply approval
+**Status:** [x] Done — applied live 2026-10-14 as `security_enable_rls_and_views_invoker` (found in `supabase_migrations.schema_migrations` 2026-11-11; the wiki had it as unapplied)
 **Repo status:** migrations/security_enable_rls_unprotected_tables.sql. Asserts exactly 32 tables at apply time. NOTE: the 5 analytics views are NOT security_invoker live, so this file alone does NOT close client access to them; apply security_views_invoker.sql (TASK-879) immediately after.
 **Feature:** security-hardening
 **Type:** bug
@@ -119,7 +119,7 @@ roles. No policies are needed, because only `service_role` accesses them.
 
 ## TASK-877: Function-grant hardening migration (REVOKE/GRANT per function plus pinned search_path)
 
-**Status:** [x] Done (repo) — awaiting live apply approval
+**Status:** [x] Done — groups A, B and the auth checks applied live 2026-10-14 (found 2026-11-11; the wiki had it as unapplied)
 **Repo status:** migrations/security_function_grants_group_a.sql (apply alone first), security_function_grants_group_b.sql, security_function_auth_checks.sql (is_admin/is_moderator only; decision 6). Re-run group B after the session-budget migrations are applied to sweep the pending-branch functions. Function default privileges are revoked database-wide for postgres (see group B warning).
 **Feature:** security-hardening
 **Type:** bug
@@ -198,7 +198,7 @@ with, then hand off to the minutes fix.
 
 ## TASK-879: Analytics views, run as invoker and drop client grants
 
-**Status:** [x] Done (repo) — awaiting live apply approval
+**Status:** [x] Done — applied live 2026-10-14 (found 2026-11-11; the wiki had it as unapplied)
 **Repo status:** migrations/security_views_invoker.sql (8 views: security_invoker=true, client grants revoked, service_role SELECT). Decision 4 verified in code: only reader of vw_exercise_type_effectiveness is scripts/validate_effectiveness_view.py (service role). tests/sql/test_security_progress_tables.sql covers it.
 **Feature:** security-hardening
 **Type:** bug
@@ -231,7 +231,7 @@ aggregates and lower sensitivity. Decision 4: `vw_exercise_type_effectiveness` l
 
 ## TASK-880: Lock down client-writable progress tables and the default privileges
 
-**Status:** [x] Done (repo) — awaiting live apply approval
+**Status:** [x] Done — applied live by the developer 2026-11-11 (revised file, 18 tables + `dim_subscription_tiers`), verified; `supabase_admin` default privileges unchanged (postgres may not alter them — expected NOTICE)
 **Repo status:** migrations/security_lock_progress_tables.sql (12 tables + default privileges for tables and sequences). tests/sql/test_security_progress_tables.sql. attempt_responses is a similar client-writable table not in the plan list; consider adding.
 **Feature:** security-hardening
 **Type:** bug
@@ -300,7 +300,7 @@ without a database, and a catalog test that runs against a live or staging datab
 
 ## TASK-882: Route-level hardening for pre-submit answer keys and client-trusted results
 
-**Status:** [x] Done (repo) — awaiting live apply approval
+**Status:** [x] Done — policy migration applied live by the developer 2026-11-11, verified (no client access to `questions`; `tests` readable by `authenticated` only)
 **Repo status:** Code done and tested (tests/test_security_route_hardening.py, services/attempt_timing.py, battery_token.py); migrations/security_questions_tests_policies.sql awaits live apply (deploy the Flask change first). RESIDUAL, not done: DB-side duration cap (security_duration_caps.sql not written); bounds/clamps in routes/classifier_drill.py, routes/counter_drill.py, study_session complete-block, study_plan, practice_session_service; gate/stress per-item is_correct is still client-reported and the battery token is replayable within 1h (a forged pass is still possible with all items marked correct; real fix is server-side grading per type).
 **Feature:** security-hardening
 **Type:** bug
@@ -405,3 +405,34 @@ of LLM endpoints, not data disclosure; the data-exposure findings are closed by 
 - Live grants and `reloptions` for the S3, S6, S11 and S13 objects were not confirmed live by the audit (it fell back to the repo), so TASK-877 and TASK-879 each start with a read-only catalog check.
 - The S5 object list should drop `weekly_plan_states`, `user_study_plans`, `daily_test_loads` and `test_attempts` as function targets. They have RLS on. Their direct table path is handled in TASK-880 after the policies are read.
 - Any migration here needs user approval to apply live. None has been written or applied.
+
+---
+
+## Live verification 2026-11-11 (after TASK-875 / 880 / 882 were applied)
+
+Read-only catalog checks: no "Admin can view all reports" `USING (true)` policy; anon cannot read
+`user_reports`; `authenticated` cannot update `users`, `user_tokens`, `user_reports`,
+`user_skill_ratings`, `dim_subscription_tiers` or insert `test_attempts`; no client access to
+`questions`; anon cannot read `tests`; no table with RLS off grants anything to client roles; the
+only client-writable policy left is `user_reports` "Users can create reports" (own row, intended).
+78 policies on 45 tables.
+
+Left over (not done, for the developer to decide):
+- `app_error_logs` "Authenticated insert error logs": any signed-in user can insert log rows
+  through PostgREST. Only Flask writes this table (`app.py` via the service role), so the policy
+  and the client grants can go.
+  **→ `migrations/security_revoke_inert_client_writes.sql` — applied live by the developer
+  2026-11-11, verified.**
+- `dim_vocabulary` / `dim_word_senses` (and the other `dim_*` reference tables) are readable by
+  anon with the public key — the whole dictionary can be downloaded. Intended or not is a
+  product decision.
+- 25 tables still grant anon INSERT/UPDATE/DELETE (26 for `authenticated`); RLS has no write
+  policy on them, so the grants are inert. **→ revoked by the same migration** (all public relations
+  except `user_reports` authenticated INSERT; plus the 4 client sequences); regression check 4b
+  added to `tests/sql/check_function_acls.sql`. Tested on a local Postgres 16 copy of the grant
+  layout (idempotent; reads untouched). The blanket revoke stays a follow-up (breaks only the
+  anon fallbacks in `services/dimension_service.py` / `routes/tests.py:1328` when the service key
+  is missing).
+- `supabase_admin` default privileges still grant new tables/sequences to anon/authenticated
+  (postgres cannot change them); objects created by migrations are owned by postgres, whose
+  defaults are now fixed.

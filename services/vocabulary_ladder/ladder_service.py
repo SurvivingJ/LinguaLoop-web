@@ -241,6 +241,8 @@ class LadderService:
             self.db.table('user_word_ladder').upsert(
                 row, on_conflict='user_id,sense_id'
             ).execute()
+            from services.request_cache import invalidate
+            invalidate('new_word_state', str(user_id))
         except Exception as e:
             logger.error("Failed to init ladder for user=%s sense=%s: %s",
                          user_id, sense_id, e)

@@ -115,6 +115,33 @@ def local_today_iso(tz_name: Any, now: Optional[datetime] = None) -> str:
     return local_date(tz_name, now).isoformat()
 
 
+def plan_row(db, user_id: str, language_id: int) -> Optional[dict]:
+    """The whole ``user_study_plans`` row for (user, language), or None.
+
+    Memoised per GET request (services.request_cache): one daily-session
+    request used to read this row up to six times, one round trip each.
+    Raises on a database error (never cached), so each caller keeps its own
+    fail-safe handling.
+    """
+    from services.request_cache import memo
+
+    def _load() -> Optional[dict]:
+        resp = (
+            db.table("user_study_plans")
+            .select("*")
+            .eq("user_id", user_id)
+            .eq("language_id", language_id)
+            .limit(1)
+            .execute()
+        )
+        data = getattr(resp, "data", None)
+        return dict(data[0]) if data else None
+
+    row = memo(("plan_row", str(user_id), str(language_id)), _load)
+    # A copy, so a caller that edits its row cannot change what the next sees.
+    return dict(row) if row is not None else None
+
+
 def plan_timezone(db, user_id: str, language_id: int) -> str:
     """The learner's configured timezone for (user, language), or ``UTC``.
 
@@ -122,14 +149,7 @@ def plan_timezone(db, user_id: str, language_id: int) -> str:
     default. Callers never have to handle an exception from this.
     """
     try:
-        resp = (
-            db.table("user_study_plans")
-            .select("timezone")
-            .eq("user_id", user_id)
-            .eq("language_id", language_id)
-            .limit(1)
-            .execute()
-        )
+        row = plan_row(db, user_id, language_id)
     except Exception as exc:
         logger.warning(
             "plan_timezone lookup failed for user=%s lang=%s: %s; using %s",
@@ -137,9 +157,9 @@ def plan_timezone(db, user_id: str, language_id: int) -> str:
         )
         return DEFAULT_TIMEZONE
 
-    if not getattr(resp, "data", None):
+    if not row:
         return DEFAULT_TIMEZONE
-    return resp.data[0].get("timezone") or DEFAULT_TIMEZONE
+    return row.get("timezone") or DEFAULT_TIMEZONE
 
 
 def plan_today_iso(

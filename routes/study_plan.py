@@ -41,7 +41,7 @@ from flask import Blueprint, current_app, g, request
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
-from services.day_boundary import is_valid_timezone, plan_today
+from services.day_boundary import is_valid_timezone, plan_row, plan_today
 from services.study_time import weekly_study_summary
 from services.supabase_factory import get_supabase_admin
 from utils.responses import (
@@ -204,6 +204,15 @@ def _safe(label: str, fn, default=None):
 # GET /api/study-plan?language_id=L
 # ---------------------------------------------------------------------------
 
+# Columns GET /api/study-plan returns as `plan` (the row also holds others).
+_PLAN_FIELDS = (
+    'user_id', 'language_id', 'template_id', 'daily_minutes',
+    'weekday_shape', 'skill_weight_overrides', 'goal_id', 'timezone',
+    'excluded_modules', 'budget_scope', 'new_words_per_day',
+    'created_at', 'updated_at',
+)
+
+
 @study_plan_bp.route('', methods=['GET'])
 @supabase_jwt_required
 def get_study_plan() -> ApiResponse:
@@ -221,23 +230,12 @@ def get_study_plan() -> ApiResponse:
         from services.prestudy import get_prestudy_mode
         prestudy_mode = get_prestudy_mode(db, user_id, language_id)
 
-        plan_resp = (
-            db.table('user_study_plans')
-            .select(
-                'user_id, language_id, template_id, daily_minutes, '
-                'weekday_shape, skill_weight_overrides, goal_id, timezone, '
-                'excluded_modules, budget_scope, new_words_per_day, '
-                'created_at, updated_at'
-            )
-            .eq('user_id', user_id)
-            .eq('language_id', language_id)
-            .limit(1)
-            .execute()
-        )
-        if not plan_resp.data:
+        # One cached read serves this, get_prestudy_mode and plan_today below.
+        row = plan_row(db, user_id, language_id)
+        if not row:
             return not_found("No study plan for this language")
 
-        plan = plan_resp.data[0]
+        plan = {k: row.get(k) for k in _PLAN_FIELDS}
         plan['prestudy_mode'] = prestudy_mode
 
         # Learner-local week (matches the ledger/record_session_progress writers).

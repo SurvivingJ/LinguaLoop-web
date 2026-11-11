@@ -58,6 +58,29 @@ WHERE c.relname IN ('users', 'user_tokens', 'token_transactions')
   AND has_table_privilege(r.rolname, c.oid, pr.priv)
 ORDER BY 2, 3;
 
+-- 4b. Client write privileges on ANY public relation or sequence
+--     (security_revoke_inert_client_writes.sql; only user_reports keeps
+--     authenticated INSERT, TASK-875)
+SELECT 'client_write_privilege' AS check_name,
+       c.oid::regclass::text    AS object,
+       r.rolname                AS role_privilege
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace AND n.nspname = 'public'
+CROSS JOIN (SELECT rolname FROM pg_roles WHERE rolname IN ('anon', 'authenticated')) r
+WHERE NOT EXISTS (SELECT 1 FROM pg_depend d WHERE d.objid = c.oid AND d.deptype = 'e')
+  AND (   (c.relkind IN ('r', 'p', 'v', 'm', 'f')
+           AND (has_table_privilege(r.rolname, c.oid,
+                    CASE WHEN c.relname = 'user_reports' AND r.rolname = 'authenticated'
+                         THEN 'UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'
+                         ELSE 'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER' END)
+                OR (c.relname <> 'user_reports'
+                    AND has_any_column_privilege(r.rolname, c.oid, 'INSERT,UPDATE,REFERENCES'))))
+       OR (c.relkind = 'S' AND has_sequence_privilege(r.rolname, c.oid, 'USAGE,UPDATE,SELECT')
+           AND NOT (r.rolname = 'authenticated' AND EXISTS (
+                 SELECT 1 FROM pg_depend d JOIN pg_class t ON t.oid = d.refobjid
+                  WHERE d.objid = c.oid AND d.deptype IN ('a', 'i') AND t.relname = 'user_reports'))))
+ORDER BY 2, 3;
+
 -- 5. anon holding any privilege on a public table (anon should have none)
 SELECT 'anon_table_privilege' AS check_name,
        c.oid::regclass::text  AS object,

@@ -11,12 +11,22 @@ import traceback
 from datetime import datetime, timezone, date
 
 from services.day_boundary import (
-    local_day_start_utc, plan_timezone, plan_today, plan_today_iso,
+    local_day_start_utc, plan_row, plan_timezone, plan_today, plan_today_iso,
 )
 from typing import Optional, Dict, List, Any, Tuple
 
 from config import Config
+from services import request_cache
 from services.supabase_factory import get_supabase, get_supabase_admin
+
+
+def daily_load_row_key(user_id, language_id, load_date) -> tuple:
+    """Request-cache key for today's daily_test_loads row (one per user/lang/day).
+
+    Writers of that row inside a GET must call
+    ``request_cache.invalidate('daily_load_row', str(user_id))``.
+    """
+    return ('daily_load_row', str(user_id), str(language_id), str(load_date))
 
 # Re-export from dimension_service for backwards compatibility
 from services.dimension_service import (
@@ -325,6 +335,9 @@ class TestService:
             .execute()
 
         if existing.data:
+            # GET /api/study-session reads this same row again for its targets
+            # and completed blocks; hand it over (latency 2026-11, ADR-043 B).
+            request_cache.put(daily_load_row_key(user_id, language_id, today), existing.data[0])
             return self._enrich_daily_load(existing.data[0])
 
         # ------------------------------------------------------------------
@@ -378,6 +391,7 @@ class TestService:
                         .eq('load_date', today)\
                         .execute()
                     if refetched.data:
+                        request_cache.put(daily_load_row_key(user_id, language_id, today), refetched.data[0])
                         return self._enrich_daily_load(refetched.data[0])
                 else:
                     # Logged error code (E_NOPLAN / E_NOWEEK / E_RPC); fall through.
@@ -412,6 +426,7 @@ class TestService:
             'completed_test_ids': []
         }).execute()
 
+        request_cache.put(daily_load_row_key(user_id, language_id, today), record.data[0])
         return self._enrich_daily_load(record.data[0])
 
     @staticmethod
@@ -459,13 +474,7 @@ class TestService:
     def _user_has_study_plan(self, user_id: str, language_id: int) -> bool:
         """Cheap probe: does user_study_plans have a row for (user, language)?"""
         try:
-            resp = self.admin.table('user_study_plans')\
-                .select('user_id', count='exact')\
-                .eq('user_id', user_id)\
-                .eq('language_id', language_id)\
-                .limit(1)\
-                .execute()
-            return bool(resp.count and resp.count > 0)
+            return plan_row(self.admin, user_id, language_id) is not None
         except Exception as e:
             logger.warning('user_study_plans probe failed: %s', e)
             return False
@@ -645,17 +654,9 @@ class TestService:
         path must keep producing a load).
         """
         try:
-            resp = (
-                self.admin.table('user_study_plans')
-                .select('excluded_modules')
-                .eq('user_id', user_id)
-                .eq('language_id', language_id)
-                .limit(1)
-                .execute()
-            )
-            rows = resp.data or []
-            if rows:
-                return {m for m in (rows[0].get('excluded_modules') or []) if isinstance(m, str)}
+            row = plan_row(self.admin, user_id, language_id)
+            if row:
+                return {m for m in (row.get('excluded_modules') or []) if isinstance(m, str)}
         except Exception as e:
             logger.warning(f"Could not read excluded_modules for daily load: {e}")
         return set()
@@ -692,22 +693,43 @@ class TestService:
                 'progress': {'completed': 0, 'total': 0}
             }
 
-        # Fetch full test details
+        # Fetch full test details and their ELO ratings in ONE round trip
+        # (embedded resource; latency 2026-11, ADR-043 B). Falls back to the
+        # two separate queries below if the embed fails.
         ids = [item['test_id'] for item in test_ids_list]
+        tests_map: Dict[str, Dict] = {}
+        ratings_map: Dict[str, Dict] = {}
+        embedded_ok = False
         try:
             tests_result = self.admin.table('tests').select(
                 'id, slug, title, language_id, difficulty, style, tier, '
-                'audio_url, audio_generated, is_custom, total_attempts'
+                'audio_url, audio_generated, is_custom, total_attempts, '
+                'test_skill_ratings(test_type_id, elo_rating, dim_test_types(type_code))'
             ).in_('id', ids).execute()
-
-            tests_map = {t['id']: t for t in (tests_result.data or [])}
+            for t in (tests_result.data or []):
+                ratings = t.pop('test_skill_ratings', None) or []
+                tests_map[t['id']] = t
+                for rating in ratings:
+                    type_code = (rating.get('dim_test_types') or {}).get('type_code', 'unknown')
+                    ratings_map.setdefault(t['id'], {})[type_code] = rating['elo_rating']
+            embedded_ok = True
         except Exception as e:
-            logger.error(f"Error enriching daily load: {e}")
-            tests_map = {}
+            logger.warning(f"Embedded tests+ratings read failed, using two queries: {e}")
 
-        # Fetch ELO ratings for these tests
-        ratings_map = {}
-        if ids:
+        if not embedded_ok:
+            try:
+                tests_result = self.admin.table('tests').select(
+                    'id, slug, title, language_id, difficulty, style, tier, '
+                    'audio_url, audio_generated, is_custom, total_attempts'
+                ).in_('id', ids).execute()
+
+                tests_map = {t['id']: t for t in (tests_result.data or [])}
+            except Exception as e:
+                logger.error(f"Error enriching daily load: {e}")
+                tests_map = {}
+
+        # Fetch ELO ratings for these tests (fallback path only)
+        if ids and not embedded_ok:
             try:
                 ratings_result = self.admin.table('test_skill_ratings').select(
                     'test_id, test_type_id, elo_rating, dim_test_types(type_code)'

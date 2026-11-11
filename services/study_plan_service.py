@@ -34,6 +34,8 @@ from __future__ import annotations
 import hashlib
 import logging
 import math
+import time as _time
+import weakref
 from decimal import Decimal, ROUND_FLOOR
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -487,7 +489,6 @@ def get_review_governor(
     Never raises. ``item_seconds`` falls back to the default (not 0) so callers
     that convert items to minutes stay meaningful.
     """
-    result = _empty_governor()
     try:
         iso = plan_date.isoformat() if hasattr(plan_date, 'isoformat') else str(plan_date)
         resp = db.rpc('review_governor_state', {
@@ -495,7 +496,20 @@ def get_review_governor(
             'p_language_id': language_id,
             'p_date':        iso,
         }).execute()
-        data = resp.data
+        return parse_review_governor(resp.data)
+    except Exception as exc:
+        logger.warning(
+            'review_governor_state failed for user=%s lang=%s: %s',
+            user_id, language_id, exc,
+        )
+        return _empty_governor()
+
+
+def parse_review_governor(data: Any) -> Dict[str, Any]:
+    """Normalise a ``review_governor_state`` jsonb result; anything malformed ->
+    level 'normal', zeros (same contract as ``get_review_governor``)."""
+    result = _empty_governor()
+    try:
         if isinstance(data, list) and len(data) == 1:
             data = data[0]
         if not isinstance(data, dict):
@@ -511,19 +525,44 @@ def get_review_governor(
             result['item_seconds'] = item_seconds
         return result
     except Exception as exc:
-        logger.warning(
-            'review_governor_state failed for user=%s lang=%s: %s',
-            user_id, language_id, exc,
-        )
+        logger.warning('review_governor_state result unreadable: %s', exc)
         return _empty_governor()
+
+
+# (db client, language_id) -> (expires_at, minutes). dim_languages.new_word_minutes_est
+# is a hand-tuned per-language constant; a 10-minute cache removes one round
+# trip from every daily-session, study-plan and Practice GET (latency 2026-11).
+_MPNW_TTL_SECONDS = 600
+_mpnw_cache: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
 
 
 def get_minutes_per_new_word(db, language_id: int) -> float:
     """dim_languages.new_word_minutes_est, else Config.NEW_WORD_MINUTES_DEFAULT.
 
     Mirror of SQL ``public.new_word_minutes``. Missing row, NULL, non-positive,
-    non-finite value or a failed read all fall back to the default.
+    non-finite value or a failed read all fall back to the default. Successful
+    reads (including "no usable value") are cached per client for 10 minutes;
+    failed reads are not.
     """
+    try:
+        per_db = _mpnw_cache.get(db)
+    except TypeError:  # an object that cannot be weakly referenced
+        per_db = None
+    hit = per_db.get(language_id) if per_db else None
+    if hit and hit[0] > _time.monotonic():
+        return hit[1]
+    value = _read_minutes_per_new_word(db, language_id)
+    if value is not None:
+        try:
+            _mpnw_cache.setdefault(db, {})[language_id] = (_time.monotonic() + _MPNW_TTL_SECONDS, value)
+        except TypeError:
+            pass
+        return value
+    return float(Config.NEW_WORD_MINUTES_DEFAULT)
+
+
+def _read_minutes_per_new_word(db, language_id: int) -> Optional[float]:
+    """The resolved minutes (value or default), or None when the read failed."""
     try:
         resp = (
             db.table('dim_languages')
@@ -540,7 +579,42 @@ def get_minutes_per_new_word(db, language_id: int) -> float:
                     return val
     except Exception as exc:
         logger.debug('get_minutes_per_new_word read failed: %s', exc)
+        return None
     return float(Config.NEW_WORD_MINUTES_DEFAULT)
+
+
+# type_code -> expected_minutes_p50 for every test type, per client object.
+# The column is refreshed by the nightly cron (see refresh in this module), so a
+# 10-minute cache is always current to within one refresh. It replaced one
+# query per skill: GET /api/study-plan made seven identical round trips.
+_P50_TTL_SECONDS = 600
+_p50_cache: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
+
+
+def _observed_p50_minutes(db) -> Dict[str, Any]:
+    """{type_code: expected_minutes_p50} for all test types; {} on failure.
+
+    A failed read is not cached, so the next call retries.
+    """
+    try:
+        hit = _p50_cache.get(db)
+    except TypeError:  # an object that cannot be weakly referenced
+        hit = None
+    if hit and hit[0] > _time.monotonic():
+        return hit[1]
+    try:
+        resp = db.table('dim_test_types').select('type_code, expected_minutes_p50').execute()
+        mapping = {
+            r['type_code']: r.get('expected_minutes_p50')
+            for r in (resp.data or []) if isinstance(r, dict) and r.get('type_code')
+        }
+    except Exception:
+        return {}
+    try:
+        _p50_cache[db] = (_time.monotonic() + _P50_TTL_SECONDS, mapping)
+    except TypeError:
+        pass
+    return mapping
 
 
 def _test_time_estimate(skill: str, db) -> float:
@@ -556,20 +630,9 @@ def _test_time_estimate(skill: str, db) -> float:
     WARN, so a newly planned surface nobody seeded is visible in the logs rather
     than quietly budgeted at 5 minutes forever.
     """
-    try:
-        resp = (
-            db.table('dim_test_types')
-            .select('expected_minutes_p50')
-            .eq('type_code', skill)
-            .limit(1)
-            .execute()
-        )
-        if resp.data:
-            p50 = resp.data[0].get('expected_minutes_p50')
-            if p50 is not None:
-                return float(p50)
-    except Exception:
-        pass
+    p50 = _observed_p50_minutes(db).get(skill)
+    if p50 is not None:
+        return float(p50)
 
     seeded = Config.TEST_TYPE_MINUTES.get(skill)
     if seeded is None:
@@ -620,22 +683,12 @@ class StudyPlanService:
         week_start = week_start or _monday_of(date.today())
 
         # 1. Load plan
-        plan_resp = (
-            self.db.table('user_study_plans')
-            .select(
-                'template_id, daily_minutes, skill_weight_overrides, '
-                'weekday_shape, excluded_modules, budget_scope, new_words_per_day'
-            )
-            .eq('user_id', user_id)
-            .eq('language_id', language_id)
-            .limit(1)
-            .execute()
-        )
-        if not plan_resp.data:
+        from services.day_boundary import plan_row
+        plan = plan_row(self.db, user_id, language_id)
+        if not plan:
             logger.debug('no user_study_plan for user=%s lang=%s', user_id, language_id)
             self.last_failure = 'no_plan'
             return None
-        plan = plan_resp.data[0]
 
         # 2. Load template (for weekly_test_counts shape + flex + base_maint)
         template_resp = (

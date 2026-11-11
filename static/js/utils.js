@@ -307,26 +307,55 @@ const LinguaMetadata = {
   _promise: null,
 
   /**
-   * Load metadata from API (cached, single fetch).
+   * Load metadata (cached, single fetch) AND wait for the UI translations.
+   *
+   * Pages treat "metadata loaded" as their go-ahead to render, and they render
+   * with LinguaI18n.t(), which returns the raw key until the translation files
+   * have arrived. The metadata is now embedded in the page (no round trip), so
+   * this also waits for i18n -- capped at 4 s -- to keep that guarantee.
    * @returns {Promise<Object>} Metadata response
    */
   load() {
-    if (this._cache) return Promise.resolve(this._cache);
+    // base.html embeds /api/metadata (window.LINGUA_METADATA) so pages do not
+    // wait on a round trip before their first real API call.
+    if (!this._cache && window.LINGUA_METADATA && Array.isArray(window.LINGUA_METADATA.languages)) {
+      this._cache = window.LINGUA_METADATA;
+    }
     if (this._promise) return this._promise;
-    this._promise = fetch('/api/metadata')
-      .then(function (res) {
-        return res.json();
-      })
-      .then(function (data) {
-        LinguaMetadata._cache = data;
-        return data;
-      })
-      .catch(function (err) {
-        console.error('[LinguaMetadata] Failed to load:', err);
-        LinguaMetadata._cache = { languages: [], test_types: [] };
-        return LinguaMetadata._cache;
-      });
+    const meta = this._cache
+      ? Promise.resolve(this._cache)
+      : fetch('/api/metadata')
+          .then(function (res) {
+            return res.json();
+          })
+          .then(function (data) {
+            LinguaMetadata._cache = data;
+            return data;
+          })
+          .catch(function (err) {
+            console.error('[LinguaMetadata] Failed to load:', err);
+            LinguaMetadata._cache = { languages: [], test_types: [] };
+            return LinguaMetadata._cache;
+          });
+    this._promise = Promise.all([meta, LinguaMetadata.i18nReady()]).then(function (r) {
+      return r[0];
+    });
     return this._promise;
+  },
+
+  /**
+   * Resolves once UI translations are loaded (or failed), at most 4 s later.
+   * @returns {Promise<void>}
+   */
+  i18nReady() {
+    const i18n = window.LinguaI18n;
+    if (!i18n || typeof i18n.init !== 'function') return Promise.resolve();
+    return Promise.race([
+      Promise.resolve(i18n.init()).catch(function () {}),
+      new Promise(function (resolve) {
+        setTimeout(resolve, 4000);
+      }),
+    ]);
   },
 
   /**

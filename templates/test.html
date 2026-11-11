@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% set load_test_intro = true %}
 
 {% block title %}Take Test | LinguaDojo{% endblock %}
 
@@ -371,8 +372,9 @@ document.addEventListener('languageChanged', function() {
 
 async function initializeTest() {
     try {
-        // Load language metadata for native names
-        await LinguaMetadata.load();
+        // Language metadata + UI translations; awaited before rendering, but
+        // the test data loads in parallel with them.
+        const metadataReady = LinguaMetadata.load();
 
         // Get slug and type from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -391,7 +393,7 @@ async function initializeTest() {
         showLoading(true);
         
         // Load test data (includes pre-generated definitions)
-        await loadTestData();
+        await Promise.all([loadTestData(), metadataReady]);
 
         // Initialize UI
         initializeUI();
@@ -413,15 +415,35 @@ async function initializeTest() {
 // ============================================================================
 // API FUNCTIONS
 // ============================================================================
+// The preview page leaves its copy of /api/tests/test/<slug> in sessionStorage.
+// Use it once if it is fresh; otherwise (direct link, reload) fetch as usual.
+function takeHandedOffTest(slug) {
+    const key = 'ld_test_payload:' + slug;
+    try {
+        const raw = sessionStorage.getItem(key);
+        if (!raw) return null;
+        sessionStorage.removeItem(key);
+        const saved = JSON.parse(raw);
+        if (!saved || Date.now() - saved.at > 10 * 60 * 1000) return null;
+        const body = saved.body;
+        return body && body.test_data && body.questions_data ? body : null;
+    } catch (_) {
+        return null;
+    }
+}
+
 async function loadTestData() {
     try {
-        const response = await window.authFetch(`/api/tests/test/${testState.slug}`);
-        
-        if (!response.ok) {
-            throw new Error(`Failed to load test: ${response.statusText}`);
+        let data = takeHandedOffTest(testState.slug);
+        if (!data) {
+            const response = await window.authFetch(`/api/tests/test/${testState.slug}`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to load test: ${response.statusText}`);
+            }
+
+            data = await response.json();
         }
-        
-        const data = await response.json();
         
         if (!data.test_data || !data.questions_data) {
             throw new Error('Invalid test data received');

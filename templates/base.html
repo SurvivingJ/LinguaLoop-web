@@ -9,19 +9,51 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Inter/Sora/JetBrains Mono cover UI chrome. Noto Sans SC/JP are the
+    <!-- Web fonts never block first paint (latency 2026-11, TASK-933): text
+         paints in the fallback stack and swaps when the font arrives
+         (display=swap, as before).
+         Inter/Sora/JetBrains Mono cover UI chrome. Noto Sans SC/JP are the
          guaranteed-render fallback for CJK exercise text (see styles.css
-         :lang(zh)/:lang(ja)) — Microsoft YaHei/PingFang SC/Hiragino Sans
-         etc. only exist if the OS shipped them (Windows/macOS/iOS do;
-         Android and most Linux don't), so these webfonts are what makes
-         Chinese/Japanese text render correctly on every platform rather
-         than only the ones with the right system font installed. -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+         :lang(zh)/:lang(ja)) — Microsoft YaHei/PingFang SC/Hiragino Sans etc.
+         only exist if the OS shipped them (Windows/macOS/iOS do; Android and
+         most Linux don't). Their stylesheets are ~90 KB compressed EACH (one
+         @font-face per character-range slice), so only the family for the
+         learner's study language and UI language is requested
+         (window.LinguaFonts.ensure, also called on a UI-language switch). -->
+    <link rel="stylesheet" media="print" onload="this.media='all'"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"></noscript>
+    <script>
+        (function () {
+            var FAMILY = { zh: 'Noto+Sans+SC:wght@400;500;700', ja: 'Noto+Sans+JP:wght@400;500;700' };
+            var LANGS = {{ ((lingua_metadata or {}).get('languages') or [])|tojson }};
+            var requested = {};
+            function codeForStudyLanguage(id) {
+                for (var i = 0; i < LANGS.length; i++) {
+                    if (String(LANGS[i].id) === String(id)) return LANGS[i].language_code;
+                }
+                return null;
+            }
+            function ensure(code) {
+                if (!code || !FAMILY[code] || requested[code]) return;
+                requested[code] = true;
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.media = 'print';  // load without blocking rendering ...
+                link.onload = function () { this.media = 'all'; };  // ... then apply
+                link.href = 'https://fonts.googleapis.com/css2?family=' + FAMILY[code] + '&display=swap';
+                document.head.appendChild(link);
+            }
+            window.LinguaFonts = { ensure: ensure, ensureForStudyLanguage: function (id) { ensure(codeForStudyLanguage(id)); } };
+            try {
+                ensure(codeForStudyLanguage(localStorage.getItem('selectedLanguageId')));
+                ensure(localStorage.getItem('linguadojo-ui-lang'));
+            } catch (e) { /* storage blocked: system CJK fonts still apply */ }
+        })();
+    </script>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"
-          integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-5.3.2/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-6.5.1/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script>
         // Apply theme immediately to prevent flash of default theme
@@ -159,7 +191,10 @@
                 bounceToLogin();
             }
 
-            fetch('/api/auth/refresh-token', {
+            // Published so authFetch waits for this renewal instead of firing
+            // page requests with the stale token and racing it with refreshes
+            // of its own (refresh tokens rotate: parallel refreshes collide).
+            window.__ldAuthRenewal = fetch('/api/auth/refresh-token', {
                 method: 'POST',
                 credentials: 'include',
             }).then(function(r) {
@@ -472,12 +507,14 @@
     </footer>
     {% endif %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap-5.3.2/js/bootstrap.bundle.min.js') }}"></script>
+    <script>window.LINGUA_METADATA = {{ lingua_metadata|tojson }};</script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script>window.LINGUA_I18N_VERSIONS = {{ i18n_versions|tojson }};</script>
     <script src="{{ url_for('static', filename='js/i18n-manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/test-intro.js') }}"></script>
+    {# Only the test / drill pages use it; they set load_test_intro. #}
+    {% if load_test_intro %}<script src="{{ url_for('static', filename='js/test-intro.js') }}"></script>{% endif %}
 
     <script>
         // -------------------------------------------------------------------
@@ -569,7 +606,56 @@
          * On 401: try the Supabase refresh token first; if that fails, try
          * the trusted-device cookie; only then bounce to /login.
          */
+        // One token renewal at a time, shared by every request that hit 401.
+        // Refresh tokens rotate on use, so N parallel refreshes would race each
+        // other (and cost N round trips). Resolves to the new JWT or null.
+        let _renewalInFlight = null;
+        function _renewTokenOnce() {
+            if (_renewalInFlight) return _renewalInFlight;
+            _renewalInFlight = (async () => {
+                // ---- Step 1: try the HttpOnly refresh cookie --------------
+                // The refresh token is never in JS storage; it rides as an
+                // HttpOnly cookie. credentials:'include' sends it; the server
+                // rotates it and returns only the new access token in the body.
+                try {
+                    const refreshResponse = await fetch('/api/auth/refresh-token', {
+                        method: 'POST',
+                        credentials: 'include',
+                    });
+                    if (refreshResponse.ok) {
+                        const data = await refreshResponse.json();
+                        if (data && data.jwt_token) {
+                            const store = _tokenStore();
+                            store.setItem('jwt_token', data.jwt_token);
+                            window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
+                            return data.jwt_token;
+                        }
+                    }
+                } catch (e) {
+                    console.error('refresh-token error:', e);
+                }
+                // ---- Step 2: try the trusted-device cookie ----------------
+                if (await _tryDeviceRestore()) return window.LINGUADOJO.JWT_TOKEN;
+                return null;
+            })();
+            _renewalInFlight.finally(() => { _renewalInFlight = null; });
+            return _renewalInFlight;
+        }
+
+        /**
+         * Authenticated fetch wrapper with automatic token refresh.
+         * On 401: try the Supabase refresh token first; if that fails, try
+         * the trusted-device cookie; only then bounce to /login.
+         */
         window.authFetch = async function(url, options = {}) {
+            // The head script may be renewing an expired token right now:
+            // wait for it (bounded) rather than send a request bound to 401.
+            if (window.__ldAuthRenewal) {
+                await Promise.race([
+                    window.__ldAuthRenewal.catch(() => {}),
+                    new Promise((r) => setTimeout(r, 3000)),
+                ]);
+            }
             const token = _getStored('jwt_token');
 
             options.headers = {
@@ -581,30 +667,18 @@
             let response = await fetch(url, options);
             if (response.status !== 401) return response;
 
-            // ---- Step 1: try the HttpOnly refresh cookie ------------------
-            // The refresh token is never in JS storage; it rides as an HttpOnly
-            // cookie. credentials:'include' sends it; the server rotates it and
-            // returns only the new access token in the body.
-            try {
-                const refreshResponse = await fetch('/api/auth/refresh-token', {
-                    method: 'POST',
-                    credentials: 'include',
-                });
-                if (refreshResponse.ok) {
-                    const data = await refreshResponse.json();
-                    const store = _tokenStore();
-                    store.setItem('jwt_token', data.jwt_token);
-                    window.LINGUADOJO.JWT_TOKEN = data.jwt_token;
-                    options.headers['Authorization'] = `Bearer ${data.jwt_token}`;
-                    return await fetch(url, options);
-                }
-            } catch (e) {
-                console.error('refresh-token error:', e);
+            // Another request may already have renewed the token while this
+            // one was in flight: retry with it before renewing again.
+            const current = _getStored('jwt_token');
+            if (current && current !== token) {
+                options.headers['Authorization'] = `Bearer ${current}`;
+                response = await fetch(url, options);
+                if (response.status !== 401) return response;
             }
 
-            // ---- Step 2: try the trusted-device cookie --------------------
-            if (await _tryDeviceRestore()) {
-                options.headers['Authorization'] = `Bearer ${window.LINGUADOJO.JWT_TOKEN}`;
+            const fresh = await _renewTokenOnce();
+            if (fresh) {
+                options.headers['Authorization'] = `Bearer ${fresh}`;
                 return await fetch(url, options);
             }
 
