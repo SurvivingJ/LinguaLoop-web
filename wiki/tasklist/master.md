@@ -20,11 +20,13 @@ below.
 | Status | Count |
 |--------|-------|
 | Not Started | 28 |
-| In Progress (`[~]`) | 12 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 22 |
+| In Progress (`[~]`) | 11 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 21 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 231 |
+| Done (cumulative, not listed here) | 233 |
+
+*2026-11-11 (Merges + consolidation live):* TASK-930 (study-session 14 → 6 DB calls, −58% median) and TASK-932 (49 merged policies on 22 tables) applied live by the developer and verified. Counts: In Progress 12→11, awaiting live apply 22→21, Done 231→233.
 
 *2026-11-11 (Security applied):* developer applied TASK-875, 880, 882 by hand; verified live. Catalog check also found TASK-876, 877, 879 applied on 2026-10-14 (wiki had them unapplied). TASK-932 unblocked, rollback captured in `migrations/rls_consolidate_permissive_policies_rollback.sql`. Counts: awaiting live apply 28→22, Done 225→231.
 
@@ -1188,9 +1190,9 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-927 | latency | Memoise new-word state; cache `dim_test_types` minutes map | Done | S | TASK-926 |
 | TASK-928 | latency | Compression + content-hashed, long-cached static files | Done | S | — |
 | TASK-929 | latency | Remove browser start-up waterfalls | Done | M | TASK-928 |
-| TASK-930 | latency | Daily-session read merges (ADR-043 option B; one-RPC option A deferred) | [~] built; migration awaits live apply | L | TASK-926 |
+| TASK-930 | latency | Daily-session read merges (ADR-043 option B; one-RPC option A deferred) | Done (applied live) | L | TASK-926 |
 | TASK-931 | latency | Keep content-generation batch jobs off learners' hours | [ ] | S | — |
-| TASK-932 | latency | Consolidate multiple permissive RLS policies (LIVE-DB, developer applies) | Unblocked — awaiting live apply (rollback captured) | M | TASK-925, TASK-875, TASK-880, TASK-882 |
+| TASK-932 | latency | Consolidate multiple permissive RLS policies (LIVE-DB, developer applies) | Done (applied live) | M | TASK-925, TASK-875, TASK-880, TASK-882 |
 | TASK-933 | latency | Trim render-blocking fonts and CSS in base.html | Done | S | — |
 | TASK-934 | latency | Stop late-loading sections from pushing the page down (CLS) | [ ] needs layout decision | S | — |
 

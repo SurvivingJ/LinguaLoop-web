@@ -157,9 +157,31 @@ outliers in the after run are single slow Supabase responses, not extra calls. E
 from this sandbox costs ~270 ms, so absolute times are larger than from Railway; the call counts
 carry over.
 
-**After the migration** (expected, not yet measured): `study-session` 11 → 6, `practice/session`
-18 → 17. Verify with `scripts/check_session_merges_parity.py` (bundle vs per-table reads for real
-learners, read-only) and re-run the HTTP harness. Tests: `tests/test_session_merges.py` (14).
+**After the migration** (applied live by the developer 2026-11-11; code at 5896204 vs the repo,
+run back to back, 30 samples, wall ms):
+
+| Endpoint | run | DB calls | mean | median | p90 | p95 | p99 | max |
+|---|---|---|---|---|---|---|---|---|
+| `study-session` | before | 14 | 3882 | 3838 | 3953 | 4226 | 4269 | 4280 |
+| | after | **6** | 1642 | **1619 (−58%)** | 1666 | 1739 | 1940 | 2022 |
+| `practice/session` | before | 18 | 4932 | 4939 | 4981 | 4983 | 5050 | 5077 |
+| | after | **17** | 4517 | **4565 (−8%)** | 4778 | 4826 | 4851 | 4856 |
+| `study-plan` | before | 7 | 1994 | 1935 | 2219 | 2318 | 2536 | 2622 |
+| | after | **6** | 1698 | **1698 (−12%)** | 1712 | 1718 | 1723 | 1725 |
+
+The 6 study-session calls: `daily_test_loads`, `tests` (embedded skill ratings), `user_study_plans`,
+`user_word_ladder`, `new_word_state_inputs`, `prestudy_plan_inputs`.
+
+**Parity (live, read-only):** `scripts/check_session_merges_parity.py` 3/3 learners with a plan
+identical; a wider check (10 learner/language pairs × 3 random sets of 1–10 real tests, plus
+new-word state) found the bundles and the per-table reads identical in 30/30 and 10/10 — after
+fixing a pre-existing bug the first run exposed: the per-table exercise reads were silently cut
+at PostgREST's 1000-row cap (one 200-sense chunk had 2,588 active exercises, 1,000 returned), so
+prestudy counted 231 of 423 senses as having exercises and under-estimated minutes, and
+`_load_exercises` could leave words without drill items. The bundle was right; the reads now page
+(`services/pagination.py`, also used by `scripts/export_exercise_worklist.py`, which could
+otherwise list senses that already have exercises). Tests: `tests/test_session_merges.py` (14),
+`tests/test_pagination.py` (6, a fake with the same silent cap).
 
 What stays harder: two more SQL functions whose outputs must match the Python fallbacks (pinned
 by the parity tests and script); the fallbacks can be removed once the bundles have been live for

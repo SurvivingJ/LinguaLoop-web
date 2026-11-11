@@ -60,6 +60,7 @@ load_dotenv()
 
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
+from services.pagination import fetch_all
 
 if not SupabaseFactory.is_initialized():
     SupabaseFactory.initialize()
@@ -139,8 +140,10 @@ def senses_with_exercises(db, sense_ids: list[int]) -> set[int]:
     have: set[int] = set()
     for i in range(0, len(sense_ids), 300):
         chunk = sense_ids[i:i + 300]
-        rows = (db.table('exercises').select('word_sense_id')
-                  .in_('word_sense_id', chunk).execute().data or [])
+        # Paged: 300 senses can match more than PostgREST's 1000-row cap, and a
+        # truncated read would list senses that already have exercises.
+        rows = fetch_all(lambda chunk=chunk: db.table('exercises').select('word_sense_id')
+                         .in_('word_sense_id', chunk).order('id'))
         have.update(r['word_sense_id'] for r in rows if r.get('word_sense_id'))
     return have
 

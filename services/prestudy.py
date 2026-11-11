@@ -31,6 +31,8 @@ import logging
 import random
 from typing import Optional
 
+from services.pagination import fetch_all
+
 logger = logging.getLogger(__name__)
 
 # Ladder exercise types the prestudy prime can render, the content fields each
@@ -144,9 +146,11 @@ def _load_knowledge(db, user_id: str, sense_ids: list[int]) -> dict[str, dict]:
 def _load_exercises(db, sense_ids: list[int]) -> dict[str, list[dict]]:
     rows: list[dict] = []
     for part in _chunks(sense_ids):
-        rows += db.table('exercises').select(
+        # Paged: 200 senses can have far more than PostgREST's 1000-row cap.
+        rows += fetch_all(lambda part=part: db.table('exercises').select(
             'id, word_sense_id, exercise_type, content, ladder_level'
-        ).eq('is_active', True).in_('word_sense_id', part).in_('exercise_type', list(EXERCISE_FIELDS)).execute().data or []
+        ).eq('is_active', True).in_('word_sense_id', part)
+         .in_('exercise_type', list(EXERCISE_FIELDS)).order('id'))
     return group_exercises(rows)
 
 
@@ -388,8 +392,10 @@ def request_generation(db, sense_ids: list[int], language_id: int, exercises: di
 def senses_with_exercises(db, sense_ids: list[int]) -> set[int]:
     out: set[int] = set()
     for part in _chunks(sorted(set(sense_ids))):
-        for r in db.table('exercises').select('word_sense_id').eq('is_active', True) \
-                .in_('word_sense_id', part).execute().data or []:
+        # Paged: a chunk can match more rows than PostgREST's 1000-row cap,
+        # which used to drop senses silently (undercounting exercise coverage).
+        for r in fetch_all(lambda part=part: db.table('exercises').select('word_sense_id')
+                           .eq('is_active', True).in_('word_sense_id', part).order('id')):
             out.add(int(r['word_sense_id']))
     return out
 

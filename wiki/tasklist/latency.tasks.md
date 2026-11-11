@@ -4,7 +4,7 @@ feature: latency
 prose_page: ../evaluations/latency-2026-11-11.md
 tech_page: ../decisions/ADR-042-request-scoped-caching-and-static-asset-caching.md
 total_tasks: 10
-done: 6
+done: 8
 ---
 
 # Latency — Task Breakdown
@@ -132,7 +132,7 @@ parallel with i18n; test page reuses the preview's `/api/tests/test/<slug>` payl
 
 ## TASK-930: Assemble the daily session in one RPC
 
-**Status:** [~] Option B (targeted merges) built in repo — study-session 14→11 DB calls (median −23%) before the migration; `migrations/latency_2026_11_session_merges.sql` awaits the developer's apply (then 11→6). Option A deferred ([[decisions/ADR-043-one-call-daily-session]])
+**Status:** [x] Done 2026-11-11 — option B live: study-session 14 → 6 DB calls, median 3.8 → 1.6 s (−58%); bundles identical to the per-table reads on live data (ADR-043). Option A deferred ([[decisions/ADR-043-one-call-daily-session]])
 **Feature:** latency
 **Type:** refactor
 **Complexity:** L (1-2d)
@@ -166,7 +166,7 @@ raise the compute size only while they run. Operational — the developer's call
 
 ## TASK-932: Consolidate multiple permissive RLS policies
 
-**Status:** [~] Unblocked 2026-11-11 (TASK-875, 880, 882 applied live) — awaiting the developer's apply; rollback captured in `migrations/rls_consolidate_permissive_policies_rollback.sql` (78 policies, 45 tables)
+**Status:** [x] Done 2026-11-11 — applied live by the developer (self-verifying probes passed): 22 tables now have one policy per command (49 policies); only `tests` keeps overlapping SELECT policies (different role lists, skipped by design); advisor `multiple_permissive_policies` → 6 findings, all on `tests`. Rollback: `migrations/rls_consolidate_permissive_policies_rollback.sql`
 **Feature:** latency
 **Type:** refactor
 **Complexity:** M (3-8h)
