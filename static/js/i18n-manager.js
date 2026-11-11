@@ -215,6 +215,10 @@
 
     currentLang = lang;
     localStorage.setItem(STORAGE_KEY, lang);
+    // A zh/ja interface needs its CJK web font (base.html loads it lazily).
+    if (window.LinguaFonts && typeof window.LinguaFonts.ensure === 'function') {
+      window.LinguaFonts.ensure(lang);
+    }
 
     let promise;
     if (lang === 'en') {

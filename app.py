@@ -139,15 +139,13 @@ def _setup_cors(app):
 # the browser only reports violations — so it's safe to ship while inline
 # <script>/<style> are still pervasive (removed in Phase 3). 'unsafe-inline'
 # is intentional for now; tighten to nonces/hashes once inline code is gone.
-# Sources mirror the CDNs actually loaded by base.html (jsdelivr, cdnjs,
-# Google Fonts).
+# Bootstrap, Font Awesome and Bootstrap Icons are self-hosted under
+# static/vendor/ (TASK-933); the only third party left is Google Fonts.
 _CSP_REPORT_ONLY = "; ".join([
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net "
-    "https://cdnjs.cloudflare.com https://fonts.googleapis.com",
-    "font-src 'self' data: https://cdn.jsdelivr.net "
-    "https://cdnjs.cloudflare.com https://fonts.gstatic.com",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: https:",
     "connect-src 'self'",
     "base-uri 'self'",

@@ -327,6 +327,14 @@ class TestStaticAssets:
         assert r.headers.get('Content-Encoding') == 'gzip'
         assert gzip.decompress(r.data).decode().startswith('<p>hello</p>')
 
+    def test_vendor_files_are_immutable_without_v(self, static_app, tmp_path):
+        # static/vendor/<lib>-<version>/ is versioned by directory, so the
+        # fonts a vendored CSS file references (no ?v=) are cached too.
+        (tmp_path / 'vendor' / 'lib-1.0' / 'fonts').mkdir(parents=True)
+        (tmp_path / 'vendor' / 'lib-1.0' / 'fonts' / 'x.woff2').write_bytes(b'\x00' * 2000)
+        r = static_app.test_client().get('/static/vendor/lib-1.0/fonts/x.woff2')
+        assert f'max-age={static_app.ONE_YEAR}' in r.headers['Cache-Control']
+
     def test_paths_outside_static_are_not_hashed(self, static_app):
         from services.static_assets import file_version
         assert file_version(static_app, '../etc/passwd') is None

@@ -63,7 +63,11 @@ def init_static_assets(app: Flask) -> None:
     default_max_age = app.get_send_file_max_age
 
     def _max_age(filename):
-        if request.args.get('v'):
+        # static/vendor/<lib>-<version>/... is versioned by its directory and
+        # never edited in place (static/vendor/README.md), so it is immutable
+        # even when requested without ?v= -- e.g. the webfonts a vendored CSS
+        # file references with relative url()s.
+        if request.args.get('v') or (filename or '').replace('\\', '/').startswith('vendor/'):
             return ONE_YEAR
         return default_max_age(filename)
 

@@ -132,7 +132,7 @@ parallel with i18n; test page reuses the preview's `/api/tests/test/<slug>` payl
 
 ## TASK-930: Assemble the daily session in one RPC
 
-**Status:** [ ] Not Started
+**Status:** [?] Evaluated — awaiting the developer's choice of option ([[decisions/ADR-043-one-call-daily-session]])
 **Feature:** latency
 **Type:** refactor
 **Complexity:** L (1-2d)
@@ -166,7 +166,7 @@ raise the compute size only while they run. Operational — the developer's call
 
 ## TASK-932: Consolidate multiple permissive RLS policies
 
-**Status:** [ ] Not Started
+**Status:** [~] Migration written (`migrations/rls_consolidate_permissive_policies.sql`, guarded, self-verifying) — blocked on the remaining security-hardening policy drops (TASK-875 section 1, TASK-880, TASK-882)
 **Feature:** latency
 **Type:** refactor
 **Complexity:** M (3-8h)
@@ -181,7 +181,7 @@ service role (ADR-034), so the latency impact today is small. Needs review befor
 
 ## TASK-933: Trim render-blocking fonts and CSS in `base.html`
 
-**Status:** [ ] Not Started
+**Status:** [~] Built 2026-11-11 (vendored Bootstrap/FA/Bootstrap Icons, non-blocking Latin fonts, lazy per-language CJK fonts) — before/after measurement and walkthrough pending
 **Feature:** latency
 **Type:** feature
 **Complexity:** S (1-3h)
