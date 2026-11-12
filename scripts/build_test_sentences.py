@@ -4,6 +4,7 @@
     python scripts/build_test_sentences.py --dry-run            # counts only
     python scripts/build_test_sentences.py --apply              # service role
     python scripts/build_test_sentences.py --apply --test-id X  # one test
+    python scripts/build_test_sentences.py --resegment --dry-run  # after a splitter change
     python scripts/build_test_sentences.py --fixture data.json --out spans.json   # offline
 
 Segmentation is services.dual_translation.sentence_refs.segment_with_spans (the
@@ -172,12 +173,102 @@ def run_repair_maps(apply: bool) -> int:
     return 0
 
 
+def plan_resegment(old_rows: list[dict], new_rows: list[dict]) -> dict:
+    """Match stored sentence rows to a new segmentation of the same transcript.
+
+    A stored row whose (char_start, char_end) is unchanged is kept: same id,
+    so its references survive; only idx and token spans may move. Every other
+    stored row is dropped (its references go with it, FK ON DELETE CASCADE)
+    and the new sentences that matched nothing are inserted.
+    """
+    old_by_span = {(r['char_start'], r['char_end']): r for r in old_rows}
+    keep, insert, used = [], [], set()
+    for n in new_rows:
+        o = old_by_span.get((n['char_start'], n['char_end']))
+        if o is not None:
+            keep.append((o['id'], n))
+            used.add(o['id'])
+        else:
+            insert.append(n)
+    drop = [r['id'] for r in old_rows if r['id'] not in used]
+    return {'keep': keep, 'drop': drop, 'insert': insert}
+
+
+def run_resegment(apply: bool, test_id: str | None) -> int:
+    """Re-split tests whose stored sentences no longer match the splitter
+    (e.g. after a terminator rule changes) without touching the transcript.
+    Unchanged sentences keep their rows and references; references on the
+    sentences that changed are written to a backup before they are removed."""
+    import datetime
+    import gzip
+    from dotenv import load_dotenv
+    load_dotenv()
+    from services.supabase_factory import SupabaseFactory, get_supabase_admin
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
+    db = get_supabase_admin()
+    q = db.table('tests').select('id, slug, language_id, transcript, vocab_token_map').eq('is_active', True)
+    if test_id:
+        q = q.eq('id', test_id)
+    tests = []
+    start = 0
+    while True:
+        chunk = q.order('id').range(start, start + 499).execute().data or []
+        tests += chunk
+        if len(chunk) < 500:
+            break
+        start += 500
+    plans = []
+    for t in tests:
+        new_rows, warnings = rows_for_test(t)
+        old = (db.table('test_sentences').select('id, idx, char_start, char_end')
+               .eq('test_id', t['id']).order('idx').execute().data or [])
+        if [(r['char_start'], r['char_end']) for r in old] == [(n['char_start'], n['char_end']) for n in new_rows]:
+            continue
+        p = plan_resegment(old, new_rows)
+        refs = (db.table('test_sentence_references').select('*').in_('sentence_id', p['drop']).execute().data or []) \
+            if p['drop'] else []
+        log.info('%s: %d -> %d sentences; keep %d, replace %d with %d; %d references (%d active) on replaced sentences%s',
+                 t.get('slug') or t['id'][:8], len(old), len(new_rows), len(p['keep']), len(p['drop']),
+                 len(p['insert']), len(refs), sum(1 for r in refs if r.get('is_active')),
+                 ('; warnings: ' + '; '.join(warnings)) if warnings else '')
+        dropped_rows = [r for r in old if r['id'] in set(p['drop'])]
+        plans.append((t, p, refs, dropped_rows))
+    if not apply:
+        log.info('dry run: %d tests to re-split', len(plans))
+        return 0
+    if not plans:
+        log.info('nothing to re-split')
+        return 0
+    out_dir = os.path.join(ROOT, 'data', 'sentence_resegment')
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, f'{datetime.date.today().isoformat()}_backup.json.gz')
+    with gzip.open(path, 'wt', encoding='utf-8') as fh:
+        json.dump([{'test_id': t['id'], 'dropped_sentences': rows, 'references': refs}
+                   for t, _, refs, rows in plans], fh, ensure_ascii=False, default=str)
+    log.info('backup written: %s', path)
+    for t, p, _, _ in plans:
+        if p['drop']:
+            db.table('test_sentences').delete().in_('id', p['drop']).execute()
+        # (test_id, idx) is unique: park kept rows out of the way first.
+        for row_id, n in p['keep']:
+            db.table('test_sentences').update({'idx': 10000 + n['idx']}).eq('id', row_id).execute()
+        if p['insert']:
+            db.table('test_sentences').insert(p['insert']).execute()
+        for row_id, n in p['keep']:
+            db.table('test_sentences').update({'idx': n['idx'], 'token_start': n['token_start'],
+                                               'token_end': n['token_end']}).eq('id', row_id).execute()
+    log.info('applied: %d tests re-split', len(plans))
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--apply', action='store_true')
     ap.add_argument('--test-id')
     ap.add_argument('--repair-token-maps', action='store_true', help='re-insert whitespace dropped from word maps and refresh spans in place')
+    ap.add_argument('--resegment', action='store_true', help='re-split tests whose stored sentences differ from the splitter, keeping unchanged rows')
     ap.add_argument('--fixture', help='offline: JSON with tests[] (id, language_id, transcript, vocab_token_map)')
     ap.add_argument('--out', help='with --fixture: write the span rows here')
     a = ap.parse_args()
@@ -187,6 +278,10 @@ def main() -> int:
         if not (a.dry_run or a.apply):
             ap.error('choose --dry-run or --apply')
         return run_repair_maps(a.apply)
+    if a.resegment:
+        if not (a.dry_run or a.apply):
+            ap.error('choose --dry-run or --apply')
+        return run_resegment(a.apply, a.test_id)
     if not (a.dry_run or a.apply):
         ap.error('choose --dry-run or --apply (or --fixture)')
     return run_db(a.apply, a.test_id)

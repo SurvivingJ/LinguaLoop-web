@@ -5,7 +5,9 @@ Converts Chinese text into a structured JSON payload for the Pinyin Tone Trainer
 Each character gets a token with base tone, context tone (after sandhi), and metadata.
 
 Pipeline:
-  1. jieba word segmentation
+  1. word segmentation: the same checked jieba splitter the word map uses
+     (services/vocabulary/zh_segmenter.py), so a test's tone groups match its
+     clickable words and jieba's fake guesses (人用, 很强) never appear
   2. pypinyin tone extraction per character
   3. Deterministic sandhi rules (三声变调, 一, 不)
   4. Polyphone flagging for LLM fallback
@@ -15,7 +17,6 @@ import json
 import logging
 import re
 
-import jieba
 from pypinyin import pinyin, Style
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,12 @@ POLYPHONE_WATCHLIST = frozenset({
 })
 
 
+def segment_words(text: str) -> list[str]:
+    """Words of `text` (concatenating to it) from the checked splitter."""
+    from services.vocabulary import zh_segmenter
+    return [w for w, _ in zh_segmenter.cut_with_tags(text) if w]
+
+
 def process_passage(text: str) -> list[dict]:
     """Convert Chinese text into a list of pinyin tokens with sandhi applied.
 
@@ -55,7 +62,7 @@ def process_passage(text: str) -> list[dict]:
     if not text or not text.strip():
         return []
 
-    words = jieba.lcut(text)
+    words = segment_words(text)
     tokens = _build_tokens(words)
     tokens = _apply_sandhi(tokens)
     _flag_polyphones(tokens, words)

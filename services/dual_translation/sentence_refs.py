@@ -22,8 +22,13 @@ from typing import Iterable, Optional
 # asserts they are still identical to passage_builder's when that module imports.
 _CJK_CODES = frozenset({'zh', 'ja'})
 _CJK_TERMINATORS = '。！？…!?'
-_CJK_SENTENCE_RE = re.compile(r'[^' + _CJK_TERMINATORS + r']*[' + _CJK_TERMINATORS + r']+|.+')
-_LATIN_SENTENCE_RE = re.compile(r'.*?[.!?]+(?=\s|$)|.+', re.DOTALL)
+# Closing quotes/brackets that follow a terminator stay with the sentence they
+# close: 她说：“……很重要。”她的意思是 splits after ”, not before it, and
+# This is "training data." The app ... splits after the closing ".
+_CLOSERS = '”’」』）)》〉】]"\''
+_CJK_SENTENCE_RE = re.compile(r'[^' + _CJK_TERMINATORS + r']*[' + _CJK_TERMINATORS + r']+'
+                              r'[' + re.escape(_CLOSERS) + r']*|.+')
+_LATIN_SENTENCE_RE = re.compile(r'.*?[.!?]+[' + re.escape(_CLOSERS) + r']*(?=\s|$)|.+', re.DOTALL)
 _WHITESPACE_RE = re.compile(r'\s+')
 
 
