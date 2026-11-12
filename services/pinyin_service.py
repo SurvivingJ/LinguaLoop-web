@@ -46,6 +46,11 @@ POLYPHONE_WATCHLIST = frozenset({
 })
 
 
+# 一 keeps its first tone as an ordinal or inside these fixed words
+# (第一, 统一, 唯一, 十一 ...). Mirrored in static/js/prestudy/prestudy.js.
+_YI_KEEPS_TONE_AFTER = frozenset("第统唯初十万之其归划专同单")
+
+
 def process_passage(text: str) -> list[dict]:
     """Convert Chinese text into a list of pinyin tokens with sandhi applied.
 
@@ -200,6 +205,9 @@ def _apply_sandhi_to_chunk(chunk: list[dict]) -> None:
                     token["context_tone"] = 5
                     token["is_sandhi"] = True
                     token["sandhi_rule"] = "'一' becomes neutral tone when between a repeated verb (e.g., 看一看)."
+                elif (prev_token is not None
+                        and prev_token["char"] in _YI_KEEPS_TONE_AFTER):
+                    pass
                 # 2b: Before a 4th tone → 2nd tone
                 elif next_token["base_tone"] == 4:
                     token["context_tone"] = 2

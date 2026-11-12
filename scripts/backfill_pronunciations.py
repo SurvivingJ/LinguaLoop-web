@@ -8,10 +8,10 @@ hard requirement for reading / tone exercise types but is ~0% populated
 
   ZH (language_id=1): pypinyin with jieba word-context + the existing sandhi
       engine (services/pinyin_service.process_passage). Stored as
-      "<tone-marked pinyin> (<machine-readable tone digits, sandhi applied>)",
-      e.g. 你好 -> "nǐ hǎo (ni2 hao3)". The diacritics carry the dictionary
-      (base) tones; the digit string carries the spoken (context) tones after
-      third-tone / 一 / 不 sandhi.
+      "<tone-marked pinyin> (<machine-readable dictionary tone digits>)". Sandhi is
+      context-dependent, so it is never stored; graders derive it at run time.
+      e.g. 你好 -> "nǐ hǎo (ni3 hao3)". Both parts carry dictionary (base)
+      tones; neutral tones are 5.
   JA (language_id=3): fugashi + UniDic (unidic-lite) kana reading, normalised to
       hiragana. NOTE: as of 2026-06-14 there are 0 JA senses (the TASK-505 JA
       extraction batch is deferred for cost), so --language ja is currently a
@@ -87,7 +87,7 @@ def _add_diacritic(syllable: str, tone: int) -> str:
 
 
 def zh_pronunciation(lemma: str) -> str | None:
-    """Compute "<tone-marked pinyin> (<tone digits w/ sandhi>)" for a ZH lemma."""
+    """Compute "<tone-marked pinyin> (<dictionary tone digits>)" for a ZH lemma."""
     from services.pinyin_service import process_passage
 
     tokens = [t for t in process_passage(lemma) if not t['is_punctuation']]
@@ -101,9 +101,8 @@ def zh_pronunciation(lemma: str) -> str | None:
         if not syl:
             continue
         base = t['base_tone']
-        ctx = t['context_tone']
         marked_parts.append(_add_diacritic(syl, base))
-        digit_parts.append(f"{syl}{ctx}")
+        digit_parts.append(f"{syl}{base}")
 
     if not marked_parts:
         return None
