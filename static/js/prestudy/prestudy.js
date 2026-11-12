@@ -232,10 +232,28 @@
     const haveTones = ts.length && ts.every((t) => t != null);
     return { segs, tones: haveTones ? ts : null };
   }
+  // The numbered reference records spoken (sandhi) tones while the display
+  // shows dictionary tones, so a learner typing either must pass:
+  //  - third-tone sandhi: ref 2 before a run of 2s that ends in 3 -> 3 ok
+  //  - 不 bu2 before 4 -> bu4 ok;  一 yi2/yi4 -> yi1 ok
+  //  - non-initial syllable: neutral (5) and its full tone are interchangeable
+  function toneAccepted(t, ref, i) {
+    const r = ref[i].tone;
+    if (t === r) return true;
+    if (r === 2 && t === 3) {
+      let j = i + 1;
+      while (j < ref.length && ref[j].tone === 2) j++;
+      if (j < ref.length && ref[j].tone === 3) return true;
+    }
+    if (ref[i].seg === 'bu' && r === 2 && t === 4) return true;
+    if (ref[i].seg === 'yi' && (r === 2 || r === 4) && t === 1) return true;
+    if (i > 0 && (r === 5 || t === 5)) return true;
+    return false;
+  }
   function gradeZh(segs, tones, numbered) {
     const ref = pinyinSyllables(numbered);
     const segOk = segs.join('') === ref.map((r) => r.seg).join('');
-    const toneOk = tones != null && tones.length === ref.length && tones.every((t, i) => t === ref[i].tone);
+    const toneOk = tones != null && tones.length === ref.length && tones.every((t, i) => toneAccepted(t, ref, i));
     return { segOk, toneOk, ok: segOk && toneOk, ref };
   }
   function gradeReading(input, rp) {
