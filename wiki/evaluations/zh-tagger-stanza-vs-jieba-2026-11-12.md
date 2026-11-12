@@ -4,7 +4,7 @@ type: evaluation
 status: complete
 last_updated: 2026-11-12
 open_questions:
-  - "OPEN: validate jieba's guessed (HMM) words against a free dictionary (CC-CEDICT, CC BY-SA 4.0) before they become vocabulary? Needs the dictionary download (mdbg.net) and the developer's go-ahead."
+  - "ANSWERED 2026-11-12: guessed words are validated against CC-CEDICT before they become vocabulary (services/vocabulary/zh_segmenter.py)."
   - "OPEN: of the 108 dictionary words that exist only because of jieba's guessing, which fakes to retire (and what happens to senses/tests linked to them)?"
 ---
 

@@ -1,7 +1,8 @@
 """
 Chinese Processor — jieba
 
-Segments Chinese text into words using jieba with POS tagging.
+Segments Chinese text into words using jieba with POS tagging; words jieba
+guesses are checked against CC-CEDICT first (services/vocabulary/zh_segmenter.py).
 Chinese does not inflect, so no lemmatization is needed (lemma = surface form).
 
 Chengyu (4-character idioms) are automatically segmented as single tokens.
@@ -28,10 +29,11 @@ _STOP_WORDS = frozenset({
 
 
 def _load_jieba():
-    """Load jieba POS tagger and force initialization."""
-    import jieba.posseg as pseg
-    list(pseg.cut("初始化"))  # Warm up
-    return pseg
+    """Load jieba (and the word lists used to check its guesses) once."""
+    from services.vocabulary import zh_segmenter
+    list(zh_segmenter.cut_with_tags("初始化"))  # Warm up
+    zh_segmenter.known_words()
+    return zh_segmenter
 
 
 class ChineseProcessor(BaseLanguageProcessor):
@@ -41,8 +43,11 @@ class ChineseProcessor(BaseLanguageProcessor):
         return model_cache.get("jieba_pseg", _load_jieba)
 
     def extract_lemma_tokens(self, text: str) -> list[LemmaToken]:
-        pseg = self._get_tagger()
-        word_pos_pairs = list(pseg.cut(text))
+        # jieba, with guessed words checked against CC-CEDICT (zh_segmenter):
+        # a fake guess such as 人用 is split into 人 / 用 before it can become
+        # vocabulary.
+        segmenter = self._get_tagger()
+        word_pos_pairs = list(segmenter.cut_with_tags(text))
 
         tokens = []
         for i, (word, pos) in enumerate(word_pos_pairs):
@@ -65,9 +70,9 @@ class ChineseProcessor(BaseLanguageProcessor):
         return tokens
 
     def tokenize_full(self, text: str) -> list[tuple[str, str, bool, str]]:
-        pseg = self._get_tagger()
+        segmenter = self._get_tagger()
         result = []
-        for word, pos in pseg.cut(text):
+        for word, pos in segmenter.cut_with_tags(text):
             if not word:
                 continue
             word_stripped = word.strip()
