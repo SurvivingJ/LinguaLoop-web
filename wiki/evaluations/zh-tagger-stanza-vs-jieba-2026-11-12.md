@@ -22,9 +22,11 @@ creates vocabulary and tags it? Prompted by jieba tagging 宗教改革
 Read-only. All 125 active Chinese tests (53,238 characters). jieba
 `posseg` (as `services/vocabulary/processors/chinese.py`) vs Stanza 1.15
 `zh-hans` tokenize+pos, CPU. Tags compared after `services/vocabulary/pos.py`
-`normalize_pos` (Stanza xpos NNB → measure_word). Script:
-`scripts/eval_zh_taggers_stanza_vs_jieba.py` (needs `pip install stanza` and
-the 419 MB model from huggingface.co).
+`normalize_pos` (Stanza xpos NNB → measure_word). The one-off trial script
+(`scripts/eval_zh_taggers_stanza_vs_jieba.py`, commit dad0f0e) and Stanza
+itself were removed afterwards at the developer's request, and the
+Hugging Face hosts added for the 419 MB model download were taken back out of
+the environment's network allowlist.
 
 ## Results
 | | jieba | Stanza |
