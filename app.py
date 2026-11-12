@@ -80,6 +80,10 @@ def create_app(config_class=Config):
     # Attach report-only Content-Security-Policy (observes violations; no block)
     _setup_security_headers(app)
 
+    # Compression + content-hashed, long-cached static URLs (latency 2026-11)
+    from services.static_assets import init_static_assets
+    init_static_assets(app)
+
     # Initialize all services
     _initialize_services(app)
 
@@ -135,15 +139,13 @@ def _setup_cors(app):
 # the browser only reports violations — so it's safe to ship while inline
 # <script>/<style> are still pervasive (removed in Phase 3). 'unsafe-inline'
 # is intentional for now; tighten to nonces/hashes once inline code is gone.
-# Sources mirror the CDNs actually loaded by base.html (jsdelivr, cdnjs,
-# Google Fonts).
+# Bootstrap, Font Awesome and Bootstrap Icons are self-hosted under
+# static/vendor/ (TASK-933); the only third party left is Google Fonts.
 _CSP_REPORT_ONLY = "; ".join([
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net "
-    "https://cdnjs.cloudflare.com https://fonts.googleapis.com",
-    "font-src 'self' data: https://cdn.jsdelivr.net "
-    "https://cdnjs.cloudflare.com https://fonts.gstatic.com",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: https:",
     "connect-src 'self'",
     "base-uri 'self'",
@@ -682,6 +684,21 @@ def _register_core_routes(app):
             "token_costs": Config.TOKEN_COSTS if hasattr(Config, 'TOKEN_COSTS') else {},
             "daily_free_tokens": Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
         })
+
+    @app.context_processor
+    def _inline_metadata():
+        """/api/metadata, embedded in every page (latency 2026-11).
+
+        Pages awaited this fetch before their first real API call. It is served
+        from DimensionService's in-memory cache, so embedding it costs no
+        database work. None (client fetches as before) unless both lists are
+        cached.
+        """
+        langs = DimensionService.get_all_languages()
+        types = DimensionService._test_types_metadata
+        if isinstance(langs, list) and langs and isinstance(types, list) and types:
+            return {'lingua_metadata': {'languages': langs, 'test_types': types, 'status': 'success'}}
+        return {'lingua_metadata': None}
 
     @app.route('/api/metadata', methods=['GET'])
     def get_metadata():

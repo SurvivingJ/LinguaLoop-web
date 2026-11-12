@@ -478,6 +478,12 @@
 
             const result = await response.json();
             debugLog('Skill ratings received:', result);
+            // Hand the full payload to the test page so "Start" does not
+            // download the same test again (read once, 10-minute expiry).
+            try {
+                sessionStorage.setItem('ld_test_payload:' + slug,
+                    JSON.stringify({ at: Date.now(), body: result }));
+            } catch (_) { /* storage full or blocked: the test page fetches */ }
             return result.skill_ratings || {};
         } catch (error) {
             console.warn('Error fetching skill ratings:', error);
@@ -689,8 +695,8 @@
      */
     async function initializePage() {
         try {
-            // Load language metadata for native names
-            await LinguaMetadata.load();
+            // Language metadata + UI translations, awaited with the data below.
+            const metadataReady = LinguaMetadata.load();
 
             // Parse URL
             const { testSlug: slug, selectedTestType: initialType } = parseUrlParams();
@@ -703,7 +709,8 @@
             // Fetch test data and skill ratings in parallel
             const [test, ratings] = await Promise.all([
                 fetchTestData(slug),
-                fetchSkillRatings(slug)
+                fetchSkillRatings(slug),
+                metadataReady
             ]);
 
             if (!test) {

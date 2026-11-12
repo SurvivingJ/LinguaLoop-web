@@ -31,6 +31,8 @@ import logging
 import random
 from typing import Optional
 
+from services.pagination import fetch_all
+
 logger = logging.getLogger(__name__)
 
 # Ladder exercise types the prestudy prime can render, the content fields each
@@ -144,9 +146,11 @@ def _load_knowledge(db, user_id: str, sense_ids: list[int]) -> dict[str, dict]:
 def _load_exercises(db, sense_ids: list[int]) -> dict[str, list[dict]]:
     rows: list[dict] = []
     for part in _chunks(sense_ids):
-        rows += db.table('exercises').select(
+        # Paged: 200 senses can have far more than PostgREST's 1000-row cap.
+        rows += fetch_all(lambda part=part: db.table('exercises').select(
             'id, word_sense_id, exercise_type, content, ladder_level'
-        ).eq('is_active', True).in_('word_sense_id', part).in_('exercise_type', list(EXERCISE_FIELDS)).execute().data or []
+        ).eq('is_active', True).in_('word_sense_id', part)
+         .in_('exercise_type', list(EXERCISE_FIELDS)).order('id'))
     return group_exercises(rows)
 
 
@@ -388,8 +392,10 @@ def request_generation(db, sense_ids: list[int], language_id: int, exercises: di
 def senses_with_exercises(db, sense_ids: list[int]) -> set[int]:
     out: set[int] = set()
     for part in _chunks(sorted(set(sense_ids))):
-        for r in db.table('exercises').select('word_sense_id').eq('is_active', True) \
-                .in_('word_sense_id', part).execute().data or []:
+        # Paged: a chunk can match more rows than PostgREST's 1000-row cap,
+        # which used to drop senses silently (undercounting exercise coverage).
+        for r in fetch_all(lambda part=part: db.table('exercises').select('word_sense_id')
+                           .eq('is_active', True).in_('word_sense_id', part).order('id')):
             out.add(int(r['word_sense_id']))
     return out
 
@@ -667,9 +673,9 @@ def estimate_minutes(unknown: int, with_exercises: int, plan_mode: str) -> int:
 
 def get_prestudy_mode(db, user_id: str, language_id: int) -> str:
     try:
-        rows = db.table('user_study_plans').select('prestudy_mode').eq('user_id', user_id) \
-            .eq('language_id', language_id).limit(1).execute().data or []
-        mode = (rows[0].get('prestudy_mode') if rows else None) or 'auto'
+        from services.day_boundary import plan_row
+        row = plan_row(db, user_id, language_id)
+        mode = (row.get('prestudy_mode') if row else None) or 'auto'
         return mode if mode in PRESTUDY_MODES else 'auto'
     except Exception as e:
         logger.info("prestudy_mode not readable (%s); using auto", e)
@@ -686,19 +692,39 @@ def plan_for_tests(db, user_id: str, language_id: int, tests: list[dict]) -> dic
     wanted = [t for t in tests if t.get('test_type') in PRESTUDY_TEST_TYPES and t.get('id')]
     if not wanted:
         return {}
-    rows = db.table('tests').select('id, vocab_sense_ids').in_('id', [t['id'] for t in wanted]).execute().data or []
+    # One round trip for the five reads below (ADR-043 option B); None when the
+    # bundle is not deployed yet or fails, then the per-table reads.
+    from services.optional_rpc import call_bundle
+    bundle = call_bundle(db, 'prestudy_plan_inputs', {
+        'p_user_id': user_id, 'p_language_id': language_id,
+        'p_test_ids': [t['id'] for t in wanted],
+    })
+    with_exercises: Optional[set[int]] = None
+    if bundle is not None:
+        rows = bundle.get('tests') or []
+        knowledge = {str(k['sense_id']): {'p': float(k['p_known']), 'status': k.get('status'),
+                                          'n': k.get('evidence_count') or 0}
+                     for k in (bundle.get('knowledge') or [])}
+        freq: dict[int, Optional[float]] = {int(r['id']): r.get('frequency_rank')
+                                            for r in (bundle.get('freq') or [])}
+        raw_ability = bundle.get('ability_zipf')
+        ability = float(raw_ability) if raw_ability is not None else DEFAULT_ABILITY_ZIPF
+        with_exercises = {int(s) for s in (bundle.get('with_exercises') or [])}
+    else:
+        rows = db.table('tests').select('id, vocab_sense_ids').in_('id', [t['id'] for t in wanted]).execute().data or []
     senses_by_test = {r['id']: sorted({int(s) for s in (r.get('vocab_sense_ids') or []) if s}) for r in rows}
     all_ids = sorted({s for ids in senses_by_test.values() for s in ids})
     if not all_ids:
         return {}
-    knowledge = _load_knowledge(db, user_id, all_ids)
-    missing = [s for s in all_ids if str(s) not in knowledge]
-    freq: dict[int, Optional[float]] = {}
-    for part in _chunks(missing):
-        for r in db.table('dim_word_senses').select('id, dim_vocabulary(frequency_rank)').in_('id', part) \
-                .execute().data or []:
-            freq[int(r['id'])] = (r.get('dim_vocabulary') or {}).get('frequency_rank')
-    ability = _ability_zipf(db, user_id, language_id)
+    if bundle is None:
+        knowledge = _load_knowledge(db, user_id, all_ids)
+        missing = [s for s in all_ids if str(s) not in knowledge]
+        freq = {}
+        for part in _chunks(missing):
+            for r in db.table('dim_word_senses').select('id, dim_vocabulary(frequency_rank)').in_('id', part) \
+                    .execute().data or []:
+                freq[int(r['id'])] = (r.get('dim_vocabulary') or {}).get('frequency_rank')
+        ability = _ability_zipf(db, user_id, language_id)
 
     def p(sid: int) -> float:
         k = knowledge.get(str(sid))
@@ -707,7 +733,10 @@ def plan_for_tests(db, user_id: str, language_id: int, tests: list[dict]) -> dic
     unknown_by_test = {tid: [s for s in ids if p(s) < 0.5] for tid, ids in senses_by_test.items()}
     drill_by_test = {tid: [s for s in ids if p(s) < DRILL_MAX_P] for tid, ids in senses_by_test.items()}
     top = sorted({s for d in drill_by_test.values() for s in d})
-    have_ex = senses_with_exercises(db, top) if top else set()
+    if with_exercises is not None:
+        have_ex = with_exercises & set(top)
+    else:
+        have_ex = senses_with_exercises(db, top) if top else set()
     plans: dict[str, dict] = {}
     for tid, ids in senses_by_test.items():
         if not ids:

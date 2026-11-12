@@ -1,0 +1,176 @@
+[
+ {
+  "name": "expired token: one renewal, no 401s, tests listed",
+  "ok": true,
+  "detail": {
+   "refreshes": 1,
+   "s401": [],
+   "url": "/tests",
+   "errors": []
+  }
+ },
+ {
+  "name": "rejected token: 401s share one renewal, then data loads",
+  "ok": true,
+  "detail": {
+   "refreshes": 1,
+   "n401": 3,
+   "ok200": 3,
+   "url": "/tests",
+   "errors": [
+    "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+    "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)",
+    "Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED)"
+   ]
+  }
+ },
+ {
+  "name": "session: start mounts first player",
+  "ok": true,
+  "detail": {
+   "preloadedPlayers": [
+    "prestudy.js",
+    "reading_listening.js",
+    "practice.js",
+    "pitch_accent.js",
+    "intro_drill.js"
+   ],
+   "stageText": "Study first\n\n子供の自由な発想が生んだ、木漏れ日の遊び小屋\n\n25% of this test's key words are new to you: a quick warm-up on the words you don't",
+   "errors": []
+  }
+ },
+ {
+  "name": "practice: exercise renders and an answer is accepted",
+  "ok": true,
+  "detail": {
+   "startVisible": true,
+   "answered": true,
+   "attemptPosts": [],
+   "stage": "New words — 19 of 19 to go\nNew word · session 2 of 4\nType the reading\n立つ\nCheck\nI don't know",
+   "errors": []
+  }
+ },
+ {
+  "name": "preview -> test: test payload fetched once, questions render",
+  "ok": true,
+  "detail": {
+   "fetches": 1,
+   "qCount": 32,
+   "url": "/test/ja-d1-a-roman-child-s-wooden-toy-hor-20260823223156?type=reading",
+   "errors": []
+  }
+ },
+ {
+  "name": "test page reload fetches fresh data",
+  "ok": true,
+  "detail": {
+   "before": 1,
+   "after": 2
+  }
+ },
+ {
+  "name": "i18n: switching to ja translates, survives reload, versioned files",
+  "ok": true,
+  "detail": {
+   "navEn": "LinguaDojo Daily Session Practice Language Selection Browse Tests Calibration Co",
+   "navJa": "LinguaDojo デイリーセッション 練習 言語選択 テスト一覧 キャリブレーション 助数詞 報告 🇯🇵",
+   "i18n": [
+    "/static/i18n/en.json?v=e6a549d463",
+    "/static/i18n/ja.json?v=1ad0530076",
+    "/static/i18n/en.json?v=e6a549d463",
+    "/static/i18n/ja.json?v=1ad0530076"
+   ],
+   "errors": []
+  }
+ },
+ {
+  "name": "tests: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/tests"
+  }
+ },
+ {
+  "name": "preview: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/test/ja-d1-a-roman-child-s-wooden-toy-hor-20260823223156/preview?type=reading"
+  }
+ },
+ {
+  "name": "test: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/test/ja-d1-a-roman-child-s-wooden-toy-hor-20260823223156?type=reading"
+  }
+ },
+ {
+  "name": "session: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/session"
+  }
+ },
+ {
+  "name": "studyplan: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/study-plan"
+  }
+ },
+ {
+  "name": "prestudy: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/test/ja-d1-a-roman-child-s-wooden-toy-hor-20260823223156/prestudy?type=reading"
+  }
+ },
+ {
+  "name": "flashcards: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/flashcards"
+  }
+ },
+ {
+  "name": "profile: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/profile"
+  }
+ },
+ {
+  "name": "wordlist: loads without errors or raw i18n keys",
+  "ok": true,
+  "detail": {
+   "bad": [],
+   "rawKeys": [],
+   "errors": [],
+   "landed": "/word-list"
+  }
+ }
+]

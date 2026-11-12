@@ -303,8 +303,10 @@
         selectedLang = profileData[langCode];
         console.log('Selected language data:', JSON.stringify(selectedLang, null, 2));
 
-        // Update active state
-        const cards = document.querySelectorAll('.language-card');
+        // Update active state. Scoped to the study-language list: the native-
+        // language cards below share the class, and an unscoped, index-matched
+        // query highlighted 中文 there depending on which section loaded first.
+        const cards = document.querySelectorAll('#languageList .language-card');
         console.log('Found language cards:', cards.length);
         cards.forEach((el, i) => {
             el.classList.remove('active');

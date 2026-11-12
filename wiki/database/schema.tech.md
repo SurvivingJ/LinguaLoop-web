@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-10-30
+last_updated: 2026-11-11
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -2243,6 +2243,28 @@ Exercise accuracy percentages grouped by exercise type, complexity tier, and lan
 
 ### User Management
 - `anonymize_user_data(user_id)` -> void -- GDPR deletion
+
+### Local day boundary (ADR-022)
+- `resolve_plan_timezone(p_tz text)` -> text -- the zone name if Postgres knows it, else `'UTC'`. Since 2026-11-11 (`migrations/latency_2026_11_db.sql`, applied live) looks the name up in **`tz_names`** first and scans `pg_timezone_names` only for a name missing from the snapshot (that scan cost ~55 ms warm / ~300-500 ms cold per call). [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]]
+- `plan_local_date(user, language, at)` / `plan_local_day_start(...)` -- learner-local date / midnight via `resolve_plan_timezone`.
+
+### `tz_names` (2026-11-11)
+| Column | Type | Notes |
+|---|---|---|
+| name | text PK | Snapshot of `pg_timezone_names.name` (~1,200 rows). RLS on, no policies, `SELECT` granted to `service_role` only; read by SECURITY DEFINER callers. Refresh after a Postgres/tzdata upgrade: `INSERT INTO tz_names SELECT name FROM pg_timezone_names ON CONFLICT DO NOTHING`. |
+
+### Indexes in `migrations/latency_2026_11_db.sql` (applied live 2026-11-11)
+Foreign-key indexes on children of parents that really are deleted: `exercises(word_asset_id)`,
+`user_exercise_history(exercise_id)`, `user_exercise_history(sense_id)`,
+`user_vocabulary_knowledge(sense_id)`, `user_word_ladder(sense_id)`, `user_flashcards(sense_id)`,
+`word_quiz_results(sense_id)`, `dim_classifier_noun_pairs(noun_sense_id)`,
+`user_classifier_mastery(classifier_id)`, `prestudy_followups(session_id)`,
+`prestudy_sessions(test_id)`, `token_transactions(attempt_id)`, `token_transactions(test_id)`,
+`tests(gen_user)`, `user_skill_ratings(user_id)`, `app_error_logs(user_id)`,
+`topic_generation_runs(category_id)`, `corpus_style_profiles(reference_source_id)`.
+Dropped duplicates: `idx_cc_validated_lmi`, `idx_counter_pairs_counter`, `idx_counter_pairs_lemma`,
+`uq_counter_noun_pairs_lemma_counter` (each an exact copy of an index that stays).
+RLS policies now call `(select auth.uid())` / `(select auth.role())` (evaluated once per statement).
 
 ### Triggers
 - `sync_exercise_history()` -> trigger -- copy exercise_attempts to user_exercise_history (Phase 4)

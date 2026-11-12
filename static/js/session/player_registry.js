@@ -3,16 +3,82 @@
 // mount(container, ctx) -> { destroy() } and call ctx.onComplete(result) when
 // the user finishes, or ctx.onSkip() to advance without marking complete.
 
-import { mount as mountReadingListening } from './players/reading_listening.js';
-import { mount as mountDictation } from './players/dictation.js';
-import { mount as mountPinyin } from './players/pinyin.js';
-import { mount as mountPitchAccent } from './players/pitch_accent.js';
-import { mount as mountClassifierDrill } from './players/classifier_drill.js';
-import { mount as mountPractice } from './players/practice.js';
-import { mount as mountFlashcards } from './players/flashcards.js';
-import { mount as mountDualTranslation } from './players/dual_translation.js';
-import { mount as mountSpeedRound } from './players/speed_round.js';
-import { mount as mountPrestudy } from './players/prestudy.js';
+// Players are loaded on demand (dynamic import), not all up front: the page
+// used to fetch every player (~256 KB over a 4-level import chain) before it
+// could even ask for today's session. `preloadPlayers(queue)` warms the ones a
+// queue needs as soon as the queue is known.
+const LOADERS = {
+  reading_listening: () => import('./players/reading_listening.js'),
+  dictation: () => import('./players/dictation.js'),
+  pinyin: () => import('./players/pinyin.js'),
+  pitch_accent: () => import('./players/pitch_accent.js'),
+  classifier_drill: () => import('./players/classifier_drill.js'),
+  practice: () => import('./players/practice.js'),
+  flashcards: () => import('./players/flashcards.js'),
+  dual_translation: () => import('./players/dual_translation.js'),
+  speed_round: () => import('./players/speed_round.js'),
+  prestudy: () => import('./players/prestudy.js'),
+};
+
+const _modules = {}; // name -> Promise<module>
+function loadModule(name) {
+  if (!_modules[name]) {
+    _modules[name] = LOADERS[name]().catch((err) => {
+      delete _modules[name]; // let a later mount retry
+      throw err;
+    });
+  }
+  return _modules[name];
+}
+
+// A synchronous mount(container, ctx) -> { destroy() } whose real player is
+// imported first. destroy() before the import lands cancels the mount.
+function lazyPlayer(name) {
+  return function mount(container, ctx) {
+    let handle = null;
+    let destroyed = false;
+    container.innerHTML =
+      '<div class="text-center py-5" data-player-loading>' +
+      '<div class="spinner-border text-primary" role="status"></div></div>';
+    loadModule(name)
+      .then((mod) => {
+        if (destroyed) return;
+        container.innerHTML = '';
+        handle = mod.mount(container, ctx);
+        // The controller translates the stage right after mount(); the real
+        // markup arrives later, so translate it here as well.
+        if (window.LinguaI18n && typeof window.LinguaI18n.applyToDOM === 'function') {
+          window.LinguaI18n.applyToDOM(container);
+        }
+      })
+      .catch((err) => {
+        if (destroyed) return;
+        console.error('[session] player failed to load:', name, err);
+        placeholderPlayer({
+          title: 'Could not load this exercise',
+          message: 'Check your connection, then reload the page or skip it for now.',
+          href: null,
+        })(container, ctx);
+      });
+    return {
+      destroy() {
+        destroyed = true;
+        if (handle && typeof handle.destroy === 'function') handle.destroy();
+      },
+    };
+  };
+}
+
+const mountReadingListening = lazyPlayer('reading_listening');
+const mountDictation = lazyPlayer('dictation');
+const mountPinyin = lazyPlayer('pinyin');
+const mountPitchAccent = lazyPlayer('pitch_accent');
+const mountClassifierDrill = lazyPlayer('classifier_drill');
+const mountPractice = lazyPlayer('practice');
+const mountFlashcards = lazyPlayer('flashcards');
+const mountDualTranslation = lazyPlayer('dual_translation');
+const mountSpeedRound = lazyPlayer('speed_round');
+const mountPrestudy = lazyPlayer('prestudy');
 
 // test_type -> mount fn. Phase 2/3 add dictation / pinyin / pitch_accent /
 // classifier_drill / practice. Anything still unmapped falls through to a
@@ -53,6 +119,34 @@ const STANDALONE_URL = {
   pinyin: (slug) => `/test/${slug}/pinyin`,
   pitch_accent: (slug) => `/test/${slug}/pitch-accent`,
 };
+
+// test_type / kind -> module name, for preloading.
+const TEST_MODULES = {
+  reading: 'reading_listening',
+  listening: 'reading_listening',
+  dictation: 'dictation',
+  pinyin: 'pinyin',
+  pitch_accent: 'pitch_accent',
+  classifier_drill: 'classifier_drill',
+};
+const KIND_MODULES = {
+  practice: 'practice',
+  flashcards: 'flashcards',
+  dual_translation: 'dual_translation',
+  speed_round: 'speed_round',
+  prestudy: 'prestudy',
+};
+
+// Start importing the players a queue will need, without blocking anything.
+export function preloadPlayers(items) {
+  const names = new Set();
+  (items || []).forEach((item) => {
+    if (!item) return;
+    const name = KIND_MODULES[item.kind] || TEST_MODULES[item.test_type];
+    if (name) names.add(name);
+  });
+  names.forEach((name) => loadModule(name).catch(() => {}));
+}
 
 export function getPlayer(item) {
   const byKind = KIND_PLAYERS[item.kind];

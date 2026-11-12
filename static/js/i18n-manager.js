@@ -50,9 +50,21 @@
    * Fetch a translation JSON file.
    */
   function loadTranslationFile(lang) {
-    return fetch('/static/i18n/' + lang + '.json', { cache: 'no-cache' }).then(function (res) {
+    // base.html passes content hashes: a versioned URL is cached for a year and
+    // changes whenever the file does. Without one, revalidate as before.
+    const versions = window.LINGUA_I18N_VERSIONS || {};
+    const url = '/static/i18n/' + lang + '.json' + (versions[lang] ? '?v=' + versions[lang] : '');
+    const opts = versions[lang] ? {} : { cache: 'no-cache' };
+    return fetch(url, opts).then(function (res) {
       if (!res.ok) throw new Error('Failed to load ' + lang + ' translations');
       return res.json();
+    });
+  }
+
+  function domReady() {
+    if (document.readyState !== 'loading') return Promise.resolve();
+    return new Promise(function (resolve) {
+      document.addEventListener('DOMContentLoaded', resolve, { once: true });
     });
   }
 
@@ -65,16 +77,16 @@
 
     currentLang = detectLanguage();
 
-    loadPromise = loadTranslationFile('en')
-      .then(function (en) {
-        fallbackTranslations = en;
-        if (currentLang !== 'en') {
-          return loadTranslationFile(currentLang).then(function (data) {
-            translations = data;
-          });
-        } else {
-          translations = en;
-        }
+    // English (the fallback) and the UI language load in parallel, not one
+    // after the other.
+    const enP = loadTranslationFile('en');
+    const curP = currentLang !== 'en' ? loadTranslationFile(currentLang) : enP;
+    loadPromise = Promise.all([enP, curP.catch(function (err) { return err; })])
+      .then(function (res) {
+        fallbackTranslations = res[0];
+        if (res[1] instanceof Error) throw res[1];
+        translations = res[1];
+        return domReady();
       })
       .then(function () {
         isLoaded = true;
@@ -84,11 +96,13 @@
       .catch(function (err) {
         console.error('[i18n] Init error:', err);
         // Ensure we at least have fallback
-        if (Object.keys(fallbackTranslations).length > 0) {
-          translations = fallbackTranslations;
-          isLoaded = true;
-          applyToDOM();
-        }
+        return domReady().then(function () {
+          if (Object.keys(fallbackTranslations).length > 0) {
+            translations = fallbackTranslations;
+            isLoaded = true;
+            applyToDOM();
+          }
+        });
       });
 
     return loadPromise;
@@ -201,6 +215,10 @@
 
     currentLang = lang;
     localStorage.setItem(STORAGE_KEY, lang);
+    // A zh/ja interface needs its CJK web font (base.html loads it lazily).
+    if (window.LinguaFonts && typeof window.LinguaFonts.ensure === 'function') {
+      window.LinguaFonts.ensure(lang);
+    }
 
     let promise;
     if (lang === 'en') {
@@ -270,11 +288,12 @@
     }
   }
 
-  // Initialize on DOMContentLoaded
   document.addEventListener('DOMContentLoaded', function () {
     setupSwitcher();
-    init();
   });
+  // Start fetching translations now (not at DOMContentLoaded); they are
+  // applied once the DOM is ready, after the switcher is set up.
+  init();
 
   // Public API
   window.LinguaI18n = {

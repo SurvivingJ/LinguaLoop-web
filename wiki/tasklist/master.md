@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-10
+last_updated: 2026-11-11
 ---
 
 # Master Task List
@@ -19,12 +19,22 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 26 |
+| Not Started | 28 |
 | In Progress (`[~]`) | 11 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 21 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 219 |
+| Done (cumulative, not listed here) | 233 |
+
+*2026-11-11 (Merges + consolidation live):* TASK-930 (study-session 14 → 6 DB calls, −58% median) and TASK-932 (49 merged policies on 22 tables) applied live by the developer and verified. Counts: In Progress 12→11, awaiting live apply 22→21, Done 231→233.
+
+*2026-11-11 (Security applied):* developer applied TASK-875, 880, 882 by hand; verified live. Catalog check also found TASK-876, 877, 879 applied on 2026-10-14 (wiki had them unapplied). TASK-932 unblocked, rollback captured in `migrations/rls_consolidate_permissive_policies_rollback.sql`. Counts: awaiting live apply 28→22, Done 225→231.
+
+*2026-11-11 (Latency, third pass):* TASK-933 Done (vendored Bootstrap/Font Awesome/Bootstrap Icons, non-blocking Latin fonts, CJK fonts lazily per language; first paint −58 to −62%, [[evaluations/first-paint-2026-11-11]]); TASK-934 added (pre-existing CLS, needs a layout decision); TASK-930 option B built (study-session 14→11 calls, 6 after `migrations/latency_2026_11_session_merges.sql`); TASK-932 migration written, blocked behind the security-hardening policy drops. Counts: Not Started 30→28, In Progress 11→12, awaiting/blocked 27→28, Done 224→225.
+
+*2026-11-11 (Latency, second pass):* migration applied live by the developer and verified; TASK-925, 928, 929 Done after the before/after measurement and a 16/16 browser walkthrough ([[evaluations/latency-2026-11-11]]). Counts: In Progress 13→11, awaiting live apply 28→27, Done 221→224.
+
+*2026-11-11 (NEW — Latency, TASK-925–933):* latency audit + fixes ([[evaluations/latency-2026-11-11]], [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]]). TASK-926–927 Done (per-request plan-row / new-word-state cache, cached `dim_test_types`); TASK-928–929 Done in repo, after-measurement + browser walkthrough pending; TASK-925 (tz lookup + advisor fixes) written, awaiting live apply (Supabase confirmation timed out unanswered); TASK-930–933 Not Started follow-ups. Gunicorn concurrency deliberately unchanged (developer: hobby-tier Railway). Counts: Not Started 26→30, In Progress 11→13, awaiting live apply 27→28, Done 219→221.
 
 *2026-11-10 (second pass):* New-Word Drill fully done — TASK-919, 921 Done; TASK-922–924 added and Done: Practice attempts now move the ladder ([[decisions/ADR-041-practice-moves-the-ladder]] — no word had left ring 1 since Vocab Dojo was retired), gate/stress batteries in the Practice player, atomic drill commits, spacers, shared counting. Counts: Not Started 27→26, In Progress 12→11.
 
@@ -1117,14 +1127,14 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-875 | security-hardening | LIVE-DB: close self-escalation and balance forgery on `users`, `user_tokens`, `user_reports` (full client write revoke, drop `users_admin_all`; S1, S4, S9) | Done (repo) — awaiting live apply approval | M | — |
-| TASK-876 | security-hardening | LIVE-DB: enable RLS and revoke client access on the 32 unprotected tables (S2) | Done (repo) — awaiting live apply approval | S | — |
-| TASK-877 | security-hardening | LIVE-DB: function-grant hardening, REVOKE/GRANT per function + pinned search_path, groups A/B/C (S3, S5-S8, S13, S17) | Done (repo) — awaiting live apply approval | L | — |
+| TASK-875 | security-hardening | LIVE-DB: close self-escalation and balance forgery on `users`, `user_tokens`, `user_reports` (full client write revoke, drop `users_admin_all`; S1, S4, S9) | Done (applied live 2026-11-11) | M | — |
+| TASK-876 | security-hardening | LIVE-DB: enable RLS and revoke client access on the 32 unprotected tables (S2) | Done (applied live 2026-10-14) | S | — |
+| TASK-877 | security-hardening | LIVE-DB: function-grant hardening, REVOKE/GRANT per function + pinned search_path, groups A/B/C (S3, S5-S8, S13, S17) | Done (applied live 2026-10-14) | L | — |
 | TASK-878 | security-hardening | Read-only tampering check on study-plan minutes before debugging the minutes bug | [ ] | S | TASK-877 |
-| TASK-879 | security-hardening | LIVE-DB: analytics views to invoker, drop client grants incl. `vw_exercise_type_effectiveness` (S11) | Done (repo) — awaiting live apply approval | M | TASK-876 |
-| TASK-880 | security-hardening | LIVE-DB: lock down client-writable progress tables + default privileges (S10, S12) | Done (repo) — awaiting live apply approval | M | TASK-875, TASK-877 |
+| TASK-879 | security-hardening | LIVE-DB: analytics views to invoker, drop client grants incl. `vw_exercise_type_effectiveness` (S11) | Done (applied live 2026-10-14) | M | TASK-876 |
+| TASK-880 | security-hardening | LIVE-DB: lock down client-writable progress tables + default privileges (S10, S12) | Done (applied live 2026-11-11) | M | TASK-875, TASK-877 |
 | TASK-881 | security-hardening | Regression guard: static migration lint, catalog ACL/RLS test, `migrations/CLAUDE.md` rule | Done | M | TASK-875, TASK-876, TASK-877 |
-| TASK-882 | security-hardening | Route hardening: no answer keys pre-submit, server-side duration caps, bounded results (S14, S15; policy parts LIVE-DB) | Done (repo) — awaiting live apply approval | L | TASK-876, TASK-880 |
+| TASK-882 | security-hardening | Route hardening: no answer keys pre-submit, server-side duration caps, bounded results (S14, S15; policy parts LIVE-DB) | Done (applied live 2026-11-11) | L | TASK-876, TASK-880 |
 | TASK-883 | security-hardening | Remove anon-client fallback in `routes/users.py`, delete dead `payment_service` factory (S17) | Done | S | TASK-877 |
 | TASK-884 | security-hardening | Rate limiting on LLM and auth endpoints (S16) — **Deferred**: potential future improvement, not implemented | Deferred | L | — |
 | TASK-885 | weekly-minutes | LIVE-DB (apply gated): `study_time_ledger` table + `credit_study_time` + `get_weekly_study_seconds` | Done (repo) — awaiting live apply approval | M | — |
@@ -1170,6 +1180,21 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-922 | new-word-drill | Practice attempts move the ladder (ladder_apply_progress, ADR-041) | Done | M | — |
 | TASK-923 | new-word-drill | Practice player runs gate/stress-test batteries | Done | M | TASK-922 |
 | TASK-924 | new-word-drill | Drill cleanups: atomic commit, spacers, shared counting | Done | M | TASK-915 |
+
+### Latency (new 2026-11-11)
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-925 | latency | `tz_names` lookup in `resolve_plan_timezone`; duplicate/FK indexes; RLS initplan (LIVE-DB, approval) | Done (applied live) | S | — |
+| TASK-926 | latency | Per-request cache for the `user_study_plans` row | Done | M | — |
+| TASK-927 | latency | Memoise new-word state; cache `dim_test_types` minutes map | Done | S | TASK-926 |
+| TASK-928 | latency | Compression + content-hashed, long-cached static files | Done | S | — |
+| TASK-929 | latency | Remove browser start-up waterfalls | Done | M | TASK-928 |
+| TASK-930 | latency | Daily-session read merges (ADR-043 option B; one-RPC option A deferred) | Done (applied live) | L | TASK-926 |
+| TASK-931 | latency | Keep content-generation batch jobs off learners' hours | [ ] | S | — |
+| TASK-932 | latency | Consolidate multiple permissive RLS policies (LIVE-DB, developer applies) | Done (applied live) | M | TASK-925, TASK-875, TASK-880, TASK-882 |
+| TASK-933 | latency | Trim render-blocking fonts and CSS in base.html | Done | S | — |
+| TASK-934 | latency | Stop late-loading sections from pushing the page down (CLS) | [ ] needs layout decision | S | — |
 
 ### Language Packs (existing — unchanged)
 

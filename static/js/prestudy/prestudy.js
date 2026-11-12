@@ -936,7 +936,10 @@
   async function init() {
     // Also loaded on the session page for its reading graders (window.LinguaPrestudy).
     if (!$('psSkip')) return;
-    if (window.LinguaI18n && window.LinguaI18n.init) { try { await window.LinguaI18n.init(); } catch { /* English fallback */ } }
+    // Translations and the prestudy data load in parallel; rendering waits for both.
+    const i18nReady = (window.LinguaI18n && window.LinguaI18n.init)
+      ? Promise.resolve(window.LinguaI18n.init()).catch(() => { /* English fallback */ })
+      : Promise.resolve();
     const parts = window.location.pathname.split('/').filter(Boolean);   // ['test', slug, 'prestudy']
     S.slug = decodeURIComponent(parts[1] || '');
     const params = new URLSearchParams(window.location.search);
@@ -951,10 +954,12 @@
     $('psSkip').onclick = (e) => { e.preventDefault(); takeTest(S.answers.length > 0); };
     $('psBackToPreview').href = `/test/${encodeURIComponent(S.slug)}/preview?type=${encodeURIComponent(S.testType)}`;
     $('psErrorSkip').href = testUrl();
+    const dataP = window.authFetch(`/api/tests/${encodeURIComponent(S.slug)}/prestudy${S.mode === 'followup' ? '?mode=followup' : ''}`)
+      .then((res) => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); });
+    dataP.catch(() => { /* handled below */ });
+    await i18nReady;
     try {
-      const res = await window.authFetch(`/api/tests/${encodeURIComponent(S.slug)}/prestudy${S.mode === 'followup' ? '?mode=followup' : ''}`);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      D = await res.json();
+      D = await dataP;
       S.followSenses = (D.followup_sense_ids || []).map(String);
     } catch (e) {
       console.error('[prestudy] load failed:', e);
