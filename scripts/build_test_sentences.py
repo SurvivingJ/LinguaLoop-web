@@ -97,8 +97,17 @@ def run_db(apply: bool, test_id: str | None) -> int:
         q = q.eq('id', test_id)
     tests = q.execute().data or []
     existing = {}
-    for r in (db.table('test_sentences').select('test_id, transcript_hash').execute().data or []):
-        existing[r['test_id']] = r['transcript_hash']
+    start = 0
+    while True:  # paged: the API returns at most 1000 rows per request
+        q2 = db.table('test_sentences').select('test_id, transcript_hash').order('id')
+        if test_id:
+            q2 = q2.eq('test_id', test_id)
+        page = q2.range(start, start + 999).execute().data or []
+        for r in page:
+            existing[r['test_id']] = r['transcript_hash']
+        if len(page) < 1000:
+            break
+        start += 1000
     all_rows, changed, skipped = {}, 0, 0
     for t in tests:
         rows, warnings = rows_for_test(t)
