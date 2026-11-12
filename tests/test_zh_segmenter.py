@@ -44,3 +44,16 @@ def test_chinese_processor_uses_the_checked_splitter():
     lemmas = [t.lemma for t in p.extract_lemma_tokens('很多人用印刷术传播宗教。')]
     assert '人用' not in lemmas and '人' in lemmas
     assert '人用' not in [lem for _, lem, _, _ in p.tokenize_full('很多人用印刷术。')]
+
+
+def test_our_labels_correct_jiebas_tags_without_changing_the_split(monkeypatch):
+    monkeypatch.setattr(z, 'pos_overrides', lambda: {'印刷术': 'v'})
+    out = list(z.cut_with_tags('很多人用印刷术。'))
+    assert ('印刷术', 'v') in out and ''.join(w for w, _ in out) == '很多人用印刷术。'
+
+
+def test_override_file_has_only_multi_character_words():
+    z.pos_overrides.cache_clear()
+    ov = z.pos_overrides()
+    assert ov and all(len(w) >= 2 for w in ov)
+    assert ov.get('研发') == 'v'

@@ -6,7 +6,9 @@ were fragments that became fake vocabulary (人用 from 很多人用, 很强, �
 see wiki/evaluations/zh-tagger-stanza-vs-jieba-2026-11-12.md. A guessed word
 is kept only when it is in CC-CEDICT (data/lexicon/cc_cedict_headwords.txt.gz,
 CC BY-SA 4.0) or in the reviewed allow-list (data/lexicon/zh_extra_words.txt);
-otherwise it is split again without guessing (人用 -> 人 / 用).
+otherwise it is split again without guessing (人用 -> 人 / 用). Tags then
+take our own label where it corrects jieba's dictionary
+(data/lexicon/zh_pos_overrides.tsv, scripts/build_zh_pos_overrides.py).
 
 A word is "guessed" when jieba's own dictionary does not list it with a
 frequency. jieba's dictionary also holds a few non-words (会用, 变好, 土里);
@@ -51,6 +53,25 @@ def known_words() -> frozenset[str]:
 def forced_splits() -> frozenset[str]:
     """Reviewed non-words to split even when jieba's dictionary has them."""
     return frozenset(_read_words(_DATA / 'zh_split_words.txt'))
+
+
+@lru_cache(maxsize=1)
+def pos_overrides() -> dict[str, str]:
+    """word -> jieba tag from data/lexicon/zh_pos_overrides.tsv: our own
+    labels where they correct jieba's dictionary tag (built by
+    scripts/build_zh_pos_overrides.py). Only the tag changes, never the split."""
+    out: dict[str, str] = {}
+    try:
+        with open(_DATA / 'zh_pos_overrides.tsv', encoding='utf-8') as fh:
+            for line in fh:
+                if line.startswith('#') or not line.strip():
+                    continue
+                parts = line.rstrip('\n').split('\t')
+                if len(parts) >= 2 and parts[0] and parts[1]:
+                    out[parts[0]] = parts[1]
+    except FileNotFoundError:
+        logger.warning('zh_segmenter: zh_pos_overrides.tsv missing; jieba tags used as-is')
+    return out
 
 
 def _jieba_freq() -> dict:
@@ -99,10 +120,17 @@ def _resplit(word: str) -> Iterator[tuple[str, str]]:
 
 
 def cut_with_tags(text: str) -> Iterator[tuple[str, str]]:
-    """jieba.posseg.cut, with unverified guesses and reviewed non-words split."""
+    """jieba.posseg.cut, with unverified guesses and reviewed non-words split,
+    and our own tag where it corrects jieba's dictionary (pos_overrides)."""
     import jieba.posseg as pseg
+    overrides = pos_overrides()
+
+    def tagged(pairs):
+        for w, f in pairs:
+            yield w, overrides.get(w, f)
+
     for word, flag in pseg.cut(text):
         if _needs_split(word):
-            yield from _resplit(word)
+            yield from tagged(_resplit(word))
         else:
-            yield word, flag
+            yield from tagged([(word, flag)])
