@@ -65,16 +65,32 @@ def test_pos_hint_prefers_the_original_tag():
     assert pos_hint(None) == ''
 
 
-def test_sense_generator_label_replaces_the_tokenizer_guess():
+def _gen(lang):
     from unittest.mock import MagicMock
     from services.vocabulary.sense_generator import SenseGenerator
     gen = SenseGenerator.__new__(SenseGenerator)
     gen._db = MagicMock()
     gen._pos_legend = {1: 'noun', 0: 'other'}
+    gen._language_code = lang
+    return gen
+
+
+def test_sense_generator_label_replaces_the_tokenizer_guess_for_chinese():
+    gen = _gen('zh')
     gen._maybe_set_pos(42, 1)
     q = gen._db.table.return_value.update
     q.assert_called_once_with({'part_of_speech': 'noun'})
-    assert q.return_value.eq.return_value.or_.call_args.args == ('part_of_speech.is.null,part_of_speech.neq.noun',)
+    assert q.return_value.eq.return_value.or_.call_args.args == (
+        'part_of_speech.is.null,part_of_speech.eq.,part_of_speech.neq.noun',)
     gen._db.reset_mock()
     gen._maybe_set_pos(42, 0)          # 'other' never overwrites
     gen._db.table.assert_not_called()
+
+
+def test_sense_generator_only_fills_blanks_for_japanese_and_english():
+    for lang in ('ja', 'en'):
+        gen = _gen(lang)
+        gen._maybe_set_pos(42, 1)
+        q = gen._db.table.return_value.update
+        assert q.return_value.eq.return_value.or_.call_args.args == (
+            'part_of_speech.is.null,part_of_speech.eq.',)

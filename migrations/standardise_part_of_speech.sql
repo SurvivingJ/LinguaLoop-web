@@ -19,8 +19,10 @@
 --                         keeps the original; writers send the tagger's tag
 --                         unchanged (word_resolver, backfill_vocab, asset
 --                         pipeline, admin), so the trigger is the one place
---                         the mapping runs. The sense generator now writes
---                         its own standard label over the tokenizer's guess.
+--                         the mapping runs. For Chinese only, the sense
+--                         generator writes its own label over jieba's guess
+--                         (ja UniDic / en spaCy tags are kept; there it only
+--                         fills blanks).
 --   * backfill            one UPDATE over the non-standard rows
 --   * CHECK               added NOT VALID, validated after the backfill commits
 --                         (migrations/CLAUDE.md: keep the exclusive lock short)

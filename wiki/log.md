@@ -6346,3 +6346,6 @@ Developer: "Yes trial stanza" (after licence check: HanLP 2.x models CC BY-NC-SA
 
 ## [2026-11-12] cleanup | Stanza removed
 Developer: "Remove them and remove stanza." Hugging Face hosts removed from the environment's network allowlist (back to the Supabase project and linguadojo.com); Stanza uninstalled from the session venv and its model files deleted; `scripts/eval_zh_taggers_stanza_vs_jieba.py` removed (in history at dad0f0e). [[evaluations/zh-tagger-stanza-vs-jieba-2026-11-12]] updated.
+
+## [2026-11-12] decision | AI part-of-speech label overrides Chinese only
+Developer agreed: the sense generator's label replaces the tokenizer's tag for Chinese only (jieba's dictionary has errors: 宗教改革/高昂 nr, 吸管 v); Japanese (MeCab + UniDic) and English (spaCy) keep the tagger's tag and the model only fills blanks. `SenseGenerator.POS_OVERRIDE_LANGUAGES = {'zh'}`; tests in `tests/test_lexicon.py`; migration header updated.
