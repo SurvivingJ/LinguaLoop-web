@@ -41,6 +41,8 @@ export function mount(container, ctx) {
   const q = (id) => container.querySelector('#' + id);
 
   container.innerHTML = MARKUP;
+  let refreshSubmit = () => {};
+  setupSkip();
   init();
 
   return {
@@ -113,15 +115,31 @@ export function mount(container, ctx) {
     on(playBtn, 'click', () => {
       if (state.submitted) return;
       if (audio.paused) {
-        state.replayCount += 1;
-        state.hasPlayed = true;
-        if (!state.startTime) state.startTime = Date.now();
-        q('replayCount').textContent = state.replayCount;
-        if (state.replayCount > 3) q('replayCounter').classList.add('warn');
-        audio.play();
+        // A play only counts (and only unlocks Submit) once audio really
+        // starts: a failed load used to count as a play and unlock Submit
+        // with nothing heard, and said nothing about the failure.
+        const started = audio.play();
+        const counted = () => {
+          state.replayCount += 1;
+          state.hasPlayed = true;
+          if (!state.startTime) state.startTime = Date.now();
+          q('replayCount').textContent = state.replayCount;
+          if (state.replayCount > 3) q('replayCounter').classList.add('warn');
+          hideAudioError();
+          refreshSubmit();
+        };
+        if (started && typeof started.then === 'function') {
+          started.then(counted, () => showAudioError());
+        } else {
+          counted();
+        }
       } else {
         audio.pause();
       }
+      playIcon();
+    });
+    on(audio, 'error', () => {
+      showAudioError();
       playIcon();
     });
     on(audio, 'ended', playIcon);
@@ -143,10 +161,12 @@ export function mount(container, ctx) {
     const charCount = q('charCount');
     const submitBtn = q('submitBtn');
 
+    refreshSubmit = () => {
+      submitBtn.disabled = input.value.length === 0 || !state.hasPlayed || state.isSubmitting;
+    };
     on(input, 'input', () => {
-      const len = input.value.length;
-      charCount.textContent = len;
-      submitBtn.disabled = len === 0 || !state.hasPlayed || state.isSubmitting;
+      charCount.textContent = input.value.length;
+      refreshSubmit();
     });
     on(input, 'keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -310,6 +330,35 @@ export function mount(container, ctx) {
     if (el) el.style.display = show ? 'flex' : 'none';
   }
 
+  function showAudioError() {
+    const box = q('audioError');
+    if (!box) return;
+    box.style.display = 'block';
+  }
+
+  function hideAudioError() {
+    const box = q('audioError');
+    if (box) box.style.display = 'none';
+  }
+
+  function setupSkip() {
+    // In the session runner a learner can always move on: an item skipped
+    // stays incomplete and comes back on resume (controller onItemSkip).
+    const canSkip = typeof ctx.onSkip === 'function';
+    container.querySelectorAll('[data-dict-skip]').forEach((b) => {
+      b.style.display = canSkip ? '' : 'none';
+      if (canSkip) on(b, 'click', () => ctx.onSkip());
+    });
+    const retry = q('audioRetry');
+    if (retry) {
+      on(retry, 'click', () => {
+        hideAudioError();
+        const audio = q('audioElement');
+        audio.load();
+      });
+    }
+  }
+
   function showError(msg) {
     const err = q('errorState');
     if (err) {
@@ -340,6 +389,7 @@ const MARKUP = `
     .dict-speed-btn:hover { border-color: var(--primary); color: var(--primary); }
     .dict-replay-counter { font-size: 14px; color: var(--text-muted); margin-top: 12px; }
     .dict-replay-counter.warn { color: var(--warning); font-weight: 600; }
+    .dict-audio-error { margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--danger-bg, #fdecec); color: var(--text-primary); font-size: 14px; }
     .dict-input-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 20px; }
     .dict-input { width: 100%; min-height: 200px; padding: 14px; border: 2px solid var(--border-strong); border-radius: 8px; font-size: 16px; line-height: 1.6; font-family: inherit; resize: vertical; background: var(--bg-body); color: var(--text-primary); }
     .dict-input:focus { outline: none; border-color: var(--primary); }
@@ -386,6 +436,7 @@ const MARKUP = `
     <div class="alert alert-danger">
         <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="dictation.error.title">Error</span></h2>
         <p id="errorMessage" class="mb-2"></p>
+        <button class="btn btn-sm btn-outline-secondary" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button>
     </div>
 </div>
 
@@ -405,6 +456,11 @@ const MARKUP = `
             <button id="speedBtn" class="dict-speed-btn" type="button"><i class="bi bi-speedometer2 me-1"></i><span id="speedLabel">1.0x</span></button>
         </div>
         <div class="dict-replay-counter" id="replayCounter"><span data-i18n="dictation.replays">Plays</span>: <span id="replayCount">0</span></div>
+        <div id="audioError" class="dict-audio-error" role="alert" style="display:none;">
+            <p class="mb-2" data-i18n="dictation.audio_error">The audio couldn’t load. Check your connection and try again, or skip this one for now.</p>
+            <button id="audioRetry" class="btn btn-sm btn-outline-secondary" type="button" data-i18n="dictation.retry">Retry</button>
+            <button class="btn btn-sm btn-link" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button>
+        </div>
         <audio id="audioElement" preload="metadata"></audio>
     </div>
     <div class="dict-input-card">
@@ -418,6 +474,7 @@ const MARKUP = `
     <div class="dict-actions-row">
         <button id="submitBtn" class="dict-submit-btn" type="button" disabled><span data-i18n="dictation.submit">Submit</span></button>
     </div>
+    <div class="text-center mt-2"><button class="btn btn-sm btn-link text-muted" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button></div>
 </div>
 
 <div id="resultsOverlay" class="dict-results-overlay" style="display:none;"></div>

@@ -74,16 +74,18 @@ describe('escapeHtml', () => {
 
 describe('getDifficultyLabel', () => {
   it.each([
-    [0, 'Beginner'],
-    [1199, 'Beginner'],
-    [1200, 'Elementary'],
-    [1399, 'Elementary'],
-    [1400, 'Intermediate'],
-    [1599, 'Intermediate'],
-    [1600, 'Advanced'],
-    [1799, 'Advanced'],
-    [1800, 'Expert'],
-    [9999, 'Expert'],
+    [0, 'Toddler (4–5)'],
+    [1024, 'Toddler (4–5)'],
+    [1025, 'Primary school (8–9)'],
+    [1287, 'Primary school (8–9)'],
+    [1288, 'Young teen (13–14)'],
+    [1474, 'Young teen (13–14)'],
+    [1475, 'High school (16–17)'],
+    [1624, 'High school (16–17)'],
+    [1625, 'University (19–21)'],
+    [1812, 'University (19–21)'],
+    [1813, 'Professional (30+)'],
+    [9999, 'Professional (30+)'],
   ])('ELO %i → %s', (elo, expected) => {
     expect(getUtils().getDifficultyLabel(elo)).toBe(expected);
   });
@@ -94,11 +96,12 @@ describe('getDifficultyLabel', () => {
 // ---------------------------------------------------------------------------
 
 describe('getDifficultyInfo', () => {
-  it('returns an object with label, class, and color', () => {
+  it('returns an object with band, label, class, and color', () => {
     const info = getUtils().getDifficultyInfo(1500);
     expect(info).toMatchObject({
-      label: 'Intermediate',
-      class: 'badge-intermediate',
+      band: 'T4',
+      label: 'High school (16–17)',
+      class: 'badge-tier4',
     });
     expect(typeof info.color).toBe('string');
     expect(info.color).toMatch(/^#/);
@@ -106,11 +109,12 @@ describe('getDifficultyInfo', () => {
 
   it('uses correct badge class for each tier', () => {
     const cases = [
-      [600, 'badge-beginner'],
-      [1300, 'badge-elementary'],
-      [1500, 'badge-intermediate'],
-      [1700, 'badge-advanced'],
-      [2000, 'badge-expert'],
+      [600, 'badge-tier1'],
+      [1175, 'badge-tier2'],
+      [1400, 'badge-tier3'],
+      [1550, 'badge-tier4'],
+      [1700, 'badge-tier5'],
+      [2000, 'badge-tier6'],
     ];
     for (const [elo, cls] of cases) {
       expect(getUtils().getDifficultyInfo(elo).class).toBe(cls);
@@ -285,5 +289,30 @@ describe('getAuthHeaders', () => {
     localStorage.setItem('jwt_token', 'test.jwt.token');
     const headers = getUtils().getAuthHeaders();
     expect(headers['Authorization']).toBe('Bearer test.jwt.token');
+  });
+});
+
+describe('one difficulty scale: the age tiers (ELO_RANGES)', () => {
+  it('bands ratings halfway between the tiers\' starting ratings', () => {
+    const { getDifficultyBand } = getUtils();
+    expect(getDifficultyBand(875)).toBe('T1');
+    expect(getDifficultyBand(1024)).toBe('T1');
+    expect(getDifficultyBand(1024.5)).toBe('T1');
+    expect(getDifficultyBand(1025)).toBe('T2');
+    expect(getDifficultyBand(1175)).toBe('T2');
+    expect(getDifficultyBand(1400)).toBe('T3');
+    expect(getDifficultyBand(1550)).toBe('T4');
+    expect(getDifficultyBand(1700)).toBe('T5');
+    expect(getDifficultyBand(1925)).toBe('T6');
+  });
+
+  it('labels a test by its rating for the mode being taken, with the tier\'s age name', () => {
+    const { getTestDifficultyText, getDifficultyInfo } = getUtils();
+    const ratings = { reading: { elo_rating: 1199 }, listening: { elo_rating: 1450 } };
+    expect(getTestDifficultyText(ratings, 'reading')).toBe('Primary school (8–9)');
+    expect(getTestDifficultyText(ratings, 'listening')).toBe('Young teen (13–14)');
+    expect(getTestDifficultyText(ratings, 'dictation')).toBe('');
+    expect(getTestDifficultyText(null, 'reading')).toBe('');
+    expect(getDifficultyInfo(1925)).toMatchObject({ band: 'T6', class: 'badge-tier6' });
   });
 });

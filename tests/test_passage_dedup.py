@@ -280,11 +280,12 @@ def test_generate_test_source_retries_once_then_skips_on_persistent_duplicate():
 def test_topic_recency_migration_matches_adr_023_shape():
     import pathlib
 
-    migration_path = (
-        pathlib.Path(__file__).parent.parent
-        / 'migrations'
-        / 'task740_phase5b_topic_recency_exclusion.sql'
-    )
+    root = pathlib.Path(__file__).parent.parent / 'migrations'
+    # The ADR's own migration was archived on 2026-11-11 when
+    # dictation_cap_cjk_word_count.sql became the canonical definition of
+    # get_recommended_tests; the record stays, and the topic-recency rule must
+    # still be in the canonical body.
+    migration_path = root / 'archive' / 'task740_phase5b_topic_recency_exclusion.sql'
     assert migration_path.exists(), (
         "ADR-023's applied migration file is missing."
     )
@@ -293,3 +294,7 @@ def test_topic_recency_migration_matches_adr_023_shape():
     assert 'APPLIED live' in sql
     assert 'p_topic_recency_days smallint DEFAULT 14' in sql
     assert 't2.topic_id = t.topic_id' in sql
+
+    canonical = (root / 'dictation_cap_cjk_word_count.sql').read_text(encoding='utf-8')
+    assert 'p_topic_recency_days smallint DEFAULT 14' in canonical
+    assert 't2.topic_id = t.topic_id' in canonical

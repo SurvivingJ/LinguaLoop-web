@@ -577,11 +577,23 @@ class TestService:
                     and t.get('test_type', 'listening') not in excluded
                 ]
 
+                # One test per topic per day: two tests on the same topic let
+                # the first give away the second (a dictation and a reading
+                # on the same T-shirt, 2026-11-11 walkthrough).
+                topic_of = self._topics_for(
+                    [t.get('test_id') for t in new_tests] + list(selected_test_ids))
+                used_topics = {topic_of[tid] for tid in selected_test_ids if topic_of.get(tid)}
+
                 for t in new_tests:
                     if num_new <= 0:
                         break
                     if t.get('test_id') in selected_test_ids:
                         continue
+                    topic = topic_of.get(t.get('test_id'))
+                    if topic and topic in used_topics:
+                        continue
+                    if topic:
+                        used_topics.add(topic)
                     load_items.append({
                         'test_id': t['test_id'],
                         'slot_type': 'new',
@@ -820,6 +832,64 @@ class TestService:
             'total': total,
             'all_complete': len(completed) >= total
         }
+
+    def _topics_for(self, test_ids) -> Dict:
+        """{test_id: topic_id} for these tests (missing/None topics omitted).
+        Best effort: {} on failure, which simply skips the topic check."""
+        ids = [t for t in dict.fromkeys(test_ids) if t]
+        if not ids:
+            return {}
+        try:
+            rows = self.admin.table('tests').select('id, topic_id').in_('id', ids).execute().data or []
+        except Exception as e:
+            logger.warning("topic lookup for daily load failed: %s", e)
+            return {}
+        return {r['id']: r.get('topic_id') for r in rows if r.get('topic_id')}
+
+    def mark_daily_slot_complete_on_submit(self, user_id: str, language_id: int,
+                                           test_id: str) -> bool:
+        """Mark today's daily-load slot complete as soon as a test is submitted.
+
+        Called by the submit routes right after the submission RPC recorded the
+        attempt, so no attempt check is needed here. Before this, a slot was
+        only marked complete when the learner pressed "Next" on the results
+        card; closing the page there left the slot open, the session served the
+        same test again and a re-submit was scored again.
+
+        Only tests that are in today's load are marked; a test taken from
+        Browse Tests that is not in the load changes nothing. Idempotent: the
+        client's later POST to /daily-load/complete finds it already done.
+
+        Returns True when the slot is (now) complete, False when there is no
+        load today or the test is not in it.
+        """
+        today = plan_today_iso(self.admin, user_id, language_id)
+        rows = self.admin.table('daily_test_loads')\
+            .select('id, test_ids, completed_test_ids')\
+            .eq('user_id', user_id)\
+            .eq('language_id', language_id)\
+            .eq('load_date', today)\
+            .limit(1)\
+            .execute().data or []
+        if not rows:
+            return False
+        row = rows[0]
+        # test_ids holds slot objects ({test_id, slot_type, test_type}) from
+        # the Study Plan resolver, plain ids from the legacy path.
+        scheduled = {str(t.get('test_id') if isinstance(t, dict) else t)
+                     for t in (row.get('test_ids') or [])}
+        if str(test_id) not in scheduled:
+            return False
+        completed = list(row.get('completed_test_ids') or [])
+        if str(test_id) in {str(t) for t in completed}:
+            return True
+        completed.append(test_id)
+        self.admin.table('daily_test_loads')\
+            .update({'completed_test_ids': completed})\
+            .eq('id', row['id'])\
+            .execute()
+        request_cache.invalidate('daily_load_row', str(user_id))
+        return True
 
     # -------------------------------------------------------------------------
     # CONTENT MODERATION

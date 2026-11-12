@@ -3,7 +3,7 @@ title: Practice Extra Rounds — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: practice-extra-rounds.md
-last_updated: 2026-10-29
+last_updated: 2026-11-11
 dependencies:
   - "get_practice_session (RPC)"
   - "get_review_ahead_items (RPC, new)"
@@ -67,8 +67,18 @@ expected_seconds, mode:'maintenance', review_ahead:true}`. `p_limit` is clamped 
   max(0, len(targets) - max(0, E - started_today))`. Items come from
   `get_practice_session(acquisition, minutes = n × minutes_per_new_word)`, filtered to targets
   and ordered by target order.
-- Reviews: due Maintenance items (fall-through acquisition items dropped, one per sense, most
-  overdue first) up to `EXTRA_REVIEW_ITEMS` (10), topped up by `get_review_ahead_items`.
+- New words without a study plan row (`new_word_state` → None): `unstarted` comes from
+  `_unstarted_sense_ids` (`ladder_new_word_state`, day start from `plan_timezone`), so words
+  already admitted and not started (e.g. prestudy words queued for later, which a missing plan's
+  zero quota never releases) are served before any new admission (2026-11-11).
+- Reviews: due prestudy next-day reviews first (`_inject_prestudy_followups` into an empty
+  holder; `get_session` skips them in tail rounds), then due Maintenance items (fall-through
+  acquisition items dropped, one per sense, most overdue first) up to `EXTRA_REVIEW_ITEMS` (10),
+  topped up by `get_review_ahead_items`.
+- Intro block: a review round carries the due drill reviews (`select_block_rows(due_rows,
+  'maintenance', 0)`, sessions 2-4 and quota-bypassing stage-1 rows); a new-word round adds the
+  intro rows among its targets. Drill words are removed from the round's items.
+  `new_words_served` counts block words among the targets, the rest add to `reviews_served`.
 - Both: `_interleave_extras(reviews, new_word_items)`.
 - Then script variant, jumbled prep, and `score_breakdown` removed.
 
@@ -98,5 +108,10 @@ the RPC is service_role only with a fixed `search_path`.
 - `tests/test_study_session_tail.py`: tail gate ignores open tests (daily and Practice mode); an
   open practice block still hides it.
 - `tests/unit/session-tail.test.js`: extra-round helpers.
-- Not covered: a SQL test of `get_review_ahead_items` (no local Postgres); a manual check
-  after the live apply is needed.
+- Not covered: a SQL test of `get_review_ahead_items` (no local Postgres). Applied live
+  2026-11-11 (it had never been applied: every review round logged PGRST202); checked live:
+  runs, `anon`/`authenticated` cannot execute.
+- 2026-11-11: follow-ups first in the review half, the no-plan unstarted fallback, the drill
+  block in review rounds (`tests/test_practice_extra_rounds.py`); the daily queue's
+  `intro_reviews` chunk also appears for due prestudy follow-ups alone
+  (`tests/test_intro_drill.py`).

@@ -90,7 +90,11 @@ def _tests_from_fixture(path: str, language: str) -> list[dict]:
 
 
 def _tests_from_db(language: str, l1: str, limit: int, test_ids: list[str] | None) -> list[dict]:
-    from services.supabase_factory import get_supabase_admin
+    from dotenv import load_dotenv
+    load_dotenv()
+    from services.supabase_factory import SupabaseFactory, get_supabase_admin
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     db = get_supabase_admin()
     lid, l1id = sr.LANG_ID[language], sr.LANG_ID[l1]
     q = db.table('tests').select('id, title, vocab_token_map').eq('is_active', True).eq('language_id', lid).order('created_at')

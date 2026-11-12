@@ -1,0 +1,76 @@
+# Word-like strings jieba produces that are not words (fragments such as 人用
+# from 很多人用, or verb + auxiliary like 会用). Always split, even when
+# jieba's own dictionary lists them. Reviewed 2026-11-12 from the dictionary
+# words jieba guessed (data/zh_segmentation/2026-11-12_hmm_only_vocab.csv).
+不腐
+人会
+人用
+会用
+做能
+分得
+即散
+厨余会
+受污
+变多
+变好
+变少
+可查
+可验
+土能
+土里
+帮花
+张得
+很强
+很长
+放肉
+教人
+新料
+时流
+更快
+有盖
+比约
+氨味
+水不多
+水用
+法比
+温菌
+湿性
+热菌
+省水
+知要
+粮争
+绿脉
+群向
+翻一翻
+要用
+跨村
+运来
+进大
+通奏
+造出
+酸丁二酯
+链能
+风一吹
+飞不动
+飞到
+升阻
+# Degree word + adjective/verb phrases that jieba's own dictionary lists as
+# words but no dictionary does (CC-CEDICT). Reviewed 2026-11-12 from a scan of
+# all Chinese tests; lexicalised ones (很多, 很快, 很久, 更好, 更多, 最大,
+# 最早, 最爱) are left whole.
+很大
+很小
+很好
+很远
+很弱
+很贵
+很漂亮
+很久很久
+很多年
+太小
+太冷
+最富
+最舒服
+最合适
+更对
+非常重视

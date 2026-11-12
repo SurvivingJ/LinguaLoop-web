@@ -67,27 +67,39 @@
     font-size: 14px;
 }
 
-.difficulty-badge.beginner {
-    background: var(--success-bg);
-    color: var(--success);
+.difficulty-badge.t1 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border: 2px solid var(--success);
 }
 
-.difficulty-badge.intermediate {
-    background: var(--warning-bg);
-    color: var(--warning);
+.difficulty-badge.t2 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 2px solid var(--info);
+}
+
+.difficulty-badge.t3 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 2px solid var(--primary);
+}
+
+.difficulty-badge.t4 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border: 2px solid var(--warning);
 }
 
-.difficulty-badge.advanced {
-    background: var(--warning-bg);
-    color: var(--warning);
-    border: 2px solid var(--warning);
+.difficulty-badge.t5 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 2px solid var(--accent);
 }
 
-.difficulty-badge.expert {
-    background: var(--danger-bg);
-    color: var(--danger);
+.difficulty-badge.t6 {
+    background: var(--bg-surface);
+    color: var(--text-primary);
     border: 2px solid var(--danger);
 }
 
@@ -233,7 +245,7 @@
                         <div class="metadata-row">
                             <div class="metadata-item">
                                 <i class="bi bi-speedometer2"></i>
-                                <span id="testDifficulty">Level -</span>
+                                <span id="testDifficulty">–</span>
                             </div>
                             <div class="metadata-item d-none" id="attemptsMeta">
                                 <i class="bi bi-people"></i>
@@ -501,7 +513,6 @@
         // Metadata
         document.getElementById('testLanguage').textContent = LinguaMetadata.getNativeName(test.language) || (test.language || 'unknown').toUpperCase();
         document.getElementById('testTopic').textContent = test.topic || 'General';
-        document.getElementById('testDifficulty').textContent = `Level ${test.difficulty || 1}`;
 
         // Show pinyin option for Chinese tests only
         if (test.language === 'zh' || test.language_id === 1) {
@@ -530,16 +541,9 @@
      * Get difficulty level and color based on ELO rating
      */
     function getDifficultyInfo(rating) {
-        const style = getComputedStyle(document.documentElement);
-        if (rating < 1200) {
-            return { level: 'beginner', label: 'Beginner', color: style.getPropertyValue('--success').trim() };
-        } else if (rating < 1400) {
-            return { level: 'intermediate', label: 'Intermediate', color: style.getPropertyValue('--warning').trim() };
-        } else if (rating < 1600) {
-            return { level: 'advanced', label: 'Advanced', color: style.getPropertyValue('--warning').trim() };
-        } else {
-            return { level: 'expert', label: 'Expert', color: style.getPropertyValue('--danger').trim() };
-        }
+        // One scale for every page: the age tiers in static/js/utils.js.
+        const info = window.LinguaUtils.getDifficultyInfo(rating);
+        return { level: info.band.toLowerCase(), label: info.label, color: info.color };
     }
 
     /**
@@ -594,6 +598,9 @@
 
         // Update label
         document.getElementById('difficultyLabel').textContent = difficultyInfo.label;
+        // The metadata row shows the same band (it used to show the stored
+        // generation level, "Level 5", a different scale).
+        document.getElementById('testDifficulty').textContent = difficultyInfo.label;
 
         // Update ELO text
         document.getElementById('eloRating').innerHTML = `ELO Rating: <strong>${eloRating}</strong>`;

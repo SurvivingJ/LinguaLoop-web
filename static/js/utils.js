@@ -10,13 +10,18 @@
 // eslint-disable-next-line no-redeclare -- this file defines the window.LINGUADOJO global that consumers read
 const LINGUADOJO = window.LINGUADOJO || {};
 
-// ELO difficulty ranges
+// Difficulty = the age tiers tests are written for (ADR-003-age-tiers,
+// dim_complexity_tiers). A tier's band runs halfway to its neighbours'
+// starting ratings (initial_elo 875 / 1175 / 1400 / 1550 / 1700 / 1925), so a
+// fresh test of tier N reads as tier N. `label` is the English name and
+// `i18n` its translation key; `class` is the badge style.
 const ELO_RANGES = {
-  BEGINNER: { min: 0, max: 1199, label: 'Beginner', class: 'badge-beginner' },
-  ELEMENTARY: { min: 1200, max: 1399, label: 'Elementary', class: 'badge-elementary' },
-  INTERMEDIATE: { min: 1400, max: 1599, label: 'Intermediate', class: 'badge-intermediate' },
-  ADVANCED: { min: 1600, max: 1799, label: 'Advanced', class: 'badge-advanced' },
-  EXPERT: { min: 1800, max: 9999, label: 'Expert', class: 'badge-expert' },
+  T1: { min: 0, max: 1024, label: 'Toddler (4–5)', i18n: 'difficulty.tier1', class: 'badge-tier1' },
+  T2: { min: 1025, max: 1287, label: 'Primary school (8–9)', i18n: 'difficulty.tier2', class: 'badge-tier2' },
+  T3: { min: 1288, max: 1474, label: 'Young teen (13–14)', i18n: 'difficulty.tier3', class: 'badge-tier3' },
+  T4: { min: 1475, max: 1624, label: 'High school (16–17)', i18n: 'difficulty.tier4', class: 'badge-tier4' },
+  T5: { min: 1625, max: 1812, label: 'University (19–21)', i18n: 'difficulty.tier5', class: 'badge-tier5' },
+  T6: { min: 1813, max: 9999, label: 'Professional (30+)', i18n: 'difficulty.tier6', class: 'badge-tier6' },
 };
 
 // Language flag mapping
@@ -80,46 +85,82 @@ function escapeHtml(text) {
 // =============================================================================
 
 /**
- * Get difficulty label from ELO rating
+ * The difficulty tier (an ELO_RANGES key, 'T1'..'T6') for an ELO rating.
+ * ELO_RANGES is the one difficulty scale: test cards, the Browse filter, the
+ * preview page, the test page and the session player all use it.
  * @param {number} elo - ELO rating
- * @returns {string} Difficulty label
+ * @returns {string} e.g. 'T2'
+ */
+function getDifficultyBand(elo) {
+  const r = Number(elo);
+  for (const [key, band] of Object.entries(ELO_RANGES)) {
+    if (r < band.max + 1) return key;
+  }
+  return 'T6';
+}
+
+/**
+ * English tier name for an ELO rating, e.g. "Primary school (8–9)".
+ * @param {number} elo - ELO rating
+ * @returns {string}
  */
 function getDifficultyLabel(elo) {
-  if (elo < 1200) return 'Beginner';
-  if (elo < 1400) return 'Elementary';
-  if (elo < 1600) return 'Intermediate';
-  if (elo < 1800) return 'Advanced';
-  return 'Expert';
+  return ELO_RANGES[getDifficultyBand(elo)].label;
 }
 
 /**
- * Get full difficulty info from ELO rating
+ * The tier name shown to the learner, in the UI language.
  * @param {number} elo - ELO rating
- * @returns {Object} {label, class, color}
+ * @returns {string}
+ */
+function getDifficultyText(elo) {
+  const band = ELO_RANGES[getDifficultyBand(elo)];
+  const t = window.LinguaI18n && typeof window.LinguaI18n.t === 'function' ? window.LinguaI18n.t(band.i18n) : null;
+  return t && t !== band.i18n ? t : band.label;
+}
+
+/**
+ * Difficulty text for a test in one mode, from the test payload's
+ * skill_ratings ({reading: {elo_rating}, ...}); '' when unknown.
+ * @param {Object} skillRatings
+ * @param {string} mode - 'reading' | 'listening' | 'dictation' | ...
+ * @returns {string}
+ */
+function getTestDifficultyText(skillRatings, mode) {
+  const r = skillRatings && skillRatings[mode] && skillRatings[mode].elo_rating;
+  return r == null ? '' : getDifficultyText(r);
+}
+
+/**
+ * Full difficulty info for an ELO rating.
+ * @param {number} elo - ELO rating
+ * @returns {Object} {band, label (UI language), class, color}
  */
 function getDifficultyInfo(elo) {
-  const level = getDifficultyLabel(elo);
+  const band = getDifficultyBand(elo);
   return {
-    label: level,
-    class: `badge-${level.toLowerCase()}`,
-    color: getDifficultyColor(level),
+    band,
+    label: getDifficultyText(elo),
+    class: ELO_RANGES[band].class,
+    color: getDifficultyColor(band),
   };
 }
 
 /**
- * Get color for difficulty level
- * @param {string} level - Difficulty level name
+ * Colour for a difficulty tier.
+ * @param {string} band - 'T1'..'T6'
  * @returns {string} CSS color
  */
-function getDifficultyColor(level) {
+function getDifficultyColor(band) {
   const colors = {
-    Beginner: '#22c55e',
-    Elementary: '#84cc16',
-    Intermediate: '#eab308',
-    Advanced: '#f97316',
-    Expert: '#ef4444',
+    T1: '#2e7d4f',
+    T2: '#3b6ea8',
+    T3: '#0e7569',
+    T4: '#c28f2c',
+    T5: '#e8833a',
+    T6: '#c24a3f',
   };
-  return colors[level] || '#6b7280';
+  return colors[band] || '#6b7280';
 }
 
 // =============================================================================
@@ -406,7 +447,10 @@ window.LinguaUtils = {
   escapeHtml,
 
   // Difficulty
+  getDifficultyBand,
   getDifficultyLabel,
+  getDifficultyText,
+  getTestDifficultyText,
   getDifficultyInfo,
   getDifficultyColor,
 

@@ -434,8 +434,15 @@
     for (const x of ordered) { const v = keyFn(x); if (!v || seen.has(v)) continue; seen.add(v); out.push(x); if (out.length >= n) break; }
     return out;
   }
+  // Shared helpers from static/js/session/lexicon.js (exposed by test_prestudy.html);
+  // identity / raw-tag fallbacks keep the page working if the module is late.
+  function lex() { return window.LinguaLexicon || {}; }
+  function posClassOf(x) { const f = lex().posClass; return f ? f(D.senses[x].pos) : String(D.senses[x].pos || ''); }
+  // A definition with its own headword hidden ("宗教改革是…" -> "～是…"), so the
+  // options and the reverse prompt do not contain the answer.
+  function maskedDef(x) { const f = lex().maskHeadword, d = gloss(x).def; return f ? f(d, D.senses[x].lemma) : d; }
   function buildItem(stage, sid, a) {
-    const s = D.senses[sid], pool = wordPool(a), rp = readingParts(s), samePos = (x) => D.senses[x].pos === s.pos;
+    const s = D.senses[sid], pool = wordPool(a), rp = readingParts(s), cls = posClassOf(sid), samePos = (x) => posClassOf(x) === cls;
     const def = gloss(sid).def;
     if (stage === 'read_typed' || stage === 'read_typed2') {
       if (!hasTypedReading(sid)) return null;
@@ -443,15 +450,16 @@
     }
     if (stage === 'def_mc') {
       if (!def) return null;
-      const dis = pickDistractors(pool, sid, 3, (x) => gloss(x).def, samePos).map((x) => gloss(x).def);
+      const dis = pickDistractors(pool, sid, 3, maskedDef, samePos).map(maskedDef);
       if (!dis.length) return null;
-      return { stage, sid, kind: 'mc', prompt: s.lemma, sub: rp ? rp.shown : '', opts: shuffle([def, ...dis]), correct: def };
+      const shown = maskedDef(sid);
+      return { stage, sid, kind: 'mc', prompt: s.lemma, sub: rp ? rp.shown : '', opts: shuffle([shown, ...dis]), correct: shown };
     }
     if (stage === 'rev_mc') {
       if (!def) return null;
       const dis = pickDistractors(pool, sid, 3, (x) => D.senses[x].lemma, samePos).map((x) => D.senses[x].lemma);
       if (!dis.length) return null;
-      return { stage, sid, kind: 'mc', prompt: def, opts: shuffle([s.lemma, ...dis]), correct: s.lemma, cjkOpts: true, glossPrompt: true };
+      return { stage, sid, kind: 'mc', prompt: maskedDef(sid), opts: shuffle([s.lemma, ...dis]), correct: s.lemma, cjkOpts: true, glossPrompt: true };
     }
     if (stage === 'cloze_mc') {
       const sent = passageSentenceFor(sid, true); if (!sent) return null;

@@ -14,6 +14,7 @@ SQL functions called:
 
 import logging
 from services.supabase_factory import get_supabase_admin
+from services.vocabulary.lexicon import mask_headword
 
 logger = logging.getLogger(__name__)
 
@@ -204,29 +205,37 @@ class VocabularyKnowledgeService:
     def get_distractors(
         self, sense_id: int, language_id: int, count: int = 3,
         definition_language_id: int | None = None,
-    ) -> list[str]:
+    ) -> list[dict]:
         """
-        Get distractor definitions for a word quiz MCQ.
+        Get wrong-answer options for a word quiz MCQ.
+
+        Returns ``[{'definition': str, 'lemma': str | None}, ...]``. Uses
+        ``get_quiz_distractors`` (migrations/get_quiz_distractors.sql): same
+        part of speech first, and each option's own headword so the caller can
+        hide it. Falls back to the older ``get_distractors`` (random part of
+        speech, no headword -> ``lemma`` None) when the new RPC is missing.
 
         definition_language_id, when it differs from language_id, restricts
-        the distractor pool to OTHER words that have an 'llm_gloss' row in
-        that language (see migrations/get_distractors_definition_language_param.sql)
-        -- so options never mix languages within one quiz question.
-
-        Returns list of wrong-answer definition strings.
+        the pool to OTHER words that have a definition in that language -- so
+        options never mix languages within one quiz question.
         """
+        params = {
+            'p_sense_id': sense_id,
+            'p_language_id': language_id,
+            'p_count': count,
+        }
+        if definition_language_id:
+            params['p_definition_language_id'] = definition_language_id
         try:
-            params = {
-                'p_sense_id': sense_id,
-                'p_language_id': language_id,
-                'p_count': count,
-            }
-            if definition_language_id:
-                params['p_definition_language_id'] = definition_language_id
+            response = self.db.rpc('get_quiz_distractors', params).execute()
+            return [{'definition': row['out_definition'], 'lemma': row.get('out_lemma')}
+                    for row in (response.data or [])]
+        except Exception as e:
+            logger.warning(f"get_quiz_distractors failed, using get_distractors: {e}")
+        try:
             response = self.db.rpc('get_distractors', params).execute()
-
-            return [row['out_definition'] for row in (response.data or [])]
-
+            return [{'definition': row['out_definition'], 'lemma': None}
+                    for row in (response.data or [])]
         except Exception as e:
             logger.error(f"Distractor generation failed: {e}")
             return []
@@ -313,12 +322,24 @@ class VocabularyKnowledgeService:
                 if len(distractors) < 2:
                     continue  # Still not enough distractors — skip this word
 
-            options = [correct_def] + distractors
+            # Hide each option's own headword ("宗教改革是…" -> "～是…"): many
+            # same-language definitions start with or contain the word, which
+            # made the right answer the option containing the asked word. Only
+            # when every wrong option's headword is known, so all options are
+            # treated alike (the legacy RPC returns no headwords).
+            lemma = c.get('out_lemma') or c.get('lemma', '')
+            if all(d.get('lemma') for d in distractors):
+                correct_def = mask_headword(correct_def, lemma)
+                distractor_texts = [mask_headword(d['definition'], d['lemma']) for d in distractors]
+            else:
+                distractor_texts = [d['definition'] for d in distractors]
+
+            options = [correct_def] + distractor_texts
             random.shuffle(options)
 
             quiz_items.append({
                 'sense_id': sid,
-                'lemma': c.get('out_lemma') or c.get('lemma', ''),
+                'lemma': lemma,
                 'pronunciation': c.get('out_pronunciation') or c.get('pronunciation', ''),
                 'correct_definition': correct_def,
                 'definition_is_gloss': is_gloss,

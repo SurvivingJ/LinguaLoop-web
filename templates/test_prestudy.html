@@ -232,6 +232,8 @@
 <script type="module">
   // The new-word drill's counting rule, so a prime that counts as intro session 1 is judged the same way.
   import { countWord } from "{{ url_for('static', filename='js/session/players/intro_drill.js') }}";
+  import { posClass, maskHeadword } from "{{ url_for('static', filename='js/session/lexicon.js') }}";
   window.IntroDrillCount = { countWord };
+  window.LinguaLexicon = { posClass, maskHeadword };
 </script>
 {% endblock %}

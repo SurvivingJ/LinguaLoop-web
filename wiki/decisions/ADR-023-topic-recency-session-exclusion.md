@@ -54,7 +54,8 @@ AND NOT EXISTS (
 )
 ```
 
-Applied in `migrations/task740_phase5b_topic_recency_exclusion.sql`, with
+Applied in `migrations/task740_phase5b_topic_recency_exclusion.sql` (archived 2026-11-11; the
+rule now lives in the canonical `migrations/dictation_cap_cjk_word_count.sql`), with
 explicit operator sign-off, 2026-08-30. Verified live in a rollback-only
 transaction (`tests/sql/test_task740_phase5b_topic_recency.sql`) before and
 after applying: a test sharing a topic with a just-attempted test is
