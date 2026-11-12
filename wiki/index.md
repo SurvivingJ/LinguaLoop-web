@@ -317,6 +317,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[lessons/windows-process-and-network-tools]] — netstat / tasklist / taskkill / wmic — find what owns a port, what command launched a PID, and how to kill stale processes
 
 ## Evaluations
+- [[evaluations/zh-tagger-stanza-vs-jieba-2026-11-12]] — Stanza vs jieba on all zh tests: keep jieba; its fake words come from HMM guessing (108 in the dictionary)
 - [[evaluations/new-word-drill-baseline-2026-11-10]] — **NEW 2026-11-10** (TASK-921): pre-drill baseline — 119 ladder words, next-day recall 83% (10/12), word knowledge mean 0.72, no word above ring 1; re-run with `scripts/eval_new_word_drill.py` at 30 days
 - [[evaluations/sentence-refs-pilot-2026-10-30]] — **NEW 2026-10-30** (TASK-907): two authoring arms × 3 languages × 30 tests, 2,072 sentence references reviewed blind by Claude subagents, no OpenRouter spend; arms indistinguishable (median tightness within 0.015, entailment 99.8–100%), `sentencewise` adopted (ja rewrite rate 3.4% vs 6.7%); floors ja 0.65 / zh 0.70 / en 0.60; review pack split into blind + gold files after 5/30 reviewers read past the marker
 - [[evaluations/dt-taxonomy-v6-gate-2026-10-08]] — **NEW 2026-10-08** (TASK-850, paid, $2.20): the DT taxonomy v6
