@@ -101,6 +101,10 @@ def main() -> int:
     out_dir = os.path.join(ROOT, 'data', 'zh_segmentation')
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, f'{datetime.date.today().isoformat()}_pinyin_regroup_backup.json.gz')
+    n = 2
+    while os.path.exists(path):  # never overwrite an earlier run's backup
+        path = os.path.join(out_dir, f'{datetime.date.today().isoformat()}_pinyin_regroup_backup_{n}.json.gz')
+        n += 1
     with gzip.open(path, 'wt', encoding='utf-8') as fh:
         json.dump([{'id': t['id'], 'pinyin_payload': t['pinyin_payload']} for t, _ in plans], fh, ensure_ascii=False)
     log.info('backup written: %s', path)

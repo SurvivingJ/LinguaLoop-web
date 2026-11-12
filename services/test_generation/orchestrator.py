@@ -1412,7 +1412,36 @@ class TestGenerationOrchestrator:
                     sid = sense_map.get(vid, 0) if vid else 0
             token_map.append([display_text, sid])
 
+        if language_code in ('zh', 'cn'):
+            token_map = self._split_unlinked_zh(db, token_map, sense_lookup, language_id)
         return token_map
+
+    @staticmethod
+    def _split_unlinked_zh(db, token_map: list, sense_lookup: dict, language_id: int) -> list:
+        """Split unlinked jieba compounds (器官移植, 书桌上) into dictionary words
+        that have a sense (services/vocabulary/zh_segmenter.split_unlinked)."""
+        from services.vocabulary import zh_segmenter
+        cache: dict[str, int] = {}
+
+        def sense_for(piece: str) -> int:
+            if piece in sense_lookup:
+                return sense_lookup[piece]
+            if piece not in cache:
+                cache[piece] = 0
+                vocab = (db.table('dim_vocabulary').select('id').eq('lemma', piece)
+                         .eq('language_id', language_id).limit(1).execute().data or [])
+                if vocab:
+                    senses = (db.table('dim_word_senses').select('id').eq('vocab_id', vocab[0]['id'])
+                              .eq('definition_language_id', language_id).eq('definition_level', 'standard')
+                              .order('sense_rank').limit(1).execute().data or [])
+                    cache[piece] = senses[0]['id'] if senses else 0
+            return cache[piece]
+
+        try:
+            return zh_segmenter.split_unlinked(token_map, sense_for)[0]
+        except Exception as exc:  # never fail generation over a link refinement
+            logger.warning("split_unlinked failed: %s", exc)
+            return token_map
 
     def _resolve_kana_homophones(
         self, db, transcript: str, tokens: list, sense_lookup: dict,

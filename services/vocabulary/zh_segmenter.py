@@ -25,7 +25,7 @@ import gzip
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator
+from typing import Callable, Iterator
 
 logger = logging.getLogger(__name__)
 
@@ -134,3 +134,89 @@ def cut_with_tags(text: str) -> Iterator[tuple[str, str]]:
             yield from tagged(_resplit(word))
         else:
             yield from tagged([(word, flag)])
+
+
+# Tags ChineseProcessor treats as content words (kept in step with
+# services/vocabulary/processors/chinese.py, which imports these).
+CONTENT_TAGS = frozenset({"n", "v", "a", "d", "i", "l", "vn", "an"})
+
+
+def is_content_tag(tag: str) -> bool:
+    return tag in CONTENT_TAGS or (len(tag) > 0 and tag[0] in {'n', 'v', 'a'})
+
+
+# Whole-token jieba tags never split for linking: numerals and measure
+# phrases (一只: 只 would link to "only"), pronoun phrases (这时候), particles
+# and conjunction phrases (来说, 是因为) and personal names (蓝蓝).
+_NO_SPLIT_TAGS = ('m', 'q', 'r', 'u', 'c', 'nr')
+
+
+def _best_split(word: str) -> list[str]:
+    """jieba's own best path through `word` (max summed log frequency over
+    dictionary pieces), with the whole word itself excluded as a piece and
+    never using a piece that needs splitting. Single characters are always
+    allowed. 医疗系统 -> 医疗 / 系统, 几星期 -> 几 / 星期."""
+    import math
+    freq, known = _jieba_freq(), known_words()
+    import jieba
+    log_total = math.log(jieba.dt.total)
+    n = len(word)
+    best: list[tuple[float, int]] = [(0.0, n)] * (n + 1)
+    for i in range(n - 1, -1, -1):
+        options = []
+        for j in range(i + 1, n + 1):
+            piece = word[i:j]
+            if piece == word:
+                continue
+            if j - i > 1 and not ((freq.get(piece, 0) > 0 or piece in known) and not _needs_split(piece)):
+                continue
+            options.append((math.log(freq.get(piece) or 1) - log_total + best[j][0], j))
+        best[i] = max(options)
+    out, i = [], 0
+    while i < n:
+        j = best[i][1]
+        out.append(word[i:j])
+        i = j
+    return out
+
+
+def split_unlinked(token_map: list, sense_for: Callable[[str], int]) -> tuple[list, int]:
+    """Split word-map tokens that link to nothing into dictionary words that do.
+
+    jieba's dictionary holds many compounds and phrases our dictionary has no
+    entry for (器官移植, 书桌上, 记录下来, 闪烁着). Such a token renders as plain
+    text. Each multi-character Chinese token with sense 0 that no dictionary
+    lists (CC-CEDICT or the allow-list; 可以, 没有 stay whole even when they
+    are unlinked grammar words) and is not a number, measure, pronoun,
+    particle, conjunction or name phrase (一只, 来说, 是因为, 这时候) is split
+    the way jieba itself would cut it without that one entry (_best_split:
+    医疗系统 -> 医疗 / 系统), and each content-word piece is linked with
+    `sense_for(piece)` (0 when it has none). The token is replaced only when at
+    least one piece gets a link; linked tokens are never touched, and the
+    surfaces still concatenate to the same text. Returns (map, tokens split).
+    """
+    import jieba.posseg as pseg
+    tags, overrides = pseg.dt.word_tag_tab, pos_overrides()
+    out: list = []
+    split = 0
+    for entry in token_map or []:
+        surf, sid = entry[0], entry[1]
+        word = surf.strip()
+        tag = overrides.get(word, tags.get(word)) or ''
+        if (sid or len(word) < 2 or word in known_words() or tag.startswith(_NO_SPLIT_TAGS)
+                or not all('一' <= ch <= '鿿' for ch in word)):
+            out.append([surf, sid])
+            continue
+        pieces = _best_split(word)
+        linked = [[p, sense_for(p) if is_content_tag(overrides.get(p, tags.get(p, 'x'))) else 0]
+                  for p in pieces]
+        if len(pieces) < 2 or not any(s for _, s in linked):
+            out.append([surf, sid])
+            continue
+        lead = surf[:len(surf) - len(surf.lstrip())]
+        trail = surf[len(surf.rstrip()):]
+        linked[0][0] = lead + linked[0][0]
+        linked[-1][0] = linked[-1][0] + trail
+        out += linked
+        split += 1
+    return out, split

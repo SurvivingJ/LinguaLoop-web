@@ -316,4 +316,28 @@ def build_token_map_with_fallback(db, language_code: str, language_id: int,
         if senses:
             lemma_to_sense.setdefault(lemma_by_vocab[vocab_id], senses[0]['id'])
 
-    return build_token_map(language_code, transcript, lemma_to_sense)
+    token_map, unmatched = build_token_map(language_code, transcript, lemma_to_sense)
+    if language_code == 'zh' and unmatched:
+        token_map = split_unlinked_zh(db, language_id, token_map, lemma_to_sense, resolve_vocab_id)
+        linked = {s.strip() for s, sid in token_map if sid}
+        unmatched = [u for u in unmatched if u not in linked and any(s.strip() == u for s, _ in token_map)]
+    return token_map, unmatched
+
+
+def split_unlinked_zh(db, language_id: int, token_map: list, lemma_to_sense: dict[str, int],
+                      resolve_vocab_id) -> list:
+    """zh_segmenter.split_unlinked with pieces resolved like the fallback above:
+    a known link first, else the piece's lowest-ranked standard sense."""
+    from services.vocabulary import zh_segmenter
+    cache: dict[str, int] = {}
+
+    def sense_for(piece: str) -> int:
+        if piece in lemma_to_sense:
+            return lemma_to_sense[piece]
+        if piece not in cache:
+            vocab_id = resolve_vocab_id(piece)
+            senses = fetch_standard_senses(db, [vocab_id], language_id).get(vocab_id) if vocab_id else None
+            cache[piece] = senses[0]['id'] if senses else 0
+        return cache[piece]
+
+    return zh_segmenter.split_unlinked(token_map, sense_for)[0]

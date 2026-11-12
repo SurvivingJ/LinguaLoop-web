@@ -15,7 +15,7 @@ from services.vocabulary.model_cache import model_cache
 
 logger = logging.getLogger(__name__)
 
-_CONTENT_POS = {"n", "v", "a", "d", "i", "l", "vn", "an"}
+from services.vocabulary.zh_segmenter import CONTENT_TAGS as _CONTENT_POS  # noqa: E402
 
 _STOP_WORDS = frozenset({
     '的', '了', '在', '是', '我', '有', '和', '就', '不', '人',

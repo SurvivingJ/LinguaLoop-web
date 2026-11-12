@@ -196,7 +196,8 @@ def plan_resegment(old_rows: list[dict], new_rows: list[dict]) -> dict:
 
 def run_resegment(apply: bool, test_id: str | None) -> int:
     """Re-split tests whose stored sentences no longer match the splitter
-    (e.g. after a terminator rule changes) without touching the transcript.
+    (e.g. after a terminator rule changes), or whose word links (token spans)
+    are stale because the word map changed, without touching the transcript.
     Unchanged sentences keep their rows and references; references on the
     sentences that changed are written to a backup before they are removed."""
     import datetime
@@ -221,10 +222,11 @@ def run_resegment(apply: bool, test_id: str | None) -> int:
     plans = []
     for t in tests:
         new_rows, warnings = rows_for_test(t)
-        old = (db.table('test_sentences').select('id, idx, char_start, char_end')
+        old = (db.table('test_sentences').select('id, idx, char_start, char_end, token_start, token_end')
                .eq('test_id', t['id']).order('idx').execute().data or [])
-        if [(r['char_start'], r['char_end']) for r in old] == [(n['char_start'], n['char_end']) for n in new_rows]:
-            continue
+        key = ('char_start', 'char_end', 'token_start', 'token_end')
+        if [tuple(r[k] for k in key) for r in old] == [tuple(n[k] for k in key) for n in new_rows]:
+            continue  # same sentences and same word links
         p = plan_resegment(old, new_rows)
         refs = (db.table('test_sentence_references').select('*').in_('sentence_id', p['drop']).execute().data or []) \
             if p['drop'] else []
@@ -243,6 +245,10 @@ def run_resegment(apply: bool, test_id: str | None) -> int:
     out_dir = os.path.join(ROOT, 'data', 'sentence_resegment')
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, f'{datetime.date.today().isoformat()}_backup.json.gz')
+    n = 2
+    while os.path.exists(path):  # never overwrite an earlier run's backup
+        path = os.path.join(out_dir, f'{datetime.date.today().isoformat()}_backup_{n}.json.gz')
+        n += 1
     with gzip.open(path, 'wt', encoding='utf-8') as fh:
         json.dump([{'test_id': t['id'], 'dropped_sentences': rows, 'references': refs}
                    for t, _, refs, rows in plans], fh, ensure_ascii=False, default=str)

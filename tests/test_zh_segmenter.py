@@ -57,3 +57,22 @@ def test_override_file_has_only_multi_character_words():
     ov = z.pos_overrides()
     assert ov and all(len(w) >= 2 for w in ov)
     assert ov.get('研发') == 'v'
+
+
+def test_split_unlinked_makes_unlinked_compounds_clickable():
+    senses = {'器官': 1, '移植': 2, '书桌': 3, '医疗': 4, '系统': 5, '只': 6, '来': 7, '说': 8, '蓝': 9}
+    token_map = [['他看', 0], ['器官移植', 0], ['和', 0], ['书桌上', 0], ['，', 0], ['医疗系统', 0],
+                 ['一只', 0], ['对我', 0], ['来说', 0], ['蓝蓝', 0], ['可以', 0], ['好', 42]]
+    out, n = z.split_unlinked(token_map, lambda p: senses.get(p, 0))
+    assert ''.join(s for s, _ in out) == ''.join(s for s, _ in token_map)
+    assert ['器官', 1] in out and ['移植', 2] in out
+    assert ['书桌', 3] in out and ['上', 0] in out          # 上 is not a content word
+    assert ['医疗', 4] in out and ['系统', 5] in out        # jieba's best path, not 医疗系 / 统
+    for kept in (['一只', 0], ['来说', 0], ['蓝蓝', 0], ['可以', 0], ['好', 42]):
+        assert kept in out                                  # measure, particle, name, dictionary word, linked
+    assert n == 3
+
+
+def test_best_split_never_returns_the_word_itself():
+    assert z._best_split('几星期') == ['几', '星期']
+    assert z._best_split('换衣服') == ['换', '衣服']

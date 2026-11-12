@@ -191,6 +191,10 @@ def apply(db, p: dict) -> str:
     out_dir = os.path.join(ROOT, 'data', 'zh_segmentation')
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, f"{backup['date']}_retirement_backup.json.gz")
+    n = 2
+    while os.path.exists(path):  # never overwrite an earlier run's backup
+        path = os.path.join(out_dir, f"{backup['date']}_retirement_backup_{n}.json.gz")
+        n += 1
     with gzip.open(path, 'wt', encoding='utf-8') as fh:
         json.dump(backup, fh, ensure_ascii=False)
     log.info('backup written: %s', path)
