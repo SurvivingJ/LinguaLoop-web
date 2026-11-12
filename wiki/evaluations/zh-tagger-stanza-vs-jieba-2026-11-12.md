@@ -5,7 +5,7 @@ status: complete
 last_updated: 2026-11-12
 open_questions:
   - "ANSWERED 2026-11-12: guessed words are validated against CC-CEDICT before they become vocabulary (services/vocabulary/zh_segmenter.py)."
-  - "OPEN: of the 108 dictionary words that exist only because of jieba's guessing, which fakes to retire (and what happens to senses/tests linked to them)?"
+  - "ANSWERED 2026-11-12: 18 are in CC-CEDICT and 36 more were reviewed as real (allow-list); 54 non-words (incl. 2 names kept whole) were retired by scripts/retire_zh_fake_words.py (backup in data/zh_segmentation/)."
 ---
 
 # Chinese tagger trial — Stanza vs jieba
