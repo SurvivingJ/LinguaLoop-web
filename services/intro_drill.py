@@ -240,7 +240,7 @@ def _reading(sense: dict, lang: str) -> Optional[dict]:
     shown = (m.group(1) if m else r).strip()
     if lang == 'ja':
         # legacy rows stored UniDic's loanword tag: すぴーど-speed
-        shown = re.split(r'-[A-Za-z]', shown, maxsplit=1)[0].strip()
+        shown = re.sub(r'-[A-Za-z][A-Za-z-]*(?:（[^）]*）|\([^)]*\))?', '', shown).strip()
     numbered = m.group(2).strip() if m else None
     if lang == 'zh' and not numbered:
         return None
