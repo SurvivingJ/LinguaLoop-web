@@ -7,6 +7,8 @@ down two things: (1) punctuation is a hard boundary for sandhi rules, and
 refactor.
 """
 
+import pytest
+
 from services.pinyin_service import process_passage, _split_into_chunks, _parse_tone
 
 
@@ -151,6 +153,13 @@ def test_process_passage_does_not_crash_on_embedded_subscript_digit():
     tokens = process_passage("水是 H₂O。")
     assert isinstance(tokens, list)
     assert len(tokens) > 0
+
+
+@pytest.mark.parametrize("text", ["统一", "第一", "唯一"])
+def test_yi_keeps_first_tone_in_fixed_words(text):
+    # 一 is word-final here, but the exception must also hold mid-phrase.
+    tokens = process_passage(text + "天")
+    assert _tones_by_char(tokens, "一")[0] == 1
 
 
 def test_tone_groups_use_the_checked_word_splitter():

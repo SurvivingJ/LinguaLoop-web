@@ -86,8 +86,18 @@ def _is_classical(c_type: str) -> bool:
 _KATA_TO_HIRA = {cp: cp - 0x60 for cp in range(0x30A1, 0x30F7)}
 
 
+# The tag plus an optional gloss, keeping any kana that follows it:
+# ボランティア-volunteerカツドウ -> ボランティアカツドウ.
+_LOANWORD_KANA_TAG = re.compile(r'-[A-Za-z][A-Za-z-]*(?:（[^）]*）|\([^)]*\))?')
+
+
 def _to_hiragana(katakana: str) -> str:
-    return katakana.translate(_KATA_TO_HIRA) if katakana else katakana
+    if not katakana:
+        return katakana
+    # kanaBase carries the same loanword source tag as the lemma
+    # (スピード-speed); strip it so the reading is pure kana.
+    katakana = _LOANWORD_KANA_TAG.sub('', katakana)
+    return katakana.translate(_KATA_TO_HIRA)
 
 
 def _load_fugashi():

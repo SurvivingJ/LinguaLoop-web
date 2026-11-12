@@ -211,7 +211,7 @@ export function gradeReading(input, word, lang) {
   if (lang === 'zh') {
     if (!LP || !rd.numbered) return norm(input) === norm(rd.shown);
     const pi = LP.parsePinyinInput(input);
-    return LP.gradeZh(pi.segs, pi.tones, rd.numbered).ok;
+    return LP.gradeZh(pi.segs, pi.tones, rd.numbered, word.lemma).ok;
   }
   if (LP) return LP.gradeJa(input, rd.shown).ok;
   return norm(input) === norm(rd.shown);

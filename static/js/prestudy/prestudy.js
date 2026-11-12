@@ -180,7 +180,7 @@
   function readingParts(s) {
     if (!s || !s.reading) return null;
     const m = /^(.*?)\s*\((.*)\)\s*$/.exec(s.reading);           // zh: "mù tou (mu4 tou5)"
-    return { shown: (m ? m[1] : s.reading).trim(), numbered: m ? m[2].trim() : null };
+    return { shown: (m ? m[1] : s.reading).trim(), numbered: m ? m[2].trim() : null, hanzi: s.lemma || null };
   }
   const KANA = { 'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o', 'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko', 'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so', 'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to', 'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no', 'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho', 'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo', 'や': 'ya', 'ゆ': 'yu', 'よ': 'yo', 'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro', 'わ': 'wa', 'を': 'o', 'ん': 'n', 'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go', 'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo', 'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do', 'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo', 'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po', 'ぁ': 'a', 'ぃ': 'i', 'ぅ': 'u', 'ぇ': 'e', 'ぉ': 'o', 'ゔ': 'vu' };
   const KANA_Y = { 'ゃ': 'ya', 'ゅ': 'yu', 'ょ': 'yo' };
@@ -232,14 +232,42 @@
     const haveTones = ts.length && ts.every((t) => t != null);
     return { segs, tones: haveTones ? ts : null };
   }
-  function gradeZh(segs, tones, numbered) {
+  // Stored readings carry dictionary (citation) tones. Speech changes some of
+  // them by context (tone sandhi), so a learner typing either form passes.
+  // Mirrors services/pinyin_service._apply_sandhi_to_chunk.
+  const YI_KEEPS_TONE_AFTER = new Set(['第', '统', '唯', '初', '十', '万', '之', '其', '归', '划', '专', '同', '单']);
+  function sandhiTones(tones, chars) {
+    const out = tones.slice();
+    const ch = chars && chars.length === tones.length ? chars : null;
+    for (let i = 0; i < tones.length; i++) {
+      const next = i + 1 < tones.length ? tones[i + 1] : null;
+      const c = ch ? ch[i] : null, prevC = ch && i > 0 ? ch[i - 1] : null, nextC = ch && next != null ? ch[i + 1] : null;
+      if (c === '一' || c === '不') {
+        if (next == null) continue;
+        if (prevC && prevC === nextC) out[i] = 5;                       // 看一看, 好不好
+        else if (c === '一' && YI_KEEPS_TONE_AFTER.has(prevC)) continue; // 统一, 第一
+        else if (next === 4) out[i] = 2;
+        else if (c === '一' && next !== 5) out[i] = 4;
+      } else if (tones[i] === 3 && next === 3) {
+        out[i] = 2;
+      }
+    }
+    return out;
+  }
+  // Any syllable after the first may be said neutral or with its full tone.
+  function toneAccepted(t, i, citation, spoken) {
+    return t === citation[i] || t === spoken[i] || (i > 0 && (t === 5 || citation[i] === 5));
+  }
+  function gradeZh(segs, tones, numbered, hanzi) {
     const ref = pinyinSyllables(numbered);
+    const citation = ref.map((r) => r.tone);
+    const spoken = sandhiTones(citation, hanzi ? Array.from(String(hanzi).replace(/[^\u4e00-\u9fff]/g, '')) : null);
     const segOk = segs.join('') === ref.map((r) => r.seg).join('');
-    const toneOk = tones != null && tones.length === ref.length && tones.every((t, i) => t === ref[i].tone);
+    const toneOk = tones != null && tones.length === ref.length && tones.every((t, i) => toneAccepted(t, i, citation, spoken));
     return { segOk, toneOk, ok: segOk && toneOk, ref };
   }
   function gradeReading(input, rp) {
-    if (S.test.language_id === ZH) { const pi = parsePinyinInput(input); return gradeZh(pi.segs, pi.tones, rp.numbered).ok; }
+    if (S.test.language_id === ZH) { const pi = parsePinyinInput(input); return gradeZh(pi.segs, pi.tones, rp.numbered, rp.hanzi).ok; }
     return gradeJa(input, rp.shown).ok;
   }
   function hasTypedReading(sid) {
@@ -544,7 +572,7 @@
     f.onsubmit = (e) => {
       e.preventDefault(); const v = $('psTyped').value; if (!v.trim()) return;
       if (!zh) { const g = gradeJa(v, it.correct); answer(g.ok, v, { detail: g.ok && g.mode === 'romaji' ? T('prestudy.romaji_ok') : '' }); return; }
-      const pi = parsePinyinInput(v); const g = gradeZh(pi.segs, pi.tones, it.numbered);
+      const pi = parsePinyinInput(v); const g = gradeZh(pi.segs, pi.tones, it.numbered, it.prompt);
       if (pi.tones != null || !g.segOk) { answer(g.ok, v, { detail: g.segOk ? (g.toneOk ? '' : T('prestudy.tones_wrong')) : T('prestudy.syllables_wrong') }); return; }
       // toneless and syllables right: pick the tone of each syllable
       $('psTyped').disabled = true; f.querySelector('button').disabled = true;
@@ -555,7 +583,7 @@
           const i = +btn.dataset.i; picked[i] = +btn.dataset.t;
           Tn.querySelectorAll(`.ps-tone[data-i="${i}"]`).forEach((x) => x.classList.toggle('picked', x === btn));
           if (picked.every((tn) => tn != null)) {
-            const g2 = gradeZh(pi.segs, picked, it.numbered);
+            const g2 = gradeZh(pi.segs, picked, it.numbered, it.prompt);
             Tn.querySelectorAll('.ps-tone').forEach((x) => { const ii = +x.dataset.i, tt = +x.dataset.t; x.disabled = true; if (tt === g2.ref[ii].tone) x.classList.add('correct'); else if (tt === picked[ii]) x.classList.add('wrong'); });
             answer(g2.ok, v + ' ' + picked.join(''), { detail: g2.ok ? '' : T('prestudy.tones_wrong') });
           }
@@ -1013,7 +1041,7 @@
   }
 
   // exposed for unit-style checks in the browser console and tests
-  window.LinguaPrestudy = { gradeJa, gradeZh, parsePinyinInput, kanaToRomaji, normRomaji, readingParts, bktUpdate, bktUpdateIdk };
+  window.LinguaPrestudy = { gradeJa, gradeZh, sandhiTones, parsePinyinInput, kanaToRomaji, normRomaji, readingParts, bktUpdate, bktUpdateIdk };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
