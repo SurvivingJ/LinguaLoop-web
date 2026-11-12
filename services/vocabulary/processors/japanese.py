@@ -87,7 +87,12 @@ _KATA_TO_HIRA = {cp: cp - 0x60 for cp in range(0x30A1, 0x30F7)}
 
 
 def _to_hiragana(katakana: str) -> str:
-    return katakana.translate(_KATA_TO_HIRA) if katakana else katakana
+    if not katakana:
+        return katakana
+    # kanaBase carries the same loanword source tag as the lemma
+    # (スピード-speed); strip it so the reading is pure kana.
+    katakana = _LOANWORD_LEMMA.split(katakana, 1)[0]
+    return katakana.translate(_KATA_TO_HIRA)
 
 
 def _load_fugashi():

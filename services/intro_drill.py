@@ -238,6 +238,9 @@ def _reading(sense: dict, lang: str) -> Optional[dict]:
     import re
     m = re.match(r'^(.*?)\s*\((.*)\)\s*$', r)
     shown = (m.group(1) if m else r).strip()
+    if lang == 'ja':
+        # legacy rows stored UniDic's loanword tag: すぴーど-speed
+        shown = re.split(r'-[A-Za-z]', shown, maxsplit=1)[0].strip()
     numbered = m.group(2).strip() if m else None
     if lang == 'zh' and not numbered:
         return None
