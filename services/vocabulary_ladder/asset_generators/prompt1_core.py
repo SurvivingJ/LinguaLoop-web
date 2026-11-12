@@ -22,6 +22,7 @@ from services.vocabulary_ladder.config import (
     get_sentence_target, remap_keys,
 )
 from services.vocabulary_ladder.asset_generators._renderer import render_template
+from services.vocabulary.pos import pos_hint
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +206,7 @@ class CoreAssetGenerator:
             resp = (
                 self.db.table('dim_word_senses')
                 .select('id, definition, pronunciation, vocab_id, '
-                        'dim_vocabulary(lemma, part_of_speech, level_tag)')
+                        'dim_vocabulary(*)')  # * : part_of_speech_raw exists only after standardise_part_of_speech.sql
                 .eq('id', sense_id)
                 .single()
                 .execute()
@@ -218,7 +219,7 @@ class CoreAssetGenerator:
             return {
                 'sense_id': sense_id,
                 'lemma': vocab.get('lemma', ''),
-                'pos': vocab.get('part_of_speech', ''),
+                'pos': pos_hint(vocab),
                 'definition': row.get('definition', ''),
                 'pronunciation': row.get('pronunciation', ''),
                 'complexity_tier': vocab.get('level_tag') or 'T3',

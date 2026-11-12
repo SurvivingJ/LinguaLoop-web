@@ -33,18 +33,31 @@ def get_user_definition_language_id(db, user_id: str) -> int | None:
     Reuses users.native_language_id (TASK-607/619, dual translation) --
     "what language does this learner read" is the same question dual
     translation already asks, so this deliberately does not add a second
-    setting. Returns None (not a default) when unset: unlike dual
-    translation's English fallback, an unset preference here must mean "keep
-    serving native-language definitions, unchanged" -- silently defaulting
-    everyone to English glosses would be a real behavior change, not a
-    graceful default.
+    setting.
+
+    When it is unset (or cannot be read) this returns the configured default
+    native language (Config.DEFAULT_NATIVE_LANGUAGE, English). Before
+    2026-11-11 it returned None, which meant "definitions in the language being
+    learned" -- a learner who never set a native language had every
+    explanation in Chinese while learning Chinese, harder than the word being
+    explained (decided with the developer after the browser walkthrough). The
+    client also asks once for the native language (base.html), falling back to
+    the browser language, then English.
     """
+    native = None
     try:
         resp = db.table('users').select('native_language_id').eq('id', user_id).single().execute()
-        return (resp.data or {}).get('native_language_id')
+        native = (resp.data or {}).get('native_language_id')
     except Exception as e:
         logger.warning("Could not resolve definition language for user %s: %s", user_id, e)
-        return None
+    if native:
+        return native
+    return _default_definition_language_id()
+
+
+def _default_definition_language_id() -> int | None:
+    from config import Config
+    return Config.LANGUAGE_CODE_TO_ID.get(getattr(Config, 'DEFAULT_NATIVE_LANGUAGE', 'en') or 'en')
 
 
 def apply_definition_language_preference(

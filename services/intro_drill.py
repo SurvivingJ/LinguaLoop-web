@@ -290,7 +290,7 @@ def _distractor_pool(db, language_id: int, gloss_lang: Optional[int], near_ids: 
         return []
     try:
         q = db.table('dim_word_senses').select(
-            'id, definition, definition_language_id, dim_vocabulary!inner(lemma, language_id)'
+            'id, definition, definition_language_id, dim_vocabulary!inner(lemma, language_id, part_of_speech)'
         ).eq('dim_vocabulary.language_id', language_id).gte('id', max(0, min(near_ids) - 400))
         if gloss_lang:
             q = q.eq('definition_language_id', gloss_lang)
@@ -304,7 +304,8 @@ def _distractor_pool(db, language_id: int, gloss_lang: Optional[int], near_ids: 
         if r['id'] in exclude or not lemma or not r.get('definition') or lemma in seen:
             continue
         seen.add(lemma)
-        out.append({'lemma': lemma, 'def': r['definition']})
+        out.append({'lemma': lemma, 'def': r['definition'],
+                    'pos': (r.get('dim_vocabulary') or {}).get('part_of_speech')})
     random.Random(sum(near_ids)).shuffle(out)
     return out[:n]
 
@@ -344,7 +345,7 @@ def build_block(db, user_id: str, language_id: int, rows: List[dict]) -> Optiona
         groups = by_sense.get(sid, {})
         formats = word_formats(stage, lang, rd is not None, sent is not None, set(groups))
         words.append({
-            'sense_id': sid, 'stage': stage, 'target': INTRO_TARGETS[stage],
+            'sense_id': sid, 'stage': stage, 'target': INTRO_TARGETS[stage], 'pos': s.get('pos'),
             'cap': INTRO_ITEM_CAPS[stage], 'cold': stage >= 2,
             'lemma': s['lemma'], 'reading': rd, 'gloss': d,
             'sentence': sent, 'example': ex or None, 'formats': formats,

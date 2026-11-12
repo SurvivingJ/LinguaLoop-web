@@ -25,6 +25,7 @@ because they remain the sole repo record of other still-live objects.
 | `update_get_recommended_tests_for_dictation.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present |
 | `add_pitch_accent_to_get_recommended_tests.sql` | `get_recommended_tests(uuid,smallint)` | `task702_get_recommended_tests_rank_cap.sql` | `rank_in_type <= 10` present (TASK-702) |
 | `get_distractors_drop_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_gloss_language.sql` | standard-level filter + `auth.uid` present |
+| `task740_phase5b_topic_recency_exclusion.sql` | `get_recommended_tests(uuid,smallint,smallint)` | `dictation_cap_cjk_word_count.sql` | `public.transcript_word_count(t.transcript)` in the dictation cap predicate; md5(prosrc) `1e11065394da7807f3b97e919165a42f` (2026-11-11) |
 | `restore_get_distractors_auth_check.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_filter_gloss_language.sql` | standard-level filter + `auth.uid` present |
 | `get_distractors_filter_standard_level.sql` | `get_distractors(integer,smallint,integer)` | `get_distractors_definition_language_param.sql` | `dws.definition_language_id = p_language_id` predicate present (gloss-row exclusion, 2026-08-23) |
 | `get_distractors_filter_gloss_language.sql` | `get_distractors(integer,smallint,integer,smallint)` | `get_distractors_definition_language_param.sql` | `p_definition_language_id` 4th param + `v_def_lang` present (2026-08-24) |

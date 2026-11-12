@@ -28,6 +28,22 @@ def test_regexes_match_passage_builder():
     assert pb._CJK_CODES == sr._CJK_CODES
 
 
+def test_closing_quotes_stay_with_their_sentence():
+    # Live cases, 2026-11-12: the ” used to start the next Chinese sentence and
+    # an English sentence ending inside quotes was merged with the next one.
+    zh = '我们想到了另一句话：“没有塑料袋。”这是立法。政府会看。'
+    assert sr.segment_sentences(zh, 'zh') == ['我们想到了另一句话：“没有塑料袋。”', '这是立法。', '政府会看。']
+    assert sr.segment_sentences('他说：「好！」我们走吧。', 'ja') == ['他说：「好！」', '我们走吧。']
+    en = 'This is "training data." The app must be good. (It learns.) Then it stops.'
+    assert sr.segment_sentences(en, 'en') == [
+        'This is "training data."', 'The app must be good.', '(It learns.)', 'Then it stops.']
+    # A quote that is not closing a sentence is untouched.
+    assert sr.segment_sentences('"Greens" are wet. "Browns" are dry.', 'en') == [
+        '"Greens" are wet.', '"Browns" are dry.']
+    spans = sr.segment_with_spans(en, 'en')
+    assert [sp.text for sp in spans] == sr.segment_sentences(en, 'en')
+
+
 def test_spans_reproduce_transcript_and_match_segmenter(fixture):
     for t in fixture['tests']:
         code = sr.LANG_CODE[t['language_id']]
@@ -220,3 +236,19 @@ def test_build_script_fixture_mode(tmp_path):
     pre = spans['00000000-0000-0000-0000-00000000pre1']
     assert pre[0]['l2_text'].startswith('この文章は')  # cleanup is TASK-900's job, segmentation stays faithful
     assert 'under 2 sentences' in p.stderr + p.stdout
+
+
+def test_plan_resegment_keeps_unchanged_rows():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('bts', os.path.join(ROOT, 'scripts', 'build_test_sentences.py'))
+    bts = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bts)
+    old = [{'id': 10, 'idx': 0, 'char_start': 0, 'char_end': 5},
+           {'id': 11, 'idx': 1, 'char_start': 6, 'char_end': 30},   # two sentences merged
+           {'id': 12, 'idx': 2, 'char_start': 31, 'char_end': 40}]
+    new = [{'idx': 0, 'char_start': 0, 'char_end': 5}, {'idx': 1, 'char_start': 6, 'char_end': 15},
+           {'idx': 2, 'char_start': 16, 'char_end': 30}, {'idx': 3, 'char_start': 31, 'char_end': 40}]
+    p = bts.plan_resegment(old, new)
+    assert [(i, n['idx']) for i, n in p['keep']] == [(10, 0), (12, 3)]
+    assert p['drop'] == [11]
+    assert [n['idx'] for n in p['insert']] == [1, 2]

@@ -78,7 +78,7 @@ def get_session(user_id: str, language_id: int, count: int = 20) -> list[dict]:
             'distractor_ids':          r.get('out_distractor_ids') or [],
             'distractor_hanzi':        r.get('out_distractor_hanzi') or [],
             'distractor_pinyin':       r.get('out_distractor_pinyin') or [],
-            'semantic_label':          r.get('out_semantic_label'),
+            'semantic_label':          _clean_label(r.get('out_semantic_label')),
             'distractor_group_label':  r.get('out_distractor_group_label'),
             'difficulty_tier':         r.get('out_difficulty_tier'),
             'level':                   r.get('out_level'),
@@ -87,7 +87,39 @@ def get_session(user_id: str, language_id: int, count: int = 20) -> list[dict]:
             'cloze_sentence':          r.get('out_cloze_sentence'),
             'cloze_blanked':           r.get('out_cloze_blanked'),
         })
+    _attach_correct_pinyin(db, items)
     return items
+
+
+# A placeholder some imported classifiers carry instead of a meaning label.
+_PLACEHOLDER_LABELS = {'(imported)', 'imported', ''}
+
+
+def _clean_label(label: Optional[str]) -> Optional[str]:
+    """The classifier's meaning label, or None for an import placeholder."""
+    if label is None or label.strip().lower() in _PLACEHOLDER_LABELS:
+        return None
+    return label
+
+
+def _attach_correct_pinyin(db, items: list[dict]) -> None:
+    """Add ``correct_classifier_pinyin`` (parallel to correct_classifier_ids).
+
+    The session RPC returns pinyin for the wrong options only, so the correct
+    option was the one with no pinyin under it -- a giveaway. Best effort: on
+    failure the field is empty and the player shows no pinyin on any option.
+    """
+    ids = sorted({cid for it in items for cid in (it.get('correct_classifier_ids') or [])})
+    by_id: dict = {}
+    if ids:
+        try:
+            rows = db.table('dim_classifiers').select('id, pinyin_display') \
+                .in_('id', ids).execute().data or []
+            by_id = {r['id']: r.get('pinyin_display') or '' for r in rows}
+        except Exception as e:
+            logger.warning("classifier pinyin lookup failed: %s", e)
+    for it in items:
+        it['correct_classifier_pinyin'] = [by_id.get(cid, '') for cid in (it.get('correct_classifier_ids') or [])]
 
 
 def submit_session(

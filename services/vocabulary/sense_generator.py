@@ -371,19 +371,35 @@ class SenseGenerator:
             .execute()
         return bool(resp.data)
 
+    # Languages whose tokenizer tag the model's label replaces. jieba's tags
+    # come from an old dictionary with known errors (宗教改革 tagged as a
+    # person name, 高昂 as a name, 吸管 as a verb), so for Chinese the model's
+    # label, read with the definition in view, wins. Japanese (MeCab + UniDic)
+    # and English (spaCy) taggers are reliable, so there the model only fills
+    # a blank. (Decided with the developer 2026-11-12.)
+    POS_OVERRIDE_LANGUAGES = frozenset({'zh'})
+
     def _maybe_set_pos(self, vocab_id: int, pos_code) -> None:
-        """Write the canonical POS to dim_vocabulary.part_of_speech when it's
-        currently blank. Best-effort; never raises into the pipeline."""
+        """Write the model's standard POS to dim_vocabulary.part_of_speech.
+
+        For Chinese it replaces the tokenizer's tag (kept in
+        part_of_speech_raw by the standardise_part_of_speech trigger); for
+        other languages it only fills a blank. 'other' never writes. Skips the
+        write when the label is already this one. Best-effort; never raises
+        into the pipeline."""
         if vocab_id < 0 or not isinstance(pos_code, int):
             return
         pos = self._pos_legend.get(pos_code)
         if not pos or pos == 'other':
             return
+        condition = (f'part_of_speech.is.null,part_of_speech.eq.,part_of_speech.neq.{pos}'
+                     if self._language_code in self.POS_OVERRIDE_LANGUAGES
+                     else 'part_of_speech.is.null,part_of_speech.eq.')
         try:
             self._db.table('dim_vocabulary') \
                 .update({'part_of_speech': pos}) \
                 .eq('id', vocab_id) \
-                .or_('part_of_speech.is.null,part_of_speech.eq.') \
+                .or_(condition) \
                 .execute()
         except Exception as e:
             logger.debug(f"POS update skipped for vocab {vocab_id}: {e}")

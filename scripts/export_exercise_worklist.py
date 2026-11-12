@@ -80,6 +80,7 @@ from services.vocabulary_ladder.asset_generators.prompt3_transforms import (
 )
 from services.vocabulary_ladder.asset_generators.l4_morphology import MorphologySlotGenerator
 from services.vocabulary_ladder.asset_generators.l8_repair import CollocationRepairGenerator
+from services.vocabulary.pos import pos_hint  # noqa: E402
 from services.vocabulary_ladder.config import (
     LADDER_LEVELS, PROMPT2_LEVELS, PROMPT3_MONOLITH_LEVELS, SPLIT_LEVEL_TASKS,
     SENTENCE_ASSIGNMENTS_A, SENTENCE_ASSIGNMENTS_B,
@@ -547,8 +548,7 @@ def vocab_extras(db, sense_ids: list[int], language_id: int) -> dict[int, dict]:
     out: dict[int, dict] = {}
     for i in range(0, len(sense_ids), 200):
         rows = (db.table('dim_word_senses')
-                  .select('id, dim_vocabulary(reading, part_of_speech, frequency_rank, '
-                          'level_tag, semantic_class)')
+                  .select('id, dim_vocabulary(*)')  # *: part_of_speech_raw exists only after standardise_part_of_speech.sql
                   .in_('id', sense_ids[i:i + 200])
                   .eq('definition_language_id', language_id)
                   .execute().data or [])
@@ -586,7 +586,7 @@ def build_csv_rows(db, pipeline, p1_gen, selected: list[int], language_id: int,
             'sense_id': sid,
             'lemma': item['lemma'],
             'reading': vx.get('reading') or '',
-            'part_of_speech': vx.get('part_of_speech') or '',
+            'part_of_speech': pos_hint(vx),
             'definition': item['existing_definition'],
             'zipf': vx.get('frequency_rank'),
             'level_tag': vx.get('level_tag') or '',

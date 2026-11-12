@@ -18,6 +18,12 @@ import {
   makeExtraItem,
   splitPracticeQueue,
 } from './tail.js';
+import {
+  practiceSessionUrl,
+  fetchPracticePayload,
+  summarizePracticePayload,
+  practiceCountText,
+} from './players/practice.js';
 
 const $ = (id) => document.getElementById(id);
 const T = (key, params, fallback) =>
@@ -221,12 +227,44 @@ function renderStart() {
     ? T('session.resume_button', null, 'Resume session')
     : T('session.start_button', null, 'Start session');
 
+  showPracticeCount();
+
   const start = $('sessionStart');
   start.classList.remove('d-none');
   $('sessionStartBtn').onclick = () => {
     start.classList.add('d-none');
     runCurrent();
   };
+}
+
+// Start card: when the next item is a practice round, load it now and say how
+// many exercises it holds, so the learner knows the size before starting. The
+// practice player reuses this payload (item.prefetch) instead of loading again.
+function showPracticeCount() {
+  const el = $('sessionStartCount');
+  if (!el) return;
+  let i = session.index;
+  while (i < session.queue.length && session.queue[i].is_completed) i++;
+  const next = session.queue[i];
+  if (!next || next.kind !== 'practice' || next.is_extra) {
+    el.classList.add('d-none');
+    return;
+  }
+  const moreRounds = session.queue
+    .slice(i + 1)
+    .filter((q) => q.kind === 'practice' && !q.is_completed).length;
+  el.textContent = T('session.count_loading', null, 'Counting exercises…');
+  el.classList.remove('d-none');
+  if (!next.prefetch) {
+    next.prefetch = fetchPracticePayload(practiceSessionUrl(next, session.languageId));
+  }
+  next.prefetch.then((res) => {
+    const text = res && res.ok
+      ? practiceCountText(summarizePracticePayload(res.data), moreRounds, T)
+      : '';
+    el.textContent = text;
+    el.classList.toggle('d-none', !text);
+  });
 }
 
 function runCurrent() {

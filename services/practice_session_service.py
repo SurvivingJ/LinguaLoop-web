@@ -460,19 +460,39 @@ class PracticeSessionService:
             'no_content_reason': None if items else 'all_complete',
         }
         # New-word drill: extra new words are intro words, so they come as an
-        # intro block (session 1), not ladder items.
-        if new_words and targets:
+        # intro block (session 1), not ladder items. A review round also
+        # carries the drill words whose next session (2-4) is due: they are
+        # reviews, and the regular items never include intro words.
+        if reviews or (new_words and targets):
             try:
                 from services import intro_drill
                 if intro_drill.ENABLED:
-                    rows = self.db.table('user_word_ladder').select(
-                        'sense_id, intro_stage, intro_due_date, intro_history, created_at'
-                    ).eq('user_id', user_id).eq('word_state', 'intro').in_(
-                        'sense_id', list(targets)).execute().data or []
-                    block = intro_drill.build_block(self.db, user_id, language_id, rows)
+                    rows: List[Dict[str, Any]] = []
+                    if reviews:
+                        today = intro_drill._today(self.db, user_id, language_id)
+                        rows = intro_drill.select_block_rows(
+                            intro_drill.due_rows(self.db, user_id, language_id, today),
+                            'maintenance', 0)
+                    if new_words and targets:
+                        have = {int(r['sense_id']) for r in rows}
+                        rows += [r for r in (self.db.table('user_word_ladder').select(
+                            'sense_id, intro_stage, intro_due_date, intro_history, created_at'
+                        ).eq('user_id', user_id).eq('word_state', 'intro').in_(
+                            'sense_id', list(targets)).execute().data or [])
+                            if int(r['sense_id']) not in have]
+                    block = intro_drill.build_block(
+                        self.db, user_id, language_id, rows[:intro_drill.INTRO_BLOCK_MAX_WORDS])
                     if block:
+                        target_set = {int(t) for t in targets}
+                        drilled = {w['sense_id'] for w in block['words']}
+                        # a drill word is drilled by the drill only
+                        payload['items'] = [i for i in payload['items']
+                                            if i.get('sense_id') not in drilled]
                         payload['intro_drill'] = block
-                        payload['extra']['new_words_served'] = len(block['words'])
+                        payload['extra']['new_words_served'] = sum(
+                            1 for w in block['words'] if w['sense_id'] in target_set)
+                        payload['extra']['reviews_served'] += sum(
+                            1 for w in block['words'] if w['sense_id'] not in target_set)
                         payload['no_content_reason'] = None
             except Exception as e:
                 logger.warning('extra round: intro block failed (non-fatal): %s', e)
@@ -499,6 +519,12 @@ class PracticeSessionService:
         """
         state = self.new_word_state(user_id, language_id) or {}
         unstarted = list(state.get('unstarted_sense_ids') or [])
+        if not state:
+            # No study plan row (or the state read failed): the learner still
+            # asked for new words, so serve the words already admitted and not
+            # started -- e.g. prestudy words queued for later, which no plan
+            # quota would otherwise ever release -- before admitting more.
+            unstarted = self._unstarted_sense_ids(user_id, language_id)
         quota_left = max(0, int(state.get('effective') or 0)
                          - int(state.get('started_today') or 0))
         admitted: List[int] = []
@@ -522,6 +548,29 @@ class PracticeSessionService:
                 len(admitted), user_id, language_id,
             )
         return admitted, targets, max(0, len(targets) - quota_left)
+
+    def _unstarted_sense_ids(self, user_id: str, language_id: int) -> List[int]:
+        """Admitted, never-started words (oldest admission first), read without
+        a study plan row: the same ladder_new_word_state count new_word_state
+        uses, with the day boundary from plan_timezone (UTC when unset).
+        Best effort: [] on any failure."""
+        try:
+            from services.day_boundary import plan_timezone
+            tz = plan_timezone(self.db, user_id, language_id)
+            st = self.db.rpc('ladder_new_word_state', {
+                'p_user_id':     user_id,
+                'p_language_id': language_id,
+                'p_day_start':   local_day_start_utc(tz).isoformat(),
+            }).execute().data
+        except Exception as e:
+            logger.warning('unstarted words read failed for user=%s lang=%s: %s',
+                           user_id, language_id, e)
+            return []
+        if isinstance(st, list):
+            st = st[0] if st else None
+        if not isinstance(st, dict):
+            return []
+        return [int(s) for s in (st.get('unstarted_sense_ids') or [])]
 
     def _extra_acquisition_items(
         self, user_id: str, language_id: int, targets: List[int], n: int,
@@ -557,9 +606,24 @@ class PracticeSessionService:
     def _extra_review_items(
         self, user_id: str, language_id: int, exclude: set,
     ) -> List[Dict[str, Any]]:
-        """Up to EXTRA_REVIEW_ITEMS reviews: due work first, then review-ahead."""
+        """Up to EXTRA_REVIEW_ITEMS reviews: due work first (prestudy next-day
+        reviews, then the Maintenance pool), then review-ahead."""
         items: List[Dict[str, Any]] = []
         seen_senses = set(exclude)
+        try:
+            # Prestudy follow-ups are due review work too; get_session injects
+            # them only outside tail rounds, so a learner whose day has no
+            # practice chunk never saw them here.
+            holder: Dict[str, Any] = {'items': []}
+            self._inject_prestudy_followups(holder, user_id, language_id)
+            for i in holder.get('items') or []:
+                sid = i.get('sense_id')
+                if sid is None or sid in seen_senses:
+                    continue
+                seen_senses.add(sid)
+                items.append(i)
+        except Exception as e:
+            logger.warning('extra round prestudy follow-ups failed: %s', e)
         try:
             resp = self.db.rpc('get_practice_session', {
                 'p_user_id':        user_id,

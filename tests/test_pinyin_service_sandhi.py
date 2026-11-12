@@ -160,3 +160,31 @@ def test_yi_keeps_first_tone_in_fixed_words(text):
     # 一 is word-final here, but the exception must also hold mid-phrase.
     tokens = process_passage(text + "天")
     assert _tones_by_char(tokens, "一")[0] == 1
+
+
+def test_tone_groups_use_the_checked_word_splitter():
+    # jieba alone guesses 人用 as one word; the checked splitter (which the
+    # word map also uses) splits it, so the tone game shows the same words.
+    tokens = process_passage("很多人用手机。")
+    assert "".join(t["char"] for t in tokens) == "很多人用手机。"
+    words = {t["char"]: t["word"] for t in tokens}
+    assert words["人"] == "人" and words["用"] == "用"
+    assert words["手"] == "手机"
+
+
+def test_regroup_changes_only_the_word_of_fake_words():
+    import importlib.util
+    import os
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    spec = importlib.util.spec_from_file_location('rg', os.path.join(root, 'scripts', 'regroup_pinyin_fake_words.py'))
+    rg = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rg)
+    old = process_passage("钱要分得公平。")
+    for t in old:
+        if t["char"] in "分得":
+            t["word"] = "分得"          # as stored by plain jieba
+    stored = {t["char"]: (t["pinyin_text"], t["context_tone"]) for t in old}
+    new, n = rg.regroup(old, process_passage("钱要分得公平。"))
+    assert n == 2
+    assert [t["word"] for t in new if t["char"] in "分得"] == ["分", "得"]
+    assert {t["char"]: (t["pinyin_text"], t["context_tone"]) for t in new} == stored

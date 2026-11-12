@@ -125,6 +125,7 @@ export function mount(container, ctx) {
       throw new Error('Invalid test data received');
     }
     state.testData = payload.test_data;
+    state.skillRatings = payload.skill_ratings || {};
     state.testId = payload.test_data.id;
     state.vocabTokenMap = payload.vocab_token_map || [];
     state.definitions = payload.definitions || {};
@@ -283,11 +284,12 @@ export function mount(container, ctx) {
   function initializeUI() {
     q('testTitleText').textContent = state.testData.title || state.testData.topic;
     q('testLanguage').textContent = nativeName(state.testData.language);
-    q('testDifficulty').textContent = T(
-      'test.level',
-      { level: state.testData.difficulty },
-      `Level ${state.testData.difficulty}`
-    );
+    // Same difficulty scale as the test list and preview (static/js/utils.js
+    // ELO_RANGES); it used to show the stored generation level ("Level 5").
+    const U = window.LinguaUtils;
+    const difficultyText = U && U.getTestDifficultyText ? U.getTestDifficultyText(state.skillRatings, state.mode) : '';
+    q('testDifficulty').textContent = difficultyText;
+    q('testDifficulty').classList.toggle('d-none', !difficultyText);
     q('testType').textContent = state.mode.charAt(0).toUpperCase() + state.mode.slice(1);
 
     setupFuriganaToggle();

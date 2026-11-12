@@ -433,12 +433,16 @@ export function mount(container, ctx) {
     const distractorHanzi = item.distractor_hanzi || [];
     const distractorPinyin = item.distractor_pinyin || [];
 
-    const pool = [{ id: correctId, hanzi: correctHanzi, pinyin: '', is_correct: true }];
+    // Every option carries its pinyin, the correct one included: when only
+    // the wrong options had it, the answer was the one without.
+    const correctPinyin = (item.correct_classifier_pinyin || [])[0] || '';
+    const showPinyin = !!correctPinyin;
+    const pool = [{ id: correctId, hanzi: correctHanzi, pinyin: correctPinyin, is_correct: true }];
     for (let i = 0; i < distractorIds.length; i++) {
       pool.push({
         id: distractorIds[i],
         hanzi: distractorHanzi[i] || '',
-        pinyin: distractorPinyin[i] || '',
+        pinyin: showPinyin ? distractorPinyin[i] || '' : '',
         is_correct: false,
       });
     }

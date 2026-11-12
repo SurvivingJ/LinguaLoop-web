@@ -54,6 +54,10 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-5.3.2/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-6.5.1/css/all.min.css') }}">
+    <!-- Bootstrap Icons ("bi bi-*"): used by the session players (tone trainer key
+         legend, dictation, pitch accent, prestudy) and test pages; loaded here so
+         every page has them, not only the language picker. -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons-1.11.2/bootstrap-icons.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script>
         // Apply theme immediately to prevent flash of default theme
@@ -870,6 +874,32 @@
             }
         });
     </script>
+
+    {% if not hide_navbar %}
+    <!-- One-time native-language prompt (static/js/native-language-prompt.js) -->
+    <div class="modal fade" id="nativeLanguageModal" tabindex="-1" aria-hidden="true" aria-labelledby="nativeLanguageTitle">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="nativeLanguageTitle" data-i18n="native_prompt.title">Which language do you read best?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3" data-i18n="native_prompt.body">We'll explain new words in this language. You can change it any time in your profile.</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary" data-native-lang="2">English</button>
+                        <button type="button" class="btn btn-outline-primary" data-native-lang="1" lang="zh">中文</button>
+                        <button type="button" class="btn btn-outline-primary" data-native-lang="3" lang="ja">日本語</button>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal" data-i18n="native_prompt.skip">Skip</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/native-language-prompt.js') }}"></script>
+    {% endif %}
 
     <!-- Report Modal -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">

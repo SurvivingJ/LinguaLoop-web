@@ -25,6 +25,107 @@ const T = (key, params, fallback) => {
   return v && v !== key ? v : fill(fallback || key, params);
 };
 
+/** /api/practice/session URL for a daily practice chunk (one queue item). */
+export function practiceSessionUrl(item, languageId) {
+  const mode = (item && item.mode) || 'acquisition';
+  const minutes = (item && item.minutes) || 10;
+  const isTail = !!(item && item.is_tail);
+  return `/api/practice/session?mode=${encodeURIComponent(mode)}&minutes=${minutes}&language_id=${languageId}${isTail ? '&tail=1' : ''}`;
+}
+
+/** Load one round: resolves to { ok, data }, never rejects. */
+export async function fetchPracticePayload(url) {
+  try {
+    const res = await window.authFetch(url);
+    let data = {};
+    try {
+      data = (await res.json()) || {};
+    } catch {
+      data = {};
+    }
+    return { ok: !!(res && res.ok), data };
+  } catch {
+    return { ok: false, data: {}, failed: true };
+  }
+}
+
+/**
+ * What a loaded round holds, so the learner sees it before starting:
+ * { exercises, newWords, drillReviews, minutes }. `exercises` counts the items
+ * the player will serve (DT error cards only when their renderer is loaded).
+ * The new-word drill is counted in words, since its item count adapts to the
+ * answers: `newWords` are on their first drill session, `drillReviews` on
+ * sessions 2-4. `minutes` adds the items' expected seconds to the drill's own
+ * estimate.
+ */
+export function summarizePracticePayload(data) {
+  const d = data || {};
+  const canRenderErrorCards = typeof window !== 'undefined' && !!window.DTErrorCard;
+  const items = (d.items || d.exercises || []).filter(
+    (it) => canRenderErrorCards || !it.is_error_exercise
+  );
+  const intro = d.intro_drill;
+  const words = intro && Array.isArray(intro.words) ? intro.words : [];
+  const newWords = words.filter((w) => (Number(w.stage) || 1) <= 1).length;
+  const drillReviews = words.length - newWords;
+  const seconds =
+    items.reduce((s, it) => s + (Number(it.expected_seconds) || 30), 0) +
+    (words.length ? (Number(intro.est_minutes) || 0) * 60 : 0);
+  return {
+    exercises: items.length,
+    newWords,
+    drillReviews,
+    minutes: items.length || words.length ? Math.max(1, Math.round(seconds / 60)) : 0,
+  };
+}
+
+/**
+ * The start card's line for a round: "12 exercises · about 6 min", plus the
+ * new-word drill's words (new and to review) and how many practice rounds
+ * follow. `t` is the
+ * caller's translate function (key, params, fallback). '' when the round is
+ * empty and nothing follows.
+ */
+export function practiceCountText(summary, moreRounds, t) {
+  const s = summary || {};
+  const parts = [];
+  if (s.exercises > 0) {
+    parts.push(
+      s.exercises === 1
+        ? t('session.count_exercises_one', null, '1 exercise')
+        : t('session.count_exercises', { count: s.exercises }, `${s.exercises} exercises`)
+    );
+  }
+  if (s.newWords > 0) {
+    parts.push(
+      s.newWords === 1
+        ? t('session.count_new_words_one', null, '1 new word to learn')
+        : t('session.count_new_words', { count: s.newWords }, `${s.newWords} new words to learn`)
+    );
+  }
+  if (s.drillReviews > 0) {
+    parts.push(
+      s.drillReviews === 1
+        ? t('session.count_drill_reviews_one', null, '1 word to review')
+        : t('session.count_drill_reviews', { count: s.drillReviews }, `${s.drillReviews} words to review`)
+    );
+  }
+  if (!parts.length) {
+    return moreRounds > 0 ? '' : t('session.count_none', null, 'Nothing to practise right now');
+  }
+  if (s.minutes > 0) {
+    parts.push(t('session.count_minutes', { minutes: s.minutes }, `about ${s.minutes} min`));
+  }
+  if (moreRounds > 0) {
+    parts.push(
+      moreRounds === 1
+        ? t('session.count_more_rounds_one', null, 'then 1 more round')
+        : t('session.count_more_rounds', { count: moreRounds }, `then ${moreRounds} more rounds`)
+    );
+  }
+  return parts.join(' · ');
+}
+
 function localEsc(s) {
   const d = document.createElement('div');
   d.textContent = s == null ? '' : s;
@@ -97,12 +198,20 @@ export function mount(container, ctx) {
       return;
     }
     try {
-      const res = await window.authFetch(
-        extra
-          ? extraRequestUrl(languageId, extra, extra.exclude)
-          : `/api/practice/session?mode=${encodeURIComponent(mode)}&minutes=${minutes}&language_id=${languageId}${isTail ? '&tail=1' : ''}`
-      );
-      const data = await res.json();
+      // The start card may already have loaded this round to show its size;
+      // use that payload once instead of asking the server again.
+      const pre = !extra && ctx.item && ctx.item.prefetch;
+      if (pre) delete ctx.item.prefetch;
+      let res = pre ? await pre : null;
+      if (!res || !res.ok) {
+        res = await fetchPracticePayload(
+          extra
+            ? extraRequestUrl(languageId, extra, extra.exclude)
+            : practiceSessionUrl({ mode, minutes, is_tail: isTail }, languageId)
+        );
+      }
+      if (res.failed) throw new Error('practice load failed'); // network: show the error card
+      const data = res.data;
       // Skip gate / stress markers (they need the separate /api/vocab-dojo
       // battery endpoints). Injected DT error-remediation cards are kept and
       // rendered by renderErrorCard below (TASK-731). If the shared renderer
