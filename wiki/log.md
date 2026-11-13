@@ -6416,3 +6416,13 @@ Linking showed many jieba-dictionary compounds/phrases with no dictionary entry 
 - `zh_pos_overrides.tsv` rebuilt (49 changes from today's words). Single characters are excluded by design, so 富 is not covered.
 - Script fixes: `build_test_sentences.py` paged its existing-rows query (stopped at 1000 rows); `sentence_ref_runner.py` initialises the DB client. `requirements.txt`: `en_core_web_sm` wheel (3.8.0).
 - NOT applied: `migrations/standardise_part_of_speech.sql` — the Supabase migration tool asked the developer for confirmation and timed out.
+
+## [2026-11-13] fix | Practice "more new words" served 2-3 words, not drilled
+Cause: extra rounds use already-admitted unstarted words first. For the developer's Japanese, 11
+of those were `word_state='new'` rows from before the new-word drill (2026-11-04/09). The drill
+block only takes `intro` rows, and the fallback acquisition RPC picks its own senses, so only the
+2-3 targets it happened to choose were served, as ladder items. Fix:
+`PracticeSessionService._promote_unstarted_to_intro` moves a round's never-started 'new' targets
+into intro session 1. Pages updated: [[features/practice-extra-rounds.tech]]. Daily sessions
+still serve the other legacy unstarted words as ladder items until a round picks them (backfill
+not run; needs the developer's go-ahead).

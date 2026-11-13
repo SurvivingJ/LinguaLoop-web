@@ -105,6 +105,8 @@ def _svc(state, rpc_data, admitted=()):
     s._prepare_jumbled_items = lambda *a, **k: None
     s._most_overdue_first = lambda items, u: None
     s._inject_prestudy_followups = lambda payload, u, l: 0
+    s.promoted = []
+    s._promote_unstarted_to_intro = lambda u, l, ids: s.promoted.append(list(ids))
     s.calls = calls
     return s
 
@@ -250,3 +252,56 @@ def test_review_round_carries_due_drill_reviews(monkeypatch):
     assert [i['sense_id'] for i in out['items']] == [2]  # drill word is drilled only
     assert out['intro_drill']['words'] == [{'sense_id': 8}]
     assert out['extra']['new_words_served'] == 0
+
+
+# ---------------------------------------------------------------------------
+# legacy unstarted words are drilled, not left to the acquisition RPC
+# (2026-11-13: "5 more words" served 2-3 words, none drilled)
+# ---------------------------------------------------------------------------
+
+def test_unstarted_targets_are_promoted_to_the_drill():
+    s = _svc(_state(unstarted=[1, 2, 3, 4, 5, 6]),
+             {'get_practice_session': lambda p: {'items': []}})
+    _, targets, _ = s._admit_extra_new_words('u', 1, 5)
+    assert targets == [1, 2, 3, 4, 5]
+    assert s.promoted == [[1, 2, 3, 4, 5]]          # 6 is not this round's word
+
+
+def test_freshly_admitted_words_are_not_re_promoted():
+    s = _svc(_state(unstarted=[1]), {'get_practice_session': lambda p: {'items': []}},
+             admitted=[7, 8])
+    s._admit_extra_new_words('u', 1, 3)
+    assert s.promoted == [[1]]                      # 7, 8 were inserted as intro
+
+
+def test_promotion_updates_only_never_started_new_rows(monkeypatch):
+    from services import intro_drill as idr
+    monkeypatch.setattr(idr, 'ENABLED', True)
+    monkeypatch.setattr(pss, 'plan_today_iso', lambda *a: '2026-11-13')
+    s = PracticeSessionService.__new__(PracticeSessionService)
+    s.db = MagicMock()
+    s._promote_unstarted_to_intro('u', 3, [51640, 51666])
+    q = s.db.table.return_value.update
+    fields = q.call_args.args[0]
+    assert fields['word_state'] == 'intro' and fields['intro_stage'] == 1
+    assert fields['intro_due_date'] == '2026-11-13' and fields['intro_history'] == []
+    chain = q.return_value
+    chain.eq.assert_called_with('user_id', 'u')
+    chain.eq.return_value.eq.assert_called_with('word_state', 'new')
+    chain.eq.return_value.eq.return_value.in_.assert_called_with('sense_id', [51640, 51666])
+
+
+def test_extra_new_words_come_as_one_drill_block(monkeypatch):
+    from services import intro_drill as idr
+    monkeypatch.setattr(idr, 'ENABLED', True)
+    monkeypatch.setattr(idr, 'build_block', lambda db, u, l, rows: {
+        'words': [{'sense_id': int(r['sense_id'])} for r in rows]})
+    s = _svc(_state(unstarted=[1, 2, 3, 4, 5]),
+             {'get_practice_session': lambda p: {'items': [_item(2, 'acquisition')]}})
+    s.db.table.return_value.select.return_value.eq.return_value.eq.return_value \
+        .in_.return_value.execute.return_value.data = [
+            {'sense_id': sid, 'intro_stage': 1} for sid in (1, 2, 3, 4, 5)]
+    out = s.get_extra_round('u', 1, reviews=False, new_words=5)
+    assert [w['sense_id'] for w in out['intro_drill']['words']] == [1, 2, 3, 4, 5]
+    assert out['extra']['new_words_served'] == 5
+    assert out['items'] == []                       # word 2 is drilled, not laddered
