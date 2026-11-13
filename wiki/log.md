@@ -6426,3 +6426,10 @@ block only takes `intro` rows, and the fallback acquisition RPC picks its own se
 into intro session 1. Pages updated: [[features/practice-extra-rounds.tech]]. Daily sessions
 still serve the other legacy unstarted words as ladder items until a round picks them (backfill
 not run; needs the developer's go-ahead).
+
+## [2026-11-13] data | Backfill: developer's pre-drill unstarted words moved into the drill
+With the developer's go-ahead: 13 `user_word_ladder` rows (their account; admitted within 14 days,
+`word_state='new'`, no attempts) set to intro session 1, due today, with an `intro_history`
+entry `{"event":"backfill"}`. That entry has no `stage` and is not restart/overload, so the rows
+count against the daily new-word quota like freshly admitted words. Not touched: their 75
+older never-started 'new' rows and 17 never-started rows on other accounts.
