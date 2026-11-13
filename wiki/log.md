@@ -6438,3 +6438,14 @@ older never-started 'new' rows and 17 never-started rows on other accounts.
 With the developer's go-ahead: the remaining 92 rows (75 older on their account, 17 on other
 accounts) moved into intro session 1 the same way. 105 rows now carry `{"event":"backfill"}`;
 no never-started `word_state='new'` rows remain. Released at each learner's daily new-word quota.
+
+## [2026-11-13] data | Old-style ladder words removed (fresh start)
+Replaces the two backfills above. Run by the developer in the SQL editor (the MCP confirmation
+timed out twice). Every ladder row from before the new-word drill was removed: the 105
+backfilled never-started rows and the 18 rows still in 'new'/'active' state (attempted under the
+old design), with their 110 `user_flashcards` and 4 pending `prestudy_followups`. Backups:
+`backup.user_word_ladder_20261113`, `backup.user_flashcards_20261113`,
+`backup.prestudy_followups_20261113`, key list `backup.old_style_words_20261113` (schema not
+reachable by anon/authenticated). Kept: `exercise_attempts`, `user_exercise_history`,
+`user_vocabulary_knowledge`. Ladder now holds only the 40 drill-native rows. Re-nominated
+words come back as fresh intro words. `_promote_unstarted_to_intro` stays as a guard.
