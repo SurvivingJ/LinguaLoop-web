@@ -6433,3 +6433,8 @@ With the developer's go-ahead: 13 `user_word_ladder` rows (their account; admitt
 entry `{"event":"backfill"}`. That entry has no `stage` and is not restart/overload, so the rows
 count against the daily new-word quota like freshly admitted words. Not touched: their 75
 older never-started 'new' rows and 17 never-started rows on other accounts.
+
+## [2026-11-13] data | Backfill extended to every never-started 'new' ladder row
+With the developer's go-ahead: the remaining 92 rows (75 older on their account, 17 on other
+accounts) moved into intro session 1 the same way. 105 rows now carry `{"event":"backfill"}`;
+no never-started `word_state='new'` rows remain. Released at each learner's daily new-word quota.
