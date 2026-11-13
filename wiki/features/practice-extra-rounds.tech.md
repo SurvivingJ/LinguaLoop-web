@@ -3,7 +3,7 @@ title: Practice Extra Rounds — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: practice-extra-rounds.md
-last_updated: 2026-11-11
+last_updated: 2026-11-13
 dependencies:
   - "get_practice_session (RPC)"
   - "get_review_ahead_items (RPC, new)"
@@ -67,6 +67,12 @@ expected_seconds, mode:'maintenance', review_ahead:true}`. `p_limit` is clamped 
   max(0, len(targets) - max(0, E - started_today))`. Items come from
   `get_practice_session(acquisition, minutes = n × minutes_per_new_word)`, filtered to targets
   and ordered by target order.
+- Unstarted targets still in `word_state='new'` (admitted before the new-word drill shipped
+  2026-11-10) are moved into intro session 1 first (`_promote_unstarted_to_intro`: update
+  `WHERE word_state='new'` with `intro_drill.new_intro_fields(today)`), so every target is
+  drilled in the round's `intro_drill` block. Before this, such words skipped the drill and
+  appeared only if the acquisition RPC happened to pick them: "5 more words" served 2-3
+  (2026-11-13). Safe because `unstarted_sense_ids` only lists never-attempted words.
 - New words without a study plan row (`new_word_state` → None): `unstarted` comes from
   `_unstarted_sense_ids` (`ladder_new_word_state`, day start from `plan_timezone`), so words
   already admitted and not started (e.g. prestudy words queued for later, which a missing plan's
@@ -115,3 +121,5 @@ the RPC is service_role only with a fixed `search_path`.
   block in review rounds (`tests/test_practice_extra_rounds.py`); the daily queue's
   `intro_reviews` chunk also appears for due prestudy follow-ups alone
   (`tests/test_intro_drill.py`).
+- 2026-11-13: legacy unstarted targets promoted to the drill; a 5-word round is one 5-word
+  drill block (`tests/test_practice_extra_rounds.py`).

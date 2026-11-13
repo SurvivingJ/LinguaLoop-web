@@ -6416,3 +6416,36 @@ Linking showed many jieba-dictionary compounds/phrases with no dictionary entry 
 - `zh_pos_overrides.tsv` rebuilt (49 changes from today's words). Single characters are excluded by design, so 富 is not covered.
 - Script fixes: `build_test_sentences.py` paged its existing-rows query (stopped at 1000 rows); `sentence_ref_runner.py` initialises the DB client. `requirements.txt`: `en_core_web_sm` wheel (3.8.0).
 - NOT applied: `migrations/standardise_part_of_speech.sql` — the Supabase migration tool asked the developer for confirmation and timed out.
+
+## [2026-11-13] fix | Practice "more new words" served 2-3 words, not drilled
+Cause: extra rounds use already-admitted unstarted words first. For the developer's Japanese, 11
+of those were `word_state='new'` rows from before the new-word drill (2026-11-04/09). The drill
+block only takes `intro` rows, and the fallback acquisition RPC picks its own senses, so only the
+2-3 targets it happened to choose were served, as ladder items. Fix:
+`PracticeSessionService._promote_unstarted_to_intro` moves a round's never-started 'new' targets
+into intro session 1. Pages updated: [[features/practice-extra-rounds.tech]]. Daily sessions
+still serve the other legacy unstarted words as ladder items until a round picks them (backfill
+not run; needs the developer's go-ahead).
+
+## [2026-11-13] data | Backfill: developer's pre-drill unstarted words moved into the drill
+With the developer's go-ahead: 13 `user_word_ladder` rows (their account; admitted within 14 days,
+`word_state='new'`, no attempts) set to intro session 1, due today, with an `intro_history`
+entry `{"event":"backfill"}`. That entry has no `stage` and is not restart/overload, so the rows
+count against the daily new-word quota like freshly admitted words. Not touched: their 75
+older never-started 'new' rows and 17 never-started rows on other accounts.
+
+## [2026-11-13] data | Backfill extended to every never-started 'new' ladder row
+With the developer's go-ahead: the remaining 92 rows (75 older on their account, 17 on other
+accounts) moved into intro session 1 the same way. 105 rows now carry `{"event":"backfill"}`;
+no never-started `word_state='new'` rows remain. Released at each learner's daily new-word quota.
+
+## [2026-11-13] data | Old-style ladder words removed (fresh start)
+Replaces the two backfills above. Run by the developer in the SQL editor (the MCP confirmation
+timed out twice). Every ladder row from before the new-word drill was removed: the 105
+backfilled never-started rows and the 18 rows still in 'new'/'active' state (attempted under the
+old design), with their 110 `user_flashcards` and 4 pending `prestudy_followups`. Backups:
+`backup.user_word_ladder_20261113`, `backup.user_flashcards_20261113`,
+`backup.prestudy_followups_20261113`, key list `backup.old_style_words_20261113` (schema not
+reachable by anon/authenticated). Kept: `exercise_attempts`, `user_exercise_history`,
+`user_vocabulary_knowledge`. Ladder now holds only the 40 drill-native rows. Re-nominated
+words come back as fresh intro words. `_promote_unstarted_to_intro` stays as a guard.

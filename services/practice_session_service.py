@@ -542,12 +542,44 @@ class PracticeSessionService:
                     user_id, language_id, e,
                 )
         targets = (unstarted + admitted)[:n]
+        # Words admitted before the drill shipped (word_state 'new', never
+        # attempted) would otherwise skip the drill and depend on the
+        # acquisition RPC happening to pick them, which it mostly does not.
+        self._promote_unstarted_to_intro(
+            user_id, language_id, [t for t in targets if t in set(unstarted)])
         if admitted:
             logger.info(
                 'extra intake admitted %d sense(s) beyond quota for user=%s lang=%s',
                 len(admitted), user_id, language_id,
             )
         return admitted, targets, max(0, len(targets) - quota_left)
+
+    def _promote_unstarted_to_intro(
+        self, user_id: str, language_id: int, sense_ids: List[int],
+    ) -> None:
+        """Move never-started ``word_state='new'`` rows into intro session 1.
+
+        ``sense_ids`` come from ``unstarted_sense_ids`` (no attempt, no intro
+        history), so nothing learned is lost: the drill replaces ring 1 for
+        them exactly as for a freshly admitted word. Rows already in intro
+        (or any other state) are left alone. Best effort.
+        """
+        from services import intro_drill
+        if not intro_drill.ENABLED or not sense_ids:
+            return
+        try:
+            today = plan_today_iso(self.db, user_id, language_id)
+            fields = intro_drill.new_intro_fields(today)
+            fields['updated_at'] = datetime.now(timezone.utc).isoformat()
+            (self.db.table('user_word_ladder').update(fields)
+             .eq('user_id', user_id).eq('word_state', 'new')
+             .in_('sense_id', list(sense_ids)).execute())
+        except Exception as e:
+            logger.warning('extra round: intro promotion failed for user=%s lang=%s: %s',
+                           user_id, language_id, e)
+        finally:
+            from services.request_cache import invalidate
+            invalidate('new_word_state', str(user_id))
 
     def _unstarted_sense_ids(self, user_id: str, language_id: int) -> List[int]:
         """Admitted, never-started words (oldest admission first), read without
