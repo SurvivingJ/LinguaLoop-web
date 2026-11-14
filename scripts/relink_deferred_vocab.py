@@ -27,21 +27,16 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
-load_dotenv()
+bootstrap(log_format='%(asctime)s %(levelname)s %(message)s')
 
-from services.supabase_factory import (  # noqa: E402
-    SupabaseFactory, get_supabase_admin,
-)
 
-logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
-)
+
 logger = logging.getLogger('relink_deferred_vocab')
 
 
@@ -165,9 +160,7 @@ def main() -> int:
     parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
 
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     language_id = _language_id(db, args.language) if args.language else None
 
     tests = _tests_with_deferrals(db, language_id, args.limit)

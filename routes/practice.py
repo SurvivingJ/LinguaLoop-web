@@ -19,8 +19,10 @@ from flask import Blueprint, request, g
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from routes.common import get_db
 from services.attempt_timing import clamp_time_taken_ms
-from utils.responses import ApiResponse, api_success, bad_request, server_error
+from utils.responses import api_errors, ApiResponse, api_success, bad_request, server_error
+from utils.validation import json_body, require_language_id
 
 logger = logging.getLogger(__name__)
 practice_bp = Blueprint("practice", __name__)
@@ -33,9 +35,17 @@ practice_bp = Blueprint("practice", __name__)
 _VALID_MODES = ('acquisition', 'maintenance', 'auto')
 
 
+def _service():
+    # Imported on use: the service module pulls in the practice engine.
+    from services.practice_session_service import get_practice_session_service
+    return get_practice_session_service()
+
+
 @practice_bp.route('/session', methods=['GET'])
 @supabase_jwt_required
-def get_practice_session() -> ApiResponse:
+@api_errors("Failed to build practice session")
+@require_language_id
+def get_practice_session(language_id: int) -> ApiResponse:
     """Return today's Practice session.
 
     Query params:
@@ -46,46 +56,36 @@ def get_practice_session() -> ApiResponse:
         debug       : optional (0|1); when 1, items include score_breakdown
         tail        : optional (0|1); 1 = optional-tail round (session-budget-settings)
     """
-    try:
-        language_id = request.args.get('language_id', type=int)
-        if not language_id:
-            return bad_request("language_id required")
-
-        mode = (request.args.get('mode') or 'auto').lower()
-        if mode not in _VALID_MODES:
-            return bad_request(
-                f"mode must be one of {_VALID_MODES} (got {mode!r})"
-            )
-
-        minutes = request.args.get('minutes', 15, type=int)
-        if minutes < 1 or minutes > 180:
-            return bad_request("minutes must be between 1 and 180")
-
-        debug = request.args.get('debug', '0') == '1'
-        # session-budget-settings: tail=1 marks an optional-tail round.
-        tail = (request.args.get('tail') or '0').lower() in ('1', 'true')
-
-        from services.practice_session_service import get_practice_session_service
-        payload = get_practice_session_service().get_session(
-            user_id=g.current_user_id,
-            language_id=int(language_id),
-            mode=mode,
-            target_minutes=minutes,
-            debug=debug,
-            tail=tail,
+    mode = (request.args.get('mode') or 'auto').lower()
+    if mode not in _VALID_MODES:
+        return bad_request(
+            f"mode must be one of {_VALID_MODES} (got {mode!r})"
         )
 
-        if isinstance(payload, dict) and 'error' in payload:
-            code = payload.get('code', 'E_UNKNOWN')
-            if code in ('E_LANG', 'E_MODE', 'E_RANGE'):
-                return bad_request(payload.get('error', code))
-            return server_error(payload.get('error', code))
+    minutes = request.args.get('minutes', 15, type=int)
+    if minutes < 1 or minutes > 180:
+        return bad_request("minutes must be between 1 and 180")
 
-        return api_success(payload)
+    debug = request.args.get('debug', '0') == '1'
+    # session-budget-settings: tail=1 marks an optional-tail round.
+    tail = (request.args.get('tail') or '0').lower() in ('1', 'true')
 
-    except Exception as e:
-        logger.error("Error building practice session: %s", e)
-        return server_error("Failed to build practice session")
+    payload = _service().get_session(
+        user_id=g.current_user_id,
+        language_id=int(language_id),
+        mode=mode,
+        target_minutes=minutes,
+        debug=debug,
+        tail=tail,
+    )
+
+    if isinstance(payload, dict) and 'error' in payload:
+        code = payload.get('code', 'E_UNKNOWN')
+        if code in ('E_LANG', 'E_MODE', 'E_RANGE'):
+            return bad_request(payload.get('error', code))
+        return server_error(payload.get('error', code))
+
+    return api_success(payload)
 
 
 # ---------------------------------------------------------------------------
@@ -94,7 +94,9 @@ def get_practice_session() -> ApiResponse:
 
 @practice_bp.route('/extra', methods=['GET'])
 @supabase_jwt_required
-def get_practice_extra() -> ApiResponse:
+@api_errors("Failed to build extra practice round")
+@require_language_id
+def get_practice_extra(language_id: int) -> ApiResponse:
     """One open-ended Practice round past today's budget (ADR-036).
 
     Query params:
@@ -107,38 +109,29 @@ def get_practice_extra() -> ApiResponse:
                       review half (the previous round's words)
     At least one of reviews / new_words must be requested.
     """
-    try:
-        language_id = request.args.get('language_id', type=int)
-        if not language_id:
-            return bad_request("language_id required")
-        reviews = _truthy(request.args.get('reviews', '0'))
-        new_words = request.args.get('new_words', 0, type=int)
-        from services.practice_session_service import EXTRA_NEW_WORDS_MAX
-        if new_words is None or new_words < 0 or new_words > EXTRA_NEW_WORDS_MAX:
-            return bad_request(f"new_words must be between 0 and {EXTRA_NEW_WORDS_MAX}")
-        if not reviews and new_words == 0:
-            return bad_request("request reviews=1 and/or new_words>0")
-        exclude = []
-        for part in (request.args.get('exclude') or '').split(','):
-            part = part.strip()
-            if part.isdigit():
-                exclude.append(int(part))
+    reviews = _truthy(request.args.get('reviews', '0'))
+    new_words = request.args.get('new_words', 0, type=int)
+    from services.practice_session_service import EXTRA_NEW_WORDS_MAX
+    if new_words is None or new_words < 0 or new_words > EXTRA_NEW_WORDS_MAX:
+        return bad_request(f"new_words must be between 0 and {EXTRA_NEW_WORDS_MAX}")
+    if not reviews and new_words == 0:
+        return bad_request("request reviews=1 and/or new_words>0")
+    exclude = []
+    for part in (request.args.get('exclude') or '').split(','):
+        part = part.strip()
+        if part.isdigit():
+            exclude.append(int(part))
 
-        from services.practice_session_service import get_practice_session_service
-        payload = get_practice_session_service().get_extra_round(
-            user_id=g.current_user_id,
-            language_id=int(language_id),
-            reviews=reviews,
-            new_words=new_words,
-            exclude_sense_ids=exclude[:200],
-        )
-        if isinstance(payload, dict) and 'error' in payload:
-            return bad_request(payload.get('error'))
-        return api_success(payload)
-
-    except Exception as e:
-        logger.error("Error building practice extra round: %s", e)
-        return server_error("Failed to build extra practice round")
+    payload = _service().get_extra_round(
+        user_id=g.current_user_id,
+        language_id=int(language_id),
+        reviews=reviews,
+        new_words=new_words,
+        exclude_sense_ids=exclude[:200],
+    )
+    if isinstance(payload, dict) and 'error' in payload:
+        return bad_request(payload.get('error'))
+    return api_success(payload)
 
 
 # ---------------------------------------------------------------------------
@@ -147,6 +140,7 @@ def get_practice_extra() -> ApiResponse:
 
 @practice_bp.route('/attempt', methods=['POST'])
 @supabase_jwt_required
+@api_errors("Failed to submit attempt")
 def submit_practice_attempt() -> ApiResponse:
     """Record a Practice attempt with BKT + FSRS + Study Plan progress updates.
 
@@ -172,84 +166,78 @@ def submit_practice_attempt() -> ApiResponse:
                         of a threshold-gate or stress-test battery moves the
                         ladder with that battery's learn/slip rates.
     """
-    try:
-        data = request.get_json() or {}
-        exercise_id = data.get('exercise_id')
-        if not exercise_id:
-            return bad_request("exercise_id required")
+    data = json_body()
+    exercise_id = data.get('exercise_id')
+    if not exercise_id:
+        return bad_request("exercise_id required")
 
-        if 'is_correct' not in data:
-            return bad_request("is_correct required")
+    if 'is_correct' not in data:
+        return bad_request("is_correct required")
 
-        # Virtual items have no DB row — accept silently for FE simplicity.
-        if str(exercise_id).startswith('virtual-'):
-            return api_success({
-                'is_correct': bool(data.get('is_correct', False)),
-                'exercise_type': data.get('exercise_type') or 'virtual',
-                'virtual': True,
-            })
+    # Virtual items have no DB row — accept silently for FE simplicity.
+    if str(exercise_id).startswith('virtual-'):
+        return api_success({
+            'is_correct': bool(data.get('is_correct', False)),
+            'exercise_type': data.get('exercise_type') or 'virtual',
+            'virtual': True,
+        })
 
-        # Gate / stress markers should NOT be POSTed here — they flow through
-        # the existing /api/vocab-dojo/gate and /stress-test endpoints.
-        if data.get('is_gate_marker') or data.get('is_stress_test_marker'):
-            return bad_request(
-                "Gate and stress-test markers must be submitted via the "
-                "existing /api/vocab-dojo/gate and /stress-test endpoints."
-            )
+    # Gate / stress markers should NOT be POSTed here — they flow through
+    # the existing /api/vocab-dojo/gate and /stress-test endpoints.
+    if data.get('is_gate_marker') or data.get('is_stress_test_marker'):
+        return bad_request(
+            "Gate and stress-test markers must be submitted via the "
+            "existing /api/vocab-dojo/gate and /stress-test endpoints."
+        )
 
-        session_mode = data.get('session_mode')
-        if session_mode is not None and session_mode not in ('acquisition', 'maintenance'):
-            return bad_request("session_mode must be 'acquisition' or 'maintenance'")
+    session_mode = data.get('session_mode')
+    if session_mode is not None and session_mode not in ('acquisition', 'maintenance'):
+        return bad_request("session_mode must be 'acquisition' or 'maintenance'")
 
-        from services.practice_session_service import get_practice_session_service
-        service = get_practice_session_service()
+    service = _service()
 
-        # TASK-532: cloze_typed is graded on the server, not in the browser.
-        # The comparison is a normalisation rule (NFKC, t2s, case, trailing
-        # punctuation); duplicating it in JS would leave two implementations of
-        # one rule to keep in step. The client still sends is_correct — for
-        # this type it is a hint that gets overwritten.
-        typed_grade = _grade_typed_if_needed(str(exercise_id), data)
-        if typed_grade is not None:
-            data['is_correct'] = typed_grade['is_correct']
-            response = dict(data.get('user_response') or {})
-            response['grading'] = typed_grade
-            data['user_response'] = response
+    # TASK-532: cloze_typed is graded on the server, not in the browser.
+    # The comparison is a normalisation rule (NFKC, t2s, case, trailing
+    # punctuation); duplicating it in JS would leave two implementations of
+    # one rule to keep in step. The client still sends is_correct — for
+    # this type it is a hint that gets overwritten.
+    typed_grade = _grade_typed_if_needed(str(exercise_id), data)
+    if typed_grade is not None:
+        data['is_correct'] = typed_grade['is_correct']
+        response = dict(data.get('user_response') or {})
+        response['grading'] = typed_grade
+        data['user_response'] = response
 
-        # TASK-533: a speed-round attempt updates FSRS only. A slow-but-correct
-        # answer under a clock is not evidence that a mastered word's family
-        # confidence has decayed, so it must not move the ladder — see
-        # speed_round.UPDATES_FAMILY_CONFIDENCE.
-        if data.get('is_speed_round'):
-            result = service.record_speed_round_attempt(
-                user_id=g.current_user_id,
-                exercise_id=str(exercise_id),
-                is_correct=bool(data['is_correct']),
-                time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
-                timed_out=bool(data.get('timed_out')),
-            )
-        else:
-            result = service.record_attempt_with_updates(
-                user_id=g.current_user_id,
-                exercise_id=str(exercise_id),
-                is_correct=bool(data['is_correct']),
-                user_response=data.get('user_response'),
-                time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
-                session_mode=session_mode,
-                language_id=data.get('language_id'),
-                expected_seconds=data.get('expected_seconds'),
-                is_tail=_truthy(data.get('is_tail', data.get('tail'))),
-                exercise_context=data.get('exercise_context') or 'standard',
-            )
+    # TASK-533: a speed-round attempt updates FSRS only. A slow-but-correct
+    # answer under a clock is not evidence that a mastered word's family
+    # confidence has decayed, so it must not move the ladder — see
+    # speed_round.UPDATES_FAMILY_CONFIDENCE.
+    if data.get('is_speed_round'):
+        result = service.record_speed_round_attempt(
+            user_id=g.current_user_id,
+            exercise_id=str(exercise_id),
+            is_correct=bool(data['is_correct']),
+            time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
+            timed_out=bool(data.get('timed_out')),
+        )
+    else:
+        result = service.record_attempt_with_updates(
+            user_id=g.current_user_id,
+            exercise_id=str(exercise_id),
+            is_correct=bool(data['is_correct']),
+            user_response=data.get('user_response'),
+            time_taken_ms=clamp_time_taken_ms(data.get('time_taken_ms')),
+            session_mode=session_mode,
+            language_id=data.get('language_id'),
+            expected_seconds=data.get('expected_seconds'),
+            is_tail=_truthy(data.get('is_tail', data.get('tail'))),
+            exercise_context=data.get('exercise_context') or 'standard',
+        )
 
-        if isinstance(result, dict) and result.get('error'):
-            return server_error(result['error'])
+    if isinstance(result, dict) and result.get('error'):
+        return server_error(result['error'])
 
-        return api_success(result)
-
-    except Exception as e:
-        logger.error("Error submitting practice attempt: %s", e)
-        return server_error("Failed to submit attempt")
+    return api_success(result)
 
 
 def _truthy(v) -> bool:
@@ -280,9 +268,8 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
         return None
 
     try:
-        from services.supabase_factory import get_supabase_admin
         row = (
-            get_supabase_admin()
+            get_db()
             .table('exercises')
             .select('exercise_type, content, language_id')
             .eq('id', exercise_id)
@@ -311,7 +298,9 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
 
 @practice_bp.route('/speed-round', methods=['GET'])
 @supabase_jwt_required
-def get_speed_round() -> ApiResponse:
+@api_errors("Failed to compose speed round")
+@require_language_id
+def get_speed_round(language_id: int) -> ApiResponse:
     """Return a timed fluency battery over the learner's mastered words.
 
     Query params:
@@ -323,28 +312,19 @@ def get_speed_round() -> ApiResponse:
     have not mastered enough words yet" is a normal state for most learners
     and the FE renders it as a nudge rather than a failure.
     """
-    try:
-        language_id = request.args.get('language_id', type=int)
-        if not language_id:
-            return bad_request("language_id required")
+    from services.vocabulary_ladder.speed_round import (
+        DEFAULT_SECONDS_PER_ITEM, MAX_BATTERY, get_speed_round_composer,
+    )
 
-        from services.vocabulary_ladder.speed_round import (
-            DEFAULT_SECONDS_PER_ITEM, MAX_BATTERY, get_speed_round_composer,
-        )
-
-        battery = get_speed_round_composer().compose(
-            user_id=g.current_user_id,
-            language_id=int(language_id),
-            size=request.args.get('size', MAX_BATTERY, type=int),
-            seconds_per_item=request.args.get(
-                'seconds_per_item', DEFAULT_SECONDS_PER_ITEM, type=int,
-            ),
-        )
-        return api_success(battery.to_payload())
-
-    except Exception as e:
-        logger.error("Error composing speed round: %s", e)
-        return server_error("Failed to compose speed round")
+    battery = get_speed_round_composer().compose(
+        user_id=g.current_user_id,
+        language_id=int(language_id),
+        size=request.args.get('size', MAX_BATTERY, type=int),
+        seconds_per_item=request.args.get(
+            'seconds_per_item', DEFAULT_SECONDS_PER_ITEM, type=int,
+        ),
+    )
+    return api_success(battery.to_payload())
 
 
 # ---------------------------------------------------------------------------
@@ -353,6 +333,7 @@ def get_speed_round() -> ApiResponse:
 
 @practice_bp.route('/intro/complete', methods=['POST'])
 @supabase_jwt_required
+@api_errors('Failed to record intro words')
 def complete_intro_words() -> ApiResponse:
     """Record finished words of an intro block and advance their sessions.
 
@@ -363,26 +344,21 @@ def complete_intro_words() -> ApiResponse:
     "passed" is never read). A word that is not the caller's intro row at that
     stage is reported ``ok: false`` (a replay of a finished word is a no-op).
     """
-    try:
-        data = request.get_json(silent=True) or {}
-        results = data.get('results')
-        if not isinstance(results, list) or not results or len(results) > 40:
-            return bad_request("results must be a list of 1-40 words")
-        from services import intro_drill
-        from services.practice_session_service import get_practice_session_service
-        db = get_practice_session_service().db
-        out = []
-        for r in results:
-            if not isinstance(r, dict):
-                return bad_request("each result must be an object")
-            try:
-                sid, stage = int(r.get('sense_id')), int(r.get('stage'))
-            except (TypeError, ValueError):
-                return bad_request("sense_id and stage must be integers")
-            if stage not in intro_drill.INTRO_TARGETS or not isinstance(r.get('attempts'), list):
-                return bad_request("stage must be 1-4 and attempts a list")
-            out.append(intro_drill.complete_word(db, g.current_user_id, {**r, 'sense_id': sid, 'stage': stage}))
-        return api_success({'results': out})
-    except Exception as e:
-        logger.exception('intro complete failed: %s', e)
-        return server_error('Failed to record intro words')
+    data = json_body(silent=True)
+    results = data.get('results')
+    if not isinstance(results, list) or not results or len(results) > 40:
+        return bad_request("results must be a list of 1-40 words")
+    from services import intro_drill
+    db = _service().db
+    out = []
+    for r in results:
+        if not isinstance(r, dict):
+            return bad_request("each result must be an object")
+        try:
+            sid, stage = int(r.get('sense_id')), int(r.get('stage'))
+        except (TypeError, ValueError):
+            return bad_request("sense_id and stage must be integers")
+        if stage not in intro_drill.INTRO_TARGETS or not isinstance(r.get('attempts'), list):
+            return bad_request("stage must be 1-4 and attempts a list")
+        out.append(intro_drill.complete_word(db, g.current_user_id, {**r, 'sense_id': sid, 'stage': stage}))
+    return api_success({'results': out})

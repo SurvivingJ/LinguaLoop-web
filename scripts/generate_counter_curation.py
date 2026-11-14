@@ -38,11 +38,13 @@ import re
 import sys
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap, paginate
 
-from dotenv import load_dotenv
+bootstrap()
 
-load_dotenv()
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
@@ -56,8 +58,6 @@ from services.counter_curation.config import (
 from services.counter_curation.generator import classify_counter, generate_nouns
 from services.counter_curation.judge import judge_nouns
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Kanji, hiragana, katakana, the long vowel mark, and the ヶ in 一ヶ月.
@@ -83,22 +83,10 @@ def _fetch_underserved(db, threshold: int) -> list[tuple[str, str]]:
     ).data or []
 
     counts: dict[int, set] = {}
-    offset = 0
-    while True:
-        chunk = (
-            db.table('dim_counter_noun_pairs')
+    for row in paginate(lambda: db.table('dim_counter_noun_pairs')
               .select('lemma_text, counter_id')
-              .eq('language_id', LANGUAGE_ID_JA)
-              .range(offset, offset + 999)
-              .execute()
-        ).data or []
-        if not chunk:
-            break
-        for row in chunk:
-            counts.setdefault(row['counter_id'], set()).add(row['lemma_text'])
-        if len(chunk) < 1000:
-            break
-        offset += 1000
+              .eq('language_id', LANGUAGE_ID_JA), 1000):
+        counts.setdefault(row['counter_id'], set()).add(row['lemma_text'])
 
     out = []
     for c in counters:

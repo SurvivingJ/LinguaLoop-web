@@ -1,6 +1,9 @@
 import logging
 import os
-from typing import Dict, Any
+import threading
+import time
+import weakref
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +99,88 @@ def get_template_text(db, task_name: str, language_id: int) -> str:
     return resp.data[0]['template_text']
 
 
+TEMPLATE_CACHE_TTL_SECONDS = int(os.getenv('PROMPT_TEMPLATE_CACHE_TTL', '300'))
+_FALLBACK_LANGUAGE_ID = 2
+
+_template_cache: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
+_template_cache_lock = threading.Lock()
+
+
+def clear_template_cache() -> None:
+    """Drop every cached template so the next lookup re-reads the table."""
+    with _template_cache_lock:
+        _template_cache.clear()
+
+
+def _fetch_template_text(db, task_name: str, language_id: int) -> Optional[str]:
+    resp = (
+        db.table('prompt_templates')
+        .select('template_text')
+        .eq('task_name', task_name)
+        .eq('language_id', language_id)
+        .eq('is_active', True)
+        .order('version', desc=True)
+        .limit(1)
+        .execute()
+    )
+    return resp.data[0]['template_text'] if resp.data else None
+
+
+def load_template_text(
+    db,
+    task_name: str,
+    language_id: int,
+    *,
+    required: bool = True,
+    ttl: Optional[float] = None,
+) -> Optional[str]:
+    """Active template text for a task, with English fallback and a TTL cache.
+
+    Looks up (task_name, language_id), then English when the language has no
+    row. Hits are cached per client for ``ttl`` seconds (default
+    TEMPLATE_CACHE_TTL_SECONDS; 0 disables), so a prompt edit is picked up
+    without a restart. Misses are never cached.
+
+    Raises:
+        RuntimeError: required=True and no active row in either language.
+    """
+    ttl = TEMPLATE_CACHE_TTL_SECONDS if ttl is None else ttl
+    key = (task_name, language_id)
+    per_client = None
+    if ttl > 0:
+        try:
+            with _template_cache_lock:
+                per_client = _template_cache.setdefault(db, {})
+                hit = per_client.get(key)
+        except TypeError:  # client cannot be weak-referenced: skip caching
+            per_client, hit = None, None
+        if hit and time.monotonic() - hit[0] < ttl:
+            return hit[1]
+
+    text = _fetch_template_text(db, task_name, language_id)
+    if text is not None:
+        logger.debug("Loaded prompt template: %s for language_id=%s", task_name, language_id)
+    elif language_id != _FALLBACK_LANGUAGE_ID:
+        text = _fetch_template_text(db, task_name, _FALLBACK_LANGUAGE_ID)
+        if text is not None:
+            logger.debug("Loaded fallback English prompt template: %s", task_name)
+
+    if text is None:
+        if required:
+            raise RuntimeError(
+                f"No active prompt_templates row for task_name={task_name!r} "
+                f"language_id={language_id} (and no English fallback). "
+                f"Populate the table; there is no hardcoded prompt fallback."
+            )
+        logger.warning("Prompt template not found: %s for language_id=%s", task_name, language_id)
+        return None
+
+    if per_client is not None:
+        with _template_cache_lock:
+            per_client[key] = (time.monotonic(), text)
+    return text
+
+
 class PromptService:
     """Service for loading and formatting prompt templates"""
     
@@ -146,13 +231,3 @@ class PromptService:
         except KeyError as e:
             raise KeyError(f"Missing template variable {e} for prompt {prompt_name}")
     
-    def get_available_prompts(self) -> list:
-        """Get list of available prompt files"""
-        try:
-            return [
-                f[:-4] for f in os.listdir(self.prompts_dir) 
-                if f.endswith('.txt')
-            ]
-        except OSError as e:
-            logging.getLogger(__name__).warning(f"Cannot list prompts: {e}")
-            return []

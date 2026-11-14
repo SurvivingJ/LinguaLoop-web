@@ -232,7 +232,7 @@ def _call_get(app, monkeypatch, db, practice, speed=True, tests=(), query=''):
     test_service.get_or_create_daily_load.return_value = {
         'tests': list(tests), 'load_date': '2026-10-13'}
     monkeypatch.setattr(ss, 'get_test_service', lambda: test_service)
-    monkeypatch.setattr(ss, 'get_supabase_admin', lambda: db)
+    monkeypatch.setattr(ss, 'get_db', lambda: db)
     monkeypatch.setattr(ss, '_practice_service', lambda: practice)
     monkeypatch.setattr(ss, '_today_iso', lambda *a: '2026-10-13')
     monkeypatch.setattr(ss, '_mpnw', lambda db, lang: 3.0)
@@ -308,8 +308,26 @@ def test_an_intake_failure_does_not_break_the_session(app, monkeypatch):
     assert data['queue']
 
 
+def test_a_failed_optional_read_costs_only_its_own_part(app, monkeypatch):
+    """The speed-round check, prestudy planning and the due-review counts are
+    read together; each failure drops its own decoration and nothing else."""
+    from services import intro_drill, prestudy
+
+    def boom(*a, **k):
+        raise RuntimeError('db down')
+
+    monkeypatch.setattr(prestudy, 'plan_for_tests', boom)
+    monkeypatch.setattr(intro_drill, 'due_review_count', boom)
+    tests = [{'id': 't1', 'slug': 's', 'test_type': 'reading', 'title': 'T',
+              'elo_rating': 1200, 'slot_type': 'new', 'is_completed': False}]
+    data, _ = _call_get(app, monkeypatch, _DB({'practice_acquisition_min': 5}),
+                        _Practice(_state()), speed=True, tests=tests)
+    assert [i['kind'] for i in data['queue']] == ['practice', 'test', 'speed_round']
+    assert data['governor']['new_words_effective'] == 5
+
+
 def _post_complete(app, monkeypatch, db, block_id):
-    monkeypatch.setattr(ss, 'get_supabase_admin', lambda: db)
+    monkeypatch.setattr(ss, 'get_db', lambda: db)
     monkeypatch.setattr(ss, '_today_iso', lambda *a: '2026-10-13')
     with app.test_request_context(
             '/api/study-session/complete-block', method='POST',

@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import logging
 import re
+import threading
 from dataclasses import dataclass, asdict
 from typing import Optional
 
@@ -280,13 +281,29 @@ def _tokenize(text: str, wf_lang: str, app_lang: str) -> list[str]:
         return [t.strip(',.;:!?"\'()[]{}—-') for t in text.split() if t.strip()]
 
 
+_ja_tagger = None
+_ja_tagger_lock = threading.Lock()
+
+
+def _get_ja_tagger():
+    """Process-wide fugashi Tagger, built on first use."""
+    global _ja_tagger
+    if _ja_tagger is None:
+        with _ja_tagger_lock:
+            if _ja_tagger is None:
+                from fugashi import Tagger
+                _ja_tagger = Tagger()
+    return _ja_tagger
+
+
 def _tokenize_ja(text: str) -> list[str]:
     """Japanese tokenisation via fugashi (already used by furigana_service)."""
     try:
-        from fugashi import Tagger
-        tagger = Tagger()
+        tagger = _get_ja_tagger()
+        with _ja_tagger_lock:
+            words = list(tagger(text))
         return [
-            w.surface for w in tagger(text)
+            w.surface for w in words
             if w.surface.strip() and not _SENT_SPLIT.fullmatch(w.surface)
         ]
     except Exception as exc:

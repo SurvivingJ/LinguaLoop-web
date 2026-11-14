@@ -24,15 +24,15 @@ from __future__ import annotations
 
 import argparse
 import collections
-import os
 import random
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
 
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 LANG = {1: 'zh', 2: 'en', 3: 'ja'}
 
@@ -50,9 +50,7 @@ def main() -> None:
     ap.add_argument('--out', default='calibration_sample.txt')
     args = ap.parse_args()
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     random.seed(args.seed)
     out_lines: list[str] = []

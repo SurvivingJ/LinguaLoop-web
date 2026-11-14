@@ -25,18 +25,19 @@ import argparse
 import json
 import os
 import random
-import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, REPO)
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
-load_dotenv(os.path.join(REPO, '.env'))
+bootstrap(log_level=None)
+
 
 from services.categorical_maps import (  # noqa: E402
     TIER_CONSTRAINTS, TIER_DISPLAY_NAMES, VALID_TIERS,
 )
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 OUT = os.path.join(REPO, 'data', 'eval', 'jev_recalibration_2026-09-27')
 LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}
@@ -54,9 +55,7 @@ def main() -> None:
     ap.add_argument('--seed', type=int, default=11)
     args = ap.parse_args()
 
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     rows = (
         db.table('tests')
         .select('id, transcript, age_tier_score, age_tier_confidence')

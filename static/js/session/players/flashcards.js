@@ -14,15 +14,20 @@
 // POST /api/study-session/complete-block, which is also what credits the
 // weekly counter (record_session_progress p_kind='surface').
 
-const T = (key, params, fallback) =>
-  window.LinguaI18n && typeof LinguaI18n.t === 'function'
-    ? LinguaI18n.t(key, params) || fallback || key
-    : fallback || key;
+import { T, escapeHtml as esc, toastSaveFailed } from '../dom.js';
+import { createSaveQueue } from '../save_queue.js';
+import { prefetchJson, takePrefetch } from '../prefetch.js';
 
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = s == null ? '' : s;
-  return d.innerHTML;
+const dueUrl = (languageId) => `/api/flashcards/due?language_id=${encodeURIComponent(languageId)}`;
+
+/**
+ * Session prefetch hook: the due list, unless a flashcards block is running
+ * (its reviews change what is due).
+ */
+export function prefetch(item, ctx) {
+  const current = ctx && ctx.current;
+  if (current && current.kind === 'flashcards') return null;
+  return prefetchJson(dueUrl(ctx && ctx.languageId));
 }
 
 // FSRS ratings, matching routes/flashcards.py (1=again .. 4=easy).
@@ -47,6 +52,16 @@ export function mount(container, ctx) {
   const timer = newTimer();
   // One id per card showing, reused if the same review is ever re-sent.
   let eventId = null;
+  // Reviews are saved in the background (in order, with retries) so the next
+  // card shows at once; finish() waits for them before completing the block.
+  const reviews = createSaveQueue({
+    onFail: () => {
+      // Surface but keep going — the block is about doing the reviews, and a
+      // lost schedule update self-heals on the next due pass.
+      console.error('flashcards: review POST failed');
+      toastSaveFailed();
+    },
+  });
 
   container.innerHTML = `
     <div class="session-card"><div class="card"><div class="card-body p-4">
@@ -63,17 +78,20 @@ export function mount(container, ctx) {
     destroy() {
       state.destroyed = true;
       if (timer) timer.reset();
+      reviews.hurry();
     },
   };
 
   async function load() {
     try {
-      const res = await window.authFetch(
-        `/api/flashcards/due?language_id=${encodeURIComponent(ctx.languageId)}`
-      );
-      const payload = await res.json();
+      const pre = await takePrefetch(ctx.item);
+      let payload = pre && pre.data;
+      if (!pre) {
+        const res = await window.authFetch(dueUrl(ctx.languageId));
+        payload = await res.json();
+        if (!res.ok) throw new Error(`due fetch failed (${res.status})`);
+      }
       const data = payload.data || payload;
-      if (!res.ok) throw new Error(`due fetch failed (${res.status})`);
       state.cards = (data.cards || []).slice(0, limit);
     } catch (e) {
       // Fail forward: the learner should never be stuck on a block we could
@@ -157,7 +175,7 @@ export function mount(container, ctx) {
     });
   }
 
-  async function rate(rating, actions) {
+  function rate(rating, actions) {
     // Latch the buttons: a double-click would post two reviews and advance the
     // FSRS schedule twice.
     actions.querySelectorAll('button').forEach((b) => {
@@ -169,24 +187,19 @@ export function mount(container, ctx) {
       payload.active_ms = timer.stop();
       payload.client_event_id = eventId;
     }
-    try {
-      const res = await window.authFetch('/api/flashcards/review', {
-        method: 'POST',
-        body: JSON.stringify(payload),
+    const body = JSON.stringify(payload);
+    reviews
+      .enqueue(async () => {
+        const res = await window.authFetch('/api/flashcards/review', {
+          method: 'POST',
+          body,
+          keepalive: true,
+        });
+        return !!(res && res.ok);
+      }, card.card_id)
+      .then((ok) => {
+        if (ok) state.reviewed += 1;
       });
-      if (!res || !res.ok) throw new Error(`review failed (${res && res.status})`);
-      state.reviewed += 1;
-    } catch (e) {
-      // Surface but keep going — the block is about doing the reviews, and a
-      // lost schedule update self-heals on the next due pass.
-      console.error('flashcards: review POST failed', e);
-      if (typeof window.showToast === 'function') {
-        window.showToast(
-          T('session.save_failed', null, 'Couldn’t save your progress — check your connection.')
-        );
-      }
-    }
-    if (state.destroyed) return;
     state.index += 1;
     if (state.index >= state.cards.length) {
       finish();
@@ -195,7 +208,12 @@ export function mount(container, ctx) {
     renderCard();
   }
 
-  function finish() {
+  async function finish() {
+    if (state.destroyed) return;
+    if (reviews.pending) {
+      body().innerHTML = '<div class="spinner-border" role="status" aria-hidden="true"></div>';
+    }
+    await reviews.settle();
     if (state.destroyed) return;
     if (ctx.onComplete) ctx.onComplete({ reviewed: state.reviewed });
   }

@@ -1,9 +1,21 @@
 // static/js/session/players/reading_listening.js
-// Reading + Listening comprehension player for the daily-session runner.
-// Ported from templates/test.html (the dictation branch is handled by a
-// dedicated player). Renders into a provided container, scopes all DOM lookups
-// to it, tracks listeners/timers for clean teardown, and calls
-// ctx.onComplete(result) when the learner finishes instead of redirecting.
+// Reading + Listening comprehension player. Used by the daily-session runner
+// and by the standalone test page (static/js/pages/test.js). Renders into a
+// provided container, scopes all DOM lookups to it, tracks listeners/timers
+// for clean teardown, and calls ctx.onComplete(result) when the learner
+// finishes.
+//
+// Page-level options on ctx (all optional; the session runner passes none):
+//   payload          test payload already in hand, used instead of a request
+//   ready            promise awaited (with the test data) before rendering
+//   sentences        false: plain transcript, no sentence rows are requested
+//   audioPreload     preload value for a listening test's <audio>
+//   popoverBackdrop  dim the page behind the word popover on phones
+//   resultActions    options for the post-test prestudy action, replacing the
+//                    session's "save completion, then return to the session"
+//   finishButton     (button, result, { testId }) => void: sets up the button that
+//                    replaces Submit, instead of "Next" -> ctx.onComplete
+// The returned handle also has rerender(), for a UI-language switch.
 
 import {
   fetchTestSentences,
@@ -14,17 +26,43 @@ import {
   deriveTokenSpans,
   setReferencesVisible,
 } from '../sentences.js';
+import {
+  T,
+  nativeName,
+  escapeHtml as escapeHtmlForFurigana,
+  formatTime,
+  formatClock,
+  showLoading as setLoading,
+} from '../dom.js';
+import { prefetchJson, takePrefetch, warmAudio, adoptAudio } from '../prefetch.js';
 
 const LANGUAGE_LOCALE_MAP = { cn: 'zh', jp: 'ja', en: 'en', es: 'es' };
 
-const T = (key, params, fallback) =>
-  window.LinguaI18n && typeof window.LinguaI18n.t === 'function'
-    ? window.LinguaI18n.t(key, params)
-    : fallback || key;
+const testUrl = (slug) => `/api/tests/test/${slug}`;
+const sentenceMode = (item) => (item && item.prestudy_stage === 'produce' ? 'produce' : null);
 
-const nativeName = (code) =>
-  (window.LinguaMetadata && LinguaMetadata.getNativeName && LinguaMetadata.getNativeName(code)) ||
-  (code ? String(code).toUpperCase() : '');
+/**
+ * Session prefetch hook: the test payload, its sentence rows and, for a
+ * listening test, the audio — all static content, safe to load early.
+ */
+export async function prefetch(item) {
+  if (!item || !item.slug) return { ok: false };
+  const res = await prefetchJson(testUrl(item.slug));
+  if (!res.ok) return res;
+  const payload = res.data.data || res.data;
+  const test = payload.test_data;
+  if (!test) return res;
+  if (item.test_type === 'listening') res.audio = warmAudio(test.audio_url);
+  try {
+    res.sentences = await fetchTestSentences(item.slug, {
+      mode: sentenceMode(item),
+      transcript: test.transcript || '',
+    });
+  } catch {
+    /* the player falls back to its own request */
+  }
+  return res;
+}
 
 export function mount(container, ctx) {
   const mode = ctx.item.test_type === 'listening' ? 'listening' : 'reading';
@@ -52,7 +90,7 @@ export function mount(container, ctx) {
     // reference line. `produce` (the prestudy Produce stage) never shows it.
     sentences: null,
     sentenceSource: null,
-    sentenceMode: ctx.item && ctx.item.prestudy_stage === 'produce' ? 'produce' : null,
+    sentenceMode: sentenceMode(ctx.item),
     referencesShown: false,
   };
 
@@ -103,7 +141,7 @@ export function mount(container, ctx) {
   async function init() {
     try {
       showLoading(true);
-      await loadTestData();
+      await Promise.all([loadTestData(), ctx.ready]);
       await loadSentences();
       initializeUI();
       state.startTime = Date.now();
@@ -117,9 +155,16 @@ export function mount(container, ctx) {
   }
 
   async function loadTestData() {
-    const response = await window.authFetch(`/api/tests/test/${state.slug}`);
-    if (!response.ok) throw new Error(`Failed to load test (${response.status})`);
-    const data = await response.json();
+    const pre = await takePrefetch(ctx.item);
+    let data = (pre && pre.data) || ctx.payload;
+    if (pre) {
+      state.warmAudio = pre.audio || null;
+      if ('sentences' in pre) state.prefetchedSentences = { rows: pre.sentences };
+    } else if (!data) {
+      const response = await window.authFetch(testUrl(state.slug));
+      if (!response.ok) throw new Error(`Failed to load test (${response.status})`);
+      data = await response.json();
+    }
     const payload = data.data || data;
     if (!payload.test_data || !payload.questions_data) {
       throw new Error('Invalid test data received');
@@ -146,13 +191,16 @@ export function mount(container, ctx) {
   // SENTENCES (TASK-911)
   // ====================================================================
   async function loadSentences() {
+    if (ctx.sentences === false) return;
     const transcript = (state.testData && state.testData.transcript) || '';
     let serverRows = null;
     try {
-      serverRows = await fetchTestSentences(state.slug, {
-        mode: state.sentenceMode,
-        transcript,
-      });
+      serverRows = state.prefetchedSentences
+        ? state.prefetchedSentences.rows
+        : await fetchTestSentences(state.slug, {
+            mode: state.sentenceMode,
+            transcript,
+          });
     } catch (e) {
       console.warn('sentences: unexpected failure, using client split', e);
     }
@@ -198,15 +246,6 @@ export function mount(container, ctx) {
   // ====================================================================
   // FURIGANA
   // ====================================================================
-  function escapeHtmlForFurigana(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
   function renderFuriganaTokens(tokens) {
     if (!Array.isArray(tokens)) return '';
     const parts = [];
@@ -311,8 +350,12 @@ export function mount(container, ctx) {
 
   function initializeListeningTest() {
     q('audioPlayerCard').style.display = 'block';
-    state.audioElement = q('audioElement');
-    state.audioElement.src = state.testData.audio_url;
+    if (ctx.audioPreload) q('audioElement').preload = ctx.audioPreload;
+    state.audioElement = adoptAudio(
+      q('audioElement'),
+      state.warmAudio,
+      state.testData.audio_url
+    );
     setupAudioPlayer();
   }
 
@@ -444,6 +487,10 @@ export function mount(container, ctx) {
     on(audio, 'loadedmetadata', () => {
       durationEl.textContent = formatTime(audio.duration);
     });
+    // An audio element warmed ahead of the player has its metadata already.
+    if (audio.readyState >= 1 && Number.isFinite(audio.duration)) {
+      durationEl.textContent = formatTime(audio.duration);
+    }
     on(progressBar, 'click', (e) => {
       const rect = progressBar.getBoundingClientRect();
       audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
@@ -458,12 +505,6 @@ export function mount(container, ctx) {
     on(audio, 'ended', () => {
       playBtn.innerHTML = '<i class="fas fa-play"></i>';
     });
-  }
-
-  function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
   // ====================================================================
@@ -700,12 +741,14 @@ export function mount(container, ctx) {
         type: state.mode,
         wrong: Math.max(0, total - score),
         prestudied: !!(res && res.prestudied),
-        returnTo: 'session',
-        beforeLeave: () =>
-          window.authFetch('/api/tests/daily-load/complete', {
-            method: 'POST',
-            body: JSON.stringify({ test_id: ctx.item.id, language_id: ctx.languageId }),
-          }),
+        ...(ctx.resultActions || {
+          returnTo: 'session',
+          beforeLeave: () =>
+            window.authFetch('/api/tests/daily-load/complete', {
+              method: 'POST',
+              body: JSON.stringify({ test_id: ctx.item.id, language_id: ctx.languageId }),
+            }),
+        }),
       });
     }
 
@@ -715,13 +758,17 @@ export function mount(container, ctx) {
     const nextBtn = submitBtn.cloneNode(true);
     submitBtn.replaceWith(nextBtn);
     nextBtn.disabled = false;
-    nextBtn.classList.remove('btn-success');
-    nextBtn.classList.add('btn-primary');
-    nextBtn.innerHTML =
-      '<span>' +
-      T('session.next_item', null, 'Next') +
-      '</span><i class="fas fa-arrow-right ms-2"></i>';
-    nextBtn.onclick = () => ctx.onComplete(result);
+    if (typeof ctx.finishButton === 'function') {
+      ctx.finishButton(nextBtn, result, { testId: state.testId });
+    } else {
+      nextBtn.classList.remove('btn-success');
+      nextBtn.classList.add('btn-primary');
+      nextBtn.innerHTML =
+        '<span>' +
+        T('session.next_item', null, 'Next') +
+        '</span><i class="fas fa-arrow-right ms-2"></i>';
+      nextBtn.onclick = () => ctx.onComplete(result);
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -782,6 +829,7 @@ export function mount(container, ctx) {
   const wordPopover = {
     el: null,
     activeWord: null,
+    backdrop: null,
 
     init() {
       this.el = q('wordDefinitionPopover');
@@ -856,7 +904,19 @@ export function mount(container, ctx) {
       } else readingEl.style.display = 'none';
       q('popoverBody').style.display = 'block';
       this.el.style.display = 'block';
+      if (ctx.popoverBackdrop && window.innerWidth <= 768) this.showBackdrop();
       this.position(wordSpan);
+    },
+
+    showBackdrop() {
+      if (!this.backdrop) {
+        this.backdrop = document.createElement('div');
+        this.backdrop.className = 'word-popover-backdrop';
+        on(this.backdrop, 'click', () => this.hide());
+        document.body.appendChild(this.backdrop);
+        cleanup.push(() => this.backdrop.remove());
+      }
+      this.backdrop.style.display = 'block';
     },
 
     position(wordSpan) {
@@ -906,6 +966,7 @@ export function mount(container, ctx) {
         this.activeWord.classList.remove('word-active');
         this.activeWord = null;
       }
+      if (this.backdrop) this.backdrop.style.display = 'none';
     },
   };
 
@@ -1014,8 +1075,7 @@ export function mount(container, ctx) {
   // UTILITIES
   // ====================================================================
   function showLoading(show) {
-    const el = q('loadingOverlay');
-    if (el) el.style.display = show ? 'flex' : 'none';
+    setLoading(container, show);
   }
 
   function showError(message) {
@@ -1041,16 +1101,19 @@ export function mount(container, ctx) {
     state._timer = setInterval(() => {
       if (!state.isSubmitted && state.startTime) {
         const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-        const m = Math.floor(elapsed / 60),
-          s = elapsed % 60;
         const el = q('elapsedTime');
-        if (el)
-          el.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (el) el.textContent = formatClock(elapsed);
       }
     }, 1000);
   }
 
   return {
+    rerender() {
+      if (!state.testData) return;
+      renderQuestions();
+      renderQuestionNavigation();
+      updateProgress();
+    },
     destroy() {
       if (state._timer) {
         clearInterval(state._timer);
@@ -1151,7 +1214,7 @@ const MARKUP = `
             </div>
             <button class="audio-speed-btn" id="audioSpeedBtn">1.0x</button>
         </div>
-        <audio id="audioElement" preload="metadata"></audio>
+        <audio id="audioElement" preload="auto"></audio>
     </div>
 
     <div class="card mb-4"><div class="card-body">

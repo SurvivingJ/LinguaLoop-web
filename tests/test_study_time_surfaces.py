@@ -52,7 +52,7 @@ CARD = {'id': 1, 'sense_id': 5, 'language_id': 3, 'stability': 2.0, 'difficulty'
 
 class TestFlashcardReview:
     def _post(self, client, auth_headers, db, **extra):
-        with patch('routes.flashcards.get_supabase_admin', return_value=db), \
+        with patch('routes.flashcards.get_db', return_value=db), \
              patch('routes.flashcards.VocabularyKnowledgeService'):
             return client.post('/api/flashcards/review', headers=auth_headers,
                                json={'card_id': 1, 'rating': 3, **extra})

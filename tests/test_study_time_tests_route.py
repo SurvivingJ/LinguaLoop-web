@@ -48,9 +48,9 @@ def window(seconds, end_ago=1):
 
 
 @pytest.fixture
-def db(app):
+def db(app, monkeypatch):
     fake = LedgerDB()
-    app.supabase_service = fake
+    monkeypatch.setattr('services.supabase_factory.get_supabase_admin', lambda: fake)
     return fake
 
 
@@ -128,10 +128,10 @@ class TestTestSubmitRoutes:
     def test_reading_submit_credits_once(self, client, auth_headers, db):
         body = {'responses': [{'question_id': 'q', 'selected_answer': 'a'}],
                 'test_mode': 'reading', **window(240)}
-        with patch('routes.tests._call_submission_rpc', return_value=_rpc_ok()), \
-             patch('routes.tests._update_vocabulary_tracking', return_value=None), \
-             patch('routes.tests._build_submission_response', return_value={}), \
-             patch('routes.tests._attach_explanations'), \
+        with patch('routes.tests.submit._call_submission_rpc', return_value=_rpc_ok()), \
+             patch('routes.tests.submit._update_vocabulary_tracking', return_value=None), \
+             patch('routes.tests.submit._build_submission_response', return_value={}), \
+             patch('routes.tests.submit._attach_explanations'), \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=1):
             r = client.post('/api/tests/slug/submit', json=body, headers=auth_headers)
         assert r.status_code == 200, r.data
@@ -141,19 +141,20 @@ class TestTestSubmitRoutes:
 
     def test_reading_submit_without_window_no_credit(self, client, auth_headers, db):
         body = {'responses': [{'question_id': 'q', 'selected_answer': 'a'}]}
-        with patch('routes.tests._call_submission_rpc', return_value=_rpc_ok()), \
-             patch('routes.tests._update_vocabulary_tracking', return_value=None), \
-             patch('routes.tests._build_submission_response', return_value={}), \
-             patch('routes.tests._attach_explanations'), \
+        with patch('routes.tests.submit._call_submission_rpc', return_value=_rpc_ok()), \
+             patch('routes.tests.submit._update_vocabulary_tracking', return_value=None), \
+             patch('routes.tests.submit._build_submission_response', return_value={}), \
+             patch('routes.tests.submit._attach_explanations'), \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=1):
             r = client.post('/api/tests/slug/submit', json=body, headers=auth_headers)
         assert r.status_code == 200
         assert db.credits() == []
 
     def test_pinyin_submit_credits(self, client, auth_headers, db):
-        db.test_row = {'id': 7, 'language_id': 1}
+        db.test_row = {'id': 7, 'language_id': 1,
+                       'pinyin_payload': [{'char': c, 'is_punctuation': False} for c in '一二三四']}
         body = {'correct_chars': 3, 'total_chars': 4, **window(90)}
-        with patch('routes.tests._call_pinyin_submission_rpc', return_value=_rpc_ok('att-p')), \
+        with patch('routes.tests.submit._call_pinyin_submission_rpc', return_value=_rpc_ok('att-p')), \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=9):
             r = client.post('/api/tests/slug/submit-pinyin', json=body, headers=auth_headers)
         assert r.status_code == 200, r.data
@@ -173,8 +174,8 @@ class TestTestSubmitRoutes:
 class TestDrillRoutes:
     def test_classifier_drill_credits_kind_drill(self, client, auth_headers, db):
         body = {'language_id': 1, 'correct_items': 4, 'total_items': 5, **window(100)}
-        with patch('routes.classifier_drill.submit_session', return_value=_rpc_ok('att-c')), \
-             patch('routes.classifier_drill.DimensionService.get_test_type_id', return_value=14):
+        with patch('services.drill_service.CLASSIFIER_DRILL.submit_session', return_value=_rpc_ok('att-c')), \
+             patch('routes.drills.DimensionService.get_test_type_id', return_value=14):
             r = client.post('/api/classifier-drill/submit', json=body, headers=auth_headers)
         assert r.status_code == 200, r.data
         (c,) = db.credits()
@@ -184,8 +185,8 @@ class TestDrillRoutes:
 
     def test_counter_drill_credits_kind_drill_and_caps(self, client, auth_headers, db):
         body = {'language_id': 3, 'correct_items': 4, 'total_items': 5, **window(4 * 3600)}
-        with patch('routes.counter_drill.submit_session', return_value=_rpc_ok('att-k')), \
-             patch('routes.counter_drill.DimensionService.get_test_type_id', return_value=15):
+        with patch('services.drill_service.COUNTER_DRILL.submit_session', return_value=_rpc_ok('att-k')), \
+             patch('routes.drills.DimensionService.get_test_type_id', return_value=15):
             r = client.post('/api/counter-drill/submit', json=body, headers=auth_headers)
         assert r.status_code == 200, r.data
         (c,) = db.credits()
@@ -193,8 +194,8 @@ class TestDrillRoutes:
 
     def test_drill_without_window_no_credit(self, client, auth_headers, db):
         body = {'language_id': 3, 'correct_items': 4, 'total_items': 5, 'time_taken': 999}
-        with patch('routes.counter_drill.submit_session', return_value=_rpc_ok('att-k')), \
-             patch('routes.counter_drill.DimensionService.get_test_type_id', return_value=15):
+        with patch('services.drill_service.COUNTER_DRILL.submit_session', return_value=_rpc_ok('att-k')), \
+             patch('routes.drills.DimensionService.get_test_type_id', return_value=15):
             r = client.post('/api/counter-drill/submit', json=body, headers=auth_headers)
         assert r.status_code == 200
         assert db.credits() == []

@@ -60,7 +60,6 @@ import argparse
 import json
 import os
 import random
-import sys
 import time
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -68,13 +67,15 @@ from threading import Lock
 
 # Run-as-script bootstrap (mirrors scripts/measure_judge_flag_rate.py): repo
 # root on the path and .env loaded before any app service is imported.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from dotenv import load_dotenv  # noqa: E402
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-load_dotenv()
+bootstrap(log_level=None)
+
 
 from services.llm_service import call_llm  # noqa: E402
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 from services.test_generation.schemas import (  # noqa: E402
     AnswerEntailmentVerdict,
     likert_to_verdict,
@@ -570,8 +571,7 @@ def main() -> None:
     langs = [LANG_ID[n.strip()] for n in args.langs.split(",") if n.strip()]
     arms = _parse_arms(args.arms)
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     with open(args.sample, encoding="utf-8") as fh:
         rows = [r for r in json.load(fh) if r["lang"] in langs]

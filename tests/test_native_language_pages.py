@@ -8,13 +8,14 @@ wired to the right endpoints/i18n keys. Full interactive click-through
 """
 
 
+from tests._page_source import page_source
+
+
 class TestOnboardingNativePicker:
     """GET /welcome renders onboarding.html with the L1 picker."""
 
     def test_welcome_renders_native_picker(self, client):
-        resp = client.get('/welcome')
-        assert resp.status_code == 200
-        html = resp.data.decode('utf-8')
+        html = page_source(client, '/welcome')
         # The three selectable cards, one per supported language id.
         assert 'native-language-card' in html
         assert 'data-id="1"' in html and 'data-id="2"' in html and 'data-id="3"' in html
@@ -28,9 +29,7 @@ class TestProfileNativeField:
     """GET /profile renders profile.html with the native-language setting."""
 
     def test_profile_renders_native_section(self, client):
-        resp = client.get('/profile')
-        assert resp.status_code == 200
-        html = resp.data.decode('utf-8')
+        html = page_source(client, '/profile')
         assert 'nativeLanguageSection' in html
         assert 'nativeLanguageCards' in html
         assert 'profile.native_title' in html

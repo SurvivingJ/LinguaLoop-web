@@ -37,26 +37,23 @@ Options:
 
 import argparse
 import logging
-import os
 import sys
 from collections import Counter
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap(log_format='%(asctime)s %(levelname)-7s %(message)s')
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
+
 from services.vocabulary_ladder.collocation_grounding import (  # noqa: E402
     GROUNDING_ASSERTED, GROUNDING_CORPUS, GROUNDING_NO_SOURCE,
     CollocationGrounder,
 )
 from services.vocabulary_ladder.config import get_sentence_target  # noqa: E402
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)-7s %(message)s',
-)
 logger = logging.getLogger('validate_collocates')
 
 LANGUAGE_CODES = {'zh': 1, 'en': 2, 'ja': 3}
@@ -268,8 +265,7 @@ def main() -> None:
     if args.dry_run:
         logger.info('DRY RUN — no tags written, no repair calls made')
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     codes = list(LANGUAGE_CODES) if args.language == 'all' else [args.language]
     ok = True

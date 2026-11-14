@@ -24,37 +24,20 @@ batch-economics notes referenced from wiki/tasklist/word-list-import.plan.md
 Step 3) — so running it inline inside this request handler for more than a
 couple of words is not viable.
 
-Two existing "slow background work" patterns were found in this repo and
-neither was reused as-is:
+The nightly ``generation_queue`` drain
+(``services/vocabulary_ladder/queue_drain.py``) is not used here: a word
+uploaded at any other time of day would wait up to ~24h for its exercises.
 
-1. ``services/vocabulary_ladder/queue_drain.py``'s ``generation_queue`` +
-   nightly drain (``app.py::_initialize_scheduler``'s
-   ``generation_queue_drain_nightly`` job, 04:15 UTC). Rejected: it is
-   nightly-only, so a word uploaded any time other than just before 04:15
-   UTC would wait up to ~24h before its ladder exercises appeared —
-   contradicting Step 3's "upload always succeeds ~immediately" intent.
-2. ``services/task_runner.py``'s ``run_in_thread`` (used by
-   ``routes/model_arena.py::run_arena`` — generate an id, launch a daemon
-   thread, return the id immediately with a 202, poll a separate endpoint
-   for status). This is the right *shape* — a user action kicking off slow
-   work and returning a pollable id right away without blocking the
-   request — but ``task_runner.py``'s own docstring scopes it to "local
-   admin blueprints" (``model_arena_bp``/``admin_local_bp`` are a separate,
-   single-process local dashboard app — not registered in this app's
-   ``app.py`` at all), and its machinery (an in-memory ``TASKS`` dict, SSE
-   log streaming, ``is_task_stopped()``) solves a problem this feature
-   doesn't have: this feature already has a durable, per-word progress
-   record in ``user_word_watchlist`` (written incrementally by
-   ``process_word_list_upload``), so an in-memory status dict would be
-   redundant machinery — and would not even work correctly across gunicorn's
-   multiple worker processes in production, unlike a DB-backed status.
-
-So this module mirrors pattern (2)'s *shape* only: pre-generate
-``upload_batch_id``, launch a plain ``threading.Thread(daemon=True, ...)``,
-return 202 immediately. The *status* of that work is polled via
+Instead a submission is handed to a small fixed worker pool
+(``services.word_list_import.batch_limits.WorkerPool``) and the route returns
+202 with a pre-generated ``upload_batch_id``. Progress is polled via
 ``GET /api/word-list/watchlist`` (filterable by the client on
-``upload_batch_id``) rather than a second bespoke results endpoint, since
-that data is already durably written by ``process_word_list_upload`` itself.
+``upload_batch_id``), which ``process_word_list_upload`` writes durably as it
+goes.
+
+Admission control (see ``batch_limits``): one in-flight batch per user, a
+per-user daily batch cap, a bounded queue, and per-word validation
+(``services.word_list_import.validation``). Over-quota requests get a 429.
 
 Auth follows ``routes/test_intros.py``'s convention exactly: the
 ``@jwt_required`` decorator, ``g.current_user_id`` for the caller's identity,
@@ -62,14 +45,18 @@ and the same ``utils.responses`` success/error helpers.
 """
 
 import logging
-import threading
 from uuid import uuid4
 
-from flask import Blueprint, g, request
+from flask import Blueprint, g
 
 from middleware.auth import jwt_required
 from services.word_list_import.upload_handler import process_word_list_upload
-from utils.responses import ApiResponse, api_success, bad_request, server_error
+from services.word_list_import import batch_limits
+from services.word_list_import.validation import clean_words
+from utils.responses import (
+    ApiResponse, api_error, api_success, bad_request,
+)
+from utils.validation import json_body
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +75,26 @@ word_list_import_bp = Blueprint(
 # (every word brand-new) bounded to a small number of hours rather than an
 # open-ended run.
 MAX_WORDS_PER_SUBMIT = 50
+
+_limiter = batch_limits.BatchLimiter()
+_pool = batch_limits.WorkerPool()
+
+_REJECTION_MESSAGES = {
+    batch_limits.REJECT_IN_FLIGHT: (
+        'A word list is still being processed. Please wait for it to finish '
+        'before submitting another.'
+    ),
+    batch_limits.REJECT_DAILY_CAP: (
+        'Daily word-list limit reached. Please try again tomorrow.'
+    ),
+    batch_limits.REJECT_BUSY: (
+        'Word-list processing is busy right now. Please try again later.'
+    ),
+}
+
+
+def _too_many(reason: str) -> ApiResponse:
+    return api_error(_REJECTION_MESSAGES[reason], 429, 'RATE_LIMITED')
 
 _WATCHLIST_COLUMNS = (
     'id, sense_id, language_id, upload_batch_id, created_at, '
@@ -191,10 +198,10 @@ def _get_openai_client():
 
 
 def _run_upload_in_background(user_id, words, language_code, upload_batch_id):
-    """Background-thread target. Builds its own db/openai clients rather
-    than reusing any built during request validation — the request's thread
-    may tear down before this one finishes, and Supabase client objects are
-    not documented as safe to share concurrently across threads."""
+    """Worker-pool job. Builds its own db/openai clients rather than reusing
+    any built during request validation — the request's thread may tear down
+    before this one finishes, and Supabase client objects are not documented
+    as safe to share concurrently across threads."""
     try:
         db_client = _get_db_client()
         openai_client = _get_openai_client()
@@ -206,6 +213,8 @@ def _run_upload_in_background(user_id, words, language_code, upload_batch_id):
         logger.exception(
             'Background word-list upload failed for batch %s', upload_batch_id,
         )
+    finally:
+        _limiter.release(user_id)
 
 
 @word_list_import_bp.route('/submit', methods=['POST'])
@@ -213,38 +222,48 @@ def _run_upload_in_background(user_id, words, language_code, upload_batch_id):
 def submit() -> ApiResponse:
     """Validate words + language, start upload processing in the
     background, return an ``upload_batch_id`` immediately."""
-    try:
-        body = request.get_json(silent=True) or {}
-        words = body.get('words')
-        language = body.get('language')
+    body = json_body(silent=True)
+    words = body.get('words')
+    language = body.get('language')
 
-        if not isinstance(words, list) or not words:
-            return bad_request('words must be a non-empty list')
-        if not all(isinstance(w, str) and w.strip() for w in words):
-            return bad_request('words must be a list of non-empty strings')
-        if len(words) > MAX_WORDS_PER_SUBMIT:
-            return bad_request(
-                f'words must not exceed {MAX_WORDS_PER_SUBMIT} per submission',
-            )
-        if not language or not isinstance(language, str):
-            return bad_request('language is required')
-
-        db_client = _get_db_client()
-        if not db_client.get_language_config_by_code(language):
-            return bad_request(f'Unsupported language: {language!r}')
-
-        upload_batch_id = str(uuid4())
-        thread = threading.Thread(
-            target=_run_upload_in_background,
-            args=(g.current_user_id, words, language, upload_batch_id),
-            daemon=True,
+    if not isinstance(words, list) or not words:
+        return bad_request('words must be a non-empty list')
+    if len(words) > MAX_WORDS_PER_SUBMIT:
+        return bad_request(
+            f'words must not exceed {MAX_WORDS_PER_SUBMIT} per submission',
         )
-        thread.start()
+    if not language or not isinstance(language, str):
+        return bad_request('language is required')
 
-        return api_success({'upload_batch_id': upload_batch_id}, status_code=202)
-    except Exception:
-        logger.exception('word-list submit failed')
-        return server_error()
+    db_client = _get_db_client()
+    if not db_client.get_language_config_by_code(language):
+        return bad_request(f'Unsupported language: {language!r}')
+
+    words, problem = clean_words(words, language)
+    if problem:
+        return bad_request(f'Invalid word list: {problem}')
+
+    user_id = g.current_user_id
+    rejection = _limiter.reserve(
+        user_id,
+        known_batches_today=batch_limits.count_recent_batches(
+            db_client.client, user_id,
+        ),
+    )
+    if rejection:
+        return _too_many(rejection)
+
+    upload_batch_id = str(uuid4())
+    queued = _pool.submit(
+        lambda: _run_upload_in_background(
+            user_id, words, language, upload_batch_id,
+        )
+    )
+    if not queued:
+        _limiter.release(user_id, refund=True)
+        return _too_many(batch_limits.REJECT_BUSY)
+
+    return api_success({'upload_batch_id': upload_batch_id}, status_code=202)
 
 
 @word_list_import_bp.route('/watchlist', methods=['GET'])
@@ -262,23 +281,19 @@ def watchlist() -> ApiResponse:
     row already surfacing raw-ish internal names like `sense_id` and
     `language_id` rather than pre-humanized ones.
     """
-    try:
-        db_client = _get_db_client()
-        resp = (
-            db_client.client.table('user_word_watchlist')
-            .select(_WATCHLIST_COLUMNS)
-            .eq('user_id', g.current_user_id)
-            .execute()
-        )
-        rows = resp.data or []
+    db_client = _get_db_client()
+    resp = (
+        db_client.client.table('user_word_watchlist')
+        .select(_WATCHLIST_COLUMNS)
+        .eq('user_id', g.current_user_id)
+        .execute()
+    )
+    rows = resp.data or []
 
-        lemma_by_sense_id = _resolve_lemmas(
-            db_client, [row.get('sense_id') for row in rows],
-        )
-        for row in rows:
-            row['lemma'] = lemma_by_sense_id.get(row.get('sense_id'))
+    lemma_by_sense_id = _resolve_lemmas(
+        db_client, [row.get('sense_id') for row in rows],
+    )
+    for row in rows:
+        row['lemma'] = lemma_by_sense_id.get(row.get('sense_id'))
 
-        return api_success({'watchlist': rows})
-    except Exception:
-        logger.exception('word-list watchlist fetch failed')
-        return server_error()
+    return api_success({'watchlist': rows})

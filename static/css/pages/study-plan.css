@@ -1,0 +1,178 @@
+.plan-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.language-card {
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid var(--border-default);
+}
+
+.language-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.language-card.active {
+  border-color: var(--primary);
+  background: var(--selected-bg);
+}
+
+.weekday-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.weekday-cell {
+  text-align: center;
+}
+
+.weekday-cell label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.weekday-cell input[type='number'] {
+  width: 100%;
+}
+
+.total-tally {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.total-tally.warn {
+  color: var(--warning, #d97706);
+}
+
+.week-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.week-stats .stat-tile {
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.week-stats .stat-tile h4 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.week-stats .stat-tile small {
+  color: var(--text-secondary);
+}
+
+.advanced-section {
+  border-top: 1px solid var(--border-default);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.skill-override-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.skill-override-row label {
+  width: 8rem;
+}
+
+.skill-override-row input[type='range'] {
+  flex: 1;
+}
+
+.skill-override-row .value {
+  width: 3rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Daily session card (Option A: one card, stacked sections) */
+.ds-section h6 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ds-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: var(--selected-bg);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ds-scope-opt {
+  margin-bottom: 0.5rem;
+}
+
+.ds-scope-opt .form-check-label {
+  cursor: pointer;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.module-grid .form-check.locked label {
+  opacity: 0.8;
+}
+
+.nw-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.nw-row .input-group {
+  width: 10.5rem;
+}
+
+.nw-row input[type='number'] {
+  text-align: center;
+}
+
+.ds-note {
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+}
+
+/* stylelint-disable-next-line selector-id-pattern -- id is referenced from markup and scripts */
+#typicalDaySummary {
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.flag-disabled-banner {
+  background: var(--warning-bg, #fff7ed);
+  border: 1px solid var(--warning, #d97706);
+  color: var(--warning-text, #92400e);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}

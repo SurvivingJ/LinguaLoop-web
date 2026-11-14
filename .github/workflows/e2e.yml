@@ -1,0 +1,59 @@
+name: Playwright E2E
+
+on:
+  # Manual-only: run from the Actions tab via "Run workflow". It needs real
+  # project secrets and a live database. Unit tests and linters run in ci.yml.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-tests:
+    name: Playwright E2E tests
+    runs-on: ubuntu-latest
+    env:
+      TEST_JWT_TOKEN: ${{ secrets.TEST_JWT_TOKEN }}
+      BASE_URL: http://localhost:5000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start Flask server
+        run: |
+          gunicorn wsgi:app --bind 127.0.0.1:5000 --workers 2 --worker-class gthread --threads 8 --timeout 120 &
+          timeout 60 bash -c 'until curl -sf http://localhost:5000/api/health >/dev/null; do sleep 1; done'
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DISABLE_SCHEDULER: 'true'
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

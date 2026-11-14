@@ -24,8 +24,8 @@ from flask import Blueprint, request, g
 from middleware.auth import jwt_required as supabase_jwt_required
 from services import calibration_service
 from services.calibration_service import CalibrationError
-from utils.responses import (ApiResponse, api_success, bad_request, not_found,
-                             server_error)
+from utils.responses import (api_errors, ApiResponse, api_success, bad_request, not_found)
+from utils.validation import json_body
 
 logger = logging.getLogger(__name__)
 calibration_bp = Blueprint("calibration", __name__)
@@ -49,10 +49,11 @@ def _load_session(session_id: str):
 
 @calibration_bp.route('/start', methods=['POST'])
 @supabase_jwt_required
+@api_errors("Failed to start calibration")
 def start() -> ApiResponse:
     """Open a calibration session."""
     try:
-        data = request.get_json() or {}
+        data = json_body()
         word_language_id = data.get('word_language_id')
         definition_language_id = data.get('definition_language_id')
 
@@ -82,13 +83,11 @@ def start() -> ApiResponse:
         })
     except CalibrationError as e:
         return bad_request(str(e))
-    except Exception as e:
-        logger.error("Error starting calibration session: %s", e)
-        return server_error("Failed to start calibration")
 
 
 @calibration_bp.route('/next', methods=['GET'])
 @supabase_jwt_required
+@api_errors("Failed to build a calibration item")
 def next_item() -> ApiResponse:
     """Serve the next item, or a batch of them.
 
@@ -126,13 +125,11 @@ def next_item() -> ApiResponse:
         })
     except CalibrationError as e:
         return bad_request(str(e))
-    except Exception as e:
-        logger.error("Error building calibration item: %s", e)
-        return server_error("Failed to build a calibration item")
 
 
 @calibration_bp.route('/answer', methods=['POST'])
 @supabase_jwt_required
+@api_errors("Failed to record the answer")
 def answer() -> ApiResponse:
     """Record one answer. `position` may be null, meaning the learner skipped.
 
@@ -146,7 +143,7 @@ def answer() -> ApiResponse:
     exists.
     """
     try:
-        data = request.get_json() or {}
+        data = json_body()
         session_id = data.get('session_id')
         if not session_id:
             return bad_request("session_id required")
@@ -174,39 +171,30 @@ def answer() -> ApiResponse:
         return api_success(result)
     except CalibrationError as e:
         return bad_request(str(e))
-    except Exception as e:
-        logger.error("Error recording calibration answer: %s", e)
-        return server_error("Failed to record the answer")
 
 
 @calibration_bp.route('/ability', methods=['GET'])
 @supabase_jwt_required
+@api_errors("Failed to compute the ability estimate")
 def ability() -> ApiResponse:
     """The Zipf knowledge curve and its crossings so far."""
-    try:
-        session, err = _load_session(request.args.get('session_id'))
-        if err:
-            return err
-        return api_success({
-            'ability': calibration_service.ability(g.current_user_id, session),
-        })
-    except Exception as e:
-        logger.error("Error computing calibration ability: %s", e)
-        return server_error("Failed to compute the ability estimate")
+    session, err = _load_session(request.args.get('session_id'))
+    if err:
+        return err
+    return api_success({
+        'ability': calibration_service.ability(g.current_user_id, session),
+    })
 
 
 @calibration_bp.route('/end', methods=['POST'])
 @supabase_jwt_required
+@api_errors("Failed to end the calibration session")
 def end() -> ApiResponse:
     """Close the session and return the final report."""
-    try:
-        data = request.get_json() or {}
-        session, err = _load_session(data.get('session_id'))
-        if err:
-            return err
-        return api_success({
-            'ability': calibration_service.end_session(g.current_user_id, session),
-        })
-    except Exception as e:
-        logger.error("Error ending calibration session: %s", e)
-        return server_error("Failed to end the calibration session")
+    data = json_body()
+    session, err = _load_session(data.get('session_id'))
+    if err:
+        return err
+    return api_success({
+        'ability': calibration_service.end_session(g.current_user_id, session),
+    })

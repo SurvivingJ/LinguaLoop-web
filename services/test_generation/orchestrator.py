@@ -1629,43 +1629,6 @@ class TestGenerationOrchestrator:
 
         return self.metrics
 
-    def run_single(self, queue_id: UUID) -> int:
-        """
-        Process a single queue item by ID.
-
-        Args:
-            queue_id: Queue item UUID
-
-        Returns:
-            int: Number of tests generated
-        """
-        # Fetch the specific queue item
-        response = self.db.client.table('production_queue') \
-            .select('*') \
-            .eq('id', str(queue_id)) \
-            .single() \
-            .execute()
-
-        if not response.data:
-            raise ValueError(f"Queue item not found: {queue_id}")
-
-        row = response.data
-        item = QueueItem(
-            id=UUID(row['id']),
-            topic_id=UUID(row['topic_id']),
-            language_id=row['language_id'],
-            status_id=row['status_id'],
-            created_at=datetime.fromisoformat(
-                row['created_at'].replace('Z', '+00:00')
-            ),
-            tests_generated=row.get('tests_generated', 0) or 0,
-            error_log=row.get('error_log')
-        )
-
-        self._run_id = uuid4()
-        dry_run = get_test_gen_config().dry_run
-        return self._process_queue_item(item, dry_run)
-
     # ============================================================
     # BATCH GENERATION (count-based, balanced across complexity tiers)
     # ============================================================

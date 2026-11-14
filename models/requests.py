@@ -5,27 +5,14 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 
 
-class TestSubmissionResponse(BaseModel):
-    """A single question response in a test submission."""
-    question_id: str
-    selected_answer: str
-
-
-class TestSubmissionRequest(BaseModel):
-    """Request body for POST /<slug>/submit."""
-    responses: list[TestSubmissionResponse] = Field(min_length=1)
-    test_mode: str = Field(default='reading')
-
-    @field_validator('test_mode')
-    @classmethod
-    def normalize_test_mode(cls, v: str) -> str:
-        return v.strip().lower()
+# One extraction runs an LLM pipeline over the whole text; cap what a request can submit.
+VOCAB_EXTRACT_MAX_CHARS = 20000
 
 
 class VocabularyExtractRequest(BaseModel):
     """Request body for POST /api/vocabulary/extract."""
-    text: str = Field(min_length=1)
-    language_code: str = Field(min_length=1)
+    text: str = Field(min_length=1, max_length=VOCAB_EXTRACT_MAX_CHARS)
+    language_code: str = Field(min_length=1, max_length=16)
 
     @field_validator('text', 'language_code')
     @classmethod

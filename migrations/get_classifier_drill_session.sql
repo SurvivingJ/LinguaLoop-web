@@ -26,6 +26,13 @@
 -- Weighting (v1, frequency-only): pairs with higher frequency_score and
 -- primary status are sampled more often. Per-user mastery weighting is
 -- deferred to Phase 2.
+--
+-- SECURITY (hardened in place so re-running this file cannot reopen client
+-- access): pinned search_path and EXECUTE for service_role only (the DROP
+-- below resets the ACL, so the REVOKE/GRANT at the end is required). This
+-- matches the live state set by security_function_grants_group_b.sql. The
+-- function has no caller gate (p_user_id is not used to read user data), so
+-- the ACL is the control. Function logic is unchanged.
 -- ============================================================================
 
 -- Return type gained out_difficulty_tier, so the old signature must be dropped
@@ -50,7 +57,9 @@ CREATE OR REPLACE FUNCTION public.get_classifier_drill_session(
     out_semantic_label         text,
     out_distractor_group_label text,
     out_difficulty_tier        smallint
-) LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
+) LANGUAGE plpgsql STABLE SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
 DECLARE
     v_ge_id smallint;
 BEGIN
@@ -196,4 +205,6 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.get_classifier_drill_session(uuid, smallint, integer) TO authenticated;
+REVOKE ALL ON FUNCTION public.get_classifier_drill_session(uuid, smallint, integer)
+    FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_classifier_drill_session(uuid, smallint, integer) TO service_role;

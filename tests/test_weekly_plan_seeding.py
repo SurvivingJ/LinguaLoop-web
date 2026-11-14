@@ -215,7 +215,7 @@ class TestTemplateApplySeedsCurrentWeek:
 
         resolver = MagicMock()
 
-        with patch('routes.study_plan.get_supabase_admin', return_value=db), \
+        with patch('routes.study_plan.get_db', return_value=db), \
              patch('services.study_plan_service.StudyPlanService',
                    return_value=resolver):
             resp = client.put(

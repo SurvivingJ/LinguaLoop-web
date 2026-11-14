@@ -141,3 +141,40 @@ Both files were fully superseded: every object they define is either redefined b
 recorded in `create_all_tables.sql`. Their entries were removed from
 `HISTORICAL_DEFINER_FILES` in `tests/test_migration_security_lint.py`, which
 requires every allowlisted file to exist.
+
+## 2026-11-14 — codebase-review clean-up (file-only, no live probe)
+
+| Archived file | Object | New canonical file | Evidence (repo only) |
+|---|---|---|---|
+| `listening_lab_rpcs.sql` | `start_listening_lab_session(uuid,uuid)`, `submit_listening_lab_tier(uuid,uuid,smallint,jsonb,uuid)`, `get_listening_lab_recommendations(uuid,integer)`, `process_test_submission(uuid,uuid,smallint,smallint,jsonb,boolean,uuid)` | *(three lab RPCs dropped — no canonical)*; `process_test_submission` lives in `process_test_submission_set_based_grading.sql` (9-arg, on top of `prestudy_elo_factor.sql`) | the three lab RPCs are `DROP`ped by `archive_unused_modules_2026_09_21.sql`; the 7-arg `process_test_submission` overload is `DROP`ped by `drop_legacy_process_test_submission_overloads.sql`, and the file's own header already marked that body superseded |
+| `process_mystery_submission.sql` | `process_mystery_submission(uuid,uuid,smallint,smallint,jsonb,uuid)`, `get_recommended_mysteries(uuid,integer)` | *(dropped — no canonical)* | both `DROP`ped by `archive_unused_modules_2026_09_21.sql` (section "Mysteries"); no `rpc('process_mystery_submission')` / `rpc('get_recommended_mysteries')` call left in routes/ or services/ |
+| `phase11_irt_selection.sql` | `get_exercise_session(uuid,smallint,integer,numeric)` | *(dropped — no canonical)* | `DROP`ped by `phase17_drop_deprecation_wrappers.sql` (TASK-220); the practice engine serves through `get_practice_session` |
+| `task820_apply_jev_retier.sql` | `apply_jev_retier(jsonb)` | `task821_tier_calibration.sql` | task821 redefines the same signature ("apply_jev_retier now also writes age_tier_calibration") and repeats the REVOKE/GRANT |
+
+None of the four was probed against live: the rows above rest on later files in
+this repo dropping or redefining every object. Before treating them as applied,
+check `to_regprocedure(...)` is NULL for the dropped signatures and that
+`apply_jev_retier` writes `age_tier_calibration`. `listening_lab_rpcs.sql` and
+`process_mystery_submission.sql` were removed from `HISTORICAL_DEFINER_FILES`
+in `tests/test_migration_security_lint.py`.
+
+**Not archived, deliberately** (rule #4 — each still holds the only repo record
+of another object, even though its `process_test_submission` /
+`build_daily_session` / `get_recommended_tests` / `get_distractors` body is
+stale). Do not re-run these files: several recreate a stale function body,
+and the older ones carry the NULL-permissive `p_user_id != auth.uid()` gate.
+
+| Kept file | Stale object in it | Why it stays |
+|---|---|---|
+| `elo_functions.sql` | `process_test_submission` (legacy text signature) | only record of `calculate_elo_rating`, `calculate_volatility_multiplier` |
+| `phase3_rpc_fixes.sql` | `process_test_submission` (7-arg), `get_distractors` (3-arg) | only record of `can_use_free_test`, `get_token_balance`, `update_skill_attempts_count`, `update_test_attempts_count` |
+| `wire_volatility_and_exclude_attempted.sql` | `process_test_submission` (7-arg) | newest record of `get_recommended_test(uuid,integer)` (called by `routes/tests.py`) |
+| `partF_question_attempt_results.sql` | `process_test_submission` (8-arg) | only record of table `question_attempt_results` and its indexes |
+| `partG_qar_drop_response_time.sql` | `process_test_submission` (8-arg) | only record of the `question_attempt_results.response_time_ms` drop |
+| `sec_submission_rpcs_auth_gate.sql` | `process_test_submission` (8-arg) | only record of `test_attempts.elo_reduction_factor` and of the REVOKE/GRANT on the other submission RPCs |
+| `prestudy_elo_factor.sql` | `process_test_submission` (9-arg body, replaced by `process_test_submission_set_based_grading.sql`) | only record of `test_attempts.prestudied` |
+| `get_quiz_distractors.sql` | `get_quiz_distractors` body (replaced by `get_quiz_distractors_sample_ids_first.sql`) | only record of `pos_class(text)` |
+| `phase13_build_daily_session.sql`, `word_upload_slot_scheduling.sql`, `session_module_exclusions_build_daily_session.sql` | `build_daily_session(uuid,smallint,date)` (canonical: `daily_session_one_topic_per_day.sql`) | `week_start_for(date)`; `user_word_watchlist.last_matched_surfaced_at` + its index; `set_new_words_shortfall(...)` |
+| `task748_get_recommended_tests_vocab_aware.sql`, `task780_selection_combine_mode.sql` | `get_recommended_tests` / `recommended_tests_ranked` (canonical: `dictation_cap_cjk_word_count.sql`) | `selection_vocab_ability(...)`; the `selection_tuning.value_text` column changes |
+| `bkt_vocabulary_tracking.sql` | `get_distractors` (3-arg, dropped by `get_distractors_drop_ambiguous_overload.sql`) | tables `user_vocabulary_knowledge`, `user_flashcards` and the `bkt_*` functions |
+

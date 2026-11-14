@@ -21,6 +21,7 @@ import pytest
 
 from services import day_boundary
 from services import practice_session_service as pss
+from services.practice import new_word_admission
 from services import study_plan_service as plan
 from services.practice_session_service import (
     LADDER_MIN_EXERCISES_PER_SENSE,
@@ -158,9 +159,9 @@ def _full(**kw):
 
 def test_day_start_boundary_is_passed_to_the_quota_rpc(monkeypatch, governor):
     fixed = datetime(2026, 10, 13, 15, 1, tzinfo=UTC)           # 00:01 JST the 14th
-    monkeypatch.setattr(pss, 'local_date', lambda tz: day_boundary.local_date(tz, fixed))
+    monkeypatch.setattr(new_word_admission, 'local_date', lambda tz: day_boundary.local_date(tz, fixed))
     monkeypatch.setattr(
-        pss, 'local_day_start_utc',
+        new_word_admission, 'local_day_start_utc',
         lambda tz: day_boundary.local_day_start_utc(tz, fixed))
     db = _full(tz='Asia/Tokyo', npd=5)
     _admit(db)

@@ -64,6 +64,7 @@ def app(monkeypatch):
     a = Flask(__name__)
     a.config.update(TESTING=True, SECRET_KEY='k')
     a.supabase_service = MagicMock()
+    monkeypatch.setattr('services.supabase_factory.get_supabase_admin', lambda: a.supabase_service)
     a.register_blueprint(tests_bp, url_prefix='/api/tests')
     a.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     return a
@@ -127,7 +128,7 @@ def test_test_service_slug_payload_has_no_answer():
 
 
 def test_submit_returns_explanations(app, client, monkeypatch):
-    import routes.tests as rt
+    import routes.tests.submit as rt
     svc = app.supabase_service
     svc.table.side_effect = lambda n: _chain({'id': 't1', 'language_id': 1} if n == 'tests'
                                               else [{'id': 'q1', 'answer_explanation': 'because'}])
@@ -168,7 +169,7 @@ def test_count_routes_reject(app, client, route, body):
 
 
 def test_daily_load_complete_requires_attempt(app, client, monkeypatch):
-    import routes.tests as rt
+    import routes.tests.catalog as rt
     from services.test_service import NoMatchingAttemptError
     svc = MagicMock()
     svc.mark_daily_test_complete.side_effect = NoMatchingAttemptError('no')

@@ -29,19 +29,20 @@ Usage:
 import argparse
 import logging
 import os
-import sys
 from datetime import datetime, timedelta, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from config import Config
-from services.supabase_factory import SupabaseFactory, get_supabase_admin
+from services.supabase_factory import get_supabase_admin
 from services.dual_translation import synthesis
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('dt_nightly_synthesis')
 
 DEFAULT_WINDOW_DAYS = int(os.environ.get('DT_SYNTHESIS_WINDOW_DAYS', '30'))
@@ -283,8 +284,7 @@ def _get_db():
     try:
         return get_supabase_admin()
     except RuntimeError:
-        SupabaseFactory.initialize()
-        return get_supabase_admin()
+        return admin_db()
 
 
 def _try_advisory_lock(db) -> bool:

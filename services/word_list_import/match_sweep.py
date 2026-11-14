@@ -75,6 +75,9 @@ _UNRATED_ELO_DEFAULT = 1200  # Same default get_recommended_tests / get_replay_t
 ELO_MATCH_CUTOFF = 300
 
 
+_WRITE_CHUNK_SIZE = 200
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -236,6 +239,9 @@ def sweep_immediate_matches(watchlist_rows: list, db_client) -> dict:
     db = db_client.client if hasattr(db_client, 'client') else db_client
 
     summary = {'matched': 0, 'reaffirmed': 0, 'no_match': 0, 'results': []}
+    # Rows sharing a matched test and match kind take the same payload, so
+    # they are written together: one UPDATE per (test, kind) chunk.
+    pending_writes: dict[tuple, list] = {}
 
     for row in watchlist_rows:
         watchlist_id = row['id']
@@ -270,24 +276,28 @@ def sweep_immediate_matches(watchlist_rows: list, db_client) -> dict:
             continue
 
         is_new_match = best_test_id != prior_test_id
-        update_payload = {
-            'last_matched_test_id': best_test_id,
-            'last_matched_at': _now_iso(),
-        }
-        if is_new_match:
-            # Write contract (migrations/word_upload_slot_scheduling.sql
-            # header): a NEW test_id MUST reset surfaced_at in the SAME
-            # update. Re-affirming the same test_id must NOT touch it.
-            update_payload['last_matched_surfaced_at'] = None
-
-        db.table('user_word_watchlist').update(update_payload).eq(
-            'id', watchlist_id,
-        ).execute()
+        pending_writes.setdefault((best_test_id, is_new_match), []).append(watchlist_id)
 
         summary['matched' if is_new_match else 'reaffirmed'] += 1
         summary['results'].append({
             'watchlist_id': watchlist_id, 'matched_test_id': best_test_id,
             'elo_diff': best_diff, 'changed': is_new_match,
         })
+
+    matched_at = _now_iso()
+    for (test_id, is_new_match), watchlist_ids in pending_writes.items():
+        update_payload = {
+            'last_matched_test_id': test_id,
+            'last_matched_at': matched_at,
+        }
+        if is_new_match:
+            # Write contract (migrations/word_upload_slot_scheduling.sql
+            # header): a NEW test_id MUST reset surfaced_at in the SAME
+            # update. Re-affirming the same test_id must NOT touch it.
+            update_payload['last_matched_surfaced_at'] = None
+        for i in range(0, len(watchlist_ids), _WRITE_CHUNK_SIZE):
+            db.table('user_word_watchlist').update(update_payload).in_(
+                'id', watchlist_ids[i:i + _WRITE_CHUNK_SIZE],
+            ).execute()
 
     return summary

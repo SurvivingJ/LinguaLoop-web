@@ -10,6 +10,7 @@ import pytest
 from flask import Flask
 
 from services import practice_session_service as pss
+from services.practice import new_word_admission
 from services.practice_session_service import (
     EXTRA_NEW_WORDS_MAX, EXTRA_REVIEW_ITEMS, PracticeSessionService,
 )
@@ -277,7 +278,7 @@ def test_freshly_admitted_words_are_not_re_promoted():
 def test_promotion_updates_only_never_started_new_rows(monkeypatch):
     from services import intro_drill as idr
     monkeypatch.setattr(idr, 'ENABLED', True)
-    monkeypatch.setattr(pss, 'plan_today_iso', lambda *a: '2026-11-13')
+    monkeypatch.setattr(new_word_admission, 'plan_today_iso', lambda *a: '2026-11-13')
     s = PracticeSessionService.__new__(PracticeSessionService)
     s.db = MagicMock()
     s._promote_unstarted_to_intro('u', 3, [51640, 51666])

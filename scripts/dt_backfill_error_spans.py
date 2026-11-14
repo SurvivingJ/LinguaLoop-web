@@ -32,18 +32,18 @@ Usage:
 
 import argparse
 import logging
-import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin
+
 from services.dual_translation.grader_cascade import _reconcile_span_form
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('dt_backfill_error_spans')
 
 _CHUNK = 500
@@ -64,8 +64,7 @@ def _get_db():
     for you) — the same trap that had never let ``dt_nightly_synthesis`` run from
     the command line.
     """
-    SupabaseFactory.initialize()
-    return get_supabase_admin()
+    return admin_db()
 
 
 def _chunks(seq, size=_CHUNK):

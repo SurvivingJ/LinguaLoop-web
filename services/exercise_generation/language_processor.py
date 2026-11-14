@@ -103,10 +103,11 @@ class EnglishProcessor(LanguageProcessor):
     language_id = 2
 
     def __init__(self):
-        import spacy
-        if not hasattr(EnglishProcessor, '_nlp'):
-            EnglishProcessor._nlp = spacy.load('en_core_web_sm')
-        self.nlp = EnglishProcessor._nlp
+        # Same key and loader as services/vocabulary/processors/english.py, so
+        # the process holds one en_core_web_sm whichever caller loads it first.
+        from services.vocabulary.model_cache import model_cache
+        from services.vocabulary.processors.english import _load_english_model
+        self.nlp = model_cache.get('spacy_en', _load_english_model)
 
     def split_sentences(self, text: str) -> list[str]:
         doc = self.nlp(text)
@@ -451,10 +452,10 @@ class JapaneseProcessor(LanguageProcessor):
     language_id = 3
 
     def __init__(self):
+        # Same key as services/corpus/tokenizers.py: one ja_core_news_sm per process.
         import spacy
-        if not hasattr(JapaneseProcessor, '_nlp'):
-            JapaneseProcessor._nlp = spacy.load('ja_core_news_sm')
-        self.nlp = JapaneseProcessor._nlp
+        from services.vocabulary.model_cache import model_cache
+        self.nlp = model_cache.get('spacy_ja', lambda: spacy.load('ja_core_news_sm'))
 
     def split_sentences(self, text: str) -> list[str]:
         doc = self.nlp(text)

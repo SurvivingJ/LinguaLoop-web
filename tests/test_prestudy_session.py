@@ -11,7 +11,8 @@ from unittest.mock import MagicMock
 import pytest
 from flask import Flask, g
 
-import routes.tests as test_routes
+import routes.tests.prestudy as test_routes
+import routes.tests.submit as submit_routes
 from routes import study_session as ss
 from routes.study_session import _today_prestudy_ids, apply_prestudy, prestudy_block_id
 from services import prestudy
@@ -400,10 +401,10 @@ class TestSubmitVerification:
         def _rpc(client, *a, **kw):
             sent.update(kw)
             return {'success': True, 'attempt_id': 'att-1', 'score': 1, 'total_questions': 2}
-        monkeypatch.setattr(test_routes, '_call_submission_rpc', _rpc)
-        monkeypatch.setattr(test_routes, '_apply_timing_and_progress', lambda *a, **k: None)
-        monkeypatch.setattr(test_routes, '_update_vocabulary_tracking', lambda *a, **k: None)
-        monkeypatch.setattr(test_routes, '_attach_explanations', lambda *a, **k: None)
+        monkeypatch.setattr(submit_routes, '_call_submission_rpc', _rpc)
+        monkeypatch.setattr(submit_routes, '_apply_timing_and_progress', lambda *a, **k: None)
+        monkeypatch.setattr(submit_routes, '_update_vocabulary_tracking', lambda *a, **k: None)
+        monkeypatch.setattr(submit_routes, '_attach_explanations', lambda *a, **k: None)
         return consumed, sent
 
     def _post(self, client, auth_headers, app, prestudied):
@@ -492,7 +493,7 @@ class TestStudyPlanSetting:
                 q.execute.return_value = SimpleNamespace(data=[row])
                 q.update.side_effect = lambda payload: updates.append(payload) or q
                 return q
-        monkeypatch.setattr(ss, 'get_supabase_admin', lambda: _LoadsDB())
+        monkeypatch.setattr(ss, 'get_db', lambda: _LoadsDB())
         monkeypatch.setattr(ss, '_today_iso', lambda *a: '2026-10-31')
         with app.test_request_context('/api/study-session/complete-block', method='POST',
                                       json={'language_id': 1, 'block_id': prestudy_block_id(T1)}):

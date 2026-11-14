@@ -18,21 +18,20 @@ Usage:
     python scripts/audit_kana_fragments.py [--limit N]
 """
 
-import sys
-import os
 import re
 import argparse
 import logging
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap(log_level=logging.WARNING)
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin
+
 from services.vocabulary.kana_homophone_judge import classify_kana_lemma
 
-logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 LANGUAGE_ID_JA = 3
@@ -71,23 +70,13 @@ def main():
     parser.add_argument('--limit', type=int, default=0)
     args = parser.parse_args()
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     all_rows = []
     page_size = 1000
-    offset = 0
-    while True:
-        resp = db.table('dim_vocabulary') \
+    all_rows.extend(paginate(lambda: db.table('dim_vocabulary') \
             .select('id, lemma, part_of_speech') \
-            .eq('language_id', LANGUAGE_ID_JA) \
-            .range(offset, offset + page_size - 1) \
-            .execute()
-        page = resp.data or []
-        all_rows.extend(page)
-        if len(page) < page_size:
-            break
-        offset += page_size
+            .eq('language_id', LANGUAGE_ID_JA), page_size))
     kana_rows = [r for r in all_rows if r.get('lemma') and _KANA_ONLY.match(r['lemma'])]
     if args.limit:
         kana_rows = kana_rows[:args.limit]

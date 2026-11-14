@@ -25,18 +25,18 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import sys
 import time
 from uuid import uuid4
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from dotenv import load_dotenv  # noqa: E402
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-load_dotenv()
+bootstrap(log_level=None)
+
 
 from services.llm_service import LLM_DEFAULT_MODEL, call_llm  # noqa: E402
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 # Columns this smoke test exists to verify actually get populated. Split into
 # "always populated" (already shipped, well before Phase 0) and "pending
@@ -67,8 +67,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     if db is None:
         print('FATAL: no Supabase service-role client available — set '
               'SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY.')

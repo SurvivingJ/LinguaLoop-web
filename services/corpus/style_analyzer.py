@@ -16,12 +16,12 @@ from collections import Counter
 from services.corpus.tokenizers import LanguageTokenizer
 from services.corpus.analyzer import CorpusAnalyzer
 from services.corpus.classifier import CollocationClassifier
+from services.dimension_service import LANGUAGE_ID_TO_CODE
 from services.vocabulary.frequency_service import get_zipf_score
 
 logger = logging.getLogger(__name__)
 
 # Language ID → wordfreq language code
-_LANG_ID_TO_WF = {1: 'zh', 2: 'en', 3: 'ja'}
 
 # MATTR (Moving-Average Type-Token Ratio) window size
 _MATTR_WINDOW = 500
@@ -150,7 +150,7 @@ class StyleAnalyzer:
         For n-grams (n>=2): uses provided reference_ngrams if available.
         """
         results = []
-        lang_code = _LANG_ID_TO_WF.get(self.tokenizer.language_id)
+        lang_code = LANGUAGE_ID_TO_CODE.get(self.tokenizer.language_id)
 
         if total_tokens == 0:
             return results
@@ -552,7 +552,7 @@ Return a JSON object with these exact keys (all values are integers):
         avg_word_length = total_chars / tokens if tokens > 0 else 0.0
 
         # Zipf frequency distribution
-        lang_code = _LANG_ID_TO_WF.get(self.tokenizer.language_id)
+        lang_code = LANGUAGE_ID_TO_CODE.get(self.tokenizer.language_id)
         zipf_dist = {}
         if lang_code:
             band_counts = {f"{lo}-{hi}": 0 for lo, hi in _ZIPF_BANDS}

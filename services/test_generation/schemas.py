@@ -234,18 +234,6 @@ class TopicTranslation(BaseModel):
         return out
 
 
-class TranscriptResponse(BaseModel):
-    """Wrapper for the legacy `transcript_generation` prompt output.
-
-    The prompt asks for `{"transcript": "...", "difficulty_level": N}`.
-    Using a schema here means call_llm's JSON path handles markdown fences,
-    BOM, and stray prose around the JSON — eliminating the brittle
-    `if transcript.startswith('{') and transcript.endswith('}')` check.
-    """
-    transcript: str
-    difficulty_level: Optional[int] = None
-
-
 class MCQuestion(BaseModel):
     """A multiple-choice reading/listening comprehension question.
 

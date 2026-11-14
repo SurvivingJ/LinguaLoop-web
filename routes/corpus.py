@@ -1,15 +1,15 @@
-from flask import Blueprint, request, g
-from middleware.auth import jwt_required, admin_required
-from services.supabase_factory import get_supabase_admin
-from services.corpus.ingestion import CorpusIngestionService
+import logging
+
+import httpx
+from flask import Blueprint, request
+from middleware.auth import admin_required
+from routes.common import get_db
+from services.corpus.ingestion import CorpusIngestionService, UnsafeURLError
 from utils.responses import api_success, api_error, bad_request, not_found
 
+logger = logging.getLogger(__name__)
+
 corpus_bp = Blueprint('corpus', __name__)
-
-
-def _get_db():
-    """Return the admin Supabase client (bypasses RLS)."""
-    return get_supabase_admin()
 
 
 @corpus_bp.route('/ingest', methods=['POST'])
@@ -30,7 +30,7 @@ def ingest_corpus():
     Response (200):
         {"status": "success", "corpus_source_id": <int>}
     """
-    body          = request.get_json(force=True)
+    body          = request.get_json(force=True, silent=True) or {}
     source_type   = body.get('source_type')
     language_id   = body.get('language_id')
     tags          = body.get('tags', [])
@@ -39,7 +39,7 @@ def ingest_corpus():
     if not source_type or not language_id:
         return bad_request('source_type and language_id are required')
 
-    service = CorpusIngestionService(db=_get_db())
+    service = CorpusIngestionService(db=get_db())
 
     try:
         if source_type == 'url':
@@ -56,10 +56,16 @@ def ingest_corpus():
             corpus_source_id = service.ingest_text(text, title, language_id, tags, analyze_style=analyze_style)
 
         else:
-            return bad_request(f'Unsupported source_type: {source_type}')
+            return bad_request('Unsupported source_type')
 
+    except UnsafeURLError as exc:
+        return bad_request(str(exc))
+    except httpx.HTTPError as exc:
+        logger.warning('Corpus URL fetch failed: %s', exc)
+        return api_error('Failed to fetch the URL', 502)
     except Exception as exc:
-        return api_error(str(exc), 502)
+        logger.error('Corpus ingestion failed: %s', exc, exc_info=True)
+        return api_error('Corpus ingestion failed', 502)
 
     return api_success(data={'corpus_source_id': corpus_source_id})
 
@@ -81,7 +87,7 @@ def analyze_style():
     Response (200):
         {"status": "success", "style_profile_id": <int>}
     """
-    body = request.get_json(force=True)
+    body = request.get_json(force=True, silent=True) or {}
     corpus_source_id = body.get('corpus_source_id')
     language_id = body.get('language_id')
 
@@ -89,7 +95,7 @@ def analyze_style():
         return bad_request('corpus_source_id and language_id are required')
 
     # Load the raw text from the source
-    db = _get_db()
+    db = get_db()
     source = (
         db.table('corpus_sources')
         .select('raw_text')
@@ -108,7 +114,8 @@ def analyze_style():
             language_id=language_id,
         )
     except Exception as exc:
-        return api_error(str(exc), 502)
+        logger.error('Style analysis failed: %s', exc, exc_info=True)
+        return api_error('Style analysis failed', 502)
 
     return api_success(data={'style_profile_id': profile_id})
 
@@ -122,7 +129,7 @@ def get_style_profile(source_id: int):
     Response (200):
         {"profile": {...}}
     """
-    db = _get_db()
+    db = get_db()
     result = (
         db.table('corpus_style_profiles')
         .select('*')

@@ -25,7 +25,6 @@ Usage:
 """
 
 import os
-import sys
 import re
 import gzip
 import urllib.request
@@ -33,17 +32,19 @@ import argparse
 import logging
 from collections import defaultdict
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
 if not SupabaseFactory.is_initialized():
     SupabaseFactory.initialize()
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 LANGUAGE_ID_ZH = 1
@@ -146,28 +147,15 @@ def _load_existing_state(db):
 
     # Pull existing pairs in chunks (range pagination)
     curated, cedict, both = set(), set(), set()
-    offset = 0
-    while True:
-        chunk = (
-            db.table('dim_classifier_noun_pairs')
+    for r in paginate(lambda: db.table('dim_classifier_noun_pairs')
               .select('lemma_text, classifier_id, source')
-              .eq('language_id', LANGUAGE_ID_ZH)
-              .range(offset, offset + 999)
-              .execute()
-        )
-        rows = chunk.data or []
-        if not rows:
-            break
-        for r in rows:
-            key = (r['lemma_text'], r['classifier_id'])
-            both.add(key)
-            if r['source'] == 'curated':
-                curated.add(key)
-            elif r['source'] == 'cedict':
-                cedict.add(key)
-        if len(rows) < 1000:
-            break
-        offset += 1000
+              .eq('language_id', LANGUAGE_ID_ZH), 1000):
+        key = (r['lemma_text'], r['classifier_id'])
+        both.add(key)
+        if r['source'] == 'curated':
+            curated.add(key)
+        elif r['source'] == 'cedict':
+            cedict.add(key)
 
     return classifier_by_hanzi, curated, both, fallback
 

@@ -36,14 +36,15 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
 
-load_dotenv()
 
 logger = logging.getLogger('backfill_embeddings')
 
@@ -186,9 +187,7 @@ def main() -> None:
     for noisy in ('httpx', 'httpcore', 'openai', 'urllib3'):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     languages = [1, 2, 3] if args.all_languages else [args.language]
     total = {'embedded': 0, 'failed': 0, 'api_calls': 0, 'tokens_est': 0}

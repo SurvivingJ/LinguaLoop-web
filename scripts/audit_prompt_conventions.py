@@ -44,16 +44,17 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
-load_dotenv()
+bootstrap(log_level=None)
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
+
 from scripts.audit_prompt_latin import cjk_ratio, leaks  # noqa: E402
 
 LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
@@ -256,8 +257,7 @@ def main() -> int:
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     query = (db.table('prompt_templates')
                .select('task_name, language_id, version, is_active, model, template_text')

@@ -1,7 +1,7 @@
 /**
  * Playwright global auth setup — Phase 2b
  *
- * Performs a real OTP login with jamesccmcb@gmail.com so all E2E specs can
+ * Performs a real OTP login as the E2E_TEST_EMAIL account so all E2E specs can
  * start already authenticated.  Saves the resulting browser state (JWT in
  * localStorage + the HttpOnly refresh cookie) to playwright/.auth/user.json.
  *
@@ -19,7 +19,7 @@ import { test as setup, expect } from '@playwright/test';
 import { existsSync, statSync } from 'node:fs';
 
 const AUTH_FILE = 'playwright/.auth/user.json';
-const EMAIL = 'jamesccmcb@gmail.com';
+const EMAIL = process.env.E2E_TEST_EMAIL;
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 
 // If CI injects a ready-made JWT, skip the OTP dance entirely.
@@ -72,6 +72,9 @@ setup('authenticate', async ({ page }) => {
 
   // Interactive path: headed browser — user types OTP directly.
   // Run with: npm run auth:capture
+  if (!EMAIL)
+    throw new Error('[auth-setup] Set E2E_TEST_EMAIL to the account to log in with for the OTP flow.');
+
   await page.goto(BASE_URL + '/login');
 
   // Step 1 — fill email automatically
@@ -82,7 +85,7 @@ setup('authenticate', async ({ page }) => {
   // Step 2 — pause so the user can type the OTP into the browser window.
   // The Playwright Inspector opens; click Resume once you are logged in.
   console.log(
-    `\n[auth-setup] OTP sent to ${EMAIL}. Type it into the browser, then click Resume in the Playwright Inspector.\n`
+    `\n[auth-setup] OTP sent to the E2E_TEST_EMAIL address. Type it into the browser, then click Resume in the Playwright Inspector.\n`
   );
   await page.pause();
 

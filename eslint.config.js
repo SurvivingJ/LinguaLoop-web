@@ -1,9 +1,9 @@
 import js from '@eslint/js';
 import globals from 'globals';
 
-// Flat config (ESLint 9). Scope: static/js only — the inline <script> blocks in
-// Jinja templates are NOT linted here because they contain `{{ }}`/`{% %}` syntax
-// that is not valid JavaScript. Those are migrated to shared modules in Phase 3.
+// Flat config (ESLint 9). Scope: static/js only. Page scripts live in
+// static/js/pages (one per template) so they are linted too; the few templates
+// that still carry inline <script> blocks are not.
 export default [
   {
     ignores: ['node_modules/**', 'venv/**', 'Portal/**'],
@@ -36,10 +36,45 @@ export default [
     },
   },
   {
+    // Page scripts: classic scripts loaded after utils.js, i18n-manager.js and
+    // pages/base.js, whose top-level declarations they read as globals.
+    files: ['static/js/pages/**/*.js'],
+    languageOptions: {
+      globals: {
+        LinguaI18n: 'readonly',
+        LinguaFonts: 'readonly',
+        showToast: 'readonly',
+        debugLog: 'readonly',
+        escapeHtml: 'readonly',
+        getDifficultyInfo: 'readonly',
+        getDifficultyText: 'readonly',
+      },
+    },
+  },
+  {
     // ES modules (import/export) — everything else in static/js is a classic script.
     files: ['static/js/session/**/*.js'],
     // LinguaI18n is declared by dt-error-card.js / exercise-renderers.js; the session modules read it as a global.
     languageOptions: { sourceType: 'module', globals: { LinguaI18n: 'readonly' } },
+  },
+  {
+    // Page scripts that are ES modules (they mount a session player).
+    files: [
+      'static/js/pages/test.js',
+      'static/js/pages/test-dictation.js',
+      'static/js/pages/test-prestudy.js',
+    ],
+    languageOptions: { sourceType: 'module' },
+  },
+  {
+    // Page scripts that are ES modules: a session player mounted as a page.
+    files: [
+      'static/js/pages/test-pinyin.js',
+      'static/js/pages/test-pitch-accent.js',
+      'static/js/pages/classifier-drill.js',
+      'static/js/pages/counter-drill.js',
+    ],
+    languageOptions: { sourceType: 'module', globals: { escapeHtml: 'off' } },
   },
   {
     // Tooling and tests run under Node / vitest (jsdom), not the browser-script environment.

@@ -7,9 +7,15 @@
 -- because it iterates the `questions` table and string-compares answers. This
 -- dedicated function accepts pre-counted correct/total chars and records the
 -- attempt + updates ELO without touching `questions`.
+--
+-- SECURITY (hardened in place so re-running this file cannot reopen client
+-- access): pinned search_path, a gate that rejects a NULL auth.uid() unless
+-- the caller is the service-role backend, and EXECUTE for service_role only.
+-- This matches the live state set by sec_submission_rpcs_auth_gate.sql and
+-- security_function_grants_group_b.sql. Function logic is otherwise unchanged.
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION process_pinyin_submission(
+CREATE OR REPLACE FUNCTION public.process_pinyin_submission(
   p_user_id UUID,
   p_test_id UUID,
   p_language_id SMALLINT,
@@ -42,8 +48,13 @@ BEGIN
   -- SECURITY VALIDATION
   -- ========================================================================
 
-  IF p_user_id != auth.uid() THEN
-    RAISE EXCEPTION 'Unauthorized: Cannot submit test for another user';
+  -- Caller must be the user themselves, or the service-role backend (which has
+  -- already verified the user's JWT). Written so a NULL auth.uid() REJECTS.
+  -- RETURN (not RAISE) so WHEN OTHERS doesn't flatten it.
+  IF p_user_id IS NULL
+     OR (auth.uid() IS DISTINCT FROM p_user_id
+         AND COALESCE(auth.role(), '') <> 'service_role') THEN
+    RETURN jsonb_build_object('success', false, 'error_code', 'unauthorized');
   END IF;
 
   -- ========================================================================
@@ -292,6 +303,9 @@ EXCEPTION WHEN OTHERS THEN
     'sqlstate', SQLSTATE
   );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, pg_temp;
 
-GRANT EXECUTE ON FUNCTION process_pinyin_submission TO authenticated;
+REVOKE ALL ON FUNCTION public.process_pinyin_submission(uuid, uuid, smallint, smallint, integer, integer, boolean, uuid)
+    FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.process_pinyin_submission(uuid, uuid, smallint, smallint, integer, integer, boolean, uuid) TO service_role;

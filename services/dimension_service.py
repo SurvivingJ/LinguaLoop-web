@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 VALID_LANGUAGE_IDS = Config.VALID_LANGUAGE_IDS
 LANGUAGE_ID_TO_NAME = Config.LANGUAGE_ID_TO_NAME
 LANGUAGE_NAME_TO_ID = {v: k for k, v in LANGUAGE_ID_TO_NAME.items()}
+LANGUAGE_ID_TO_CODE = {k: v['code'] for k, v in Config.LANGUAGES.items()}
+LANGUAGE_ID_TO_DISPLAY = {k: v['display'] for k, v in Config.LANGUAGES.items()}
 
 
 # ============================================================================

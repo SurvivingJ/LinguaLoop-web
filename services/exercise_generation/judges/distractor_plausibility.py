@@ -122,7 +122,11 @@ from services.test_generation.schemas import (
     DistractorPlausibilityVerdict,
     axes_to_verdict,
 )
-from .base import JudgeOutcome, accept_item, safe_accept, log_judge_verdict
+from .base import (
+    JudgeOutcome, JudgeSpec, accept_item, ask_judge, llm_call_kwargs,
+    log_worst_verdict, numbered, safe_accept,
+    log_judge_verdict,  # noqa: F401 — resolved by the runner
+)
 
 logger = logging.getLogger(__name__)
 
@@ -132,11 +136,20 @@ _PIPELINE  = 'test_gen'
 
 _cfg_cache: dict[int, dict] = {}               # language_id → cfg dict
 
-_VERDICT_ORDER = {'reject': 0, 'flag': 1, 'accept': 2}  # lower = worse
 
-# language_id → llm_calls.language_code — see answer_entailment.py for why
-# this is a local constant rather than DimensionService.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+def _ask(spec, prompt, cfg, language_id):
+    return call_llm(
+        prompt, schema=DistractorPlausibilityVerdict,
+        **llm_call_kwargs(spec, cfg, language_id),
+    )
+
+
+_SPEC = JudgeSpec(
+    name='distractor_plausibility', module=__name__,
+    task_name=_TASK_NAME, pt_name=_PT_NAME, ask=_ask, pipeline=_PIPELINE,
+    response_format='json_object', provider='openrouter', expect_dict=False,
+    load_cfg=lambda db, language_id: _load_cfg(db, language_id),
+)
 
 
 def judge_distractor_plausibility(
@@ -176,46 +189,20 @@ def judge_distractor_plausibility(
 
     n = len(distractors)
 
-    try:
-        cfg = _load_cfg(db, language_id)
-    except Exception as exc:
-        logger.warning(
-            "distractor_plausibility: failed to load template for lang=%d, safe-accept: %s",
-            language_id, exc,
-        )
-        return [safe_accept(f'template load error: {exc}') for _ in distractors]
-
-    distractors_numbered = '\n'.join(
-        f'{i + 1}. {d}' for i, d in enumerate(distractors)
+    reply = ask_judge(
+        _SPEC, db, language_id,
+        lambda template: template.format(
+            passage,
+            question_text,
+            answer,
+            numbered(distractors),
+            type_code or '(unspecified)',
+            keywords or '(infer the subject from the passage above)',
+        ),
     )
-    prompt = cfg['template'].format(
-        passage,
-        question_text,
-        answer,
-        distractors_numbered,
-        type_code or '(unspecified)',
-        keywords or '(infer the subject from the passage above)',
-    )
-
-    try:
-        verdict_obj: DistractorPlausibilityVerdict = call_llm(
-            prompt,
-            model=cfg['model'],
-            temperature=0.0,
-            response_format='json_object',
-            schema=DistractorPlausibilityVerdict,
-            provider='openrouter',
-            pipeline=_PIPELINE,
-            task_name=_TASK_NAME,
-            template_version=cfg['version'],
-            language_code=_LANG_ID_TO_CODE.get(language_id),
-        )
-    except Exception as exc:
-        logger.warning(
-            "distractor_plausibility: LLM call failed for lang=%d, safe-accept: %s",
-            language_id, exc,
-        )
-        return [safe_accept(f'llm call error: {exc}') for _ in distractors]
+    if not reply.ok:
+        return [safe_accept(reply.error) for _ in distractors]
+    verdict_obj: DistractorPlausibilityVerdict = reply.result
 
     fits = verdict_obj.fit
     confusabilities = verdict_obj.confusability
@@ -274,14 +261,14 @@ def judge_distractor_plausibility(
             "distractor_plausibility: model returned NO rating on either axis "
             "for %d/%d distractors (lang=%d, model=%s); accepting those "
             "unjudged rather than flagging them",
-            unrated, n, language_id, cfg['model'],
+            unrated, n, language_id, reply.model,
         )
     if fit_only:
         logger.info(
             "distractor_plausibility: %d/%d distractors carry a fit rating but "
             "no confusability rating (lang=%d, template v%s) — expected while a "
             "pre-v7 single-axis prompt row is active",
-            fit_only, n, language_id, cfg['version'],
+            fit_only, n, language_id, reply.version,
         )
 
     outcomes = []
@@ -304,14 +291,7 @@ def judge_distractor_plausibility(
 
     # Log the worst-case verdict for the batch (binding constraint for the
     # question as a whole) so the smoke-test query sees one row per call.
-    worst = min(outcomes, key=lambda o: _VERDICT_ORDER.get(o.verdict, 2))
-    log_judge_verdict(
-        task_name=_TASK_NAME,
-        model=cfg['model'],
-        verdict=worst.verdict,
-        confidence=worst.confidence,
-        pipeline=_PIPELINE,
-    )
+    log_worst_verdict(_SPEC, reply.model, outcomes)
 
     return outcomes
 

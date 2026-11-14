@@ -23,22 +23,23 @@ are reported but SKIPPED on `--apply` unless `--include-tier0` is given.
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from collections import defaultdict
 
 # Run-as-script bootstrap (mirrors scripts/run_dt_grading_eval.py): put the repo
 # root on the path and load .env before importing app services.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from dotenv import load_dotenv  # noqa: E402
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-load_dotenv()
+bootstrap(log_level=None)
+
 
 from services.dimension_service import DimensionService  # noqa: E402
 from services.dual_translation import scoring  # noqa: E402
 from services.dual_translation.grader_cascade import get_active_taxonomy  # noqa: E402
 from services.dual_translation.tier0 import RUBRIC_DIMENSIONS  # noqa: E402
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 DERIVED = scoring.DERIVED_DIMENSIONS  # accuracy, fidelity, understandability
 
@@ -121,8 +122,7 @@ def main() -> int:
 
     writing = args.apply and not args.dry_run
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     if db is None:
         print("[error] no service-role Supabase client (SUPABASE_SERVICE_ROLE_KEY missing).", file=sys.stderr)
         return 2

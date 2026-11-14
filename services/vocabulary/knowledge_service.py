@@ -13,10 +13,23 @@ SQL functions called:
 """
 
 import logging
+import os
+
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary.lexicon import mask_headword
 
 logger = logging.getLogger(__name__)
+
+
+def _batch_distractors_enabled() -> bool:
+    """QUIZ_DISTRACTORS_BATCH=1 once migrations/get_quiz_distractors_batch.sql is applied."""
+    return os.environ.get('QUIZ_DISTRACTORS_BATCH', '').strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def _just_became_known(r: dict) -> bool:
+    p_after = float(r.get('out_p_known_after') or r.get('p_known_after', 0))
+    p_before = float(r.get('out_p_known_before') or r.get('p_known_before', 0))
+    return p_after >= 0.90 and p_before < 0.90
 
 
 class VocabularyKnowledgeService:
@@ -26,7 +39,8 @@ class VocabularyKnowledgeService:
         self.db = db or get_supabase_admin()
 
     def update_from_comprehension(
-        self, user_id: str, language_id: int, question_results: list[dict]
+        self, user_id: str, language_id: int, question_results: list[dict],
+        side_effects: bool = True,
     ) -> list[dict]:
         """
         Update BKT after a comprehension test submission.
@@ -35,6 +49,9 @@ class VocabularyKnowledgeService:
             user_id: UUID string
             language_id: e.g. 1 for Chinese
             question_results: [{"question_id": uuid_str, "is_correct": bool}, ...]
+
+            side_effects: when False only the BKT write happens and the
+                caller runs apply_side_effects (or its three steps) itself.
 
         Returns:
             List of {sense_id, p_known_before, p_known_after, status}
@@ -52,20 +69,34 @@ class VocabularyKnowledgeService:
                 f"{len(question_results)} questions → {len(results)} senses updated"
             )
 
-            # Auto-create flashcards for words entering the learning zone
-            self._auto_create_flashcards(user_id, language_id, results)
-
-            # Seed the Acquisition ladder for words newly met in this test
-            self._seed_ladder_for_new_words(user_id, language_id, results)
-
-            # Frequency inference: boost common words when rare words are mastered
-            self._trigger_frequency_inference(user_id, language_id, results)
+            if side_effects:
+                self.apply_side_effects(user_id, language_id, results)
 
             return results
 
         except Exception as e:
             logger.error(f"BKT comprehension update failed: {e}")
             return []
+
+    def apply_side_effects(self, user_id: str, language_id: int, bkt_results: list[dict]):
+        """Downstream of a BKT update, in order: flashcards for words entering
+        the learning zone, ladder rows for newly met words, then frequency
+        inference. The ladder step reads p_known, which frequency inference
+        can raise, so the order matters whenever crosses_known_threshold()."""
+        self.create_flashcards(user_id, language_id, bkt_results)
+        self.seed_ladder(user_id, language_id, bkt_results)
+        self._trigger_frequency_inference(user_id, language_id, bkt_results)
+
+    def create_flashcards(self, user_id: str, language_id: int, bkt_results: list[dict]):
+        self._auto_create_flashcards(user_id, language_id, bkt_results)
+
+    def seed_ladder(self, user_id: str, language_id: int, bkt_results: list[dict]):
+        self._seed_ladder_for_new_words(user_id, language_id, bkt_results)
+
+    @staticmethod
+    def crosses_known_threshold(bkt_results: list[dict]) -> bool:
+        """True when frequency inference will fire for any of these results."""
+        return any(_just_became_known(r) for r in bkt_results)
 
     def update_from_word_test(
         self, user_id: str, sense_id: int, is_correct: bool, language_id: int,
@@ -162,9 +193,7 @@ class VocabularyKnowledgeService:
             # Fire downstream services ONCE over the batch result, not N
             # times. Both already operate set-based internally.
             if side_effects:
-                self._auto_create_flashcards(user_id, language_id, rows)
-                self._seed_ladder_for_new_words(user_id, language_id, rows)
-                self._trigger_frequency_inference(user_id, language_id, rows)
+                self.apply_side_effects(user_id, language_id, rows)
 
             return rows
 
@@ -240,6 +269,42 @@ class VocabularyKnowledgeService:
             logger.error(f"Distractor generation failed: {e}")
             return []
 
+    def _distractors_for(
+        self, requests: list[tuple[int, int | None]], language_id: int, count: int = 3,
+    ) -> list[list[dict]]:
+        """get_distractors for each ``(sense_id, definition_language_id)``, in
+        request order.
+
+        Default: one get_distractors call per request, run concurrently (call
+        this from the request thread, not from inside a pooled task). With
+        ``QUIZ_DISTRACTORS_BATCH`` set, one ``get_quiz_distractors_batch`` call
+        (migrations/get_quiz_distractors_batch.sql); any failure of that call
+        falls back to the per-word path.
+        """
+        if not requests:
+            return []
+        if _batch_distractors_enabled():
+            try:
+                response = self.db.rpc('get_quiz_distractors_batch', {
+                    'p_sense_ids': [sid for sid, _ in requests],
+                    'p_language_id': language_id,
+                    'p_count': count,
+                    'p_definition_language_ids': [lang for _, lang in requests],
+                }).execute()
+                by_position: dict[int, list[dict]] = {}
+                for row in (response.data or []):
+                    by_position.setdefault(row['out_position'], []).append(
+                        {'definition': row['out_definition'], 'lemma': row.get('out_lemma')})
+                return [by_position.get(i, []) for i in range(1, len(requests) + 1)]
+            except Exception as e:
+                logger.warning(f"get_quiz_distractors_batch failed, using per-word calls: {e}")
+        from services.concurrency import run_parallel
+        return run_parallel(*[
+            (lambda sid=sid, lang=lang: self.get_distractors(
+                sid, language_id, count=count, definition_language_id=lang))
+            for sid, lang in requests
+        ])
+
     def build_quiz_with_distractors(
         self, user_id: str, sense_ids: list[int], language_id: int, max_words: int = 5,
         preferred_definition_language_id: int | None = None,
@@ -300,27 +365,38 @@ class VocabularyKnowledgeService:
                 if gr['definition_is_gloss']:
                     correct_defs[sid] = gr['definition']
 
-        quiz_items = []
+        # Wrong options for every candidate at once (one round trip per
+        # candidate, run together; or one batched RPC behind the flag).
+        plans = []
         for c in candidates:
             sid = c.get('out_sense_id') or c.get('sense_id')
             native_def = c.get('out_definition') or c.get('definition', '')
-            correct_def = correct_defs.get(sid, native_def)
             is_gloss = sid in correct_defs
-            distractors = self.get_distractors(
-                sid, language_id,
-                definition_language_id=(preferred_definition_language_id if is_gloss else None),
-            )
+            plans.append({
+                'candidate': c, 'sid': sid, 'native_def': native_def,
+                'correct_def': correct_defs.get(sid, native_def), 'is_gloss': is_gloss,
+            })
+        fetched = self._distractors_for(
+            [(p['sid'], preferred_definition_language_id if p['is_gloss'] else None) for p in plans],
+            language_id,
+        )
+        for p, distractors in zip(plans, fetched):
+            p['distractors'] = distractors
+        # If gloss distractors came up short (few other glossed words yet),
+        # fall back to a same-language native quiz for this word rather than
+        # showing a half-empty question.
+        short = [p for p in plans if len(p['distractors']) < 2 and p['is_gloss']]
+        if short:
+            refetched = self._distractors_for([(p['sid'], None) for p in short], language_id)
+            for p, distractors in zip(short, refetched):
+                p.update(correct_def=p['native_def'], is_gloss=False, distractors=distractors)
 
+        quiz_items = []
+        for p in plans:
+            c, sid = p['candidate'], p['sid']
+            correct_def, is_gloss, distractors = p['correct_def'], p['is_gloss'], p['distractors']
             if len(distractors) < 2:
-                # If gloss distractors came up short (few other glossed
-                # words yet), fall back to a same-language native quiz for
-                # this word rather than showing a half-empty question.
-                if is_gloss:
-                    correct_def = native_def
-                    is_gloss = False
-                    distractors = self.get_distractors(sid, language_id)
-                if len(distractors) < 2:
-                    continue  # Still not enough distractors — skip this word
+                continue  # Still not enough distractors — skip this word
 
             # Hide each option's own headword ("宗教改革是…" -> "～是…"): many
             # same-language definitions start with or contain the word, which
@@ -415,6 +491,7 @@ class VocabularyKnowledgeService:
     def apply_contextual_inference(
         self, user_id: str, language_id: int,
         test_id: str, question_results: list[dict], score_ratio: float,
+        question_rows: list[dict] | None = None,
     ) -> int:
         """Apply dampened BKT update to contextual words not directly tested.
 
@@ -422,6 +499,9 @@ class VocabularyKnowledgeService:
         the questions' sense_ids (directly tested vocabulary), computes the
         difference, and applies a dampened positive BKT update to the
         contextual senses.
+
+        ``question_rows``: the test's questions rows (with ``sense_ids``) when
+        the caller has them; otherwise they are read here.
 
         Returns count of senses updated.
         """
@@ -441,15 +521,17 @@ class VocabularyKnowledgeService:
             if not all_transcript_senses:
                 return 0
 
-            # Get directly tested sense_ids from questions
-            questions_resp = (
-                self.db.table('questions')
-                .select('sense_ids')
-                .eq('test_id', str(test_id))
-                .execute()
-            )
+            # Get directly tested sense_ids from questions (the caller's rows
+            # when it already read them)
+            if question_rows is None:
+                question_rows = (
+                    self.db.table('questions')
+                    .select('sense_ids')
+                    .eq('test_id', str(test_id))
+                    .execute()
+                ).data
             direct_senses = set()
-            for q in (questions_resp.data or []):
+            for q in (question_rows or []):
                 if q.get('sense_ids'):
                     direct_senses.update(q['sense_ids'])
 
@@ -600,14 +682,11 @@ class VocabularyKnowledgeService:
         if not new_sense_ids:
             return
 
-        ladder_service = LadderService(self.db)
-        seeded = 0
-        for sid in new_sense_ids:
-            try:
-                ladder_service.init_ladder(user_id, sid, language_id)
-                seeded += 1
-            except Exception as e:
-                logger.error(f"Failed to init ladder for sense {sid}: {e}")
+        try:
+            seeded = len(LadderService(self.db).init_ladders(user_id, new_sense_ids, language_id))
+        except Exception as e:
+            logger.error(f"Failed to init ladder for senses {new_sense_ids}: {e}")
+            return
 
         if seeded:
             logger.info(f"Seeded {seeded} new ladder word(s) for user {user_id}")
@@ -624,11 +703,8 @@ class VocabularyKnowledgeService:
             p_after = float(
                 r.get('out_p_known_after') or r.get('p_known_after', 0)
             )
-            p_before = float(
-                r.get('out_p_known_before') or r.get('p_known_before', 0)
-            )
             # Only fire when the word just crossed the threshold
-            if p_after >= 0.90 and p_before < 0.90:
+            if _just_became_known(r):
                 sense_id = r.get('out_sense_id') or r.get('sense_id')
                 if sense_id is None:
                     continue

@@ -7,28 +7,21 @@ Usage:
 
 import argparse
 import csv
-import os
-import sys
 from collections import defaultdict
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap, paginate
 
-from dotenv import load_dotenv  # noqa: E402
+bootstrap(log_level=None)
 
-load_dotenv()
 
 from services.question_audit import audit_test  # noqa: E402
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 
 def _fetch_all(query_fn, page=1000):
-    rows, start = [], 0
-    while True:
-        chunk = query_fn().range(start, start + page - 1).execute().data or []
-        rows += chunk
-        if len(chunk) < page:
-            return rows
-        start += page
+    return list(paginate(query_fn, page))
 
 
 def main() -> None:
@@ -37,8 +30,7 @@ def main() -> None:
     ap.add_argument('--csv', help='write one row per flagged test')
     args = ap.parse_args()
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     def tests_q():
         q = db.table('tests').select('id, slug, language_id, transcript').eq('is_active', True)

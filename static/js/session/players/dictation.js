@@ -1,22 +1,39 @@
 // static/js/session/players/dictation.js
-// Dictation player for the daily-session runner. Ported from
-// templates/test_dictation.html. Renders into a provided container, scopes DOM
-// lookups to it, and calls ctx.onComplete(result) on finish instead of linking
-// back to /tests.
+// Dictation player. Used by the daily-session runner and by the standalone
+// dictation page (static/js/pages/test-dictation.js). Renders into a provided
+// container, scopes DOM lookups to it, and calls ctx.onComplete(result) on
+// finish.
+//
+// Page-level options on ctx (all optional; the session runner passes none):
+//   ready          promise awaited before the test is requested
+//   audioPreload   preload value for the <audio>
+//   backHref       adds a "Back" link to the footer and the error state
+//   resultActions  (actionsEl, response, { slug, testData }) => void: fills the
+//                  results card's actions instead of "Next" -> ctx.onComplete
 
 const SPEED_OPTIONS = [1.0, 0.75, 0.5];
 
-const t = (key, fallback) => {
-  if (window.LinguaI18n && typeof LinguaI18n.t === 'function') {
-    const v = LinguaI18n.t(key);
-    if (v && v !== key) return v;
-  }
-  return fallback;
-};
+import {
+  T,
+  nativeName,
+  escapeHtml,
+  formatTime,
+  showLoading as setLoading,
+  showError as setError,
+} from '../dom.js';
+import { prefetchJson, takePrefetch, warmAudio, adoptAudio } from '../prefetch.js';
 
-const nativeName = (code) =>
-  (window.LinguaMetadata && LinguaMetadata.getNativeName && LinguaMetadata.getNativeName(code)) ||
-  (code ? String(code).toUpperCase() : '');
+const t = (key, fallback) => T(key, null, fallback);
+
+const testUrl = (slug) => `/api/tests/test/${slug}?mode=dictation`;
+
+/** Session prefetch hook: the test payload and its audio (static content). */
+export async function prefetch(item) {
+  if (!item || !item.slug) return { ok: false };
+  const res = await prefetchJson(testUrl(item.slug));
+  if (res.ok && res.data.test_data) res.audio = warmAudio(res.data.test_data.audio_url);
+  return res;
+}
 
 export function mount(container, ctx) {
   const state = {
@@ -43,6 +60,7 @@ export function mount(container, ctx) {
   container.innerHTML = MARKUP;
   let refreshSubmit = () => {};
   setupSkip();
+  setupBack();
   init();
 
   return {
@@ -65,6 +83,7 @@ export function mount(container, ctx) {
     try {
       showLoading(true);
       if (!state.slug) throw new Error('No test slug');
+      await ctx.ready;
       state.idempotencyKey =
         window.crypto && crypto.randomUUID
           ? crypto.randomUUID()
@@ -86,9 +105,15 @@ export function mount(container, ctx) {
   }
 
   async function loadTestData() {
-    const resp = await window.authFetch(`/api/tests/test/${state.slug}?mode=dictation`);
-    if (!resp.ok) throw new Error(`Failed to load test (HTTP ${resp.status})`);
-    const data = await resp.json();
+    const pre = await takePrefetch(ctx.item);
+    let data = pre && pre.data;
+    if (pre) {
+      state.warmAudio = pre.audio || null;
+    } else {
+      const resp = await window.authFetch(testUrl(state.slug));
+      if (!resp.ok) throw new Error(`Failed to load test (HTTP ${resp.status})`);
+      data = await resp.json();
+    }
     state.testData = data.test_data;
     state.audioUrl = state.testData && state.testData.audio_url;
     if (!state.audioUrl) throw new Error(t('dictation.error.no_audio', 'This test has no audio.'));
@@ -102,8 +127,8 @@ export function mount(container, ctx) {
   }
 
   function setupAudio() {
-    const audio = q('audioElement');
-    audio.src = state.audioUrl;
+    if (ctx.audioPreload) q('audioElement').preload = ctx.audioPreload;
+    const audio = adoptAudio(q('audioElement'), state.warmAudio, state.audioUrl);
     audio.playbackRate = state.playbackRate;
 
     const playBtn = q('playBtn');
@@ -240,9 +265,7 @@ export function mount(container, ctx) {
       label = t('dictation.grade.fair', 'Good Effort');
     }
 
-    const mins = Math.floor(timeSec / 60);
-    const secs = timeSec % 60;
-    const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+    const timeStr = formatTime(timeSec);
 
     const eloChange = (result.user_elo_change && result.user_elo_change.change) || 0;
     const eloSign = eloChange >= 0 ? '+' : '';
@@ -286,8 +309,14 @@ export function mount(container, ctx) {
     const overlay = q('resultsOverlay');
     overlay.innerHTML = html;
     overlay.style.display = 'block';
-    const nextBtn = overlay.querySelector('[data-session-next]');
-    if (nextBtn) nextBtn.onclick = () => ctx.onComplete(raw || result);
+    if (typeof ctx.resultActions === 'function') {
+      const actions = overlay.querySelector('.dict-results-actions');
+      actions.innerHTML = '';
+      ctx.resultActions(actions, raw || result, { slug: state.slug, testData: state.testData });
+    } else {
+      const nextBtn = overlay.querySelector('[data-session-next]');
+      if (nextBtn) nextBtn.onclick = () => ctx.onComplete(raw || result);
+    }
     window.scrollTo(0, 0);
   }
 
@@ -316,18 +345,8 @@ export function mount(container, ctx) {
     return parts.join(' ');
   }
 
-  function escapeHtml(s) {
-    if (s == null) return '';
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   function showLoading(show) {
-    const el = q('loadingOverlay');
-    if (el) el.style.display = show ? 'flex' : 'none';
+    setLoading(container, show);
   }
 
   function showAudioError() {
@@ -359,16 +378,21 @@ export function mount(container, ctx) {
     }
   }
 
+  function setupBack() {
+    if (!ctx.backHref) return;
+    const link = (cls, gap) => {
+      const a = document.createElement('a');
+      a.href = ctx.backHref;
+      a.className = cls;
+      a.innerHTML = `<i class="fas fa-arrow-left ${gap}"></i><span data-i18n="test.back_to_tests">Back</span>`;
+      return a;
+    };
+    q('errorState').querySelector('.alert').appendChild(link('btn btn-danger', 'me-2'));
+    container.querySelector('.dict-actions-row').prepend(link('btn btn-outline-secondary', 'me-1'));
+  }
+
   function showError(msg) {
-    const err = q('errorState');
-    if (err) {
-      err.style.display = 'block';
-      q('errorMessage').textContent = msg;
-    }
-    ['dictationHeader', 'mainUi', 'dictActions'].forEach((id) => {
-      const el = q(id);
-      if (el) el.style.display = 'none';
-    });
+    setError(container, msg, ['dictationHeader', 'mainUi', 'dictActions']);
   }
 }
 
@@ -461,7 +485,7 @@ const MARKUP = `
             <button id="audioRetry" class="btn btn-sm btn-outline-secondary" type="button" data-i18n="dictation.retry">Retry</button>
             <button class="btn btn-sm btn-link" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button>
         </div>
-        <audio id="audioElement" preload="metadata"></audio>
+        <audio id="audioElement" preload="auto"></audio>
     </div>
     <div class="dict-input-card">
         <h2 class="mb-2 h6"><i class="bi bi-pencil-square text-primary me-2"></i><span data-i18n="test.type_what_you_hear">Type what you hear</span></h2>

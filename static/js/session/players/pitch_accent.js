@@ -1,9 +1,15 @@
 // static/js/session/players/pitch_accent.js
-// Japanese pitch-accent trainer player for the daily-session runner. Ported
-// from templates/test_pitch_accent.html (whose styles live in the global
-// static/css/styles.css, so no inline CSS is needed here). Container-scoped,
-// leak-free teardown (document keydown + timer tracked), error-modal buttons
-// wired via listeners (no window globals), and ctx.onComplete() on finish.
+// Japanese pitch-accent trainer: an item of the daily session, and the whole
+// of the standalone page /test/<slug>/pitch-accent
+// (static/js/pages/test-pitch-accent.js mounts it with ctx.standalone). Its
+// styles live in the global static/css/styles.css. Container-scoped, leak-free
+// teardown (document keydown + timer tracked), error-modal buttons wired via
+// listeners. In the session it finishes through ctx.onComplete().
+
+import { T, escapeHtml } from '../dom.js';
+import { createTrainer, prefetchTest } from './_syllable_trainer.js';
+
+export const prefetch = prefetchTest;
 
 const CLASS_INFO = {
   heiban: { key: 'pitch.class.heiban', arrow: '←', desc: 'pitch.class.heiban_desc' },
@@ -19,35 +25,8 @@ const KEY_TO_CLASS = {
   ArrowDown: 'odaka',
 };
 
-function t(key, fallback) {
-  try {
-    return window.LinguaI18n && LinguaI18n.t
-      ? LinguaI18n.t(key) || fallback || key
-      : fallback || key;
-  } catch (e) {
-    return fallback || key;
-  }
-}
-
-function escapeHtml(str) {
-  if (str == null) return '';
-  if (window.LinguaUtils && LinguaUtils.escapeHtml) return LinguaUtils.escapeHtml(String(str));
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function escapeHtmlFuri(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+const t = (key, fallback) => T(key, null, fallback);
+const escapeHtmlFuri = escapeHtml;
 
 function renderFuriganaToken(tok) {
   if (!tok || tok.kind !== 'ruby') return null;
@@ -63,20 +42,13 @@ function renderFuriganaToken(tok) {
 }
 
 export function mount(container, ctx) {
-  const state = {
-    slug: ctx.item.slug,
-    testData: null,
-    allTokens: [],
-    playableTokens: [],
-    playableIndices: [],
-    currentIndex: 0,
-    correctCount: 0,
-    errorCount: 0,
-    errors: [],
-    startTime: null,
-    timerInterval: null,
-    isComplete: false,
-    isPaused: false,
+  const trainer = createTrainer(container, ctx, {
+    tokenClass: 'word-token',
+    errorHideIds: ['paHeader', 'passageContainer', 'controlsHint', 'touchArea'],
+  });
+  const { state, on, q, qsa, showLoading, showError, startTimer, updateProgress, flashError } =
+    trainer;
+  Object.assign(state, {
     mode: 'quick',
     contourInput: [],
     contourCursor: 0,
@@ -84,43 +56,26 @@ export function mount(container, ctx) {
     furiganaBySurface: {},
     furiganaEnabled: false,
     furiganaUsedThisAttempt: false,
-  };
-
-  const cleanup = [];
-  const on = (el, ev, fn, opts) => {
-    el.addEventListener(ev, fn, opts);
-    cleanup.push(() => el.removeEventListener(ev, fn, opts));
-  };
-  const q = (id) => container.querySelector('#' + id);
-  const qs = (sel) => container.querySelector(sel);
-  const qsa = (sel) => container.querySelectorAll(sel);
+  });
 
   // static/css/styles.css scopes every pitch-accent rule (.pa-header,
   // .passage-grid, .word-token, .controls-hint, .scratchpad, ...) under
   // body.pitch-accent-page — the class templates/test_pitch_accent.html sets
   // via its body_class block. The daily-session runner's body carries
   // study-session-page instead, so without this the whole player mounts
-  // completely unstyled (no layout, no colors, no progress bar). Standalone
-  // page sets the class for its own lifetime; here we set/clear it around
-  // this player's mount/destroy so it never leaks onto other players sharing
-  // the same session body.
+  // completely unstyled (no layout, no colors, no progress bar). The class is
+  // set and cleared around this player's mount/destroy so it never leaks onto
+  // other players sharing the session body.
   document.body.classList.add('pitch-accent-page');
 
-  container.innerHTML = MARKUP;
+  container.innerHTML = trainer.standalone ? MARKUP : trainer.compact(MARKUP);
+  trainer.addBackLink();
   init();
 
   return {
     destroy() {
-      if (state.timerInterval) {
-        clearInterval(state.timerInterval);
-        state.timerInterval = null;
-      }
       document.body.classList.remove('pitch-accent-page');
-      cleanup.forEach((fn) => {
-        try {
-          fn();
-        } catch (_) {}
-      });
+      trainer.destroy();
     },
   };
 
@@ -137,6 +92,7 @@ export function mount(container, ctx) {
     try {
       showLoading(true);
       if (!state.slug) throw new Error('No test slug');
+      if (trainer.standalone) await trainer.prepare();
       try {
         const savedMode = localStorage.getItem('pa_mode');
         if (savedMode === 'quick' || savedMode === 'contour') state.mode = savedMode;
@@ -168,22 +124,17 @@ export function mount(container, ctx) {
   }
 
   async function loadTestData() {
-    const resp = await window.authFetch(`/api/tests/test/${state.slug}`);
-    if (!resp.ok) throw new Error(t('pitch.error.load_failed', 'Failed to load test'));
-    const data = await resp.json();
+    const data = await trainer.fetchTest(() => t('pitch.error.load_failed', 'Failed to load test'));
     state.testData = data.test_data;
     if (!data.pitch_payload || data.pitch_payload.length === 0) {
       throw new Error(
         t('pitch.error.no_data', 'No pitch accent data is available for this test yet.')
       );
     }
-    state.allTokens = data.pitch_payload;
-    state.allTokens.forEach((tok, i) => {
-      if (!tok.is_punctuation && tok.mora_count > 0 && tok.pattern_class !== 'unknown') {
-        state.playableIndices.push(i);
-        state.playableTokens.push(tok);
-      }
-    });
+    trainer.setTokens(
+      data.pitch_payload,
+      (tok) => !tok.is_punctuation && tok.mora_count > 0 && tok.pattern_class !== 'unknown'
+    );
     state.furiganaPayload = data.furigana_payload || null;
     if (state.furiganaPayload && Array.isArray(state.furiganaPayload.transcript)) {
       for (const tok of state.furiganaPayload.transcript) {
@@ -209,9 +160,13 @@ export function mount(container, ctx) {
       el.className = 'word-token';
       el.dataset.index = idx;
       const surfaceHtml = renderSurfaceHtml(token.surface);
-      if (token.is_punctuation || token.pattern_class === 'unknown') {
+      if (token.is_punctuation) {
         el.classList.add('punctuation');
         el.innerHTML = `<span class="word-surface">${surfaceHtml}</span>`;
+      } else if (token.pattern_class === 'unknown') {
+        el.classList.add('punctuation');
+        const title = trainer.standalone ? ' title="No accent data"' : '';
+        el.innerHTML = `<span class="word-surface"${title}>${surfaceHtml}</span>`;
       } else {
         el.classList.add('upcoming');
         el.innerHTML = `<span class="word-surface">${surfaceHtml}</span><span class="word-kana-mini">&nbsp;</span><span class="contour-mini"></span>`;
@@ -222,15 +177,7 @@ export function mount(container, ctx) {
 
   function highlightCurrent() {
     if (state.isComplete) return;
-    const prev = qs('.word-token.current');
-    if (prev) prev.classList.remove('current');
-    const allIdx = state.playableIndices[state.currentIndex];
-    const el = qs(`.word-token[data-index="${allIdx}"]`);
-    if (el) {
-      el.classList.remove('upcoming');
-      el.classList.add('current');
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    trainer.markCurrent();
     if (state.mode === 'contour') {
       resetContourInput();
       renderScratchpad();
@@ -241,8 +188,7 @@ export function mount(container, ctx) {
   }
 
   function markCompleted(playableIdx, token) {
-    const allIdx = state.playableIndices[playableIdx];
-    const el = qs(`.word-token[data-index="${allIdx}"]`);
+    const el = trainer.tokenEl(playableIdx);
     if (!el) return;
     el.classList.remove('current', 'upcoming');
     el.classList.add('completed', `cls-${token.pattern_class}`);
@@ -250,23 +196,7 @@ export function mount(container, ctx) {
     if (kanaEl) kanaEl.textContent = token.kana || '';
     const contourEl = el.querySelector('.contour-mini');
     if (contourEl) contourEl.innerHTML = miniContourSvg(token);
-    el.classList.add('correct-flash');
-    setTimeout(() => el.classList.remove('correct-flash'), 200);
-  }
-
-  function flashError(playableIdx) {
-    const allIdx = state.playableIndices[playableIdx];
-    const el = qs(`.word-token[data-index="${allIdx}"]`);
-    if (el) {
-      el.classList.add('error-flash');
-      setTimeout(() => el.classList.remove('error-flash'), 300);
-    }
-  }
-
-  function updateProgress() {
-    const total = state.playableTokens.length;
-    const pct = total > 0 ? (state.currentIndex / total) * 100 : 0;
-    q('progressFill').style.width = pct + '%';
+    trainer.flashCorrect(el);
   }
 
   function derivedParticlePitch(token) {
@@ -507,7 +437,6 @@ export function mount(container, ctx) {
   }
 
   function showErrorModal(token, info) {
-    state.isPaused = true;
     const wordCount = token.contour ? token.contour.length : 0;
     const particlePitch = token.trailing_particle_pitch || derivedParticlePitch(token);
     const showParticleSlot = !!particlePitch;
@@ -614,20 +543,16 @@ export function mount(container, ctx) {
                 </div>
                 <button class="error-continue-btn" type="button" data-pa-dismiss>${t('pitch.continue', 'Continue')} <span style="font-size: 0.8em; opacity: 0.7;">(Enter)</span></button>
             </div>`;
-    const cont = q('errorModalContainer');
-    cont.innerHTML = html;
-    cont
-      .querySelectorAll('[data-pa-dismiss]')
-      .forEach((el) => el.addEventListener('click', dismissErrorModal));
+    trainer.showErrorModal(html, 'data-pa-dismiss', () => {
+      if (state.mode === 'contour') {
+        resetContourInput();
+        renderScratchpad();
+      }
+    });
   }
 
   function dismissErrorModal() {
-    q('errorModalContainer').innerHTML = '';
-    state.isPaused = false;
-    if (state.mode === 'contour') {
-      resetContourInput();
-      renderScratchpad();
-    }
+    trainer.dismissErrorModal();
   }
 
   function setupInputHandlers() {
@@ -682,44 +607,8 @@ export function mount(container, ctx) {
     // class each arrow key already selects. Unlike pinyin's tones there's
     // no 5th "neutral" class, so a short in-place tap is just ignored
     // rather than guessing an answer.
-    const touchArea = q('touchArea');
-    let touchStartX, touchStartY, touchStartTime;
-    on(
-      touchArea,
-      'touchstart',
-      (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        touchStartTime = Date.now();
-      },
-      { passive: true }
-    );
-    on(
-      touchArea,
-      'touchend',
-      (e) => {
-        if (touchStartX === undefined) return;
-        const dx = e.changedTouches[0].clientX - touchStartX;
-        const dy = e.changedTouches[0].clientY - touchStartY;
-        const absDx = Math.abs(dx);
-        const absDy = Math.abs(dy);
-        const elapsed = Date.now() - touchStartTime;
-        const threshold = 30;
-        touchStartX = touchStartY = undefined;
-        if (absDx < threshold && absDy < threshold && elapsed < 300) return;
-        if (absDx > absDy) handleClassInput(dx > 0 ? 'nakadaka' : 'heiban');
-        else handleClassInput(dy < 0 ? 'atamadaka' : 'odaka');
-      },
-      { passive: true }
-    );
-    on(
-      touchArea,
-      'touchmove',
-      (e) => {
-        e.preventDefault();
-      },
-      { passive: false }
-    );
+    const SWIPE_CLASS = { right: 'nakadaka', left: 'heiban', up: 'atamadaka', down: 'odaka' };
+    trainer.bindSwipe(q('touchArea'), (direction) => handleClassInput(SWIPE_CLASS[direction]));
   }
 
   function updateTouchAreaVisibility() {
@@ -808,119 +697,37 @@ export function mount(container, ctx) {
 
   function completeGame() {
     state.isComplete = true;
-    clearInterval(state.timerInterval);
     q('controlsHint').style.display = 'none';
     updateTouchAreaVisibility();
     clearScratchpad();
-    const total = state.playableTokens.length;
-    const accuracy = total > 0 ? (Math.max(0, total - state.errorCount) / total) * 100 : 0;
-    const timeSec = Math.floor((Date.now() - state.startTime) / 1000);
-    submitResults(timeSec);
-    showResults(accuracy, timeSec);
-  }
-
-  async function submitResults(timeSec) {
-    try {
-      const startedAtIso = state.startTime ? new Date(state.startTime).toISOString() : null;
-      const finishedAtIso = new Date().toISOString();
-      const resp = await window.authFetch(`/api/tests/${state.slug}/submit-pitch-accent`, {
-        method: 'POST',
-        body: JSON.stringify({
-          correct_units: Math.max(0, state.playableTokens.length - state.errorCount),
-          total_units: state.playableTokens.length,
-          time_taken: timeSec,
-          errors: state.errors.slice(0, 50),
-          furigana_used: state.furiganaUsedThisAttempt,
-          started_at: startedAtIso,
-          finished_at: finishedAtIso,
-        }),
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.result) updateResultsWithElo(data.result);
-      }
-    } catch (err) {
-      console.error('Pitch accent submit error:', err);
-    }
-  }
-
-  function showResults(accuracy, timeSec) {
-    let grade = 'poor',
-      label = t('pitch.grade.poor', 'Keep practicing');
-    if (accuracy >= 95) {
-      grade = 'excellent';
-      label = t('pitch.grade.excellent', 'Excellent!');
-    } else if (accuracy >= 80) {
-      grade = 'good';
-      label = t('pitch.grade.good', 'Good');
-    } else if (accuracy >= 60) {
-      grade = 'fair';
-      label = t('pitch.grade.fair', 'Fair');
-    }
-
-    const minutes = Math.floor(timeSec / 60);
-    const seconds = timeSec % 60;
-    const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-    const html = `
-            <div class="results-overlay">
-                <div class="results-card">
-                    <h2 class="h3">${escapeHtml(label)}</h2>
-                    <div class="results-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">${t('pitch.accuracy_label', 'Accent accuracy')}</p>
-                    <div class="results-stats">
-                        <div class="stat-box"><div class="stat-value">${state.correctCount}/${state.playableTokens.length}</div><div class="stat-label">${t('pitch.stat.words', 'Words')}</div></div>
-                        <div class="stat-box"><div class="stat-value">${timeStr}</div><div class="stat-label">${t('pitch.stat.time', 'Time')}</div></div>
-                        <div class="stat-box"><div class="stat-value">${state.errorCount}</div><div class="stat-label">${t('pitch.stat.mistakes', 'Mistakes')}</div></div>
-                        <div class="stat-box"><div class="stat-value" id="eloChangeDisplay">--</div><div class="stat-label">${t('pitch.stat.elo_change', 'ELO change')}</div></div>
-                    </div>
-                    <div class="d-flex gap-2 mt-3">
-                        <button class="btn btn-primary flex-fill" type="button" data-session-next>
-                            <span>${t('session.next_item', 'Next')}</span><i class="bi bi-arrow-right ms-1"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-    q('resultsContainer').innerHTML = html;
-    const nextBtn = q('resultsContainer').querySelector('[data-session-next]');
-    if (nextBtn) nextBtn.onclick = () => ctx.onComplete({ accuracy });
-  }
-
-  function updateResultsWithElo(result) {
-    const eloEl = q('eloChangeDisplay');
-    if (eloEl && result.user_elo_change) {
-      const change = result.user_elo_change.change || 0;
-      const sign = change >= 0 ? '+' : '';
-      eloEl.textContent = sign + change;
-      eloEl.className = 'stat-value ' + (change >= 0 ? 'text-success' : 'text-danger');
-    }
-  }
-
-  function startTimer() {
-    state.startTime = Date.now();
-    const el = q('elapsedTime');
-    state.timerInterval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-      const m = Math.floor(elapsed / 60),
-        s = elapsed % 60;
-      if (el) el.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }, 1000);
-  }
-
-  function showLoading(show) {
-    const el = q('loadingOverlay');
-    if (el) el.style.display = show ? 'flex' : 'none';
-  }
-
-  function showError(msg) {
-    const err = q('errorState');
-    if (err) {
-      err.style.display = 'block';
-      q('errorMessage').textContent = msg;
-    }
-    ['paHeader', 'passageContainer', 'controlsHint', 'touchArea'].forEach((id) => {
-      const el = q(id);
-      if (el) el.style.display = 'none';
+    const gradeLabels = {
+      excellent: t('pitch.grade.excellent', 'Excellent!'),
+      good: t('pitch.grade.good', 'Good'),
+      fair: t('pitch.grade.fair', 'Fair'),
+      poor: t('pitch.grade.poor', 'Keep practicing'),
+    };
+    trainer.complete({
+      submitUrl: `/api/tests/${state.slug}/submit-pitch-accent`,
+      logName: 'Pitch accent',
+      buildBody: ({ correct, total, timeSec, errors, startedAt, finishedAt }) => ({
+        correct_units: correct,
+        total_units: total,
+        time_taken: timeSec,
+        errors,
+        furigana_used: state.furiganaUsedThisAttempt,
+        started_at: startedAt,
+        finished_at: finishedAt,
+      }),
+      results: {
+        labelHtml: (grade) => escapeHtml(gradeLabels[grade]),
+        accuracyLabel: t('pitch.accuracy_label', 'Accent accuracy'),
+        unitsLabel: t('pitch.stat.words', 'Words'),
+        timeLabel: t('pitch.stat.time', 'Time'),
+        mistakesLabel: t('pitch.stat.mistakes', 'Mistakes'),
+        eloLabel: t('pitch.stat.elo_change', 'ELO change'),
+        retryLabel: t('pitch.retry', 'Retry'),
+        allTestsLabel: t('pitch.all_tests', 'All tests'),
+      },
     });
   }
 }
@@ -929,48 +736,63 @@ export function mount(container, ctx) {
 // MARKUP — styles come from the global static/css/styles.css (loaded by base.html)
 // ========================================================================
 const MARKUP = `
-<div id="loadingOverlay" class="loading-overlay" style="display:none;">
-    <div class="loading-spinner"><div class="spinner-icon"></div><p class="mb-0 text-slate-600" data-i18n="pitch.loading">Loading pitch accent data...</p></div>
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner-icon"></div>
+        <p class="mb-0 text-slate-600" data-i18n="pitch.loading">Loading pitch accent data...</p>
+    </div>
 </div>
 
-<div id="errorState" class="container py-5" style="display:none;">
+<div id="errorState" class="container py-5" style="display: none;">
     <div class="alert alert-danger">
         <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pitch.error.title">Error</span></h2>
         <p id="errorMessage" class="mb-2"></p>
     </div>
 </div>
 
-<div class="pa-header" id="paHeader" style="display:none;">
+<div class="pa-header" id="paHeader" style="display: none;">
     <div class="container py-3">
         <div class="row align-items-center g-2">
             <div class="col-12 col-md-auto">
-                <h1 class="mb-0 h5"><i class="bi bi-music-note-beamed text-primary me-2"></i><span id="testTitle" data-i18n="pitch.title">Pitch Accent Trainer</span></h1>
+                <h1 class="mb-0 h5">
+                    <i class="bi bi-music-note-beamed text-primary me-2"></i>
+                    <span id="testTitle" data-i18n="pitch.title">Pitch Accent Trainer</span>
+                </h1>
             </div>
             <div class="col-12 col-md-auto ms-md-auto d-flex align-items-center gap-2 flex-wrap">
                 <div class="mode-toggle" id="modeToggle">
-                    <button type="button" data-mode="quick" class="active"><i class="bi bi-lightning-charge-fill me-1"></i><span data-i18n="pitch.mode.quick">Quick</span></button>
-                    <button type="button" data-mode="contour"><i class="bi bi-graph-up me-1"></i><span data-i18n="pitch.mode.contour">Contour</span></button>
+                    <button type="button" data-mode="quick" class="active">
+                        <i class="bi bi-lightning-charge-fill me-1"></i><span data-i18n="pitch.mode.quick">Quick</span>
+                    </button>
+                    <button type="button" data-mode="contour">
+                        <i class="bi bi-graph-up me-1"></i><span data-i18n="pitch.mode.contour">Contour</span>
+                    </button>
                 </div>
                 <span class="badge bg-primary" id="testLanguage"></span>
                 <label class="furigana-toggle" id="furiganaToggleLabel" title="Furigana over kanji (halves ELO change)">
-                    <input type="checkbox" id="furiganaToggle"><span>ふりがな</span>
+                    <input type="checkbox" id="furiganaToggle">
+                    <span>ふりがな</span>
                 </label>
-                <span class="text-slate-500"><i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span></span>
+                <span class="text-slate-500">
+                    <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
+                </span>
             </div>
         </div>
     </div>
-    <div class="pa-progress-bar"><div class="pa-progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="pa-progress-bar">
+        <div class="pa-progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
 </div>
 
 <!-- Swipe-to-answer overlay (Quick mode, touch devices) -->
-<div class="touch-area" id="touchArea" style="display:none;"></div>
+<div class="touch-area" id="touchArea" style="display: none;"></div>
 
-<div class="passage-container" id="passageContainer" style="display:none;">
+<div class="passage-container" id="passageContainer" style="display: none;">
     <div class="passage-grid" id="passageGrid"></div>
     <div id="scratchpadContainer"></div>
 </div>
 
-<div class="controls-hint" id="controlsHint" style="display:none;">
+<div class="controls-hint" id="controlsHint" style="display: none;">
     <div class="controls-grid" id="controlsGrid"></div>
 </div>
 

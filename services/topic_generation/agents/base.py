@@ -1,25 +1,20 @@
 """
 Base Agent Class
 
-Provides common functionality for all AI agents including:
-- Client pooling via the unified llm_service
-- Retry logic with exponential backoff
-- API call tracking
+Common functionality for the topic-generation agents: every completion goes
+through services.llm_service.call_llm, which owns client pooling, retry on
+transient errors, and llm_calls cost logging.
 """
 
+import json
 import logging
 from typing import Optional
 
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_exponential,
-    retry_if_exception_type,
-)
-
-from services.llm_service import get_client
+from services import llm_service
 
 logger = logging.getLogger(__name__)
+
+PIPELINE = 'topic_generation'
 
 
 class BaseAgent:
@@ -37,38 +32,24 @@ class BaseAgent:
 
         Args:
             model: Model identifier (e.g., 'google/gemini-3.5-flash-lite')
-            api_key: API key for authentication
-            base_url: Optional base URL (for OpenRouter, use 'https://openrouter.ai/api/v1')
-            name: Agent name for logging
+            api_key: Kept for signature compatibility; the key is resolved
+                by llm_service from the environment.
+            base_url: Kept for signature compatibility.
+            name: Agent name for logging and the llm_calls task tag
         """
         self.model = model
         self.name = name
         self.api_call_count = 0
-
-        # Use shared client pool instead of creating a new OpenAI instance.
-        #
-        # The explicit base_url below bypasses provider resolution, so unlike
-        # every other pipeline this one would NOT follow LLM_DEFAULT_PROVIDER.
-        # Check it first, otherwise `--provider claude-cli` silently keeps
-        # billing OpenRouter for topic generation while the other three
-        # pipelines switch over.
-        from services.llm_service import LLM_DEFAULT_PROVIDER
-        if LLM_DEFAULT_PROVIDER == 'claude_cli':
-            self.client = get_client('claude_cli')
-            logger.info("%s routed to the headless Claude Code transport", name)
-        elif base_url:
-            self.client = get_client(base_url=base_url, api_key=api_key)
-        else:
-            self.client = get_client(base_url='https://api.openai.com/v1', api_key=api_key)
-
         logger.debug(f"{name} initialized with model: {model}")
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type((Exception,)),
-        reraise=True
-    )
+    @staticmethod
+    def _provider() -> str:
+        # Topic generation runs on OpenRouter unless the process default was
+        # switched to the headless CLI transport.
+        if llm_service.LLM_DEFAULT_PROVIDER == 'claude_cli':
+            return 'claude_cli'
+        return 'openrouter'
+
     def _call_llm(
         self,
         prompt: str,
@@ -79,54 +60,35 @@ class BaseAgent:
         model: Optional[str] = None,
     ) -> str:
         """
-        Make LLM API call with retry logic.
+        Make one LLM call and return the response text.
 
-        Args:
-            prompt: User message content
-            system_prompt: Optional system message
-            json_mode: Enable JSON response format
-            temperature: Sampling temperature (0.0-1.0)
-            max_tokens: Optional max tokens limit
-
-        Returns:
-            str: LLM response content
+        With json_mode the API is asked for a JSON object and the parsed
+        payload is re-serialised, so callers keep receiving a string. A
+        malformed JSON reply raises json.JSONDecodeError (no hidden repair
+        turn — callers run their own retry loop).
 
         Raises:
-            Exception: On API failure after retries
+            Exception: On API failure after llm_service's retries
         """
-        messages = []
-
-        if system_prompt:
-            messages.append({'role': 'system', 'content': system_prompt})
-
-        messages.append({'role': 'user', 'content': prompt})
-
         effective_model = model or self.model
-
-        payload = {
-            'model': effective_model,
-            'messages': messages,
-            'temperature': temperature
-        }
-
-        if json_mode:
-            payload['response_format'] = {'type': 'json_object'}
-
-        if max_tokens:
-            payload['max_tokens'] = max_tokens
-
         logger.debug(f"{self.name} calling LLM: model={effective_model}, temp={temperature}")
 
-        response = self.client.chat.completions.create(**payload)
+        result = llm_service.call_llm(
+            prompt,
+            model=effective_model,
+            system_prompt=system_prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            response_format='json_object' if json_mode else 'text',
+            provider=self._provider(),
+            timeout=120,
+            pipeline=PIPELINE,
+            task_name=self.name.lower(),
+            allow_internal_repair=False,
+        )
         self.api_call_count += 1
 
-        if not response.choices:
-            raise ValueError("No choices returned from API")
-
-        content = response.choices[0].message.content
-        if content is None:
-            raise ValueError("API returned None content")
-
+        content = result if isinstance(result, str) else json.dumps(result, ensure_ascii=False)
         logger.debug(f"{self.name} received response: {len(content)} chars")
         return content
 

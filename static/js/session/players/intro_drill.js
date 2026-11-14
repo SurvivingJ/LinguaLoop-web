@@ -15,19 +15,7 @@
 // exercises and window.LinguaPrestudy's reading graders.
 
 import { posClass, maskHeadword } from '../lexicon.js';
-const T = (key, params, fallback) => {
-  if (window.LinguaI18n && typeof LinguaI18n.t === 'function') {
-    const v = LinguaI18n.t(key, params);
-    if (v && v !== key) return v;
-  }
-  let s = fallback || key;
-  if (params) for (const k of Object.keys(params)) s = s.replace(`{${k}}`, params[k]);
-  return s;
-};
-
-function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-}
+import { T, escapeHtml as esc } from '../dom.js';
 
 // ---------------------------------------------------------------------------
 // Engine (mirrors services/intro_drill.py recount)

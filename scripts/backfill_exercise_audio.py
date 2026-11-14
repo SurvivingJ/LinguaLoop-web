@@ -43,19 +43,17 @@ import os
 import sys
 from collections import defaultdict
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap(log_format='%(asctime)s %(levelname)-7s %(message)s')
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
+
 from services.exercise_generation.audio_voice import pick_voice  # noqa: E402
 from services.vocabulary_ladder import queue_drain  # noqa: E402
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)-7s %(message)s',
-)
 logger = logging.getLogger('backfill_audio')
 
 LANGUAGE_CODES = {'zh': 1, 'en': 2, 'ja': 3}
@@ -384,8 +382,7 @@ def main() -> None:
     if args.dry_run:
         logger.info('DRY RUN — no TTS calls, no writes')
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     codes = list(LANGUAGE_CODES) if args.language == 'all' else [args.language]
     ok = True

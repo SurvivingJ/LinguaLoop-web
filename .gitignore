@@ -72,3 +72,18 @@ scratch_offline/snap/
 scratch_offline/gen/
 scratch_offline/inflight.txt
 scratch_offline/rv0*_*.py
+
+# Tool caches, local agent state and CLI link state (contain project refs / personal paths)
+.playwright-mcp/
+supabase/.temp/
+.claude/settings.local.json
+
+# Logs and crash/debug debris
+*.log
+*.stackdump
+generated_tests_*
+batch_errors_*
+.cache/
+
+# Agent worktrees (local only)
+.claude/worktrees/

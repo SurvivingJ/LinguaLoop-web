@@ -220,22 +220,8 @@ class LadderService:
             pass
 
         active_levels = self._get_active_levels_for_sense(sense_id)
-        starting_level = bkt_to_starting_level(p_known, active_levels)
-
-        row = {
-            'user_id': user_id,
-            'sense_id': sense_id,
-            'current_level': starting_level,
-            'active_levels': active_levels,
-            'word_state': 'new',
-            'current_ring': 1,
-            'updated_at': datetime.now(timezone.utc).isoformat(),
-        }
-        from services import intro_drill
-        if intro_drill.ENABLED:
-            # New-word drill (ADR-040): new words start in intro session 1.
-            from services.day_boundary import plan_today_iso
-            row.update(intro_drill.new_intro_fields(plan_today_iso(self.db, user_id, language_id)))
+        row = self._new_ladder_row(
+            user_id, sense_id, p_known, active_levels, self._intro_fields(user_id, language_id))
 
         try:
             self.db.table('user_word_ladder').upsert(
@@ -248,6 +234,65 @@ class LadderService:
                          user_id, sense_id, e)
 
         return row
+
+    def init_ladders(
+        self, user_id: str, sense_ids: list[int], language_id: int
+    ) -> list[dict]:
+        """init_ladder for several senses: two set-based reads and one upsert.
+
+        Writes the same rows as one init_ladder call per sense. If the bulk
+        upsert fails, each row is written on its own so one bad row cannot
+        drop the others. Returns the rows that were written.
+        """
+        sense_ids = list(dict.fromkeys(sense_ids))
+        if not sense_ids:
+            return []
+
+        p_known_by_sense: dict = {}
+        try:
+            resp = (
+                self.db.table('user_vocabulary_knowledge')
+                .select('sense_id, p_known')
+                .eq('user_id', user_id)
+                .in_('sense_id', sense_ids)
+                .execute()
+            )
+            p_known_by_sense = {r['sense_id']: float(r['p_known']) for r in (resp.data or [])}
+        except Exception:
+            pass
+
+        levels_by_sense = self._get_active_levels_for_senses(sense_ids)
+        intro_fields = self._intro_fields(user_id, language_id)
+        rows = [
+            self._new_ladder_row(
+                user_id, sid, p_known_by_sense.get(sid, 0.10),
+                levels_by_sense[sid] if sid in levels_by_sense else list(range(1, 10)),
+                intro_fields)
+            for sid in sense_ids
+        ]
+
+        written = rows
+        try:
+            self.db.table('user_word_ladder').upsert(
+                rows, on_conflict='user_id,sense_id'
+            ).execute()
+        except Exception as e:
+            logger.warning("Bulk ladder init failed for user=%s (%d senses), "
+                           "writing rows one by one: %s", user_id, len(rows), e)
+            written = []
+            for row in rows:
+                try:
+                    self.db.table('user_word_ladder').upsert(
+                        row, on_conflict='user_id,sense_id'
+                    ).execute()
+                    written.append(row)
+                except Exception as e2:
+                    logger.error("Failed to init ladder for user=%s sense=%s: %s",
+                                 user_id, row['sense_id'], e2)
+        if written:
+            from services.request_cache import invalidate
+            invalidate('new_word_state', str(user_id))
+        return written
 
     # ------------------------------------------------------------------
     # Internals
@@ -284,6 +329,50 @@ class LadderService:
             return compute_active_levels(sc)
         except Exception:
             return list(range(1, 10))
+
+    def _get_active_levels_for_senses(self, sense_ids: list[int]) -> dict[int, list[int]]:
+        """{sense_id: active levels}. A sense with no row is left out and a
+        failed read returns {}; callers then use all nine levels, as
+        _get_active_levels_for_sense does."""
+        try:
+            resp = (
+                self.db.table('dim_word_senses')
+                .select('id, dim_vocabulary(semantic_class)')
+                .in_('id', sense_ids)
+                .execute()
+            )
+        except Exception:
+            return {}
+        out = {}
+        for r in (resp.data or []):
+            try:
+                vocab = r.get('dim_vocabulary') or {}
+                out[r['id']] = compute_active_levels(vocab.get('semantic_class', ''))
+            except Exception:
+                continue
+        return out
+
+    def _intro_fields(self, user_id: str, language_id: int) -> dict:
+        """New-word drill (ADR-040): new words start in intro session 1."""
+        from services import intro_drill
+        if not intro_drill.ENABLED:
+            return {}
+        from services.day_boundary import plan_today_iso
+        return intro_drill.new_intro_fields(plan_today_iso(self.db, user_id, language_id))
+
+    @staticmethod
+    def _new_ladder_row(user_id, sense_id, p_known, active_levels, intro_fields) -> dict:
+        row = {
+            'user_id': user_id,
+            'sense_id': sense_id,
+            'current_level': bkt_to_starting_level(p_known, active_levels),
+            'active_levels': active_levels,
+            'word_state': 'new',
+            'current_ring': 1,
+            'updated_at': datetime.now(timezone.utc).isoformat(),
+        }
+        row.update(intro_fields)
+        return row
 
     def _fetch_exercises_for_levels(
         self, sense_id: int, language_id: int,

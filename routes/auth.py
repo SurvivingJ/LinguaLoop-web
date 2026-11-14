@@ -5,7 +5,7 @@ import logging
 
 from flask import Blueprint, request, jsonify, g, make_response
 from utils.validation import validate_email
-from middleware.auth import jwt_required
+from middleware.auth import jwt_required, _extract_token
 from config import Config
 
 logger = logging.getLogger(__name__)
@@ -200,10 +200,7 @@ def verify_otp():
                     )
                     response_data['remembered'] = True
                 except Exception as e:
-                    import logging
-                    logging.getLogger(__name__).error(
-                        f'Failed to issue device token: {e}', exc_info=True
-                    )
+                    logger.error('Failed to issue device token: %s', e, exc_info=True)
                     # Fall through with remembered=False — login still succeeds.
 
             response = make_response(jsonify(response_data), 200)
@@ -323,7 +320,7 @@ def device_restore():
         email=restored['user_email'],
     )
     if not minted.get('success'):
-        return jsonify({'error': minted.get('error', 'Failed to mint session')}), 500
+        return jsonify({'error': 'Failed to mint session'}), 500
 
     # Fetch the user profile so the frontend can repopulate user_data.
     profile = auth_bp.auth_service.get_user_profile(restored['user_id'])
@@ -382,8 +379,7 @@ def mark_welcome_seen():
         result = auth_bp.auth_service.mark_welcome_seen(g.current_user_id)
         return jsonify(result), 200 if result.get('success') else 500
     except Exception:
-        import logging
-        logging.getLogger(__name__).exception('mark-welcome-seen failed')
+        logger.exception('mark-welcome-seen failed')
         return jsonify({'success': False, 'error': 'Server error occurred'}), 500
 
 
@@ -403,7 +399,12 @@ def logout():
             except Exception:
                 logger.exception('Failed to revoke device on logout')
 
-        result = auth_bp.auth_service.logout(g.current_user_id)
+        # The batch-service credential is not a Supabase session.
+        is_session = g.supabase_claims.get('role') != 'service_role'
+        result = auth_bp.auth_service.logout(
+            g.current_user_id,
+            access_token=_extract_token(request) if is_session else None,
+        )
         status = 200 if result['success'] else 400
         response = make_response(jsonify(result), status)
         _clear_device_cookie(response)

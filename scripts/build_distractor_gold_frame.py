@@ -62,15 +62,17 @@ import time
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
+
+bootstrap(log_level=None)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from dotenv import load_dotenv  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(ROOT, '.env'))
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 from distractor_gold import (  # noqa: E402
     CONFUSABLE,
@@ -321,8 +323,7 @@ def main() -> int:
     if not rows:
         raise SystemExit('[error] no sample rows for the requested languages')
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     _map_type_codes(db, rows)
 
     items = explode_items(rows)

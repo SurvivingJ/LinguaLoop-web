@@ -29,12 +29,15 @@ import logging
 from datetime import datetime
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
+
 
 # Load environment variables
-load_dotenv()
 
 
 def setup_logging():

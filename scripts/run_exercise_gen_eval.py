@@ -86,14 +86,17 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from typing import Callable, Iterable
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
+
+bootstrap(log_level=None)
 
 # Must run before any services.* import: services.llm_service reads
 # OPENROUTER_API_KEY at import time, so if that import happens first this
 # load_dotenv() (previously only called deep inside main(), line ~1543)
 # arrives too late and every call sends a blank bearer token (401).
-from dotenv import load_dotenv  # noqa: E402
-load_dotenv()
 
 from services.llm_service import (  # noqa: E402
     ladder_qwen_reasoning_budget_tokens,
@@ -1701,10 +1704,7 @@ def main(argv: list[str] | None = None) -> int:
 
     from dotenv import load_dotenv
     load_dotenv()
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    real_client = get_supabase_admin()
+    real_client = admin_db()
 
     capture_sink: list = []
     lock = threading.Lock()

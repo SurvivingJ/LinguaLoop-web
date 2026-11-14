@@ -35,14 +35,15 @@ USAGE
 from __future__ import annotations
 
 import argparse
-import os
-import sys
 import time
 
-from dotenv import load_dotenv
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-load_dotenv()
+bootstrap(log_level=None)
+
 
 LANG_NAMES = {1: 'zh', 2: 'en', 3: 'ja'}
 
@@ -145,9 +146,7 @@ def main() -> None:
                     help='anchors per RPC call (default 25)')
     args = ap.parse_args()
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     if args.refresh_pool:
         rows = db.rpc('calibration_refresh_anchor_pool', {}).execute().data

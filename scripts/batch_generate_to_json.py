@@ -16,12 +16,15 @@ import json
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import List, Dict
-from dotenv import load_dotenv
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
+
+bootstrap(log_level=None)
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-load_dotenv()
 
 from base_generator import BaseTestGenerator
 from services.prompt_service import PromptService

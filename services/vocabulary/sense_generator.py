@@ -93,19 +93,6 @@ VALIDATION_CONFIDENCE_THRESHOLD = 0.7
 # silently short response.
 _BATCH_MAX_OUTPUT_TOKENS = int(os.getenv('SENSE_BATCH_MAX_OUTPUT_TOKENS', '32000'))
 
-# Language-specific notes (kept for callers/logging; prompts are now self-contained).
-LINGUISTIC_NOTES = {
-    "en": "English words inflect for tense, number, and comparison. Lemmas are base forms.",
-    "zh": "Chinese characters do not inflect. Words may be single characters or compounds (成语, 词语).",
-    "ja": "Japanese verbs and adjectives conjugate. Lemmas are dictionary forms (辞書形).",
-}
-
-LANGUAGE_NAMES = {
-    "en": "English",
-    "zh": "Chinese",
-    "ja": "Japanese",
-}
-
 # Integer POS legend per language -> canonical, language-neutral POS string.
 # The legends MUST match the numeric "4" codes in the prompt templates
 # (migrations/rewrite_sense_prompts_two_level.sql).
@@ -209,8 +196,6 @@ class SenseGenerator:
         self._prefer_existing = prefer_existing
         self._dry_run = dry_run
         self._generation_max_tokens = generation_max_tokens
-        self._language_name = LANGUAGE_NAMES.get(language_code, language_code)
-        self._linguistic_notes = LINGUISTIC_NOTES.get(language_code, "")
         self._pos_legend = POS_LEGENDS.get(language_code, POS_LEGENDS["en"])
         self._simple_register = self._load_simple_register()
 

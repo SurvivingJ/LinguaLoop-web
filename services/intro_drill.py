@@ -197,9 +197,12 @@ def intro_sense_ids(db, user_id: str) -> set:
     return {int(r['sense_id']) for r in rows}
 
 
-def due_review_count(db, user_id: str, language_id: int) -> int:
-    """Due intro words that are reviews (sessions 2-4, restarts, overloads)."""
-    rows = due_rows(db, user_id, language_id, _today(db, user_id, language_id))
+def due_review_count(db, user_id: str, language_id: int, today: Optional[date] = None) -> int:
+    """Due intro words that are reviews (sessions 2-4, restarts, overloads).
+
+    ``today`` is the learner's local date; pass it when already resolved (it
+    saves the plan read when called off the request thread)."""
+    rows = due_rows(db, user_id, language_id, today or _today(db, user_id, language_id))
     return sum(1 for r in rows if (r.get('intro_stage') or 1) >= 2 or bypasses_quota(r))
 
 
