@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DT feedback — Option 2: Guided self-repair (mockup)</title>
+<style>
+/* Tokens mirror static/css/styles.css ("Still Water" + "Midnight"). */
+:root{
+  --on-primary:#fff;--primary:#0e7569;--primary-hover:#0a574e;--selected-bg:#ddeeea;
+  --apricot-text:#a35417;--apricot-wash:#fbe9da;
+  --bg-body:#f6f9f8;--bg-surface:#fff;--bg-muted:#eaf1ef;
+  --text-primary:#13282b;--text-secondary:#51686a;--text-muted:#5e7375;
+  --border-default:#dde7e5;--border-strong:#b9cac7;--focus-ring:rgb(14 117 105 / 25%);
+  --success:#2e7d4f;--success-text:#245f3d;--success-bg:#ddefe4;
+  --danger:#c24a3f;--danger-text:#9e3a31;--danger-bg:#f6e2df;
+  --warning:#c28f2c;--warning-text:#7d5a10;--warning-bg:#f7ecd6;
+  --info:#3b6ea8;--info-text:#2f5887;--info-bg:#e1eaf5;
+  --shadow-sm:0 1px 2px rgb(19 40 43 / 5%);
+  --font-sans:'Inter','Hiragino Sans','Yu Gothic UI',meiryo,'PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  --font-display:'Sora',var(--font-sans);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --on-primary:#06201c;--primary:#3db3a0;--primary-hover:#5cc6b5;--selected-bg:rgb(61 179 160 / 18%);
+  --apricot-text:#f0975a;--apricot-wash:rgb(240 151 90 / 16%);
+  --bg-body:#0b1416;--bg-surface:#122021;--bg-muted:#18292a;
+  --text-primary:#eef4f3;--text-secondary:#bcd0cd;--text-muted:#93a6a4;
+  --border-default:#1f3335;--border-strong:#33494b;--focus-ring:rgb(61 179 160 / 35%);
+  --success:#57a877;--success-text:#7fc79b;--success-bg:rgb(87 168 119 / 18%);
+  --danger:#e0796f;--danger-text:#ec9089;--danger-bg:rgb(224 121 111 / 18%);
+  --warning:#dcae54;--warning-text:#dcae54;--warning-bg:rgb(220 174 84 / 16%);
+  --info:#7aa3d6;--info-text:#9bbbe2;--info-bg:rgb(122 163 214 / 18%);
+  --shadow-sm:0 1px 2px rgb(0 0 0 / 40%);color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --on-primary:#06201c;--primary:#3db3a0;--primary-hover:#5cc6b5;--selected-bg:rgb(61 179 160 / 18%);
+  --apricot-text:#f0975a;--apricot-wash:rgb(240 151 90 / 16%);
+  --bg-body:#0b1416;--bg-surface:#122021;--bg-muted:#18292a;
+  --text-primary:#eef4f3;--text-secondary:#bcd0cd;--text-muted:#93a6a4;
+  --border-default:#1f3335;--border-strong:#33494b;--focus-ring:rgb(61 179 160 / 35%);
+  --success:#57a877;--success-text:#7fc79b;--success-bg:rgb(87 168 119 / 18%);
+  --danger:#e0796f;--danger-text:#ec9089;--danger-bg:rgb(224 121 111 / 18%);
+  --warning:#dcae54;--warning-text:#dcae54;--warning-bg:rgb(220 174 84 / 16%);
+  --info:#7aa3d6;--info-text:#9bbbe2;--info-bg:rgb(122 163 214 / 18%);
+  --shadow-sm:0 1px 2px rgb(0 0 0 / 40%);color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg-body);color:var(--text-primary);font-family:var(--font-sans);font-size:16px;line-height:1.5}
+:lang(zh){font-family:'PingFang SC','Microsoft YaHei','Noto Sans SC','Noto Sans CJK SC','Inter',system-ui,sans-serif}
+:lang(ja){font-family:'Hiragino Sans','Yu Gothic UI',meiryo,'Noto Sans JP','Noto Sans CJK JP','Inter',system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus-ring);outline-offset:2px}
+.nav{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-surface);border-bottom:1px solid var(--border-default)}
+.brand{font-family:var(--font-display);font-weight:700;color:var(--primary);font-size:1.05rem}
+.pill{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--bg-muted);color:var(--text-secondary);white-space:nowrap}
+.nav .sp{flex:1}
+.nav .pill{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.theme-btn{border:1px solid var(--border-default);background:var(--bg-surface);border-radius:8px;padding:5px 10px;font-size:.82rem;color:var(--text-secondary)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:12px 16px 0;max-width:1120px;margin:0 auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-secondary);border-radius:999px;padding:7px 14px;font-size:.88rem;font-weight:600;min-height:40px}
+.tab[aria-selected="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+:root[data-theme="dark"] .tab[aria-selected="true"]{color:#06201c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tab[aria-selected="true"]{color:#06201c}}
+.wrap{max-width:1120px;margin:0 auto;padding:16px}
+.head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:4px 0 14px}
+.head h1{font-family:var(--font-display);font-size:1.3rem;margin:0}
+.head .sub{font-size:.85rem;color:var(--text-muted)}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:900px){.grid{grid-template-columns:340px minmax(0,1fr);align-items:start}.grid>.side{position:sticky;top:12px}}
+.card{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm)}
+.label{font-size:.76rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.l1{font-size:1.05rem;line-height:1.65}
+.l1 span.s{border-radius:4px;padding:1px 0}
+.l1 span.s.cur{background:var(--selected-bg)}
+.l1 mark,.pl1 mark{background:var(--danger-bg);color:inherit;border-bottom:2px solid var(--danger);padding:0 1px}
+details.l1wrap>summary{list-style:none;cursor:pointer}
+details.l1wrap>summary::-webkit-details-marker{display:none}
+details.l1wrap>summary .label{display:flex;justify-content:space-between;margin-bottom:0}
+details.l1wrap[open]>summary .label{margin-bottom:8px}
+.statusline{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;font-size:.88rem;color:var(--text-secondary)}
+.statusline .skip{margin-left:auto;background:none;border:0;color:var(--primary);font-weight:600;font-size:.86rem;padding:8px 0;text-decoration:underline;text-underline-offset:3px}
+.sent{border:1px solid var(--border-default);border-radius:12px;margin-bottom:10px;background:var(--bg-surface)}
+.sent.ok{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:transparent}
+.sent.ok .t{font-size:1.02rem;color:var(--text-secondary);flex:1;min-width:0}
+.sent.ok .tag{font-size:.74rem;color:var(--text-muted);white-space:nowrap;padding-top:3px}
+.num{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--bg-muted);color:var(--text-secondary);font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:2px}
+.sent.flag{border-left:4px solid var(--warning);padding:14px 16px}
+.sent.flag.meaning{border-left-color:var(--danger)}
+.sent.flag.low{border:1px dashed var(--border-strong);border-left:4px dotted var(--info)}
+.sent.flag.done{border-left-color:var(--success)}
+.sent.flag.shown{border-left-color:var(--border-strong)}
+.fh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--warning-bg);color:var(--warning-text)}
+.chip.meaning{background:var(--danger-bg);color:var(--danger-text)}
+.chip.low{background:var(--info-bg);color:var(--info-text)}
+.chip.good{background:var(--success-bg);color:var(--success-text)}
+.chip.neutral{background:var(--bg-muted);color:var(--text-secondary)}
+.fh .why{font-size:.78rem;color:var(--text-muted)}
+.mine{font-size:1.2rem;line-height:1.7;margin:2px 0 10px;word-break:break-word}
+.mine mark{background:var(--warning-bg);color:inherit;border-bottom:3px solid var(--warning);padding:0 2px;border-radius:3px 3px 0 0}
+.meaning .mine mark{background:var(--danger-bg);border-bottom-color:var(--danger)}
+.ladder{display:flex;gap:4px;margin:0 0 10px;padding:0;list-style:none}
+.ladder li{flex:1;text-align:center;font-size:.7rem;font-weight:600;color:var(--text-muted);padding-top:7px;border-top:4px solid var(--border-default);line-height:1.2}
+.ladder li.on{border-top-color:var(--primary);color:var(--text-primary)}
+.ladder li.on::before{content:"✓ ";color:var(--primary)}
+.hints{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.hint{font-size:.93rem;padding:8px 12px;border-radius:8px;background:var(--bg-muted);color:var(--text-primary)}
+.hint b{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);display:block;font-weight:700}
+.hint.new{animation:pop .35s ease-out}
+@keyframes pop{from{transform:translateY(-4px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.hint.new{animation:none}}
+.edit{display:flex;gap:8px;align-items:stretch}
+.edit textarea{flex:1;min-width:0;font:inherit;font-size:1.1rem;line-height:1.55;padding:10px 12px;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-surface);color:var(--text-primary);resize:none;outline:none}
+.edit textarea:focus{border-color:var(--primary)}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:600;font-size:.95rem;min-height:44px}
+.btn.primary{background:var(--primary);color:var(--on-primary)}
+:root[data-theme="dark"] .btn.primary{color:#06201c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#06201c}}
+.btn.ghost{background:var(--bg-surface);border:1px solid var(--primary);color:var(--primary)}
+.btn.quiet{background:var(--bg-muted);color:var(--text-primary)}
+.btn.link{background:none;color:var(--text-secondary);padding:10px 4px;text-decoration:underline;text-underline-offset:3px;font-weight:500;font-size:.88rem}
+.fb{font-size:.9rem;margin:8px 0 0;color:var(--text-secondary)}
+.fb:empty{display:none}
+.pl1{font-size:.86rem;color:var(--text-muted);margin:0 0 4px}
+.fb.try{color:var(--warning-text)}
+.fb .ico{font-weight:700;margin-right:4px}
+.acts{display:flex;gap:6px 12px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.acts .sp{flex:1}
+.cmp{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:1.08rem;line-height:1.6;margin:6px 0 8px}
+.cmp dt{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);padding-top:6px;white-space:nowrap}
+.cmp dd{margin:0;word-break:break-word}
+.cmp mark.a{background:var(--success-bg);color:inherit;border-bottom:2px solid var(--success);padding:0 2px}
+.cmp mark.b{background:none;color:inherit;border-bottom:2px dashed var(--text-muted);padding:0 2px}
+.expl{font-size:.92rem;color:var(--text-secondary);border-left:3px solid var(--primary);padding-left:10px;margin-top:6px}
+.note{font-size:.82rem;color:var(--text-muted);margin-top:8px}
+.summary h2{font-family:var(--font-display);font-size:1.05rem;margin:0 0 8px}
+.sumrow{display:flex;gap:8px;align-items:baseline;font-size:.95rem;padding:5px 0;border-top:1px solid var(--border-default)}
+.sumrow:first-of-type{border-top:0}
+.sumrow .k{flex:1;min-width:0}
+.sumrow .v{color:var(--text-secondary);font-size:.86rem;text-align:right}
+details.rec{margin-top:12px;font-size:.82rem;color:var(--text-muted)}
+details.rec summary{cursor:pointer;padding:6px 0}
+details.rec pre{overflow-x:auto;background:var(--bg-muted);padding:10px;border-radius:8px;font-size:.74rem;line-height:1.45;color:var(--text-secondary);margin:6px 0 0}
+.clean{text-align:center;padding:26px 20px}
+.clean .big{width:52px;height:52px;border-radius:50%;background:var(--success-bg);color:var(--success-text);font-size:1.6rem;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px}
+.clean h2{font-family:var(--font-display);font-size:1.15rem;margin:0 0 4px}
+.clean p{margin:0 auto;color:var(--text-secondary);font-size:.93rem;max-width:46ch}
+/* progress */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+@media (min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:12px 14px}
+.stat .n{font-family:var(--font-display);font-size:1.55rem;font-weight:700;line-height:1.1}
+.stat .d{font-size:.8rem;color:var(--text-muted);margin-top:2px}
+.pgrid{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:900px){.pgrid{grid-template-columns:1fr 1fr}}
+.ptype{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:14px;padding:16px 18px}
+.ptype h3{margin:0;font-size:1.02rem}
+.ptype .pt-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.ptype .pt-top .sp{flex:1}
+.track{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:4px}
+.stop{position:relative;height:10px;border-radius:5px;background:var(--bg-muted)}
+.stop.fill{background:var(--primary)}
+.stop.was::after{content:"";position:absolute;inset:-4px auto -4px 50%;width:0;border-left:2px dashed var(--text-muted)}
+.tlabels{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;font-size:.68rem;color:var(--text-muted);line-height:1.2;margin-bottom:10px}
+.tlabels span.now{color:var(--text-primary);font-weight:700}
+.strip{display:flex;gap:4px;align-items:center;flex-wrap:wrap;font-size:.76rem;color:var(--text-muted)}
+.ep{width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;border:1px solid var(--border-strong);color:var(--text-secondary);background:var(--bg-surface)}
+.ep.h0{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.ep.h1{background:var(--selected-bg);border-color:var(--primary);color:var(--text-primary)}
+.ep.hA{border-style:dashed}
+.ptype .say{font-size:.9rem;color:var(--text-secondary);margin-top:10px}
+.legend{font-size:.82rem;color:var(--text-muted);margin:14px 2px 0;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center}
+.legend .ep{width:20px;height:20px;font-size:.7rem}
+.banner{font-size:.82rem;color:var(--text-muted);padding:8px 12px;border:1px dashed var(--border-strong);border-radius:10px;margin-bottom:14px}
+@media (max-width:600px){
+  .wrap{padding:12px 16px}.card{padding:14px 14px}.sent.flag{padding:12px 12px}
+  .mine{font-size:1.12rem}.edit{flex-direction:column}.edit .btn{width:100%}
+  .ladder li{font-size:.64rem}
+  .sent.ok{flex-wrap:wrap}.sent.ok .t{flex-basis:calc(100% - 40px)}.sent.ok .tag{margin-left:32px;padding-top:0}
+  .nav .pill{display:none}
+}
+</style>
+</head>
+<body>
+<div class="nav">
+  <span class="brand">LinguaDojo</span>
+  <span class="pill">Option 2 mockup · scripted re-check</span>
+  <span class="sp"></span>
+  <button class="theme-btn" id="themeBtn" aria-label="Toggle light/dark theme">Theme</button>
+</div>
+<div class="tabs" role="tablist" id="tabs"></div>
+<main class="wrap" id="main"></main>
+
+<script>
+/* ---------- UI strings in the learner's L1 (en + zh shown; ja follows the same keys) ---------- */
+const STR = {
+  en: {
+    prompt:'Translate this', yours:'Your translation', nothing:'Nothing flagged', showPrompt:'show',
+    toLook:n=>`${n} to look at`, clear:n=>`${n} with nothing flagged`, skip:'Skip — show me everything',
+    look:'Take another look', meaning:'Meaning differs from the prompt', maybe:'Possibly worth a look',
+    likely:'The checker is fairly sure something is off here.', unsure:'The checker isn\'t sure about this one. It may be fine.',
+    rungs:['Where','What kind','Clue','Answer'], hWhere:'Where', hKind:'What kind', hClue:'Clue',
+    whereTxt:'It\'s in the underlined part.', whereL1:'Compare the underlined part with the highlighted part of the prompt.',
+    whereLost:'Your new version moved things around, so we can\'t pinpoint it any more — the hint types below still apply.',
+    check:'Check again', next:['Hint: where?','Hint: what kind?','Hint: give me a clue','Show the answer'], show:'Show the answer', dispute:'I think mine is right',
+    same:'That\'s the same sentence. Change something, or take a hint.', still:'Still flagged. Try once more, or take the next hint.',
+    still2:'Still flagged — the next hint may help.', auto:'Here\'s the answer — this one\'s worth seeing rather than guessing.',
+    fixed:h=>h===0?'Fixed on your own, on a second look':h===1?'Fixed once you knew where':`Fixed with ${h} hints`,
+    alt:'No issue found in your new version', altNote:'Yours differs from the original but the checker finds nothing wrong with it. Here is how the original puts it:',
+    shownT:'Answer shown', disputedT:'You disagreed — not counted', disputedNote:'Fair enough. Here is the original for comparison; yours may be just as good. We\'ve sent this flag for review and left it out of your progress.',
+    you:'You', orig:'Original', first:'First try', adapt:'Starting with the location shown: this type has needed it the last 3 times.',
+    cmpBtn:'Compare with the original', leave:'Leave it', lowNote:'Both can work here; the original uses the highlighted word. Not counted in your progress.', lowLeft:'Left as is — not counted.',
+    sumT:'Repair summary', sumNone:'Nothing to repair', full:'Continue to full comparison & score', rec:'What gets recorded (tracking model preview)',
+    queue:'Added to your review queue', noqueue:'Counted as a slip — no drill', startKind:'Hints',
+    cleanT:'Nothing flagged', cleanP:'The checker found no problems in any sentence. It can miss small things, so the original is below if you want to compare.',
+    cleanCmp:'Compare with the original', cleanSame:'Your translation matches the original word for word.'
+  },
+  zh: {
+    prompt:'请翻译', yours:'你的译文', nothing:'未发现问题', showPrompt:'展开',
+    toLook:n=>`${n} 句需要再看看`, clear:n=>`${n} 句未发现问题`, skip:'跳过，直接看全部结果',
+    look:'再看一眼', meaning:'意思和原文不一样', maybe:'可能值得再看看',
+    likely:'系统比较确定这句有问题。', unsure:'系统对这一句不太确定，也可能没有问题。',
+    rungs:['位置','类型','提示','答案'], hWhere:'位置', hKind:'类型', hClue:'提示',
+    whereTxt:'问题在划线的部分。', whereL1:'把划线部分和中文原句里标出的部分对照一下。',
+    whereLost:'你改动后的句子变化较大，无法再定位，但下面的提示仍然适用。',
+    check:'再检查一次', next:['提示：在哪里？','提示：哪一类问题？','提示：给我一点线索','看答案'], show:'看答案', dispute:'我觉得我的没错',
+    same:'句子没有变化。改一改，或者看一个提示。', still:'仍然有问题。再试一次，或者看下一个提示。',
+    still2:'仍然有问题——下一个提示也许有帮助。', auto:'直接看答案吧——这一处与其猜，不如看一看。',
+    fixed:h=>h===0?'再看一眼后自己改对了':h===1?'知道位置后自己改对了':`用了 ${h} 个提示后改对了`,
+    alt:'修改后的句子未发现问题', altNote:'你的句子和原文不同，但系统没有发现问题。原文是这样说的：',
+    shownT:'已显示答案', disputedT:'你不同意——不计入记录', disputedNote:'没问题。下面是原文供你对照，你的说法也可能同样好。这条标记已提交复核，不会计入你的进度。',
+    you:'你的', orig:'原文', first:'第一次', adapt:'',
+    cmpBtn:'和原文对照', leave:'不用了', lowNote:'', lowLeft:'',
+    sumT:'修改小结', sumNone:'没有需要修改的地方', full:'继续查看完整对照和评分', rec:'记录内容（追踪模型预览）',
+    queue:'已加入复习队列', noqueue:'算作笔误，不安排练习', startKind:'提示',
+    cleanT:'未发现问题', cleanP:'', cleanCmp:'', cleanSame:''
+  }
+};
+
+/* ---------- Items: real gold-set reproductions (tests/fixtures/dt_gold). L1 prompts are illustrative. ---------- */
+const has = (...xs)=>t=>xs.every(x=>x instanceof RegExp?x.test(t):t.includes(x));
+const ITEMS = [
+ { id:'zh', tab:'中文 · L1 English', lang:'zh', ui:'en', gold:'zh_multi_01', title:'Translate into Chinese',
+   l1:['My favourite T-shirt is a very special piece of clothing.','It isn\'t an expensive brand, and it isn\'t the latest style, but it\'s my favourite of all my clothes.','This T-shirt is blue, a really true blue, and it hasn\'t faded even after many washes.','The fabric is comfortable: soft against the skin and breathable, so it doesn\'t feel hot even in summer.'],
+   sents:[
+    {text:'我最喜欢的T恤是一个非常特别的衣服。', ref:'我最喜欢的T恤是一件非常特别的衣服。',
+     flag:{type:'measure_word', kind:'Measure word (量词)', bad:'一个', good:'一件', conf:.93, sev:'minor',
+       clue:'衣服 doesn\'t take the all-purpose 个. Which measure word goes with clothes worn on the upper body?',
+       expl:'件 is the measure word for upper-body clothing (一件衬衫) and also for matters (一件事). 个 is understood, but sounds off to a native reader here.',
+       fix:has('一件'), alt:has(/是件/)}},
+    {text:'它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。'},
+    {text:'这件T恤是蓝色的，颜色很正，洗很多次也不会褪色。', ref:'这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。',
+     flag:{type:'aspect_negation', kind:'Aspect marker (了 / 过 / 着)', bad:'洗很多次', good:'洗了很多次', conf:.88, sev:'major',
+       clue:'The washing has already happened, many times over. How does Chinese mark a completed action that comes with a count like 很多次?',
+       expl:'A completed action with a quantity takes 了 right after the verb: 洗了很多次. (洗过很多次, stressing experience, also works.)',
+       fix:has('洗了很多次'), alt:has(/洗过(很多|许多)次|洗了许多次/)}},
+    {text:'它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。'}
+   ]},
+ { id:'ja', tab:'日本語 · L1 English', lang:'ja', ui:'en', gold:'ja_multi_05', title:'Translate into Japanese',
+   l1:['What we\'re going to make is a very simple robot arm that can grab small objects.','It\'s perfect for experiencing the fun of "electronics tinkering", and the sense of achievement when you finish it is something special.','How do you make it?','To build this robot arm, you need a few parts.'],
+   sents:[
+    {text:'私たちは作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。', ref:'私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。',
+     flag:{type:'wa_ga', kind:'は vs が', bad:'私たちは', good:'私たちが', conf:.9, sev:'major', start:1,
+       clue:'私たち is the subject of a clause that describes もの ("the thing that we make"). Inside a describing clause, the subject usually can\'t be marked as the topic.',
+       expl:'Inside a clause that modifies a noun, the subject takes が (or の), not は: 私たちが作るもの. The topic は belongs to the whole sentence — here that is 作るものは.',
+       fix:has('私たちが作るもの'), alt:has('私たちの作るもの')}},
+    {text:'これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感はマジ格別ですよ。', ref:'これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。',
+     flag:{type:'register', kind:'Register (how formal it sounds)', bad:'マジ', good:'', conf:.84, sev:'major',
+       clue:'The passage is written in polite です／ます style. One word here belongs to casual talk between friends.',
+       expl:'マジ is slang. In a polite explanatory text, drop it (格別 is already emphatic) or use a neutral intensifier such as 本当に.',
+       fix:t=>!t.includes('マジ')&&/達成感は格別/.test(t), alt:t=>!t.includes('マジ')&&/(本当に|とても|実に)格別/.test(t)}},
+    {text:'どうやって作るの？'},
+    {text:'このロボットアームを作るには、いくつかの部品が必要です。'}
+   ]},
+ { id:'en', tab:'English · L1 中文', lang:'en', ui:'zh', gold:'en_multi_04', title:'翻译成英语',
+   l1:['这是一个在实践中学习的好方法。','Arduino 是做 DIY 项目的强大工具。','你可以用它做很多东西。','这个机械臂只是其中一个想法。'],
+   sents:[
+    {text:'It\'s a sick way to learn by doing.', ref:'It\'s a great way to learn by doing.',
+     flag:{type:'register', kind:'语体（正式程度）', bad:'sick', good:'great', conf:.86, sev:'major',
+       clue:'这个词是很口语化的俚语。原文是中性的说明文语气，换一个普通的褒义形容词。',
+       expl:'“sick” 表示“很棒”是年轻人之间的俚语，放在说明性的文字里语体不合适。中性的说法是 great / good。',
+       fix:has(/\ba great way\b/i), alt:has(/\ba (good|wonderful|fantastic|nice|excellent|brilliant) way\b/i)}},
+    {text:'The Arduino is a powerful tool for DIY projects.'},
+    {text:'You can make many things without it.', ref:'You can make many things with it.',
+     flag:{type:'meaning_inversion', kind:'意思相反', bad:'without it', good:'with it', conf:.97, sev:'critical', meaning:true, l1mark:'用它',
+       clue:'再读一遍中文原句：“你可以用它做很多东西”。你的句子说的是“用它”，还是“不用它”？',
+       expl:'without = “没有／不用”，和原文意思正好相反。“用它”是 with it。',
+       fix:t=>/\bwith (it|one)\b/i.test(t)&&!/without/i.test(t), alt:t=>/\b(using it|with this|by using it)\b/i.test(t)&&!/without/i.test(t)}},
+    {text:'This robot arm is just one idea.'}
+   ]},
+ { id:'unsure', tab:'Unsure flag', lang:'zh', ui:'en', gold:'zh_seed_06', title:'Translate into Chinese',
+   l1:['It makes me feel relaxed and at ease.','It isn\'t like clothes that need careful matching: I put it on and can head straight out to do what I want to do.','Its simplicity and comfort put my mind at rest.','Of course, I have other nice clothes too — some for parties, some for work.'],
+   sents:[
+    {text:'它让我感到很轻松，很自在。', ref:'它让我感到很放松，很自在。',
+     flag:{type:'word_choice', kind:'Word choice', bad:'轻松', good:'放松', conf:.41, sev:'minor', low:true}},
+    {text:'它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。'},
+    {text:'它的简单和舒适，让我觉得很安心。'},
+    {text:'当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。'}
+   ]},
+ { id:'clean', tab:'Clean item', lang:'zh', ui:'en', gold:'zh clean (passage 8)', title:'Translate into Chinese',
+   l1:['I hope this T-shirt can stay with me until it becomes very, very old; even then, I\'ll put it away carefully as a lovely keepsake.','Its picture, that smiling kitten, will always be the warmest thing in my heart.'],
+   sents:[
+    {text:'我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏起来，作为一份美好的纪念。'},
+    {text:'它的图案，那个微笑的小猫，永远是我心中最温暖的存在。'}
+   ]}
+];
+ITEMS.forEach(it=>it.sents.forEach(s=>{ if(s.flag){ const f=s.flag;
+  Object.assign(f,{rung:f.low?0:(f.start||0), startRung:f.start||0, tries:0, status:'open', draft:s.text, cur:s.text, msg:'', msgCls:'', t0:null, ms:0, revs:[], fresh:false}); }}));
+
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mark=(text,frag,cls)=>{ const i=frag?text.indexOf(frag):-1; return i<0?esc(text):esc(text.slice(0,i))+`<mark${cls?` class="${cls}"`:''}>`+esc(frag)+'</mark>'+esc(text.slice(i+frag.length)); };
+let cur='zh';
+/* Where is the problem in the CURRENT text? Original span if untouched; else the region the learner changed. */
+function locate(orig,now,bad){ if(now.includes(bad)) return bad; let a=0; while(a<orig.length&&a<now.length&&orig[a]===now[a]) a++;
+  let b=0; while(b<orig.length-a&&b<now.length-a&&orig[orig.length-1-b]===now[now.length-1-b]) b++;
+  const frag=now.slice(a,now.length-b); return (frag&&frag.length<=Math.max(6,now.length*0.4))?frag:''; }
+
+function renderTabs(){
+  const tabs=[...ITEMS.map(i=>[i.id,i.tab]),['progress','Progress view']];
+  document.getElementById('tabs').innerHTML=tabs.map(([id,l])=>`<button class="tab" role="tab" aria-selected="${id===cur}" data-tab="${id}">${esc(l)}</button>`).join('');
+}
+function render(){
+  renderTabs();
+  const m=document.getElementById('main');
+  if(cur==='progress'){ m.innerHTML=progressHTML(); return; }
+  const it=ITEMS.find(i=>i.id===cur), S=STR[it.ui], flags=it.sents.filter(s=>s.flag), open=flags.filter(s=>s.flag.status==='open');
+  const active=open[0];
+  const l1=it.l1.map((t,i)=>{ const s=it.sents[i], f=s&&s.flag; const on=active&&s===active;
+    const inner=(on&&f.l1mark&&f.rung>=1)?mark(t,f.l1mark):esc(t); return `<span class="s${on?' cur':''}">${inner}</span>`; }).join(' ');
+  const body = flags.length===0 ? cleanHTML(it,S) : it.sents.map((s,i)=>sentHTML(it,S,s,i)).join('') + (open.length===0?summaryHTML(it,S):'');
+  m.innerHTML=`
+  <div class="head"><h1 lang="${it.ui}">${esc(it.title)}</h1><span class="sub">gold item <code>${esc(it.gold)}</code></span></div>
+  <div class="grid">
+    <div class="side"><details class="card l1wrap" ${innerWidth>=900?"open":""}><summary><div class="label" lang="${it.ui}"><span>${S.prompt}</span><span aria-hidden="true">▾</span></div></summary><div class="l1" lang="${it.ui}">${l1}</div></details></div>
+    <div>
+      ${flags.length?`<div class="statusline" lang="${it.ui}"><span class="chip neutral">${S.toLook(open.length)}</span><span>${S.clear(it.sents.length-flags.length)}</span>${open.length?`<button class="skip" data-act="skipall">${S.skip}</button>`:''}</div>`:''}
+      ${body}
+    </div>
+  </div>`;
+  flags.forEach(s=>{ if(s.flag.status==='open'&&s.flag.t0===null&&s===active) s.flag.t0=Date.now(); s.flag.fresh=false; });
+}
+function sentHTML(it,S,s,i){
+  const f=s.flag, n=`<span class="num" aria-hidden="true">${i+1}</span>`;
+  if(!f) return `<div class="sent ok">${n}<div class="t" lang="${it.lang}">${esc(s.text)}</div><span class="tag" lang="${it.ui}">${S.nothing}</span></div>`;
+  if(f.status!=='open') return doneHTML(it,S,s,i);
+  if(f.low) return `<div class="sent flag low" data-i="${i}"><div class="fh" lang="${it.ui}">${n}<span class="chip low"><span aria-hidden="true">?</span> ${S.maybe}</span></div>
+    <div class="mine" lang="${it.lang}">${esc(f.cur)}</div><p class="fb" lang="${it.ui}" style="margin:0 0 4px">${S.unsure}</p>
+    <div class="acts" lang="${it.ui}"><button class="btn ghost" data-act="lowcmp">${S.cmpBtn}</button><button class="btn link" data-act="lowleave">${S.leave}</button></div></div>`;
+  const loc=locate(s.text,f.cur,f.bad), located=!!loc;
+  const hints=[];
+  if(f.rung>=1) hints.push([S.hWhere, located?(f.meaning?S.whereL1:S.whereTxt):S.whereLost]);
+  if(f.rung>=2) hints.push([S.hKind, esc(f.kind)]);
+  if(f.rung>=3) hints.push([S.hClue, esc(f.clue)]);
+  return `<div class="sent flag${f.meaning?' meaning':''}" data-i="${i}">
+    <div class="fh" lang="${it.ui}">${n}<span class="chip${f.meaning?' meaning':''}"><span aria-hidden="true">${f.meaning?'≠':'↻'}</span> ${f.meaning?S.meaning:S.look}</span><span class="why">${S.likely}</span></div>
+    <p class="pl1" lang="${it.ui}">${f.l1mark&&f.rung>=1?mark(it.l1[i],f.l1mark):esc(it.l1[i])}</p>
+    <div class="mine" lang="${it.lang}">${f.rung>=1?mark(f.cur,loc):esc(f.cur)}</div>
+    <ol class="ladder" lang="${it.ui}" aria-label="hint ladder">${S.rungs.map((r,k)=>`<li class="${f.rung>k?'on':''}">${r}</li>`).join('')}</ol>
+    ${f.startRung&&f.rung===f.startRung&&S.adapt?`<p class="note" style="margin:0 0 8px">${S.adapt}</p>`:''}
+    ${hints.length?`<div class="hints" lang="${it.ui}">${hints.map((h,k)=>`<div class="hint${f.fresh&&k===hints.length-1?' new':''}"><b>${h[0]}</b>${h[1]}</div>`).join('')}</div>`:''}
+    <div class="edit"><textarea rows="2" lang="${it.lang}" data-i="${i}" aria-label="${S.yours}" autocapitalize="off" autocomplete="off" spellcheck="false">${esc(f.draft)}</textarea>
+      <button class="btn primary" data-act="check" lang="${it.ui}">${S.check}</button></div>
+    <p class="fb ${f.msgCls}" role="status" aria-live="polite" lang="${it.ui}">${f.msg?`<span class="ico" aria-hidden="true">${f.msgCls==='try'?'↻':'·'}</span>${f.msg}`:''}</p>
+    <div class="acts" lang="${it.ui}"><button class="btn ${f.rung>=3?'quiet':'ghost'}" data-act="hint">${S.next[Math.min(f.rung,3)]}</button><span class="sp"></span>
+      ${f.rung<3?`<button class="btn link" data-act="show">${S.show}</button>`:''}<button class="btn link" data-act="dispute">${S.dispute}</button></div>
+  </div>`;
+}
+function doneHTML(it,S,s,i){
+  const f=s.flag, n=`<span class="num" aria-hidden="true">${i+1}</span>`;
+  const you=`<dt>${S.you}</dt><dd lang="${it.lang}">${esc(f.cur)}</dd>`;
+  const orig=`<dt>${S.orig}</dt><dd lang="${it.lang}">${f.good?mark(s.ref,f.good,'a'):esc(s.ref)}</dd>`;
+  const first=`<dt>${S.first}</dt><dd lang="${it.lang}">${mark(s.text,f.bad,'b')}</dd>`;
+  let chip,cls='done',body;
+  if(f.status==='fixed'){ chip=`<span class="chip good"><span aria-hidden="true">✓</span> ${S.fixed(f.rung)}</span>`; body=`<dl class="cmp">${first}${you}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div>`; }
+  else if(f.status==='alt'){ chip=`<span class="chip good"><span aria-hidden="true">✓</span> ${S.alt}</span>`; body=`<p class="note" style="margin:0 0 4px">${S.altNote}</p><dl class="cmp">${you}${orig}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div>`; }
+  else if(f.status==='revealed'){ cls='shown'; chip=`<span class="chip neutral"><span aria-hidden="true">→</span> ${S.shownT}</span>`; body=`<dl class="cmp">${first}${orig}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div><p class="note">${S.queue}</p>`; }
+  else if(f.status==='disputed'){ cls='shown'; chip=`<span class="chip neutral"><span aria-hidden="true">–</span> ${S.disputedT}</span>`; body=`<p class="note" style="margin:0 0 4px">${S.disputedNote}</p><dl class="cmp">${you}${orig}</dl>`; }
+  else if(f.status==='lowcmp'){ cls='shown'; chip=`<span class="chip low"><span aria-hidden="true">?</span> ${S.maybe}</span>`; body=`<dl class="cmp"><dt>${S.you}</dt><dd lang="${it.lang}">${mark(f.cur,f.bad,'b')}</dd>${orig}</dl><p class="note">${S.lowNote}</p>`; }
+  else { cls='shown'; chip=`<span class="chip low"><span aria-hidden="true">?</span> ${S.maybe}</span>`; body=`<div class="mine" lang="${it.lang}" style="margin:0">${esc(f.cur)}</div><p class="note">${S.lowLeft}</p>`; }
+  return `<div class="sent flag ${cls}" data-i="${i}"><div class="fh" lang="${it.ui}">${n}${chip}</div>${body}</div>`;
+}
+function episode(it,s,i){ const f=s.flag; return {sentence_idx:i, error_type:f.type, p_error:f.conf, severity:f.sev, start_rung:f.startRung, max_rung:f.status==='revealed'?4:f.rung,
+  outcome:{fixed:'self_repaired',alt:'repaired_alternative',revealed:'answer_shown',disputed:'disputed',lowcmp:'unsure_compared',lowleft:'unsure_dismissed'}[f.status],
+  revisions:f.revs.length, time_ms:f.ms, counts_toward_mastery:!f.low&&f.status!=='disputed'}; }
+function summaryHTML(it,S){
+  const rows=it.sents.map((s,i)=>s.flag?[s,i]:null).filter(Boolean).map(([s,i])=>{ const f=s.flag;
+    const v={fixed:S.fixed(f.rung)+' · '+(f.rung<=1?S.noqueue:S.queue),alt:S.alt,revealed:S.shownT+' · '+S.queue,disputed:S.disputedT,lowcmp:S.maybe,lowleft:S.maybe}[f.status];
+    return `<div class="sumrow"><span class="k">${esc(f.kind)}</span><span class="v">${v}</span></div>`; }).join('');
+  const rec=it.sents.map((s,i)=>s.flag?episode(it,s,i):null).filter(Boolean);
+  return `<div class="card summary" lang="${it.ui}" style="margin-top:14px"><h2>${S.sumT}</h2>${rows}
+    <div class="acts" style="margin-top:12px"><button class="btn primary" data-act="noop">${S.full}</button><button class="btn link" data-act="reset">Reset demo</button></div>
+    <details class="rec"><summary>${S.rec}</summary><pre>${esc(JSON.stringify(rec,null,1))}</pre></details></div>`;
+}
+function cleanHTML(it,S){
+  return `<div class="card clean" lang="${it.ui}"><div class="big" aria-hidden="true">✓</div><h2>${S.cleanT}</h2><p>${S.cleanP}</p></div>
+  <div style="margin-top:12px">${it.sents.map((s,i)=>`<div class="sent ok"><span class="num" aria-hidden="true">${i+1}</span><div class="t" lang="${it.lang}">${esc(s.text)}</div><span class="tag">${S.nothing}</span></div>`).join('')}</div>
+  <details class="card" style="margin-top:4px"><summary style="cursor:pointer;font-weight:600;color:var(--primary)">${S.cleanCmp}</summary><p class="note">${S.cleanSame}</p><div class="l1" lang="${it.lang}" style="margin-top:6px">${it.sents.map(s=>esc(s.text)).join('')}</div></details>`;
+}
+
+/* ---------- scripted "re-grade" ---------- */
+function close(f,status){ f.status=status; f.ms=f.t0?Date.now()-f.t0:0; }
+function act(a,i,el){
+  const it=ITEMS.find(x=>x.id===cur); if(!it) return;
+  if(a==='reset'){ location.reload(); return; }
+  if(a==='noop') return;
+  if(a==='skipall'){ it.sents.forEach(s=>{ if(s.flag&&s.flag.status==='open') close(s.flag,s.flag.low?'lowcmp':'revealed'); }); render(); return; }
+  const s=it.sents[i], f=s.flag, S=STR[it.ui];
+  if(a==='lowcmp') close(f,'lowcmp');
+  else if(a==='lowleave') close(f,'lowleft');
+  else if(a==='show') close(f,'revealed');
+  else if(a==='dispute') close(f,'disputed');
+  else if(a==='hint'){ if(f.rung>=3) close(f,'revealed'); else { f.rung++; f.fresh=true; f.msg=''; } }
+  else if(a==='check'){
+    const t=f.draft.trim();
+    if(t===f.cur){ f.msg=S.same; f.msgCls=''; }
+    else { f.revs.push(t); f.cur=t; f.draft=t;
+      if(t===s.ref||f.fix(t)) close(f,'fixed');
+      else if(f.alt&&f.alt(t)) close(f,'alt');
+      else { f.tries++; if(f.tries>=4){ close(f,'revealed'); } else { f.msg=f.tries>=2?S.still2:S.still; f.msgCls='try'; } }
+    }
+  }
+  render();
+  if(f.status==='open'){ const ta=document.querySelector(`textarea[data-i="${i}"]`); if(ta&&a==='check'){ ta.focus({preventScroll:true}); ta.setSelectionRange(ta.value.length,ta.value.length);} }
+}
+document.addEventListener('click',e=>{
+  const tab=e.target.closest('[data-tab]'); if(tab){ cur=tab.dataset.tab; render(); window.scrollTo(0,0); return; }
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const box=b.closest('[data-i]'); act(b.dataset.act, box?+box.dataset.i:null, b);
+});
+document.addEventListener('input',e=>{ if(e.target.matches('textarea[data-i]')){ const it=ITEMS.find(x=>x.id===cur); it.sents[+e.target.dataset.i].flag.draft=e.target.value; }});
+/* Enter = check, but never while an IME composition is open (zh/ja candidate selection also uses Enter). */
+document.addEventListener('keydown',e=>{ if(e.target.matches('textarea[data-i]')&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){ e.preventDefault(); act('check',+e.target.dataset.i); }});
+document.getElementById('themeBtn').addEventListener('click',()=>{ const r=document.documentElement; const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches; r.dataset.theme=dark?'light':'dark'; });
+
+/* ---------- progress view (sample data) ---------- */
+const STOPS=['Needs the answer','With a hint','When shown where','On a second look'];
+const PTYPES=[
+ {name:'了 / 过 / 着 (aspect markers)', now:1, was:0, eps:['A','A','3','A','2','3','2','2'], chip:['neutral','In review queue'], say:'A month ago you needed the answer. Now a clue is usually enough — the rule is forming.'},
+ {name:'Measure words (量词)', now:3, was:2, eps:['2','1','1','0','1','0','0','0'], chip:['good','Slip-level · no drills'], say:'You fix these as soon as you look again. We treat them as slips, not gaps.'},
+ {name:'把 / 被 sentences', now:0, was:0, eps:['A','A','3','A','A'], chip:['neutral','Being drilled'], say:'Hints haven\'t been enough yet, so we now show the answer sooner here and practise it in review.'},
+ {name:'的 / 地 / 得', now:3, was:3, eps:['1','0','0','0'], chip:['good','Not flagged in your last 6 passages'], say:'Hasn\'t come up lately. The checker can miss small slips, so this means "not seen", not "certified".'}
+];
+function progressHTML(){
+  return `<div class="head"><h1>How much help you needed</h1><span class="sub">Chinese · last 4 weeks · sample data</span></div>
+  <div class="banner">Lives on the existing <b>My Error Profile</b> page. No scores: each pattern shows how independently you repair it, and which way that is moving.</div>
+  <div class="stats">
+    <div class="stat"><div class="n">17</div><div class="d">sentences flagged this week</div></div>
+    <div class="stat"><div class="n">11</div><div class="d">fixed yourself (7 without any hint)</div></div>
+    <div class="stat"><div class="n">4</div><div class="d">needed the answer</div></div>
+    <div class="stat"><div class="n">2</div><div class="d">you disagreed — left out</div></div>
+  </div>
+  <div class="pgrid">${PTYPES.map(p=>`<section class="ptype">
+    <div class="pt-top"><h3 lang="zh">${esc(p.name)}</h3><span class="sp"></span><span class="chip ${p.chip[0]}">${p.chip[1]}</span></div>
+    <div class="track" role="img" aria-label="Now: ${STOPS[p.now]}. Four weeks ago: ${STOPS[p.was]}.">${STOPS.map((_,k)=>`<div class="stop${k<=p.now?' fill':''}${k===p.was&&p.was!==p.now?' was':''}"></div>`).join('')}</div>
+    <div class="tlabels">${STOPS.map((l,k)=>`<span class="${k===p.now?'now':''}">${l}${k===p.was&&p.was!==p.now?' <span aria-hidden="true">· 4 wks ago</span>':''}</span>`).join('')}</div>
+    <div class="strip"><span>Recent, oldest first:</span>${p.eps.map(e=>`<span class="ep h${e}" title="${e==='A'?'answer shown':e+' hints'}">${e}</span>`).join('')}</div>
+    <p class="say">${p.say}</p></section>`).join('')}
+    <section class="ptype"><div class="pt-top"><h3>Word choice &amp; collocation</h3><span class="sp"></span><span class="chip neutral">Answer shown directly</span></div>
+      <p class="say" style="margin-top:0">There's no rule to hint at for most of these, so we show you the original's wording straight away and add the useful ones to vocabulary review. 9 seen this month.</p></section>
+  </div>
+  <div class="legend"><span>Each square is one flagged sentence:</span><span class="ep h0">0</span> fixed with no hint <span class="ep h1">1</span><span class="ep">2</span><span class="ep">3</span> hints used <span class="ep hA">A</span> answer shown. Flags you disagreed with, and ones the checker was unsure about, are not counted.</div>`;
+}
+render();
+</script>
+</body>
+</html>
