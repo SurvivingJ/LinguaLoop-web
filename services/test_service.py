@@ -4,11 +4,16 @@ Test Service - Centralized business logic for test operations.
 Extracted from routes/tests.py to maintain separation of concerns.
 """
 
+import copy
 import json
 import hashlib
 import logging
+import threading
+import time
 import traceback
+import weakref
 from datetime import datetime, timezone, date
+from uuid import UUID
 
 from services.day_boundary import (
     local_day_start_utc, plan_row, plan_timezone, plan_today, plan_today_iso,
@@ -17,6 +22,7 @@ from typing import Optional, Dict, List, Any, Tuple
 
 from config import Config
 from services import request_cache
+from services.concurrency import run_parallel
 from services.supabase_factory import get_supabase, get_supabase_admin
 
 
@@ -40,8 +46,174 @@ from services.dimension_service import (
 logger = logging.getLogger(__name__)
 
 
+#: Most recent attempts the legacy daily load looks at. Equal to PostgREST's
+#: default row cap, which already truncated this read; now it is explicit.
+DAILY_LOAD_ATTEMPT_WINDOW = 1000
+
+
 class NoMatchingAttemptError(Exception):
     """daily-load/complete called for a test the user has not attempted today."""
+
+
+# ============================================================================
+# TEST LOOKUP AND STATIC CONTENT
+# ============================================================================
+
+def _is_uuid(value) -> bool:
+    try:
+        UUID(str(value))
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
+
+
+def find_active_test(db, identifier, columns: str) -> Optional[Dict]:
+    """Active test by slug, then by id when ``identifier`` is a uuid."""
+    res = db.table('tests').select(columns).eq('slug', identifier).eq('is_active', True).execute()
+    if not res.data and _is_uuid(identifier):
+        res = db.table('tests').select(columns).eq('id', identifier).eq('is_active', True).execute()
+    return res.data[0] if res.data else None
+
+
+def find_active_test_by_slug(db, slug, columns: str = 'id, language_id') -> Optional[Dict]:
+    """The single active test with this slug (submit paths)."""
+    return db.table('tests').select(columns).eq('slug', slug).eq('is_active', True) \
+        .single().execute().data
+
+
+class TTLCache:
+    """Small thread-safe cache: entries expire after ``ttl`` seconds and the
+    oldest entry is dropped beyond ``maxsize``. Values are deep-copied in and
+    out, so callers may mutate what they get."""
+
+    def __init__(self, maxsize: int, ttl: float):
+        self.maxsize, self.ttl = maxsize, ttl
+        self._lock = threading.Lock()
+        self._data: Dict[Any, Tuple[float, Any]] = {}
+
+    def get(self, key):
+        with self._lock:
+            hit = self._data.get(key)
+            if hit is None:
+                return None
+            if hit[0] < time.monotonic():
+                self._data.pop(key, None)
+                return None
+            value = hit[1]
+        return copy.deepcopy(value)
+
+    def put(self, key, value) -> None:
+        value = copy.deepcopy(value)
+        with self._lock:
+            self._data.pop(key, None)
+            while len(self._data) >= self.maxsize:
+                self._data.pop(next(iter(self._data)))
+            self._data[key] = (time.monotonic() + self.ttl, value)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._data.clear()
+
+
+#: Static content of a test as the test-open path reads it. Never holds
+#: anything that depends on the caller. One cache per database client.
+TEST_CONTENT_TTL_SECONDS = 120
+TEST_CONTENT_MAX_ENTRIES = 128
+_content_caches: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
+_content_caches_lock = threading.Lock()
+
+TEST_OPEN_COLUMNS = (
+    'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
+    'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
+    'vocab_token_map, pinyin_payload, pitch_payload, furigana_payload, '
+    'dim_languages(language_code, language_name)'
+)
+# TASK-882 / S14: the answer key (`answer`) and `answer_explanation` are
+# deliberately NOT selected -- grading is server-side and both come back only
+# in the submit response.
+TEST_OPEN_QUESTION_COLUMNS = (
+    'id, question_id, question_text, question_type_id, choices, '
+    'points, audio_url'
+)
+TEST_OPEN_SENSE_COLUMNS = (
+    'id, vocab_id, definition, pronunciation, sense_rank, definition_level, '
+    'dim_vocabulary(lemma, part_of_speech, language_id)'
+)
+
+
+def _content_cache(db) -> Optional[TTLCache]:
+    try:
+        with _content_caches_lock:
+            cache = _content_caches.get(db)
+            if cache is None:
+                cache = TTLCache(TEST_CONTENT_MAX_ENTRIES, TEST_CONTENT_TTL_SECONDS)
+                _content_caches[db] = cache
+            return cache
+    except TypeError:  # a client that cannot be weakly referenced: no caching
+        return None
+
+
+def _load_test_questions(db, test_id) -> List[Dict]:
+    # Ordered by question_id ("<slug>-qN", written in creation order) rather
+    # than left unordered: the furigana payload is POSITIONAL — the page reads
+    # furiganaPayload.questions[index] against this array's order — so an
+    # unspecified row order lets readings drift onto the wrong question.
+    return db.table('questions').select(TEST_OPEN_QUESTION_COLUMNS) \
+        .eq('test_id', test_id).order('question_id').execute().data
+
+
+def _load_test_sense_rows(db, token_map) -> List[Dict]:
+    sense_ids = list(set(s for _, s in (token_map or []) if s))
+    if not sense_ids:
+        return []
+    return db.table('dim_word_senses').select(TEST_OPEN_SENSE_COLUMNS) \
+        .in_('id', sense_ids).execute().data or []
+
+
+def get_test_content(db, identifier, also: Tuple = ()) -> Optional[Tuple]:
+    """Static content for opening a test: ``(content, extras)`` or None.
+
+    ``content`` is ``{'test': row, 'questions': rows, 'senses': rows}`` (the
+    dim_word_senses rows behind the token map), cached in-process for
+    TEST_CONTENT_TTL_SECONDS. ``also`` are callables taking the test row that
+    return per-request data (ratings, per-user reads); they are never cached
+    and run concurrently with whatever content still has to be read. Their
+    results come back as ``extras``, in order. They run outside the request
+    context.
+    """
+    cache = _content_cache(db)
+    key = ('open', str(identifier))
+    content = cache.get(key) if cache else None
+    if content is not None:
+        test = content['test']
+        return content, run_parallel(*[(lambda f=f: f(test)) for f in also])
+
+    test = find_active_test(db, identifier, TEST_OPEN_COLUMNS)
+    if not test:
+        return None
+    results = run_parallel(
+        lambda: _load_test_questions(db, test['id']),
+        lambda: _load_test_sense_rows(db, test.get('vocab_token_map')),
+        *[(lambda f=f: f(test)) for f in also],
+    )
+    content = {'test': test, 'questions': results[0], 'senses': results[1]}
+    if cache:
+        cache.put(key, content)
+    return content, results[2:]
+
+
+def get_test_skill_ratings(db, test_id) -> Dict[str, Dict]:
+    """{type_code: {elo_rating, total_attempts}} for one test."""
+    rows = db.table('test_skill_ratings').select(
+        'test_type_id, elo_rating, total_attempts, dim_test_types(type_code)'
+    ).eq('test_id', test_id).execute().data
+    return {
+        rating.get('dim_test_types', {}).get('type_code', 'unknown'): {
+            'elo_rating': rating['elo_rating'],
+            'total_attempts': rating['total_attempts'],
+        }
+        for rating in rows
+    }
 
 
 # ============================================================================
@@ -149,7 +321,12 @@ class TestService:
 
         try:
             # Fetch test
-            t_res = self.admin.table('tests').select('*').eq('slug', slug).limit(1).execute()
+            # Active tests only: this is served without login. Explicit
+            # columns: `tests` also carries the passage embedding and the
+            # token/pinyin/pitch payloads, none of which this shape uses.
+            t_res = self.admin.table('tests').select(
+                'id, slug, language_id, difficulty, transcript, created_at'
+            ).eq('slug', slug).eq('is_active', True).limit(1).execute()
             if not t_res.data:
                 return None
 
@@ -159,7 +336,7 @@ class TestService:
             # creation order) to match the positional furigana payload — see the
             # equivalent fetch in routes/tests.py.
             q_res = self.admin.table('questions')\
-                .select('*')\
+                .select('id, question_text, choices')\
                 .eq('test_id', t['id'])\
                 .order('question_id')\
                 .execute()
@@ -510,6 +687,7 @@ class TestService:
                 .eq('user_id', user_id)\
                 .eq('language_id', language_id)\
                 .order('created_at', desc=True)\
+                .limit(DAILY_LOAD_ATTEMPT_WINDOW)\
                 .execute()
         except Exception as e:
             logger.error(f"Error fetching attempts for daily load: {e}")
@@ -920,13 +1098,8 @@ class TestService:
 
         Returns a dict keyed by language code, each containing skill ratings.
         """
-        attempts_result = self.admin.table('test_attempts') \
-            .select('language_id, test_type_id, user_elo_after, created_at') \
-            .eq('user_id', user_id) \
-            .order('created_at', desc=True) \
-            .execute()
-
-        if not attempts_result.data:
+        skill_stats = self._skill_attempt_stats(user_id)
+        if not skill_stats:
             return {}
 
         # Build language lookup (Config -> DimensionService override)
@@ -958,19 +1131,6 @@ class TestService:
                     'code': tt.get('type_code', f'type_{tt_id}'),
                     'name': tt.get('type_name', f'Type {tt_id}'),
                 }
-
-        # Aggregate: keep only the most recent attempt per (language, test_type)
-        skill_stats: Dict[tuple, Dict] = {}
-        for attempt in attempts_result.data:
-            key = (attempt['language_id'], attempt['test_type_id'])
-            if key not in skill_stats:
-                skill_stats[key] = {
-                    'elo_rating': attempt['user_elo_after'],
-                    'last_test_date': attempt['created_at'],
-                    'tests_taken': 1,
-                }
-            else:
-                skill_stats[key]['tests_taken'] += 1
 
         # Build structured response
         ratings: Dict[str, Any] = {}
@@ -1004,6 +1164,110 @@ class TestService:
             }
 
         return ratings
+
+    def _skill_attempt_stats(self, user_id: str) -> Dict[tuple, Dict]:
+        """{(language_id, test_type_id): {elo_rating, last_test_date,
+        tests_taken}} from test_attempts, most recently attempted skill first.
+
+        Reads one row and an exact count per skill the user has a rating row
+        for, instead of the whole attempt history. A total-count check proves
+        no attempt was missed (a skill without a rating row, a NULL key);
+        if it does not add up, or any read fails, the full history is read
+        as before.
+        """
+        try:
+            pairs = self.admin.table('user_skill_ratings') \
+                .select('language_id, test_type_id') \
+                .eq('user_id', user_id) \
+                .execute().data or []
+            keys = list(dict.fromkeys((p['language_id'], p['test_type_id']) for p in pairs))
+            if keys and len(keys) <= self._MAX_SKILL_READS:
+                def latest(key):
+                    return self.admin.table('test_attempts') \
+                        .select('user_elo_after, created_at', count='exact') \
+                        .eq('user_id', user_id) \
+                        .eq('language_id', key[0]) \
+                        .eq('test_type_id', key[1]) \
+                        .order('created_at', desc=True) \
+                        .limit(1) \
+                        .execute()
+
+                total, *per_skill = run_parallel(
+                    lambda: self.admin.table('test_attempts')
+                    .select('id', count='exact', head=True)
+                    .eq('user_id', user_id).execute(),
+                    *[(lambda k=k: latest(k)) for k in keys],
+                )
+                found = []
+                counted = 0
+                for key, res in zip(keys, per_skill):
+                    if not res.data:
+                        continue
+                    if not isinstance(res.count, int):
+                        raise ValueError('no exact count returned')
+                    counted += res.count
+                    found.append((key, {
+                        'elo_rating': res.data[0]['user_elo_after'],
+                        'last_test_date': res.data[0]['created_at'],
+                        'tests_taken': res.count,
+                    }))
+                if isinstance(total.count, int) and counted == total.count:
+                    found.sort(key=lambda kv: kv[1]['last_test_date'] or '', reverse=True)
+                    return dict(found)
+        except Exception as e:
+            logger.info("per-skill attempt stats unavailable, reading full history: %s", e)
+
+        attempts_result = self.admin.table('test_attempts') \
+            .select('language_id, test_type_id, user_elo_after, created_at') \
+            .eq('user_id', user_id) \
+            .order('created_at', desc=True) \
+            .execute()
+
+        # Keep only the most recent attempt per (language, test_type)
+        skill_stats: Dict[tuple, Dict] = {}
+        for attempt in attempts_result.data or []:
+            key = (attempt['language_id'], attempt['test_type_id'])
+            if key not in skill_stats:
+                skill_stats[key] = {
+                    'elo_rating': attempt['user_elo_after'],
+                    'last_test_date': attempt['created_at'],
+                    'tests_taken': 1,
+                }
+            else:
+                skill_stats[key]['tests_taken'] += 1
+        return skill_stats
+
+    _MAX_SKILL_READS = 14
+
+    # -------------------------------------------------------------------------
+    # DICTATION WITHHOLDING
+    # -------------------------------------------------------------------------
+
+    def has_pending_dictation_slot(self, user_id: str, language_id: int, test_id: str) -> bool:
+        """True when today's daily load schedules this test as dictation and
+        the slot is not completed yet. A failed read counts as not pending."""
+        try:
+            today = plan_today_iso(self.admin, user_id, language_id)
+            rows = self.admin.table('daily_test_loads')\
+                .select('test_ids, completed_test_ids')\
+                .eq('user_id', user_id)\
+                .eq('language_id', language_id)\
+                .eq('load_date', today)\
+                .limit(1)\
+                .execute().data or []
+        except Exception as e:
+            logger.warning("dictation slot check failed for test %s: %s", test_id, e)
+            return False
+        if not rows:
+            return False
+        completed = {str(t) for t in (rows[0].get('completed_test_ids') or [])}
+        if str(test_id) in completed:
+            return False
+        return any(
+            isinstance(t, dict) and str(t.get('test_id')) == str(test_id)
+            and t.get('test_type') == 'dictation'
+            for t in (rows[0].get('test_ids') or [])
+        )
 
 
 # ============================================================================

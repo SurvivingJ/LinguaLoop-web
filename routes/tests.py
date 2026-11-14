@@ -1,25 +1,25 @@
 # routes/tests.py
 """Test routes - handles test CRUD, generation, and submission."""
 
-from flask import Blueprint, request, jsonify, current_app, g
+from flask import Blueprint, request, current_app, g
+from functools import wraps
 from uuid import uuid4
 import traceback
-from datetime import datetime
 import logging
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.ai_service import ModerationServiceError
-from services.attempt_timing import (
-    AttemptTimingError, clamp_time_taken, validate_attempt_window, validate_counts,
-)
-from services.study_time import credit_study_time
+from services import attempts
+from services.attempt_timing import AttemptTimingError, clamp_time_taken, validate_counts
+from services.concurrency import run_parallel
 from services.day_boundary import local_day_start_utc, plan_timezone
 from services.dual_translation.sentence_refs import LANG_ID as SENTENCE_L1_IDS
 from services.dictation.cap import MAX_STORED_DIFF_ENTRIES
 from services.test_service import (
     TestService, DimensionService, NoMatchingAttemptError, get_test_service,
-    parse_language_id, VALID_LANGUAGE_IDS
+    parse_language_id, VALID_LANGUAGE_IDS,
+    find_active_test, find_active_test_by_slug, get_test_content, get_test_skill_ratings,
 )
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from utils.responses import (
@@ -253,6 +253,24 @@ def get_tests_with_ratings():
         current_app.logger.error(f"Error fetching tests: {e}", exc_info=True)
         return server_error("Failed to fetch tests")
 
+def _public_cacheable(response):
+    """Mark a response that carries no per-user data as briefly cacheable."""
+    body, status = response
+    body.headers['Cache-Control'] = 'private, max-age=60'
+    return body, status
+
+
+def _transcript_withheld_for(db, user_id, test):
+    """Dictation withholding decided on the server: True while today's daily
+    load schedules this test as dictation for this learner and the slot is not
+    completed. A test has no type of its own (the same test is read, listened
+    to and dictated), so the scheduled slot is what makes it a dictation."""
+    if not user_id:
+        return False
+    return TestService(supabase_admin=db).has_pending_dictation_slot(
+        user_id, test.get('language_id'), test['id'])
+
+
 @tests_bp.route('/<slug>', methods=['GET'])
 #@supabase_jwt_required
 def get_test(slug):
@@ -265,118 +283,31 @@ def get_test(slug):
 
         normalize_audio_url(test_data)
 
+        from middleware.auth import get_optional_user_id
+        user_id = get_optional_user_id(request)
+        if user_id and current_app.supabase_service and _transcript_withheld_for(
+                current_app.supabase_service, user_id, test_data):
+            test_data['transcript'] = ''
+
         logger.debug(f"Returning test data for slug: {slug}")
-        return api_success(data={"test": test_data})
+        response = api_success(data={"test": test_data})
+        return response if user_id else _public_cacheable(response)
 
     except Exception as e:
         current_app.logger.error(f"Error in get_test route: {e}")
         return server_error("Failed to fetch test")
-        
-def _normalize_timing(request_body):
-    """Validate/clamp started_at + finished_at in place (TASK-882 / S15).
-
-    Call BEFORE the submission RPC so a forged window is rejected (400) and
-    nothing is recorded. Raises AttemptTimingError; callers return bad_request.
-    """
-    started, finished = validate_attempt_window(
-        request_body.get('started_at'), request_body.get('finished_at'),
-    )
-    request_body['started_at'] = started
-    request_body['finished_at'] = finished
 
 
-def _complete_daily_slot(user_id, language_id, test_id):
-    """Post-submission hook — mark today's daily-load slot for this test done.
-
-    Best-effort, like _apply_timing_and_progress: the learner already has
-    their result. Without this the slot was only marked on the results card's
-    "Next" button, so leaving from the results card re-served the test.
-    """
-    if not (user_id and language_id and test_id):
-        return
-    try:
-        TestService(supabase_admin=current_app.supabase_service)\
-            .mark_daily_slot_complete_on_submit(user_id, language_id, test_id)
-    except Exception as e:
-        current_app.logger.warning(
-            "daily slot completion on submit failed (test=%s): %s", test_id, e)
-
-
-def _apply_timing_and_progress(client, attempt_id, request_body,
-                               user_id=None, language_id=None, kind='test'):
-    """Post-submission hook — persist timing + bump Study Plan counter.
-
-    Phase 13. Best-effort: failures are logged but never bubble up to the
-    learner, who has already received their submission result. Both
-    timestamps are optional; missing timestamps mean the FE didn't capture
-    them (older clients) and we skip the duration UPDATE while still
-    incrementing the test counter.
-
-    Args:
-        client: Supabase service client.
-        attempt_id: UUID returned by the submission RPC.
-        request_body: the request JSON dict (we read started_at /
-            finished_at from it).
-        user_id, language_id: when both are given, the measured window is
-            also credited to the weekly study-time ledger (weekly-minutes,
-            ADR-035) as ``kind`` ('test' or 'drill').
-
-    See migrations/phase13_apply_attempt_timing_and_progress.sql.
-    """
-    if not attempt_id:
-        return
-    started_at  = request_body.get('started_at')   # ISO timestamp or None
-    finished_at = request_body.get('finished_at')
-    if kind == 'drill':
-        # Drill routes do not pre-validate the window like the test routes do
-        # (_normalize_timing); a forged/garbled window is dropped, not stored.
-        try:
-            started_at, finished_at = validate_attempt_window(started_at, finished_at)
-        except AttemptTimingError:
-            started_at, finished_at = None, None
-    try:
-        client.rpc('apply_attempt_timing_and_progress', {
-            'p_attempt_id':  str(attempt_id),
-            'p_started_at':  started_at,
-            'p_finished_at': finished_at,
-        }).execute()
-    except Exception as e:
-        # Non-fatal — timing capture and Study Plan counters are best-effort.
-        current_app.logger.warning(
-            f"apply_attempt_timing_and_progress failed (non-fatal) for "
-            f"attempt={attempt_id}: {e}"
-        )
-
-    _credit_attempt_window(
-        client, attempt_id, started_at, finished_at, user_id, language_id, kind,
-    )
-
-
-def _credit_attempt_window(client, attempt_id, started_at, finished_at,
-                           user_id, language_id, kind):
-    """Credit the validated, clamped attempt window to the study-time ledger.
-
-    Never raises. No window (older clients) or an invalid one earns nothing:
-    missing test timing is not estimated (weekly-minutes tech spec, decision 3).
-    """
-    if not user_id or language_id is None:
-        return
-    try:
-        # Re-validate/clamp: drill routes pass the raw body, and this keeps
-        # the credit bounded by MAX_CREDITED_ATTEMPT_SECONDS regardless.
-        start_iso, finish_iso = validate_attempt_window(started_at, finished_at)
-        if not start_iso or not finish_iso:
-            return
-        seconds = int((datetime.fromisoformat(finish_iso)
-                       - datetime.fromisoformat(start_iso)).total_seconds())
-        credit_study_time(
-            client, user_id, language_id, kind, seconds,
-            'test_attempts', str(attempt_id),
-        )
-    except Exception as e:
-        current_app.logger.warning(
-            f"study-time credit skipped (non-fatal) for attempt={attempt_id}: {e}"
-        )
+# Post-submission hooks. The logic lives in services.attempts; these names are
+# kept because routes/classifier_drill.py and routes/counter_drill.py import
+# _apply_timing_and_progress from here.
+_normalize_timing = attempts.normalize_timing
+_complete_daily_slot = attempts.complete_daily_slot
+_apply_timing_and_progress = attempts.apply_timing_and_progress
+_credit_attempt_window = attempts.credit_attempt_window
+_update_vocabulary_tracking = attempts.track_vocabulary
+_attach_explanations = attempts.attach_explanations
+_build_submission_response = attempts.build_submission_response
 
 
 # CR-04: the four submission RPCs return {success:false, error:SQLERRM,
@@ -424,17 +355,21 @@ def _is_missing_function_error(exc) -> bool:
     return code == 'PGRST202' or 'PGRST202' in text or 'Could not find the function' in text
 
 
-def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False, idempotency_key=None, prestudied=False):
-    """Call the process_test_submission RPC and handle JSONB response quirks.
+def _submit_rpc(client, rpc_name, user_id, test_id, language_id, test_type_id,
+                idempotency_key, extra, optional_param=None):
+    """Call one of the process_*_submission RPCs and handle JSONB response quirks.
 
     Returns the parsed RPC result dict on success, or a
     ``(jsonify_response, status_code)`` tuple on failure. Failure envelopes
     never include SQLERRM text — see CR-04.
+
+    ``optional_param`` names a parameter in ``extra`` that an older database
+    function may not have: when PostgREST reports the function missing, the
+    call is repeated once without it.
     """
     def _on_success(data):
         current_app.logger.info(
-            "process_test_submission succeeded: attempt_id=%s",
-            data.get('attempt_id'),
+            "%s succeeded: attempt_id=%s", rpc_name, data.get('attempt_id'),
         )
 
     params = {
@@ -442,463 +377,289 @@ def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db
         'p_test_id': test_id,
         'p_language_id': language_id,
         'p_test_type_id': test_type_id,
-        'p_responses': db_responses,
         'p_was_free_test': True,
         'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
-        'p_furigana_used': bool(furigana_used),
+        **extra,
     }
-    if prestudied:
-        # Only sent when true, so a database without migrations/prestudy_elo_factor.sql
-        # keeps working for every ordinary submission.
-        params['p_prestudied'] = True
     try:
-        response = client.rpc('process_test_submission', params).execute()
+        response = client.rpc(rpc_name, params).execute()
     except Exception as e:
-        if prestudied and _is_missing_function_error(e):
-            # The 0.5x ELO migration is not applied yet: grade the attempt at
-            # full K rather than fail it.
+        if optional_param in params and _is_missing_function_error(e):
             current_app.logger.warning(
-                "process_test_submission has no p_prestudied yet; submitting without it")
-            params.pop('p_prestudied', None)
-            try:
-                response = client.rpc('process_test_submission', params).execute()
-            except Exception as e2:
-                error_data = e2.json() if hasattr(e2, 'json') else (e2.args[0] if e2.args else {})
-                return _unwrap_rpc_response('process_test_submission', error_data, _on_success)
-            return _unwrap_rpc_response('process_test_submission', response.data, _on_success)
+                "%s has no %s yet; submitting without it", rpc_name, optional_param)
+            del extra[optional_param]
+            return _submit_rpc(client, rpc_name, user_id, test_id, language_id, test_type_id,
+                               params['p_idempotency_key'], extra)
         # supabase-py raises on JSONB responses; rescue the payload here so
         # we can dispatch both success and failure paths uniformly.
         error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-        return _unwrap_rpc_response('process_test_submission', error_data, _on_success)
+        return _unwrap_rpc_response(rpc_name, error_data, _on_success)
 
-    return _unwrap_rpc_response('process_test_submission', response.data, _on_success)
+    return _unwrap_rpc_response(rpc_name, response.data, _on_success)
+
+
+def _call_submission_rpc(client, user_id, test_id, language_id, test_type_id, db_responses, furigana_used=False, idempotency_key=None, prestudied=False):
+    extra = {'p_responses': db_responses, 'p_furigana_used': bool(furigana_used)}
+    if prestudied:
+        # Only sent when true, so a database without migrations/prestudy_elo_factor.sql
+        # keeps working for every ordinary submission; if the function lacks the
+        # parameter the attempt is graded at full K rather than failed.
+        extra['p_prestudied'] = True
+    return _submit_rpc(client, 'process_test_submission', user_id, test_id, language_id,
+                       test_type_id, idempotency_key, extra, optional_param='p_prestudied')
 
 
 def _call_dictation_submission_rpc(
     client, user_id, test_id, language_id, test_type_id,
     word_correct, word_total, replay_count, diff_payload, idempotency_key,
 ):
-    """Call the process_dictation_submission RPC. See _call_submission_rpc
-    for the CR-04 envelope contract."""
-    def _on_success(data):
-        current_app.logger.info(
-            "process_dictation_submission succeeded: attempt_id=%s",
-            data.get('attempt_id'),
-        )
-
-    try:
-        response = client.rpc('process_dictation_submission', {
-            'p_user_id': user_id,
-            'p_test_id': test_id,
-            'p_language_id': language_id,
-            'p_test_type_id': test_type_id,
-            'p_word_correct': int(word_correct),
-            'p_word_total': int(word_total),
-            'p_replay_count': int(replay_count),
-            'p_diff_payload': diff_payload,
-            'p_was_free_test': True,
-            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
-        }).execute()
-    except Exception as e:
-        error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-        return _unwrap_rpc_response('process_dictation_submission', error_data, _on_success)
-
-    return _unwrap_rpc_response('process_dictation_submission', response.data, _on_success)
+    return _submit_rpc(client, 'process_dictation_submission', user_id, test_id, language_id,
+                       test_type_id, idempotency_key, {
+                           'p_word_correct': int(word_correct),
+                           'p_word_total': int(word_total),
+                           'p_replay_count': int(replay_count),
+                           'p_diff_payload': diff_payload,
+                       })
 
 
 def _call_pinyin_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_chars, total_chars, idempotency_key=None):
-    """Call the process_pinyin_submission RPC. See _call_submission_rpc
-    for the CR-04 envelope contract."""
-    def _on_success(data):
-        current_app.logger.info(
-            "process_pinyin_submission succeeded: attempt_id=%s",
-            data.get('attempt_id'),
-        )
-
-    try:
-        response = client.rpc('process_pinyin_submission', {
-            'p_user_id': user_id,
-            'p_test_id': test_id,
-            'p_language_id': language_id,
-            'p_test_type_id': test_type_id,
-            'p_correct_chars': int(correct_chars),
-            'p_total_chars': int(total_chars),
-            'p_was_free_test': True,
-            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
-        }).execute()
-    except Exception as e:
-        error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-        return _unwrap_rpc_response('process_pinyin_submission', error_data, _on_success)
-
-    return _unwrap_rpc_response('process_pinyin_submission', response.data, _on_success)
+    return _submit_rpc(client, 'process_pinyin_submission', user_id, test_id, language_id,
+                       test_type_id, idempotency_key, {
+                           'p_correct_chars': int(correct_chars),
+                           'p_total_chars': int(total_chars),
+                       })
 
 
 def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, test_type_id, correct_units, total_units, furigana_used=False, idempotency_key=None):
-    """Call the process_pitch_accent_submission RPC. See _call_submission_rpc
-    for the CR-04 envelope contract."""
-    def _on_success(data):
-        current_app.logger.info(
-            "process_pitch_accent_submission succeeded: attempt_id=%s",
-            data.get('attempt_id'),
-        )
-
-    try:
-        response = client.rpc('process_pitch_accent_submission', {
-            'p_user_id': user_id,
-            'p_test_id': test_id,
-            'p_language_id': language_id,
-            'p_test_type_id': test_type_id,
-            'p_correct_units': int(correct_units),
-            'p_total_units': int(total_units),
-            'p_was_free_test': True,
-            'p_idempotency_key': str(idempotency_key) if idempotency_key else str(uuid4()),
-            'p_furigana_used': bool(furigana_used),
-        }).execute()
-    except Exception as e:
-        error_data = e.json() if hasattr(e, 'json') else (e.args[0] if e.args else {})
-        return _unwrap_rpc_response('process_pitch_accent_submission', error_data, _on_success)
-
-    return _unwrap_rpc_response('process_pitch_accent_submission', response.data, _on_success)
+    return _submit_rpc(client, 'process_pitch_accent_submission', user_id, test_id, language_id,
+                       test_type_id, idempotency_key, {
+                           'p_correct_units': int(correct_units),
+                           'p_total_units': int(total_units),
+                           'p_furigana_used': bool(furigana_used),
+                       })
 
 
-def _update_vocabulary_tracking(user_id, test_id, language_id, rpc_result):
-    """Run BKT vocabulary tracking and build a word quiz from question results.
+# ---------------------------------------------------------------------------
+# Shared skeleton of the four submit handlers
+# ---------------------------------------------------------------------------
 
-    Returns a word_quiz dict or None. Failures are logged but never raised.
+def _submit_handler(log_label, failure_message):
+    """Wrap a submit handler ``fn(slug, db, user_id, data)``: database check,
+    JSON body, and the handler's error envelope."""
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(slug):
+            try:
+                db = current_app.supabase_service
+                if not db:
+                    return server_error("Database service not configured")
+                return fn(slug, db, g.current_user_id, request.get_json() or {})
+            except Exception as e:
+                current_app.logger.error(f"{log_label} submission error: {e}")
+                current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+                return server_error(failure_message)
+        return wrapper
+    return decorator
+
+
+def _record_submission(rpc_result, db, data, user_id, language_id, test_id,
+                       log_label, failure_message):
+    """After a submission RPC: ``(error_response, pending)``.
+
+    ``error_response`` is the response to return when the RPC failed, else
+    None. On success the timing/progress and daily-slot hooks (best-effort)
+    are started; the handler must ``attempts.join(pending)`` before answering.
     """
-    try:
-        question_results_raw = rpc_result.get('question_results', [])
-        current_app.logger.info(f"BKT: {len(question_results_raw)} question results from RPC")
+    if isinstance(rpc_result, tuple):
+        return rpc_result, []
+    # The wrappers already convert any {success:false} payload into the generic
+    # envelope tuple, so this branch is a belt-and-suspenders guard. Do NOT
+    # forward error_msg to the client — it may contain SQLERRM text (CR-04).
+    if not rpc_result or not rpc_result.get('success'):
+        error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
+        error_detail = rpc_result.get('error_detail', '') if rpc_result else ''
+        current_app.logger.error(f"{log_label} RPC failed: {error_msg} (detail: {error_detail})")
+        return server_error(failure_message), []
 
-        if not question_results_raw:
-            return None
-
-        bkt_question_results = [
-            {'question_id': str(qr['question_id']), 'is_correct': qr.get('is_correct', False)}
-            for qr in question_results_raw
-            if qr.get('question_id')
-        ]
-        current_app.logger.info(f"BKT: {len(bkt_question_results)} valid question results")
-
-        if not bkt_question_results:
-            return None
-
-        knowledge_svc = VocabularyKnowledgeService()
-        vocab_updates = knowledge_svc.update_from_comprehension(
-            user_id=user_id, language_id=language_id, question_results=bkt_question_results,
-        )
-        current_app.logger.info(f"BKT: {len(vocab_updates)} vocab updates returned")
-
-        # Contextual inference: dampened update for transcript words not directly tested
-        score = rpc_result.get('score', 0)
-        total = rpc_result.get('total_questions', 1) or 1
-        score_ratio = score / total
-        contextual_count = knowledge_svc.apply_contextual_inference(
-            user_id=user_id, language_id=language_id,
-            test_id=str(test_id),
-            question_results=bkt_question_results,
-            score_ratio=score_ratio,
-        )
-        if contextual_count:
-            current_app.logger.info(f"BKT: {contextual_count} contextual senses boosted")
-
-        # Collect all sense_ids from questions for quiz candidate selection
-        all_sense_ids = set()
-        questions_resp = knowledge_svc.db.table('questions') \
-            .select('sense_ids').eq('test_id', str(test_id)).execute()
-        for q in (questions_resp.data or []):
-            if q.get('sense_ids'):
-                all_sense_ids.update(q['sense_ids'])
-
-        current_app.logger.info(f"BKT: {len(all_sense_ids)} unique sense_ids from questions")
-
-        if not all_sense_ids:
-            current_app.logger.warning("BKT: No sense_ids on questions — run backfill_question_sense_ids.py")
-            return None
-
-        from services.vocabulary.gloss_lookup import get_user_definition_language_id
-        preferred_def_lang_id = get_user_definition_language_id(knowledge_svc.db, user_id)
-
-        quiz_candidates = knowledge_svc.build_quiz_with_distractors(
-            user_id=user_id, sense_ids=list(all_sense_ids),
-            language_id=language_id, max_words=5,
-            preferred_definition_language_id=preferred_def_lang_id,
-        )
-        current_app.logger.info(f"BKT: {len(quiz_candidates)} quiz candidates with distractors")
-
-        if quiz_candidates:
-            attempt_id = rpc_result.get('attempt_id')
-            return {
-                'candidates': quiz_candidates,
-                'attempt_id': str(attempt_id) if attempt_id else None,
-            }
-        return None
-
-    except Exception as e:
-        current_app.logger.error(f"BKT/word quiz failed (non-fatal): {e}\n{traceback.format_exc()}")
-        return None
-
-
-def _attach_explanations(result, test_id):
-    """Add ``answer_explanation`` to each question_result (TASK-882 / S14).
-
-    The explanation (like the correct answer, which the grading RPC already
-    returns in question_results) is revealed only here, after submit. Failure
-    is non-fatal: the learner just sees no explanation.
-    """
-    try:
-        rows = current_app.supabase_service.table('questions') \
-            .select('id, answer_explanation').eq('test_id', str(test_id)).execute().data or []
-        by_id = {str(r['id']): r.get('answer_explanation') for r in rows}
-        for qr in result.get('question_results') or []:
-            if isinstance(qr, dict):
-                qr['answer_explanation'] = by_id.get(str(qr.get('question_id')))
-    except Exception as e:
-        current_app.logger.warning("answer_explanation lookup failed (non-fatal): %s", e)
-
-
-def _build_submission_response(rpc_result, test_mode, word_quiz):
-    """Construct the API response dict from RPC results and optional word quiz."""
-    attempt_id = rpc_result.get('attempt_id')
-    result = {
-        'score': rpc_result.get('score'),
-        'total_questions': rpc_result.get('total_questions'),
-        'percentage': rpc_result.get('percentage'),
-        'question_results': rpc_result.get('question_results', []),
-        'is_first_attempt': rpc_result.get('is_first_attempt', True),
-        'user_elo_change': {
-            'before': rpc_result.get('user_elo_before'),
-            'after': rpc_result.get('user_elo_after'),
-            'change': rpc_result.get('user_elo_change', 0)
-        },
-        'test_elo_change': {
-            'before': rpc_result.get('test_elo_before'),
-            'after': rpc_result.get('test_elo_after'),
-            'change': rpc_result.get('test_elo_change', 0)
-        },
-        'elo_reduction_factor': rpc_result.get('elo_reduction_factor'),
-        'test_mode': test_mode,
-        'attempt_id': str(attempt_id) if attempt_id else None,
-    }
-    if word_quiz:
-        result['word_quiz'] = word_quiz
-    return result
+    # Phase 13 — persist timing + bump Study Plan counter (best-effort).
+    return None, [
+        attempts.defer(_apply_timing_and_progress, db, rpc_result.get('attempt_id'), data,
+                       user_id=user_id, language_id=language_id),
+        attempts.defer(_complete_daily_slot, user_id=user_id, language_id=language_id,
+                       test_id=test_id, db=db),
+    ]
 
 
 @tests_bp.route('/<slug>/submit', methods=['POST'])
 @supabase_jwt_required
-def submit_test_attempt(slug):
+@_submit_handler('Test', 'Failed to submit test')
+def submit_test_attempt(slug, db, current_user_id, data):
     """Submit test answers and calculate ELO changes with idempotency support"""
+    responses = data.get('responses', [])
+    test_mode = data.get('test_mode', 'reading').lower()
+    furigana_used = bool(data.get('furigana_used', False))
+    prestudied = data.get('prestudied') is True
+    idempotency_key = data.get('idempotency_key') or str(uuid4())
+
+    if not responses:
+        return bad_request("No responses provided")
+
     try:
-        if not current_app.supabase_service:
-            return server_error("Database service not configured")
+        _normalize_timing(data)
+    except AttemptTimingError as e:
+        return bad_request(str(e))
 
-        current_user_id = g.current_user_id
+    # Lightweight test lookup (just id and language_id, no questions)
+    test = find_active_test_by_slug(db, slug)
+    if not test:
+        return not_found(f"Test not found: {slug}")
 
-        data = request.get_json() or {}
-        responses = data.get('responses', [])
-        test_mode = data.get('test_mode', 'reading').lower()
-        furigana_used = bool(data.get('furigana_used', False))
-        prestudied = data.get('prestudied') is True
-        idempotency_key = data.get('idempotency_key') or str(uuid4())
+    test_id = test['id']
+    language_id = test['language_id']
 
-        if not responses:
-            return bad_request("No responses provided")
+    # Get test_type_id from the test_mode using DimensionService cache
+    test_type_id = DimensionService.get_test_type_id(test_mode)
+    if not test_type_id:
+        logger.warning(f"Unknown test_mode '{test_mode}', defaulting to reading")
+        test_type_id = DimensionService.get_test_type_id('reading') or 1
 
+    # Transform responses: strip 'is_correct' field (DB will calculate).
+    db_responses = [{"question_id": str(r['question_id']), "selected_answer": r['selected_answer']} for r in responses]
+
+    # Test prestudy: the attempt is prestudied when a completed prime for
+    # this test exists in the last 6 hours (server-verified). The client
+    # flag only counts while prestudy_sessions does not exist yet.
+    from services import prestudy as _prestudy
+
+    def _verify_prestudy():
         try:
-            _normalize_timing(data)
-        except AttemptTimingError as e:
-            return bad_request(str(e))
-
-        # Lightweight test lookup (just id and language_id, no questions)
-        test_lookup = current_app.supabase_service.table('tests')\
-            .select('id, language_id')\
-            .eq('slug', slug)\
-            .eq('is_active', True)\
-            .single()\
-            .execute()
-
-        if not test_lookup.data:
-            return not_found(f"Test not found: {slug}")
-
-        test_id = test_lookup.data['id']
-        language_id = test_lookup.data['language_id']
-
-        # Get test_type_id from the test_mode using DimensionService cache
-        test_type_id = DimensionService.get_test_type_id(test_mode)
-        if not test_type_id:
-            logger.warning(f"Unknown test_mode '{test_mode}', defaulting to reading")
-            test_type_id = DimensionService.get_test_type_id('reading') or 1
-
-        # Transform responses: strip 'is_correct' field (DB will calculate).
-        db_responses = [{"question_id": str(r['question_id']), "selected_answer": r['selected_answer']} for r in responses]
-
-        # Test prestudy: the attempt is prestudied when a completed prime for
-        # this test exists in the last 6 hours (server-verified). The client
-        # flag only counts while prestudy_sessions does not exist yet.
-        prestudy_session_id = None
-        try:
-            from services import prestudy as _prestudy
-            prestudy_session_id, verifiable = _prestudy.find_prestudy_for_attempt(
-                current_app.supabase_service, current_user_id, test_id)
-            if verifiable:
-                prestudied = prestudy_session_id is not None
+            return _prestudy.find_prestudy_for_attempt(db, current_user_id, test_id)
         except Exception as e:
             logger.warning("prestudy verification skipped: %s", e)
+            return None, False
 
-        # Call database RPC for validation, ELO calculation and attempt recording
-        rpc_result = _call_submission_rpc(
-            current_app.supabase_service, current_user_id,
-            test_id, language_id, test_type_id, db_responses,
-            furigana_used=furigana_used, idempotency_key=idempotency_key,
-            prestudied=prestudied,
-        )
-        if isinstance(rpc_result, tuple):
-            return rpc_result  # Error response
+    # The questions (sense ids, explanations) are read once here, alongside
+    # the prestudy check, and handed to everything after the RPC.
+    (prestudy_session_id, verifiable), question_rows = run_parallel(
+        _verify_prestudy, lambda: attempts.load_question_rows(db, test_id))
+    if verifiable:
+        prestudied = prestudy_session_id is not None
 
-        # Validate the result. The wrapper above already converts any
-        # {success:false} payload into the generic envelope tuple, so this
-        # branch is a belt-and-suspenders guard. Do NOT forward error_msg
-        # to the client — it may contain SQLERRM text (CR-04).
-        if not rpc_result or not rpc_result.get('success'):
-            error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
-            error_detail = rpc_result.get('error_detail', '') if rpc_result else ''
-            current_app.logger.error(f"ELO RPC failed: {error_msg} (detail: {error_detail})")
-            return server_error("submission_failed")
+    # Call database RPC for validation, ELO calculation and attempt recording
+    rpc_result = _call_submission_rpc(
+        db, current_user_id,
+        test_id, language_id, test_type_id, db_responses,
+        furigana_used=furigana_used, idempotency_key=idempotency_key,
+        prestudied=prestudied,
+    )
+    error, pending = _record_submission(
+        rpc_result, db, data, current_user_id, language_id, test_id,
+        'ELO', 'submission_failed')
+    if error:
+        return error
 
-        current_app.logger.info(
-            f"Test submitted: user={current_user_id}, test={test_id}, "
-            f"attempt={rpc_result.get('attempt_id')}, "
-            f"score={rpc_result.get('score', 0)}/{rpc_result.get('total_questions', 0)}"
-        )
-
-        # Phase 13 — persist timing + bump Study Plan counter (best-effort).
-        _apply_timing_and_progress(
-            current_app.supabase_service, rpc_result.get('attempt_id'), data,
-            user_id=current_user_id, language_id=language_id,
-        )
-        _complete_daily_slot(current_user_id, language_id, test_id)
+    current_app.logger.info(
+        f"Test submitted: user={current_user_id}, test={test_id}, "
+        f"attempt={rpc_result.get('attempt_id')}, "
+        f"score={rpc_result.get('score', 0)}/{rpc_result.get('total_questions', 0)}"
+    )
+    try:
+        if prestudied and prestudy_session_id:
+            pending.append(attempts.defer(
+                _prestudy.consume_session, db, prestudy_session_id, rpc_result.get('attempt_id')))
 
         # BKT vocabulary tracking
-        word_quiz = _update_vocabulary_tracking(current_user_id, test_id, language_id, rpc_result)
+        word_quiz = _update_vocabulary_tracking(
+            current_user_id, test_id, language_id, rpc_result,
+            question_rows=question_rows, pending=pending)
 
         result = _build_submission_response(rpc_result, test_mode, word_quiz)
-        _attach_explanations(result, test_id)
+        _attach_explanations(result, question_rows)
         if prestudied:
             result['prestudied'] = True
-            if prestudy_session_id:
-                _prestudy.consume_session(current_app.supabase_service, prestudy_session_id,
-                                          rpc_result.get('attempt_id'))
-        return api_success(data={'result': result})
+    finally:
+        attempts.join(pending)
+    return api_success(data={'result': result})
 
-    except Exception as e:
-        current_app.logger.error(f"Test submission error: {e}")
-        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return server_error('Failed to submit test')
+
+def _submit_counted(slug, db, user_id, data, *, correct_key, total_key, mode,
+                    language_id, wrong_language, type_missing, payload_column,
+                    item_count, items, call_rpc, log_label, failure_message):
+    """Pinyin / pitch-accent submit: the browser reports correct and total
+    counts, which are checked against the test's real number of items."""
+    time_taken = clamp_time_taken(data.get('time_taken', 0))
+    idempotency_key = data.get('idempotency_key') or str(uuid4())
+
+    try:
+        correct, total = validate_counts(
+            data.get(correct_key, 0), data.get(total_key, 0), correct_key, total_key)
+        _normalize_timing(data)
+    except AttemptTimingError as e:
+        return bad_request(str(e))
+
+    accuracy = correct / total
+
+    test = find_active_test_by_slug(db, slug, f'id, language_id, {payload_column}')
+    if not test:
+        return not_found(f"Test not found: {slug}")
+
+    test_id = test['id']
+    if test['language_id'] != language_id:
+        return bad_request(wrong_language)
+
+    real_total = item_count(test.get(payload_column))
+    if total > real_total:
+        return bad_request(f"{total_key} exceeds the {real_total} {items} of this test")
+
+    type_id = DimensionService.get_test_type_id(mode)
+    if not type_id:
+        return server_error(type_missing)
+
+    rpc_result = call_rpc(db, user_id, test_id, language_id, type_id, correct, total,
+                          idempotency_key=idempotency_key)
+    error, pending = _record_submission(
+        rpc_result, db, data, user_id, language_id, test_id, log_label, failure_message)
+    if error:
+        return error
+    attempts.join(pending)
+
+    return api_success(data={'result': {
+        'accuracy': round(accuracy * 100, 1),
+        correct_key: correct,
+        total_key: total,
+        'time_taken': time_taken,
+        **attempts.elo_changes(rpc_result),
+        'test_mode': mode,
+        'attempt_id': attempts.attempt_id_str(rpc_result),
+    }})
 
 
 @tests_bp.route('/<slug>/submit-pinyin', methods=['POST'])
 @supabase_jwt_required
-def submit_pinyin_attempt(slug):
+@_submit_handler('Pinyin', 'Failed to submit pinyin test')
+def submit_pinyin_attempt(slug, db, current_user_id, data):
     """Submit pinyin tone trainer results.
 
     Accepts accuracy-based scoring (correct_chars / total_chars) and delegates
     to process_pinyin_submission, which records the attempt and updates ELO
     without referencing the test's MC questions.
     """
-    try:
-        if not current_app.supabase_service:
-            return server_error("Database service not configured")
-
-        current_user_id = g.current_user_id
-        data = request.get_json() or {}
-
-        correct_chars = data.get('correct_chars', 0)
-        total_chars = data.get('total_chars', 0)
-        time_taken = clamp_time_taken(data.get('time_taken', 0))
-        idempotency_key = data.get('idempotency_key') or str(uuid4())
-
-        try:
-            correct_chars, total_chars = validate_counts(
-                correct_chars, total_chars, 'correct_chars', 'total_chars')
-            _normalize_timing(data)
-        except AttemptTimingError as e:
-            return bad_request(str(e))
-
-        accuracy = correct_chars / total_chars
-
-        # Look up test
-        test_lookup = current_app.supabase_service.table('tests') \
-            .select('id, language_id') \
-            .eq('slug', slug) \
-            .eq('is_active', True) \
-            .single() \
-            .execute()
-
-        if not test_lookup.data:
-            return not_found(f"Test not found: {slug}")
-
-        test_id = test_lookup.data['id']
-        language_id = test_lookup.data['language_id']
-
-        if language_id != 1:
-            return bad_request("Pinyin mode is only available for Chinese tests")
-
-        pinyin_type_id = DimensionService.get_test_type_id('pinyin')
-        if not pinyin_type_id:
-            return server_error("Pinyin test type not configured")
-
-        rpc_result = _call_pinyin_submission_rpc(
-            current_app.supabase_service, current_user_id,
-            test_id, language_id, pinyin_type_id,
-            correct_chars, total_chars,
-            idempotency_key=idempotency_key,
-        )
-        if isinstance(rpc_result, tuple):
-            return rpc_result
-
-        if not rpc_result or not rpc_result.get('success'):
-            error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
-            current_app.logger.error(f"Pinyin RPC failed: {error_msg}")
-            return server_error("Failed to process pinyin submission")
-
-        # Phase 13 — persist timing + bump Study Plan counter (best-effort).
-        _apply_timing_and_progress(
-            current_app.supabase_service, rpc_result.get('attempt_id'), data,
-            user_id=current_user_id, language_id=language_id,
-        )
-        _complete_daily_slot(current_user_id, language_id, test_id)
-
-        result = {
-            'accuracy': round(accuracy * 100, 1),
-            'correct_chars': correct_chars,
-            'total_chars': total_chars,
-            'time_taken': time_taken,
-            'user_elo_change': {
-                'before': rpc_result.get('user_elo_before'),
-                'after': rpc_result.get('user_elo_after'),
-                'change': rpc_result.get('user_elo_change', 0)
-            },
-            'test_elo_change': {
-                'before': rpc_result.get('test_elo_before'),
-                'after': rpc_result.get('test_elo_after'),
-                'change': rpc_result.get('test_elo_change', 0)
-            },
-            'test_mode': 'pinyin',
-            'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
-        }
-
-        return api_success(data={'result': result})
-
-    except Exception as e:
-        current_app.logger.error(f"Pinyin submission error: {e}")
-        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return server_error('Failed to submit pinyin test')
+    return _submit_counted(
+        slug, db, current_user_id, data,
+        correct_key='correct_chars', total_key='total_chars', mode='pinyin',
+        language_id=1, wrong_language="Pinyin mode is only available for Chinese tests",
+        type_missing="Pinyin test type not configured",
+        payload_column='pinyin_payload', item_count=attempts.pinyin_item_count,
+        items='characters',
+        call_rpc=lambda *a, **k: _call_pinyin_submission_rpc(*a, **k),
+        log_label='Pinyin', failure_message="Failed to process pinyin submission",
+    )
 
 
 @tests_bp.route('/<slug>/submit-pitch-accent', methods=['POST'])
 @supabase_jwt_required
-def submit_pitch_accent_attempt(slug):
+@_submit_handler('Pitch accent', 'Failed to submit pitch accent test')
+def submit_pitch_accent_attempt(slug, db, current_user_id, data):
     """Submit pitch accent trainer results.
 
     Accepts accuracy-based scoring (correct_units / total_units, one unit per
@@ -906,99 +667,24 @@ def submit_pitch_accent_attempt(slug):
     records the attempt and updates ELO without referencing the test's MC
     questions.
     """
-    try:
-        if not current_app.supabase_service:
-            return server_error("Database service not configured")
-
-        current_user_id = g.current_user_id
-        data = request.get_json() or {}
-
-        correct_units = data.get('correct_units', 0)
-        total_units = data.get('total_units', 0)
-        time_taken = clamp_time_taken(data.get('time_taken', 0))
-        furigana_used = bool(data.get('furigana_used', False))
-        idempotency_key = data.get('idempotency_key') or str(uuid4())
-
-        try:
-            correct_units, total_units = validate_counts(
-                correct_units, total_units, 'correct_units', 'total_units')
-            _normalize_timing(data)
-        except AttemptTimingError as e:
-            return bad_request(str(e))
-
-        accuracy = correct_units / total_units
-
-        test_lookup = current_app.supabase_service.table('tests') \
-            .select('id, language_id') \
-            .eq('slug', slug) \
-            .eq('is_active', True) \
-            .single() \
-            .execute()
-
-        if not test_lookup.data:
-            return not_found(f"Test not found: {slug}")
-
-        test_id = test_lookup.data['id']
-        language_id = test_lookup.data['language_id']
-
-        if language_id != 3:
-            return bad_request("Pitch accent mode is only available for Japanese tests")
-
-        pitch_type_id = DimensionService.get_test_type_id('pitch_accent')
-        if not pitch_type_id:
-            return server_error("Pitch accent test type not configured")
-
-        rpc_result = _call_pitch_accent_submission_rpc(
-            current_app.supabase_service, current_user_id,
-            test_id, language_id, pitch_type_id,
-            correct_units, total_units,
-            furigana_used=furigana_used, idempotency_key=idempotency_key,
-        )
-        if isinstance(rpc_result, tuple):
-            return rpc_result
-
-        if not rpc_result or not rpc_result.get('success'):
-            error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
-            current_app.logger.error(f"Pitch accent RPC failed: {error_msg}")
-            return server_error("Failed to process pitch accent submission")
-
-        # Phase 13 — persist timing + bump Study Plan counter (best-effort).
-        _apply_timing_and_progress(
-            current_app.supabase_service, rpc_result.get('attempt_id'), data,
-            user_id=current_user_id, language_id=language_id,
-        )
-        _complete_daily_slot(current_user_id, language_id, test_id)
-
-        result = {
-            'accuracy': round(accuracy * 100, 1),
-            'correct_units': correct_units,
-            'total_units': total_units,
-            'time_taken': time_taken,
-            'user_elo_change': {
-                'before': rpc_result.get('user_elo_before'),
-                'after': rpc_result.get('user_elo_after'),
-                'change': rpc_result.get('user_elo_change', 0)
-            },
-            'test_elo_change': {
-                'before': rpc_result.get('test_elo_before'),
-                'after': rpc_result.get('test_elo_after'),
-                'change': rpc_result.get('test_elo_change', 0)
-            },
-            'test_mode': 'pitch_accent',
-            'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
-        }
-
-        return api_success(data={'result': result})
-
-    except Exception as e:
-        current_app.logger.error(f"Pitch accent submission error: {e}")
-        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return server_error('Failed to submit pitch accent test')
+    furigana_used = bool(data.get('furigana_used', False))
+    return _submit_counted(
+        slug, db, current_user_id, data,
+        correct_key='correct_units', total_key='total_units', mode='pitch_accent',
+        language_id=3, wrong_language="Pitch accent mode is only available for Japanese tests",
+        type_missing="Pitch accent test type not configured",
+        payload_column='pitch_payload', item_count=attempts.pitch_item_count,
+        items='accent phrases',
+        call_rpc=lambda *a, **k: _call_pitch_accent_submission_rpc(
+            *a, furigana_used=furigana_used, **k),
+        log_label='Pitch accent', failure_message="Failed to process pitch accent submission",
+    )
 
 
 @tests_bp.route('/<slug>/submit-dictation', methods=['POST'])
 @supabase_jwt_required
-def submit_dictation_attempt(slug):
+@_submit_handler('Dictation', 'Failed to submit dictation')
+def submit_dictation_attempt(slug, db, current_user_id, data):
     """Submit a dictation transcript for grading.
 
     Grades the typed transcript against the canonical one server-side via
@@ -1007,178 +693,99 @@ def submit_dictation_attempt(slug):
     finally fires per-word BKT updates for every transcript word that maps
     to a dim_word_senses row.
     """
+    user_transcript = (data.get('user_transcript') or '').strip()
+    replay_count = data.get('replay_count', 1)
+    time_taken = clamp_time_taken(data.get('time_taken', 0))
+    idempotency_key = data.get('idempotency_key') or str(uuid4())
+
+    if not user_transcript:
+        return bad_request("Empty user_transcript")
+
     try:
-        if not current_app.supabase_service:
-            return server_error("Database service not configured")
+        _normalize_timing(data)
+    except AttemptTimingError as e:
+        return bad_request(str(e))
 
-        current_user_id = g.current_user_id
-        data = request.get_json() or {}
+    try:
+        replay_count = max(1, int(replay_count))
+    except (TypeError, ValueError):
+        replay_count = 1
 
-        user_transcript = (data.get('user_transcript') or '').strip()
-        replay_count = data.get('replay_count', 1)
-        time_taken = clamp_time_taken(data.get('time_taken', 0))
-        idempotency_key = data.get('idempotency_key') or str(uuid4())
+    # Fetch canonical transcript + vocab metadata server-side
+    test = find_active_test_by_slug(
+        db, slug, 'id, language_id, transcript, vocab_sense_ids, vocab_token_map')
+    if not test:
+        return not_found(f"Test not found: {slug}")
 
-        if not user_transcript:
-            return bad_request("Empty user_transcript")
+    test_id = test['id']
+    language_id = test['language_id']
+    correct_transcript = (test.get('transcript') or '').strip()
 
-        try:
-            _normalize_timing(data)
-        except AttemptTimingError as e:
-            return bad_request(str(e))
+    if not correct_transcript:
+        return bad_request("Test has no transcript")
 
-        try:
-            replay_count = max(1, int(replay_count))
-        except (TypeError, ValueError):
-            replay_count = 1
+    # Server-side pathological-length guard (see plan §10)
+    if len(user_transcript) > 10 * max(1, len(correct_transcript)):
+        return bad_request("user_transcript exceeds 10x canonical length")
 
-        # Fetch canonical transcript + vocab metadata server-side
-        test_lookup = current_app.supabase_service.table('tests') \
-            .select('id, language_id, transcript, vocab_sense_ids, vocab_token_map') \
-            .eq('slug', slug) \
-            .eq('is_active', True) \
-            .single() \
-            .execute()
+    dictation_type_id = DimensionService.get_test_type_id('dictation')
+    if not dictation_type_id:
+        return server_error("Dictation test type not configured")
 
-        if not test_lookup.data:
-            return not_found(f"Test not found: {slug}")
+    language_code = DimensionService.get_language_code(language_id) or ''
 
-        test = test_lookup.data
-        test_id = test['id']
-        language_id = test['language_id']
-        correct_transcript = (test.get('transcript') or '').strip()
+    # Grade
+    from services.dictation import grade_dictation
+    result = grade_dictation(correct_transcript, user_transcript, language_code)
 
-        if not correct_transcript:
-            return bad_request("Test has no transcript")
+    if result.word_total <= 0:
+        return server_error("Canonical transcript produced no tokens")
 
-        # Server-side pathological-length guard (see plan §10)
-        if len(user_transcript) > 10 * max(1, len(correct_transcript)):
-            return bad_request("user_transcript exceeds 10x canonical length")
+    attempts.attach_dictation_senses(result.diff, test.get('vocab_token_map') or [])
 
-        dictation_type_id = DimensionService.get_test_type_id('dictation')
-        if not dictation_type_id:
-            return server_error("Dictation test type not configured")
+    diff_payload = result.diff_payload()
+    # Cap the STORED diff; the full diff is still returned to the client
+    # for the current response.
+    #
+    # TASK-715: this was a flat 200 entries, chosen when every dictation
+    # was capped at 80 words. With the per-tier cap a T6 passage can run to
+    # 400 canonical tokens, so 200 would silently truncate the stored diff
+    # mid-passage and a revisit would show a partial review — a truncation
+    # surprise with no error anywhere. The ceiling now derives from the
+    # largest tier cap, with headroom for 'insert' ops (extra user-side
+    # tokens beyond the canonical count).
+    diff_payload_stored = diff_payload[:MAX_STORED_DIFF_ENTRIES]
 
-        language_code = DimensionService.get_language_code(language_id) or ''
+    rpc_result = _call_dictation_submission_rpc(
+        db, current_user_id,
+        test_id, language_id, dictation_type_id,
+        result.word_correct, result.word_total, replay_count,
+        diff_payload_stored, idempotency_key,
+    )
+    # See CR-04 — don't echo SQLERRM text into the client response.
+    error, pending = _record_submission(
+        rpc_result, db, data, current_user_id, language_id, test_id,
+        'Dictation', 'submission_failed')
+    if error:
+        return error
 
-        # Grade
-        from services.dictation import grade_dictation
-        result = grade_dictation(correct_transcript, user_transcript, language_code)
+    pending.append(attempts.defer(
+        attempts.record_dictation_bkt, current_user_id, language_id, test_id, result.diff))
+    attempts.join(pending)
 
-        if result.word_total <= 0:
-            return server_error("Canonical transcript produced no tokens")
-
-        # Map canonical tokens → sense_ids via vocab_token_map.
-        # Token map is a list of (surface_form, sense_id) pairs aligned to
-        # the test's tokenization. We do a lemma-agnostic surface match
-        # (post-normalization) on the canonical token strings.
-        token_map = test.get('vocab_token_map') or []
-        if token_map:
-            # Build a lookup from normalized surface → sense_id.
-            from services.dictation.tokenizer import normalize as _norm
-            surface_to_sense = {}
-            for entry in token_map:
-                if not entry or len(entry) < 2:
-                    continue
-                surface, sense_id = entry[0], entry[1]
-                if not sense_id:
-                    continue
-                key = _norm(str(surface))
-                # First mapping wins (avoid overwriting with later duplicates)
-                surface_to_sense.setdefault(key, sense_id)
-
-            for d in result.diff:
-                if d.correct:
-                    d.sense_id = surface_to_sense.get(d.correct)
-
-        diff_payload = result.diff_payload()
-        # Cap the STORED diff; the full diff is still returned to the client
-        # for the current response.
-        #
-        # TASK-715: this was a flat 200 entries, chosen when every dictation
-        # was capped at 80 words. With the per-tier cap a T6 passage can run to
-        # 400 canonical tokens, so 200 would silently truncate the stored diff
-        # mid-passage and a revisit would show a partial review — a truncation
-        # surprise with no error anywhere. The ceiling now derives from the
-        # largest tier cap, with headroom for 'insert' ops (extra user-side
-        # tokens beyond the canonical count).
-        diff_payload_stored = diff_payload[:MAX_STORED_DIFF_ENTRIES]
-
-        rpc_result = _call_dictation_submission_rpc(
-            current_app.supabase_service, current_user_id,
-            test_id, language_id, dictation_type_id,
-            result.word_correct, result.word_total, replay_count,
-            diff_payload_stored, idempotency_key,
-        )
-        if isinstance(rpc_result, tuple):
-            return rpc_result
-
-        if not rpc_result or not rpc_result.get('success'):
-            # See CR-04 — don't echo SQLERRM text into the client response.
-            error_msg = rpc_result.get('error', 'Unknown error') if rpc_result else 'RPC failed'
-            current_app.logger.error(f"Dictation RPC failed: {error_msg}")
-            return server_error("submission_failed")
-
-        # Phase 13 — persist timing + bump Study Plan counter (best-effort).
-        _apply_timing_and_progress(
-            current_app.supabase_service, rpc_result.get('attempt_id'), data,
-            user_id=current_user_id, language_id=language_id,
-        )
-        _complete_daily_slot(current_user_id, language_id, test_id)
-
-        # Per-word BKT updates — single batched RPC instead of N round-trips.
-        # 'insert' ops (extra user words) have no canonical sense_id and are
-        # excluded; 'equal' / 'replace' / 'delete' all carry canonical-side
-        # sense_ids when the token maps to a dim_word_senses row.
-        try:
-            word_results = [
-                {'sense_id': d.sense_id, 'is_correct': bool(d.is_correct)}
-                for d in result.diff
-                if d.sense_id and d.op in ('equal', 'replace', 'delete')
-            ]
-            if word_results:
-                knowledge_svc = VocabularyKnowledgeService()
-                bkt_rows = knowledge_svc.update_from_word_tests_batch(
-                    user_id=current_user_id,
-                    language_id=language_id,
-                    results=word_results,
-                )
-                current_app.logger.info(
-                    f"Dictation BKT: user={current_user_id} test={test_id} "
-                    f"{len(word_results)} inputs → {len(bkt_rows)} senses updated (batched)"
-                )
-        except Exception as e:
-            current_app.logger.error(f"Dictation BKT update failed (non-fatal): {e}")
-
-        response = {
-            'accuracy': round(result.accuracy * 100, 1),
-            'word_correct': result.word_correct,
-            'word_total': result.word_total,
-            'replay_count': replay_count,
-            'time_taken': time_taken,
-            'diff': diff_payload,
-            'user_elo_change': {
-                'before': rpc_result.get('user_elo_before'),
-                'after': rpc_result.get('user_elo_after'),
-                'change': rpc_result.get('user_elo_change', 0),
-            },
-            'test_elo_change': {
-                'before': rpc_result.get('test_elo_before'),
-                'after': rpc_result.get('test_elo_after'),
-                'change': rpc_result.get('test_elo_change', 0),
-            },
-            'replay_factor': rpc_result.get('replay_factor'),
-            'elo_reduction_factor': rpc_result.get('elo_reduction_factor'),
-            'test_mode': 'dictation',
-            'attempt_id': str(rpc_result.get('attempt_id')) if rpc_result.get('attempt_id') else None,
-        }
-
-        return api_success(data={'result': response})
-
-    except Exception as e:
-        current_app.logger.error(f"Dictation submission error: {e}")
-        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-        return server_error('Failed to submit dictation')
+    return api_success(data={'result': {
+        'accuracy': round(result.accuracy * 100, 1),
+        'word_correct': result.word_correct,
+        'word_total': result.word_total,
+        'replay_count': replay_count,
+        'time_taken': time_taken,
+        'diff': diff_payload,
+        **attempts.elo_changes(rpc_result),
+        'replay_factor': rpc_result.get('replay_factor'),
+        'elo_reduction_factor': rpc_result.get('elo_reduction_factor'),
+        'test_mode': 'dictation',
+        'attempt_id': attempts.attempt_id_str(rpc_result),
+    }})
 
 
 @tests_bp.route('/test/<identifier>', methods=['GET'])
@@ -1186,32 +793,35 @@ def submit_dictation_attempt(slug):
 def get_test_with_ratings(identifier):
     """Get test with ELO ratings for preview/taking. Accepts slug or UUID."""
     try:
-        if not current_app.supabase_service:
+        db = current_app.supabase_service
+        if not db:
             return service_unavailable("Service not available")
 
-        select_columns = (
-            'id, slug, title, language_id, topic_id, difficulty, style, tier, transcript, '
-            'audio_url, audio_generated, is_custom, is_featured, total_attempts, '
-            'vocab_token_map, pinyin_payload, pitch_payload, furigana_payload, '
-            'dim_languages(language_code, language_name)'
+        # This route is deliberately reachable without auth (public
+        # preview/taking) -- personalize the definition language only
+        # when a valid token happens to be present.
+        from middleware.auth import get_optional_user_id
+        from services.vocabulary.gloss_lookup import (
+            apply_definition_language_preference, get_user_definition_language_id,
         )
+        optional_user_id = get_optional_user_id(request)
 
-        # Try lookup by slug first
-        test_result = current_app.supabase_service.table('tests').select(
-            select_columns
-        ).eq('slug', identifier).eq('is_active', True).execute()
+        def _definition_language(test):
+            if not optional_user_id or not any(s for _, s in (test.get('vocab_token_map') or [])):
+                return None
+            return get_user_definition_language_id(db, optional_user_id)
 
-        # If not found by slug, try by id (UUID)
-        if not test_result.data:
-            test_result = current_app.supabase_service.table('tests').select(
-                select_columns
-            ).eq('id', identifier).eq('is_active', True).execute()
-
-        if not test_result.data:
+        # Static content comes from the in-process cache; ratings and the
+        # per-user reads are fetched now, alongside whatever is not cached.
+        found = get_test_content(db, identifier, also=(
+            lambda test: get_test_skill_ratings(db, test['id']),
+            lambda test: _transcript_withheld_for(db, optional_user_id, test),
+            _definition_language,
+        ))
+        if not found:
             return not_found("Test not found")
-
-        test = test_result.data[0]
-        test_id = test['id']
+        content, (ratings, dictation_pending, preferred_def_lang_id) = found
+        test = content['test']
 
         # Add language info for backwards compatibility
         lang_info = test.pop('dim_languages', {}) or {}
@@ -1220,39 +830,15 @@ def get_test_with_ratings(identifier):
 
         # Withhold transcript pre-submit in dictation mode — the entire point
         # is that the learner types what they hear without seeing the text.
+        # `?mode=dictation` asks for it; a pending dictation slot in today's
+        # load enforces it whatever the caller asks for.
         mode = (request.args.get('mode') or '').lower()
-        if mode == 'dictation':
+        if mode == 'dictation' or dictation_pending:
             test.pop('transcript', None)
             test.pop('vocab_token_map', None)
 
         normalize_audio_url(test)
 
-        # Get questions. TASK-882 / S14: the answer key (`answer`) and
-        # `answer_explanation` are deliberately NOT selected -- grading is
-        # server-side and both come back only in the submit response.
-        # Ordered by question_id ("<slug>-qN", written in creation order) rather
-        # than left unordered: the furigana payload is POSITIONAL — the page
-        # reads furiganaPayload.questions[index] against this array's order — so
-        # an unspecified row order lets readings drift onto the wrong question.
-        questions_result = current_app.supabase_service.table('questions').select(
-            'id, question_id, question_text, question_type_id, choices, '
-            'points, audio_url'
-        ).eq('test_id', test_id).order('question_id').execute()
-
-        # Get ELO ratings with FK join to dim_test_types
-        ratings_result = current_app.supabase_service.table('test_skill_ratings').select(
-            'test_type_id, elo_rating, total_attempts, dim_test_types(type_code)'
-        ).eq('test_id', test_id).execute()
-
-        # Transform ratings into a dictionary
-        ratings = {
-            rating.get('dim_test_types', {}).get('type_code', 'unknown'): {
-                'elo_rating': rating['elo_rating'],
-                'total_attempts': rating['total_attempts']
-            }
-            for rating in ratings_result.data
-        }
-        
         # Pop pinyin payload (only present for Chinese tests)
         pinyin_payload = test.pop('pinyin_payload', None)
         # Pop pitch accent payload (only present for Japanese tests)
@@ -1263,57 +849,35 @@ def get_test_with_ratings(identifier):
         # Load definitions for vocab token map sense IDs
         token_map = test.pop('vocab_token_map', None) or []
         definitions = {}
-        if token_map:
-            sense_ids = list(set(s for _, s in token_map if s))
-            if sense_ids:
-                senses_result = current_app.supabase_service.table('dim_word_senses').select(
-                    'id, vocab_id, definition, pronunciation, sense_rank, definition_level, '
-                    'dim_vocabulary(lemma, part_of_speech, language_id)'
-                ).in_('id', sense_ids).execute()
+        sense_rows = content['senses'] if token_map else []
+        if sense_rows:
+            gloss_rows = []
+            for sense in sense_rows:
+                vocab = sense.get('dim_vocabulary') or {}
+                gloss_rows.append({
+                    'vocab_id': sense.get('vocab_id'),
+                    'sense_rank': sense.get('sense_rank'),
+                    'definition_level': sense.get('definition_level'),
+                    'definition': sense.get('definition', ''),
+                    'language_id': vocab.get('language_id'),
+                })
+            apply_definition_language_preference(db, gloss_rows, preferred_def_lang_id)
 
-                # This route is deliberately reachable without auth (public
-                # preview/taking) -- personalize the definition language only
-                # when a valid token happens to be present.
-                from middleware.auth import get_optional_user_id
-                from services.vocabulary.gloss_lookup import (
-                    apply_definition_language_preference, get_user_definition_language_id,
-                )
-                optional_user_id = get_optional_user_id(request)
-                preferred_def_lang_id = (
-                    get_user_definition_language_id(current_app.supabase_service, optional_user_id)
-                    if optional_user_id else None
-                )
-
-                sense_rows = senses_result.data or []
-                gloss_rows = []
-                for sense in sense_rows:
-                    vocab = sense.get('dim_vocabulary') or {}
-                    gloss_rows.append({
-                        'vocab_id': sense.get('vocab_id'),
-                        'sense_rank': sense.get('sense_rank'),
-                        'definition_level': sense.get('definition_level'),
-                        'definition': sense.get('definition', ''),
-                        'language_id': vocab.get('language_id'),
-                    })
-                apply_definition_language_preference(
-                    current_app.supabase_service, gloss_rows, preferred_def_lang_id,
-                )
-
-                for sense, gloss_row in zip(sense_rows, gloss_rows):
-                    vocab = sense.get('dim_vocabulary') or {}
-                    definitions[str(sense['id'])] = {
-                        'word': vocab.get('lemma', ''),
-                        'definition': gloss_row['definition'],
-                        'definition_language_id': gloss_row['definition_language_id'],
-                        'definition_is_gloss': gloss_row['definition_is_gloss'],
-                        'part_of_speech': vocab.get('part_of_speech', ''),
-                        'reading': sense.get('pronunciation')
-                    }
+            for sense, gloss_row in zip(sense_rows, gloss_rows):
+                vocab = sense.get('dim_vocabulary') or {}
+                definitions[str(sense['id'])] = {
+                    'word': vocab.get('lemma', ''),
+                    'definition': gloss_row['definition'],
+                    'definition_language_id': gloss_row['definition_language_id'],
+                    'definition_is_gloss': gloss_row['definition_is_gloss'],
+                    'part_of_speech': vocab.get('part_of_speech', ''),
+                    'reading': sense.get('pronunciation')
+                }
 
         # Build response
         response_data = {
             "test_data": test,
-            "questions_data": questions_result.data,
+            "questions_data": content['questions'],
             "skill_ratings": ratings,
             "vocab_token_map": token_map,
             "definitions": definitions,
@@ -1325,7 +889,8 @@ def get_test_with_ratings(identifier):
         if furigana_payload is not None:
             response_data["furigana_payload"] = furigana_payload
 
-        return api_success(data=response_data)
+        response = api_success(data=response_data)
+        return response if optional_user_id else _public_cacheable(response)
 
     except Exception as e:
         current_app.logger.error(f"Error fetching test {identifier}: {e}")
@@ -1341,70 +906,15 @@ def get_test_history():
         if not user_id:
             return unauthorized("User ID not found")
 
-        language_id = request.args.get('language_id', type=int)
-        test_type_id = request.args.get('test_type_id', type=int)
-        limit = min(request.args.get('limit', 25, type=int) or 25, 100)
-        offset = max(request.args.get('offset', 0, type=int) or 0, 0)
-
-        client = current_app.supabase_service or current_app.supabase
-
-        query = client.table('test_attempts')\
-            .select('id, test_id, score, total_questions, percentage, user_elo_after, created_at, test_type_id, elo_reduction_factor')\
-            .eq('user_id', user_id)\
-            .order('created_at', desc=True)\
-            .range(offset, offset + limit - 1)
-
-        if language_id:
-            query = query.eq('language_id', language_id)
-        if test_type_id:
-            query = query.eq('test_type_id', test_type_id)
-
-        attempts_result = query.execute()
-        attempts = attempts_result.data or []
-
-        if not attempts:
-            return api_success(data={'tests': []})
-
-        test_ids = list(set(a['test_id'] for a in attempts))
-
-        tests_map = {}
-        if test_ids and current_app.supabase_service:
-            tests_result = current_app.supabase_service.table('tests')\
-                .select('id, title, slug')\
-                .in_('id', test_ids)\
-                .execute()
-            for t in tests_result.data or []:
-                tests_map[t['id']] = t
-
-        type_map = {}
-        try:
-            types_res = client.table('dim_test_types').select('id, type_name').execute()
-            for t in types_res.data or []:
-                type_map[t['id']] = t['type_name']
-        except Exception as e:
-            logger.debug(f"dim_test_types lookup skipped: {e}")
-
-        history = []
-        for attempt in attempts:
-            test_id = attempt['test_id']
-            test_detail = tests_map.get(test_id, {})
-            type_name = type_map.get(attempt['test_type_id'], 'Unknown')
-
-            history.append({
-                'id': attempt['id'],
-                'test_id': test_id,
-                'test_title': test_detail.get('title', 'Unknown Test'),
-                'test_slug': test_detail.get('slug', ''),
-                'test_type': type_name,
-                'test_type_id': attempt['test_type_id'],
-                'score': attempt['score'],
-                'total_questions': attempt['total_questions'],
-                'percentage': attempt['percentage'],
-                'user_elo_after': attempt['user_elo_after'],
-                'elo_reduction_factor': attempt.get('elo_reduction_factor'),
-                'created_at': attempt['created_at']
-            })
-
+        history = attempts.list_test_history(
+            current_app.supabase_service or current_app.supabase,
+            current_app.supabase_service,
+            user_id,
+            language_id=request.args.get('language_id', type=int),
+            test_type_id=request.args.get('test_type_id', type=int),
+            limit=min(request.args.get('limit', 25, type=int) or 25, 100),
+            offset=max(request.args.get('offset', 0, type=int) or 0, 0),
+        )
         return api_success(data={'tests': history})
 
     except Exception as e:
@@ -1425,11 +935,7 @@ _SENTENCE_COLUMNS = 'id, idx, l2_text, char_start, char_end, token_start, token_
 
 def _find_test_for_sentences(db, identifier):
     """Active test by slug, then by uuid; the columns the sentences endpoint needs."""
-    cols = 'id, slug, language_id, transcript_hash'
-    res = db.table('tests').select(cols).eq('slug', identifier).eq('is_active', True).execute()
-    if not res.data:
-        res = db.table('tests').select(cols).eq('id', identifier).eq('is_active', True).execute()
-    return res.data[0] if res.data else None
+    return find_active_test(db, identifier, 'id, slug, language_id, transcript_hash')
 
 
 def _resolve_sentence_l1(db, user_id, l1_code):
@@ -1574,13 +1080,7 @@ _PRESTUDY_MAX_EXERCISE_ANSWERS = 40
 
 def _find_test_for_prestudy(db, identifier):
     """Active test by slug, then by uuid, with the columns prestudy needs."""
-    res = db.table('tests').select(_PRESTUDY_TEST_COLUMNS).eq('slug', identifier).eq('is_active', True).execute()
-    if not res.data:
-        try:
-            res = db.table('tests').select(_PRESTUDY_TEST_COLUMNS).eq('id', identifier).eq('is_active', True).execute()
-        except Exception:  # a non-uuid identifier that matched no slug
-            return None
-    return res.data[0] if res.data else None
+    return find_active_test(db, identifier, _PRESTUDY_TEST_COLUMNS)
 
 
 @tests_bp.route('/<identifier>/prestudy', methods=['GET'])

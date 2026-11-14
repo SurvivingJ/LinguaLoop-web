@@ -151,7 +151,8 @@ class TestTestSubmitRoutes:
         assert db.credits() == []
 
     def test_pinyin_submit_credits(self, client, auth_headers, db):
-        db.test_row = {'id': 7, 'language_id': 1}
+        db.test_row = {'id': 7, 'language_id': 1,
+                       'pinyin_payload': [{'char': c, 'is_punctuation': False} for c in '一二三四']}
         body = {'correct_chars': 3, 'total_chars': 4, **window(90)}
         with patch('routes.tests._call_pinyin_submission_rpc', return_value=_rpc_ok('att-p')), \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=9):
