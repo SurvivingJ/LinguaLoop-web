@@ -217,33 +217,78 @@ def test_restart_if_demoted_only_for_drill_words(db):
     assert idr.restart_if_demoted(db, 'u', 5, 3, {'demoted': True, 'current_ring': 2}) is False
 
 
-def test_intro_reviews_chunk_in_daily_queue(monkeypatch):
-    from routes import study_session as ss
-    monkeypatch.setattr(idr, 'due_review_count', lambda *_a: 6)
+def _intro_reviews(queue, targets, completed, n_intro=0, n_followups=0):
+    """The intro-review step of the daily queue, with the two due counts given."""
+    from services.study_session import queue as sq, session
+    status = sq.intro_reviews_status(queue, targets, completed, enabled=idr.ENABLED)
+    reads = {'intro_due': (n_intro, None), 'followups_due': (n_followups, None)}
+    return session.with_intro_reviews(queue, status, reads)
+
+
+def test_intro_reviews_chunk_in_daily_queue():
     queue = [{'kind': 'test', 'id': 't1', 'is_completed': False},
              {'kind': 'practice', 'id': 'practice_acq_1', 'mode': 'acquisition', 'is_completed': False}]
-    out = ss._with_intro_reviews(None, 'u', 3, queue, {}, [])
+    out = _intro_reviews(queue, {}, [], n_intro=6)
     assert [q['id'] for q in out] == ['t1', 'intro_reviews', 'practice_acq_1']
     assert out[1]['mode'] == 'maintenance' and out[1]['minutes'] == 4
     # an open maintenance chunk already carries them
     maint = queue + [{'kind': 'practice', 'id': 'practice_maint_1', 'mode': 'maintenance', 'is_completed': False}]
-    assert ss._with_intro_reviews(None, 'u', 3, maint, {}, []) == maint
+    assert _intro_reviews(maint, {}, [], n_intro=6) == maint
     # vocabulary review excluded: never added
-    assert ss._with_intro_reviews(None, 'u', 3, queue, {'excluded_modules': ['practice']}, []) == queue
+    assert _intro_reviews(queue, {'excluded_modules': ['practice']}, [], n_intro=6) == queue
     # done today: stays as a completed item
-    done = ss._with_intro_reviews(None, 'u', 3, queue, {}, ['intro_reviews'])
+    done = _intro_reviews(queue, {}, ['intro_reviews'], n_intro=6)
     assert done[1]['is_completed'] is True
+    # a failed count leaves the queue as it was
+    from services.study_session import session
+    failed = {'intro_due': (None, RuntimeError('db down')), 'followups_due': (0, None)}
+    assert session.with_intro_reviews(queue, 'check', failed) == queue
 
 
-def test_review_chunk_added_for_due_prestudy_followups_alone(monkeypatch):
+def test_review_chunk_added_for_due_prestudy_followups_alone():
     # A learner with no study plan row has no practice chunks; due prestudy
     # next-day reviews still get a slot so Practice mode shows them.
-    from routes import study_session as ss
-    monkeypatch.setattr(idr, 'due_review_count', lambda *_a: 0)
-    monkeypatch.setattr(ss, '_due_followup_count', lambda *_a: 3)
     queue = [{'kind': 'test', 'id': 't1', 'is_completed': True}]
-    out = ss._with_intro_reviews(None, 'u', 1, queue, {}, [])
+    out = _intro_reviews(queue, {}, [], n_followups=3)
     assert [q['id'] for q in out] == ['t1', 'intro_reviews']
     assert out[1]['mode'] == 'maintenance' and out[1]['minutes'] == 2   # 3 x 30 s
-    monkeypatch.setattr(ss, '_due_followup_count', lambda *_a: 0)
-    assert ss._with_intro_reviews(None, 'u', 1, queue, {}, []) == queue
+    assert _intro_reviews(queue, {}, []) == queue
+
+
+def test_daily_session_counts_due_reviews_for_the_learners_local_day(monkeypatch):
+    """GET /api/study-session reads both due counts for the resolved local day
+    and adds the chunk from them."""
+    from types import SimpleNamespace
+    from flask import Flask
+    from services.study_session import session
+    seen = {}
+
+    def intro_due(db, user_id, language_id, today):
+        seen['intro'] = (user_id, language_id, today)
+        return 6
+
+    def followups_due(db, user_id, language_id, today):
+        seen['followups'] = (user_id, language_id, today)
+        return 0
+
+    monkeypatch.setattr(idr, 'due_review_count', intro_due)
+    monkeypatch.setattr(session, 'due_followup_count', followups_due)
+    import services.vocabulary_ladder.speed_round as sr
+    monkeypatch.setattr(sr, 'get_speed_round_composer',
+                        lambda: SimpleNamespace(has_enough_mastered=lambda u, l: False))
+    test_service = SimpleNamespace(get_or_create_daily_load=lambda u, l: {
+        'tests': [], 'load_date': '2026-11-09'})
+    practice = SimpleNamespace(
+        admit_daily_new_words=lambda u, l: {'admitted': [], 'needs_rebuild': False},
+        new_word_state=lambda u, l: None)
+    query = SimpleNamespace(execute=lambda: SimpleNamespace(data=[
+        {'daily_session_targets': {'excluded_modules': ['flashcards']}, 'completed_blocks': []}]))
+    for name in ('select', 'eq', 'limit'):
+        setattr(query, name, lambda *a, **k: query)
+    db = SimpleNamespace(table=lambda name: query)
+    with Flask(__name__).test_request_context('/api/study-session?language_id=3'):
+        body = session.build_study_session(
+            db, 'u', 3, '2026-11-09', test_service=test_service,
+            practice_service=practice, mpnw=lambda: 3.0)
+    assert seen == {'intro': ('u', 3, date(2026, 11, 9)), 'followups': ('u', 3, '2026-11-09')}
+    assert [(q['id'], q['minutes']) for q in body['queue'] if q['kind'] == 'practice'] == [('intro_reviews', 4)]
