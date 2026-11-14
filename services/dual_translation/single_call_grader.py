@@ -425,7 +425,7 @@ def _grade(
         l2_code, free_translation=free_translation, band_descriptors=descriptors,
     )
     user_prompt = sc_prompts.build_user_prompt(pairs, l1_code, l2_code)
-    schema = sc_prompts.response_schema(l2_code)
+    schema = sc_prompts.response_schema(l2_code, l1_code)
     prompt_hash = hashlib.sha256((system_prompt + "\n\x00\n" + user_prompt).encode("utf-8")).digest()
 
     taxonomy_version = gc.get_active_taxonomy_version(db)
@@ -1009,13 +1009,23 @@ def _punct_fold(gc, ch: str, l2_code: str) -> str:
     return gc._char_fold_l2(ch, l2_code)
 
 
-def _find_quote(gc, text: str, lo: int, hi: int, quote: str, l2_code: str):
+def _find_quote(gc, text: str, lo: int, hi: int, quote: str, l2_code: str, prefer=()):
     """``quote`` inside ``text[lo:hi]`` -> (start, end, SPAN_EXACT | SPAN_NORMALISED)
     in ``text`` offsets, or None. Exact first; then the cascade's width/kana/case
-    fold; then that fold with punctuation dropped."""
+    fold; then that fold with punctuation dropped.
+
+    A short quote ("the", "は") can occur several times in a sentence. ``prefer``
+    is a list of (start, end) regions - the changed regions of the sentence - and
+    the first exact occurrence touching one of them wins over the first overall."""
     idx = text.find(quote, lo, hi)
     if idx >= 0:
-        return idx, idx + len(quote), SPAN_EXACT
+        first = idx
+        while prefer and idx >= 0:
+            end = idx + len(quote)
+            if any(idx <= region[1] and region[0] <= end for region in prefer):
+                return idx, end, SPAN_EXACT
+            idx = text.find(quote, idx + 1, hi)
+        return first, first + len(quote), SPAN_EXACT
     segment = text[lo:hi]
     for fold in (lambda ch: gc._char_fold_l2(ch, l2_code), lambda ch: _punct_fold(gc, ch, l2_code)):
         folded, index_map = gc._fold_map(segment, fold)
@@ -1140,9 +1150,11 @@ def _locate_learner(gc, learner_quote, reference_quote, named: Optional[Sentence
     quote = learner_quote.strip() if isinstance(learner_quote, str) else ""
     ref_quote = reference_quote.strip() if isinstance(reference_quote, str) else ""
 
+    hunks = _diff_hunks(named, gold_l2, reproduction, l2_code) if named is not None else []
     if quote:
         if named is not None:
-            hit = _find_quote(gc, reproduction, named.repro.start, named.repro.end, quote, l2_code)
+            hit = _find_quote(gc, reproduction, named.repro.start, named.repro.end, quote, l2_code,
+                              prefer=[h["lrn"] for h in hunks])
             if hit is not None:
                 return [hit[0], hit[1]], reproduction[hit[0]:hit[1]], hit[2], None
         anchor = named.repro.start if named is not None else None
@@ -1158,10 +1170,7 @@ def _locate_learner(gc, learner_quote, reference_quote, named: Optional[Sentence
         return None
 
     sentence = _stripped_bounds(reproduction, named.repro.start, named.repro.end)
-    hunk = _best_hunk(
-        gc, _diff_hunks(named, gold_l2, reproduction, l2_code), quote, ref_quote,
-        gold_l2, reproduction, l2_code,
-    )
+    hunk = _best_hunk(gc, hunks, quote, ref_quote, gold_l2, reproduction, l2_code)
     if hunk is not None:
         bounds = _stripped_bounds(reproduction, *hunk["lrn"])
         if bounds is None:
@@ -1271,33 +1280,46 @@ def _reference_side(
 ) -> tuple[list[int], str, str]:
     """-> (span_reference, corrected_form, correction_source) for a learner span.
 
-      1. the model's reference quote, located in the reference sentence (exact ->
-         normalised -> bounded fuzzy), as long as it differs from the learner
-         form and is not the whole sentence                    -> model_quote
+      1. the model's reference quote, found exactly or normalised in the
+         reference sentence, as long as it differs from the learner form and is
+         not the whole sentence                                -> model_quote
       2. the reference side of the diff hunk the span came from -> aligned_diff
-      3. ``_reference_counterpart``: carry the learner span across a token
+      3. the model's reference quote, bounded-fuzzy matched    -> model_quote
+      4. ``_reference_counterpart``: carry the learner span across a token
          alignment of the two sentences                        -> aligned_diff
-      4. the whole reference sentence                          -> reference_sentence
+      5. the whole reference sentence                          -> reference_sentence
     The returned form always sits exactly at the returned span in ``gold_l2``."""
     if pair is None:
         return [0, 0], "", CORRECTION_SENTENCE
     quote = reference_quote.strip() if isinstance(reference_quote, str) else ""
-    if quote and pair.ref.end > pair.ref.start:
-        hit = _find_quote(gc, gold_l2, pair.ref.start, pair.ref.end, quote, l2_code)
-        if hit is None:
-            fuzzy = _fuzzy_find(gc, gold_l2, pair.ref.start, pair.ref.end, quote, l2_code)
-            hit = (fuzzy[0], fuzzy[1]) if fuzzy is not None else None
-        if hit is not None:
-            form = gold_l2[hit[0]:hit[1]]
-            whole = _stripped_bounds(gold_l2, pair.ref.start, pair.ref.end)
-            is_sentence = whole is not None and (hit[0], hit[1]) == whole
-            if form.strip() != learner_form.strip() and not is_sentence:
-                return [hit[0], hit[1]], form, CORRECTION_MODEL_QUOTE
+    usable = bool(quote) and pair.ref.end > pair.ref.start
+
+    def _accept(hit):
+        form = gold_l2[hit[0]:hit[1]]
+        whole = _stripped_bounds(gold_l2, pair.ref.start, pair.ref.end)
+        is_sentence = whole is not None and (hit[0], hit[1]) == whole
+        if form.strip() != learner_form.strip() and not is_sentence:
+            return [hit[0], hit[1]], form, CORRECTION_MODEL_QUOTE
+        return None
+
+    if usable:
+        hit = _find_quote(
+            gc, gold_l2, pair.ref.start, pair.ref.end, quote, l2_code,
+            prefer=[h["ref"] for h in _diff_hunks(pair, gold_l2, reproduction, l2_code)],
+        )
+        accepted = _accept(hit) if hit is not None else None
+        if accepted is not None:
+            return accepted
     if hunk_ref is not None:
         bounds = _stripped_bounds(gold_l2, hunk_ref[0], hunk_ref[1])
         if bounds is None:  # the learner added text with no reference counterpart
             return [hunk_ref[0], hunk_ref[0]], "", CORRECTION_ALIGNED
         return [bounds[0], bounds[1]], gold_l2[bounds[0]:bounds[1]], CORRECTION_ALIGNED
+    if usable:
+        fuzzy = _fuzzy_find(gc, gold_l2, pair.ref.start, pair.ref.end, quote, l2_code)
+        accepted = _accept(fuzzy) if fuzzy is not None else None
+        if accepted is not None:
+            return accepted
     return _reference_counterpart(pair, span, span_source, gold_l2, reproduction, l2_code)
 
 

@@ -259,9 +259,12 @@ def build_user_prompt(pairs, l1_code: str = "", l2_code: str = "") -> str:
     return "\n".join(out)
 
 
-def response_schema(l2_code: str) -> dict:
+def response_schema(l2_code: str, l1_code: str = "") -> dict:
     """The strict ``json_schema`` object sent as ``response_format.json_schema``.
-    Property order is the output order: errors, then naturalness, then range."""
+    Property order is the output order: errors, then naturalness, then range.
+    The ``explanation`` property names the learner's L1 in its description (a
+    third statement of the language, at the point where the text is written)."""
+    l1 = LANG_NAME.get(l1_code, l1_code or "the learner's first language")
     error_props = {
         "sentence": {"type": "integer"},
         "learner_quote": {"type": "string"},
@@ -270,7 +273,11 @@ def response_schema(l2_code: str) -> dict:
         "severity": {"type": "string", "enum": list(SEVERITIES)},
         "confidence": {"type": "string", "enum": list(CONFIDENCE_LABELS)},
         "source": {"type": "string", "enum": list(SOURCES)},
-        "explanation": {"type": "string"},
+        "explanation": {
+            "type": "string",
+            "description": f"One sentence written in {l1} (the learner's L1), never in "
+                           f"{LANG_NAME[l2_code]} except for the quoted words.",
+        },
     }
     judgment = {
         "type": "object", "additionalProperties": False, "required": ["band", "evidence"],
