@@ -14,7 +14,8 @@ dependencies:
   - "new tables: dt_passage, dt_submission, dt_grade, dt_error_instance, dt_rubric_version, dt_taxonomy_version"
   - "new service: services.dual_translation.* (passage_builder, grader_cascade, router)"
   - "service (2026-11-14, flag-gated): services.dual_translation.single_call_grader / single_call_prompts / sentence_pairs — ADR-044"
-  - "migration (NOT applied): migrations/dt_grading_assets.sql — dt_error_instance asset columns + dt_grading_call"
+  - "migration (applied to production 2026-11-14): migrations/dt_grading_assets.sql — dt_error_instance asset columns + dt_grading_call"
+  - "migration (column part applied 2026-11-14): migrations/dt_taxonomy_v6_columns.sql — taxonomy_version / explanation_variant / remap_flag"
 breaking_change_risk: low
 ---
 
@@ -187,7 +188,7 @@ age tier. Never hardcoded in app code.
 
 ### `dt_taxonomy_version`
 Versioned taxonomy config (JSONB): the cross-linguistic schema + per-pair subtype tables. Never
-hardcoded in app code. **Live: v4 (TASK-616, 2026-07-04)** — all six directed-pair tables
+hardcoded in app code. **Live: v6 since 2026-11-14 (TASK-853; v5 kept, inactive; before that v5 from 2026-07-13, v4 from TASK-616 2026-07-04)** — the v4 description follows — all six directed-pair tables
 (`ja-en`/`zh-en`/`en-ja`/`zh-ja`/`en-zh`/`ja-zh`) + en/ja/zh baselines, with enriched per-L1 templates /
 per-L2 glosses. Dimension **weights** are *not* here — they live in `dt_rubric_version` (v2 raised
 `ja.fidelity` 0.30, `zh.accuracy` 0.40); see [[algorithms/translation-grading-cascade.tech]].
@@ -286,9 +287,12 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 Decision: [[decisions/ADR-044-dt-single-call-generative-grader]]. Evidence:
 [[evaluations/dt-decision-grading-2026-11-14]] §9 and §9.1. Tasks: [[tasklist/dt-single-call-grader.tasks]].
 State: `DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` default to on in `config.py` (owner
-approval 2026-11-14). The active taxonomy is v6, so this flow grades live once the code is
-deployed. `migrations/dt_grading_assets.sql` is **not applied yet** and should be applied before or
-with the deploy (TASK-935); if it is missing, grades are still saved without the extra columns.
+approval 2026-11-14). Taxonomy v6 was activated in production on 2026-11-14 (TASK-853; v5 kept,
+inactive) and `migrations/dt_grading_assets.sql` was applied the same day (TASK-935), so this flow
+grades live once the code is deployed and the web workers are restarted (the taxonomy is cached per
+process with no TTL). `DT_TAXONOMY_COLUMNS` also defaults to on now that its columns exist. Not done:
+shadow run on real submissions, native-speaker review of the model explanations, deploy. If the
+migration were missing, grades would still be saved without the asset columns.
 
 ### Flow
 
@@ -398,10 +402,11 @@ the configured flow ("taxonomy mismatch").
 | `DT_SINGLE_CALL_FREE_TRANSLATION` | `False` | Appends Track E's "free translations are expected" paragraph (prompt variant `v2_mit`). Not re-measured with prompt v2. |
 | `DT_SINGLE_CALL_EXPLAINER` | `False` | Also runs the v2 Explainer (one more call); its Application layer then replaces the grading model's explanation. |
 | `DT_SINGLE_CALL_LOG_LLM_CALLS` | `True` | Logs each call to `llm_calls` (pipeline `dual_translation`, task `dt_single_call_grade`). |
+| `DT_TAXONOMY_COLUMNS` | `True` (was `False` until 2026-11-14) | Read/write `dt_error_instance.taxonomy_version` / `.explanation_variant` and the `dt_error_profile_entry` / `dt_card` `taxonomy_version` stamps. On only because `migrations/dt_taxonomy_v6_columns.sql` (column part) is applied in production; set `false` for a database without those columns, or PostgREST rejects every graded submission. |
 | `DT_GRADING_ASSET_COLUMNS` | `True` | Read/write what `migrations/dt_grading_assets.sql` adds. Safe if the migration is missing (see Persistence). |
 
 The daily token budget (`DT_DAILY_TOKEN_BUDGET`) does not degrade this flow; its tokens still count.
-`tests/conftest.py` pins `DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` off for the suite.
+`tests/conftest.py` pins `DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` off for the suite (`DT_TAXONOMY_COLUMNS` is not pinned; tests that depend on it set it explicitly).
 
 ### Contract additions (single-call grades only; everything else is the §2.2 contract)
 
@@ -433,7 +438,16 @@ The daily token budget (`DT_DAILY_TOKEN_BUDGET`) does not degrade this flow; its
 
 ### Persistence
 
-Migration: `migrations/dt_grading_assets.sql` (**final, not applied**). Additive and idempotent,
+Taxonomy-v6 columns (`migrations/dt_taxonomy_v6_columns.sql`, column part applied to production 2026-11-14; the five
+`dt_v5_snapshot_*` tables in that file were deliberately NOT created because history was deleted rather than rewritten):
+
+| Table | Column | Constraint |
+|---|---|---|
+| `dt_error_instance`, `dt_error_profile_entry`, `dt_card` | `taxonomy_version` | nullable; version whose slug vocabulary the row's `subtype` is in |
+| `dt_error_instance` | `explanation_variant` | CHECK: only for `subtype = 'word_choice'` (`wrong_word` / `wrong_sense` / `false_synonym`) |
+| `dt_error_instance`, `dt_error_profile_entry`, `dt_card` | `remap_flag` | CHECK: `split_needs_review` / `merged`; only the (not run) TASK-852 rewrite sets it, so it is always NULL in production |
+
+Migration: `migrations/dt_grading_assets.sql` (**applied to production 2026-11-14**; the seven new `dt_error_instance` columns with CHECKs, the `dt_grading_call` table with indexes, RLS enabled, privileges revoked; column COMMENTs from the file were not applied except a short table comment, re-running the file adds them). Additive and idempotent,
 no destructive statement: `ADD COLUMN IF NOT EXISTS`, `CREATE TABLE / INDEX IF NOT EXISTS`, each
 CHECK added only if absent (`NOT VALID`, validated after commit).
 
@@ -516,7 +530,7 @@ template text and the model's L1 explanation). Not in this migration, by decisio
 
 ## Related Pages
 - [[features/dual-translation]] — prose
-- [[decisions/ADR-044-dt-single-call-generative-grader]] — single-call generative grader (flag-gated, default off)
+- [[decisions/ADR-044-dt-single-call-generative-grader]] — single-call generative grader (flag-gated, default on since 2026-11-14)
 - [[tasklist/dt-single-call-grader.tasks]] — rollout tasks for the single-call grader
 - [[features/dual-translation-remediation.tech]] — Feature 2
 - [[algorithms/translation-grading-cascade.tech]] — cascade + cost levers

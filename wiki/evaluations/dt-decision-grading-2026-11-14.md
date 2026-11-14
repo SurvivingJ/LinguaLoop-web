@@ -214,7 +214,7 @@ All three specs take their grader numbers from [[evaluations/jev-dt-tuning-2026-
 
 ## 9. Production-path check (added 2026-11-14, after the grader was built)
 
-The recommended grader was built as production code ([[decisions/ADR-044-dt-single-call-generative-grader]], flag-gated, default off) and run over the same v6 gold items through `scripts/run_dt_grading_eval.py --single-call`. Spend: $0.006097 (119 calls). Detail: `data/eval/dt_decision_2026-11-14/prod_check/REPORT.md`.
+The recommended grader was built as production code ([[decisions/ADR-044-dt-single-call-generative-grader]], flag-gated; default on since later the same day, see below) and run over the same v6 gold items through `scripts/run_dt_grading_eval.py --single-call`. Spend: $0.006097 (119 calls). Detail: `data/eval/dt_decision_2026-11-14/prod_check/REPORT.md`.
 
 | Lang | Track B (§4.2) acc / fid / und · P / R | Production path, recorded Track B responses | Production path, live |
 |---|---|---|---|
@@ -316,7 +316,7 @@ Variant `d_`, which has the same detection wording, gave heavy .97 / .80 with 0 
 
 **Cost and latency:** about $0.00010 per item (v1 $0.00005); p50 1.6–1.7 s on gold, 1.6 s on the stress set (v1 1.0–1.2 s).
 
-**Live state read on 2026-11-14 (read-only):** the active taxonomy and rubric are both version 6, and the taxonomy's subtype lists for en, zh and ja equal the grader's hardcoded lists. The "taxonomy v6 is not live" statements earlier on this page and in ADR-044's first version were out of date. With `DT_SINGLE_CALL_GRADER` now defaulting to on, deploying this code makes the single-call grader the live DT grader.
+**Live state, corrected 2026-11-14.** An earlier read-only check on this page recorded "the active taxonomy and rubric are both version 6" and called the "taxonomy v6 is not live" statements out of date. That does not agree with the cutover record: taxonomy v5 was the active row until the orchestrator inserted v6 from `migrations/dt_taxonomy_v6_seed.sql` and activated it the same day (see [[tasklist/dt-taxonomy-v6.tasks]] TASK-853). The earlier read is unreconciled (the rubric being v6 is plausible; the taxonomy being v6 before today is not). As of the end of 2026-11-14 the active taxonomy is version 6 (v5 kept, inactive), `migrations/dt_grading_assets.sql` is applied, and `DT_SINGLE_CALL_GRADER` defaults to on, so deploying this branch makes the single-call grader the live DT grader. Not yet done: restart of the web workers (they cache the taxonomy with no TTL) and the deploy. The single-call grader was validated on the v6 gold set (this section); the v6 acceptance gate (TASK-850) was NOT re-run for the v2 flow, no shadow run on real submissions was done, and no native speaker has reviewed the model explanations.
 
 ## Related Pages
 - [[decisions/ADR-044-dt-single-call-generative-grader]] — the grader built from this experiment

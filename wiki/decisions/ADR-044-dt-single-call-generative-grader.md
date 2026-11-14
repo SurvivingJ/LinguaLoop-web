@@ -9,10 +9,11 @@ date: 2026-11-14
 Status: **accepted** (owner instruction 2026-11-14: "Build out the gpt-6-luna grader for dual
 translation"). **Revised the same day after owner review** (prompt v2, see "Revision" below), and
 **turned on by default** on owner approval: `DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS`
-default to true in `config.py` (env vars still override). The active taxonomy is v6 (read live
-2026-11-14), so deploying this code makes the single-call grader the live DT grader.
-`migrations/dt_grading_assets.sql` must be applied before or with that deploy
-([[tasklist/dt-single-call-grader.tasks]] TASK-935).
+default to true in `config.py` (env vars still override). Taxonomy v6 was activated in production
+on 2026-11-14 ([[decisions/ADR-031-dt-taxonomy-v6-merge]], TASK-853) and
+`migrations/dt_grading_assets.sql` was applied the same day (TASK-935), so deploying this code makes the
+single-call grader the live DT grader. Outstanding: restart all web workers (taxonomy cached with no TTL) and deploy
+([[tasklist/dt-single-call-grader.tasks]] TASK-937).
 
 ## Context
 
@@ -97,9 +98,10 @@ The owner also asked that grading output be kept for later design work, within a
 
 - **Cost and latency.** About $0.00010 and 1.5–1.7 s per submission with prompt v2 (v1: $0.00005,
   1.0–1.4 s), against $0.025–0.05 and up to minutes for the Detector/Verifier grader.
-- **Requires taxonomy v6 as the loaded taxonomy.** It is: the active taxonomy and rubric were both
-  version 6 when read on 2026-11-14, and the subtype lists equal the hardcoded ones. (The first
-  version of this ADR said v6 was not live; that was out of date.) Under any other taxonomy the
+- **Requires taxonomy v6 as the loaded taxonomy.** It is, as of the 2026-11-14 cutover (v6 inserted and
+  activated in production that day; v5 kept, inactive; the subtype lists equal the hardcoded ones; workers still need a
+  restart to pick it up). (A mid-day revision of this ADR said the active taxonomy was already v6 "when read"; that
+  does not agree with the cutover record, where v5 was active until the activation, and is unreconciled.) Under any other taxonomy the
   single call is skipped and the configured flow grades; the trace says "taxonomy mismatch".
 - **English prompt, slugs not indices.** This departs from the L2-only, numeric-index rule the
   other DT prompts follow (`services/dual_translation/prompts.py`). The learner's L1 is named in the

@@ -5,7 +5,7 @@ prose_page: ../features/dual-translation.md
 tech_page: ../features/dual-translation.tech.md
 total_tasks: 7
 done: 0
-in_progress: 1
+in_progress: 2
 ---
 
 # DT Single-Call Grader (ADR-044) — Task Breakdown
@@ -18,17 +18,21 @@ grader (ADR-044)". Evidence: [[evaluations/dt-decision-grading-2026-11-14]].
 Drafted 2026-11-14 and **not yet reviewed by the owner** (CLAUDE.md §5d). Tasks that depend on an
 open decision are `[?]`.
 
-State on 2026-11-14 after the owner-review revision (prompt v2): `DT_SINGLE_CALL_GRADER` and
-`DT_GRADING_ASSET_COLUMNS` **default to on** in `config.py` (owner approval; env vars override).
-`migrations/dt_grading_assets.sql` is final and **not applied**. The active taxonomy and rubric are
-version 6 (read live 2026-11-14), so the grader goes live when this code is deployed. No real
-submission has been graded by it yet. Not deployed, not committed by the agent that made the change.
+State at the end of 2026-11-14: `DT_SINGLE_CALL_GRADER`, `DT_GRADING_ASSET_COLUMNS` and (taxonomy columns,
+[[tasklist/dt-taxonomy-v6.tasks]] TASK-853) `DT_TAXONOMY_COLUMNS` **default to on** in `config.py` (env vars
+override). In production, applied by the orchestrator at the owner's instruction: taxonomy **v6 is active** (v5
+kept, inactive; DT learner history deleted), the v6 columns exist, and `migrations/dt_grading_assets.sql` is
+applied. **Not done:** restart of all web workers (taxonomy cached per process with no TTL), deploy of branch
+`claude/epic-noether-xi87pj`, any shadow run on real submissions, native-speaker review of the model explanations.
+Until the deploy, restarted workers grade under v6 with the currently deployed (older) code. No real submission has
+been graded by the single-call grader yet. (An earlier version of this note said the active taxonomy was already v6
+when read on 2026-11-14; that disagrees with the cutover record and is unreconciled.)
 
 ---
 
 ## TASK-935: Apply `dt_grading_assets.sql` and turn on `DT_GRADING_ASSET_COLUMNS`
 
-**Status:** [ ] Not Started (LIVE-DB, developer applies) — the file is final; apply before or with the deploy of the default-on config
+**Status:** [~] In Progress — migration APPLIED to production 2026-11-14 (by the orchestrator at the owner's instruction); the criteria that need a graded submission after the deploy remain. Column COMMENTs from the file were not applied except a short table comment; re-running the file adds them (idempotent).
 **Feature:** dt-single-call-grader
 **Type:** infra
 **Complexity:** XS (<1h)
@@ -44,8 +48,8 @@ saves the grade — but the per-error grader fields and the call rows are lost f
 and a reloaded grade shows the template explanation only.
 
 **Acceptance Criteria:**
-- [ ] `migrations/dt_grading_assets.sql` applied live; the seven `VALIDATE CONSTRAINT` statements succeeded
-- [ ] `dt_grading_call` has RLS enabled, no policies, and no grants to `anon` / `authenticated`
+- [x] `migrations/dt_grading_assets.sql` applied live 2026-11-14 (seven `dt_error_instance` columns with CHECKs, `dt_grading_call` with indexes); that the seven `VALIDATE CONSTRAINT` statements succeeded was not separately confirmed in this record
+- [x] `dt_grading_call` has RLS enabled and privileges revoked (as reported by the orchestrator; policy and grant listing not re-checked here)
 - [ ] `tests/sql/check_function_acls.sql` result sets still empty
 - [ ] No "DT grading-asset columns unavailable" error in the app log after the deploy
 - [ ] One DT submission graded after the change returns 200, its `dt_error_instance` rows carry `span_source`, and one `dt_grading_call` row exists for it
@@ -69,7 +73,7 @@ within 10 minutes of the apply; no restart is needed.
 
 ## TASK-936: Shadow run of the single-call grader on real submissions
 
-**Status:** [?] Blocked — owner decision needed. The grader was turned on by default on 2026-11-14 without this run, and taxonomy v6 is live, so the task as written (single-call shadows the live grader) no longer fits. Decide: (a) run the previous Detector/Verifier grader as the shadow on a sample of live submissions (about $0.03–0.05 each), (b) replace this with a manual read of the first N live single-call grades, or (c) drop it
+**Status:** [?] Blocked — owner decision needed. The grader was turned on by default on 2026-11-14 without this run (no shadow run on real submissions has been done), and taxonomy v6 is live in the database, so the task as written (single-call shadows the live grader) no longer fits. Decide: (a) run the previous Detector/Verifier grader as the shadow on a sample of live submissions (about $0.03–0.05 each), (b) replace this with a manual read of the first N live single-call grades, or (c) drop it
 **Feature:** dt-single-call-grader
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -119,14 +123,16 @@ With the switch on in staging, submit one reproduction: the response is unchange
 **Description:**
 Make the single-call flow grade live submissions, with the v2 flow as its fallback. The owner
 approved this on 2026-11-14 without the shadow run (TASK-936). `config.py` now defaults
-`DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` to true. The active taxonomy is v6, so the
-grader is live as soon as this code is deployed. What remains is the deploy and checking the first
-live grades.
+`DT_SINGLE_CALL_GRADER`, `DT_GRADING_ASSET_COLUMNS` and `DT_TAXONOMY_COLUMNS` to true. Taxonomy v6 was activated in the
+database the same day and the grading-assets migration is applied (TASK-935), so the grader is live as soon as the
+web workers are restarted AND this code is deployed. What remains: the worker restart, the deploy and checking the
+first live grades.
 
 **Acceptance Criteria:**
 - [x] Owner approval recorded in ADR-044 (2026-11-14)
 - [x] `config.py` defaults on; env vars still override (test)
 - [x] Prompt v2 measured on v6 gold (two runs) and the Track E stress set ([[evaluations/dt-decision-grading-2026-11-14]] §9.1)
+- [ ] All web workers restarted (taxonomy cached with no TTL) and branch `claude/epic-noether-xi87pj` deployed (owner)
 - [ ] Deployed; first live grades show `grader_trace.tier = "single_call"`
 - [ ] The DT result page renders a five-dimension grade, and a grade with naturalness or range absent, at every age tier
 - [ ] The Application-layer explanation renders under the template text for a fresh and a reloaded grade

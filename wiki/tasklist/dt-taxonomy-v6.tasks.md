@@ -3,8 +3,8 @@ title: "DT Taxonomy v6 (ADR-031) — Task Breakdown"
 feature: dt-taxonomy-v6
 prose_page: ../business-rules/translation-error-taxonomy.md
 tech_page: ../decisions/ADR-031-dt-taxonomy-v6-merge.md
-total_tasks: 21
-done: 17
+total_tasks: 22
+done: 18
 ---
 
 # DT Taxonomy v6 (ADR-031) — Task Breakdown
@@ -876,7 +876,7 @@ reappears (which would mean the rewrite missed a table or an old process kept gr
 
 ## TASK-852: One-time rewrite of historical DT records to v6 (snapshot, aggregate, delete script_choice, restore)
 
-**Status:** [x] Done (2026-10-05) — built + tested, NOT applied, never run against Supabase; inert until TASK-853 calls it
+**Status:** [x] Done (2026-10-05) — built + tested, NOT applied, never run against Supabase. **Superseded 2026-11-14:** the TASK-853 cutover deleted DT history instead, so this script is no longer needed and will not be run (its snapshot tables were never created).
 
 **Completion notes (2026-10-05):**
 - **Design — the plan is the interface.** The pure Python planner (`plan_rewrite`) decides every row (v6 slug, flag,
@@ -953,7 +953,7 @@ Snapshot retention: kept until TASK-854 signs off, then dropped by a separate, o
 
 ## TASK-853: Cutover — activate v6 + rewrite history (runbook, activation/rollback SQL)
 
-**Status:** [?] Blocked — needs (1) ADR-031 moved from `proposed` to `accepted` by the user, (2) TASK-850 GO, (3) operator approval to apply live
+**Status:** [x] Done (2026-11-14) — v6 is the active taxonomy in production, applied by the orchestrator at the owner's explicit instruction; **NOT the runbook as written** (see "Completion notes"). Still owed by the owner: restart all web workers, deploy `claude/epic-noether-xi87pj`. The TASK-850 gate stayed NO-GO and was never re-run for the v2 flow.
 **Feature:** dt-taxonomy-v6
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -978,30 +978,53 @@ Flip the live grader to v6 and rewrite all historical records in one maintenance
 **Verification:**
 `select version from dt_taxonomy_version where is_active` → 6; post-conditions of TASK-852 hold; smoke submissions as above.
 
+**Completion notes (2026-11-14) — what was and was not executed versus the runbook:**
+
+Owner instructions that authorised it: "approve the 3 next steps" and, once told the 8 Oct acceptance gate was NO-GO and had never been re-run, "get rid of history and activate v6 in database now".
+
+Executed in production (Supabase), in this order:
+1. `migrations/dt_taxonomy_v6_columns.sql`, **column part only**: `taxonomy_version`, `explanation_variant`, `remap_flag` and their CHECK constraints on `dt_error_instance`, `dt_error_profile_entry`, `dt_card`. The five `dt_v5_snapshot_*` tables were deliberately **not** created.
+2. `migrations/dt_taxonomy_v6_seed.sql`: version 6 inserted inactive; stored JSON verified equal to the seed file's JSON.
+3. **All DT learner history deleted** (one user, the developer's test data): 5 `dt_submission`, 2 `dt_grade`, 16 `dt_error_instance`, 4 `dt_error_profile_entry`, 4 `dt_card`, 5 `dt_card_review`. `dt_passage` (68) and `dt_passage_reference` (134) untouched.
+4. Activation in one transaction: single active row = 6, v5 kept inactive. The SQL is recorded in `migrations/dt_taxonomy_v6_activate.sql` (with a verification footer) and the mirror in `migrations/dt_taxonomy_v6_rollback.sql` (reactivates 5); both headers state the activation was applied on 2026-11-14 and that history was deleted rather than rewritten.
+5. `migrations/dt_grading_assets.sql` (ADR-044, TASK-935) applied afterwards: seven new `dt_error_instance` columns with CHECKs, `dt_grading_call` with indexes, RLS on, privileges revoked. Column COMMENTs were not applied except a short table comment; re-running the file adds them (idempotent).
+6. `config.py`: `DT_TAXONOMY_COLUMNS` default flipped to True (columns now exist). DT tests: 1158 passed, 9 skipped, unchanged.
+
+Deviations from the runbook above:
+- **No snapshot tables, no history rewrite.** History was deleted, so the TASK-852 script (`dt_rewrite_history_v6.*`) was not run and is no longer needed. `--restore` and "rollback by snapshot restore" **do not apply**; the rollback SQL changes only which taxonomy grades new submissions, and policy once DT traffic resumes is fix-forward. The "Rollback rehearsed on a local/staging DB" criterion was not performed.
+- **Order differed:** columns, seed and activation were applied before the code was deployed (the code is not deployed yet); the nightly cron was not paused as a step; the rubric v7 exemplar re-slug was not done.
+- **Gate:** TASK-850 stayed NO-GO (8 Oct) and was never re-run; the owner accepted ADR-031 anyway. The single-call grader was validated on the v6 gold set instead ([[evaluations/dt-decision-grading-2026-11-14]] §9). No shadow run on real submissions, no native-speaker review of model explanations.
+- **NOT done, owed by the owner:** (a) restart ALL web workers — they cache the taxonomy in `_cfg_cache` with no TTL, so until restarted they keep grading and stamping v5; (b) deploy this branch (`claude/epic-noether-xi87pj`; a PR is to be opened). Until the deploy, restarted workers grade under v6 with the currently deployed code.
+- **Not performed:** the post-restart single test grade (`grader_trace.prompt_version.taxonomy = 6`, errors with `taxonomy_version = 6`) and the per-L2 smoke; both moved to TASK-854.
+- **Docs:** ADR-031 set to `accepted` (2026-11-14, with the gate still NO-GO, by owner decision). [[business-rules/translation-error-taxonomy]] got an additive v6 banner only; its body still describes v5 and is rewritten under TASK-970 below. Harness default `--fixture-set` was not changed (not requested; open).
+
+**Verification (as run):** the orchestrator confirmed the single active row is 6 and the stored JSON equals the seed. Not independently re-run by this wiki update.
+
 ---
 
-## TASK-854: Post-cutover verification (1 week) + snapshot retirement
+## TASK-854: Post-cutover verification (1 week) (snapshot retirement moot)
 
-**Status:** [ ] Not Started
+**Status:** [ ] Not Started — unblocked by TASK-853 (done 2026-11-14), but the clock starts only once workers are restarted and the branch is deployed
 **Feature:** dt-taxonomy-v6
 **Type:** test
 **Complexity:** S (1-3h)
 **Depends On:** TASK-853
 
 **Description:**
-Confirm v6 behaves in production as in the gate, that the rewrite stuck, then retire the snapshot.
+Confirm v6 behaves in production as in the gate and that new rows are v6-clean. Adjusted 2026-11-14: history was deleted rather than rewritten and no snapshot tables exist, so there is no rewrite to confirm and no snapshot to retire. Also owed here: the single post-restart test grade and per-L2 smoke that TASK-853's runbook required but did not run.
 
 **Acceptance Criteria:**
-- [ ] 0 rows in `dt_error_instance` / `dt_error_profile_entry` / `dt_card` with a subtype outside the v6 pair lists or with `taxonomy_version` ≠ 6; 0 `script_choice` rows; 0 TASK-851 legacy-slug warnings in the nightly logs.
+- [ ] After workers are restarted and the branch deployed: one test grade per L2 shows `grader_trace.prompt_version.taxonomy = 6` and its errors carry `taxonomy_version = 6` (carried over from TASK-853).
+- [ ] 0 rows written after the cutover in `dt_error_instance` / `dt_error_profile_entry` / `dt_card` with a subtype outside the v6 pair lists or with `taxonomy_version` ≠ 6 (there are no pre-cutover rows: history was deleted); 0 `script_choice` rows; 0 TASK-851 legacy-slug warnings in the nightly logs.
 - [ ] Every new `word_choice` row has a non-null `explanation_variant`; `variant_basis` distribution reported.
 - [ ] Share of `meaning_inversion` and of critical severity per L2 reported vs gate rates.
 - [ ] 0 log lines "no explanation template" / "no subtype_glosses entry" / exemplar-drop for en/zh.
-- [ ] `remap_flag = 'split_needs_review'` rows listed for human triage (or 0); `merged` profile rows spot-checked (count = sum of snapshot counts).
-- [ ] After sign-off: a separate operator-approved migration drops the `dt_v5_snapshot_*` tables (until then a snapshot restore stays *mechanically* possible — but it restores only the snapshot: post-cutover v6 rows keep v6 names and profile progress since cutover is reset, so once DT traffic has resumed the policy during this week is fix-forward, with a v5 re-pin only as an emergency stop; see TASK-853).
+- ~~`remap_flag` triage and `merged` spot-check~~ — moot: no rewrite ran, `remap_flag` is NULL everywhere.
+- ~~Drop `dt_v5_snapshot_*` tables~~ — moot: they were never created (`migrations/dt_taxonomy_v6_drop_snapshots.sql` is not needed). The policy during this week is fix-forward, with `dt_taxonomy_v6_rollback.sql` / `DT_TAXONOMY_VERSION=5` + restart only as an emergency stop.
 - [ ] Note appended to the TASK-850 evaluation page.
 
 **Files to Create / Modify:**
-- `wiki/evaluations/dt-taxonomy-v6-gate-<date>.md` — append; `migrations/dt_taxonomy_v6_drop_snapshots.sql` — new (applied only on sign-off).
+- `wiki/evaluations/dt-taxonomy-v6-gate-<date>.md` — append; (no drop-snapshots migration needed).
 
 **Verification:**
 Read-only SQL recorded in the note.
@@ -1086,5 +1109,29 @@ a different cause. A kept empty-form error keeps the model's in-bounds span even
 `PYTHONPATH=. python -m pytest tests/test_dt_decode_category_repair.py` → 20 passed.
 `PYTHONPATH=. python -m pytest tests/ -k "dual_translation or dt_"` → 1016 passed, 1 failed
 (`test_v6_fixtures_are_fresh`: dt_gold_v6 en.json is being edited concurrently; unrelated to this change).
+
+---
+
+## TASK-970: Rewrite `business-rules/translation-error-taxonomy.md` for taxonomy v6
+
+**Status:** [ ] Not Started — TODO added 2026-11-14 by the cutover update; the page only got an additive banner
+**Feature:** dt-taxonomy-v6
+**Type:** docs
+**Complexity:** S (1-3h)
+**Depends On:** TASK-853
+
+**Description:**
+TASK-853 required [[business-rules/translation-error-taxonomy]] to be updated to v6. v6 is now live, but the page body still specifies v5 (EN 15 / JA 17 / ZH 17, `subtype_meta` of 33 entries, "v5 live"). Rewrite it for v6 (EN 20 / JA 23 / ZH 20, `jev_bucket`, `class`, `legacy_aliases`, `variant_templates`, `explanation_variant`) from `migrations/dt_taxonomy_v6_seed.sql` and [[decisions/ADR-031-dt-taxonomy-v6-merge]]. Deferred because it is a substantial restructuring of an existing page (CLAUDE.md §10: ask first).
+
+**Acceptance Criteria:**
+- [ ] No statement that v5 is the live/active taxonomy remains outside a clearly marked history section
+- [ ] Per-L2 type lists and counts equal the v6 seed's `pairs`
+- [ ] Banner added 2026-11-14 removed
+
+**Files to Create / Modify:**
+- `wiki/business-rules/translation-error-taxonomy.md`
+
+**Verification:**
+Compare the page's type lists with `jsonb_array_length(taxonomy->'pairs'->'<l2>'->'subtypes')` for en, ja, zh (20 / 23 / 20).
 
 ---

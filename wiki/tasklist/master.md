@@ -20,11 +20,13 @@ below.
 | Status | Count |
 |--------|-------|
 | Not Started | 30 |
-| In Progress (`[~]`) | 12 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 25 |
+| In Progress (`[~]`) | 13 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 24 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 233 |
+| Done (cumulative, not listed here) | 234 |
+
+*2026-11-14 (DT taxonomy v6 cutover + grading-assets migration applied):* TASK-853 Done (ADR-031 accepted by owner decision with the TASK-850 gate still NO-GO): v6 columns (no snapshot tables), v6 seed, deletion of all DT learner history (developer's test data) and v6 activation applied in production, then `dt_grading_assets.sql` (TASK-935, now In Progress: post-deploy checks remain). History was deleted rather than rewritten, so TASK-852's script is not needed and TASK-854's snapshot retirement is moot. `DT_TAXONOMY_COLUMNS` now defaults on. Still owed by the owner: restart all web workers, deploy. TASK-970 added (taxonomy business-rule page rewrite, Not Started). Counts: Not Started 30→30 (+TASK-970, −TASK-935), In Progress 12→13, Blocked 25→24, Done 233→234. See [[tasklist/dt-taxonomy-v6.tasks]] TASK-853.
 
 *2026-11-14 (DT single-call grader revised and turned on by default):* owner review of the first build led to prompt v2 (five dimensions scored, model confidence and source, the model's L1 explanation shown, quote-based span location, exhaustive type list) and to `DT_SINGLE_CALL_GRADER` / `DT_GRADING_ASSET_COLUMNS` defaulting to on. Taxonomy v6 is live, so the grader goes live on deploy. TASK-937 Blocked → In Progress (repo done, deploy and live checks remain); TASK-936 stays Blocked on a new owner decision (the shadow run was skipped); TASK-935 unchanged (migration final, not applied; now seven columns). Counts: In Progress 11→12, Blocked 26→25.
 
@@ -1105,8 +1107,8 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-838 | dt-taxonomy-v6 | Author v6 glosses, Rule templates, word_choice variant templates (AI draft) | [x] (EN user review pending) | L | TASK-837 |
 | TASK-841 | dt-taxonomy-v6 | Taxonomy version pin (`DT_TAXONOMY_VERSION`) + grader-side v5 alias for rubric exemplars | [x] | S | TASK-837 |
 | TASK-846 | dt-taxonomy-v6 | Variant-aware Rule templates + explainer context | [x] | S | TASK-845 |
-| TASK-853 | dt-taxonomy-v6 | Cutover: activate v6 + run history rewrite (runbook, activation/rollback SQL) | [?] | S | TASK-850, TASK-851, TASK-852; ADR-031 acceptance; operator approval |
-| TASK-854 | dt-taxonomy-v6 | Post-cutover verification (1 week) + snapshot retirement | [ ] | S | TASK-853 |
+| TASK-854 | dt-taxonomy-v6 | Post-cutover verification (1 week); snapshot retirement moot (history deleted, no snapshot tables). Owed first: worker restart + deploy, then one test grade per L2 | [ ] | S | TASK-853 (done 2026-11-14) |
+| TASK-970 | dt-taxonomy-v6 | Rewrite `business-rules/translation-error-taxonomy.md` for v6 (page carries only a banner) | [ ] | S | TASK-853 |
 | TASK-855 | dt-taxonomy-v6 | (Optional) jev bucket question flow for DT grading | [?] | XL | TASK-853; jev porting of `pending` buckets; new ADR |
 | TASK-862 | dt-taxonomy-v6 | Bug: `_decode_error` drops errors with an invalid `category` index (derive from subtype) | [x] (local; not deployed) | S | none |
 
@@ -1201,13 +1203,13 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-934 | latency | Stop late-loading sections from pushing the page down (CLS) | [ ] needs layout decision | S | — |
 
 ### DT Single-Call Grader (ADR-044) — NEW 2026-11-14
-Full spec: [[tasklist/dt-single-call-grader.tasks]]. Implements [[decisions/ADR-044-dt-single-call-generative-grader]]. Grader, tests and migration file are built; nothing is applied or enabled live.
+Full spec: [[tasklist/dt-single-call-grader.tasks]]. Implements [[decisions/ADR-044-dt-single-call-generative-grader]]. Grader and tests are built; as of 2026-11-14 the migration is applied and taxonomy v6 is active in production, but the code is not deployed and workers are not restarted.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-935 | dt-single-call-grader | Apply `dt_grading_assets.sql` (final; seven columns + `dt_grading_call`) before or with the default-on deploy (LIVE-DB, developer applies) | [ ] | XS | — |
+| TASK-935 | dt-single-call-grader | `dt_grading_assets.sql` (seven columns + `dt_grading_call`): APPLIED 2026-11-14; post-deploy checks on a graded submission remain | [~] | XS | — |
 | TASK-936 | dt-single-call-grader | Shadow run of the single-call grader on real submissions | [?] skipped when the grader was turned on; owner to choose reverse shadow, manual read of first live grades, or drop | M | TASK-935 |
-| TASK-937 | dt-single-call-grader | Enable `DT_SINGLE_CALL_GRADER` in production | [~] defaults on in repo (2026-11-14); deploy + live checks remain | S | TASK-935 |
+| TASK-937 | dt-single-call-grader | Enable `DT_SINGLE_CALL_GRADER` in production | [~] defaults on in repo (2026-11-14); v6 live in DB; worker restart, deploy + live checks remain | S | TASK-935 |
 | TASK-938 | dt-single-call-grader | Native-speaker review of explanations and hint templates | [?] no reviewer named | M | TASK-936 |
 | TASK-939 | dt-single-call-grader | Guided self-repair UI (design option 2) | [?] spec not final | XL | TASK-935, TASK-937 |
 | TASK-940 | dt-single-call-grader | Re-use a learner's own erroneous sentences in daily practice | [?] spec + remediation decision | L | TASK-935, TASK-939 |

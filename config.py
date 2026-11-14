@@ -183,18 +183,19 @@ class Config:
     DT_TIER3_ARBITER_ENABLED = os.environ.get('DT_TIER3_ARBITER_ENABLED', 'False').lower() == 'true'
 
     # Dual Translation — taxonomy v6 row stamping (TASK-842, ADR-031). Default
-    # OFF. Gates every read/write of the columns migrations/dt_taxonomy_v6_columns.sql
+    # ON since 2026-11-14: migrations/dt_taxonomy_v6_columns.sql (the column part)
+    # was applied to production that day. Gates every read/write of the columns it
     # adds (dt_error_instance.taxonomy_version / .explanation_variant): when on,
     # _grade_v2 stamps taxonomy_version on every final error, the error insert
     # whitelists both columns and _cached_grade reads them back; TASK-851 adds
     # the remediation writers — scripts/dt_nightly_synthesis.py stamps
     # dt_error_profile_entry.taxonomy_version and warns once per run on subtypes
     # outside the active pair lists, cards.generate_cards_for_queued_entries
-    # stamps dt_card.taxonomy_version. It MUST stay off
-    # until that migration is applied live — PostgREST rejects an insert/select
-    # naming a column that does not exist, which would fail every graded
-    # submission. Turned on in the TASK-853 cutover runbook.
-    DT_TAXONOMY_COLUMNS = os.environ.get('DT_TAXONOMY_COLUMNS', 'False').lower() == 'true'
+    # stamps dt_card.taxonomy_version. Export DT_TAXONOMY_COLUMNS=false ONLY for a
+    # database that does not have those columns (a fresh restore from before the
+    # migration): PostgREST rejects an insert/select naming a missing column,
+    # which would fail every graded submission.
+    DT_TAXONOMY_COLUMNS = os.environ.get('DT_TAXONOMY_COLUMNS', 'True').lower() == 'true'
 
     # Dual Translation — single-call generative grader (ADR-044). Global config
     # flag (ADR-013 rollout pattern), default ON since 2026-11-14 (owner approval

@@ -703,15 +703,17 @@ imports from `single_call_grader` / `single_call_prompts`; it does not edit them
    a sentence containing internal delimiters yields several — fine).
 3. `system = sc_prompts.build_system_prompt(l2, free_translation=Config.DT_SINGLE_CALL_FREE_TRANSLATION,
    band_descriptors="")`, `user = sc_prompts.build_user_prompt(pairs, l1, l2)`,
-   `schema = sc_prompts.response_schema(l2)`. Same prompt as grading (same `PROMPT_VERSION`), so
+   `schema = sc_prompts.response_schema(l2, l1)` (it takes the L1 since commit `80ada3c`). Same prompt as grading (same `PROMPT_VERSION`), so
    re-check detection is the measured detector; the naturalness/range judgments it also returns
    are ignored.
-4. One attempt with the **primary** model only: `single_call_grader._attempt("primary",
-   Config.DT_SINGLE_CALL_MODEL, system, user, schema)` with the timeout (pass `timeout_s` through
-   `call_structured`'s `timeout` — `_attempt` currently does not forward it; recheck calls
-   `call_structured` directly and mirrors `_attempt`'s parsing if `_attempt` gains no timeout
-   parameter: see §11 item 6). Timeout → `timeout`; other exception → `call_failed`;
-   `malformed_json`/`malformed_shape` → `malformed`.
+4. One attempt with the **primary** model only: `single_call_grader.call_structured(
+   Config.DT_SINGLE_CALL_MODEL, system, user, schema=schema, max_tokens=sc_prompts.MAX_TOKENS,
+   extra=single_call_grader.REQUEST_EXTRAS.get(slug), timeout=DT_REPAIR_RECHECK_TIMEOUT_S)`, then
+   parse exactly as `single_call_grader._attempt` does (`clean_json_response` + `json.loads`; a
+   dict with an `errors` list). `_attempt` is not used because it does not forward a timeout
+   (signature `_attempt(role, slug, system_prompt, user_prompt, schema)` at `80ada3c`).
+   Timeout exception → `timeout`; other exception → `call_failed`; unparsable or wrong shape →
+   `malformed`.
 5. Decode with `single_call_grader._decode(gc, payload["errors"], pairs=pairs, type_ids=…,
    subtypes=…, taxonomy_cfg=…, subtype_meta=…, severity_rule=SEVERITY_RULES[slug][l2] or default,
    l1_code, l2_code, gold_l2=reference_sentence, reproduction=revised_sentence)`. Low-confidence
@@ -1331,8 +1333,9 @@ breakdown), `wiki/features/dt-guided-self-repair*.md` (status), and applying the
 
 ## 11. Grader contract this feature depends on
 
-Verified against the working tree on 2026-11-14 (commit `ed6e325` + uncommitted edits to
-`single_call_grader.py` / `single_call_prompts.py`). The orchestrator should re-verify each item
+Verified against the working tree on 2026-11-14, re-checked at the end of the spec work against
+commit `80ada3c` ("Single-call DT grader v2 … defaults on"); the one change found then
+(`response_schema` gained an `l1_code` argument) is reflected below. The orchestrator should re-verify each item
 when the grader work lands; any change here is a breaking change for WP-BE.
 
 Persisted `dt_error_instance` columns (read by `store.py`): `id`, `submission_id`,
@@ -1352,12 +1355,11 @@ Module internals imported by `recheck.py` / `hints.py` (no edits):
 1. `single_call_grader.call_structured(slug, system, user, *, schema, max_tokens, extra, timeout)`
 2. `single_call_grader._decode(gc, raw_errors, *, pairs, type_ids, subtypes, taxonomy_cfg, subtype_meta, severity_rule, l1_code, l2_code, gold_l2, reproduction) -> (errors, per_error, counts)` — errors carry `span_reproduction`, `learner_form`, `corrected_form`, `subtype`, `severity`, `model_severity`, `confidence`, `confidence_label`, `span_source`, `correction_source`, `model_note`
 3. `single_call_grader.SEVERITY_RULES`, `DEFAULT_SEVERITY_RULE`, `REQUEST_EXTRAS`, `STATUS_*`
-4. `single_call_prompts.supports`, `TYPE_IDS`, `build_system_prompt(l2, free_translation=, band_descriptors=)`, `build_user_prompt(pairs, l1, l2)`, `response_schema(l2)`, `prompt_variant(bool)`, `PROMPT_VERSION`, `MAX_TOKENS`, `TEMPERATURE`
+4. `single_call_prompts.supports`, `TYPE_IDS`, `build_system_prompt(l2, free_translation=, band_descriptors=)`, `build_user_prompt(pairs, l1, l2)`, `response_schema(l2, l1)`, `prompt_variant(bool)`, `PROMPT_VERSION`, `MAX_TOKENS`, `TEMPERATURE`
 5. `sentence_pairs.build_sentence_pairs`, `split_sentences`; `passage_builder.join_sentences`
-6. `single_call_grader._attempt(role, slug, system, user, schema)` — used if it gains a `timeout`
-   parameter; otherwise `recheck.py` calls `call_structured(..., timeout=DT_REPAIR_RECHECK_TIMEOUT_S)`
-   and parses with `services.llm_output_cleaner.clean_json_response` + `json.loads` exactly as
-   `_attempt` does.
+6. `single_call_grader._attempt` is **not** used (no timeout parameter); its parsing is mirrored
+   with `services.llm_output_cleaner.clean_json_response`. If the grader agent adds a `timeout`
+   parameter to `_attempt`, `recheck.py` may switch to it.
 7. `grader_cascade.get_active_taxonomy(db)`, `_resolve_subtypes(taxonomy, l1, l2)`;
    `tier0._normalize_l2(text, l2_code)`
 8. Config: `DT_SINGLE_CALL_MODEL`, `DT_SINGLE_CALL_FREE_TRANSLATION`,

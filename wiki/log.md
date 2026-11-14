@@ -6534,3 +6534,34 @@ grammar/meaning error already scored; `explanation` stays the template and the m
 Application layer under it; the test suite pins both flags off. Open: TASK-935 (apply migration),
 TASK-937 (deploy + live checks), TASK-941 (cloze guard, not built), TASK-936 (shadow run skipped;
 owner to decide what replaces it), TASK-938 (nobody has reviewed the explanations now shown).
+
+## [2026-11-14] update | DT taxonomy v6 cutover + grading-assets migration applied
+Performed in the production Supabase project by the orchestrator at the owner's explicit instruction
+("approve the 3 next steps"; then, told the 8 Oct gate was NO-GO and never re-run, "get rid of history and
+activate v6 in database now"). Applied: (1) `dt_taxonomy_v6_columns.sql`, column part only (the five
+`dt_v5_snapshot_*` tables deliberately not created); (2) taxonomy version 6 inserted from
+`dt_taxonomy_v6_seed.sql` (stored JSON verified equal to the file); (3) ALL DT learner history deleted — 5
+`dt_submission`, 2 `dt_grade`, 16 `dt_error_instance`, 4 `dt_error_profile_entry`, 4 `dt_card`, 5
+`dt_card_review` (one user, the developer's test data; `dt_passage` 68 and `dt_passage_reference` 134
+untouched); (4) v6 activated in one transaction (single active row = 6, v5 inactive); (5)
+`dt_grading_assets.sql` (seven `dt_error_instance` columns + CHECKs, `dt_grading_call` + indexes, RLS on,
+privileges revoked; column COMMENTs not applied except a short table comment, re-run adds them).
+History rewrite (TASK-852 script) not run and no longer needed; snapshot-restore rollback does not apply.
+Repo: wrote `migrations/dt_taxonomy_v6_activate.sql` and `migrations/dt_taxonomy_v6_rollback.sql`
+(headers record the production application and the deviation); `config.py` `DT_TAXONOMY_COLUMNS` default
+False → True (DT tests unchanged: 1158 passed, 9 skipped; migration security lint 13 passed).
+Pages updated: [[decisions/ADR-031-dt-taxonomy-v6-merge]] (accepted 2026-11-14, gate still NO-GO, owner
+decision), [[tasklist/dt-taxonomy-v6.tasks]] (TASK-853 done with deviations; TASK-854 adjusted; TASK-852
+superseded; TASK-970 added), [[tasklist/dt-single-call-grader.tasks]] (TASK-935 in progress, TASK-937 notes),
+[[tasklist/master]], [[decisions/ADR-044-dt-single-call-generative-grader]],
+[[evaluations/dt-decision-grading-2026-11-14]], [[features/dual-translation.tech]] (v6 columns, config row,
+status corrections), [[business-rules/translation-error-taxonomy]] (additive v6 banner only; rewrite is
+TASK-970), index. `wiki/design/`, `features/dt-guided-self-repair*` and its task file not touched.
+NOT done (owner): restart all web workers (taxonomy cached with no TTL), deploy
+`claude/epic-noether-xi87pj` (PR to be opened). Until deploy, restarted workers grade under v6 with the
+currently deployed code. Not done at all: shadow run on real submissions, native-speaker review of model
+explanations, post-restart test grade/smoke (moved to TASK-854), v6 acceptance gate re-run (the
+single-call grader was validated on the v6 gold set instead).
+Contradiction found: the 2026-11-14 revision of ADR-044 / the evaluation page / the single-call task file
+claimed a read-only check showed taxonomy v6 already active before the cutover; the cutover record says v5
+was active until today. Corrected to the cutover record; the earlier read is marked unreconciled.

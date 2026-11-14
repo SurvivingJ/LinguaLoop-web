@@ -12,7 +12,12 @@ open_questions:
 Versioned, language-scoped reference data (stored in `dt_taxonomy_version`, never hardcoded in
 application code). A shared cross-linguistic schema plus per-directed-pair subtype tables.
 
-> **Implementation status (v5 live since 2026-07-13, TASK-626):** the active `dt_taxonomy_version`
+> **UPDATE 2026-11-14 (additive; body below NOT yet rewritten):** taxonomy **v6** ([[decisions/ADR-031-dt-taxonomy-v6-merge]],
+> EN 20 / JA 23 / ZH 20 types, `migrations/dt_taxonomy_v6_seed.sql`) is now the active `dt_taxonomy_version`
+> (activated in production 2026-11-14, TASK-853; v5 kept, inactive; DT learner history was deleted, not
+> rewritten). Everything below describing v5 as "live" is historical until TASK-970 rewrites this page for v6.
+>
+> **Implementation status (v5 live since 2026-07-13, TASK-626; superseded by v6 on 2026-11-14):** the active `dt_taxonomy_version`
 > is **v5** — per-L2 subtype sets grown to the evidence-first §5 sizes (**EN 15 / JA 17 / ZH 17**,
 > shared core 8), all six directed-pair tables + baselines, per-L1 templates / per-L2 glosses.
 > JA `particle` is **split** into `particle_wa_ga` / `particle_case` / `particle_other` (the old
