@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% set focus_page = true %}{# phones: no footer, compact top bar (styles.css .focus-page) #}
 
 {% block title %}Daily Session | LinguaDojo{% endblock %}
 
@@ -60,6 +61,16 @@
        or the card below sits half a screen down on phones. */
     .session-stage:empty { min-height: 0; }
     .session-card { max-width: 680px; margin: 2rem auto; }
+    /* Phones: progress in one thin row (dots, bar, count). */
+    @media (max-width: 576px) {
+        .session-progress { display: flex; align-items: center; gap: .6rem; padding: .4rem .75rem; }
+        .session-progress > div:first-child { order: 2; margin-bottom: 0 !important; }
+        .session-progress > div:first-child .fw-semibold { display: none; }
+        .session-progress > div:last-child { order: 1; flex: 1; min-width: 0; gap: .6rem !important; }
+        .session-dots { flex-wrap: nowrap; gap: .25rem; }
+        .session-dot { width: .55rem; height: .55rem; }
+        .session-card { margin: 1rem auto; }
+    }
     .session-results { list-style: none; margin: 1rem 0 0; padding: 0; text-align: left; }
     .session-results li {
         display: flex; align-items: center; gap: .6rem;

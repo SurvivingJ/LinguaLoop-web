@@ -41,7 +41,7 @@
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>🎓</text></svg>">
 </head>
-<body class="{% block body_class %}bg-slate-50{% endblock %}">
+<body class="{% block body_class %}bg-slate-50{% endblock %}{% if focus_page %} focus-page{% endif %}">
 
     <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
 
@@ -282,6 +282,7 @@
     {% set _d = 'defer' if defer_base_scripts else '' %}
     <script {{ _d }} src="{{ url_for('static', filename='vendor/bootstrap-5.3.2/js/bootstrap.bundle.min.js') }}"></script>
     <script {{ _d }} src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script {{ _d }} src="{{ url_for('static', filename='js/answer-keys.js') }}"></script>
     <script {{ _d }} src="{{ url_for('static', filename='js/i18n-manager.js') }}"></script>
     <script {{ _d }} src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
     {# Only the test / drill pages use it; they set load_test_intro. #}

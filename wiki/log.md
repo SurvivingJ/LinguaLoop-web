@@ -6457,3 +6457,16 @@ Pages updated: index. Branch `claude/lucid-volta-gu0g2l`, not merged. Tests: Pyt
 for moved code (routes/tests package, services/practice, services/study_session, web/) are now
 stale and need an ingest pass. Two tests read `prompt_templates` from the live database when real
 credentials are in the environment; CI deselects them.
+
+## [2026-11-14] build | Mobile walkthrough and fixes
+Developer: "step through the app with your test account as a mobile user and optimise for mobile;
+we shouldn't have to scroll much, or tap to open the keyboard for the next question." Phone-size
+walkthrough (iPhone 13, live DB). Built: `static/js/answer-keys.js` (checked typed answers stay
+focused but frozen, Enter moves on, feedback scrolled above the keyboard / bottom bars) used by
+prestudy, the new-word drill, practice cloze/error-correction typing, classifier and counter
+drills; reading/listening tests one question at a time on phones with auto-advance; `focus_page`
+flag (no footer, thin top bar on phones); tighter exercise cards; touch hover fix; compact
+language picker. Tests: `tests/unit/answer-keys.test.js` (9), vitest 440/440. Pages created: 1
+([[evaluations/mobile-walkthrough-2026-11-14]]). Pages updated: index. Found, not changed: drill
+header count does not go down; `/tests` 16,000 px on a phone; pitch-accent legend not tappable;
+needs a real-device keyboard check.

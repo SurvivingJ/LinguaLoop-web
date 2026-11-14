@@ -34,7 +34,23 @@ export const EXERCISE_BASE_STYLES = `
     .exercise-next-btn.show { display: inline-flex; }
     .phonetic-display { text-align: center; margin-bottom: 24px; }
     .phonetic-display .ipa { font-size: 24px; color: var(--primary); font-weight: 600; }
-    .phonetic-display .pron { font-size: 16px; color: var(--text-secondary); margin-top: 4px; }`;
+    .phonetic-display .pron { font-size: 16px; color: var(--text-secondary); margin-top: 4px; }
+    /* Phones: the item, its answer box and the feedback fit above the keyboard. */
+    @media (max-width: 576px) {
+        .vd-session-head { margin-top: 8px; }
+        .exercise-card-area { margin: 8px auto; padding: 16px; min-height: 0; border-radius: 12px; }
+        .exercise-type-badge { margin-bottom: 6px; font-size: 12px; }
+        .exercise-instruction { font-size: 15px; margin-bottom: 8px; }
+        .exercise-prompt { margin-bottom: 12px; }
+        .exercise-options { gap: 8px; }
+        .exercise-option { padding: 10px 14px; }
+        .exercise-feedback { margin-top: 10px; padding: 10px 14px; }
+        .exercise-next-btn { margin-top: 10px; }
+        .exercise-check-btn { margin-top: 8px; }
+    }
+    @media (hover: none) {
+        .exercise-option:hover:not(.disabled) { border-color: var(--border-default); background: var(--bg-surface); }
+    }`;
 
 /** The player's title row with the (initially hidden) progress block. */
 export function sessionHeadHtml(icon, headingKey, heading) {
@@ -89,6 +105,8 @@ export function renderFeedback(container, ok, expl, { correctIcon, escHtml }) {
   fb.innerHTML = html;
   const btn = container.querySelector('#nextBtn');
   if (btn) btn.classList.add('show');
+  // Phones: bring the verdict and Next into view (above any keyboard).
+  if (window.LinguaKeys) window.LinguaKeys.reveal(btn && btn.offsetParent ? btn : fb, fb);
 }
 
 /** The small monospace exercise id shown above every item. */

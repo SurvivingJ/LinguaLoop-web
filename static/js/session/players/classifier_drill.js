@@ -387,13 +387,32 @@ export function mountDrill(container, ctx, cfg) {
     cfg.onChoice(d, idx);
   }
 
+  // A wrong typed answer: the box keeps the focus so a phone keyboard stays
+  // up, and Enter continues (answer-keys.js); otherwise Continue takes focus.
+  // (Kept on `el`: this part of the function runs only as hoisted helpers.)
   function openFeedback(...args) {
     cfg.fillFeedback(d, ...args);
     el.feedback.classList.add('show');
-    el.fbContinue.focus();
+    const inp = el.typedInput;
+    if (inp && window.LinguaKeys && document.activeElement === inp) {
+      el.enterContinues = (e) => {
+        if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        closeFeedback();
+      };
+      inp.addEventListener('keydown', el.enterContinues, true);
+      window.LinguaKeys.reveal(el.feedback);
+    } else {
+      el.fbContinue.focus();
+    }
   }
 
   function closeFeedback() {
+    if (el.enterContinues) {
+      el.typedInput.removeEventListener('keydown', el.enterContinues, true);
+      el.enterContinues = null;
+    }
     el.feedback.classList.remove('show');
     advance();
   }
@@ -519,6 +538,7 @@ const SESSION_STYLES = `
         .cd-option { font-size: 1.85rem; padding: 16px 6px; min-height: 76px; }
         .cd-typed-input { font-size: 2rem; padding: 12px 6px; }
         .cd-feedback-card { padding: 22px 18px; }
+        .cd-feedback { align-items: flex-start; padding-top: 12px; } /* above the keyboard */
         .cd-feedback-canonical { font-size: 2.1rem; }
         .cd-mode-toggle button { padding: 5px 10px; font-size: 0.8rem; }
         #cdReversePrompt { font-size: 1rem !important; }

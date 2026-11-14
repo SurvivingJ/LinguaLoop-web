@@ -85,7 +85,10 @@ export const COUNTER = {
       const raw = (el.typedInput.value || '').trim();
       if (!raw) return;
       state.isLocked = true;
-      el.typedInput.disabled = true;
+      // A focused box stays enabled (state.isLocked blocks a resubmit) so a
+      // phone keyboard stays up for the next item (answer-keys.js).
+      if (!(window.LinguaKeys && document.activeElement === el.typedInput))
+        el.typedInput.disabled = true;
 
       const isCorrect = acceptedAnswers(state.currentItem).includes(raw);
       el.promptBlank.textContent = raw;

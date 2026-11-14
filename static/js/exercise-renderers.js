@@ -107,6 +107,28 @@ const ExRenderers = (function () {
     return `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
   }
 
+  // A checked typed answer: a focused box stays focused but frozen, so a
+  // phone keyboard stays up and Enter moves on (answer-keys.js); otherwise
+  // it becomes read-only as before. Returns whether the box is held.
+  function _holdTyped(inp) {
+    const K = window.LinguaKeys;
+    if (K && document.activeElement === inp) return true;
+    inp.readOnly = true;
+    return false;
+  }
+
+  function _afterTyped(inp, held) {
+    const K = window.LinguaKeys;
+    if (!K) return;
+    const next = document.getElementById('nextBtn');
+    K.afterAnswer({
+      input: held ? inp : null,
+      nextBtn: next,
+      feedback: document.getElementById('exerciseFeedback'),
+      keep: _card && _card.querySelector('.exercise-prompt'),
+    });
+  }
+
   function bindNext() {
     document.getElementById('nextBtn').addEventListener('click', _nextExercise);
   }
@@ -244,7 +266,7 @@ const ExRenderers = (function () {
       const typed = inp.value.trim();
       if (!typed) return;
       _setAnswered(true);
-      inp.readOnly = true;
+      const held = _holdTyped(inp);
       btn.style.display = 'none';
 
       // Optimistic only. _submitAttempt POSTs `typed`; the server re-grades and
@@ -257,6 +279,7 @@ const ExRenderers = (function () {
         corr.style.display = '';
       }
       _showFeedback(guess, c.explanation || '');
+      _afterTyped(inp, held);
       _submitAttempt(guess, { typed: typed });
     };
 
@@ -432,7 +455,7 @@ const ExRenderers = (function () {
         const checkTyped = () => {
           const typed = inp.value.trim();
           if (!typed) return;
-          inp.readOnly = true;
+          const held = _holdTyped(inp);
           document.getElementById('crCheckBtn').style.display = 'none';
           const phase2ok = typed.toLowerCase() === c.correct_word.toLowerCase();
           if (!phase2ok) {
@@ -441,6 +464,7 @@ const ExRenderers = (function () {
             corr.style.display = '';
           }
           _showFeedback(phase2ok, c.explanation);
+          _afterTyped(inp, held);
           _submitAttempt(phase2ok, {
             selected_word: selected.text,
             typed_correction: typed,

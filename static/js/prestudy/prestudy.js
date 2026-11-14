@@ -437,7 +437,7 @@
         ev.preventDefault(); const v = $('psTyped').value; if (!v.trim()) return;
         answer((c.answer.accepted || []).map(norm).includes(norm(v)), v, { shown: c.original_sentence });
       };
-      $('psTyped').focus();
+      focusTyping($('psTyped'));
     } else if (t === 'jumbled_sentence') {
       const order = c.correct_ordering, chunks = c.chunks, idx = shuffle(chunks.map((_, i) => i)), picked = [];
       const joiner = S.test.language_id === EN ? ' ' : '';
@@ -526,6 +526,12 @@
   function currentPlanMode() {
     return ['full', 'light', 'none'].includes(S.planOverride) ? S.planOverride : trigger(S.snapshot).mode;
   }
+  // Focus the answer box and keep the prompt above it in view (keyboard-aware).
+  function focusTyping(el) {
+    if (!el) return;
+    const K = window.LinguaKeys;
+    if (K) K.focus(el, $('psS2')); else el.focus();
+  }
   function ensureIdk() {
     const rv = $('psReveal'); if (!rv || $('psIdk')) return;
     const q = S.quiz, it = q && q.queue[q.i]; if (!it || it.answered != null) return;
@@ -590,7 +596,7 @@
         };
       });
     };
-    $('psTyped').focus(); ensureIdk();
+    focusTyping($('psTyped')); ensureIdk();
   }
   function recordAnswer(sid, correct, idk, stage) {
     S.answers.push({ sense_id: Number(sid), correct: !!correct, idk: !!idk, stage: stage || (S.mode === 'followup' ? 'followup' : 'prime') });
@@ -623,7 +629,10 @@
     const corr = it.kind === 'ex' ? it.correctText : it.correct;
     B.querySelectorAll('.ps-opt').forEach((b) => { const v = it.kind === 'ex' ? b.textContent : it.opts[parseInt(b.dataset.i, 10)]; if (v === corr) b.classList.add('correct'); else if (v === given) b.classList.add('wrong'); b.disabled = true; });
     B.querySelectorAll('.ps-chunks .ps-chunk, #psUndo, #psCheckJ, #psTypedForm button, .ps-tone').forEach((b) => { b.disabled = true; });
-    const typed = $('psTyped'); if (typed) { typed.disabled = true; typed.classList.add(ok ? 'is-valid' : (idk ? 'ps-idk-input' : 'is-invalid')); }
+    // A focused box stays focused (frozen) so a phone keyboard stays up; Enter moves on.
+    const typed = $('psTyped'), K = window.LinguaKeys, keepTyping = !!(typed && K && document.activeElement === typed);
+    if (typed) { if (!keepTyping) typed.disabled = true; typed.classList.add(ok ? 'is-valid' : (idk ? 'ps-idk-input' : 'is-invalid')); }
+    B.querySelectorAll('.ps-idkrow').forEach((r) => { r.hidden = true; });
 
     const g = gloss(it.sid), s = D.senses[it.sid], rp = readingParts(s), isRead = it.stage.startsWith('read');
     const readingTxt = rp ? ' · ' + esc(rp.shown) + (rp.numbered ? ' (' + esc(rp.numbered) + ')' : '') + (S.test.language_id === JA ? ' · ' + esc(kanaToRomaji(rp.shown)) : '') : '';
@@ -641,7 +650,8 @@
       ${follow || booster ? `<div class="ps-note">${esc(follow)}${booster ? ' ' + esc(T('prestudy.booster_added')) : ''}</div>` : ''}</div>`;
     // the sticky action bar button moves on to the next item
     updateActionBar();
-    $('psNextStep').focus();
+    if (K) K.afterAnswer({ input: keepTyping ? typed : null, nextBtn: $('psNextStep'), feedback: $('psReveal'), keep: B.querySelector('.ps-qword, .ps-ctx') });
+    else $('psNextStep').focus();
   }
 
   // ---------- readiness check ----------
@@ -688,7 +698,7 @@
       <div class="ps-idkrow"><button type="button" class="btn btn-outline-secondary" id="psReadyIdk">${esc(T('prestudy.idk'))}</button></div>`;
     $('psReadyForm').onsubmit = (e) => { e.preventDefault(); R.answers.push($('psReadyIn').value.trim()); R.i++; drawReadiness(); };
     $('psReadyIdk').onclick = () => { R.answers.push(''); R.i++; drawReadiness(); };
-    $('psReadyIn').focus();
+    focusTyping($('psReadyIn'));
     updateActionBar();
   }
   function startBoost() {

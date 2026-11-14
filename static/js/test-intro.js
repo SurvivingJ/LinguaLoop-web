@@ -41,7 +41,9 @@
       'font-size:18px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.15);' +
       'transition:transform .15s ease,background .15s ease;padding:0;}' +
       '.test-intro-btn:hover{transform:scale(1.08);background:var(--bg-surface-hover,#f1f5f9);}' +
-      '@media (max-width:576px){.test-intro-btn{top:auto;bottom:16px;}}';
+      // Phones: above the Submit / Next bars at the bottom of test pages.
+      '@media (max-width:576px){.test-intro-btn{top:auto;bottom:calc(76px + env(safe-area-inset-bottom));' +
+      'width:32px;height:32px;font-size:16px;}}';
     document.head.appendChild(style);
   }
 

@@ -461,19 +461,33 @@ export function runIntroDrill(cardEl, block, opts = {}) {
           if (v === item.correct) el.classList.add('correct');
           else if (v === given) el.classList.add('incorrect');
         });
+        // A focused box stays focused (frozen) so a phone keyboard stays up;
+        // Enter moves on (answer-keys.js).
         const inp = cardEl.querySelector('#introTyped');
-        if (inp) inp.disabled = true;
-        cardEl.querySelector('#introIdk').disabled = true;
+        const K = window.LinguaKeys;
+        const keepTyping = !!(inp && K && document.activeElement === inp);
+        if (inp && !keepTyping) inp.disabled = true;
+        const check = cardEl.querySelector('#introTypedForm button');
+        if (check) check.hidden = true;
+        cardEl.querySelector('#introIdk').hidden = true;
         cardEl.querySelector('#introFb').innerHTML = feedback(ok, idk, w);
         const nx = cardEl.querySelector('#introNext');
         nx.classList.add('show');
-        nx.focus();
+        if (K) {
+          K.afterAnswer({
+            input: keepTyping ? inp : null,
+            nextBtn: nx,
+            feedback: nx,
+            keep: cardEl.querySelector('.exercise-prompt'),
+          });
+        } else nx.focus();
       };
       cardEl.querySelector('#introNext').addEventListener('click', step);
       cardEl.querySelector('#introIdk').addEventListener('click', () => done(false, true, ''));
       if (item.kind === 'typed') {
         const inp = cardEl.querySelector('#introTyped');
-        inp.focus();
+        if (window.LinguaKeys) window.LinguaKeys.focus(inp, cardEl.querySelector('.exercise-prompt'));
+        else inp.focus();
         cardEl.querySelector('#introTypedForm').addEventListener('submit', (e) => {
           e.preventDefault();
           if (answered) {

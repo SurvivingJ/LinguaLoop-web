@@ -57,3 +57,18 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* Phones: the three languages and Start fit one screen. */
+@media (width <= 576px) {
+  .language-card {
+    padding: 12px 16px;
+  }
+
+  .language-options {
+    margin-top: 1.5rem !important;
+  }
+
+  .language-flag {
+    font-size: 26px;
+  }
+}

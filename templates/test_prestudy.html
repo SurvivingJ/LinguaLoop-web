@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% set focus_page = true %}{# phones: no footer, compact top bar (styles.css .focus-page) #}
 {% set defer_base_scripts = true %}
 
 {% block title %}Study First | LinguaDojo{% endblock %}
@@ -103,7 +104,7 @@
 <div id="psScrim" class="ps-scrim" hidden></div>
 <div id="psPop" class="ps-pop" role="dialog" hidden></div>
 
-<div class="ps-actionbar" id="psActionBar">
+<div class="ps-actionbar" id="psActionBar" data-bottom-bar>
     <div class="ps-actionbar-inner">
         <span class="ps-note" id="psBarNote"></span>
         <button type="button" class="btn btn-primary" id="psNextStep" data-i18n="prestudy.start_prime">Start the word prime</button>

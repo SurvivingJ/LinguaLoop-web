@@ -662,3 +662,55 @@
     flex: 1;
   }
 }
+
+/* Phones, during the word prime / readiness check: the question, its answer
+   box and the feedback fit one screen (with the keyboard up), so the
+   breadcrumb and step tabs give way and spacing tightens. */
+@media (width <= 576px) {
+  .ps-wrap {
+    padding: 0 0 88px;
+  }
+
+  .ps-wrap:has([id='psS2']:not([hidden])) > nav,
+  .ps-wrap:has([id='psS2']:not([hidden])) .ps-steps {
+    display: none;
+  }
+
+  [id='psS2'] {
+    padding: 12px;
+  }
+
+  [id='psS2'] .ps-progress {
+    margin: 6px 0 8px;
+  }
+
+  [id='psS2'] .ps-qhead {
+    margin-bottom: 2px;
+    font-size: 13px;
+  }
+
+  [id='psS2'] .ps-qword {
+    margin: 6px 0 2px;
+  }
+
+  [id='psS2'] .ps-opts {
+    gap: 6px;
+  }
+
+  [id='psS2'] .ps-opt {
+    padding: 8px 12px;
+  }
+
+  [id='psS2'] .ps-idkrow {
+    margin-top: 6px;
+  }
+
+  /* once answered, only the right (and the picked) choice stay */
+  [id='psS2'] .ps-opt:disabled:not(.correct, .wrong) {
+    display: none;
+  }
+
+  [id='psS2'] .ps-idkrow .ps-note {
+    display: none;
+  }
+}
