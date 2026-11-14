@@ -3975,9 +3975,8 @@ footer,
   caret-color: transparent;
 }
 
-/* Reading / listening tests on phones: one question at a time under the
-   passage (reading_listening.js adds .rl-paged until the test is
-   submitted), compact header, and a one-line Submit bar. */
+/* Reading / listening tests on phones: questions stay stacked (scrolling is
+   fine here), with a compact header and a one-line Submit bar. */
 @media (width <= 576px) {
   .test-page .test-header {
     position: relative; /* scrolls away; still holds its progress line */
@@ -3998,43 +3997,14 @@ footer,
     margin-bottom: 12px;
   }
 
-  .test-page .rl-paged .question-card:not(.is-current) {
-    display: none !important;
-  }
-
-  .test-page .rl-paged .question-card {
+  .test-page .question-card {
     padding: 14px;
     margin-bottom: 12px;
   }
 
-  /* "Question n of N": the numbered strip above already shows it */
-  .test-page .rl-paged .question-card > .d-flex:first-child {
-    display: none !important;
-  }
-
-  .test-page .rl-paged .question-card h3 {
-    margin-bottom: 0.75rem !important;
-  }
-
-  .test-page .rl-paged .answer-option {
+  .test-page .answer-option {
     padding: 10px 12px;
     margin-bottom: 8px;
-  }
-
-  .test-page .rl-paged .question-nav-card {
-    margin-bottom: 12px !important;
-  }
-
-  .test-page .rl-paged .question-nav-card .card-body {
-    padding: 8px 12px;
-  }
-
-  .test-page .rl-paged .question-nav-card h2 {
-    display: none;
-  }
-
-  .test-page .rl-paged .question-navigation {
-    margin-bottom: 0;
   }
 
   .test-page .test-actions {
@@ -4063,6 +4033,7 @@ footer,
 @media (width <= 576px) {
   .test-page .test-header h1 {
     font-size: 1rem;
+    padding-right: 4rem;
   }
 
   .test-page .test-header .badge {
@@ -4083,9 +4054,6 @@ footer,
     font-size: 13px;
   }
 
-  .test-page .test-header h1 {
-    padding-right: 4rem;
-  }
 
   .test-page [data-prestudy-offer] {
     margin-top: 0.5rem !important;
@@ -4122,14 +4090,7 @@ footer,
     flex-wrap: nowrap;
   }
 
-  .test-page .rl-paged .question-nav-btn {
-    width: 34px;
-    height: 34px;
-  }
 
-  .test-page .rl-paged .question-navigation {
-    gap: 6px;
-  }
 
   .test-page .transcript-card-actions .btn {
     padding: 2px 8px;

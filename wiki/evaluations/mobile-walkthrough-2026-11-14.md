@@ -25,7 +25,7 @@ tests list, study plan, profile, flashcards, word list, dual translation.
 |---|-------|--------------------|-----|
 | 1 | Prestudy prime, new-word drill, practice cloze / error-correction typing, classifier and counter drills | After "Check" the text box was disabled or focus moved to Next / Continue, so the keyboard closed; every typed question needed a tap to reopen it | `static/js/answer-keys.js` (`window.LinguaKeys`): the checked box stays focused but frozen (edits undone, IME-safe), Enter / "Go" moves on, the next box takes focus while the keyboard is still up |
 | 2 | Prestudy prime | Answer feedback rendered under the fixed Next bar (for a wrong answer, 300–900 px below the fold) | `LinguaKeys.reveal()` scrolls the feedback into the space above the keyboard and any `[data-bottom-bar]`; on phones the breadcrumb and step tabs hide during the quiz, the "I don't know" row hides once answered, unchosen wrong options collapse |
-| 3 | Reading / listening test | All questions stacked: 3,275 px for a 4-question reading test; Submit bar 130 px tall | Phones answer one question at a time (`.rl-paged`), auto-advancing 350 ms after a first answer, then to Submit; compact header (timer top right), one-line Submit bar; the review after submitting shows all questions again. 3,275 → ~1,000 px |
+| 3 | Reading / listening test | All questions stacked: 3,275 px for a 4-question reading test; Submit bar 130 px tall | **Scrolling kept on purpose** (developer: tests are the one place scrolling is fine; a one-question-at-a-time version was built and reverted the same day). Compact header (timer top right), tighter question cards, one-line Submit bar: 3,275 → ~2,200 px |
 | 4 | Every practice / test page | Footer and an 77 px sticky top bar took space from the work | `focus_page` template flag → `body.focus-page`: no footer, thin non-sticky top bar on phones; session progress in one thin row |
 | 5 | Exercise cards (practice, drill) | 28 px padding, 300 px min height: the prompt scrolled off when the keyboard opened | Tighter card spacing under 576 px |
 | 6 | Touch screens | `:hover` stuck on the last tapped answer, so the next question's option looked chosen | Hover styles neutralised under `(hover: none)` |
@@ -45,7 +45,7 @@ tests list, study plan, profile, flashcards, word list, dual translation.
 
 - Walkthrough: prestudy and drill — focus stayed in the answer box after every check and every
   Enter (0 losses in 172 drill steps, including cloze typing); feedback visible with the
-  simulated keyboard; reading test answered 4/4 by taps alone and submitted.
+  simulated keyboard; reading test answered and submitted (with the reverted paged layout; the stacked layout re-checked after the revert).
 - `tests/unit/answer-keys.test.js` (9). vitest 440/440. eslint 0 errors; stylelint and prettier
   counts unchanged from the base commit.
 

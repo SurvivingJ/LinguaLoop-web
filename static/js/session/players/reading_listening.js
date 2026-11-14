@@ -336,7 +336,6 @@ export function mount(container, ctx) {
     if (state.mode === 'reading') initializeReadingTest();
     else initializeListeningTest();
 
-    setPaged();
     renderQuestions();
     renderQuestionNavigation();
     setupEventListeners();
@@ -438,66 +437,25 @@ export function mount(container, ctx) {
       btn.dataset.index = index;
       if (index === state.currentQuestionIndex) btn.classList.add('active');
       if (state.answers[question.id] !== undefined) btn.classList.add('answered');
-      btn.addEventListener('click', () => showQuestion(index, { reveal: true }));
+      btn.addEventListener('click', () => showQuestion(index));
       nav.appendChild(btn);
     });
   }
 
-  // `opts.reveal`: scroll the question onto the screen (phones, after an
-  // answer or a tap on its number); the first render keeps the passage on top.
-  function showQuestion(index, opts) {
+  function showQuestion(index) {
     state.questions.forEach((_, i) => {
       const c = q(`question-${i}`);
-      if (c) {
-        c.style.display = 'none';
-        c.classList.remove('is-current');
-      }
+      if (c) c.style.display = 'none';
     });
     const target = q(`question-${index}`);
     if (target) {
       target.style.display = 'block';
-      target.classList.add('is-current');
       state.currentQuestionIndex = index;
       updateNavigationButtons();
       renderQuestionNavigation();
       updateProgress();
-      // Phones (one question at a time): keep the place, only make sure the
-      // question is on screen. Elsewhere every question is shown at once.
-      if (isPaged()) {
-        if (opts && opts.reveal && window.LinguaKeys) window.LinguaKeys.reveal(target);
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }
-
-  // Phones answer one question at a time (class rl-paged, see styles.css);
-  // after submitting, the review shows them all again.
-  function isPaged() {
-    return !state.isSubmitted && window.matchMedia('(max-width: 576px)').matches;
-  }
-
-  function setPaged() {
-    const root = q('testContainer');
-    if (root) root.classList.toggle('rl-paged', isPaged());
-  }
-
-  // After a first answer on a phone: the next unanswered question, or the
-  // Submit button once every question has an answer.
-  function advanceAfterAnswer(fromIndex) {
-    if (!isPaged()) return;
-    const n = state.questions.length;
-    for (let k = 1; k <= n; k++) {
-      const i = (fromIndex + k) % n;
-      if (state.answers[state.questions[i].id] === undefined) {
-        window.setTimeout(() => {
-          if (!state.isSubmitted && state.currentQuestionIndex === fromIndex) showQuestion(i, { reveal: true });
-        }, 350);
-        return;
-      }
-    }
-    const submit = q('submitBtn');
-    if (submit && window.LinguaKeys) window.LinguaKeys.reveal(submit);
   }
 
   // ====================================================================
@@ -558,7 +516,6 @@ export function mount(container, ctx) {
       const answerOption = e.target.closest('.answer-option');
       if (answerOption && !state.isSubmitted) {
         const questionId = answerOption.dataset.questionId;
-        const firstAnswer = state.answers[questionId] === undefined;
         state.answers[questionId] = answerOption.dataset.choice;
         answerOption.parentElement
           .querySelectorAll('.answer-option')
@@ -568,10 +525,6 @@ export function mount(container, ctx) {
         if (radio) radio.checked = true;
         renderQuestionNavigation();
         updateProgress();
-        if (firstAnswer) {
-          const idx = state.questions.findIndex((qq) => String(qq.id) === String(questionId));
-          if (idx >= 0) advanceAfterAnswer(idx);
-        }
       }
     });
 
@@ -717,7 +670,6 @@ export function mount(container, ctx) {
   // ====================================================================
   function showResults(result) {
     state.isSubmitted = true;
-    setPaged();
     const res = result && result.data ? result.data.result : result.result;
 
     // Reveal transcript for listening, make words clickable + add hint.
@@ -1265,7 +1217,7 @@ const MARKUP = `
         <audio id="audioElement" preload="auto"></audio>
     </div>
 
-    <div class="card mb-4 question-nav-card"><div class="card-body">
+    <div class="card mb-4"><div class="card-body">
         <h2 class="text-slate-500 mb-3 h6" data-i18n="test.questions">Questions</h2>
         <div class="question-navigation" id="questionNavigation"></div>
     </div></div>
@@ -1306,7 +1258,7 @@ const MARKUP = `
     </div>
 </div>
 
-<div class="test-actions" id="testActions" data-bottom-bar>
+<div class="test-actions" id="testActions">
     <div>
         <button class="btn btn-secondary" id="prevBtn" disabled><i class="fas fa-arrow-left me-2"></i><span data-i18n="test.previous">Previous</span></button>
         <button class="btn btn-secondary" id="nextBtn"><span data-i18n="test.next">Next</span><i class="fas fa-arrow-right ms-2"></i></button>

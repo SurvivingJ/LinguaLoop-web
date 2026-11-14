@@ -6470,3 +6470,10 @@ language picker. Tests: `tests/unit/answer-keys.test.js` (9), vitest 440/440. Pa
 ([[evaluations/mobile-walkthrough-2026-11-14]]). Pages updated: index. Found, not changed: drill
 header count does not go down; `/tests` 16,000 px on a phone; pitch-accent legend not tappable;
 needs a real-device keyboard check.
+
+## [2026-11-14] build | Mobile: reading/listening tests scroll again
+Developer: "reading and listening tests are the one place you can allow scroll — don't show one
+question at a time." The phone-only paged mode (`.rl-paged`, auto-advance) was removed from
+`static/js/session/players/reading_listening.js` and `styles.css`; all questions are stacked as
+before. Kept: compact test header, tighter question cards, one-line Submit bar. Updated
+[[evaluations/mobile-walkthrough-2026-11-14]].
