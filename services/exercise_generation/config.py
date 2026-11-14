@@ -1,100 +1,7 @@
 # services/exercise_generation/config.py
 
-from typing import FrozenSet
-
-# --- Exercise type registry ---------------------------------------------------
-
-ALL_EXERCISE_TYPES: list[str] = [
-    'cloze_completion', 'jumbled_sentence', 'tl_nl_translation', 'nl_tl_translation',
-    'collocation_gap_fill', 'text_flashcard', 'listening_flashcard',
-    'semantic_discrimination', 'collocation_repair', 'spot_incorrect_sentence',
-    'spot_incorrect_part', 'timed_speed_round', 'odd_one_out', 'context_spectrum',
-    'odd_collocation_out', 'verb_noun_match',
-    'style_sentence_completion', 'style_pattern_match', 'style_voice_transform',
-    'style_transition_fill', 'style_imitation',
-    # Vocabulary ladder types
-    'phonetic_recognition', 'definition_match', 'morphology_slot',
-]
-
-# Exercise types that require an MCQ options array
-MCQ_TYPES: FrozenSet[str] = frozenset({
-    'cloze_completion', 'tl_nl_translation', 'collocation_gap_fill',
-    'odd_one_out', 'odd_collocation_out',
-    'style_sentence_completion', 'style_pattern_match', 'style_transition_fill',
-    'phonetic_recognition', 'definition_match', 'morphology_slot',
-})
-
-# Expected option counts per MCQ type
-EXPECTED_OPTION_COUNT: dict[str, int] = {
-    'cloze_completion':          4,
-    'tl_nl_translation':         3,
-    'collocation_gap_fill':      4,
-    'odd_one_out':               4,
-    'odd_collocation_out':       4,
-    'style_sentence_completion': 4,
-    'style_pattern_match':       4,
-    'style_transition_fill':     4,
-    'phonetic_recognition':      4,
-    'definition_match':          4,
-    'morphology_slot':           4,
-}
-
-# --- Required JSONB fields per type ------------------------------------------
-
-REQUIRED_FIELDS_BY_TYPE: dict[str, list[str]] = {
-    'cloze_completion':        ['sentence_with_blank', 'correct_answer', 'options',
-                                'explanation', 'distractor_tags'],
-    'jumbled_sentence':        ['original_sentence'],
-    'tl_nl_translation':       ['tl_sentence', 'correct_nl', 'options'],
-    'nl_tl_translation':       ['nl_sentence', 'primary_tl', 'grading_notes'],
-    'text_flashcard':          ['front_sentence', 'highlight_word', 'back_sentence',
-                                'word_of_interest', 'sense_id'],
-    'listening_flashcard':     ['front_audio_url', 'back_sentence', 'word_of_interest', 'sense_id'],
-    'semantic_discrimination': ['sentences', 'explanation'],
-    'odd_one_out':             ['items', 'odd_index', 'shared_property', 'explanation'],
-    'context_spectrum':        ['variants', 'exercise_context', 'correct_variant_index'],
-    'collocation_gap_fill':    ['sentence', 'correct', 'options', 'collocation'],
-    'collocation_repair':      ['sentence_with_error', 'error_word', 'correct_word'],
-    'odd_collocation_out':     ['head_word', 'collocations', 'odd_index', 'explanation'],
-    'verb_noun_match':         ['verbs', 'nouns', 'valid_pairs'],
-    'spot_incorrect_sentence': ['sentences'],
-    'spot_incorrect_part':     ['sentence', 'parts'],
-    'style_sentence_completion': ['sentence_with_blank', 'correct', 'options'],
-    'style_pattern_match':       ['sentences', 'correct_index', 'pattern_template'],
-    'style_voice_transform':     ['original_sentence', 'rewritten_sentence', 'instruction'],
-    'style_transition_fill':     ['paragraph_with_blank', 'correct', 'options'],
-    'style_imitation':           ['instruction', 'model_answer', 'grading_notes'],
-    # Vocabulary ladder types
-    'phonetic_recognition':      ['word', 'pronunciation', 'options', 'correct_answer'],
-    'definition_match':          ['word', 'correct_definition', 'options'],
-    'morphology_slot':           ['sentence_with_blank', 'correct_answer', 'base_form',
-                                  'form_label', 'options'],
-}
-
-# --- Distribution targets per source ---------------------------------------
-# (GRAMMAR / CONVERSATION / STYLE distributions archived 2026-09-21 with their
-# features — see archive/modules/.)
-
-# VOCABULARY_DISTRIBUTION removed by TASK-512. This pipeline no longer
-# generates vocabulary exercises at all — the vocabulary ladder owns them end
-# to end, and its per-level mix comes from the capability matrix in
-# services/vocabulary_ladder/config.py rather than a flat type→count map.
-
-COLLOCATION_DISTRIBUTION: dict[str, int] = {
-    'collocation_gap_fill':  5,
-    'collocation_repair':    3,
-    'odd_collocation_out':   3,
-    'text_flashcard':        2,
-    'verb_noun_match':       1,
-}
-
-# --- Sentence pool thresholds ------------------------------------------------
-MIN_TRANSCRIPT_SENTENCES: int = 80
-DEFAULT_SENTENCE_TARGET:  int = 200
-LLM_BATCH_SIZE:           int = 25
-
-# --- Tier -> IRT difficulty seed ----------------------------------------------
-from services.categorical_maps import TIER_TO_IRT
+# --- Sentence generation ------------------------------------------------------
+LLM_BATCH_SIZE: int = 25
 
 # --- Grammar pattern heuristics (for transcript mining) ---------------------
 PATTERN_HEURISTICS: dict[str, str] = {
@@ -125,15 +32,10 @@ LANG_CHINESE:  int = 1
 LANG_ENGLISH:  int = 2
 LANG_JAPANESE: int = 3
 
-# --- Phase membership (mirrors spec section 1.17) ----------------------------
-PHASE_MAP: dict[str, list[str]] = {
-    'A': ['text_flashcard', 'listening_flashcard', 'cloze_completion'],
-    'B': ['jumbled_sentence', 'spot_incorrect_sentence', 'spot_incorrect_part',
-          'tl_nl_translation', 'nl_tl_translation',
-          'style_sentence_completion', 'style_transition_fill'],
-    'C': ['semantic_discrimination', 'collocation_gap_fill', 'collocation_repair',
-          'odd_collocation_out', 'odd_one_out',
-          'style_pattern_match', 'style_voice_transform'],
-    'D': ['verb_noun_match', 'context_spectrum', 'timed_speed_round',
-          'style_imitation'],
+# language_id -> ISO code (llm_calls.language_code and friends). A local
+# constant rather than DimensionService: a DB-cached lookup needs an
+# app-startup init that judges and batch scripts cannot rely on, and the id
+# space is small and stable.
+LANG_ID_TO_CODE: dict[int, str] = {
+    LANG_CHINESE: 'zh', LANG_ENGLISH: 'en', LANG_JAPANESE: 'ja',
 }

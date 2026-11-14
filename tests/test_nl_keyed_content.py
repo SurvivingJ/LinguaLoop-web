@@ -1,13 +1,11 @@
 """TASK-519 — schema-v2 nl-keyed content envelope.
 
-Four groups:
+Three groups:
 
   1. **Envelope gate** — nl text at the top level of a v2 item is rejected;
      legacy v1 content is left alone.
   2. **Construction / reading** — wrap_nl / read_nl / flatten_for_serve.
-  3. **Generator shape** — the tl_nl / nl_tl generators emit the keyed shape
-     for ZH and JA (and would for any nl, which is the point).
-  4. **Lint** — no generation module reintroduces a hardcoded native language.
+  3. **Lint** — no generation module reintroduces a hardcoded native language.
      This is the guard that actually keeps the corpus multilingual: the v1
      pipeline was English-only not by decision but by a string literal.
 """
@@ -25,7 +23,6 @@ from services.exercise_generation.schemas import (
     validate_envelope,
     wrap_nl,
 )
-from services.exercise_generation.validators import ExerciseValidator
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 
@@ -112,22 +109,6 @@ def test_legacy_v1_content_is_not_retroactively_invalidated():
     assert validate_envelope(v1, 'tl_nl_translation') == []
 
 
-def test_validator_reports_envelope_violation():
-    """ExerciseValidator surfaces the real cause, not N 'missing field' errors."""
-    bad = _valid_tl_nl()
-    bad['correct_nl'] = 'He is tall'
-
-    ok, errors = ExerciseValidator().validate(bad, 'tl_nl_translation')
-
-    assert ok is False
-    assert any('schema-v2 violation' in e for e in errors)
-
-
-def test_validator_accepts_a_well_formed_v2_item():
-    ok, errors = ExerciseValidator().validate(_valid_tl_nl(), 'tl_nl_translation')
-    assert ok, errors
-
-
 # ---------------------------------------------------------------------------
 # 2. Construction / reading
 # ---------------------------------------------------------------------------
@@ -196,95 +177,7 @@ def test_flatten_for_serve_passes_legacy_through_untouched():
 
 
 # ---------------------------------------------------------------------------
-# 3. Generator shape (ZH + JA), LLM-free
-# ---------------------------------------------------------------------------
-
-class _FakeSingle:
-    def __init__(self, code):
-        self._code = code
-
-    def execute(self):
-        class R:
-            data = {'language_code': self._code}
-        return R()
-
-
-class _FakeLangTable:
-    def __init__(self, code):
-        self._code = code
-
-    def select(self, *_a, **_k):
-        return self
-
-    def eq(self, *_a, **_k):
-        return self
-
-    def single(self):
-        return _FakeSingle(self._code)
-
-
-class _FakeDB:
-    def __init__(self, code):
-        self._code = code
-
-    def table(self, _name):
-        return _FakeLangTable(self._code)
-
-
-def _build_tl_nl(monkeypatch, tl_code, nl_code):
-    from services.exercise_generation.generators import translation as tmod
-
-    gen = tmod.TlNlTranslationGenerator(
-        _FakeDB(tl_code), language_id=1, model='m', nl_language_code=nl_code,
-    )
-    monkeypatch.setattr(gen, 'load_prompt_template',
-                        lambda name: '{tl_sentence}/{nl_language}')
-    monkeypatch.setattr(gen, 'call_llm', lambda *a, **k: {
-        'correct_nl': 'CORRECT', 'wrong_options': ['W1', 'W2'],
-    })
-    return gen.generate_one({'sentence': 'S', 'test_id': 7}, source_id=1)
-
-
-@pytest.mark.parametrize('tl_code,nl_code', [('zh', 'en'), ('ja', 'en'), ('zh', 'ja')])
-def test_tl_nl_generator_emits_keyed_shape(monkeypatch, tl_code, nl_code):
-    content = _build_tl_nl(monkeypatch, tl_code, nl_code)
-
-    assert content['schema_version'] == SCHEMA_VERSION
-    assert content['tl_language'] == tl_code
-    assert set(content['nl']) == {nl_code}
-    assert content['nl'][nl_code]['correct'] == 'CORRECT'
-    # V3 rule preserved inside the keyed block.
-    assert content['nl'][nl_code]['options'][0] == 'CORRECT'
-    # Nothing nl-facing leaked to the top level.
-    assert validate_envelope(content, 'tl_nl_translation') == []
-
-
-def test_nl_tl_generator_emits_keyed_shape(monkeypatch):
-    from services.exercise_generation.generators import translation as tmod
-
-    gen = tmod.NlTlTranslationGenerator(
-        _FakeDB('ja'), language_id=3, model='m', nl_language_code='en',
-    )
-    monkeypatch.setattr(gen, 'load_prompt_template',
-                        lambda name: '{tl_sentence}/{nl_language}')
-    monkeypatch.setattr(gen, 'call_llm', lambda *a, **k: {
-        'nl_sentence': 'He is tall',
-        'grading_notes': 'copula required',
-        'acceptable_variants': ['彼は長身だ'],
-    })
-
-    content = gen.generate_one({'sentence': '彼は背が高い', 'test_id': 7}, source_id=1)
-
-    assert content['nl']['en']['prompt'] == 'He is tall'
-    assert content['nl']['en']['grading_notes'] == 'copula required'
-    # TL-facing answer data stays flat — the learner types in the TL.
-    assert content['primary_tl'] == '彼は背が高い'
-    assert content['acceptable_variants'] == ['彼は長身だ']
-    assert validate_envelope(content, 'nl_tl_translation') == []
-
-
-# ---------------------------------------------------------------------------
-# 4. Lint — no hardcoded native language in generation code paths
+# 3. Lint — no hardcoded native language in generation code paths
 # ---------------------------------------------------------------------------
 
 _GENERATION_DIRS = [

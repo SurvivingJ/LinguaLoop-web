@@ -1,10 +1,7 @@
 # services/exercise_generation/transcript_miner.py
 
 import logging
-from services.exercise_generation.config import (
-    MIN_TRANSCRIPT_SENTENCES, DEFAULT_SENTENCE_TARGET,
-    LLM_BATCH_SIZE,
-)
+from services.exercise_generation.config import LLM_BATCH_SIZE
 from services.exercise_generation.language_processor import LanguageProcessor
 
 logger = logging.getLogger(__name__)
@@ -170,8 +167,7 @@ class SentenceFilter:
 
 class LLMSentenceGenerator:
     """
-    LLM fallback for sentence generation when transcript mining
-    yields < MIN_TRANSCRIPT_SENTENCES.
+    LLM fallback for sentence generation when transcript mining yields too few.
     """
 
     def __init__(self, db, llm_client, model: str):
@@ -234,32 +230,3 @@ class LLMSentenceGenerator:
         """
         from services.prompt_service import get_template_text
         return get_template_text(self.db, task_name, language_id)
-
-
-def get_sentence_pool(
-    source_type: str,
-    source_id: int,
-    language_id: int,
-    db,
-    llm_client,
-    model: str,
-    target_count: int = DEFAULT_SENTENCE_TARGET,
-) -> list[dict]:
-    """
-    Top-level function: build sentence pool using Reuse First strategy.
-    Calls TranscriptMiner first; falls back to LLMSentenceGenerator if needed.
-    """
-    lp      = LanguageProcessor.for_language(language_id)
-    miner   = TranscriptMiner(db, lp)
-    mined   = miner.mine(source_type, source_id, language_id)
-    mined   = SentenceFilter.filter_quality(mined, language_id)
-
-    if len(mined) >= MIN_TRANSCRIPT_SENTENCES:
-        return mined[:target_count]
-
-    needed    = target_count - len(mined)
-    generator = LLMSentenceGenerator(db, llm_client, model)
-    generated = generator.generate(source_type, source_id, language_id, needed)
-
-    combined = SentenceFilter.deduplicate(mined + generated)
-    return combined[:target_count]

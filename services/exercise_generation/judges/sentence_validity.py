@@ -41,26 +41,45 @@ were absent; it never blocks generation. The caller logs the underlying error.
 
 from __future__ import annotations
 
-import logging
-
 from services.llm_service import call_llm
-from services.prompt_service import get_template_config
+from services.prompt_service import get_template_config  # noqa: F401 — resolved by the runner
 
-from services.test_generation.schemas import likert_to_verdict
-from .base import JudgeOutcome, safe_accept, accept_item, log_judge_verdict
-
-logger = logging.getLogger(__name__)
+from .base import (
+    JudgeOutcome, JudgeSpec, llm_call_kwargs, run_likert_judge,
+    log_judge_verdict,  # noqa: F401 — resolved by the runner
+)
 
 _TASK_NAME = 'judge_ladder_sentence_validity'   # label in llm_calls (judge_ prefix)
 _PT_NAME   = 'ladder_sentence_validity_judge'   # task_name in prompt_templates
-_PIPELINE  = 'vocab_ladder'
 
 _cfg_cache: dict[int, dict] = {}                # language_id -> cfg dict
 
-_VERDICT_ORDER = {'reject': 0, 'flag': 1, 'accept': 2}  # lower = worse
 
-# language_id → llm_calls.language_code — see answer_entailment.py.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+def _ask(spec, prompt, cfg, language_id):
+    return call_llm(
+        prompt,
+        # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 16000 was
+        # itself still oversized -- that baseline's p99=5247 was inflated
+        # by reasoning tokens the qwen rows no longer emit (reasoning is
+        # now OFF). With reasoning off, data/eval/runs/phase2_bundle_*/
+        # + phase2_fix_*/ + phase2_smoke_ja_v3/ + phase2_smoke_zh_r/
+        # *.json llm_calls for judge_ladder_sentence_validity show
+        # completion_tokens pooled across languages: n=71, p99=146,
+        # max=147 (en, n=68, governs; ja n=1 and zh n=2 are both smaller
+        # and sparse, consistent with/bounded by en). cap =
+        # max(ceil(p99*2), ceil(max*1.25)) = 292, rounded up to 300. At
+        # gemini-3.5-flash-lite's $2.50/M completion price (en's model)
+        # this cuts the worst-case reservation from ~$0.040/request to
+        # ~$0.001/request.
+        max_tokens=300,
+        **llm_call_kwargs(spec, cfg, language_id),
+    )
+
+
+_SPEC = JudgeSpec(
+    name='sentence_validity_judge', module=__name__,
+    task_name=_TASK_NAME, pt_name=_PT_NAME, ask=_ask,
+)
 
 
 def judge_wrong_sentences(
@@ -87,102 +106,11 @@ def judge_wrong_sentences(
     if not sentences_with_reasons:
         return []
 
-    n = len(sentences_with_reasons)
-
-    try:
-        cfg = _load_cfg(db, language_id)
-    except Exception as exc:
-        logger.warning(
-            "sentence_validity_judge: template load failed for lang=%d, safe-accept all: %s",
-            language_id, exc,
-        )
-        return [safe_accept(f'template load error: {exc}') for _ in sentences_with_reasons]
-
     pairs_numbered = '\n'.join(
         f'{i + 1}. Sentence: "{s}"\n   Labeled reason it is wrong: {r or "(none given)"}'
         for i, (s, r) in enumerate(sentences_with_reasons)
     )
-    prompt = cfg['template'].format(target=target, pairs_numbered=pairs_numbered)
-
-    try:
-        result = call_llm(
-            prompt,
-            model=cfg['model'],
-            temperature=0.0,
-            # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 16000 was
-            # itself still oversized -- that baseline's p99=5247 was inflated
-            # by reasoning tokens the qwen rows no longer emit (reasoning is
-            # now OFF). With reasoning off, data/eval/runs/phase2_bundle_*/
-            # + phase2_fix_*/ + phase2_smoke_ja_v3/ + phase2_smoke_zh_r/
-            # *.json llm_calls for judge_ladder_sentence_validity show
-            # completion_tokens pooled across languages: n=71, p99=146,
-            # max=147 (en, n=68, governs; ja n=1 and zh n=2 are both smaller
-            # and sparse, consistent with/bounded by en). cap =
-            # max(ceil(p99*2), ceil(max*1.25)) = 292, rounded up to 300. At
-            # gemini-3.5-flash-lite's $2.50/M completion price (en's model)
-            # this cuts the worst-case reservation from ~$0.040/request to
-            # ~$0.001/request.
-            max_tokens=300,
-            response_format='json',
-            provider=cfg['provider'],
-            pipeline=_PIPELINE,
-            task_name=_TASK_NAME,
-            template_version=cfg['version'],
-            language_code=_LANG_ID_TO_CODE.get(language_id),
-        )
-    except Exception as exc:
-        logger.warning(
-            "sentence_validity_judge: LLM call failed for lang=%d, safe-accept all: %s",
-            language_id, exc,
-        )
-        return [safe_accept(f'llm call error: {exc}') for _ in sentences_with_reasons]
-
-    if not isinstance(result, dict):
-        logger.warning(
-            "sentence_validity_judge: non-dict response (%s), safe-accept all",
-            type(result).__name__,
-        )
-        return [safe_accept('non-dict judge response') for _ in sentences_with_reasons]
-
-    outcomes: list[JudgeOutcome] = []
-    for i in range(n):
-        entry = result.get(str(i + 1))
-        if not isinstance(entry, dict):
-            # A missing or malformed per-sentence verdict must never manufacture
-            # a rejection — keep the sentence (safe-accept) and move on.
-            outcomes.append(accept_item('missing per-sentence verdict'))
-            continue
-        try:
-            rating = float(entry.get('rating'))
-        except (TypeError, ValueError):
-            outcomes.append(accept_item('unparseable rating'))
-            continue
-        outcomes.append(JudgeOutcome(
-            verdict=likert_to_verdict(rating),
-            confidence=rating,
-            reason=str(entry.get('reason', ''))[:200],
-        ))
-
-    # Log the worst verdict across the batch — one row per call — so the
-    # smoke-test query can count accept/flag/reject by task_name
-    # LIKE 'judge_ladder_%'.
-    worst = min(outcomes, key=lambda o: _VERDICT_ORDER.get(o.verdict, 2))
-    log_judge_verdict(
-        task_name=_TASK_NAME,
-        model=cfg['model'],
-        verdict=worst.verdict,
-        confidence=worst.confidence,
-        pipeline=_PIPELINE,
+    return run_likert_judge(
+        _SPEC, db, language_id, len(sentences_with_reasons),
+        lambda template: template.format(target=target, pairs_numbered=pairs_numbered),
     )
-
-    return outcomes
-
-
-# ---------------------------------------------------------------------------
-# Internals
-# ---------------------------------------------------------------------------
-
-def _load_cfg(db, language_id: int) -> dict:
-    if language_id not in _cfg_cache:
-        _cfg_cache[language_id] = get_template_config(db, _PT_NAME, language_id)
-    return _cfg_cache[language_id]

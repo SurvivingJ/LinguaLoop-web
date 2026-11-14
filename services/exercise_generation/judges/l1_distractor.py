@@ -23,23 +23,41 @@ and logs a warning. Fail-closed inside it, via ``guard_fail_open`` (TASK-510).
 
 from __future__ import annotations
 
-import logging
-
 from services.llm_service import call_llm
-from services.prompt_service import get_template_config
+from services.prompt_service import get_template_config  # noqa: F401 — resolved by the runner
 
-from .base import guard_fail_open
-
-logger = logging.getLogger(__name__)
+from .base import JudgeSpec, llm_call_kwargs, numbered, run_keep_reject_judge
 
 _TASK_NAME = 'judge_ladder_l1_distractor'   # label in llm_calls
 _PT_NAME   = 'ladder_l1_distractor_judge'   # task_name in prompt_templates
-_PIPELINE  = 'vocab_ladder'
 
 _cfg_cache: dict[int, dict] = {}            # language_id -> cfg dict
 
-# language_id → llm_calls.language_code — see answer_entailment.py.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
+def _ask(spec, prompt, cfg, language_id):
+    return call_llm(
+        prompt,
+        # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 14000 was
+        # sized against a p99 that was inflated by reasoning tokens
+        # (qwen reasoning is now OFF). With reasoning off,
+        # data/eval/runs/phase2_bundle_*/ + phase2_fix_*/ +
+        # phase2_smoke_ja_v3/ + phase2_smoke_zh_r/ *.json llm_calls for
+        # judge_ladder_l1_distractor show completion_tokens pooled
+        # across languages: n=73, p99=121, max=121 (en, n=34, governs;
+        # ja n=38 tops out at 75; zh n=1 is sparse but smaller, not the
+        # governing case). cap = max(ceil(p99*2), ceil(max*1.25)) = 242,
+        # rounded up to 250. At gemini-3.5-flash-lite's $2.50/M
+        # completion price (en's model) this cuts the worst-case
+        # reservation from ~$0.035/request to ~$0.001/request.
+        max_tokens=250,
+        **llm_call_kwargs(spec, cfg, language_id),
+    )
+
+
+_SPEC = JudgeSpec(
+    name='l1_distractor_judge', module=__name__,
+    task_name=_TASK_NAME, pt_name=_PT_NAME, ask=_ask,
+)
 
 
 def judge_l1_distractors(
@@ -60,76 +78,15 @@ def judge_l1_distractors(
     On any error the judge keeps every distractor (act as if it wasn't there).
     """
     if not distractors:
-        return _empty_result('unknown', 0)
+        return {'verdicts': {}, 'reasons': {}, 'model': 'unknown', 'version': 0}
 
-    try:
-        cfg = _load_cfg(db, language_id)
-    except Exception as exc:
-        logger.warning(
-            "l1_distractor_judge: template load failed for lang=%d, keep all: %s",
-            language_id, exc,
-        )
-        return _all_keep(distractors, model or 'unknown', 0)
-
-    numbered = '\n'.join(f'{i + 1}. {d}' for i, d in enumerate(distractors))
-    prompt = cfg['template'].format(target=target, distractors_numbered=numbered)
-    judge_model   = cfg['model']
-    judge_version = cfg['version']
-
-    try:
-        result = call_llm(
-            prompt,
-            model=judge_model,
-            temperature=0.0,
-            # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 14000 was
-            # sized against a p99 that was inflated by reasoning tokens
-            # (qwen reasoning is now OFF). With reasoning off,
-            # data/eval/runs/phase2_bundle_*/ + phase2_fix_*/ +
-            # phase2_smoke_ja_v3/ + phase2_smoke_zh_r/ *.json llm_calls for
-            # judge_ladder_l1_distractor show completion_tokens pooled
-            # across languages: n=73, p99=121, max=121 (en, n=34, governs;
-            # ja n=38 tops out at 75; zh n=1 is sparse but smaller, not the
-            # governing case). cap = max(ceil(p99*2), ceil(max*1.25)) = 242,
-            # rounded up to 250. At gemini-3.5-flash-lite's $2.50/M
-            # completion price (en's model) this cuts the worst-case
-            # reservation from ~$0.035/request to ~$0.001/request.
-            max_tokens=250,
-            response_format='json',
-            provider=cfg['provider'],
-            pipeline=_PIPELINE,
-            task_name=_TASK_NAME,
-            template_version=judge_version,
-            language_code=_LANG_ID_TO_CODE.get(language_id),
-        )
-    except Exception as exc:
-        logger.warning("l1_distractor_judge: LLM call failed, keep all: %s", exc)
-        return _all_keep(distractors, judge_model, judge_version)
-
-    if not isinstance(result, dict):
-        logger.warning(
-            "l1_distractor_judge: non-dict response (%s), keep all",
-            type(result).__name__,
-        )
-        return _all_keep(distractors, judge_model, judge_version)
-
-    verdicts: dict[str, str] = {}
-    reasons:  dict[str, str] = {}
-    for idx, d in enumerate(distractors):
-        entry = result.get(str(idx + 1)) or {}
-        if not isinstance(entry, dict):
-            verdicts[d] = 'keep'
-            reasons[d]  = ''
-            continue
-        v = str(entry.get('verdict', 'keep')).strip().lower()
-        verdicts[d] = 'reject' if v == 'reject' else 'keep'
-        reasons[d]  = str(entry.get('reason', ''))[:200]
-
-    return {
-        'verdicts': verdicts,
-        'reasons':  reasons,
-        'model':    judge_model,
-        'version':  judge_version,
-    }
+    return run_keep_reject_judge(
+        _SPEC, db, language_id, distractors,
+        lambda template: template.format(
+            target=target, distractors_numbered=numbered(distractors),
+        ),
+        fallback_model=model,
+    )
 
 
 def filter_l1_distractors(
@@ -158,31 +115,3 @@ def filter_l1_distractors(
         'version':        result['version'],
     }
     return kept, meta
-
-
-# ---------------------------------------------------------------------------
-# Internals
-# ---------------------------------------------------------------------------
-
-def _load_cfg(db, language_id: int) -> dict:
-    if language_id not in _cfg_cache:
-        _cfg_cache[language_id] = get_template_config(db, _PT_NAME, language_id)
-    return _cfg_cache[language_id]
-
-
-def _empty_result(model: str, version: int) -> dict:
-    return {'verdicts': {}, 'reasons': {}, 'model': model, 'version': version}
-
-
-def _all_keep(distractors: list[str], model: str, version: int) -> dict:
-    # In a generation/eval batch this raises instead of returning — an
-    # unreachable judge must abort the batch, not silently ship unjudged
-    # content (TASK-510). Serve-adjacent callers (outside batch_mode()) are
-    # unaffected: guard_fail_open is a no-op there.
-    guard_fail_open('l1_distractor_judge', f'model={model!r} version={version}')
-    return {
-        'verdicts': {d: 'keep' for d in distractors},
-        'reasons':  {d: ''     for d in distractors},
-        'model':    model,
-        'version':  version,
-    }

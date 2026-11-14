@@ -44,31 +44,38 @@ from __future__ import annotations
 import logging
 
 from services.llm_service import call_llm
-from services.prompt_service import get_template_config
+from services.prompt_service import get_template_config  # noqa: F401 — resolved by the runner
 
-from services.test_generation.schemas import likert_to_verdict
-from .base import JudgeOutcome, guard_fail_open, log_judge_verdict, safe_accept
+from .base import (
+    JudgeOutcome, JudgeSpec, empty_meta, llm_call_kwargs, log_verdict, numbered,
+    run_candidate_judge, safe_accept, split_rejected,
+    log_judge_verdict,  # noqa: F401 — resolved by the runner
+)
 
 logger = logging.getLogger(__name__)
 
 _TASK_NAME = 'judge_translation_uniqueness'      # label in llm_calls
 _PT_NAME   = 'translation_uniqueness_judge'      # task_name in prompt_templates
-_PIPELINE  = 'vocab_ladder'
 
 _cfg_cache: dict[int, dict] = {}                 # language_id -> cfg dict
-
-_KEEP_RATING = 5.0
-
-# language_id → llm_calls.language_code — see answer_entailment.py. This is
-# the study/target language (language_id), not nl_language_code (the
-# learner's native language, used only for a prompt placeholder below).
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
 
 # An MCQ wants three wrong answers, but a translation item with two plausible
 # distractors is still a usable question; below that the learner is choosing
 # from a pair and the item is noise. Blocking rather than padding is
 # deliberate — a padded distractor is how also-correct options got in.
 MIN_SURVIVING_DISTRACTORS = 2
+
+
+def _ask(spec, prompt, cfg, language_id):
+    # language_code is the study/target language (language_id), not
+    # nl_language_code (the learner's native language, a prompt placeholder).
+    return call_llm(prompt, **llm_call_kwargs(spec, cfg, language_id))
+
+
+_SPEC = JudgeSpec(
+    name='translation_uniqueness', module=__name__,
+    task_name=_TASK_NAME, pt_name=_PT_NAME, ask=_ask,
+)
 
 
 def filter_translation_distractors(
@@ -91,36 +98,29 @@ def filter_translation_distractors(
     acceptable translation). A missing or unparseable verdict keeps it.
     """
     if not distractors:
-        return [], _empty_meta('unknown', 0)
+        return [], empty_meta()
 
-    judged = _judge_candidates(
-        db, tl_sentence, correct_translation, distractors,
-        language_id, nl_language_code,
+    judged = run_candidate_judge(
+        _SPEC, db, language_id, distractors,
+        lambda template: template.format(
+            tl_sentence=tl_sentence,
+            correct_translation=correct_translation or '(none provided)',
+            nl_language=nl_language_code or 'the learner native language',
+            candidates_numbered=numbered(distractors),
+        ),
     )
-    verdicts = judged['verdicts']
-    kept     = [d for d in distractors if verdicts.get(d) != 'reject']
-    rejected = [d for d in distractors if verdicts.get(d) == 'reject']
+    kept, meta = split_rejected(distractors, judged)
 
-    if rejected:
+    if meta['rejected']:
         logger.info(
             "translation_uniqueness: dropped %d/%d also-acceptable distractor(s)",
-            len(rejected), len(distractors),
+            meta['rejected'], len(distractors),
         )
-    log_judge_verdict(
-        task_name=_TASK_NAME,
-        model=judged['model'],
-        verdict='reject' if rejected else 'accept',
-        confidence=float(len(kept)),
-        pipeline=_PIPELINE,
+    log_verdict(
+        _SPEC, judged['model'],
+        'reject' if meta['rejected'] else 'accept', float(len(kept)),
     )
-
-    return kept, {
-        'rejected':       len(rejected),
-        'kept':           len(kept),
-        'rejected_items': rejected,
-        'model':          judged['model'],
-        'version':        judged['version'],
-    }
+    return kept, meta
 
 
 def judge_translation_item(
@@ -158,119 +158,6 @@ def judge_translation_item(
         confidence=float(len(kept)),
         reason=f'{len(kept)} unique distractor(s)',
     ), meta
-
-
-# ---------------------------------------------------------------------------
-# Internals
-# ---------------------------------------------------------------------------
-
-def _judge_candidates(
-    db,
-    tl_sentence: str,
-    correct_translation: str,
-    candidates: list[str],
-    language_id: int,
-    nl_language_code: str,
-) -> dict:
-    """Run the uniqueness prompt over a numbered candidate list.
-
-    Returns ``{'verdicts', 'ratings', 'reasons', 'model', 'version', 'ok'}``.
-    ``ok`` is False on any fail-open path, in which case every candidate is
-    reported as ``accept`` so nothing is dropped on a judge outage.
-    """
-    try:
-        cfg = _load_cfg(db, language_id)
-    except Exception as exc:
-        logger.warning(
-            "translation_uniqueness: template load failed for lang=%d, "
-            "fail-open: %s", language_id, exc,
-        )
-        return _failopen(candidates, 'unknown', 0)
-
-    numbered = '\n'.join(f'{i + 1}. {c}' for i, c in enumerate(candidates))
-    prompt = cfg['template'].format(
-        tl_sentence=tl_sentence,
-        correct_translation=correct_translation or '(none provided)',
-        nl_language=nl_language_code or 'the learner native language',
-        candidates_numbered=numbered,
-    )
-    model, version = cfg['model'], cfg['version']
-
-    try:
-        result = call_llm(
-            prompt,
-            model=model,
-            temperature=0.0,
-            response_format='json',
-            provider=cfg['provider'],
-            pipeline=_PIPELINE,
-            task_name=_TASK_NAME,
-            template_version=version,
-            language_code=_LANG_ID_TO_CODE.get(language_id),
-        )
-    except Exception as exc:
-        logger.warning("translation_uniqueness: LLM call failed, fail-open: %s", exc)
-        return _failopen(candidates, model, version)
-
-    if not isinstance(result, dict):
-        logger.warning(
-            "translation_uniqueness: non-dict response (%s), fail-open",
-            type(result).__name__,
-        )
-        return _failopen(candidates, model, version)
-
-    verdicts: dict[str, str]   = {}
-    ratings:  dict[str, float] = {}
-    reasons:  dict[str, str]   = {}
-    for idx, candidate in enumerate(candidates):
-        entry = result.get(str(idx + 1))
-        if not isinstance(entry, dict):
-            verdicts[candidate], ratings[candidate], reasons[candidate] = 'flag', 3.0, ''
-            continue
-        try:
-            rating = float(entry.get('rating'))
-        except (TypeError, ValueError):
-            verdicts[candidate], ratings[candidate], reasons[candidate] = 'flag', 3.0, ''
-            continue
-        verdicts[candidate] = likert_to_verdict(rating)
-        ratings[candidate]  = rating
-        reasons[candidate]  = str(entry.get('reason', ''))[:200]
-
-    return {
-        'verdicts': verdicts,
-        'ratings':  ratings,
-        'reasons':  reasons,
-        'model':    model,
-        'version':  version,
-        'ok':       True,
-    }
-
-
-def _load_cfg(db, language_id: int) -> dict:
-    if language_id not in _cfg_cache:
-        _cfg_cache[language_id] = get_template_config(db, _PT_NAME, language_id)
-    return _cfg_cache[language_id]
-
-
-def _failopen(candidates: list[str], model: str, version: int) -> dict:
-    # In a generation batch this raises rather than returning — an unreachable
-    # judge must abort the batch, not ship unjudged translation items (TASK-510).
-    guard_fail_open('translation_uniqueness', f'model={model!r} version={version}')
-    return {
-        'verdicts': {c: 'accept'     for c in candidates},
-        'ratings':  {c: _KEEP_RATING for c in candidates},
-        'reasons':  {c: ''           for c in candidates},
-        'model':    model,
-        'version':  version,
-        'ok':       False,
-    }
-
-
-def _empty_meta(model: str, version: int) -> dict:
-    return {
-        'rejected': 0, 'kept': 0, 'rejected_items': [],
-        'model': model, 'version': version,
-    }
 
 
 __all__ = [
