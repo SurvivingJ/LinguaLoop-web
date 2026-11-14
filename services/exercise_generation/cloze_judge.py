@@ -3,8 +3,7 @@
 The implementation has moved to
 ``services.exercise_generation.judges.cloze``.  This module re-exports the
 public surface so existing callers
-(``services.exercise_generation.generators.cloze``,
-``services.vocabulary_ladder.exercise_renderer``) continue to work without
+(``services.vocabulary_ladder.exercise_renderer``) continue to work without
 modification.
 
 Do not add new logic here.  Extend ``judges/cloze.py`` instead.

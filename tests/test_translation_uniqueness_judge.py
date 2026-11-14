@@ -16,7 +16,6 @@ LLM-free and DB-free: the template and ``call_llm`` boundary are monkeypatched.
 
 import pytest
 
-from services.exercise_generation.generators import translation as transmod
 from services.exercise_generation.judges import translation_uniqueness as tumod
 from services.exercise_generation.judges.translation_uniqueness import (
     MIN_SURVIVING_DISTRACTORS,
@@ -238,74 +237,6 @@ def test_no_distractors_is_not_an_error(monkeypatch):
     assert kept == []
     assert meta['rejected'] == 0
     assert prompts == [], 'no LLM spend with nothing to judge'
-
-
-# ---------------------------------------------------------------------------
-# Generator wiring
-# ---------------------------------------------------------------------------
-
-class _StubGen(transmod.TlNlTranslationGenerator):
-    """TlNlTranslationGenerator with its DB and LLM boundaries removed."""
-
-    def __init__(self, llm_reply):
-        self.db = object()
-        self.language_id = LANG_ZH
-        self.model = 'test-model'
-        self.source_type = 'vocabulary'
-        self.nl_language_code = 'en'
-        self._llm_reply = llm_reply
-
-    def load_prompt_template(self, task_name):
-        return 'tl={tl_sentence} nl={nl_language}'
-
-    def call_llm(self, prompt, **kwargs):
-        return self._llm_reply
-
-    def _get_language_code(self):
-        return 'zh'
-
-
-def _sentence():
-    return {'sentence': TL, 'test_id': 't-1'}
-
-
-def test_generator_ships_an_item_whose_distractors_are_unique(monkeypatch):
-    _patch(monkeypatch, _ratings(**{'1': 5, '2': 5}))
-    gen = _StubGen({'correct_nl': KEY,
-                    'wrong_options': ['I eat bread.', 'She reads books.']})
-
-    content = gen.generate_one(_sentence(), source_id=1)
-
-    assert content is not None
-    assert content['nl']['en']['options'][0] == KEY
-    assert len(content['nl']['en']['options']) == 3
-
-
-def test_generator_blocks_an_item_with_two_correct_answers(monkeypatch):
-    """End to end: the eval failure no longer reaches the corpus."""
-    _patch(monkeypatch, _ratings(**{'1': 1, '2': 1}))
-    gen = _StubGen({'correct_nl': KEY,
-                    'wrong_options': ['Every morning I have coffee.',
-                                      'I have coffee each morning.']})
-
-    assert gen.generate_one(_sentence(), source_id=1) is None
-
-
-def test_generator_attaches_the_judge_sidecar(monkeypatch):
-    _patch(monkeypatch, _ratings(**{'1': 5, '2': 5}))
-    gen = _StubGen({'correct_nl': KEY, 'wrong_options': ['a', 'b']})
-
-    content = gen.generate_one(_sentence(), source_id=1)
-
-    assert 'translation_uniqueness' in content['__judge_metas']
-    assert content['__judge_metas']['translation_uniqueness']['kept'] == 2
-
-
-def test_generator_still_rejects_a_malformed_llm_response(monkeypatch):
-    _patch(monkeypatch, _ratings(**{'1': 5}))
-    gen = _StubGen({'correct_nl': '', 'wrong_options': []})
-
-    assert gen.generate_one(_sentence(), source_id=1) is None
 
 
 def test_capability_matrix_points_translation_types_at_this_judge():

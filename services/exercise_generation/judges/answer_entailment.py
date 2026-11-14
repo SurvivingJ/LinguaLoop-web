@@ -89,7 +89,9 @@ from services.test_generation.schemas import (
     likert_to_verdict,
 )
 from . import answer_entailment_jev
-from .base import JudgeOutcome, accept_item, safe_accept, log_judge_verdict
+from .base import (
+    LANG_ID_TO_CODE, JudgeOutcome, accept_item, safe_accept, log_judge_verdict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -98,12 +100,6 @@ _SHADOW_TASK_NAME = 'judge_answer_entailment_shadow'  # kept apart so the live
                                          # accept/flag/reject distribution stays clean
 _PT_NAME   = 'test_answer_entailment'    # task_name in prompt_templates
 _PIPELINE  = 'test_gen'
-
-# language_id → llm_calls.language_code. Same hardcoded map used by
-# services/corpus/ingestion.py and services/exercise_generation/difficulty.py
-# — a DB-cached lookup (DimensionService) needs an app-startup init this
-# judge cannot rely on, and the id space is small and stable.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
 
 # First prompt_templates version that asks for a 1-5 Likert rating. Every
 # earlier row asks for a 0.0-1.0 confidence and is incompatible with this code
@@ -256,7 +252,7 @@ def _shadow_jev(
             parsed_ok=True, schema_ok=True,
             judge_verdict=jv.verdict, judge_confidence=None,
             latency_ms=None, artifact_id=None, cost_usd=None,
-            language_code=_LANG_ID_TO_CODE.get(language_id), provider='TypeSafe',
+            language_code=LANG_ID_TO_CODE.get(language_id), provider='TypeSafe',
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("answer_entailment shadow: verdict logging failed: %s", exc)
@@ -312,7 +308,7 @@ def _judge_llm(
             pipeline=_PIPELINE,
             task_name=_TASK_NAME,
             template_version=cfg['version'],
-            language_code=_LANG_ID_TO_CODE.get(language_id),
+            language_code=LANG_ID_TO_CODE.get(language_id),
         )
     except Exception as exc:
         logger.warning(

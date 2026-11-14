@@ -25,26 +25,28 @@ it never blocks the pipeline. The caller logs the underlying error.
 
 from __future__ import annotations
 
-import logging
-
 from services.llm_service import call_llm
-from services.prompt_service import get_template_config
+from services.prompt_service import get_template_config  # noqa: F401 — resolved by the runner
 
-from services.test_generation.schemas import likert_to_verdict
-from .base import JudgeOutcome, safe_accept, accept_item, log_judge_verdict
-
-logger = logging.getLogger(__name__)
+from .base import (
+    JudgeOutcome, JudgeSpec, llm_call_kwargs, numbered, run_likert_judge,
+    log_judge_verdict,  # noqa: F401 — resolved by the runner
+)
 
 _TASK_NAME = 'judge_ladder_p1_sentence'    # label in llm_calls (judge_ prefix)
 _PT_NAME   = 'ladder_p1_sentence_judge'    # task_name in prompt_templates
-_PIPELINE  = 'vocab_ladder'
 
 _cfg_cache: dict[int, dict] = {}           # language_id -> cfg dict
 
-_VERDICT_ORDER = {'reject': 0, 'flag': 1, 'accept': 2}  # lower = worse
 
-# language_id → llm_calls.language_code — see answer_entailment.py.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+def _ask(spec, prompt, cfg, language_id):
+    return call_llm(prompt, **llm_call_kwargs(spec, cfg, language_id))
+
+
+_SPEC = JudgeSpec(
+    name='p1_sentence_judge', module=__name__,
+    task_name=_TASK_NAME, pt_name=_PT_NAME, ask=_ask,
+)
 
 
 def judge_p1_sentences(
@@ -70,91 +72,13 @@ def judge_p1_sentences(
     if not sentences:
         return []
 
-    n = len(sentences)
-
-    try:
-        cfg = _load_cfg(db, language_id)
-    except Exception as exc:
-        logger.warning(
-            "p1_sentence_judge: template load failed for lang=%d, safe-accept all: %s",
-            language_id, exc,
-        )
-        return [safe_accept(f'template load error: {exc}') for _ in sentences]
-
-    sentences_numbered = '\n'.join(f'{i + 1}. {s}' for i, s in enumerate(sentences))
-    prompt = cfg['template'].format(
-        lemma=lemma,
-        definition=definition or '(none provided)',
-        sense_fingerprint=sense_fingerprint or '(none provided)',
-        register=register or 'neutral',
-        sentences_numbered=sentences_numbered,
+    return run_likert_judge(
+        _SPEC, db, language_id, len(sentences),
+        lambda template: template.format(
+            lemma=lemma,
+            definition=definition or '(none provided)',
+            sense_fingerprint=sense_fingerprint or '(none provided)',
+            register=register or 'neutral',
+            sentences_numbered=numbered(sentences),
+        ),
     )
-
-    try:
-        result = call_llm(
-            prompt,
-            model=cfg['model'],
-            temperature=0.0,
-            response_format='json',
-            provider=cfg['provider'],
-            pipeline=_PIPELINE,
-            task_name=_TASK_NAME,
-            template_version=cfg['version'],
-            language_code=_LANG_ID_TO_CODE.get(language_id),
-        )
-    except Exception as exc:
-        logger.warning(
-            "p1_sentence_judge: LLM call failed for lang=%d, safe-accept all: %s",
-            language_id, exc,
-        )
-        return [safe_accept(f'llm call error: {exc}') for _ in sentences]
-
-    if not isinstance(result, dict):
-        logger.warning(
-            "p1_sentence_judge: non-dict response (%s), safe-accept all",
-            type(result).__name__,
-        )
-        return [safe_accept('non-dict judge response') for _ in sentences]
-
-    outcomes: list[JudgeOutcome] = []
-    for i in range(n):
-        entry = result.get(str(i + 1))
-        if not isinstance(entry, dict):
-            # A missing or malformed per-sentence verdict must never manufacture
-            # a rejection — keep the sentence (safe-accept) and move on.
-            outcomes.append(accept_item('missing per-sentence verdict'))
-            continue
-        try:
-            rating = float(entry.get('rating'))
-        except (TypeError, ValueError):
-            outcomes.append(accept_item('unparseable rating'))
-            continue
-        outcomes.append(JudgeOutcome(
-            verdict=likert_to_verdict(rating),
-            confidence=rating,
-            reason=str(entry.get('reason', ''))[:200],
-        ))
-
-    # Log the worst verdict across the corpus — it's the binding signal for the
-    # asset as a whole (one row per call) so the smoke-test query can count
-    # accept/flag/reject by task_name LIKE 'judge_ladder_%'.
-    worst = min(outcomes, key=lambda o: _VERDICT_ORDER.get(o.verdict, 2))
-    log_judge_verdict(
-        task_name=_TASK_NAME,
-        model=cfg['model'],
-        verdict=worst.verdict,
-        confidence=worst.confidence,
-        pipeline=_PIPELINE,
-    )
-
-    return outcomes
-
-
-# ---------------------------------------------------------------------------
-# Internals
-# ---------------------------------------------------------------------------
-
-def _load_cfg(db, language_id: int) -> dict:
-    if language_id not in _cfg_cache:
-        _cfg_cache[language_id] = get_template_config(db, _PT_NAME, language_id)
-    return _cfg_cache[language_id]

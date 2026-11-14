@@ -3,7 +3,6 @@
 import logging
 from services.supabase_factory import get_supabase_admin
 from services.test_generation.agents.audio_synthesizer import AudioSynthesizer
-from services.exercise_generation.orchestrator import ExerciseGenerationOrchestrator
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,7 +17,7 @@ def run_vocabulary_batch(
     Generate exercises for all dim_word_senses rows of a language,
     or a specific subset if sense_ids is provided.
 
-    TASK-512: routes to the **vocabulary ladder**, not the legacy orchestrator.
+    TASK-512: routes to the **vocabulary ladder**.
     The ladder is now the sole vocab generator — its items are judge-gated and
     carry ``word_asset_id``, which legacy vocab exercises never did. Legacy
     vocab exercises already in the table keep serving until TASK-518
@@ -98,55 +97,15 @@ def run_vocabulary_batch(
     return results
 
 
-def run_collocation_batch(
-    language_id: int,
-    collocation_ids: list[int] | None = None,
-) -> dict:
-    """
-    Generate exercises for corpus_collocations rows of a language.
-    Requires Plan 5 corpus pipeline to have populated corpus_collocations.
-    """
-    db           = get_supabase_admin()
-    synthesizer  = AudioSynthesizer()
-    orchestrator = ExerciseGenerationOrchestrator(db, audio_synthesizer=synthesizer)
-
-    query = db.table('corpus_collocations') \
-        .select('id') \
-        .eq('language_id', language_id) \
-        .gte('pmi_score', 3.0)
-    if collocation_ids:
-        query = query.in_('id', collocation_ids)
-    collocations = query.execute()
-
-    results = {}
-    for row in (collocations.data or []):
-        cid = row['id']
-        try:
-            result = orchestrator.run('collocation', cid, language_id)
-            results[cid] = result
-        except Exception as exc:
-            logger.error("Collocation %d failed: %s", cid, exc)
-            results[cid] = {'error': str(exc)}
-
-    return results
-
-
 if __name__ == '__main__':
     import argparse
     from services.supabase_factory import SupabaseFactory
 
-    parser = argparse.ArgumentParser(description='Run exercise generation batch')
-    parser.add_argument('--source',   choices=['grammar', 'vocabulary', 'collocation'], required=True)
+    parser = argparse.ArgumentParser(description='Run vocabulary exercise generation batch')
+    parser.add_argument('--source',   choices=['vocabulary'], default='vocabulary')
     parser.add_argument('--language', type=int, required=True)
-    parser.add_argument('--phases',   nargs='*', choices=['A', 'B', 'C', 'D'])
     parser.add_argument('--ids',      nargs='*', type=int)
     args = parser.parse_args()
 
     SupabaseFactory.initialize()
-
-    if args.source == 'grammar':
-        run_grammar_batch(args.language, phases=args.phases, pattern_ids=args.ids)
-    elif args.source == 'vocabulary':
-        run_vocabulary_batch(args.language, sense_ids=args.ids)
-    elif args.source == 'collocation':
-        run_collocation_batch(args.language, collocation_ids=args.ids)
+    run_vocabulary_batch(args.language, sense_ids=args.ids)

@@ -35,26 +35,22 @@ level stays keyed by 1-based candidate number.
 
 from __future__ import annotations
 
-import logging
-
-from services.exercise_generation.schemas import (
-    JUDGE_RATING_KEY, JUDGE_REASON_KEY, read_index,
-)
 from services.llm_service import call_llm, ladder_qwen_reasoning_mode
-from services.prompt_service import get_template_config
-from services.test_generation.schemas import likert_to_verdict
+from services.prompt_service import get_template_config  # noqa: F401 — resolved by the runner
+# Re-exported: tests pin that this judge and judges/relation score with the
+# same mapper (the runner applies it to both).
+from services.test_generation.schemas import likert_to_verdict  # noqa: F401
 
-from .base import JudgeOutcome, accept_item, guard_fail_open, log_judge_verdict
-
-logger = logging.getLogger(__name__)
+from .base import (
+    JudgeOutcome, JudgeSpec, accept_item, candidate_outcome, empty_meta,
+    llm_call_kwargs, log_verdict, numbered, run_candidate_judge, split_rejected,
+    log_judge_verdict,  # noqa: F401 — resolved by the runner
+)
 
 _TASK_NAME = 'judge_ladder_particle'      # label in llm_calls (judge_ prefix)
 _PT_NAME = 'ladder_particle_judge'        # task_name in prompt_templates
-_PIPELINE = 'vocab_ladder'
 
 _cfg_cache: dict[int, dict] = {}
-
-_KEEP_RATING = 5.0
 
 # RE-DERIVED 2026-10-03 (ADR-028 cost work): see the right-sized value (200)
 # at the call site below. This judge runs on qwen3.7-plus (ja-only), unlike
@@ -71,8 +67,34 @@ def _max_tokens() -> int:
     return (_MAX_TOKENS_REASONING_SAFE if ladder_qwen_reasoning_mode() != 'off'
             else _MAX_TOKENS_RIGHTSIZED)
 
-# language_id → llm_calls.language_code — see answer_entailment.py.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+
+def _ask(spec, prompt, cfg, language_id):
+    return call_llm(
+        prompt,
+        # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 9000 was
+        # sized against a ja-only n=6 sample inflated by reasoning tokens
+        # (qwen reasoning is now OFF), and the larger ja sample TASK-812
+        # asked for now exists. data/eval/runs/phase2_bundle_ja/ +
+        # phase2_fix_ja/ + phase2_smoke_ja_v3/ *.json llm_calls for
+        # judge_ladder_particle (ja-only task): n=32, p99=87.5, max=90.
+        # cap = max(ceil(p99*2), ceil(max*1.25)) = 176, rounded up to
+        # 200. At qwen3.7-plus's $1.28/M completion price this cuts the
+        # worst-case reservation from ~$0.012/request to
+        # ~$0.0005/request. See `_max_tokens()` above for the
+        # LADDER_QWEN_REASONING=on fallback to the old 9000.
+        max_tokens=_max_tokens(),
+        **llm_call_kwargs(spec, cfg, language_id),
+    )
+
+
+_SPEC = JudgeSpec(
+    name='particle_judge', module=__name__,
+    task_name=_TASK_NAME, pt_name=_PT_NAME, ask=_ask,
+    # Provider-enforced JSON: a prose answer fails open and keeps every
+    # candidate, which is the expensive failure for a uniqueness judge.
+    response_format='json_object',
+    numeric_entries=True,
+)
 
 
 def filter_particle_foils(
@@ -93,21 +115,12 @@ def filter_particle_foils(
     a response was truncated is no item at all.
     """
     if not foils:
-        return [], _empty_meta('unknown', 0)
+        return [], empty_meta()
 
     judged = _judge_candidates(
         db, sentence_with_blank, correct_particle, foils, language_id,
     )
-    verdicts = judged['verdicts']
-    kept = [f for f in foils if verdicts.get(f) != 'reject']
-    rejected = [f for f in foils if verdicts.get(f) == 'reject']
-    return kept, {
-        'rejected': len(rejected),
-        'kept': len(kept),
-        'rejected_items': rejected,
-        'model': judged['model'],
-        'version': judged['version'],
-    }
+    return split_rejected(foils, judged)
 
 
 def judge_particle(
@@ -124,126 +137,21 @@ def judge_particle(
     judged = _judge_candidates(
         db, sentence_with_blank, correct_particle, [candidate], language_id,
     )
-    outcome = JudgeOutcome(
-        verdict=judged['verdicts'].get(candidate, 'flag'),
-        confidence=judged['ratings'].get(candidate, _KEEP_RATING),
-        reason=judged['reasons'].get(candidate, ''),
-    )
+    outcome = candidate_outcome(judged, candidate)
     if judged['ok']:
-        log_judge_verdict(
-            task_name=_TASK_NAME, model=judged['model'],
-            verdict=outcome.verdict, confidence=outcome.confidence,
-            pipeline=_PIPELINE,
-        )
+        log_verdict(_SPEC, judged['model'], outcome.verdict, outcome.confidence)
     return outcome
 
-
-# ---------------------------------------------------------------------------
-# Internals
-# ---------------------------------------------------------------------------
 
 def _judge_candidates(
     db, sentence_with_blank: str, correct_particle: str,
     candidates: list[str], language_id: int,
 ) -> dict:
-    try:
-        cfg = _load_cfg(db, language_id)
-    except Exception as exc:
-        logger.warning(
-            'particle_judge: template load failed for lang=%d, fail-open: %s',
-            language_id, exc,
-        )
-        return _failopen(candidates, 'unknown', 0)
-
-    numbered = '\n'.join(f'{i + 1}. {c}' for i, c in enumerate(candidates))
-    prompt = cfg['template'].format(
-        sentence_with_blank=sentence_with_blank,
-        correct_particle=correct_particle,
-        candidates_numbered=numbered,
+    return run_candidate_judge(
+        _SPEC, db, language_id, candidates,
+        lambda template: template.format(
+            sentence_with_blank=sentence_with_blank,
+            correct_particle=correct_particle,
+            candidates_numbered=numbered(candidates),
+        ),
     )
-    model, version = cfg['model'], cfg['version']
-
-    try:
-        result = call_llm(
-            prompt,
-            model=model,
-            temperature=0.0,
-            # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 9000 was
-            # sized against a ja-only n=6 sample inflated by reasoning tokens
-            # (qwen reasoning is now OFF), and the larger ja sample TASK-812
-            # asked for now exists. data/eval/runs/phase2_bundle_ja/ +
-            # phase2_fix_ja/ + phase2_smoke_ja_v3/ *.json llm_calls for
-            # judge_ladder_particle (ja-only task): n=32, p99=87.5, max=90.
-            # cap = max(ceil(p99*2), ceil(max*1.25)) = 176, rounded up to
-            # 200. At qwen3.7-plus's $1.28/M completion price this cuts the
-            # worst-case reservation from ~$0.012/request to
-            # ~$0.0005/request. See `_max_tokens()` above for the
-            # LADDER_QWEN_REASONING=on fallback to the old 9000.
-            max_tokens=_max_tokens(),
-            # Provider-enforced JSON: a prose answer fails open and keeps every
-            # candidate, which is the expensive failure for a uniqueness judge.
-            response_format='json_object',
-            provider=cfg['provider'],
-            pipeline=_PIPELINE,
-            task_name=_TASK_NAME,
-            template_version=version,
-            language_code=_LANG_ID_TO_CODE.get(language_id),
-        )
-    except Exception as exc:
-        logger.warning('particle_judge: LLM call failed, fail-open: %s', exc)
-        return _failopen(candidates, model, version)
-
-    if not isinstance(result, dict):
-        logger.warning(
-            'particle_judge: non-dict response (%s), fail-open',
-            type(result).__name__,
-        )
-        return _failopen(candidates, model, version)
-
-    verdicts: dict[str, str] = {}
-    ratings: dict[str, float] = {}
-    reasons: dict[str, str] = {}
-    for idx, candidate in enumerate(candidates):
-        # Top level stays keyed by 1-based candidate number; inside an entry
-        # the numeric contract applies — 0=rating, 1=reason.
-        entry = read_index(result, idx + 1)
-        if not isinstance(entry, dict):
-            verdicts[candidate], ratings[candidate], reasons[candidate] = 'flag', 3.0, ''
-            continue
-        try:
-            rating = float(read_index(entry, JUDGE_RATING_KEY))
-        except (TypeError, ValueError):
-            verdicts[candidate], ratings[candidate], reasons[candidate] = 'flag', 3.0, ''
-            continue
-        verdicts[candidate] = likert_to_verdict(rating)
-        ratings[candidate] = rating
-        reasons[candidate] = str(read_index(entry, JUDGE_REASON_KEY) or '')[:200]
-
-    return {
-        'verdicts': verdicts, 'ratings': ratings, 'reasons': reasons,
-        'model': model, 'version': version, 'ok': True,
-    }
-
-
-def _load_cfg(db, language_id: int) -> dict:
-    if language_id not in _cfg_cache:
-        _cfg_cache[language_id] = get_template_config(db, _PT_NAME, language_id)
-    return _cfg_cache[language_id]
-
-
-def _failopen(candidates: list[str], model: str, version: int) -> dict:
-    # In a generation batch this raises instead of returning (TASK-510).
-    guard_fail_open('particle_judge', f'model={model!r} version={version}')
-    return {
-        'verdicts': {c: 'accept' for c in candidates},
-        'ratings': {c: _KEEP_RATING for c in candidates},
-        'reasons': {c: '' for c in candidates},
-        'model': model, 'version': version, 'ok': False,
-    }
-
-
-def _empty_meta(model: str, version: int) -> dict:
-    return {
-        'rejected': 0, 'kept': 0, 'rejected_items': [],
-        'model': model, 'version': version,
-    }

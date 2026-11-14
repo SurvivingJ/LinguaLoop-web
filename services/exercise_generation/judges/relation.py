@@ -46,22 +46,18 @@ contract from ``judges/base``.
 
 from __future__ import annotations
 
-import logging
-
-from services.exercise_generation.schemas import (
-    JUDGE_RATING_KEY, JUDGE_REASON_KEY, read_index,
-)
 from services.llm_service import call_llm
-from services.prompt_service import get_template_config
-from services.test_generation.schemas import likert_to_verdict
+from services.prompt_service import get_template_config  # noqa: F401 — resolved by the runner
+# Re-exported: tests pin that this judge and judges/particle score with the
+# same mapper (the runner applies it to both).
+from services.test_generation.schemas import likert_to_verdict  # noqa: F401
 
 from .base import (
-    JudgeOutcome, accept_item, guard_fail_open, log_judge_verdict, safe_accept,
+    JudgeOutcome, JudgeSpec, accept_item, candidate_outcome, empty_meta,
+    llm_call_kwargs, log_verdict, numbered, run_candidate_judge, safe_accept,
+    split_rejected,
+    log_judge_verdict,  # noqa: F401 — resolved by the runner
 )
-
-logger = logging.getLogger(__name__)
-
-_PIPELINE = 'vocab_ladder'
 
 _RELATION_TASK = 'judge_ladder_relation'
 _RELATION_PT = 'ladder_relation_judge'
@@ -72,12 +68,41 @@ _FAMILY_PT = 'ladder_word_family_judge'
 # (prompt template name, language_id) -> cfg
 _cfg_cache: dict[tuple[str, int], dict] = {}
 
-# language_id → llm_calls.language_code — see answer_entailment.py.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
 
-# Rating used when the judge is unreachable, or an entry is missing. Keeps the
-# candidate — a parse glitch must never manufacture a rejection (v3 contract).
-_KEEP_RATING = 5.0
+def _ask(spec, prompt, cfg, language_id):
+    return call_llm(
+        prompt,
+        # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 13000 was
+        # sized against a relation p99 inflated by reasoning tokens
+        # (qwen reasoning is now OFF). With reasoning off,
+        # data/eval/runs/phase2_bundle_*/ + phase2_fix_*/ +
+        # phase2_smoke_ja_v3/ + phase2_smoke_zh_r/ *.json llm_calls for
+        # the two task_names sharing this call site pooled together:
+        # n=100, p99=120, max=120 (judge_ladder_word_family/en, n=19,
+        # governs; judge_ladder_relation tops out at 111 across en/ja/zh,
+        # n=28/24/29). cap = max(ceil(p99*2), ceil(max*1.25)) = 240,
+        # rounded up to 250. At gemini-3.5-flash-lite's $2.50/M
+        # completion price (en's model, the governing case) this cuts
+        # the worst-case reservation from ~$0.033/request to
+        # ~$0.001/request.
+        max_tokens=250,
+        **llm_call_kwargs(spec, cfg, language_id),
+    )
+
+
+def _spec(pt_name: str, task_name: str) -> JudgeSpec:
+    return JudgeSpec(
+        name=pt_name, module=__name__, task_name=task_name, pt_name=pt_name,
+        ask=_ask,
+        # Provider-enforced JSON: a judge that answers in prose fails open
+        # and keeps every candidate, which is the expensive failure here.
+        response_format='json_object',
+        numeric_entries=True, keyed_cache=True,
+    )
+
+
+_RELATION_SPEC = _spec(_RELATION_PT, _RELATION_TASK)
+_FAMILY_SPEC = _spec(_FAMILY_PT, _FAMILY_TASK)
 
 
 # ---------------------------------------------------------------------------
@@ -104,34 +129,15 @@ def filter_relation_foils(
     independent "maybe"s should not compound into a drop.
     """
     if not foils:
-        return [], _empty_meta('unknown', 0)
+        return [], empty_meta()
 
-    judged = _judge(
-        db,
-        pt_name=_RELATION_PT,
-        task_name=_RELATION_TASK,
-        language_id=language_id,
-        candidates=foils,
-        variables={
-            'target': target,
-            'definition': definition or '(no definition supplied)',
-            'relation': relation,
-            'correct_answer': correct_answer or '(none)',
-        },
-    )
-
-    verdicts = judged['verdicts']
-    kept = [f for f in foils if verdicts.get(f) != 'reject']
-    rejected = [f for f in foils if verdicts.get(f) == 'reject']
-    meta = {
-        'rejected': len(rejected),
-        'kept': len(kept),
-        'rejected_items': rejected,
+    judged = _judge(_RELATION_SPEC, db, language_id, foils, {
+        'target': target,
+        'definition': definition or '(no definition supplied)',
         'relation': relation,
-        'model': judged['model'],
-        'version': judged['version'],
-    }
-    return kept, meta
+        'correct_answer': correct_answer or '(none)',
+    })
+    return split_rejected(foils, judged, relation=relation)
 
 
 # ---------------------------------------------------------------------------
@@ -155,7 +161,7 @@ def filter_invented_derivations(
     override an expensive, fuzzy one.
     """
     if not candidates:
-        return [], _empty_meta('unknown', 0)
+        return [], empty_meta()
 
     attested: list[str] = []
     to_judge: list[str] = []
@@ -166,17 +172,10 @@ def filter_invented_derivations(
         else:
             to_judge.append(candidate)
 
-    judged = _judge(
-        db,
-        pt_name=_FAMILY_PT,
-        task_name=_FAMILY_TASK,
-        language_id=language_id,
-        candidates=to_judge,
-        variables={
-            'stem': stem,
-            'correct_answer': correct_answer or '(none)',
-        },
-    ) if to_judge else {
+    judged = _judge(_FAMILY_SPEC, db, language_id, to_judge, {
+        'stem': stem,
+        'correct_answer': correct_answer or '(none)',
+    }) if to_judge else {
         'verdicts': {}, 'ratings': {}, 'reasons': {},
         'model': 'unknown', 'version': 0, 'ok': True,
     }
@@ -202,136 +201,24 @@ def judge_derivation(
     if not candidate:
         return accept_item('no candidate to judge')
 
-    judged = _judge(
-        db,
-        pt_name=_FAMILY_PT,
-        task_name=_FAMILY_TASK,
-        language_id=language_id,
-        candidates=[candidate],
-        variables={'stem': stem, 'correct_answer': correct_answer or '(none)'},
-    )
+    judged = _judge(_FAMILY_SPEC, db, language_id, [candidate], {
+        'stem': stem, 'correct_answer': correct_answer or '(none)',
+    })
     if not judged['ok']:
         return safe_accept('word_family judge unavailable — safe-accept')
 
-    outcome = JudgeOutcome(
-        verdict=judged['verdicts'].get(candidate, 'flag'),
-        confidence=judged['ratings'].get(candidate, _KEEP_RATING),
-        reason=judged['reasons'].get(candidate, ''),
-    )
-    log_judge_verdict(
-        task_name=_FAMILY_TASK, model=judged['model'],
-        verdict=outcome.verdict, confidence=outcome.confidence,
-        pipeline=_PIPELINE,
-    )
+    outcome = candidate_outcome(judged, candidate)
+    log_verdict(_FAMILY_SPEC, judged['model'], outcome.verdict, outcome.confidence)
     return outcome
 
 
-# ---------------------------------------------------------------------------
-# Shared internals
-# ---------------------------------------------------------------------------
-
 def _judge(
-    db, *, pt_name: str, task_name: str, language_id: int,
-    candidates: list[str], variables: dict,
+    spec: JudgeSpec, db, language_id: int, candidates: list[str], variables: dict,
 ) -> dict:
     """Run a numbered-candidate Likert prompt. Never raises outside batch mode."""
-    try:
-        cfg = _load_cfg(db, pt_name, language_id)
-    except Exception as exc:
-        logger.warning(
-            '%s: template load failed for lang=%d, fail-open: %s',
-            pt_name, language_id, exc,
-        )
-        return _failopen(pt_name, candidates, 'unknown', 0)
-
-    numbered = '\n'.join(f'{i + 1}. {c}' for i, c in enumerate(candidates))
-    prompt = cfg['template'].format(candidates_numbered=numbered, **variables)
-    model, version = cfg['model'], cfg['version']
-
-    try:
-        result = call_llm(
-            prompt,
-            model=model,
-            temperature=0.0,
-            # RE-DERIVED 2026-10-03 (ADR-028 cost work): TASK-812's 13000 was
-            # sized against a relation p99 inflated by reasoning tokens
-            # (qwen reasoning is now OFF). With reasoning off,
-            # data/eval/runs/phase2_bundle_*/ + phase2_fix_*/ +
-            # phase2_smoke_ja_v3/ + phase2_smoke_zh_r/ *.json llm_calls for
-            # the two task_names sharing this call site pooled together:
-            # n=100, p99=120, max=120 (judge_ladder_word_family/en, n=19,
-            # governs; judge_ladder_relation tops out at 111 across en/ja/zh,
-            # n=28/24/29). cap = max(ceil(p99*2), ceil(max*1.25)) = 240,
-            # rounded up to 250. At gemini-3.5-flash-lite's $2.50/M
-            # completion price (en's model, the governing case) this cuts
-            # the worst-case reservation from ~$0.033/request to
-            # ~$0.001/request.
-            max_tokens=250,
-            # Provider-enforced JSON: a judge that answers in prose fails open
-            # and keeps every candidate, which is the expensive failure here.
-            response_format='json_object',
-            provider=cfg['provider'],
-            pipeline=_PIPELINE,
-            task_name=task_name,
-            template_version=version,
-            language_code=_LANG_ID_TO_CODE.get(language_id),
-        )
-    except Exception as exc:
-        logger.warning('%s: LLM call failed, fail-open: %s', pt_name, exc)
-        return _failopen(pt_name, candidates, model, version)
-
-    if not isinstance(result, dict):
-        logger.warning(
-            '%s: non-dict response (%s), fail-open', pt_name, type(result).__name__,
-        )
-        return _failopen(pt_name, candidates, model, version)
-
-    verdicts: dict[str, str] = {}
-    ratings: dict[str, float] = {}
-    reasons: dict[str, str] = {}
-    for idx, candidate in enumerate(candidates):
-        # Top level stays keyed by 1-based candidate number; inside an entry
-        # the numeric contract applies — 0=rating, 1=reason.
-        entry = read_index(result, idx + 1)
-        if not isinstance(entry, dict):
-            verdicts[candidate], ratings[candidate], reasons[candidate] = 'flag', 3.0, ''
-            continue
-        try:
-            rating = float(read_index(entry, JUDGE_RATING_KEY))
-        except (TypeError, ValueError):
-            verdicts[candidate], ratings[candidate], reasons[candidate] = 'flag', 3.0, ''
-            continue
-        verdicts[candidate] = likert_to_verdict(rating)
-        ratings[candidate] = rating
-        reasons[candidate] = str(read_index(entry, JUDGE_REASON_KEY) or '')[:200]
-
-    return {
-        'verdicts': verdicts, 'ratings': ratings, 'reasons': reasons,
-        'model': model, 'version': version, 'ok': True,
-    }
-
-
-def _load_cfg(db, pt_name: str, language_id: int) -> dict:
-    key = (pt_name, language_id)
-    if key not in _cfg_cache:
-        _cfg_cache[key] = get_template_config(db, pt_name, language_id)
-    return _cfg_cache[key]
-
-
-def _failopen(pt_name: str, candidates: list[str], model: str, version: int) -> dict:
-    # In a generation batch this raises instead of returning — an unreachable
-    # judge must abort the batch, not silently keep every candidate (TASK-510).
-    guard_fail_open(pt_name, f'model={model!r} version={version}')
-    return {
-        'verdicts': {c: 'accept' for c in candidates},
-        'ratings': {c: _KEEP_RATING for c in candidates},
-        'reasons': {c: '' for c in candidates},
-        'model': model, 'version': version, 'ok': False,
-    }
-
-
-def _empty_meta(model: str, version: int) -> dict:
-    return {
-        'rejected': 0, 'kept': 0, 'rejected_items': [],
-        'model': model, 'version': version,
-    }
+    return run_candidate_judge(
+        spec, db, language_id, candidates,
+        lambda template: template.format(
+            candidates_numbered=numbered(candidates), **variables,
+        ),
+    )

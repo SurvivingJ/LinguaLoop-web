@@ -33,6 +33,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from services.exercise_generation.config import LANG_ID_TO_CODE
 from services.jev_client import DEFAULT_MODEL, JevError, call_jev
 
 # language_id -> (reject_below, accept_at)
@@ -41,8 +42,6 @@ CUTOFFS: dict[int, tuple[float, float]] = {
     2: (0.30, 0.60),   # en
     3: (0.30, 0.60),   # ja
 }
-
-_LANG_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
 
 # state = {"passage", "question", "candidate"}; one question, key "entailed".
 RUBRIC: dict[int, dict] = {
@@ -143,7 +142,7 @@ def evaluate(
         questions=RUBRIC[language_id],
         pipeline=pipeline,
         task_name=task_name,
-        language_code=_LANG_CODE.get(language_id),
+        language_code=LANG_ID_TO_CODE.get(language_id),
     )
     ans = result.answers.get('entailed')
     p = ans.get('noul') if isinstance(ans, dict) else None
