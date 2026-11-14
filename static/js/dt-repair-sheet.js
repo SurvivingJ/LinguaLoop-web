@@ -88,6 +88,8 @@
   }
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  // server counts go into markup: never anything but a non-negative integer
+  const count = (v) => Math.max(0, Math.floor(Number(v) || 0));
 
   function mq(query) {
     try {
@@ -487,7 +489,7 @@
             ? tr('dt_repair.summary_later', null, 'Back in practice later')
             : tr('dt_repair.summary_saved', null, 'Saved to practice');
         return {
-          stage: `<div class="dtr-moment"><h2 id="dtr-h" tabindex="-1">${esc(title)}</h2><ul class="dtr-tally"><li><span>${esc(tr('dt_repair.summary_fixed', null, 'Fixed yourself'))}</span> <b>${c.fixed_yourself}</b></li><li><span>${esc(tr('dt_repair.summary_help', null, 'Needed help'))}</span> <b>${c.needed_help}</b></li><li><span>${esc(third)}</span> <b>${c.saved_to_practice}</b></li></ul></div>`,
+          stage: `<div class="dtr-moment"><h2 id="dtr-h" tabindex="-1">${esc(title)}</h2><ul class="dtr-tally"><li><span>${esc(tr('dt_repair.summary_fixed', null, 'Fixed yourself'))}</span> <b>${count(c.fixed_yourself)}</b></li><li><span>${esc(tr('dt_repair.summary_help', null, 'Needed help'))}</span> <b>${count(c.needed_help)}</b></li><li><span>${esc(third)}</span> <b>${count(c.saved_to_practice)}</b></li></ul></div>`,
           act: primaryBtn('dtr-done', tr('dt_repair.done', null, 'Done'), 'done'),
         };
       }

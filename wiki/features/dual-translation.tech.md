@@ -505,18 +505,14 @@ CHECK added only if absent (`NOT VALID`, validated after commit).
 - Size: about 1.5 KB for a clean submission, about 3 KB with two errors; worst case about 9 KB
   (both models return unparsable text). Plus one `llm_calls` row per call (about 0.3 KB).
 
-### Still needed for the guided self-repair flow (not built; TASK-939, TASK-940)
+### Guided self-repair (built 2026-11-14; supersedes TASK-939, TASK-940)
 
-Design: [[design/dt-feedback/option-2-guided-self-repair/SPEC]]. The grader side is ready
-(`sentence_index`, located learner span, the model's local correction, error type, confidence,
-template text and the model's L1 explanation). Not in this migration, by decision:
-
-- a table for repair episodes per error or sentence: hint level reached (where / what kind / clue /
-  answer), number of revisions, each revision's text and re-check result, final outcome;
-- a way to re-check one revised sentence (a single-call request for one sentence pair, or the whole
-  passage again) and where those calls are logged (`dt_grading_call` can hold them);
-- a store or view of a learner's own erroneous sentences for daily practice: submission, sentence
-  index, the reference sentence, error types, last attempt, next due.
+The flow that uses these grader fields — redacted submit response, hint ladder, one-sentence
+re-check with the single-call prompt, daily practice of the learner's own sentences, and its three
+tables (`migrations/dt_guided_self_repair.sql`, not yet applied) — is specified in
+[[features/dt-guided-self-repair.tech]] and recorded in [[decisions/ADR-045-dt-guided-self-repair]].
+The only edits it makes to this route file are the submit hook (`repair.hooks.after_grade` /
+`for_cached`) and `_tokens_used_today` adding re-check tokens.
 
 ### Verification
 

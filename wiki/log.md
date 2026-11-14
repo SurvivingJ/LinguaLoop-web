@@ -6565,3 +6565,33 @@ single-call grader was validated on the v6 gold set instead).
 Contradiction found: the 2026-11-14 revision of ADR-044 / the evaluation page / the single-call task file
 claimed a read-only check showed taxonomy v6 already active before the cutover; the cutover record says v5
 was active until today. Corrected to the cutover record; the earlier read is marked unreconciled.
+
+## [2026-11-14] update | DT guided self-repair: WP-INT integration (backend × frontend)
+The backend (WP-BE) and frontend (WP-FE) were built in parallel and never run together; the frontend
+had only been verified against its own stand-in API. WP-INT drove the REAL routes (submit hook +
+`dt_repair` blueprint + repair services, in-memory store, scripted model) through every flow and
+committed the responses as `tests/unit/fixtures/dt-repair/real/` (60 files) with a drift test
+(`tests/test_dt_repair_contract.py`) and a JS contract test (`tests/unit/dt-repair-contract.test.js`:
+mock keys == real keys, every read field present, strict replay through the real sheet, leak scan).
+Nine mismatches fixed (listed in [[tasklist/dt-guided-self-repair.tasks]] TASK-969): daily Steps
+without `l1`/`l2` (the player guessed the UI language), no prompt fallback on daily items, client-side
+guess of "Back in practice later" (now `back_later` from the server), garbage `where` on closed steps,
+page reload never resuming an open pass, the real DT page scrolling under the sheet (body now pinned),
+mock drift, `explanation_lang` on the English label fallback, unescaped summary counts. Missing
+repair tables are now detected once per process (one warning, no error per submit). Real app in a
+browser without production access: `tests/e2e/dt-repair/devserver.py` (real app/templates/routes over
+the in-memory store, all SUPABASE_/OPENROUTER_ env removed) + `integrated.cjs` at 390×844 and
+375×667: 196 checks, 0 failures; screenshots in
+`wiki/design/dt-feedback/option-2-guided-self-repair/built-integrated/`. Not done: migration
+(owner), deploy, authenticated E2E on staging, real devices/Safari/screen reader/IME, native review,
+re-check evaluation (TASK-966, 967, 971–974).
+Pages: created [[decisions/ADR-045-dt-guided-self-repair]]; updated [[features/dt-guided-self-repair]]
+(status in-progress), [[features/dt-guided-self-repair.tech]] (contract additions, answer type steps
+22→19→17→15 px per the mockup, page pinning, resume, missing-tables rule, integration verification),
+[[tasklist/dt-guided-self-repair.tasks]] (statuses; TASK-969, 971–974 added), [[tasklist/master]],
+[[tasklist/dt-single-call-grader.tasks]] (TASK-939/940 superseded), [[features/dual-translation.tech]]
+(pointer), index. No task id is duplicated (TASK-970 belongs to dt-taxonomy-v6 only).
+Correction: ADR-044, [[evaluations/dt-decision-grading-2026-11-14]] and the single-call task file
+called an earlier "taxonomy v6 already active" read "unreconciled". It is not a conflict: v5 was
+active until the orchestrator's cutover on 2026-11-14, and the grader agent's read was made after that
+cutover the same day. All three now say so.

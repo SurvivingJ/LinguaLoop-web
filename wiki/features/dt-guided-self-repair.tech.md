@@ -1,7 +1,7 @@
 ---
 title: DT Guided Self-Repair — Technical Specification
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: ./dt-guided-self-repair.md
 last_updated: 2026-11-14
 dependencies:
@@ -17,7 +17,14 @@ breaking_change_risk: medium
 
 # DT Guided Self-Repair — Technical Specification
 
-Prose: [[features/dt-guided-self-repair]]. Tasks: [[tasklist/dt-guided-self-repair.tasks]].
+Prose: [[features/dt-guided-self-repair]]. Tasks: [[tasklist/dt-guided-self-repair.tasks]]. Decision:
+[[decisions/ADR-045-dt-guided-self-repair]].
+
+**Build state (2026-11-14, after WP-INT):** backend and frontend are built and were run against each
+other (real routes over an in-memory DB, §14 "Integration verification"); every contract change found
+there is folded into §4 below. `migrations/dt_guided_self_repair.sql` is written but **not applied**
+(owner decision), and the branch is not deployed — until both happen production behaves exactly as
+before (the submit hook detects the missing tables, §3.3).
 Design: [[design/dt-feedback/option-2-guided-self-repair/SPEC]] — **Revision 2 (app-style flow)
 governs layout**; §1.2 (ladder), §1.4 (which errors get a ladder), §2.1 (recording), §5.2 (span
 validation), §5.3 (hint content, leak rule) and §8 (daily practice) govern behaviour except where
@@ -228,6 +235,14 @@ raises: any exception is logged and the full contract is returned unchanged (no 
 3. Clean / bypassed → `{**contract, 'repair': session_payload}`.
 4. Open with steps → `redact(contract) | {'repair': session_payload}`.
 
+**Repair tables missing** (the migration not applied — the state of production until the owner
+applies it): the first failure whose error names a missing repair table (PostgREST `PGRST205`,
+Postgres `42P01`, or "dt_repair_… does not exist") marks the tables unavailable for 600 s
+(`store.MISSING_TABLES_RETRY_S`) and logs **one warning per process**; meanwhile `after_grade`,
+`for_cached`, `service.count_due` (daily block) and `budget.recheck_tokens_today` skip the repair
+tables entirely and the learner gets today's response. After the pause the tables are probed again,
+so applying the migration needs no restart.
+
 `for_cached(db, user_id, submission_id, contract) -> dict` is called on the idempotent cached-grade
 path of `submit()` (`_cached_grade` returned non-None): if a session exists and is `open` →
 redacted contract + current session payload; if it exists and is closed → full contract + payload;
@@ -315,9 +330,17 @@ Idempotency: unchanged (`dt_grade.submission_id` UNIQUE). A re-submit returns th
   "check_cap": 4,
   "state": "open",                  // "open" | "closed"
   "outcome": null,                  // when closed: see §5.5 outcome enum
-  "from_date": null                 // daily items only: learner-local ISO date of the original submission
+  "from_date": null,                // daily items only: learner-local ISO date of the original submission
+  "l1": "zh",                       // the item's own learner L1 (prompt, hint and explanation language)
+  "l2": "en",                       // the item's own L2 (the field and both answer sentences)
+  "prompt_l1_passage": null         // daily items only, and only when prompt_l1 is null: the whole L1 passage
 }
 ```
+
+`l1`/`l2`/`prompt_l1_passage` were added in WP-INT: a daily set can mix passages, and the daily
+player has no session object to take them from (it used to guess `l2` from the page's `lang`, which
+is the UI language). A **closed** step has `where: null` (its target offsets no longer describe its
+`last_text`).
 
 **Never in a Step**: reference sentence, `corrected_form`, `span_reference`, subtype, kind label,
 clue, explanation, other errors.
@@ -346,7 +369,11 @@ Body `{"surface": "repair_pass"|"daily_practice", "since_prev_ms"?: int}`.
   is in progress and was opened < 2 h ago, resume it (no event). Older → close it as `skipped` and
   start a new one.
 
-200 → `{"step": <Step>}` (with `where` filled when `hint_level ≥ 1`).
+200 → `{"status":"success","step": <Step>}` — the item's current state (`where` filled when
+`hint_level ≥ 1`); on the daily surface with `surface`-specific fields as in §4.11 (`check_cap` 3,
+`from_date`, `prompt_l1_passage` when needed) and `position: 0`. The sheet treats open as
+bookkeeping: it adopts `hint_level`, `where` and `last_text` from the response only while the
+learner has not acted yet, and proceeds to the fix view if open fails.
 
 ### 4.5 `POST /repair/items/<item_id>/hint`
 
@@ -441,9 +468,15 @@ Response:
   "closed": false,
   "outcome": null,                // when closed: self_repaired | repaired_alternative | answer_shown | unsure_revised
   "auto_reveal": false,           // true when closed by the check cap
-  "answer": null                  // Answer object (§4.7) when result is no_issue_found, auto_reveal, or budget_exhausted
+  "answer": null,                 // Answer object (§4.7) when result is no_issue_found, auto_reveal, or budget_exhausted
+  "back_later": null              // daily surface, when this call closed the sitting: will the item come back? else null
 }
 ```
+
+`back_later` (added in WP-INT; also on reveal, dispute and skip responses): `true` when the item's
+`queue_status` is `due` after the sitting closed, `false` when it was resolved, retired or disputed,
+`null` on the repair pass (finish reports that) and while the sitting is open. The daily summary's
+"Back in practice later" count is the number of `true`s (there is no daily finish endpoint, §4.11).
 
 `fixed` deliberately carries no `answer` (the success moment is a beat, R2.3); the full result
 screen shows it later.
@@ -463,7 +496,8 @@ Body `{"surface": ..., "reason": "asked"|"grader_failed"|"direct", "since_prev_m
   closed item (idempotent; no new event). Repair pass with session not open → still allowed for
   items already closed (resume), 409 `SESSION_CLOSED` for open items.
 
-Response `{"item_id": 7001, "closed": true, "outcome": "answer_shown", "answer": <Answer>}`.
+Response `{"item_id": 7001, "closed": true, "outcome": "answer_shown", "answer": <Answer>, "back_later": null}`
+(`back_later` as in §4.6).
 
 **Answer object**:
 ```json
@@ -485,7 +519,8 @@ Response `{"item_id": 7001, "closed": true, "outcome": "answer_shown", "answer":
   renders the two sentences unmarked.
 - `explanation` (primary error): `model_note` when `explanation_source = 'model'` (the grader's own
   L1 explanation, ≤ 240 chars), else the template `explanation` (rule text). Trimmed to its first
-  sentence if longer than 160 chars; never empty (falls back to the kind label).
+  sentence if longer than 160 chars; never empty (falls back to the kind label, and then
+  `explanation_lang` is the label's own language, which may be `en`).
 
 ### 4.8 `POST /repair/items/<item_id>/dispute`
 
@@ -496,6 +531,7 @@ Body `{"surface": ..., "since_prev_ms"?, "active_ms"?, "client_event_id"?}`. "Mi
 - otherwise → outcome `disputed`, event `disputed`, response with `answer` (`heading: "disputed"`).
   Daily practice: `queue_status = 'disputed'` (removed from practice).
 - Already closed → idempotent, returns the stored outcome (+ answer when applicable).
+- Response: `{"item_id", "closed": true, "outcome", "answer": <Answer>|null, "back_later"}` (§4.6).
 
 ### 4.9 `POST /repair/sessions/<session_id>/finish`
 
@@ -531,10 +567,21 @@ DT_REPAIR_CHECK_CAP_DAILY`, `from_date` set, `hint_level` as it would be after o
 exists, else 0) and `where` filled accordingly, `state: "open"`, plus `"total_due": int` (all due
 items, for "N more tomorrow" copy if wanted). Read-only: it does not start sittings.
 
-`POST /repair/items/<item_id>/skip` — body `{"surface": "daily_practice", "since_prev_ms"?}`.
-Closes the sitting with event `skipped` (episode outcome `skipped`); `due_on` = tomorrow (learner
-local), not counted as failed. repair_pass items are skipped only via finish (400 if surface is
-repair_pass).
+Daily Steps carry `l1`, `l2` (§4.2) and, when `prompt_l1` could not be resolved (§3.1 rule 3), the
+whole L1 passage in `prompt_l1_passage`; the sheet shows `prompt_l1 ?? prompt_l1_passage`.
+
+`POST /repair/items/<item_id>/skip` — body `{"surface": "daily_practice", "since_prev_ms"?,
+"active_ms"?, "client_event_id"?}`. Closes the sitting with event `skipped` (episode outcome
+`skipped`); `due_on` = tomorrow (learner local), not counted as failed. repair_pass items are
+skipped only via finish (400 if surface is repair_pass). Response `{"status":"success","item_id",
+"closed": true, "outcome": "skipped", "answer": null, "back_later": true}` (also when no sitting
+was open: then nothing changes).
+
+**No daily finish endpoint.** Daily sittings are closed one item at a time by the calls above, so
+there is no set-level row to finish. The daily summary is counted by the client from what the
+server returned per item: "Fixed yourself" = outcomes `self_repaired`/`repaired_alternative`,
+"Needed help" = `answer_shown`, "Back in practice later" = `back_later === true` (the client's
+fallback rule, used only when a response lacked `back_later`, cannot see retirement).
 
 Daily-practice item actions are the same open / hint / check / reveal / dispute endpoints with
 `surface: "daily_practice"`. A sitting is closed by: check `fixed`/`no_issue_found`, auto reveal,
@@ -573,6 +620,15 @@ WP-FE puts these in `tests/unit/fixtures/dt-repair/` (§10). They follow the sha
 `finish.json`: `{"status":"success","session_id":501,"session_status":"finished","summary":{"fixed_yourself":1,"needed_help":1,"saved_to_practice":1},"result_available":true}`
 `session.json` (§4.3): `{"status":"success","session":{…the §4.2 object…}}`
 `practice_due.json`: `{"status":"success","total_due":2,"items":[{"item_id":8101,"position":0,"sentence_index":1,"step_kind":"repair","ladder":"full","prompt_l1":"你可以学到机器人和电子方面的知识。","learner_sentence":"You can learn on robotics and electronics.","hint_rungs":[1,2,3],"hint_level":1,"where":{"start":8,"end":16,"text":"learn on","point":false},"last_text":null,"checks_used":0,"check_cap":3,"state":"open","outcome":null,"from_date":"2026-11-10"}]}`
+
+**Real-backend fixtures (WP-INT).** The §4.12 files above are the hand-written normative examples.
+`tests/unit/fixtures/dt-repair/real/*.json` (60 files, `{http, body}`) are generated from the real
+routes by `tests/test_dt_repair_contract.py` (every flow of §4, including errors and the daily
+set), which fails when the backend's responses drift from them; `tests/unit/dt-repair-contract.test.js`
+checks that the stand-in API (`tests/e2e/dt-repair/mock-api.js`) answers every endpoint with exactly
+the same keys, that every field the frontend reads is present, and replays the real bodies through
+the real sheet (pass, unsure + direct, daily). Regenerate after an intended contract change with
+`DT_REPAIR_WRITE_FIXTURES=1 python -m pytest tests/test_dt_repair_contract.py`.
 
 **Envelope rule (binding):** every response is an `api_success` dict (top-level
 `"status":"success"` plus the fields shown). The §4.2 session object is always nested — under
@@ -890,8 +946,12 @@ One sheet at a time; `open` while open closes the previous one first.
   following `visualViewport` (height and `offsetTop`) like the mockup's `vv()`, so the action bar
   rides above an open keyboard. ≥ 600 px: centred 420 px card, `max-height: min(760px, 100dvh − 48px)`,
   exercise behind `inert` and dimmed.
-- Grid rows `auto 1fr auto`; `.dtr-stage { overflow: hidden; min-height: 0 }`. The body gets
-  `overflow: hidden` while the sheet is open (restored on close).
+- Grid rows `auto 1fr auto`; `.dtr-stage { overflow: hidden; min-height: 0 }`. While the sheet is
+  open the page is pinned: `html`/`body` `overflow: hidden` and the body `position: fixed` with
+  `top: -scrollY` (so nothing moves and iOS cannot touch-scroll it); on close the styles and the
+  scroll position are restored. (WP-INT: with `overflow: hidden` alone the real DT page stayed
+  taller than the viewport and scrolled — 1079 px at 390×844 — which the harness, whose page fits
+  the screen, could not show.)
 - **Acceptance (no scroll):** at 390×844, 375×667 and 1280×800, light and dark, and with the
   visible height reduced to 500 and 340 px (keyboard simulation), in every view and state of §8.5:
   `document.scrollingElement.scrollHeight <= innerHeight`, no horizontal overflow, `scrollY == 0`,
@@ -900,8 +960,9 @@ One sheet at a time; `open` while open closes the previous one first.
 - Long sentences (R2.4): the field grows with its text; when the mirror overflows, step type
   20 → 18 → 16 → 15 px (classes `f1/f2/f3`); past that the field scrolls inside itself. Prompt
   clamped to 2 lines (`-webkit-line-clamp`); when clamped it becomes a button that opens the full
-  prompt as an overlay on the sheet (tap/Enter/Escape closes). Answer view type steps 24 → 20 →
-  17 → 15 px, then clamp with tap-to-expand per block. Keyboard open on a short phone (`kb` class:
+  prompt as an overlay on the sheet (tap/Enter/Escape closes). Answer view type steps 22 → 19 →
+  17 → 15 px (the mockup's `.cmp .sent` 1.375rem and `.orig.f1/f2/f3`; the mockup wins over the
+  24 → 20 → 17 → 15 this page used to state), then clamp with tap-to-expand per block. Keyboard open on a short phone (`kb` class:
   width < 600 and visible height < 560): prompt hidden; below 400 px visible height (`tight`): the
   label is visually hidden while a hint is showing (kept for screen readers).
 - Test items: the three longest gold sentences (en 69 chars `en_clean_01`, zh 53 `zh_seed_14`,
@@ -1034,9 +1095,13 @@ The client does not read a flag; it reacts to the response:
   "Try another" / (session player) "Continue". The redacted contract is never passed to
   `renderResult` or stashed for "See full feedback".
 - Page reload with an open session: the standalone page restores via its existing
-  `takeFeedbackView` path only for full contracts; for an open session it calls
-  `GET /repair/submissions/<sid>/session` when it has a `submission_id` with no grade shown, and
-  reopens the sheet at the first open step. (Session player: the runner re-mounts the item and
+  `takeFeedbackView` path only for full contracts. For an open session it keeps
+  `localStorage.dt_repair_open = {submission_id, reproduction (the learner's own text), age_tier, at}`
+  from the moment the sheet opens until `onDone` (≤ 24 h; never anything from the grade). After a
+  reload it calls `GET /repair/submissions/<that id>/session` and, if still `open`, reopens the sheet
+  directly at the first open step (`DTRepairSheet.open({resume: true})`); 404/403/closed clears
+  the stash. (WP-INT: the first build asked for the session of the NEW submission `/next` had just
+  created, which never has one.) (Session player: the runner re-mounts the item and
   `/next` creates a new submission — the abandoned session is finished lazily, §7.4. Accepted.)
 - `flag_only` / `direct_metalinguistic` arms keep governing the result view shown after the sheet.
 
@@ -1046,7 +1111,7 @@ The client does not read a flag; it reacts to the response:
 `GET /api/dual-translation/repair/practice/due?language_id={ctx.languageId}` (the language the
 runner already uses for its own calls). `items.length === 0` → `ctx.onComplete({dt_repair: 0})`
 immediately (the block completes; no sheet). Else `DTRepairSheet.open({mode:'daily', items,
-onDone})`; `onDone({closedEarly})` → `closedEarly ? ctx.onSkip() : ctx.onComplete({dt_repair:
+l1: items[0].l1, l2: items[0].l2, onDone})` (each item's own `l1`/`l2` win per step); `onDone({closedEarly})` → `closedEarly ? ctx.onSkip() : ctx.onComplete({dt_repair:
 n})`. Fetch failure → the standard unavailable card with "Skip for now" (`ctx.onSkip`). `destroy()`
 closes the sheet. Measures `ActiveTimer` per item and sends `active_ms` + `client_event_id` on the
 closing call of each item.
@@ -1514,7 +1579,26 @@ project in the env) and spends a few OpenRouter calls (< $0.01), and it needs
 `migrations/dt_guided_self_repair.sql` (and `dt_grading_assets.sql`) applied first. The no-scroll
 harness (§8.11) needs none of this and runs in the sandbox.
 
+### Integration verification (WP-INT, 2026-11-14)
+
+- **Contract:** `tests/test_dt_repair_contract.py` (real Flask routes over `FakeStore` + scripted
+  re-check; writes/compares `tests/unit/fixtures/dt-repair/real/`) and
+  `tests/unit/dt-repair-contract.test.js` (mock-vs-real key equality, read-field presence, strict
+  replay of the real bodies through the real sheet, leak scan of DOM + storage + sheet state).
+- **Real app in a browser, no production access:** `tests/e2e/dt-repair/devserver.py` runs the real
+  `create_app`, templates, static files, submit route + hook and `dt_repair` blueprint over the
+  in-memory store, a rule-based re-check and a stubbed `/next`, with every SUPABASE_/OPENROUTER_/…
+  variable removed and `SUPABASE_URL` pointed at a closed port; `tests/e2e/dt-repair/integrated.cjs`
+  drives `/dual-translation` and a dev page that mounts the real daily player inside `base.html`
+  at 390×844 and 375×667 (the repair pass, the response/DOM/storage leak check before each reveal,
+  reload-resume, a clean submission, the four fallbacks: flag off, non-single-call grade, tables
+  missing, bypass; the daily set), asserting §8.3 on every sheet view. Screenshots:
+  `wiki/design/dt-feedback/option-2-guided-self-repair/built-integrated/`.
+- **Not covered** (needs the migration applied and a staging/test login): a real Supabase round
+  trip, the real single-call grader, the study-session runner around the daily block (TASK-967).
+
 ## Related Pages
+- [[decisions/ADR-045-dt-guided-self-repair]] — decision record
 - [[features/dt-guided-self-repair]] — prose
 - [[tasklist/dt-guided-self-repair.tasks]] — tasks
 - [[design/dt-feedback/option-2-guided-self-repair/SPEC]] — design (Revision 2)

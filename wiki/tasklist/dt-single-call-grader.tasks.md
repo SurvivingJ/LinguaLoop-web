@@ -26,7 +26,8 @@ applied. **Not done:** restart of all web workers (taxonomy cached per process w
 `claude/epic-noether-xi87pj`, any shadow run on real submissions, native-speaker review of the model explanations.
 Until the deploy, restarted workers grade under v6 with the currently deployed (older) code. No real submission has
 been graded by the single-call grader yet. (An earlier version of this note said the active taxonomy was already v6
-when read on 2026-11-14; that disagrees with the cutover record and is unreconciled.)
+when read on 2026-11-14. That read is correct and is not a conflict: v5 was active until the orchestrator's cutover
+on 2026-11-14, and the grader agent's read was made after that cutover, the same day.)
 
 ---
 
@@ -190,7 +191,7 @@ The review page exists and ADR-044 links to it.
 
 ## TASK-939: Guided self-repair UI for DT feedback (design option 2)
 
-**Status:** [?] Blocked — the option 2 spec is being revised against the single-call grader's output and is not final; hint templates are unreviewed (TASK-938)
+**Status:** Superseded (2026-11-14) — decomposed into TASK-952–TASK-968 in [[tasklist/dt-guided-self-repair.tasks]] and built there (migration not applied yet; see that file)
 **Feature:** dt-single-call-grader
 **Type:** feature
 **Complexity:** XL (>2d)
@@ -223,7 +224,7 @@ To be defined by the task breakdown.
 
 ## TASK-940: Re-use a learner's own erroneous sentences in daily practice
 
-**Status:** [?] Blocked — depends on the option 2 spec's daily-practice view being final, and on whether this replaces or sits beside the existing DT error cards ([[features/dual-translation-remediation.tech]])
+**Status:** Superseded (2026-11-14) — built as the daily `dt_repair` block (TASK-956, TASK-958, TASK-964 in [[tasklist/dt-guided-self-repair.tasks]]); it sits beside the existing DT error cards (no dedupe), per [[decisions/ADR-045-dt-guided-self-repair]]
 **Feature:** dt-single-call-grader
 **Type:** feature
 **Complexity:** L (1-2d)

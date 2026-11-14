@@ -1,7 +1,7 @@
 ---
 title: DT Guided Self-Repair
 type: feature
-status: planned
+status: in-progress
 tech_page: ./dt-guided-self-repair.tech.md
 last_updated: 2026-11-14
 open_questions:
@@ -19,6 +19,11 @@ straight away. It points out which sentences have a problem and lets the learner
 sentence, with help arriving one step at a time only when asked for. Sentences the learner could
 not fix on their own come back later in daily practice, where they fix the same sentence again.
 Everything the learner does along the way is recorded for later design and tuning work.
+
+**Status (2026-11-14):** built and integration-tested (backend and frontend run against each other,
+in a real browser over a local test database). Not live: the database migration is waiting for the
+owner, and the code is not deployed. Until both happen, learners see today's results screen. See
+[[decisions/ADR-045-dt-guided-self-repair]].
 
 The owner chose this design on 2026-11-14 ("the guided process in mockup two is the way to go").
 Design source: [[design/dt-feedback/option-2-guided-self-repair/SPEC]] (Revision 2 governs) and

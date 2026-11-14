@@ -100,8 +100,9 @@ The owner also asked that grading output be kept for later design work, within a
   1.0–1.4 s), against $0.025–0.05 and up to minutes for the Detector/Verifier grader.
 - **Requires taxonomy v6 as the loaded taxonomy.** It is, as of the 2026-11-14 cutover (v6 inserted and
   activated in production that day; v5 kept, inactive; the subtype lists equal the hardcoded ones; workers still need a
-  restart to pick it up). (A mid-day revision of this ADR said the active taxonomy was already v6 "when read"; that
-  does not agree with the cutover record, where v5 was active until the activation, and is unreconciled.) Under any other taxonomy the
+  restart to pick it up). (A mid-day revision of this ADR said the active taxonomy was already v6 "when read". That
+  is not a conflict with the cutover record: v5 was active until the orchestrator's cutover on 2026-11-14, and the
+  grader agent read the active row after that cutover, the same day.) Under any other taxonomy the
   single call is skipped and the configured flow grades; the trace says "taxonomy mismatch".
 - **English prompt, slugs not indices.** This departs from the L2-only, numeric-index rule the
   other DT prompts follow (`services/dual_translation/prompts.py`). The learner's L1 is named in the

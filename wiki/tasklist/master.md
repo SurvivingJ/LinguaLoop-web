@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 30 |
+| Not Started | 31 |
 | In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 24 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 234 |
+| Done (cumulative, not listed here) | 250 |
+
+*2026-11-14 (DT guided self-repair built + integrated, WP-INT):* TASK-952–965 Done (WP-BE + WP-FE), TASK-968 and TASK-969 Done (WP-INT: contract test against the real routes, nine frontend/backend mismatches fixed, real-app browser run over an in-memory DB). TASK-966 (apply `dt_guided_self_repair.sql`, owner decision) and TASK-967 (authenticated E2E on a staging DB) Blocked. New: TASK-971 Not Started (real devices / Safari / screen reader / IME), TASK-972 / TASK-973 / TASK-974 Blocked (native review, re-check evaluation, deploy). TASK-939 and TASK-940 superseded by that breakdown. No task id is duplicated (TASK-970 is dt-taxonomy-v6 only). Counts: Not Started 30→31, Blocked 24→27 (+966, 967, 972, 973, 974; −939, 940), Done 234→250. See [[tasklist/dt-guided-self-repair.tasks]].
 
 *2026-11-14 (DT taxonomy v6 cutover + grading-assets migration applied):* TASK-853 Done (ADR-031 accepted by owner decision with the TASK-850 gate still NO-GO): v6 columns (no snapshot tables), v6 seed, deletion of all DT learner history (developer's test data) and v6 activation applied in production, then `dt_grading_assets.sql` (TASK-935, now In Progress: post-deploy checks remain). History was deleted rather than rewritten, so TASK-852's script is not needed and TASK-854's snapshot retirement is moot. `DT_TAXONOMY_COLUMNS` now defaults on. Still owed by the owner: restart all web workers, deploy. TASK-970 added (taxonomy business-rule page rewrite, Not Started). Counts: Not Started 30→30 (+TASK-970, −TASK-935), In Progress 12→13, Blocked 25→24, Done 233→234. See [[tasklist/dt-taxonomy-v6.tasks]] TASK-853.
 
@@ -1211,9 +1213,37 @@ Full spec: [[tasklist/dt-single-call-grader.tasks]]. Implements [[decisions/ADR-
 | TASK-936 | dt-single-call-grader | Shadow run of the single-call grader on real submissions | [?] skipped when the grader was turned on; owner to choose reverse shadow, manual read of first live grades, or drop | M | TASK-935 |
 | TASK-937 | dt-single-call-grader | Enable `DT_SINGLE_CALL_GRADER` in production | [~] defaults on in repo (2026-11-14); v6 live in DB; worker restart, deploy + live checks remain | S | TASK-935 |
 | TASK-938 | dt-single-call-grader | Native-speaker review of explanations and hint templates | [?] no reviewer named | M | TASK-936 |
-| TASK-939 | dt-single-call-grader | Guided self-repair UI (design option 2) | [?] spec not final | XL | TASK-935, TASK-937 |
-| TASK-940 | dt-single-call-grader | Re-use a learner's own erroneous sentences in daily practice | [?] spec + remediation decision | L | TASK-935, TASK-939 |
+| TASK-939 | dt-single-call-grader | Guided self-repair UI (design option 2) | Superseded by TASK-952–974 | XL | TASK-935, TASK-937 |
+| TASK-940 | dt-single-call-grader | Re-use a learner's own erroneous sentences in daily practice | Superseded (daily `dt_repair` block, TASK-956/958/964) | L | TASK-935, TASK-939 |
 | TASK-941 | dt-single-call-grader | Keep whole-sentence spans/corrections out of cloze cards; check synthesis use of model confidence/source | [ ] | S | TASK-935 |
+
+### DT Guided Self-Repair (design option 2, ADR-045) — NEW 2026-11-14
+Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self-repair.tech]] · [[decisions/ADR-045-dt-guided-self-repair]]. Built and integration-tested; migration not applied, not deployed.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-952 | dt-guided-self-repair | Migration `dt_guided_self_repair.sql` (written, not applied) | Done (repo) | S | — |
+| TASK-953 | dt-guided-self-repair | Settings, hint templates, `hints.py` | Done | M | — |
+| TASK-954 | dt-guided-self-repair | Sentence model and step planner | Done | M | TASK-953 |
+| TASK-955 | dt-guided-self-repair | Re-check function and outcome classifier | Done | M | TASK-953 |
+| TASK-956 | dt-guided-self-repair | Store, scheduling, budget, service orchestration | Done | L | TASK-952, TASK-954, TASK-955 |
+| TASK-957 | dt-guided-self-repair | Blueprint `routes/dt_repair.py`, registration, rate limits | Done | M | TASK-956 |
+| TASK-958 | dt-guided-self-repair | Daily-session block `dt_repair` | Done | S | TASK-956 |
+| TASK-959 | dt-guided-self-repair | Submit hook and budget wrapper | Done | S | TASK-956 |
+| TASK-960 | dt-guided-self-repair | Sheet shell, layout, theming, i18n keys | Done | M | — |
+| TASK-961 | dt-guided-self-repair | Fix step | Done | L | TASK-960 |
+| TASK-962 | dt-guided-self-repair | Result, clean, success, kept, answer, summary views | Done | M | TASK-960 |
+| TASK-963 | dt-guided-self-repair | Open the sheet from the DT page and the session DT player | Done | M | TASK-961, TASK-962 |
+| TASK-964 | dt-guided-self-repair | Daily practice player `dt_repair` | Done | S | TASK-961, TASK-962 |
+| TASK-965 | dt-guided-self-repair | Frontend unit tests and no-scroll harness | Done | M | TASK-961, TASK-962 |
+| TASK-966 | dt-guided-self-repair | Apply the migration (LIVE-DB) and verify the grader contract live | [?] owner decision | S | TASK-952, TASK-959, TASK-935 |
+| TASK-967 | dt-guided-self-repair | Authenticated end-to-end test | [?] staging DB + credential | M | TASK-963, TASK-964, TASK-966 |
+| TASK-968 | dt-guided-self-repair | Wiki integration | Done | S | TASK-959, TASK-965 |
+| TASK-969 | dt-guided-self-repair | WP-INT: contract, leaks, degradation, real-app browser run | Done | L | TASK-959, TASK-965 |
+| TASK-971 | dt-guided-self-repair | Real-device, Safari, screen-reader and IME testing | [ ] | M | TASK-974 |
+| TASK-972 | dt-guided-self-repair | Native-speaker review of hint templates and zh/ja UI strings | [?] no reviewer | M | — |
+| TASK-973 | dt-guided-self-repair | Evaluate the one-sentence re-check on real submissions | [?] needs real sessions | M | TASK-966, TASK-974 |
+| TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
 
 ### Language Packs (existing — unchanged)
 
