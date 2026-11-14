@@ -53,12 +53,13 @@ export function mount(container, ctx) {
       renderUnavailable();
       return;
     }
-    const l2 = container.closest('[lang]') ? container.closest('[lang]').lang : '';
+    // Each item carries its own l1 / l2 (tech §4.2); these are only the sheet-wide defaults.
     body().innerHTML = '';
     state.sheet = window.DTRepairSheet.open({
       mode: 'daily',
       items,
-      l2: container.lang || l2 || '',
+      l1: items[0].l1 || '',
+      l2: items[0].l2 || '',
       fetch: window.authFetch,
       returnFocus: container,
       onDone: (r) => {

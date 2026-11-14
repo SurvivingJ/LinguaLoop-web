@@ -60,11 +60,17 @@ def _recheck_rows_today(db, user_id: str) -> list:
 def recheck_tokens_today(db, user_id: str) -> int:
     """Tokens of today's re-check calls. 0 on any failure (e.g. the repair
     migration not applied yet) - this is called on every submit."""
+    from services.dual_translation.repair import store
+    if not store.tables_available():
+        return 0  # the migration is not applied: no query on every submit
     try:
         return sum(int(r.get('tokens_in') or 0) + int(r.get('tokens_out') or 0)
                    for r in _recheck_rows_today(db, user_id))
     except Exception as exc:  # noqa: BLE001 - never break grading over the add-on
-        logger.debug("dt_repair.budget: recheck tokens unavailable: %s", exc)
+        if store.is_missing_table_error(exc):
+            store.note_missing_tables(exc)
+        else:
+            logger.debug("dt_repair.budget: recheck tokens unavailable: %s", exc)
         return 0
 
 

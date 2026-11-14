@@ -96,6 +96,22 @@ describe('shell', () => {
     expect(document.body.style.overflow).toBe('');
   });
 
+  it('pins the page while open (no scroll even on iOS) and puts the scroll position back', () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    Object.defineProperty(window, 'scrollY', { value: 120, configurable: true });
+    openPass('en_errors');
+    expect(document.body.style.position).toBe('fixed');
+    expect(document.body.style.top).toBe('-120px');
+    expect(document.documentElement.style.overflow).toBe('hidden');
+    handle.dispose();
+    expect(document.body.style.position).toBe('');
+    expect(document.body.style.top).toBe('');
+    expect(document.documentElement.style.overflow).toBe('');
+    expect(scrollTo).toHaveBeenCalledWith(0, 120);
+    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
+    scrollTo.mockRestore();
+  });
+
   it('opening a second sheet closes the first', () => {
     openPass('en_errors');
     openPass('zh_errors');

@@ -11,7 +11,7 @@
  * DT page is a classic script while the session players are ES modules.
  *
  *   DTRepairSheet.open({ mode: 'pass'|'daily', session, items, fetch, returnFocus, onDone,
- *                        l1, l2, animate, autoAdvance }) -> { close() }
+ *                        l1, l2, animate, autoAdvance, resume }) -> { close() }
  *
  * Every request and response shape is the contract in tech §4. Nothing here invents a field.
  * Every failure degrades to a usable path (retry, the answer screen, or the host's own result view).
@@ -495,8 +495,13 @@
     }
 
     function promptText(s) {
-      return s.prompt_l1 || (session && session.prompt_l1_passage) || '';
+      // daily items carry their own whole-passage fallback; the pass sends it once on the session
+      return s.prompt_l1 || s.prompt_l1_passage || (session && session.prompt_l1_passage) || '';
     }
+
+    // A daily set can mix passages: each step says its own languages (tech §4.2).
+    const l1Of = (s) => (s && s.l1) || l1;
+    const l2Of = (s) => (s && s.l2) || l2;
 
     function promptHtml(s) {
       // The "look at the underlined part" cue on the prompt is not in the contract (no L1 span).
@@ -525,7 +530,7 @@
           : '';
       const pText = promptText(s);
       const prompt = pText
-        ? `<button class="dtr-prompt" id="dtr-prompt" type="button" data-act="prompt" ${l1 ? `lang="${esc(l1)}"` : ''} tabindex="-1"><span>${promptHtml(s)}</span></button>`
+        ? `<button class="dtr-prompt" id="dtr-prompt" type="button" data-act="prompt" ${l1Of(s) ? `lang="${esc(l1Of(s))}"` : ''} tabindex="-1"><span>${promptHtml(s)}</span></button>`
         : '';
       const fine = tr('dt_repair.mine_fine', null, 'Mine is fine');
       const check = tr('dt_repair.check', null, 'Check');
@@ -537,7 +542,7 @@
           eyebrow +
           prompt +
           `<label class="dtr-lab" id="dtr-lab" for="dtr-ta" tabindex="-1">${ICON.pen}<span>${esc(label)}</span></label>` +
-          `<div class="dtr-field" id="dtr-field" ${l2 ? `lang="${esc(l2)}"` : ''}><div class="dtr-mirror" id="dtr-mirror" aria-hidden="true"></div><textarea id="dtr-ta" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" enterkeyhint="done" aria-describedby="dtr-slot">${esc(s.value)}</textarea></div>` +
+          `<div class="dtr-field" id="dtr-field" ${l2Of(s) ? `lang="${esc(l2Of(s))}"` : ''}><div class="dtr-mirror" id="dtr-mirror" aria-hidden="true"></div><textarea id="dtr-ta" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" enterkeyhint="done" aria-describedby="dtr-slot">${esc(s.value)}</textarea></div>` +
           `<div class="dtr-slot" id="dtr-slot"></div>`,
         act,
       };
@@ -551,7 +556,7 @@
           : a.heading === 'disputed'
             ? tr('dt_repair.compare_disputed', null, 'Noted. Compare:')
             : tr('dt_repair.compare', null, 'Compare');
-      const L = a.l2 || l2;
+      const L = a.l2 || l2Of(s);
       const mine = markup(
         a.learner_sentence != null ? a.learner_sentence : s.learner_sentence,
         a.learner_marks,
@@ -780,7 +785,8 @@
         return undefined;
       }
       if (mode === 'daily') return enter(0);
-      const resumed = S.steps.some((x) => x.closedNow);
+      // a reopened pass (opts.resume, after a reload) goes straight to its first open step
+      const resumed = !!opts.resume || S.steps.some((x) => x.closedNow);
       if (resumed) {
         const k = S.steps.findIndex((x) => !x.closedNow);
         return k < 0 ? finishUp() : enter(k);
@@ -837,12 +843,19 @@
       return S.finishP;
     }
 
+    // Pass: the fallback when finish fails. Daily (no finish call): the server says per item,
+    // on the call that closed it, whether it comes back (`back_later`); the rule below is only
+    // used when that answer is missing.
     function clientTally() {
       const c = { fixed_yourself: 0, needed_help: 0, saved_to_practice: 0 };
       S.steps.forEach((s) => {
         const fixed = s.outcome === 'self_repaired' || s.outcome === 'repaired_alternative';
         if (fixed) c.fixed_yourself += 1;
         if (s.outcome === 'answer_shown') c.needed_help += 1;
+        if (typeof s.backLater === 'boolean') {
+          if (s.backLater) c.saved_to_practice += 1;
+          return;
+        }
         if (s.unsure) return;
         if (
           ['answer_shown', 'shown_directly', 'skipped'].includes(s.outcome) ||
@@ -856,10 +869,15 @@
     }
 
     // ------------------------------------------------------------- actions
+    function noteBackLater(s, data) {
+      if (data && typeof data.back_later === 'boolean') s.backLater = data.back_later;
+    }
+
     function applyAnswer(s, data) {
       s.closedNow = true;
       s.outcome = data.outcome || s.outcome;
       if (data.answer) s.answer = data.answer;
+      noteBackLater(s, data);
     }
 
     async function reveal(reason) {
@@ -1046,6 +1064,7 @@
       if (d.result === 'fixed') {
         s.closedNow = true;
         s.outcome = d.outcome || 'self_repaired';
+        noteBackLater(s, d);
         return render('ok');
       }
       if (d.closed && d.answer) {
@@ -1090,6 +1109,7 @@
       if (r.ok && d.closed && !d.answer) {
         s.closedNow = true;
         s.outcome = d.outcome || 'unsure_dismissed';
+        noteBackLater(s, d);
         return render('kept');
       }
       if (r.ok && d.answer) {
@@ -1106,7 +1126,8 @@
       if (!s) return;
       if (mode === 'daily') {
         // Best effort: the sitting stays due and is not counted as failed.
-        await itemCall(s, 'skip', itemBody(s), 5000);
+        const r = await itemCall(s, 'skip', itemBody(s), 5000);
+        noteBackLater(s, r.data);
       }
       s.closedNow = true;
       s.outcome = s.outcome || 'skipped';
@@ -1197,9 +1218,15 @@
     }
 
     // ----------------------------------------------- viewport and host page
+    // The page under the sheet must not scroll at all - not even on iOS, where overflow:hidden
+    // on the body does not stop touch scrolling. The body is pinned in place (position: fixed,
+    // shifted by the current scroll offset, so nothing visibly moves) and the scroll position is
+    // put back on close. With that, the document is exactly one viewport tall while the sheet is
+    // open (tech §8.3: scrollHeight <= innerHeight, scrollY == 0), on the real pages too.
+    const PIN = ['overflow', 'position', 'top', 'left', 'right', 'width'];
     const host = {
       inerted: [],
-      overflow: null,
+      saved: null,
       lock() {
         Array.from(document.body.children).forEach((el) => {
           if (el === scrim || el.inert) return;
@@ -1207,19 +1234,37 @@
           this.inerted.push(el);
         });
         const de = document.documentElement;
-        this.overflow = [de.style.overflow, document.body.style.overflow];
+        const bs = document.body.style;
+        const x = window.scrollX || 0;
+        const y = window.scrollY || 0;
+        this.saved = { de: de.style.overflow, body: PIN.map((k) => bs[k]), x, y };
         de.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
+        bs.overflow = 'hidden';
+        bs.position = 'fixed';
+        bs.top = `${-y}px`;
+        bs.left = `${-x}px`;
+        bs.right = '0';
+        bs.width = '100%';
       },
       restore() {
         this.inerted.forEach((el) => {
           el.inert = false;
         });
         this.inerted = [];
-        if (this.overflow) {
-          document.documentElement.style.overflow = this.overflow[0];
-          document.body.style.overflow = this.overflow[1];
-          this.overflow = null;
+        const sv = this.saved;
+        if (sv) {
+          this.saved = null;
+          document.documentElement.style.overflow = sv.de;
+          PIN.forEach((k, i) => {
+            document.body.style[k] = sv.body[i];
+          });
+          if (sv.x || sv.y) {
+            try {
+              window.scrollTo(sv.x, sv.y);
+            } catch {
+              /* not supported (tests) */
+            }
+          }
         }
       },
     };
@@ -1331,7 +1376,7 @@
         if (act === 'prompt') {
           const pr = $('#dtr-prompt');
           if (!pr || !pr.classList.contains('dtr-more')) return undefined;
-          const full = showFull(promptHtml(cur()), l1);
+          const full = showFull(promptHtml(cur()), l1Of(cur()));
           full.dataset.returnTo = '#dtr-prompt';
           return undefined;
         }

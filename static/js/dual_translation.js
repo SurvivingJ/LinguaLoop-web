@@ -322,7 +322,10 @@
     startPassage(data);
     if (!state.resumeTried) {
       state.resumeTried = true;
-      resumeRepair(data.submission_id);
+      // /next always creates a NEW submission, so the open session (if any) is found by the id
+      // remembered when its sheet opened, not by data.submission_id.
+      const open = takeOpenRepair();
+      if (open) resumeRepair(open);
     }
   }
 
@@ -483,6 +486,7 @@
       });
     }
     if (repair.status === 'open' || contract.redacted) {
+      rememberOpenRepair(repair);
       return openRepair(repair, function () {
         showServerResult(repair);
       });
@@ -490,12 +494,57 @@
     return showFull(contract);
   }
 
+  // An open repair pass survives a reload: only the ids and the learner's own text are kept
+  // (never anything from the grade), and only until the pass is finished or 24 h old.
+  const OPEN_REPAIR_KEY = 'dt_repair_open';
+  const OPEN_REPAIR_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+  function rememberOpenRepair(repair) {
+    try {
+      window.localStorage.setItem(
+        OPEN_REPAIR_KEY,
+        JSON.stringify({
+          submission_id: repair.submission_id,
+          reproduction: state.reproduction || '',
+          age_tier: state.ageTier,
+          at: Date.now(),
+        })
+      );
+    } catch {
+      /* storage blocked: no resume after a reload */
+    }
+  }
+
+  function forgetOpenRepair() {
+    try {
+      window.localStorage.removeItem(OPEN_REPAIR_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function takeOpenRepair() {
+    try {
+      const raw = window.localStorage && window.localStorage.getItem(OPEN_REPAIR_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data || data.submission_id == null || !(Date.now() - data.at < OPEN_REPAIR_MAX_AGE_MS)) {
+        forgetOpenRepair();
+        return null;
+      }
+      return data;
+    } catch {
+      forgetOpenRepair();
+      return null;
+    }
+  }
+
   function showFull(contract) {
     state.lastContract = contract;
     renderResult(contract);
   }
 
-  function openRepair(repair, after) {
+  function openRepair(repair, after, resume) {
     if (!window.DTRepairSheet) {
       console.error('dual_translation: DTRepairSheet global not loaded');
       return after();
@@ -503,10 +552,12 @@
     state.sheet = window.DTRepairSheet.open({
       mode: 'pass',
       session: repair,
+      resume: !!resume,
       fetch: window.authFetch,
       returnFocus: el.submit,
       onDone: function () {
         state.sheet = null;
+        forgetOpenRepair();
         after();
       },
     });
@@ -573,19 +624,36 @@
 
   // After a reload with an open session the pop-up reopens at the first open step. Best effort:
   // no session (404) or any failure leaves the fresh passage as it is.
-  async function resumeRepair(submissionId) {
+  async function resumeRepair(open) {
     try {
       const res = await window.authFetch(
-        '/api/dual-translation/repair/submissions/' + encodeURIComponent(submissionId) + '/session'
+        '/api/dual-translation/repair/submissions/' +
+          encodeURIComponent(open.submission_id) +
+          '/session'
       );
-      if (!res.ok) return;
+      if (!res.ok) {
+        if (res.status === 404 || res.status === 403) forgetOpenRepair();
+        return;
+      }
       const data = await res.json();
       const session = (data.data && !('status' in data) ? data.data : data).session;
-      if (!session || session.status !== 'open' || !window.DTRepairSheet) return;
-      if (state.submissionId !== submissionId || state.sheet) return;
-      openRepair(session, function () {
-        showServerResult(session);
-      });
+      if (!session || session.status !== 'open') {
+        forgetOpenRepair();
+        return;
+      }
+      if (!window.DTRepairSheet || state.sheet || state.submitting) return;
+      // The result view that follows the sheet belongs to that submission, not to the fresh one.
+      state.submissionId = session.submission_id;
+      state.reproduction = open.reproduction || '';
+      if (open.age_tier != null) state.ageTier = open.age_tier;
+      if (session.prompt_l1_passage) el.reference.textContent = session.prompt_l1_passage;
+      openRepair(
+        session,
+        function () {
+          showServerResult(session);
+        },
+        true
+      );
     } catch {
       /* resume is optional */
     }

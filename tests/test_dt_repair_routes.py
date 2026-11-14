@@ -41,7 +41,7 @@ def test_happy_path(client, auth_headers, open_session):
         "surface": "repair_pass", "text": "It's a fine way to learn by doing.", "client_check_id": CID.format(1)})
     body = j(r)
     assert set(body) == {"status", "item_id", "result", "reason", "checks_used", "check_cap", "hints_used",
-                         "where", "closed", "outcome", "auto_reveal", "answer"}
+                         "where", "closed", "outcome", "auto_reveal", "answer", "back_later"}
     assert body["result"] == "no_issue_found" and body["answer"]["heading"] == "no_issue"
     second = _items(sc)[1]["id"]
     r = client.post(f"{BASE}/items/{second}/dispute", headers=auth_headers, json={"surface": "repair_pass"})

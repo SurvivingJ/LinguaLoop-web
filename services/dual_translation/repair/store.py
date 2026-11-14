@@ -7,7 +7,11 @@ Supabase query-builder chains, as in ``routes/dual_translation.py``.
 
 from __future__ import annotations
 
+import logging
+import time
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 SESSION_COLUMNS = (
     "id, submission_id, user_id, l2_language_id, l1_language_id, status, n_sentences, n_flagged, "
@@ -24,6 +28,49 @@ ERROR_COLUMNS = (
 
 class DuplicateCheck(Exception):
     """An event with this (item_id, client_check_id) already exists."""
+
+
+# ── availability: migrations/dt_guided_self_repair.sql not applied ─────────
+# Until the owner applies the migration every insert into dt_repair_session
+# fails. The submit hook must then serve today's result without logging an
+# error on every submission: the first failure that names a missing repair table
+# marks the tables unavailable for MISSING_TABLES_RETRY_S (the hooks and the
+# daily-block count skip the DB entirely meanwhile), and is logged ONCE per
+# process as a warning. After the pause the tables are probed again, so applying
+# the migration needs no restart.
+MISSING_TABLES_RETRY_S = 600
+_availability = {"unavailable_until": 0.0, "warned": False}
+
+
+def is_missing_table_error(exc: BaseException) -> bool:
+    """PostgREST's answer for a table that does not exist: PGRST205 ("Could not
+    find the table 'public.dt_repair_session' in the schema cache") or Postgres
+    42P01 ("relation ... does not exist")."""
+    text = str(exc)
+    if "PGRST205" in text or "42P01" in text:
+        return True
+    return "dt_repair_" in text and ("does not exist" in text or "Could not find the table" in text)
+
+
+def tables_available() -> bool:
+    return time.monotonic() >= _availability["unavailable_until"]
+
+
+def note_missing_tables(exc: BaseException) -> None:
+    _availability["unavailable_until"] = time.monotonic() + MISSING_TABLES_RETRY_S
+    if not _availability["warned"]:
+        _availability["warned"] = True
+        logger.warning(
+            "dt_repair: the guided-repair tables are missing (%s). Is "
+            "migrations/dt_guided_self_repair.sql applied? Submissions get today's result view; "
+            "retrying every %d s. Logged once per process.", exc, MISSING_TABLES_RETRY_S)
+    else:
+        logger.debug("dt_repair: repair tables still missing: %s", exc)
+
+
+def reset_availability() -> None:
+    """Tests: forget a recorded missing-tables failure."""
+    _availability.update(unavailable_until=0.0, warned=False)
 
 
 def _one(resp) -> Optional[dict]:

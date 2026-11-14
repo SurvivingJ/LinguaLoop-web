@@ -182,10 +182,15 @@ def _pass_closed(item: dict) -> bool:
 
 def _step(item: dict, ctx: dict, *, surface: str, prompt_l1: Optional[str], position: int,
           state: Optional[str] = None, outcome: Optional[str] = None,
-          from_date: Optional[str] = None) -> dict:
+          from_date: Optional[str] = None, prompt_l1_passage: Optional[str] = None) -> dict:
+    """The tech 4.2 Step. ``l1``/``l2`` are the item's own languages (a daily set can mix
+    passages); ``prompt_l1_passage`` is the whole L1 passage, sent on daily items only and
+    only when the sentence-level ``prompt_l1`` could not be resolved (the repair pass sends
+    it once on the session instead)."""
     if surface == PASS:
         state = state or ("closed" if _pass_closed(item) else "open")
         outcome = item.get("outcome") if outcome is None else outcome
+    closed = (state or "open") == "closed"
     return {
         "item_id": item["id"],
         "position": position,
@@ -196,13 +201,17 @@ def _step(item: dict, ctx: dict, *, surface: str, prompt_l1: Optional[str], posi
         "learner_sentence": ctx["learner"],
         "hint_rungs": _rungs(item),
         "hint_level": int(item.get("hint_level") or 0),
-        "where": _where(item, ctx),
+        # A closed step's target offsets no longer describe its text: no underline.
+        "where": None if closed else _where(item, ctx),
         "last_text": item.get("last_text"),
         "checks_used": int(item.get("checks_used") or 0),
         "check_cap": _cap(surface),
         "state": state or "open",
         "outcome": outcome,
         "from_date": from_date,
+        "l1": ctx.get("l1"),
+        "l2": ctx.get("l2"),
+        "prompt_l1_passage": (prompt_l1_passage if surface == DAILY and not prompt_l1 else None),
     }
 
 
@@ -282,8 +291,10 @@ def _answer(db, item: dict, ctx: dict, heading: str) -> dict:
     else:
         explanation = primary.get("explanation") or ""
     explanation = _first_sentence(explanation)
+    explanation_lang = ctx["l1"]
     if not explanation:
-        explanation = hints.render_kind(item.get("subtype") or "", ctx["l1"], None)[0]
+        # the kind label may itself fall back to English: say so
+        explanation, explanation_lang = hints.render_kind(item.get("subtype") or "", ctx["l1"], None)[:2]
     return {
         "heading": heading,
         "learner_sentence": ctx["learner"],
@@ -291,7 +302,7 @@ def _answer(db, item: dict, ctx: dict, heading: str) -> dict:
         "answer_sentence": ctx["reference"],
         "answer_marks": _merge(answer_marks),
         "explanation": explanation,
-        "explanation_lang": ctx["l1"],
+        "explanation_lang": explanation_lang,
         "l2": ctx["l2"],
     }
 
@@ -500,6 +511,8 @@ def finish_stale(db, user_id: str, limit: int = settings.DT_REPAIR_STALE_PER_CAL
                 _finish_session(db, session, status="abandoned", closed_early=None, body={})
                 done += 1
     except Exception as exc:  # noqa: BLE001
+        if store.is_missing_table_error(exc):
+            raise  # the caller (hooks / routes) handles a missing migration once
         logger.warning("dt_repair: finishing stale sessions failed: %s", exc)
     return done
 
@@ -623,10 +636,11 @@ def open_item(db, user_id: str, item_id: int, body: dict) -> dict:
         item.update(fields)
         store.update_item(db, item["id"], fields)
         _event(db, item, DAILY, "step_opened", body)
-    prompts, _ = _prompts_for(db, ctx)
+    prompts, whole = _prompts_for(db, ctx)
     return {"step": _step(item, ctx, surface=DAILY, prompt_l1=_at(prompts, item["sentence_index"]),
-                          position=0, from_date=_local_date_of(db, user_id, item["l2_language_id"],
-                                                               ctx["submission"].get("created_at")))}
+                          position=0, prompt_l1_passage=whole,
+                          from_date=_local_date_of(db, user_id, item["l2_language_id"],
+                                                   ctx["submission"].get("created_at")))}
 
 
 def _at(seq, idx):
@@ -707,6 +721,15 @@ def _hint_response(item, ctx, rungs, level, hint) -> dict:
     }
 
 
+def _back_later(item: dict, surface: str, closed: bool) -> Optional[bool]:
+    """Daily practice: does the item come back after the sitting this call closed (the
+    summary's "Back in practice later")? None on the repair pass (finish counts that) and
+    while the sitting is open."""
+    if surface != DAILY or not closed:
+        return None
+    return item.get("queue_status") == "due"
+
+
 def _check_response(db, item, ctx, surface, result, *, reason=None, closed=False, outcome=None,
                     auto_reveal=False, answer=None) -> dict:
     where = None
@@ -717,6 +740,7 @@ def _check_response(db, item, ctx, surface, result, *, reason=None, closed=False
         "checks_used": int(item.get("checks_used") or 0), "check_cap": _cap(surface),
         "hints_used": _hints_used(item, surface), "where": where, "closed": closed,
         "outcome": outcome, "auto_reveal": auto_reveal, "answer": answer,
+        "back_later": _back_later(item, surface, closed),
     }
 
 
@@ -883,13 +907,14 @@ def reveal(db, user_id: str, item_id: int, body: dict) -> dict:
         if outcome is None:
             raise RepairError(409, "NOT_OPENED", "open the item first")
         return {"item_id": item["id"], "closed": True, "outcome": outcome,
-                "answer": _answer(db, item, ctx, _heading(outcome))}
+                "answer": _answer(db, item, ctx, _heading(outcome)),
+                "back_later": _back_later(item, surface, True)}
     _require_open(db, item, surface)
     outcome = "shown_directly" if reason == "direct" else "answer_shown"
     _close(db, item, ctx, surface, outcome, answer_reason=reason, body=body, event_kind="answer_shown",
            extra={"result_detail": {"a": reason}})
     return {"item_id": item["id"], "closed": True, "outcome": outcome,
-            "answer": _answer(db, item, ctx, "compare")}
+            "answer": _answer(db, item, ctx, "compare"), "back_later": _back_later(item, surface, True)}
 
 
 def dispute(db, user_id: str, item_id: int, body: dict) -> dict:
@@ -901,14 +926,16 @@ def dispute(db, user_id: str, item_id: int, body: dict) -> dict:
         if outcome is None:
             raise RepairError(409, "NOT_OPENED", "open the item first")
         answer = None if outcome == "unsure_dismissed" else _answer(db, item, ctx, _heading(outcome))
-        return {"item_id": item["id"], "closed": True, "outcome": outcome, "answer": answer}
+        return {"item_id": item["id"], "closed": True, "outcome": outcome, "answer": answer,
+                "back_later": _back_later(item, surface, True)}
     _require_open(db, item, surface)
     if item.get("step_kind") == "unsure":
         _close(db, item, ctx, surface, "unsure_dismissed", body=body, event_kind="kept")
-        return {"item_id": item["id"], "closed": True, "outcome": "unsure_dismissed", "answer": None}
+        return {"item_id": item["id"], "closed": True, "outcome": "unsure_dismissed", "answer": None,
+                "back_later": _back_later(item, surface, True)}
     _close(db, item, ctx, surface, "disputed", body=body, event_kind="disputed")
     return {"item_id": item["id"], "closed": True, "outcome": "disputed",
-            "answer": _answer(db, item, ctx, "disputed")}
+            "answer": _answer(db, item, ctx, "disputed"), "back_later": _back_later(item, surface, True)}
 
 
 def skip(db, user_id: str, item_id: int, body: dict) -> dict:
@@ -919,7 +946,8 @@ def skip(db, user_id: str, item_id: int, body: dict) -> dict:
     if item.get("sitting_open"):
         ctx = _ctx(db, item)
         _close(db, item, ctx, DAILY, "skipped", body=body, event_kind="skipped")
-    return {"item_id": item["id"], "closed": True, "outcome": "skipped", "answer": None}
+    return {"item_id": item["id"], "closed": True, "outcome": "skipped", "answer": None,
+            "back_later": _back_later(item, DAILY, True)}
 
 
 def _finish_session(db, session: dict, *, status: str, closed_early, body: dict) -> list:
@@ -1004,9 +1032,9 @@ def practice_due(db, user_id: str, language_id: int) -> dict:
             rungs = _rungs(item)
             view.update(hint_level=1 if 1 in rungs else 0, checks_used=0, last_text=None,
                         active=_original_active(db, item))
-        prompts, _ = _prompts_for(db, ctx)
+        prompts, whole = _prompts_for(db, ctx)
         items.append(_step(view, ctx, surface=DAILY, prompt_l1=_at(prompts, item["sentence_index"]),
-                           position=position, state="open",
+                           position=position, state="open", prompt_l1_passage=whole,
                            from_date=_local_date_of(db, user_id, language_id,
                                                     ctx["submission"].get("created_at"))))
     return {"total_due": len(rows), "items": items}
@@ -1014,6 +1042,12 @@ def practice_due(db, user_id: str, language_id: int) -> dict:
 
 def count_due(db, user_id: str, language_id: int, today: Optional[str] = None) -> int:
     """Due items for the daily-session block (read-only)."""
-    if not settings.DT_GUIDED_REPAIR:
+    if not settings.DT_GUIDED_REPAIR or not store.tables_available():
         return 0
-    return len(_due_items(db, user_id, language_id, write=False))
+    try:
+        return len(_due_items(db, user_id, language_id, write=False))
+    except Exception as exc:  # noqa: BLE001
+        if store.is_missing_table_error(exc):
+            store.note_missing_tables(exc)
+            return 0
+        raise

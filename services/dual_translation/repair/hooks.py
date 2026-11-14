@@ -35,7 +35,7 @@ def after_grade(db, *, user_id: str, submission_row: dict, passage: dict, contra
     """Create the repair session for a freshly persisted grade and return the
     dict to send (tech 4.1 table)."""
     try:
-        if not settings.DT_GUIDED_REPAIR:
+        if not settings.DT_GUIDED_REPAIR or not store.tables_available():
             return contract
         ok, _ = planner.is_eligible_trace(contract, contract.get("errors") or [])
         if not ok:
@@ -47,6 +47,9 @@ def after_grade(db, *, user_id: str, submission_row: dict, passage: dict, contra
                                         passage=passage, reproduction=reproduction, grade=contract)
         return _response(db, session, contract)
     except Exception as exc:  # noqa: BLE001 - the learner always gets their grade
+        if store.is_missing_table_error(exc):
+            store.note_missing_tables(exc)
+            return contract
         logger.error("dt_repair: after_grade failed for submission %s; serving the full result: %s",
                      (submission_row or {}).get("id"), exc, exc_info=True)
         return contract
@@ -56,7 +59,7 @@ def for_cached(db, user_id: str, submission_id: int, contract: dict) -> dict:
     """The idempotent re-submit path: the existing session (open -> redacted), or
     ``after_grade`` semantics when none exists (a crash between grade and session)."""
     try:
-        if not settings.DT_GUIDED_REPAIR:
+        if not settings.DT_GUIDED_REPAIR or not store.tables_available():
             return contract
         ok, _ = planner.is_eligible_trace(contract, contract.get("errors") or [])
         if not ok:
@@ -74,6 +77,9 @@ def for_cached(db, user_id: str, submission_id: int, contract: dict) -> dict:
                                     reproduction=submission.get("reproduction") or "", grade=contract)
         return _response(db, new, contract)
     except Exception as exc:  # noqa: BLE001
+        if store.is_missing_table_error(exc):
+            store.note_missing_tables(exc)
+            return contract
         logger.error("dt_repair: for_cached failed for submission %s; serving the full result: %s",
                      submission_id, exc, exc_info=True)
         return contract

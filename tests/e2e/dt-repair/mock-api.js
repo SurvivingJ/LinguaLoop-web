@@ -230,8 +230,8 @@
     stress_en: { l1: 'zh', l2: 'en', nClean: 3, passage: PASSAGE.en, steps: ['en_long'], idx: [1] },
   };
   const DAILY = {
-    en: { l2: 'en', items: ['learn_on', 'article'], ago: [3, 9] },
-    zh: { l2: 'zh', items: ['le', 'keep'], ago: [3, 9] },
+    en: { l1: 'zh', l2: 'en', items: ['learn_on', 'article'], ago: [3, 9] },
+    zh: { l1: 'en', l2: 'zh', items: ['le', 'keep'], ago: [3, 9] },
   };
 
   const FAILS = ['network', 'http500', 'error', 'timeout', 'closed', 'inprogress', 'notopened'];
@@ -261,14 +261,8 @@
         position: i,
         sentence_index: idx,
         step_kind: k,
-        ladder:
-          k === 'direct'
-            ? 'none'
-            : x.ladder === 'short'
-              ? 'short'
-              : k === 'unsure'
-                ? 'short'
-                : 'full',
+        // an unsure step keeps its error's ladder (the backend sends it; the client ignores it)
+        ladder: k === 'direct' ? 'none' : x.ladder === 'short' ? 'short' : 'full',
         prompt_l1: x.prompt,
         learner_sentence: x.text,
         hint_rungs: rungsFor(x, k),
@@ -280,6 +274,9 @@
         state: 'open',
         outcome: null,
         from_date: from || null,
+        l1: isDaily ? daily.l1 : sc.l1,
+        l2: isDaily ? daily.l2 : sc.l2,
+        prompt_l1_passage: null, // daily items only, and only when prompt_l1 is null
       };
       mock.state[id] = {
         key,
@@ -399,12 +396,21 @@
           outcome: null,
           auto_reveal: false,
           answer: null,
+          back_later: null,
         });
       }
       return null;
     }
 
     const HINTS = { 1: 'where', 2: 'kind', 3: 'clue' };
+
+    // Daily practice: does the item come back after the sitting that just closed (tech §4.11)?
+    function backLater(st) {
+      if (!isDaily || !st.closed) return null;
+      if (st.outcome === 'self_repaired' || st.outcome === 'repaired_alternative')
+        return st.hintLevel >= 2;
+      return st.outcome !== 'disputed';
+    }
 
     async function route(url, o) {
       const body = o && o.body ? JSON.parse(o.body) : {};
@@ -529,6 +535,7 @@
               }
             }
           }
+          res.back_later = backLater(st);
           if (body.client_check_id) st.ids[body.client_check_id] = res;
           return ok(res);
         }
@@ -540,13 +547,20 @@
             closed: true,
             outcome: st.outcome,
             answer: answerFor(st, st.outcome === 'repaired_alternative' ? 'no_issue' : 'compare'),
+            back_later: backLater(st),
           });
         }
         if (action === 'dispute') {
           st.closed = true;
           if (st.step.step_kind === 'unsure') {
             st.outcome = 'unsure_dismissed';
-            return ok({ item_id: id, closed: true, outcome: 'unsure_dismissed', answer: null });
+            return ok({
+              item_id: id,
+              closed: true,
+              outcome: 'unsure_dismissed',
+              answer: null,
+              back_later: backLater(st),
+            });
           }
           st.outcome = 'disputed';
           return ok({
@@ -554,12 +568,19 @@
             closed: true,
             outcome: 'disputed',
             answer: answerFor(st, 'disputed'),
+            back_later: backLater(st),
           });
         }
         if (action === 'skip') {
           st.closed = true;
           st.outcome = 'skipped';
-          return ok({ item_id: id, closed: true, outcome: 'skipped' });
+          return ok({
+            item_id: id,
+            closed: true,
+            outcome: 'skipped',
+            answer: null,
+            back_later: backLater(st),
+          });
         }
       }
       if ((m = path.match(/^\/sessions\/(\d+)\/finish$/))) {
@@ -618,7 +639,11 @@
       ],
       diff: [{ op: 'replace', correct: 'great', user: 'sick' }],
       highlights: [],
-      grader_trace: { tier: 'single_call' },
+      grader_trace: {
+        tier: 'single_call',
+        tokens: { in: 2000, out: 90 },
+        single_call: { used: true, prompt_version: 'v2' },
+      },
     });
     // The redacted contract the submit response carries while the session is open.
     mock.redactedContract = () => ({

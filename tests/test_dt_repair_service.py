@@ -50,7 +50,7 @@ def error_rows():
 def contract_for(rows):
     return {
         "scores": {"accuracy": 3, "fidelity": 2, "understandability": 3}, "overall_band": 3,
-        "diff": [{"op": "replace", "a": "great", "b": "sick"}],
+        "diff": [{"op": "replace", "correct": "great", "user": "sick"}],
         "errors": [{k: v for k, v in r.items() if k != "id"} for r in rows],
         "highlights": [], "provisional": False,
         "grader_trace": {"tier": "single_call", "tokens": {"in": 2000, "out": 90},
@@ -231,6 +231,7 @@ def rc_err(subtype, severity, span, form, corrected="", conf="high"):
 
 @pytest.fixture
 def scenario(monkeypatch):
+    store.reset_availability()
     fs = FakeStore()
     fs.install(monkeypatch)
     clock = Clock()
@@ -250,7 +251,8 @@ def scenario(monkeypatch):
         pass
     s = S()
     s.store, s.clock, s.rc, s.credits = fs, clock, rc, credits
-    return s
+    yield s
+    store.reset_availability()
 
 
 def submit(scenario, rows=None):
@@ -565,7 +567,8 @@ class TestRevealDisputeFinish:
         iid = _items(scenario)[0]["id"]
         assert scenario.store.items[iid]["step_kind"] == "unsure"
         r = service.dispute(None, USER, iid, body())
-        assert r == {"item_id": iid, "closed": True, "outcome": "unsure_dismissed", "answer": None}
+        assert r == {"item_id": iid, "closed": True, "outcome": "unsure_dismissed", "answer": None,
+                     "back_later": None}
         assert "kept" in scenario.store.kinds(iid)
 
     def test_finish_and_summary_and_result(self, scenario, monkeypatch):

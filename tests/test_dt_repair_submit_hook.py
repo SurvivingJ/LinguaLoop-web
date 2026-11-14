@@ -102,6 +102,48 @@ def test_missing_tables_give_full_contract(client, auth_headers, route):
     assert r.status_code == 200 and j(r) == {"status": "success", **route["contract"]}
 
 
+def test_missing_tables_are_detected_once_and_logged_once(client, auth_headers, route, caplog, monkeypatch):
+    """WP-INT: before the migration is applied every submit would fail the session
+    insert. The first failure marks the tables unavailable (one warning, no error);
+    later submits skip the repair DB work entirely and log nothing."""
+    from services.dual_translation.repair import store
+    sc = route["scenario"]
+    sc.store.fail_insert_session = True
+    calls = {"open_sessions": 0}
+    real_open = sc.store.open_sessions
+
+    def counting(db, user_id, limit=20):
+        calls["open_sessions"] += 1
+        return real_open(db, user_id, limit)
+    monkeypatch.setattr(store, "open_sessions", counting)
+    caplog.set_level("DEBUG", logger="services.dual_translation.repair")
+    for _ in range(3):
+        r = post(client, auth_headers)
+        assert r.status_code == 200 and j(r) == {"status": "success", **route["contract"]}
+    warnings = [rec for rec in caplog.records if rec.levelname == "WARNING"]
+    errors = [rec for rec in caplog.records if rec.levelname == "ERROR"]
+    assert len(warnings) == 1 and "dt_guided_self_repair.sql" in warnings[0].getMessage()
+    assert errors == []
+    assert calls["open_sessions"] == 1  # only the first submit touched the repair tables
+    assert not store.tables_available()
+    # the daily-block count and the token add-on skip the DB too
+    from services.dual_translation.repair import budget, service
+    assert service.count_due(None, "u", 2) == 0
+    assert budget.recheck_tokens_today(None, "u") == 0
+    # after the retry window the tables are probed again (migration applied -> sessions)
+    sc.store.fail_insert_session = False
+    store._availability["unavailable_until"] = 0.0
+    assert j(post(client, auth_headers))["repair"]["status"] == "open"
+
+
+def test_missing_table_error_recognition():
+    from services.dual_translation.repair import store
+    assert store.is_missing_table_error(RuntimeError(
+        "{'code': 'PGRST205', 'message': \"Could not find the table 'public.dt_repair_session' in the schema cache\"}"))
+    assert store.is_missing_table_error(RuntimeError('relation "public.dt_repair_item" does not exist'))
+    assert not store.is_missing_table_error(RuntimeError("connection reset by peer"))
+
+
 def test_provisional_grade_gets_no_session(client, auth_headers, route):
     route["contract"]["overall_band"] = None
     body = j(post(client, auth_headers))
