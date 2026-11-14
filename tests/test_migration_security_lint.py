@@ -7,7 +7,14 @@ No database needed. Fails when a migration:
    for it in the same file (an explicit ``-- security-lint: allow-definer-exposed <reason>``
    comment in the file is the documented escape hatch), or
 3. creates a table in ``public`` without ``ENABLE ROW LEVEL SECURITY`` in the same file
-   (escape hatch: ``-- security-lint: allow-no-rls <reason>``).
+   (escape hatch: ``-- security-lint: allow-no-rls <reason>``), or
+4. grants EXECUTE on a function to PUBLIC/anon/authenticated (re-running such a file reopens
+   client access that a later security migration closed; same ``allow-definer-exposed``
+   escape hatch as rule 2), or
+5. compares a value to ``auth.uid()`` with ``!=`` / ``<>`` inside a function body. With no JWT
+   ``auth.uid()`` is NULL, the comparison is NULL and an ``IF`` built on it does not fire, so
+   the gate lets anonymous callers through. Use ``auth.uid() IS DISTINCT FROM ...`` (escape
+   hatch: ``-- security-lint: allow-uid-compare <reason>``).
 
 Files that predate the rule are listed explicitly in HISTORICAL_* below. NEVER add a new
 migration to those lists; fix the migration instead (see migrations/CLAUDE.md).
@@ -35,10 +42,8 @@ HISTORICAL_DEFINER_FILES: frozenset[str] = frozenset({
     "counter_drill.sql",
     "dt_synthesis_advisory_lock.sql",
     "elo_functions.sql",
-    "get_classifier_drill_session.sql",
     "get_distractors_definition_language_param.sql",
     "get_replay_tests.sql",
-    "listening_lab_rpcs.sql",
     "partF_question_attempt_results.sql",
     "partG_qar_drop_response_time.sql",
     "phase13_apply_attempt_timing_and_progress.sql",
@@ -49,11 +54,6 @@ HISTORICAL_DEFINER_FILES: frozenset[str] = frozenset({
     "phase18_practice_time_seconds.sql",
     "phase3_rpc_fixes.sql",
     "phase6_security_hardening.sql",
-    "process_classifier_drill_submission.sql",
-    "process_dictation_submission.sql",
-    "process_mystery_submission.sql",
-    "process_pinyin_submission.sql",
-    "process_pitch_accent_submission.sql",
     "study_plan_advisory_lock.sql",
     "task510_model_health_advisory_lock.sql",
     "task517_queue_drain_advisory_lock.sql",
@@ -111,8 +111,37 @@ PENDING_FIX_DEFINER_FILES: frozenset[str] = frozenset({
     "session_module_exclusions_build_daily_session.sql",
 })
 
+# GRANT EXECUTE ON FUNCTION ... TO a client role (rule 4), legacy. The live ACLs are
+# repaired by sec_submission_rpcs_auth_gate.sql and security_function_grants_group_a/b.sql
+# (group_b re-grants its short allowlist of RLS helpers on purpose). Frozen. Do not extend.
+HISTORICAL_CLIENT_GRANT_FILES: frozenset[str] = frozenset({
+    "bkt_word_test_batch.sql",
+    "calibration_distractor_headword_guard.sql",
+    "calibration_pronunciation_mode.sql",
+    "calibration_semantic_distractors.sql",
+    "calibration_sessions_and_ability.sql",
+    "calibration_user_state_and_zipf_to_elo.sql",
+    "elo_functions.sql",
+    "security_function_grants_group_b.sql",
+    "task747_apply_calibration_to_skill_ratings.sql",
+    "task769_calibration_record_answer.sql",
+    "task770_calibration_build_items.sql",
+    "task772_calibration_anchor_pool.sql",
+    "task773_calibration_distractor_cache.sql",
+})
+# NULL-permissive `<> auth.uid()` gate in a function body (rule 5), legacy: stale bodies kept
+# in multi-object files plus one live calibration writer. Frozen. Do not extend.
+HISTORICAL_UID_COMPARE_FILES: frozenset[str] = frozenset({
+    "partF_question_attempt_results.sql",
+    "partG_qar_drop_response_time.sql",
+    "phase3_rpc_fixes.sql",
+    "task747_apply_calibration_to_skill_ratings.sql",
+    "wire_volatility_and_exclude_attempted.sql",
+})
+
 ALLOW_DEFINER_RE = re.compile(r"--\s*security-lint:\s*allow-definer-exposed\s+\S+", re.I)
 ALLOW_NO_RLS_RE = re.compile(r"--\s*security-lint:\s*allow-no-rls\s+\S+", re.I)
+ALLOW_UID_COMPARE_RE = re.compile(r"--\s*security-lint:\s*allow-uid-compare\s+\S+", re.I)
 
 
 # --------------------------------------------------------------------------------------
@@ -217,6 +246,11 @@ _CREATE_TABLE_RE = re.compile(
     rf"^\s*CREATE\s+(?!TEMP\b|TEMPORARY\b|UNLOGGED\s+TEMP)(?:UNLOGGED\s+)?TABLE\s+"
     rf"(?:IF\s+NOT\s+EXISTS\s+)?(?:({_IDENT})\s*\.\s*)?({_IDENT})", re.I)
 _REVOKE_FROM_CLIENT_RE = re.compile(r"\bFROM\b[^;]*\b(PUBLIC|anon|authenticated)\b", re.I)
+_GRANT_FN_TO_CLIENT_RE = re.compile(
+    r"^\s*GRANT\b[^;]*\bON\s+(?:ALL\s+)?(?:FUNCTIONS?|ROUTINES?|PROCEDURES?)\b[^;]*"
+    r"\bTO\b[^;]*\b(PUBLIC|anon|authenticated)\b", re.I | re.S)
+_UID_COMPARE_RE = re.compile(r"(?:!=|<>)\s*auth\s*\.\s*uid\s*\(\s*\)|auth\s*\.\s*uid\s*\(\s*\)\s*(?:!=|<>)", re.I)
+_LINE_COMMENT_RE = re.compile(r"--[^\n]*")
 
 
 def _norm(ident: str) -> str:
@@ -224,7 +258,7 @@ def _norm(ident: str) -> str:
 
 
 def scan_file(path: Path) -> dict[str, list[str]]:
-    """Return {'definer': [problems], 'rls': [problems]} for one migration file."""
+    """Return {'definer': [...], 'rls': [...], 'client_grant': [...], 'uid_compare': [...]}."""
     raw = path.read_text(encoding="utf-8", errors="replace")
     stmts = _split_statements(_strip_comments(raw))
 
@@ -235,10 +269,16 @@ def scan_file(path: Path) -> dict[str, list[str]]:
     rls_tables: set[str] = set()
     dynamic_revoke = False   # REVOKE ... FROM client roles inside a DO block / EXECUTE format
     dynamic_rls = False
+    client_grants: list[str] = []
+    uid_compares: list[str] = []
 
     for full, bare in stmts:
         m = _CREATE_FN_RE.match(bare)
         if m:
+            # Bodies keep their comments through _strip_comments; drop them so a comment
+            # that quotes the old gate is not flagged.
+            if _UID_COMPARE_RE.search(_LINE_COMMENT_RE.sub("", full)):
+                uid_compares.append(_norm(m.group(2)))
             if (m.group(1) is None or _norm(m.group(1)) == "public") and \
                     re.search(r"\bSECURITY\s+DEFINER\b", bare, re.I):
                 definers.append((_norm(m.group(2)),
@@ -247,6 +287,9 @@ def scan_file(path: Path) -> dict[str, list[str]]:
         m = _CREATE_TABLE_RE.match(bare)
         if m and (m.group(1) is None or _norm(m.group(1)) == "public"):
             tables.append(_norm(m.group(2)))
+            continue
+        if _GRANT_FN_TO_CLIENT_RE.match(bare):
+            client_grants.append(" ".join(bare.split())[:90])
             continue
         if re.match(r"^\s*REVOKE\b", bare, re.I) and _REVOKE_FROM_CLIENT_RE.search(bare):
             if re.search(r"\bON\s+ALL\s+FUNCTIONS\b", bare, re.I):
@@ -269,7 +312,15 @@ def scan_file(path: Path) -> dict[str, list[str]]:
             if re.search(r"\bENABLE\s+ROW\s+LEVEL\s+SECURITY\b", body, re.I):
                 dynamic_rls = True
 
-    problems: dict[str, list[str]] = {"definer": [], "rls": []}
+    problems: dict[str, list[str]] = {"definer": [], "rls": [], "client_grant": [],
+                                      "uid_compare": []}
+    if not ALLOW_DEFINER_RE.search(raw):
+        problems["client_grant"] = [f"grants a function to a client role: {g}"
+                                    for g in client_grants]
+    if not ALLOW_UID_COMPARE_RE.search(raw):
+        problems["uid_compare"] = [
+            f"function {n}() compares to auth.uid() with != / <> (NULL-permissive gate)"
+            for n in uid_compares]
     if not ALLOW_DEFINER_RE.search(raw):
         for name, has_sp in definers:
             if not has_sp:
@@ -319,6 +370,30 @@ def test_public_tables_enable_rls():
         "RLS rule violated (see migrations/CLAUDE.md):\n  " + "\n  ".join(failures))
 
 
+def test_no_function_grants_to_client_roles():
+    failures = []
+    for f in _migration_files():
+        if f.name in HISTORICAL_CLIENT_GRANT_FILES:
+            continue
+        failures += [f"{f.name}: {p}" for p in scan_file(f)["client_grant"]]
+    assert not failures, (
+        "functions are service_role only (see migrations/CLAUDE.md); REVOKE from "
+        "PUBLIC/anon/authenticated and GRANT to service_role instead:\n  "
+        + "\n  ".join(failures))
+
+
+def test_no_null_permissive_auth_uid_gate():
+    failures = []
+    for f in _migration_files():
+        if f.name in HISTORICAL_UID_COMPARE_FILES:
+            continue
+        failures += [f"{f.name}: {p}" for p in scan_file(f)["uid_compare"]]
+    assert not failures, (
+        "`x <> auth.uid()` is NULL for a caller without a JWT, so the gate does not fire; "
+        "use `auth.uid() IS DISTINCT FROM x` and let service_role through explicitly "
+        "(pattern: migrations/prestudy_elo_factor.sql):\n  " + "\n  ".join(failures))
+
+
 def test_historical_allowlists_are_not_stale():
     """Every allowlisted file must exist and still violate; otherwise remove it."""
     names = {f.name: f for f in _migration_files()}
@@ -329,6 +404,12 @@ def test_historical_allowlists_are_not_stale():
     for fname in sorted(HISTORICAL_RLS_FILES):
         if fname not in names or not scan_file(names[fname])["rls"]:
             stale.append(f"HISTORICAL_RLS_FILES: {fname}")
+    for fname in sorted(HISTORICAL_CLIENT_GRANT_FILES):
+        if fname not in names or not scan_file(names[fname])["client_grant"]:
+            stale.append(f"HISTORICAL_CLIENT_GRANT_FILES: {fname}")
+    for fname in sorted(HISTORICAL_UID_COMPARE_FILES):
+        if fname not in names or not scan_file(names[fname])["uid_compare"]:
+            stale.append(f"HISTORICAL_UID_COMPARE_FILES: {fname}")
     assert not stale, "remove stale allowlist entries:\n  " + "\n  ".join(stale)
 
 
@@ -378,3 +459,27 @@ def test_scanner_rls(tmp_path):
     assert ok["rls"] == []
     tmp = _scan_text(tmp_path, "CREATE TEMP TABLE t (id int);")
     assert tmp["rls"] == []
+
+
+def test_scanner_flags_client_function_grant(tmp_path):
+    bad = _scan_text(tmp_path, "CREATE FUNCTION public.f() RETURNS int LANGUAGE sql AS $$ SELECT 1 $$;\n"
+                               "GRANT EXECUTE ON FUNCTION public.f()\n    TO authenticated, service_role;")
+    assert len(bad["client_grant"]) == 1
+    ok = _scan_text(tmp_path, "GRANT EXECUTE ON FUNCTION public.f() TO service_role;\n"
+                              "GRANT SELECT ON TABLE public.t TO authenticated;\n"
+                              "REVOKE ALL ON FUNCTION public.f() FROM PUBLIC, anon, authenticated;")
+    assert ok["client_grant"] == []
+    allowed = _scan_text(tmp_path, "-- security-lint: allow-definer-exposed RLS helper, ADR-034\n"
+                                   "GRANT EXECUTE ON FUNCTION public.f() TO authenticated;")
+    assert allowed["client_grant"] == []
+
+
+def test_scanner_flags_null_permissive_uid_gate(tmp_path):
+    body = ("CREATE FUNCTION public.f(p uuid) RETURNS int LANGUAGE plpgsql AS $$ BEGIN\n"
+            "  -- the old gate was `p != auth.uid()`\n  IF %s THEN RETURN 0; END IF; RETURN 1; END $$;")
+    assert len(_scan_text(tmp_path, body % "p != auth.uid()")["uid_compare"]) == 1
+    assert len(_scan_text(tmp_path, body % "auth.uid() <> p")["uid_compare"]) == 1
+    assert _scan_text(tmp_path, body % "auth.uid() IS DISTINCT FROM p")["uid_compare"] == []
+    allowed = _scan_text(tmp_path, "-- security-lint: allow-uid-compare NULL handled above\n"
+                                   + body % "p <> auth.uid()")
+    assert allowed["uid_compare"] == []
