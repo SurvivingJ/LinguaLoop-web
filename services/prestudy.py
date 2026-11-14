@@ -31,6 +31,7 @@ import logging
 import random
 from typing import Optional
 
+from services.concurrency import run_parallel
 from services.pagination import fetch_all
 
 logger = logging.getLogger(__name__)
@@ -173,20 +174,30 @@ def build_prestudy_payload(db, test: dict, user_id: str, gloss_language_id: Opti
     vocab_token_map, furigana_payload, pinyin_payload.
     """
     sense_ids = sorted({int(s) for s in (test.get('vocab_sense_ids') or []) if s})
-    questions = db.table('questions').select('sense_ids').eq('test_id', test['id']).execute().data or []
+    language_id = int(test.get('language_id') or 0)
+    # Independent reads run concurrently: first the three that need only the
+    # test row, then the two keyed on the passage + question senses.
+    questions, exercises, ability = run_parallel(
+        lambda: db.table('questions').select('sense_ids').eq('test_id', test['id']).execute().data or [],
+        lambda: _load_exercises(db, sense_ids) if sense_ids else {},
+        lambda: _ability_zipf(db, user_id, language_id),
+    )
     q_sense_ids = sorted({int(s) for q in questions for s in (q.get('sense_ids') or []) if s})
     all_ids = sorted(set(sense_ids) | set(q_sense_ids))
-    senses = _load_senses(db, all_ids, gloss_language_id) if all_ids else {}
+    senses, knowledge = run_parallel(
+        lambda: _load_senses(db, all_ids, gloss_language_id) if all_ids else {},
+        lambda: _load_knowledge(db, user_id, all_ids) if all_ids else {},
+    )
     return {
         'test': {k: test.get(k) for k in (
             'id', 'slug', 'title', 'language_id', 'transcript', 'audio_url', 'difficulty',
             'target_age_tier', 'vocab_sense_ids', 'vocab_token_map', 'furigana_payload', 'pinyin_payload')},
         'questions': [{'sense_ids': q.get('sense_ids') or []} for q in questions],
         'senses': senses,
-        'knowledge': _load_knowledge(db, user_id, all_ids) if all_ids else {},
-        'exercises': _load_exercises(db, sense_ids) if sense_ids else {},
-        'gloss_language_id': gloss_language_id or int(test.get('language_id') or 0),
-        'ability_zipf': _ability_zipf(db, user_id, int(test.get('language_id') or 0)),
+        'knowledge': knowledge,
+        'exercises': exercises,
+        'gloss_language_id': gloss_language_id or language_id,
+        'ability_zipf': ability,
     }
 
 
@@ -488,7 +499,6 @@ def consume_session(db, session_id: str, attempt_id: Optional[str]) -> None:
 #: Mean reference tightness a Produce window needs, per test language
 #: (wiki/evaluations/sentence-refs-pilot-2026-10-30.md: ja 0.65, zh 0.70, en 0.60).
 PRODUCE_TIGHTNESS_FLOOR = {1: 0.70, 2: 0.60, 3: 0.65}
-FOLLOWUP_MAX_WORDS = 5
 _USABLE_VERDICTS = ('pass', 'rewritten')
 
 
@@ -688,6 +698,9 @@ def plan_for_tests(db, user_id: str, language_id: int, tests: list[dict]) -> dic
     ``tests`` are daily-load test dicts (id, test_type, slot_type, is_completed).
     Returns {test_id: {unknown_share, unknown, n, plan_mode, minutes_est}} for
     tests that have linked senses. One query per table for the whole day.
+
+    The daily session calls this from its concurrent read batch, so the reads
+    here stay sequential (a nested batch could starve the shared pool).
     """
     wanted = [t for t in tests if t.get('test_type') in PRESTUDY_TEST_TYPES and t.get('id')]
     if not wanted:

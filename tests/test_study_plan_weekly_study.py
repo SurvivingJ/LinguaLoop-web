@@ -121,5 +121,8 @@ def test_recompute_uses_local_week(monkeypatch):
 
 def test_no_date_today_week_derivation_left():
     import pathlib
-    src = pathlib.Path(__file__).resolve().parents[1].joinpath('routes/study_plan.py').read_text()
-    assert '_monday_of(date.today())' not in src
+    root = pathlib.Path(__file__).resolve().parents[1]
+    for path in ('routes/study_plan.py', 'services/study_plan_settings.py'):
+        src = root.joinpath(path).read_text()
+        assert 'monday_of(date.today())' not in src
+        assert 'date.today()' not in src
