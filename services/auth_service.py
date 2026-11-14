@@ -1,4 +1,5 @@
 from supabase import Client
+from gotrue.errors import AuthApiError
 from datetime import datetime, timezone
 from typing import Dict, Optional
 import logging
@@ -61,7 +62,7 @@ class AuthService:
         try:
             # Auth-flow client: sending OTP emails needs the service key, and
             # this call must not touch the shared data client's auth state.
-            response = self.auth_client.auth.sign_in_with_otp({
+            self.auth_client.auth.sign_in_with_otp({
                 "email": email,
                 "options": {
                     "should_create_user": is_registration
@@ -78,11 +79,13 @@ class AuthService:
             self.logger.error(f'OTP send error: {e}')
             error_msg = str(e).lower()
             
-            if 'user not found' in error_msg:
+            if 'user not found' in error_msg or 'signups not allowed' in error_msg:
+                # Same answer as a real send, so the endpoint cannot be used
+                # to probe which addresses have accounts.
                 return {
-                    'success': False, 
-                    'error': 'No account found. Please register first.',
-                    'code': 'USER_NOT_FOUND'
+                    'success': True,
+                    'message': f'OTP sent to {email}. Please check your inbox.',
+                    'email': email
                 }
             elif 'rate limit' in error_msg:
                 return {
@@ -93,7 +96,7 @@ class AuthService:
             else:
                 return {
                     'success': False, 
-                    'error': f'Failed to send OTP: {str(e)}'
+                    'error': 'Failed to send verification code. Please try again.'
                 }
     
     def verify_otp(self, email: str, token: str) -> Dict:
@@ -148,12 +151,19 @@ class AuthService:
                     'message': 'Invalid or expired OTP'
                 }
 
+        except AuthApiError as e:
+            self.logger.warning(f"OTP verification rejected for {email}: {e}")
+            return {
+                'success': False,
+                'error': 'Invalid or expired OTP',
+                'message': 'Invalid or expired OTP'
+            }
         except Exception as e:
             self.logger.error(f"OTP verification error for {email}: {e}")
             return {
                 'success': False,
-                'error': f'Verification failed: {str(e)}',
-                'message': f'Verification failed: {str(e)}'
+                'error': 'Verification failed. Please try again.',
+                'message': 'Verification failed. Please try again.'
             }
 
     def _get_user_data(self, user_id: str, email: str) -> Dict:
@@ -258,12 +268,25 @@ class AuthService:
             self.logger.error(f'mark_welcome_seen error for {user_id}: {e}')
             return {'success': False, 'error': 'Failed to update welcome flag'}
 
-    def logout(self, user_id: str) -> Dict:
-        """Handle user logout"""
+    def logout(self, user_id: str, access_token: Optional[str] = None) -> Dict:
+        """Revoke the caller's Supabase session and record the activity.
+
+        `access_token` is the caller's own JWT. GoTrue's admin sign-out takes
+        the session's token (not a user id) and deletes that session and its
+        refresh tokens; scope 'local' leaves the user's other devices alone.
+        Revocation is best-effort: the browser drops its credentials either
+        way, so a GoTrue failure is logged rather than failing the logout.
+        """
         try:
-            # Sign out from Supabase
-            self.supabase.auth.sign_out()
-            
+            if access_token:
+                try:
+                    self.auth_client.auth.admin.sign_out(access_token, 'local')
+                except Exception as e:
+                    self.logger.warning(
+                        f'Session revocation failed for {user_id}: {e}')
+                from middleware.auth import revoke_token
+                revoke_token(access_token)
+
             # Update last activity. Admin client — same RLS footgun as above.
             self.supabase_admin.table('users').update({
                 'last_activity_at': datetime.now(timezone.utc).isoformat()
@@ -349,7 +372,7 @@ class AuthService:
                 return {'success': False, 'error': 'Failed to refresh session'}
         except Exception as e:
             self.logger.error(f'Token refresh error: {e}')
-            return {'success': False, 'error': str(e)}
+            return {'success': False, 'error': 'Failed to refresh session'}
 
     def get_user_profile(self, user_id: str) -> Dict:
         """Get user profile with token balance"""

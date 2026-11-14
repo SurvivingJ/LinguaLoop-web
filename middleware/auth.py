@@ -113,6 +113,83 @@ def clear_auth_cache():
     revoked a session and does not want to wait out the TTL."""
     with _auth_cache_lock:
         _auth_cache.clear()
+        _revoked_tokens.clear()
+
+
+# Tokens signed out through this process. A JWT stays cryptographically valid
+# until its `exp`, so the local-verification path below would keep accepting a
+# logged-out token; this denylist closes that gap for the worker that handled
+# the logout. It is per-process: other workers rely on GoTrue (network path) or
+# on the token's own expiry (local path).
+_REVOKED_MAX = 4096
+_REVOKED_FALLBACK_TTL = 3600.0
+_revoked_tokens: dict = {}
+
+
+def revoke_token(token):
+    """Forget a token on logout: evict it from the validation cache and refuse
+    it in this process until it would have expired anyway."""
+    if not token:
+        return
+    key = _auth_cache_key(token)
+    now = time.time()
+    until = _token_exp(token) or (now + _REVOKED_FALLBACK_TTL)
+    with _auth_cache_lock:
+        _auth_cache.pop(key, None)
+        if until <= now:
+            return
+        if len(_revoked_tokens) >= _REVOKED_MAX:
+            for k in [k for k, exp in _revoked_tokens.items() if exp <= now]:
+                _revoked_tokens.pop(k, None)
+            if len(_revoked_tokens) >= _REVOKED_MAX:
+                _revoked_tokens.pop(min(_revoked_tokens, key=_revoked_tokens.get))
+        _revoked_tokens[key] = until
+
+
+def _is_revoked(key):
+    with _auth_cache_lock:
+        until = _revoked_tokens.get(key)
+        if until is None:
+            return False
+        if until <= time.time():
+            _revoked_tokens.pop(key, None)
+            return False
+        return True
+
+
+def _token_alg(token):
+    """The JWT header's `alg`, or None. Unverified; used only for routing."""
+    try:
+        header = token.split('.')[0]
+        header += '=' * (-len(header) % 4)
+        return json.loads(base64.urlsafe_b64decode(header)).get('alg')
+    except Exception:
+        return None
+
+
+def _verify_locally(token, secret):
+    """Verify an HS256 Supabase access token without a network call.
+
+    Returns claims, or None when the token is invalid or expired.
+    """
+    import jwt
+    try:
+        payload = jwt.decode(
+            token, secret, algorithms=['HS256'], audience='authenticated',
+            options={'require': ['exp', 'sub']},
+        )
+    except jwt.PyJWTError as e:
+        logger.warning('Local JWT verification failed: %s', type(e).__name__)
+        return None
+    if not payload.get('sub') or payload.get('role') != 'authenticated':
+        return None
+    return {
+        'sub': payload['sub'],
+        'email': payload.get('email'),
+        'role': 'authenticated',
+        'aud': 'authenticated',
+        'user': None,
+    }
 
 
 def _extract_token(req):
@@ -155,7 +232,9 @@ def _authenticate(token):
     # the synthetic service-account identity like any other user (no tier row
     # → 403). Unset = feature off.
     batch_token = os.getenv('BATCH_SERVICE_TOKEN')
-    if batch_token and hmac.compare_digest(token, batch_token):
+    if batch_token and hmac.compare_digest(
+        token.encode('utf-8'), batch_token.encode('utf-8'),
+    ):
         logger.info('Batch-service bypass used on %s', request.path)
         return {
             'sub': 'service-account',
@@ -165,9 +244,22 @@ def _authenticate(token):
         }, None
 
     cache_key = _auth_cache_key(token)
+    if _is_revoked(cache_key):
+        return None, (jsonify({'error': 'Invalid or expired token'}), 401)
     cached = _auth_cache_get(cache_key)
     if cached is not None:
         return cached, None
+
+    # Optional local verification. Only HS256 tokens can be checked against the
+    # shared secret; anything else (e.g. a project on asymmetric signing keys)
+    # still goes to GoTrue.
+    jwt_secret = os.getenv('SUPABASE_JWT_SECRET')
+    if jwt_secret and _token_alg(token) == 'HS256':
+        claims = _verify_locally(token, jwt_secret)
+        if claims is None:
+            return None, (jsonify({'error': 'Invalid or expired token'}), 401)
+        _auth_cache_put(cache_key, claims, token)
+        return claims, None
 
     try:
         user_response = _get_supabase_client().auth.get_user(token)
@@ -200,7 +292,6 @@ def _set_user_context(claims):
     """Populate Flask ``g`` with the same fields the legacy decorators set."""
     g.supabase_claims = claims
     g.current_user_id = claims['sub']
-    g.user_id = claims['sub']
     if claims.get('user') is not None:
         g.current_user = claims['user']
 

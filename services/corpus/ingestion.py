@@ -1,5 +1,9 @@
+import ipaddress
 import logging
 import re
+import socket
+from urllib.parse import urljoin, urlsplit
+
 import httpx
 from datetime import datetime, timezone
 from bs4 import BeautifulSoup
@@ -18,6 +22,40 @@ logger = logging.getLogger(__name__)
 _LANG_ID_TO_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
 
 
+class UnsafeURLError(ValueError):
+    """The URL is not one this server is willing to fetch."""
+
+
+def _assert_public_https_url(url: str) -> None:
+    """Refuse anything but https to a host that resolves only to public
+    addresses, so the fetcher cannot be pointed at internal services."""
+    try:
+        parts = urlsplit(url)
+        port = parts.port
+    except ValueError:
+        raise UnsafeURLError('URL is not valid') from None
+    if parts.scheme != 'https':
+        raise UnsafeURLError('Only https URLs can be ingested')
+    host = parts.hostname
+    if not host or parts.username or parts.password:
+        raise UnsafeURLError('URL is not valid')
+    if port not in (None, 443):
+        raise UnsafeURLError('Only the default https port is allowed')
+    try:
+        infos = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
+    except (socket.gaierror, UnicodeError):
+        raise UnsafeURLError('URL host could not be resolved') from None
+    if not infos:
+        raise UnsafeURLError('URL host could not be resolved')
+    for info in infos:
+        address = ipaddress.ip_address(info[4][0].split('%')[0])
+        mapped = getattr(address, 'ipv4_mapped', None)
+        if mapped is not None:
+            address = mapped
+        if not address.is_global or address.is_multicast:
+            raise UnsafeURLError('URL host is not a public address')
+
+
 class CorpusIngestionService:
     """
     Orchestrates ingestion of text from URLs, paste, transcripts, or author corpora.
@@ -27,6 +65,7 @@ class CorpusIngestionService:
     INLINE_TEXT_WORD_LIMIT = 50_000
 
     FETCH_TIMEOUT_SECONDS = 30
+    MAX_REDIRECTS = 5
     HTTP_HEADERS = {
         'User-Agent': 'LinguaLoop-Corpus-Bot/1.0'
     }
@@ -57,13 +96,7 @@ class CorpusIngestionService:
             httpx.HTTPStatusError: On non-2xx HTTP response.
             ValueError: If no extractable text found.
         """
-        response = httpx.get(
-            url,
-            follow_redirects=True,
-            timeout=self.FETCH_TIMEOUT_SECONDS,
-            headers=self.HTTP_HEADERS
-        )
-        response.raise_for_status()
+        response = self._fetch_public_url(url)
 
         soup = BeautifulSoup(response.text, 'html.parser')
         for tag in soup(['nav', 'footer', 'aside', 'script', 'style', 'header']):
@@ -88,6 +121,29 @@ class CorpusIngestionService:
             analyze_style=analyze_style,
             llm_enhance=llm_enhance,
         )
+
+    def _fetch_public_url(self, url: str) -> httpx.Response:
+        """GET ``url``, validating it and every redirect hop before the
+        request is made. Hostnames are checked at resolution time; the
+        connection itself re-resolves, so this does not defend against a DNS
+        answer that changes between the two lookups."""
+        for _ in range(self.MAX_REDIRECTS + 1):
+            _assert_public_https_url(url)
+            response = httpx.get(
+                url,
+                follow_redirects=False,
+                timeout=self.FETCH_TIMEOUT_SECONDS,
+                headers=self.HTTP_HEADERS,
+            )
+            if response.is_redirect:
+                location = response.headers.get('location')
+                if not location:
+                    raise UnsafeURLError('Redirect without a location')
+                url = urljoin(url, location)
+                continue
+            response.raise_for_status()
+            return response
+        raise UnsafeURLError('Too many redirects')
 
     def ingest_text(
         self,
