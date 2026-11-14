@@ -88,7 +88,7 @@ SEVERITY_RUBRIC = """Severity (reader-impact, judged as a native reader):
 - major: CLEARLY WRONG to a native reader - an ungrammatical or plainly incorrect form, particle, word or order - EVEN IF the intended meaning is still obvious. "Major" does NOT require a change of meaning.
 - critical: the meaning breaks or is reversed, so the reader is misled (e.g. negation flipped, antonym, with -> without)."""
 
-NOT_ERRORS = """NOT errors (never report): true synonyms and equally good rewordings, contractions, kana/kanji or simplified/variant spellings of the same word, optional commas and punctuation, spacing. A learner sentence may differ from the reference and still be correct."""
+NOT_ERRORS = """NOT errors (never report): true synonyms and equally good rewordings, contractions, kana/kanji or simplified/variant spellings of the same word, optional commas and punctuation, spacing. A learner sentence may differ from the reference and still be correct. Wording that is merely different from the reference - another correct word, a more or less explicit phrasing, a different but correct sentence ending - is not an error: every entry needs something that is wrong in itself or that changes what the sentence says."""
 
 ERROR_FIELDS = """For each error give:
 - sentence: the sentence number.
@@ -107,7 +107,7 @@ NATURALNESS_TYPES: tuple[str, ...] = ("collocation", "cohesion_connective", "top
 JUDGMENT_INSTRUCTIONS = """After the error list, judge the learner text as a whole on two dimensions, each with a band from 1 to 4:
 - naturalness: does LRN read the way a native speaker would say it? Start from 4. Lower it ONLY for phrasing a native speaker would not use even though it is grammatical: errors you listed above with type {naturalness_types}, or clearly non-native phrasing you did not list. Do NOT lower naturalness for grammar, spelling, missing or extra words, word-form or meaning errors - other dimensions score those. Different wording from REF is not unnatural in itself, and sentences marked SAME are natural.
 - range: is the vocabulary and sentence structure of LRN as varied as REF's? Judge against REF only: if LRN did not flatten REF into simpler or repeated forms, range is 4. Errors do not lower range.
-For each dimension give the band and `evidence`: one short phrase copied verbatim from an LRN or SAME sentence that best supports the band (for band 4, any phrase that shows natural phrasing / the preserved variety). A judgment without verbatim evidence is discarded."""
+For each dimension give the band and `evidence`: one short phrase copied verbatim from an LRN or SAME sentence that best supports the band (for band 4, any phrase that shows natural phrasing / the preserved variety). For a naturalness band below 4 the evidence must be the non-native phrasing itself, and it must not be an error you listed under any other type. A judgment without verbatim evidence is discarded."""
 
 FREE_TRANSLATION_PARAGRAPH = """
 

@@ -47,7 +47,9 @@ judged dimensions mirror the v2 Verifier: the same rubric band descriptors for
 the passage's age tier go in the prompt, and a judgment counts only when its
 band is 1-4 AND its evidence quote is found in the learner text
 (``_decode_judgments``, the equivalent of ``grader_cascade._judgment_band`` /
-``_has_valid_evidence``). A judgment that fails this is left out of ``scores``
+``_has_valid_evidence``). In addition a naturalness band below 4 is discarded
+when its evidence is only a listed grammar/meaning error, which is already
+scored on accuracy or fidelity. A judgment that fails is left out of ``scores``
 and ``overall_band`` renormalises over the rest; it is never defaulted to 4.
 
 Be clear about what the evidence is: the v6 gold set has naturalness = 3 on 7 of
@@ -208,6 +210,7 @@ JUDGMENT_OK = "ok"
 JUDGMENT_MISSING = "missing"
 JUDGMENT_BAD_BAND = "bad_band"
 JUDGMENT_NO_EVIDENCE = "no_evidence"
+JUDGMENT_DOUBLE_COUNT = "evidence_is_scored_error"
 
 
 # ---------------------------------------------------------------------------
@@ -460,7 +463,8 @@ def _grade(
         l1_code=l1_code, l2_code=l2_code, gold_l2=gold_l2, reproduction=reproduction,
     )
     dropped = counts["dropped"]
-    judged_bands, judgment_trace = _decode_judgments(payload, reproduction, l2_code)
+    judged_bands, judgment_trace = _decode_judgments(
+        payload, reproduction, l2_code, errors=errors, subtype_meta=subtype_meta)
     assets[-1]["severity_rule"] = severity_rule
     assets[-1]["errors_kept"] = len(errors)
     assets[-1]["dropped"] = dict(dropped)
@@ -925,16 +929,29 @@ def _confidence(value) -> tuple[Optional[float], Optional[str]]:
     return None, None
 
 
-def _decode_judgments(payload: dict, reproduction: str, l2_code: str) -> tuple[dict, dict]:
+def _decode_judgments(
+    payload: dict, reproduction: str, l2_code: str, *, errors: list = (), subtype_meta: dict = None,
+) -> tuple[dict, dict]:
     """The model's naturalness / range judgments -> ({dim: band}, trace).
 
     Mirrors the v2 Verifier's gate (``grader_cascade._judgment_band``): a judgment
     counts only with a band in 1..4 AND evidence that is really in the learner
     text. Here the evidence is a quote, so "valid" means it is found in the
-    reproduction verbatim or after normalisation. A judgment that fails is left
-    out (the overall renormalises); it is never replaced by a default band."""
+    reproduction verbatim or after normalisation.
+
+    One more evidence rule, for naturalness only (``JUDGMENT_DOUBLE_COUNT``): a
+    band below 4 whose evidence is just a listed error of a type the taxonomy maps
+    to accuracy or fidelity is not evidence about naturalness - that error is
+    already scored on its own dimension (``scoring.compute_dimension_bands``).
+    On gold the model lowered naturalness this way for about a third of the items
+    that had any grammar error. Evidence that touches a naturalness-mapped error,
+    or no listed error at all, stands.
+
+    A judgment that fails any rule is left out (the overall renormalises); it is
+    never replaced by a default band."""
     from services.dual_translation import grader_cascade as gc
 
+    subtype_meta = subtype_meta or {}
     bands: dict[str, int] = {}
     trace: dict[str, dict] = {}
     for dim in sc_prompts.JUDGED_DIMENSIONS:
@@ -952,9 +969,30 @@ def _decode_judgments(payload: dict, reproduction: str, l2_code: str) -> tuple[d
         if hit is None:
             trace[dim] = {"status": JUDGMENT_NO_EVIDENCE, "band": band}
             continue
+        if dim == "naturalness" and band < max(sc_prompts.BANDS):
+            touched = [
+                (subtype_meta.get(e.get("subtype")) or {}).get("dimension")
+                for e in errors
+                if not e.get("is_mistake") and _overlaps(e.get("span_reproduction"), hit)
+            ]
+            if touched and "naturalness" not in touched:
+                trace[dim] = {"status": JUDGMENT_DOUBLE_COUNT, "band": band,
+                              "evidence_span": [hit[0], hit[1]]}
+                continue
         bands[dim] = band
         trace[dim] = {"status": JUDGMENT_OK, "band": band, "evidence_span": [hit[0], hit[1]]}
     return bands, trace
+
+
+def _overlaps(span, hit) -> bool:
+    """True when an error span [start, end] shares a character with (or, for a
+    zero-width point, lies inside) the evidence [start, end)."""
+    if not isinstance(span, (list, tuple)) or len(span) != 2:
+        return False
+    start, end = span
+    if start == end:
+        return hit[0] <= start <= hit[1]
+    return start < hit[1] and hit[0] < end
 
 
 # ---------------------------------------------------------------------------
