@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pattern coach — DT feedback mockup (Option 3)</title>
+<style>
+/* Tokens copied from static/css/styles.css (:root and [data-theme='midnight']) */
+:root {
+  --primary: #0e7569; --primary-hover: #0a574e; --selected-bg: #ddeeea;
+  --accent: #e8833a; --accent-text: #a35417; --accent-wash: #fbe9da;
+  --bg-body: #f6f9f8; --bg-surface: #fff; --bg-muted: #eaf1ef;
+  --text-primary: #13282b; --text-secondary: #51686a; --text-muted: #5e7375;
+  --border-default: #dde7e5; --border-strong: #b9cac7;
+  --success: #2e7d4f; --success-bg: #ddefe4; --success-text: #245f3d;
+  --danger: #c24a3f; --danger-bg: #f6e2df; --danger-text: #9e3a31;
+  --warning-bg: #f7ecd6; --warning-text: #7d5a10;
+  --info-bg: #e1eaf5; --info-text: #2f5a8c;
+  --flag: #c9661f; /* chart mark: a flagged chance */
+  --focus-ring: rgb(14 117 105 / 25%);
+  --shadow-sm: 0 1px 2px rgb(19 40 43 / 5%); --shadow-md: 0 4px 14px rgb(19 40 43 / 8%);
+  --nav-bg: rgb(255 255 255 / 88%);
+  --font-sans: 'Inter', 'Hiragino Sans', 'Yu Gothic UI', Meiryo, 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-zh: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC', 'WenQuanYi Zen Hei', system-ui, sans-serif;
+  --font-ja: 'Hiragino Sans', 'Yu Gothic UI', Meiryo, 'Noto Sans JP', 'Noto Sans CJK JP', 'WenQuanYi Zen Hei', system-ui, sans-serif;
+  color-scheme: light;
+}
+:root[data-theme='midnight'] {
+  --primary: #3db3a0; --primary-hover: #5cc6b5; --selected-bg: rgb(61 179 160 / 18%);
+  --accent: #f0975a; --accent-text: #f0a877; --accent-wash: rgb(240 151 90 / 16%);
+  --bg-body: #0b1416; --bg-surface: #122021; --bg-muted: #18292a;
+  --text-primary: #eef4f3; --text-secondary: #bcd0cd; --text-muted: #93a6a4;
+  --border-default: #1f3335; --border-strong: #33494b;
+  --success: #57a877; --success-bg: rgb(87 168 119 / 18%); --success-text: #8fd0a8;
+  --danger: #e0796f; --danger-bg: rgb(224 121 111 / 18%); --danger-text: #f0a39b;
+  --warning-bg: rgb(220 174 84 / 18%); --warning-text: #dcae54;
+  --info-bg: rgb(122 163 214 / 18%); --info-text: #a5c3e8;
+  --flag: #f0975a;
+  --focus-ring: rgb(61 179 160 / 35%);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%); --shadow-md: 0 4px 14px rgb(0 0 0 / 45%);
+  --nav-bg: rgb(18 32 33 / 88%);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg-body); color: var(--text-primary); font-family: var(--font-sans);
+  font-size: 16px; line-height: 1.55; }
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: var(--primary); }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; border-radius: 6px; }
+[lang^='zh'] { font-family: var(--font-zh); }
+[lang='ja'] { font-family: var(--font-ja); line-break: strict; }
+.cjk { font-size: 1.2rem; line-height: 1.8; letter-spacing: 0.01em; }
+.l2 { font-size: 1.1rem; line-height: 1.65; }
+
+/* ---- App chrome ---- */
+.nav { position: sticky; top: 0; z-index: 10; background: var(--nav-bg); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-default); }
+.nav-in { max-width: 1080px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 14px; }
+.logo { font-weight: 800; letter-spacing: -0.01em; color: var(--primary); font-size: 1.1rem; white-space: nowrap; }
+.tabs { display: flex; gap: 4px; margin-left: auto; }
+.tab { border: 0; background: transparent; padding: 8px 12px; border-radius: 999px; font-weight: 600;
+  font-size: 0.9rem; color: var(--text-secondary); min-height: 40px; white-space: nowrap; }
+.tab[aria-current='page'] { background: var(--selected-bg); color: var(--primary); }
+.tab .n { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 999px;
+  background: var(--accent-wash); color: var(--accent-text); font-size: 0.75rem; text-align: center; }
+.icon-btn { border: 1px solid var(--border-default); background: var(--bg-surface); border-radius: 999px;
+  width: 40px; height: 40px; flex: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 72px; }
+.wrap.wide { max-width: 1080px; }
+.view { display: none; } .view.on { display: block; }
+h1 { font-size: 1.35rem; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 1.05rem; margin: 0 0 4px; }
+.sub { color: var(--text-secondary); font-size: 0.92rem; margin: 4px 0 0; }
+.label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text-muted); margin: 26px 0 10px; }
+.card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 14px;
+  padding: 18px 20px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+.btn { border: 0; background: var(--primary); color: #fff; font-weight: 600; border-radius: 12px;
+  padding: 12px 18px; min-height: 44px; }
+:root[data-theme='midnight'] .btn:not(.ghost) { color: #06201c; }
+.btn:hover { background: var(--primary-hover); }
+.btn.ghost { background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-strong); }
+.btn.ghost:hover { background: var(--bg-muted); }
+.link { border: 0; background: none; padding: 6px 0; color: var(--primary); font-weight: 600; font-size: 0.88rem;
+  text-decoration: underline; text-underline-offset: 3px; min-height: 32px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.muted { color: var(--text-muted); } .small { font-size: 0.85rem; }
+.back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+
+/* Mock-only controls: visibly not part of the product */
+.mock { border: 1.5px dashed var(--border-strong); border-radius: 12px; padding: 10px 12px; margin-bottom: 18px;
+  font-size: 0.82rem; color: var(--text-muted); }
+.mock b { color: var(--text-secondary); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.seg button { border: 1px solid var(--border-strong); background: var(--bg-surface); border-radius: 999px;
+  padding: 6px 12px; font-size: 0.82rem; min-height: 36px; }
+.seg button[aria-pressed='true'] { background: var(--selected-bg); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+
+/* ---- Item feedback ---- */
+.summary { display: flex; gap: 14px; align-items: center; }
+.tally { display: flex; gap: 5px; flex: none; }
+.tally i { width: 14px; height: 30px; border-radius: 5px; border: 2px solid var(--border-strong); display: block; }
+.tally i.ok { background: var(--success); border-color: var(--success); }
+.tally i.pt { background: repeating-linear-gradient(135deg, var(--flag) 0 4px, transparent 4px 7px); border-color: var(--flag); }
+.summary strong { font-size: 1.08rem; }
+.ref-l1 { font-size: 0.95rem; color: var(--text-secondary); margin: 0; }
+details.l1 summary { cursor: pointer; font-weight: 600; font-size: 0.88rem; color: var(--primary); }
+.sent { border-left: 4px solid var(--border-default); padding: 12px 0 12px 14px; }
+.sent + .sent { border-top: 1px solid var(--border-default); }
+.sent-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+.num { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; padding: 3px 10px;
+  border-radius: 999px; border: 1px solid transparent; }
+.chip.ok { background: var(--success-bg); color: var(--success-text); }
+.chip.flag { background: var(--accent-wash); color: var(--accent-text); border-color: var(--accent); }
+.chip.maybe { background: transparent; color: var(--text-secondary); border: 1.5px dashed var(--border-strong); }
+.chip.diff { background: var(--info-bg); color: var(--info-text); }
+.chip.crit { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger); }
+.chip.gone { background: var(--bg-muted); color: var(--text-muted); text-decoration: line-through; }
+.conf { font-size: 0.78rem; color: var(--text-muted); }
+.sent.ok { border-left-color: var(--success); }
+.sent.flag { border-left-color: var(--accent); }
+.sent.crit { border-left-color: var(--danger); }
+.sent.maybe { border-left-style: dashed; border-left-color: var(--border-strong); }
+.sent.diff { border-left-color: var(--info-text); border-left-style: dotted; }
+.pair { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: baseline; }
+.pair dt { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); white-space: nowrap; }
+.pair dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+mark { color: inherit; border-radius: 4px; padding: 1px 3px; }
+mark.mine { background: var(--warning-bg); text-decoration: underline wavy var(--flag); text-underline-offset: 5px; }
+mark.gold { background: var(--selected-bg); box-shadow: inset 0 -2px 0 var(--primary); }
+mark.gap { background: var(--warning-bg); color: var(--flag); font-weight: 700; padding: 1px 5px; }
+.why { font-size: 0.92rem; color: var(--text-secondary); margin: 8px 0 0; }
+.pattern-note { display: inline-flex; gap: 8px; align-items: center; margin-top: 8px; font-size: 0.85rem;
+  background: var(--bg-muted); border-radius: 10px; padding: 6px 10px; }
+.sent-actions { margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap; }
+.dispute { margin-top: 8px; padding: 12px; border-radius: 10px; background: var(--bg-muted); font-size: 0.9rem; }
+.dispute .seg button { min-height: 40px; }
+.match-line { color: var(--text-secondary); }
+.takeaway { border-left: 4px solid var(--primary); }
+.next-box { background: var(--selected-bg); border-color: transparent; }
+.next-box ul { margin: 6px 0 0; padding-left: 20px; font-size: 0.93rem; }
+.honesty { font-size: 0.85rem; color: var(--text-muted); margin: 10px 2px 0; }
+
+/* ---- Profile ---- */
+.grid { display: grid; gap: 0 28px; grid-template-columns: 1fr; }
+@media (min-width: 980px) { .grid { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); } }
+.up-next { border: 0; background: var(--primary); color: #fff; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+:root[data-theme='midnight'] .up-next { background: #0e5a51; }
+.up-next h2 { color: #fff; } .up-next p { margin: 2px 0 0; opacity: 0.92; font-size: 0.92rem; }
+.up-next .btn { background: #fff; color: #0a574e; margin-left: auto; }
+.pcard { display: block; width: 100%; text-align: left; position: relative; }
+.pcard:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+.pc-top { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.pc-name { font-size: 1.05rem; font-weight: 700; }
+.pc-native { font-size: 1.05rem; color: var(--text-secondary); }
+.status { margin-left: auto; font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.status.active { background: var(--accent-wash); color: var(--accent-text); }
+.status.improving { background: var(--success-bg); color: var(--success-text); }
+.status.emerging { background: transparent; border: 1.5px dashed var(--border-strong); color: var(--text-secondary); }
+.status.resolved { background: var(--info-bg); color: var(--info-text); }
+.pc-ev { margin: 8px 0 6px; font-size: 0.95rem; }
+.pc-ev b { font-variant-numeric: tabular-nums; }
+.strip { display: block; max-width: 100%; height: auto; }
+.strip-cap { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); max-width: 300px; }
+.pc-foot { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; font-size: 0.86rem; color: var(--text-secondary); }
+.pc-foot .go { margin-left: auto; color: var(--primary); font-weight: 700; }
+.quiet { padding: 12px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.quiet .pc-name { font-size: 0.98rem; }
+.quiet .ev { color: var(--text-secondary); font-size: 0.86rem; flex-basis: 100%; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-secondary); margin: 0 2px 10px; }
+.legend svg { vertical-align: -2px; margin-right: 4px; }
+details.how { font-size: 0.9rem; color: var(--text-secondary); }
+details.how summary { cursor: pointer; font-weight: 700; color: var(--text-primary); }
+details.how li { margin: 6px 0; }
+
+/* ---- Pattern detail ---- */
+.rule { font-size: 0.98rem; }
+.chart-wrap { margin-top: 10px; }
+.chart-wrap svg { max-width: 100%; height: auto; display: block; }
+.verdict { font-weight: 700; }
+table.tv { border-collapse: collapse; font-size: 0.85rem; margin-top: 8px; font-variant-numeric: tabular-nums; }
+table.tv th, table.tv td { border-bottom: 1px solid var(--border-default); padding: 5px 12px 5px 0; text-align: left; }
+.ex { padding: 12px 0; border-top: 1px solid var(--border-default); }
+.ex:first-of-type { border-top: 0; padding-top: 4px; }
+.ex-meta { display: flex; gap: 6px 12px; flex-wrap: wrap; font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; align-items: center; }
+.pill { font-size: 0.75rem; font-weight: 700; border-radius: 999px; padding: 2px 9px; }
+.pill.pass { background: var(--success-bg); color: var(--success-text); }
+.pill.due { background: var(--accent-wash); color: var(--accent-text); }
+.steps { list-style: none; margin: 8px 0 0; padding: 0; }
+.steps li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 8px 0; font-size: 0.93rem; }
+.steps .box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border-strong); display: grid; place-items: center;
+  font-size: 0.8rem; font-weight: 800; }
+.steps .done .box { background: var(--success); border-color: var(--success); color: #fff; }
+.meter { height: 8px; border-radius: 99px; background: var(--bg-muted); overflow: hidden; margin-top: 6px; max-width: 280px; }
+.meter i { display: block; height: 100%; background: var(--primary); border-radius: 99px; }
+
+/* ---- Retry ---- */
+.progress { display: flex; gap: 6px; margin: 10px 0 16px; }
+.progress i { flex: 1; height: 6px; border-radius: 99px; background: var(--border-default); }
+.progress i.cur { background: var(--primary); }
+.prompt { font-size: 1.2rem; line-height: 1.5; margin: 6px 0 0; }
+textarea { width: 100%; min-height: 132px; resize: vertical; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--border-default);
+  background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-zh); font-size: 1.2rem; line-height: 1.7; }
+textarea:focus { outline: none; border-color: var(--primary); }
+.result { border-left: 4px solid var(--border-strong); }
+.result.pass { border-left-color: var(--success); } .result.fail { border-left-color: var(--accent); }
+.result h2 { line-height: 1.4; }
+[hidden] { display: none !important; }
+
+@media (max-width: 560px) {
+  .logo span { display: none; }
+  .tab { padding: 8px 9px; font-size: 0.84rem; }
+  .card { padding: 16px; }
+  .pair { grid-template-columns: 1fr; gap: 0; } .pair dt { margin-top: 6px; }
+  .status { margin-left: 0; }
+  .up-next .btn { margin-left: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: no-preference) { .pcard { transition: box-shadow .15s, border-color .15s; } }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <div class="logo">道 <span>LinguaDojo</span></div>
+    <nav class="tabs" aria-label="Mockup screens">
+      <button class="tab" data-go="item">Feedback</button>
+      <button class="tab" data-go="profile">My patterns</button>
+      <button class="tab" data-go="retry">Retry<span class="n" aria-label="4 due">4</span></button>
+    </nav>
+    <button class="icon-btn" id="theme" aria-label="Switch light / dark theme" title="Light / dark">◐</button>
+  </div>
+</header>
+
+<!-- ================= 1. PER-ITEM FEEDBACK ================= -->
+<main class="wrap view" id="v-item">
+  <div class="mock" role="group" aria-label="Mockup controls">
+    <b>Mockup control — not product UI.</b> Real gold-set items (<code>tests/fixtures/dt_gold</code>); the L1 reference text is illustrative.
+    <div class="seg" id="exSeg"></div>
+  </div>
+  <div class="row" style="margin-bottom:14px"><h1>Dual Translation</h1></div>
+  <div class="card"><div class="summary"><div class="tally" id="tally" aria-hidden="true"></div><div><strong id="sumHead"></strong><div class="sub" id="sumSub"></div></div></div></div>
+  <div class="card takeaway" id="takeaway" hidden></div>
+  <div class="card">
+    <details class="l1"><summary>Show what you were asked to translate</summary><p class="ref-l1" id="l1" style="margin-top:8px"></p></details>
+    <div id="sents" style="margin-top:10px"></div>
+    <p class="honesty" id="honesty"></p>
+  </div>
+  <div class="card next-box" id="nextBox"></div>
+  <div class="row">
+    <button class="btn">Next passage</button>
+    <button class="btn ghost" data-go="profile">See my patterns</button>
+  </div>
+</main>
+
+<!-- ================= 2. PROFILE ================= -->
+<main class="wrap wide view" id="v-profile">
+  <h1>My patterns</h1>
+  <p class="sub">English → Chinese · from 46 translations (171 sentences) since 12 Sep</p>
+  <div class="grid">
+    <div>
+      <div class="card up-next" style="margin-top:18px">
+        <div><h2>4 of your own sentences are ready to retry</h2><p>About 3 minutes. You'll translate them again, without the answer in view.</p></div>
+        <button class="btn" data-go="retry">Start retry</button>
+      </div>
+      <div class="label">In focus <span style="text-transform:none;letter-spacing:0;font-weight:500">— three at most, so each gets real practice</span></div>
+      <div class="legend" aria-hidden="true">
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" style="fill:var(--flag)"/></svg>flagged</span>
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.2" style="fill:none;stroke:var(--text-muted);stroke-width:1.6"/></svg>not flagged</span>
+        <span>each dot = one chance to use the pattern</span>
+      </div>
+      <div id="focusList"></div>
+      <div class="label">Still gathering evidence</div>
+      <p class="sub" style="margin:-4px 0 10px">Seen a few times. Not enough yet to call it a pattern, so nothing is scheduled.</p>
+      <div id="emergingList"></div>
+    </div>
+    <div>
+      <div class="label">Under control</div>
+      <div id="resolvedList"></div>
+      <div class="label">Rarely flagged</div>
+      <div class="card quiet"><span class="pc-name">Connectives</span><span class="pc-native" lang="zh-Hans">关联词</span><span class="ev">0 flags in 31 chances</span></div>
+      <div class="card quiet"><span class="pc-name">Complements</span><span class="pc-native" lang="zh-Hans">补语</span><span class="ev">1 flag in 24 chances</span></div>
+      <p class="honesty">Rarely flagged is a good sign, not a guarantee: the checker misses some small slips.</p>
+      <div class="card" style="margin-top:22px">
+        <details class="how"><summary>How this page decides what to show</summary>
+          <ul>
+            <li>The checker almost never flags a correct sentence, but in Chinese it misses roughly half of small slips. Counts here are a floor, not an exact score.</li>
+            <li>A pattern appears only after 3 flags on 2 or more days, and enters focus after 5 flags in at least 10 chances.</li>
+            <li>We count per chance: a sentence whose reference uses a measure word is one chance to get measure words right.</li>
+            <li>"Under control" needs you to pass spaced retries of your own sentences, and a run of clean chances in new passages.</li>
+            <li>If a flag is wrong, say so on the sentence. It leaves your patterns immediately.</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ================= 3. PATTERN DETAIL ================= -->
+<main class="wrap view" id="v-pattern">
+  <button class="link back" data-go="profile">← My patterns</button>
+  <div id="detail"></div>
+</main>
+
+<!-- ================= 4. RETRY ================= -->
+<main class="wrap view" id="v-retry">
+  <button class="link back" data-go="profile">← My patterns</button>
+  <h1>Retry your own sentences</h1>
+  <div class="progress" aria-label="Sentence 1 of 4"><i class="cur"></i><i></i><i></i><i></i></div>
+  <div class="card">
+    <div class="small muted">Sentence 1 of 4 · you first translated this on 28 Oct</div>
+    <p class="prompt">The picture is a smiling kitten; it seems to be looking at me, and seems to be talking to me.</p>
+    <p class="sub">Translate into Chinese. Only one part is checked — we don't say which until you answer.</p>
+  </div>
+  <div class="card" id="rInput">
+    <label for="ans" class="small muted" style="display:block;margin-bottom:6px;font-weight:700">Your translation</label>
+    <textarea id="ans" lang="zh-Hans" autocomplete="off" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="check">Check</button>
+      <button class="btn ghost" id="hintBtn">Give me a hint</button>
+    </div>
+    <p class="sub" id="hint" hidden>Hint: look at the word between <span lang="zh-Hans">一</span> and the noun. (Using a hint brings this back a little sooner.)</p>
+    <div class="mock" style="margin:14px 0 0"><b>Mockup control:</b> fill an answer without a Chinese keyboard.
+      <div class="seg"><button id="fillOk">Fill a correct answer</button><button id="fillBad">Fill the earlier mistake</button></div>
+    </div>
+  </div>
+  <div class="card result" id="rResult" hidden aria-live="polite"></div>
+</main>
+
+<script>
+(function () {
+'use strict';
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// "[[learner|reference]]" marks a difference found by the free diff (Tier 0).
+function seg(t, side) {
+  return esc(t).replace(/\[\[(.*?)\|(.*?)\]\]/g, (m, a, b) => {
+    if (side === 'mine') return a ? '<mark class="mine">' + a + '</mark>' : '<mark class="gap" title="Something is missing here">‸</mark>';
+    return b ? '<mark class="gold">' + b + '</mark>' : '';
+  });
+}
+
+/* ---------- theme ---------- */
+const root = document.documentElement;
+if (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) root.dataset.theme = 'midnight';
+if (/[?&]theme=dark/.test(location.search)) root.dataset.theme = 'midnight';
+$('#theme').onclick = () => { root.dataset.theme = root.dataset.theme === 'midnight' ? '' : 'midnight'; };
+
+/* ---------- 1. item feedback ---------- */
+const EX = [
+  { key: 'zh', label: '中文 · two flags', id: 'zh_multi_01', lang: 'zh-Hans', cjk: 1,
+    l1: 'My favourite T-shirt is a very special piece of clothing. It isn\'t an expensive brand or the latest style, but it is my favourite of all my clothes. The T-shirt is blue, a true blue, and it hasn\'t faded after many washes. The fabric is comfortable, soft and breathable, and it doesn\'t feel hot in summer.',
+    s: [
+      { t: '我最喜欢的T恤是[[一个|一件]]非常特别的衣服。', st: 'flag', chip: 'Measure word', nat: '量词', conf: 'Likely',
+        why: '<span lang="zh-Hans">衣服</span> takes <span lang="zh-Hans">件</span>, not the general-purpose <span lang="zh-Hans">个</span>: <span lang="zh-Hans">一件衣服</span>.',
+        note: 'In your focus · flagged in 7 of your last 20 chances', pat: 'mw' },
+      { t: '它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。', st: 'ok' },
+      { t: '这件T恤是蓝色的，颜色很正，洗[[|了]]很多次也不会褪色。', st: 'flag', chip: 'Aspect 了 / 过', nat: '', conf: 'Likely',
+        why: 'A completed action with a count usually takes <span lang="zh-Hans">了</span> after the verb: <span lang="zh-Hans">洗了很多次</span>.',
+        note: 'Improving · 3 of your last 20 chances, down from 8', pat: 'asp' },
+      { t: '它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。', st: 'ok' } ],
+    next: ['<span lang="zh-Hans">一件衣服</span> — this sentence comes back tomorrow for you to translate again.', 'Both points were added to patterns you are already working on. No new ones.'] },
+  { key: 'ja', label: '日本語 · flag + unflagged difference', id: 'ja_multi_01', lang: 'ja', cjk: 1,
+    l1: 'If you search online for "robot arm kit", you can also find sets that come with the parts you need. Assemble: put the parts together following the blueprint. Attach the motors to the arm and connect the gripper. This work is the real joy of electronics as a hobby.',
+    s: [
+      { t: 'インターネットで「ロボットアーム キット」と検索すると、必要な部品[[は|が]]セットになったものも見つかります。', st: 'flag', chip: 'は / が', nat: '', conf: 'Likely',
+        why: 'Inside a clause that describes a noun (<span lang="ja">…セットになったもの</span>), the subject takes <span lang="ja">が</span>. <span lang="ja">は</span> would make it the topic of the whole sentence.',
+        note: 'Second time this month · not a pattern yet', pat: null },
+      { t: '組み立てる: 設計図に従って、部品を組み立てていきます。', st: 'ok' },
+      { t: 'モーターをアームに取り付けたり、グリッパーを接続したりします。', st: 'ok' },
+      { t: 'この作業が「電子工作」の[[面白さ|醍醐味]]ですね。', st: 'diff',
+        why: 'The checker did not flag this. There is often more than one good translation, so your wording may be fine. Compare the two and decide.' } ],
+    next: ['The <span lang="ja">は / が</span> sentence comes back in a few days. If it shows up a third time, it becomes a pattern.'] },
+  { key: 'en', label: 'English · meaning + unsure', id: 'en_multi_04', lang: 'en', cjk: 0, l1lang: 'zh-Hans',
+    l1: '这是一个通过动手来学习的好方法。Arduino 是做 DIY 项目的强大工具。你可以用它做很多东西。这个机械臂只是其中一个想法。',
+    s: [
+      { t: 'It\'s a [[sick|great]] way to learn by doing.', st: 'maybe', chip: 'Worth a second look', conf: 'Checker unsure',
+        why: 'Something here may not fit, possibly the tone of the word. The checker is not sure, so this is not counted in your patterns.' },
+      { t: 'The Arduino is a powerful tool for DIY projects.', st: 'ok' },
+      { t: 'You can make many things [[without|with]] it.', st: 'crit', chip: 'Meaning may be reversed', conf: 'Likely',
+        why: 'Your sentence seems to say the opposite of the reference: <b>without</b> it, where the reference has <b>with</b> it.',
+        note: 'First time · noted, not a pattern', pat: null },
+      { t: 'This robot arm is just one idea.', st: 'ok' } ],
+    takeaway: '<h2>One thing to take from this</h2><p class="sub" style="color:var(--text-primary)">Sentence 3 reads as the opposite of what was asked. Re-read it against the reference before moving on.</p>',
+    next: ['Sentence 3 comes back tomorrow for another try.', 'Sentence 1 is not counted, because the checker was unsure.'] },
+  { key: 'many', label: 'English · several errors', id: 'en_multi_02', lang: 'en', cjk: 0, l1lang: 'zh-Hans',
+    l1: '它帮助控制东西。你还需要一些伺服电机。这些电机让机械臂动起来。你需要电线来连接所有部件。',
+    s: [
+      { t: 'It helps control things.', st: 'ok' },
+      { t: 'You also need some servo [[motor|motors]].', st: 'flag', chip: 'Plural', conf: 'Likely',
+        why: 'After <b>some</b>, a countable noun is plural: some servo <b>motors</b>.', note: 'In your focus · 6 of your last 20 chances', pat: null },
+      { t: 'These motors [[makes|make]] the arm[[| move]].', st: 'flag', chip: 'Missing meaning', conf: 'Likely', also: 'Also possible here: subject–verb agreement',
+        why: 'Part of the reference is missing: the motors make the arm <b>move</b>. The checker names one point per sentence, so compare the rest yourself.',
+        note: 'First time · noted, not a pattern', pat: null },
+      { t: 'You will need wires to connect everything.', st: 'ok' } ],
+    takeaway: '<h2>One thing to take from this</h2><p class="sub" style="color:var(--text-primary)">Plurals after <b>some</b>. It is the one point here that is already in your focus, so it is the one worth your attention. The rest is saved.</p>',
+    next: ['Sentence 2 comes back tomorrow.', 'Sentence 3 is saved once. One-off slips are not drilled.'] },
+  { key: 'clean', label: '中文 · clean', id: 'zh_clean (passage 1)', lang: 'zh-Hans', cjk: 1,
+    l1: 'My favourite T-shirt is a very special piece of clothing. It isn\'t an expensive brand or the latest style, but it is my favourite of all my clothes. The T-shirt is blue, a true blue, and it hasn\'t faded after many washes. The fabric is comfortable, soft and breathable, and it doesn\'t feel hot in summer.',
+    s: [ { t: '我最喜欢的T恤是一件非常特别的衣服。', st: 'ok', won: 'Measure word — one you have been working on' },
+      { t: '它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。', st: 'ok' },
+      { t: '这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。', st: 'ok', won: 'Aspect 了 — one you have been working on' },
+      { t: '它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。', st: 'ok' } ],
+    next: ['Two clean chances were added: measure words (now 7 of the 16 needed) and <span lang="zh-Hans">了</span>.'] }
+];
+const ICON = { ok: '✓', flag: '●', maybe: '◌', diff: '≠', crit: '▲' };
+let cur = 0;
+function renderEx() {
+  const e = EX[cur];
+  $('#exSeg').innerHTML = EX.map((x, i) => '<button aria-pressed="' + (i === cur) + '" data-i="' + i + '">' + esc(x.label) + '</button>').join('');
+  const ok = e.s.filter((x) => x.st === 'ok').length, pts = e.s.length - ok;
+  $('#tally').innerHTML = e.s.map((x) => '<i class="' + (x.st === 'ok' ? 'ok' : 'pt') + '"></i>').join('');
+  $('#sumHead').textContent = pts ? ok + ' of ' + e.s.length + ' sentences match the reference' : 'All ' + e.s.length + ' sentences match the reference';
+  $('#sumSub').textContent = pts ? pts + (pts > 1 ? ' points' : ' point') + ' to notice below' : 'Word for word. Nothing to check.';
+  const l1 = $('#l1'); l1.textContent = e.l1; l1.lang = e.l1lang || 'en';
+  const tk = $('#takeaway'); tk.hidden = !e.takeaway; tk.innerHTML = e.takeaway || '';
+  const cls = e.cjk ? 'cjk' : 'l2';
+  $('#sents').innerHTML = e.s.map((x, i) => {
+    if (x.st === 'ok') return '<div class="sent ok"><div class="sent-head"><span class="num">' + (i + 1) + '</span><span class="chip ok">' + ICON.ok + ' Matches</span>' +
+      (x.won ? '<span class="conf">' + esc(x.won) + '</span>' : '') + '</div><div class="match-line ' + cls + '" lang="' + e.lang + '">' + esc(x.t) + '</div></div>';
+    const chipCls = x.st;
+    const chipTxt = x.st === 'diff' ? 'Different from the reference' : x.chip;
+    return '<div class="sent ' + x.st + '" data-s="' + i + '"><div class="sent-head"><span class="num">' + (i + 1) + '</span>' +
+      '<span class="chip ' + chipCls + '">' + ICON[x.st] + ' ' + esc(chipTxt) + (x.nat ? ' · <span lang="' + e.lang + '">' + x.nat + '</span>' : '') + '</span>' +
+      (x.conf ? '<span class="conf">' + x.conf + '</span>' : '') + '</div>' +
+      '<dl class="pair"><dt>You</dt><dd class="' + cls + '" lang="' + e.lang + '">' + seg(x.t, 'mine') + '</dd>' +
+      '<dt>Reference</dt><dd class="' + cls + '" lang="' + e.lang + '">' + seg(x.t, 'gold') + '</dd></dl>' +
+      '<p class="why">' + x.why + '</p>' + (x.also ? '<p class="why small muted">' + esc(x.also) + '</p>' : '') +
+      (x.note ? '<div class="pattern-note">' + esc(x.note) + (x.pat ? ' <button class="link" style="padding:0;min-height:0" data-pat="' + x.pat + '">View</button>' : '') + '</div>' : '') +
+      '<div class="sent-actions">' + (x.st === 'diff' ? '<button class="link" data-save>Save this to retry later</button>' : x.st === 'maybe' ? '<button class="link" data-save>It is an error — count it</button>' : '<button class="link" data-dispute>Not an error?</button>') + '</div></div>';
+  }).join('');
+  $('#honesty').textContent = pts || e.key !== 'clean'
+    ? 'Marked parts are where your sentence differs from the reference. The checker rarely flags a correct sentence, but it can miss small slips, so "Matches" is the only certain all-clear.'
+    : 'These are exact matches, so this result is certain.';
+  $('#nextBox').innerHTML = '<h2>What happens next</h2><ul>' + e.next.map((n) => '<li>' + n + '</li>').join('') + '</ul>';
+}
+$('#exSeg').onclick = (ev) => { const b = ev.target.closest('button'); if (b) { cur = +b.dataset.i; renderEx(); } };
+$('#sents').onclick = (ev) => {
+  const t = ev.target, s = t.closest('.sent');
+  if (t.dataset.pat) return openPattern(t.dataset.pat);
+  if (t.hasAttribute('data-dispute')) {
+    t.closest('.sent-actions').outerHTML = '<div class="dispute" role="group" aria-label="Tell us why"><b>What looks wrong with this flag?</b>' +
+      '<div class="seg"><button data-why="My version is also correct">My version is also correct</button><button data-why="It is a different kind of error">It\'s an error, but a different kind</button><button data-why="Not sure">Not sure — check it again</button></div></div>';
+  } else if (t.dataset.why) {
+    const chip = $('.chip', s); chip.className = 'chip gone';
+    s.className = 'sent maybe';
+    const pn = $('.pattern-note', s); if (pn) pn.remove();
+    t.closest('.dispute').outerHTML = '<div class="dispute" aria-live="polite"><b>Removed from your patterns.</b> Thanks — "' + esc(t.dataset.why) +
+      '" is noted and a stronger check will look at it. You\'ll only hear back if it disagrees. <button class="link" data-undo>Undo</button></div>';
+  } else if (t.hasAttribute('data-undo')) { renderEx(); }
+  else if (t.hasAttribute('data-save')) { t.outerHTML = '<span class="small" style="color:var(--success-text);font-weight:700">✓ Saved. It will come back as a retry.</span>'; }
+};
+
+/* ---------- 2/3. profile + detail data (EN → ZH learner; examples are real gold items) ---------- */
+const P = {
+  mw: { name: 'Measure words', nat: '量词', status: 'active', sLabel: 'Active',
+    last: [1,0,1,0,0,1,0,1,0,0, 0,1,0,0,1,0,0,0,1,0], ev: 'Flagged in <b>7 of your last 20</b> chances', trend: 'No clear change yet', due: 2,
+    rule: 'Chinese nouns need a specific measure word after a number or <span lang="zh-Hans">这 / 那</span>: <span lang="zh-Hans">一件衣服</span>, <span lang="zh-Hans">一只猫</span>. <span lang="zh-Hans">个</span> works for many nouns, but not all.',
+    blocks: [[5,'12–26 Sep'],[4,'27 Sep–12 Oct'],[4,'13–27 Oct'],[3,'28 Oct–13 Nov']], verdict: 'No clear change yet.', vsub: 'The latest stretch is a little lower, but the ranges overlap. A few more translations will tell.',
+    habit: 'In 5 of your 7 recent flags you wrote <span lang="zh-Hans">个</span> where the reference had a more specific word.',
+    ex: [ { t: '我最喜欢的T恤是[[一个|一件]]非常特别的衣服。', d: '12 Oct', tries: [['14 Oct', 1], ['19 Oct', 1]], next: 'next retry 2 Dec' },
+          { t: '这个图画是[[一个|一只]]正在微笑的小猫，它好像在看着我，又好像在和我说话。', d: '28 Oct', tries: [], next: 'due today' } ], more: 5,
+    steps: [[0, 'Pass 3 spaced retries of your own sentences, the last after a 2-week gap', '2 of 3 passed', 66], [0, '16 clean chances in a row in new passages', '6 of 16', 37]],
+    why16: 'Why 16? In Chinese the checker misses about half of small slips, so we ask for a longer clean run before calling it.',
+    extra: 'Measure-word trainer' },
+  asp: { name: 'Aspect 了 / 过', nat: '', status: 'improving', sLabel: 'Improving',
+    last: [1,0,0,1,0,0,0,0,0,0, 0,0,1,0,0,0,0,0,0,0], ev: 'Flagged in <b>3 of your last 20</b> chances, down from 8 of the 20 before', trend: 'Likely improving', due: 1,
+    rule: 'A completed action usually takes <span lang="zh-Hans">了</span> after the verb. <span lang="zh-Hans">过</span> is for experience ("have ever").',
+    blocks: [[5,'12–24 Sep'],[3,'25 Sep–9 Oct'],[2,'10–26 Oct'],[1,'27 Oct–13 Nov']], verdict: 'Likely improving.', vsub: 'Each stretch is lower than the last, and the first and latest ranges barely overlap.',
+    habit: 'Most often <span lang="zh-Hans">了</span> was left out after the verb.',
+    ex: [ { t: '这件T恤是蓝色的，颜色很正，洗[[|了]]很多次也不会褪色。', d: '6 Oct', tries: [['7 Oct', 1], ['11 Oct', 1], ['25 Oct', 1]], next: 'next retry 9 Dec' },
+          { t: '更是因为它承载[[过|了]]很多美好的回忆。', d: '21 Oct', tries: [['22 Oct', 0], ['23 Oct', 1]], next: 'due today' } ], more: 6,
+    steps: [[1, 'Pass 3 spaced retries of your own sentences, the last after a 2-week gap', '3 of 3 passed', 100], [0, '16 clean chances in a row in new passages', '7 of 16', 44]],
+    why16: 'Why 16? In Chinese the checker misses about half of small slips, so we ask for a longer clean run before calling it.' },
+  ba: { name: '把 / 被 sentences', nat: '', status: 'active', sLabel: 'Active',
+    last: [1,0,0,1,0,1,0,0,1,0,1,0], ev: 'Flagged in <b>5 of your last 12</b> chances', trend: 'Too few chances to see a trend', due: 1,
+    rule: 'When you do something to a specific object and say the result, Chinese often moves the object before the verb with <span lang="zh-Hans">把</span>.',
+    blocks: [[3,'12 Sep–14 Oct', 6],[2,'15 Oct–13 Nov', 6]], verdict: 'Too early to say.', vsub: 'Only 12 chances so far. This structure is rare in your passages, so we will pick passages that use it.',
+    habit: '<span lang="zh-Hans">把</span> was left out each time.',
+    ex: [ { t: '但即使那样，我也会[[|把]]它好好收藏起来，作为一份美好的纪念。', d: '2 Nov', tries: [['3 Nov', 0], ['4 Nov', 1]], next: 'next retry 15 Nov' } ], more: 4,
+    steps: [[0, 'Pass 3 spaced retries of your own sentences, the last after a 2-week gap', '1 of 3 passed', 33], [0, '16 clean chances in a row in new passages', '1 of 16', 6]],
+    why16: 'Why 16? In Chinese the checker misses about half of small slips, so we ask for a longer clean run before calling it.' },
+  de: { name: '的 / 地 / 得', nat: '', status: 'emerging', sLabel: 'Maybe', evq: '3 flags in 9 chances, on 2 days',
+    last: [0,1,0,0,1,0,0,1,0], ev: 'Flagged in <b>3 of 9</b> chances', trend: '', due: 0,
+    rule: 'After a verb, a description of how it was done takes <span lang="zh-Hans">得</span>: <span lang="zh-Hans">画得很细致</span>.',
+    blocks: null, verdict: 'Not enough yet to call this a pattern.', vsub: 'Two more flags would move it into focus. Nothing is scheduled beyond retrying the sentences themselves.',
+    ex: [ { t: '猫咪的毛发画[[的|得]]很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。', d: '30 Oct', tries: [['31 Oct', 1]], next: 'next retry 16 Nov' } ], more: 2, steps: null },
+  wo: { name: 'Word order', nat: '语序', status: 'emerging', sLabel: 'Maybe', evq: '3 flags in 22 chances, on 3 days',
+    last: [0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0], ev: 'Flagged in <b>3 of 22</b> chances', trend: '', due: 0,
+    rule: 'Adverbs like <span lang="zh-Hans">都</span> go before the verb: <span lang="zh-Hans">朋友们都夸</span>.',
+    blocks: null, verdict: 'Not enough yet to call this a pattern.', vsub: 'Flags are spread thinly. This may be occasional slips.',
+    ex: [ { t: '我的[[朋友们夸都|朋友们都夸]]我的T恤很可爱，我们一起分享了喜欢的卡通人物。', d: '18 Oct', tries: [['19 Oct', 1], ['24 Oct', 1]], next: 'next retry 20 Nov' } ], more: 2, steps: null },
+  reg: { name: 'Casual vs. neutral wording', nat: '语体', status: 'resolved', sLabel: 'Under control', evq: 'Since 28 Oct · next check-in 27 Nov',
+    last: [1,0,1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0], ev: '<b>No flags in your last 16</b> chances', trend: '', due: 0,
+    rule: 'Slang intensifiers like <span lang="zh-Hans">贼</span> are spoken and regional. Neutral writing uses <span lang="zh-Hans">很</span> or <span lang="zh-Hans">非常</span>.',
+    blocks: [[4,'12–25 Sep'],[2,'26 Sep–10 Oct'],[0,'11–27 Oct'],[0,'28 Oct–13 Nov']], verdict: 'Under control since 28 Oct.', vsub: 'We will check in with one of your sentences on 27 Nov. If it slips, it simply comes back into focus — that is normal.',
+    ex: [ { t: '它的嘴角微微向上翘起，看起来[[贼|非常]]开心。', d: '19 Sep', tries: [['20 Sep', 1], ['24 Sep', 1], ['9 Oct', 1]], next: 'check-in 27 Nov' },
+          { t: '我的朋友们都夸我的[[T恤贼可爱|T恤很可爱]]，我们一起分享了喜欢的卡通人物。', d: '23 Sep', tries: [['24 Sep', 0], ['25 Sep', 1], ['30 Sep', 1], ['15 Oct', 1]], next: 'done' } ], more: 3,
+    steps: [[1, 'Pass 3 spaced retries of your own sentences, the last after a 2-week gap', '3 of 3 passed', 100], [1, '16 clean chances in a row in new passages', '16 of 16', 100]] }
+};
+function strip(arr) {
+  const r = 5, gap = 14, w = arr.length * gap + 2, n = arr.filter(Boolean).length;
+  let o = '<svg class="strip" width="' + w + '" height="16" viewBox="0 0 ' + w + ' 16" role="img" aria-label="Last ' + arr.length + ' chances, oldest first: ' + n + ' flagged, ' + (arr.length - n) + ' not flagged">';
+  arr.forEach((v, i) => { const cx = 7 + i * gap;
+    o += v ? '<circle cx="' + cx + '" cy="8" r="' + r + '" style="fill:var(--flag)"><title>Chance ' + (i + 1) + ': flagged</title></circle>'
+           : '<circle cx="' + cx + '" cy="8" r="4.2" style="fill:none;stroke:var(--text-muted);stroke-width:1.6"><title>Chance ' + (i + 1) + ': not flagged</title></circle>'; });
+  return o + '</svg><div class="strip-cap" style="max-width:' + w + 'px"><span>older</span><span>newest →</span></div>';
+}
+// Jeffreys 80% interval for k of n, by numeric integration of Beta(k+.5, n-k+.5)
+function ci(k, n) {
+  const a = k + 0.5, b = n - k + 0.5, N = 2000, pdf = []; let tot = 0;
+  for (let i = 0; i < N; i++) { const x = (i + 0.5) / N, y = Math.pow(x, a - 1) * Math.pow(1 - x, b - 1); pdf.push(y); tot += y; }
+  let c = 0, lo = 0, hi = 1, gotLo = false;
+  for (let i = 0; i < N; i++) { c += pdf[i] / tot; if (!gotLo && c >= 0.1) { lo = i / N; gotLo = true; } if (c >= 0.9) { hi = (i + 1) / N; break; } }
+  return [lo, hi];
+}
+function chart(blocks) {
+  const W = Math.max(280, Math.min(520, window.innerWidth - 76)), H = 210, L = 44, R = 12, T = 14, B = 46, pw = W - L - R, ph = H - T - B;
+  const y = (v) => T + ph - v * ph, n = blocks.length;
+  let o = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Share of chances flagged, per stretch of chances, with likely range">';
+  [0, 0.5, 1].forEach((g) => { o += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(g) + '" y2="' + y(g) + '" style="stroke:var(--border-default)"/>' +
+    '<text x="' + (L - 8) + '" y="' + (y(g) + 4) + '" text-anchor="end" style="fill:var(--text-muted);font-size:11px">' + (g === 0 ? 'none' : g === 1 ? 'all' : 'half') + '</text>'; });
+  let pts = [];
+  blocks.forEach((b, i) => { const m = b[2] || 10, x = L + pw * (i + 0.5) / n, c = ci(b[0], m), p = b[0] / m; pts.push([x, y(p)]);
+    o += '<g><title>' + b[1] + ': ' + b[0] + ' of ' + m + ' chances flagged. Likely range ' + Math.round(c[0] * 100) + '–' + Math.round(c[1] * 100) + '%.</title>' +
+      '<rect x="' + (x - 26) + '" y="' + T + '" width="52" height="' + ph + '" fill="transparent"/>' +
+      '<line x1="' + x + '" x2="' + x + '" y1="' + y(c[1]) + '" y2="' + y(c[0]) + '" style="stroke:var(--flag);stroke-width:8;stroke-linecap:round;opacity:.28"/>' +
+      '<circle cx="' + x + '" cy="' + y(p) + '" r="6" style="fill:var(--flag);stroke:var(--bg-surface);stroke-width:2"/>' +
+      '<text x="' + x + '" y="' + (y(c[1]) - 8) + '" text-anchor="middle" style="fill:var(--text-primary);font-size:12px;font-weight:700">' + b[0] + ' of ' + m + '</text>' +
+      '<text x="' + x + '" y="' + (H - 26) + '" text-anchor="middle" style="fill:var(--text-muted);font-size:10.5px">' + b[1].split('–')[0] + '–</text>' +
+      '<text x="' + x + '" y="' + (H - 12) + '" text-anchor="middle" style="fill:var(--text-muted);font-size:10.5px">' + (b[1].split('–')[1] || '') + '</text></g>'; });
+  return o + '</svg>';
+}
+function pcard(k) {
+  const p = P[k];
+  return '<button class="card pcard" data-pat="' + k + '"><div class="pc-top"><span class="pc-name">' + p.name + '</span>' + (p.nat ? '<span class="pc-native" lang="zh-Hans">' + p.nat + '</span>' : '') +
+    '<span class="status ' + p.status + '">' + p.sLabel + '</span></div><div class="pc-ev">' + p.ev + '</div>' + strip(p.last) +
+    '<div class="pc-foot"><span>' + p.trend + '</span>' + (p.due ? '<span>· ' + p.due + (p.due > 1 ? ' sentences' : ' sentence') + ' to retry</span>' : '') + '<span class="go">Details →</span></div></button>';
+}
+function qcard(k) {
+  const p = P[k];
+  return '<button class="card pcard quiet" data-pat="' + k + '"><span class="pc-name">' + p.name + '</span>' + (p.nat ? '<span class="pc-native" lang="zh-Hans">' + p.nat + '</span>' : '') +
+    '<span class="status ' + p.status + '">' + p.sLabel + '</span><span class="ev">' + p.evq + '</span></button>';
+}
+$('#focusList').innerHTML = ['mw', 'ba', 'asp'].map(pcard).join('');
+$('#emergingList').innerHTML = ['de', 'wo'].map(qcard).join('');
+$('#resolvedList').innerHTML = qcard('reg');
+function openPattern(k) {
+  const p = P[k];
+  let h = '<div class="row"><h1>' + p.name + (p.nat ? ' <span lang="zh-Hans" style="font-weight:500;color:var(--text-secondary)">' + p.nat + '</span>' : '') + '</h1><span class="status ' + p.status + '" style="margin-left:0">' + p.sLabel + '</span></div>';
+  h += '<div class="card" style="margin-top:14px"><p class="rule" style="margin:0">' + p.rule + '</p></div>';
+  h += '<div class="card"><h2>How often it shows up</h2><div class="pc-ev">' + p.ev + '</div>' + strip(p.last);
+  if (p.blocks) h += '<div class="chart-wrap">' + chart(p.blocks) + '</div><p class="small muted" style="margin:2px 0 8px">Each dot is one stretch of ' + (p.blocks[0][2] || 10) + ' chances. The soft bar is the likely range — with this few chances it is wide.</p>' +
+    '<details class="how"><summary class="small">Show as a table</summary><table class="tv"><tr><th>Period</th><th>Flagged</th><th>Chances</th></tr>' + p.blocks.map((b) => '<tr><td>' + b[1] + '</td><td>' + b[0] + '</td><td>' + (b[2] || 10) + '</td></tr>').join('') + '</table></details>';
+  h += '<p style="margin:12px 0 0"><span class="verdict">' + p.verdict + '</span> <span class="sub">' + p.vsub + '</span></p></div>';
+  h += '<div class="card"><h2>Your sentences</h2>' + (p.habit ? '<p class="sub" style="margin-bottom:8px">' + p.habit + '</p>' : '');
+  h += p.ex.map((e) => '<div class="ex"><dl class="pair"><dt>You</dt><dd class="cjk" lang="zh-Hans">' + seg(e.t, 'mine') + '</dd><dt>Reference</dt><dd class="cjk" lang="zh-Hans">' + seg(e.t, 'gold') + '</dd></dl>' +
+    '<div class="ex-meta"><span>' + e.d + '</span>' + e.tries.map((t) => '<span class="pill ' + (t[1] ? 'pass' : 'due') + '">' + (t[1] ? '✓ retry passed ' : '↻ retry missed ') + t[0] + '</span>').join('') +
+    '<span class="' + (e.next === 'due today' ? 'pill due' : '') + '">' + e.next + '</span><button class="link" style="margin-left:auto;font-size:.8rem">Not this pattern?</button></div></div>').join('');
+  h += '<button class="link">Show ' + p.more + ' more</button></div>';
+  if (p.steps) h += '<div class="card"><h2>' + (p.status === 'resolved' ? 'How it got here' : 'What gets this under control') + '</h2><ul class="steps">' +
+    p.steps.map((s) => '<li class="' + (s[0] ? 'done' : '') + '"><span class="box" aria-hidden="true">' + (s[0] ? '✓' : '') + '</span><div>' + s[1] + '<div class="small muted">' + s[2] + '</div><div class="meter" role="img" aria-label="' + s[2] + '"><i style="width:' + s[3] + '%"></i></div></div></li>').join('') + '</ul>' +
+    (p.why16 ? '<p class="honesty">' + p.why16 + '</p>' : '') + '</div>';
+  h += '<div class="row">' + (p.due ? '<button class="btn" data-go="retry">Retry my sentences (' + p.due + ' due)</button>' : '') +
+    (p.extra ? '<button class="btn ghost">' + p.extra + ' →</button>' : '') + (p.status !== 'resolved' ? '<button class="btn ghost">Pause this pattern</button>' : '') + '</div>';
+  $('#detail').innerHTML = h; go('pattern');
+}
+
+/* ---------- 4. retry ---------- */
+const OK = '这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。', BAD = OK.replace('一只', '一个');
+let hinted = false;
+$('#fillOk').onclick = () => { $('#ans').value = OK; };
+$('#fillBad').onclick = () => { $('#ans').value = BAD; };
+$('#hintBtn').onclick = () => { hinted = true; $('#hint').hidden = false; };
+$('#check').onclick = () => {
+  const v = $('#ans').value.trim(); if (!v) { $('#ans').focus(); return; }
+  const pass = v.indexOf('一只') > -1 || v.indexOf('这只') > -1, r = $('#rResult');
+  r.className = 'card result ' + (pass ? 'pass' : 'fail'); r.hidden = false;
+  const mine = pass ? esc(v).replace(/(一只|这只)/, '<mark class="gold">$1</mark>') : esc(v).replace('一个', '<mark class="mine">一个</mark>');
+  r.innerHTML = (pass
+    ? '<h2><span aria-hidden="true">✓</span> <span lang="zh-Hans">一只</span> — that\'s the part you missed on 28 Oct</h2><p class="sub">This was a measure-word retry. ' + (hinted ? 'You used a hint, so it comes back in about 2 days.' : 'It comes back in about 4 days, then at longer gaps.') + '</p>'
+    : '<h2><span aria-hidden="true">↻</span> Not yet — the measure word</h2><p class="sub"><span lang="zh-Hans">猫</span> takes <span lang="zh-Hans">只</span>: <span lang="zh-Hans">一只小猫</span>. This sentence comes back tomorrow. Missing a retry is part of how this works.</p>') +
+    '<dl class="pair" style="margin-top:12px"><dt>You</dt><dd class="cjk" lang="zh-Hans">' + mine + '</dd><dt>Reference</dt><dd class="cjk" lang="zh-Hans">' + esc(OK).replace('一只', '<mark class="gold">一只</mark>') + '</dd></dl>' +
+    '<p class="honesty">Only the marked part was checked. The rest of the sentence is shown for you to compare.</p>' +
+    '<div class="row" style="margin-top:12px"><button class="btn">Next sentence (2 of 4)</button><button class="btn ghost" data-pat="mw">See this pattern</button></div>';
+  r.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+};
+
+/* ---------- navigation ---------- */
+function go(v) {
+  document.querySelectorAll('.view').forEach((el) => el.classList.toggle('on', el.id === 'v-' + v));
+  document.querySelectorAll('.tab').forEach((t) => { const on = t.dataset.go === v || (v === 'pattern' && t.dataset.go === 'profile'); on ? t.setAttribute('aria-current', 'page') : t.removeAttribute('aria-current'); });
+  if (location.hash.slice(1).split(':')[0] !== v) history.replaceState(null, '', '#' + v);
+  window.scrollTo(0, 0);
+}
+document.addEventListener('click', (ev) => {
+  const g = ev.target.closest('[data-go]'); if (g) return go(g.dataset.go);
+  const p = ev.target.closest('[data-pat]'); if (p && !p.closest('#sents')) openPattern(p.dataset.pat);
+});
+renderEx();
+const h = location.hash.slice(1).split(':');
+if (h[1] && EX.some((e) => e.key === h[1])) { cur = EX.findIndex((e) => e.key === h[1]); renderEx(); }
+if (h[0] === 'pattern') openPattern(h[1] && P[h[1]] ? h[1] : 'mw'); else go(['item', 'profile', 'retry'].includes(h[0]) ? h[0] : 'item');
+})();
+</script>
+</body>
+</html>
