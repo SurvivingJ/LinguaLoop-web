@@ -12,8 +12,27 @@ PRIOR = L.T.SUBTYPE_DEFAULT_SEVERITY
 SEV_ORDER = L.SEV_ORDER
 
 
+FAMILY_OF = {}
+for _f, _subs in {
+    "f_order": ["word_order", "adverbial_order", "topic_comment"],
+    "f_function": ["classifier", "aspect_marker", "de_particles", "ba_construction", "bei_passive",
+                   "resultative_complement", "directional_complement", "particle_wa_ga", "particle_case",
+                   "particle_other", "verb_conjugation", "tense_aspect_ja", "counter_classifier", "article",
+                   "preposition", "tense_aspect", "subject_verb_agreement", "plural_number", "pronoun_reference"],
+    "f_register": ["register", "keigo_register"],
+    "f_lexical": ["word_choice", "collocation", "phrasal_verb"],
+    "f_ortho": ["orthography", "script_choice"],
+    "f_omit": ["omission"], "f_add": ["addition"], "f_connective": ["cohesion_connective"],
+}.items():
+    for _s in _subs:
+        FAMILY_OF[_s] = _f
+
+
 def top_subtype(row: dict, lang: str, src: str) -> str:
     cands = L.T.SUBTYPES[lang]
+    if src == "ensF":  # D+Sept subtype probabilities re-weighted by the arm-D family probes
+        p = {s: (row["_subprobs"].get(s, 0) + row["s__subprobs"].get(s, 0)) * (0.5 + row[FAMILY_OF[s]]) for s in cands}
+        return max(cands, key=lambda s: p[s])
     if src == "D":
         p = row["_subprobs"]
     elif src == "S":
@@ -84,6 +103,13 @@ def decide(row: dict, cfg: dict) -> dict | None:
             base = PRIOR.get(sub, "minor")
             im = row.get("impair", 0.5)
             sev = "major" if (base == "major" and im >= 0.25) or im >= 0.85 else "minor"
+        elif m == "graded":  # prior, but meaning-bearing (fidelity) subtypes are graded by meaning change
+            base = PRIOR.get(sub, "minor")
+            if L.T.SUBTYPE_DIMENSION.get(sub) == "fidelity" and sub not in ("register", "keigo_register"):
+                mscore = (row["flip"] + row["s_mc"]) / 2
+                sev = "major" if mscore >= cfg.get("tau_m", 0.6) else "minor"
+            else:
+                sev = base
         elif m == "minor":
             sev = "minor"
         else:
