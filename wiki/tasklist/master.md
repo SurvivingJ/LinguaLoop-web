@@ -20,11 +20,13 @@ below.
 | Status | Count |
 |--------|-------|
 | Not Started | 30 |
-| In Progress (`[~]`) | 11 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 26 |
+| In Progress (`[~]`) | 12 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 25 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 233 |
+
+*2026-11-14 (DT single-call grader revised and turned on by default):* owner review of the first build led to prompt v2 (five dimensions scored, model confidence and source, the model's L1 explanation shown, quote-based span location, exhaustive type list) and to `DT_SINGLE_CALL_GRADER` / `DT_GRADING_ASSET_COLUMNS` defaulting to on. Taxonomy v6 is live, so the grader goes live on deploy. TASK-937 Blocked → In Progress (repo done, deploy and live checks remain); TASK-936 stays Blocked on a new owner decision (the shadow run was skipped); TASK-935 unchanged (migration final, not applied; now seven columns). Counts: In Progress 11→12, Blocked 26→25.
 
 *2026-11-14 (DT single-call grader built, flag off):* [[decisions/ADR-044-dt-single-call-generative-grader]] accepted and built behind `DT_SINGLE_CALL_GRADER` (default off); `migrations/dt_grading_assets.sql` written, not applied. Seven rollout tasks added (TASK-935–941, [[tasklist/dt-single-call-grader.tasks]]): 2 not started, 5 blocked on open decisions. Counts: Not Started 28→30, Blocked 21→26.
 
@@ -1203,13 +1205,13 @@ Full spec: [[tasklist/dt-single-call-grader.tasks]]. Implements [[decisions/ADR-
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-935 | dt-single-call-grader | Apply `dt_grading_assets.sql`, turn on `DT_GRADING_ASSET_COLUMNS` (LIVE-DB, developer applies) | [ ] | XS | — |
-| TASK-936 | dt-single-call-grader | Shadow run of the single-call grader on real submissions | [?] needs v6 live or a pinned-v6 decision | M | TASK-935, TASK-853 |
-| TASK-937 | dt-single-call-grader | Enable `DT_SINGLE_CALL_GRADER` in production | [?] needs shadow result + owner decisions | S | TASK-936, TASK-853, TASK-941 |
+| TASK-935 | dt-single-call-grader | Apply `dt_grading_assets.sql` (final; seven columns + `dt_grading_call`) before or with the default-on deploy (LIVE-DB, developer applies) | [ ] | XS | — |
+| TASK-936 | dt-single-call-grader | Shadow run of the single-call grader on real submissions | [?] skipped when the grader was turned on; owner to choose reverse shadow, manual read of first live grades, or drop | M | TASK-935 |
+| TASK-937 | dt-single-call-grader | Enable `DT_SINGLE_CALL_GRADER` in production | [~] defaults on in repo (2026-11-14); deploy + live checks remain | S | TASK-935 |
 | TASK-938 | dt-single-call-grader | Native-speaker review of explanations and hint templates | [?] no reviewer named | M | TASK-936 |
 | TASK-939 | dt-single-call-grader | Guided self-repair UI (design option 2) | [?] spec not final | XL | TASK-935, TASK-937 |
 | TASK-940 | dt-single-call-grader | Re-use a learner's own erroneous sentences in daily practice | [?] spec + remediation decision | L | TASK-935, TASK-939 |
-| TASK-941 | dt-single-call-grader | Keep whole-sentence corrections out of cloze cards and synthesis | [ ] | S | TASK-935 |
+| TASK-941 | dt-single-call-grader | Keep whole-sentence spans/corrections out of cloze cards; check synthesis use of model confidence/source | [ ] | S | TASK-935 |
 
 ### Language Packs (existing — unchanged)
 

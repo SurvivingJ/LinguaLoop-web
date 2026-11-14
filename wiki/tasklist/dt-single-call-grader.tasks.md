@@ -5,6 +5,7 @@ prose_page: ../features/dual-translation.md
 tech_page: ../features/dual-translation.tech.md
 total_tasks: 7
 done: 0
+in_progress: 1
 ---
 
 # DT Single-Call Grader (ADR-044) — Task Breakdown
@@ -17,57 +18,65 @@ grader (ADR-044)". Evidence: [[evaluations/dt-decision-grading-2026-11-14]].
 Drafted 2026-11-14 and **not yet reviewed by the owner** (CLAUDE.md §5d). Tasks that depend on an
 open decision are `[?]`.
 
-State today: `DT_SINGLE_CALL_GRADER` off, `DT_GRADING_ASSET_COLUMNS` off,
-`migrations/dt_grading_assets.sql` not applied, taxonomy v6 not live
-([[tasklist/dt-taxonomy-v6.tasks]] TASK-853 blocked).
+State on 2026-11-14 after the owner-review revision (prompt v2): `DT_SINGLE_CALL_GRADER` and
+`DT_GRADING_ASSET_COLUMNS` **default to on** in `config.py` (owner approval; env vars override).
+`migrations/dt_grading_assets.sql` is final and **not applied**. The active taxonomy and rubric are
+version 6 (read live 2026-11-14), so the grader goes live when this code is deployed. No real
+submission has been graded by it yet. Not deployed, not committed by the agent that made the change.
 
 ---
 
 ## TASK-935: Apply `dt_grading_assets.sql` and turn on `DT_GRADING_ASSET_COLUMNS`
 
-**Status:** [ ] Not Started (LIVE-DB, developer applies)
+**Status:** [ ] Not Started (LIVE-DB, developer applies) — the file is final; apply before or with the deploy of the default-on config
 **Feature:** dt-single-call-grader
 **Type:** infra
 **Complexity:** XS (<1h)
 **Depends On:** none
 
 **Description:**
-Apply the additive migration that adds five nullable columns to `dt_error_instance` and creates
-`dt_grading_call`, then export `DT_GRADING_ASSET_COLUMNS=true`. The order matters: with the flag on
-and the migration missing, PostgREST rejects the error insert and every graded submission fails.
-The migration is safe to apply on its own, before any flag changes.
+Apply the additive migration that adds seven nullable columns to `dt_error_instance`
+(`sentence_index`, `model_severity`, `model_note`, `span_source`, `correction_source`,
+`confidence_label`, `explanation_source`) and creates `dt_grading_call`. `DT_GRADING_ASSET_COLUMNS`
+now defaults to on, so no env var is needed. The order is no longer fatal: with the migration
+missing, the app retries the insert without the new columns, logs one error per process and still
+saves the grade — but the per-error grader fields and the call rows are lost for those submissions,
+and a reloaded grade shows the template explanation only.
 
 **Acceptance Criteria:**
-- [ ] `migrations/dt_grading_assets.sql` applied live; the five `VALIDATE CONSTRAINT` statements succeeded
+- [ ] `migrations/dt_grading_assets.sql` applied live; the seven `VALIDATE CONSTRAINT` statements succeeded
 - [ ] `dt_grading_call` has RLS enabled, no policies, and no grants to `anon` / `authenticated`
 - [ ] `tests/sql/check_function_acls.sql` result sets still empty
-- [ ] `DT_GRADING_ASSET_COLUMNS=true` set in the app environment only after the above
-- [ ] One DT submission graded after the change returns 200 and its `dt_error_instance` rows insert
+- [ ] No "DT grading-asset columns unavailable" error in the app log after the deploy
+- [ ] One DT submission graded after the change returns 200, its `dt_error_instance` rows carry `span_source`, and one `dt_grading_call` row exists for it
 
 **Technical Notes:**
-Idempotent (ADD COLUMN IF NOT EXISTS, CREATE TABLE IF NOT EXISTS, drop-then-add CHECKs). The
+Idempotent and without any destructive statement (ADD COLUMN IF NOT EXISTS, CREATE TABLE / INDEX IF
+NOT EXISTS, each CHECK added only if absent). The file was revised on 2026-11-14 before it was ever
+applied; nothing needs migrating from an earlier version. Because no CHECK is dropped and re-added,
+a later change to an allowed value set (for example a new `span_source`) needs a new migration. The
 `dt_v5_snapshot_*` tables do not gain the new columns; the TASK-852 rewrite names its columns
-explicitly. With the v2 grader still live the new columns stay NULL and no `dt_grading_call` rows
-are written; that is expected.
+explicitly. If the app was already running without the migration, it probes the columns again
+within 10 minutes of the apply; no restart is needed.
 
 **Files to Create / Modify:**
-- none (apply `migrations/dt_grading_assets.sql`; set the env var)
+- none (apply `migrations/dt_grading_assets.sql`)
 
 **Verification:**
-`SELECT column_name FROM information_schema.columns WHERE table_name = 'dt_error_instance' AND column_name IN ('sentence_index','model_severity','model_note','span_source','correction_source');` returns five rows. `SELECT relrowsecurity FROM pg_class WHERE relname = 'dt_grading_call';` returns `t`.
+`SELECT column_name FROM information_schema.columns WHERE table_name = 'dt_error_instance' AND column_name IN ('sentence_index','model_severity','model_note','span_source','correction_source','confidence_label','explanation_source');` returns seven rows. `SELECT relrowsecurity FROM pg_class WHERE relname = 'dt_grading_call';` returns `t`.
 
 ---
 
 ## TASK-936: Shadow run of the single-call grader on real submissions
 
-**Status:** [?] Blocked — needs taxonomy v6 live (TASK-853) or an owner decision to shadow under a pinned v6 taxonomy while v5 stays live; and TASK-935
+**Status:** [?] Blocked — owner decision needed. The grader was turned on by default on 2026-11-14 without this run, and taxonomy v6 is live, so the task as written (single-call shadows the live grader) no longer fits. Decide: (a) run the previous Detector/Verifier grader as the shadow on a sample of live submissions (about $0.03–0.05 each), (b) replace this with a manual read of the first N live single-call grades, or (c) drop it
 **Feature:** dt-single-call-grader
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** TASK-935, TASK-853
+**Depends On:** TASK-935
 
 **Description:**
-Run the single-call grader next to the live grader on every real submission without showing its
+*(Written before the grader was turned on; see Status.)* Run the single-call grader next to the live grader on every real submission without showing its
 result, and store it for comparison. This is the step the experiment report asks for before
 enabling the grader: every number so far comes from seeded errors or model-written paraphrases.
 The storage question that blocked a shadow run since September is answered by `dt_grading_call`
@@ -101,30 +110,39 @@ With the switch on in staging, submit one reproduction: the response is unchange
 
 ## TASK-937: Enable `DT_SINGLE_CALL_GRADER` in production
 
-**Status:** [?] Blocked — needs the shadow-run result (TASK-936), taxonomy v6 live (TASK-853), and owner decisions on: naturalness/range staying unscored, the free-translation paragraph, and whether learners may see single-call grades before native review (TASK-938)
+**Status:** [~] In Progress — repo side done 2026-11-14 (config defaults flipped on owner approval, prompt v2 re-validated on gold and the stress set); deploy and the live checks below remain
 **Feature:** dt-single-call-grader
 **Type:** infra
 **Complexity:** S (1-3h)
-**Depends On:** TASK-936, TASK-853, TASK-941
+**Depends On:** TASK-935
 
 **Description:**
-Flip the flag so the single-call flow grades live submissions, with the v2 flow as its fallback.
-Before the v6 cutover the flag has no effect (every call falls back with "taxonomy mismatch").
+Make the single-call flow grade live submissions, with the v2 flow as its fallback. The owner
+approved this on 2026-11-14 without the shadow run (TASK-936). `config.py` now defaults
+`DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` to true. The active taxonomy is v6, so the
+grader is live as soon as this code is deployed. What remains is the deploy and checking the first
+live grades.
 
 **Acceptance Criteria:**
-- [ ] Owner sign-off on the shadow report recorded in ADR-044
-- [ ] `DT_SINGLE_CALL_GRADER=true` exported; first live grades show `grader_trace.tier = "single_call"`
-- [ ] The DT result page renders a three-dimension grade correctly at every age tier (naturalness and range absent)
-- [ ] Fallback rate (`grader_trace.single_call.used = false`) and cost checked after one day from `dt_grade` / `dt_grading_call`
-- [ ] Rollback documented: unset the flag; no data change needed
+- [x] Owner approval recorded in ADR-044 (2026-11-14)
+- [x] `config.py` defaults on; env vars still override (test)
+- [x] Prompt v2 measured on v6 gold (two runs) and the Track E stress set ([[evaluations/dt-decision-grading-2026-11-14]] §9.1)
+- [ ] Deployed; first live grades show `grader_trace.tier = "single_call"`
+- [ ] The DT result page renders a five-dimension grade, and a grade with naturalness or range absent, at every age tier
+- [ ] The Application-layer explanation renders under the template text for a fresh and a reloaded grade
+- [ ] A zero-width `span_reproduction` (dropped word, `span_source = diff_hunk`) renders acceptably
+- [ ] Fallback rate (`grader_trace.single_call.used = false`), share of `span_source = sentence`, share of withheld low-confidence entries and cost checked after one day from `dt_grade` / `dt_grading_call`
+- [ ] Rollback documented: export `DT_SINGLE_CALL_GRADER=false`; no data change needed
 
 **Technical Notes:**
-`source` and `confidence` on single-call errors are fixed defaults; check nothing downstream
-(nightly synthesis, cards, UI chips) treats them as judgements. The UI shows a `source` chip when
-the field is present.
+`source` and `confidence` on single-call errors are now model judgments (`confidence` is one of
+0.9 / 0.6 / 0.3). The UI shows a `source` chip when the field is present; `source` is unvalidated.
+Nothing in the UI uses `confidence` yet. Cloze cards can still be built from whole-sentence
+corrections until TASK-941 is done; none occurred in 223 measured errors.
 
 **Files to Create / Modify:**
-- none expected (env var); `static/js/dual_translation.js` only if the source chip must be hidden
+- `config.py` — done
+- `static/js/dual_translation.js` — only if the zero-width span or the source chip needs handling
 
 **Verification:**
 `SELECT grader_trace->>'tier', count(*) FROM dt_grade WHERE created_at > now() - interval '1 day' GROUP BY 1;` shows `single_call` rows.
@@ -133,7 +151,7 @@ the field is present.
 
 ## TASK-938: Native-speaker review of single-call explanations and hint templates
 
-**Status:** [?] Blocked — no reviewer named (open question in [[evaluations/dt-decision-grading-2026-11-14]])
+**Status:** [?] Blocked — no reviewer named (open question in [[evaluations/dt-decision-grading-2026-11-14]]). More pressing since 2026-11-14: the grading model's own L1 explanation is now shown to learners
 **Feature:** dt-single-call-grader
 **Type:** docs
 **Complexity:** M (3-8h)
@@ -237,9 +255,13 @@ To be defined after the decision.
 
 **Description:**
 A single-call error whose correction is the whole reference sentence
-(`correction_source = 'reference_sentence'`) would produce a cloze card that blanks an entire
-sentence. Make card generation skip those rows, and check that the nightly synthesis does not
-treat the default `source` / `confidence` values of single-call errors as signal.
+(`correction_source = 'reference_sentence'`), or whose span is the whole learner sentence
+(`span_source = 'sentence'`), would produce a cloze card that blanks an entire sentence. Make card
+generation skip those rows. Also decide what a card does with a zero-width learner span
+(`span_source = 'diff_hunk'`, dropped word), and check how the nightly synthesis reads `source`
+and `confidence`, which for single-call errors are model judgments on a three-step scale
+(0.9 / 0.6 / 0.3). The grader is on by default since 2026-11-14, so this guard should land before
+or soon after the deploy.
 
 **Acceptance Criteria:**
 - [ ] `services/dual_translation/cards.py` does not build a cloze card from a `reference_sentence` row (test)
@@ -247,8 +269,9 @@ treat the default `source` / `confidence` values of single-call errors as signal
 - [ ] No behaviour change for rows where the column is NULL (v1/v2 grades)
 
 **Technical Notes:**
-On the gold set 1 of 70 errors had a whole-sentence correction; on real, freer translations the
-share will be higher (measure it in TASK-936).
+With prompt v1, 1 of 71 gold errors had a whole-sentence correction. With prompt v2, 0 of 223
+measured errors (gold and stress set) had a whole-sentence span or correction. Real submissions
+have not been measured.
 
 **Files to Create / Modify:**
 - `services/dual_translation/cards.py` — skip rule

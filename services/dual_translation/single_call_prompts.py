@@ -6,8 +6,8 @@ v1 (``dt-single-call/p1_expl/2026-11-14``) was a byte-for-byte port of the Track
 ``p1_expl`` prompt. v2 (this file) is a NEW prompt, written after owner review of
 v1, and the Track B numbers do not transfer to it: it was re-measured on the v6
 gold set and the Track E stress set through the production path
-(``data/eval/dt_decision_2026-11-14/prod_check/v2/REPORT.md``;
-wiki/evaluations/dt-decision-grading-2026-11-14.md section 9). What v2 adds, all in the
+(wiki/evaluations/dt-decision-grading-2026-11-14.md section 9.1; raw runs in
+``data/eval/dt_decision_2026-11-14/prod_check/v2/``). What v2 adds, all in the
 same single call:
 
   * per error: an exact ``learner_quote`` AND the ``reference_quote`` it should

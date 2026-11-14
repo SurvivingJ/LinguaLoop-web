@@ -55,7 +55,7 @@ and ``overall_band`` renormalises over the rest; it is never defaulted to 4.
 Be clear about what the evidence is: the v6 gold set has naturalness = 3 on 7 of
 91 items and = 4 on the rest, and range = 4 on every item. Agreement on these two
 dimensions is therefore measured on almost no variation (see
-``data/eval/dt_decision_2026-11-14/prod_check/v2/REPORT.md``); it shows the model
+wiki/evaluations/dt-decision-grading-2026-11-14.md section 9.1); it shows the model
 does not invent low bands, not that it can tell a 2 from a 3.
 
 Confidence and source - model judgments
@@ -65,7 +65,7 @@ Confidence and source - model judgments
 ``confidence_label``. ``source`` is the model's interlingual / intralingual call,
 made knowing the learner's L1 (the taxonomy carries no per-type default source,
 so there is nothing to derive it from). Neither has gold labels: the confidence
-signal was checked against gold true/false positives (same REPORT), ``source`` is
+signal was checked against gold true/false positives (same section), ``source`` is
 unvalidated. A missing/invalid value (possible only from a model that ignores the
 strict schema) falls back to ``DEFAULT_CONFIDENCE`` / ``DEFAULT_SOURCE`` and is
 counted in ``defaulted``.

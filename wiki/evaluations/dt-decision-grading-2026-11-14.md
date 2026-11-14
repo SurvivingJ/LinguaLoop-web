@@ -228,6 +228,96 @@ The recommended grader was built as production code ([[decisions/ADR-044-dt-sing
 - The owner chose feedback design option 2 (guided self-repair) on 2026-11-14; §8 above predates that choice.
 - Two open questions are closed and removed from the frontmatter: shadow-run results go in `dt_grading_call` (`role = 'shadow'`; table defined in `migrations/dt_grading_assets.sql`, not yet applied, writer not yet built — TASK-935, TASK-936), and single-call grading calls are logged to `llm_calls`.
 
+### 9.1 Prompt v2 re-validation (added 2026-11-14, after owner review of the first build)
+
+The owner asked for five changes to the grader (all five dimensions scored, per-error confidence and source from the model, the model's explanation shown to the learner in the L1, robust span location, an exhaustive type list) and approved turning it on. That needed a new prompt (`PROMPT_VERSION = dt-single-call/v2-quotes-5dim/2026-11-14`), so the numbers above do not carry over and the production path was run again. Spend: $0.104738 over 1,055 calls from `usage.cost` (cap $0.25), of which $0.028 is the shipped prompt's gold and stress runs; two more calls (about $0.0002) came from a unit test that reached the live model before the suite pinned the flag off. No DB writes, no migration applied. Raw runs, scorer and summaries: `data/eval/dt_decision_2026-11-14/prod_check/v2/` (`score.py`, `summary_*.json`, `spend.json`).
+
+**What the prompt now asks for, in the same single call:** per error a verbatim `learner_quote` and `reference_quote`, `confidence` (high / medium / low), `source` (interlingual / intralingual) and an explanation in the learner's L1; after the error list, a band 1–4 with a verbatim evidence quote for naturalness and for range, read against the rubric band descriptors for the passage's age tier. Temperature 0 (unchanged), `max_tokens` 600 → 1,400.
+
+**Five prompt variants were run.** Files are prefixed by variant; `e_` is the shipped prompt and every number below is from it unless stated.
+
+| Prefix | Variant | What was wrong with it |
+|---|---|---|
+| `a_` | first draft | 3 of 10 clean Chinese items flagged, all with confidence `low`; naturalness lowered on 32 of 77 gold-4 items; 43 of 81 explanations written in the passage language, not the L1 |
+| `b_` | `low` entries withheld in code; L1 stated at the top and bottom of the user message; naturalness instruction tightened | naturalness still lowered on 27 of 77 gold-4 items, always with a grammar error as the evidence |
+| `c_` | code guard: a naturalness band below 4 whose evidence is a listed accuracy/fidelity error is discarded | on `moderate`, 10 false positives (v1 had 2); 9 were in two items where rephrasings were flagged as "not in the reference" |
+| `d_` | one sentence added to the "not errors" paragraph: wording that merely differs from the reference is not an error | false positives back to 2, but 9–12 of 75 explanations in the wrong language |
+| `e_` | the L1 is also named in the schema description of `explanation` | shipped |
+
+**Gold set** (30 items per language, two runs). QWK accuracy / fidelity / understandability · precision / recall on error spans.
+
+| Lang | Prompt v1, live (table above) | Prompt v2, run 1 | Prompt v2, run 2 |
+|---|---|---|---|
+| en | 1.00 / .84 / .79 · 1.00 / .96 | 1.00 / .89 / .79 · 1.00 / .96 | 1.00 / .86 / .79 · 1.00 / .93 |
+| zh | .59 / .84 / .71 · 1.00 / .81 (second run .66 / .82 / .74) | .59 / .82 / .75 · .96 / .96 | .68 / .84 / .75 · .96 / .88 |
+| ja | .92 / .91 / .76 · .96 / .81 | .92 / .91 / .76 · .96 / .81 | .92 / .89 / .76 · 1.00 / .85 |
+| pooled P / R (TP / FP / FN) | | .97 / .91 (73 / 2 / 7) | .99 / .89 (71 / 1 / 9) |
+
+- No clean item was flagged in either run (0 of 30).
+- Every v2 cell is inside v1's run-to-run range. Chinese accuracy is still the unstable cell (.59 and .68). Over all five variants and nine gold runs it ranged .52–.68, Japanese accuracy .77–.92 and English accuracy .94–1.00, so one run does not settle a cell.
+
+**Track E stress set** (one run per level).
+
+| Level | Measure | Prompt v1 (§5) | Prompt v2 |
+|---|---|---|---|
+| heavy (53 items) | clean items flagged | 0 of 19 | 0 of 19 |
+| heavy | correct rephrased sentences flagged | 1 of 152 | 2 of 152 (1 of them major) |
+| heavy | precision / recall (TP / FP / FN) | .91 / .72 (29 / 3 / 11) | .94 / .85 (34 / 2 / 6) |
+| heavy | planted errors in a rephrased sentence found | 24 of 31 | 27 of 31 |
+| moderate (60 items) | clean items flagged | 0 of 21 | 0 of 21 |
+| moderate | correct rephrased sentences flagged | not reported | 0 of 93 |
+| moderate | precision / recall (TP / FP / FN) | .95 / .78 (38 / 2 / 11) | .97 / .80 (39 / 1 / 10) |
+
+Variant `d_`, which has the same detection wording, gave heavy .97 / .80 with 0 of 152 sentences flagged, so 0, 1 or 2 flagged sentences is run-to-run noise. The stress labels are synthetic and model-verified (§5).
+
+**Naturalness and range** are now scored and enter `overall_band`. Pooled over the two gold runs and the two stress levels (285 graded items; Tier 0 exact matches excluded):
+
+| Dimension | Scored | Left out | Exact agreement where scored | Detail |
+|---|---|---|---|---|
+| range | 279 | 6 (no evidence found) | 278 of 279 | gold is band 4 on every item; the model said 3 once |
+| naturalness | 238 | 47 (44 by the double-count guard, 3 no evidence) | 221 of 238 | gold 4 → 4: 220; gold 4 → 3: 5; gold 3 → 4: 12; gold 3 → 3: 1 |
+
+- **This does not validate either dimension.** Gold has range = 4 everywhere and naturalness = 3 on 7 of 91 items. The result shows the grader does not invent low bands. It does not show it can tell band 2 from band 3.
+- **The grader found 1 of the 13 gold naturalness-3 cases it scored.** Before the double-count guard it found more, but only because it lowered naturalness for almost any error. With the guard it is close to a constant 4.
+- Overall band against the gold overall (v6 weights over five dimensions): exact on 80 and 79 of 86 gold items (QWK .81, .77), 50 of 53 heavy, 58 of 60 moderate.
+
+**Confidence.** Stored as 0.9 / 0.6 / 0.3 for high / medium / low. Pooled over the four `e_` runs (223 kept errors):
+
+| Label | True positives | False positives | Precision |
+|---|---|---|---|
+| high | 200 | 3 | .99 |
+| medium | 17 | 3 | .85 |
+
+- `low` entries are withheld from the grade by default. In the `e_` runs there were 2, both synonym flags on correct rephrased sentences (simple / basic, 制作する / 作る). In variant `a_`, where they were still kept, all 3 were false alarms on clean items.
+- AUC of high-versus-medium for separating true from false positives: .68 and .47 on the gold runs, .74 heavy, .97 moderate. With 6 false positives in total these are not stable.
+- Reading: `low` is a usable "do not show" signal. `medium` is weaker evidence than `high` on very few cases; an "unsure" state driven by `medium` would have marked 20 of 223 errors, 17 of them real.
+- `source` has no gold labels and is unvalidated. The model called 54 of 223 errors interlingual.
+
+**Explanations shown.** The model's L1 explanation passed the guards and was shown for 214 of 223 errors (96%); 7 were rejected for not quoting a form and 2 for being in the wrong language, and those errors show the template alone. Nobody has read the explanations for correctness (TASK-938).
+
+**Span and correction resolution.**
+
+| | Prompt v1 | Prompt v2 |
+|---|---|---|
+| gold: learner span | 70 verbatim, 1 whole sentence (of 71) | 147 exact (two runs) |
+| gold: correction | 70 by sentence alignment, 1 whole reference sentence | 146 model quote, 1 alignment |
+| stress heavy + moderate: learner span | 72 verbatim (replay of Track E's recorded v1 responses through the v1 code) | 76 exact |
+| stress: correction | all by sentence alignment | 76 model quote |
+| stress: correction overlaps the gold correction (matched errors) | 58 of 67 | 68 of 73 |
+
+- **Whole-sentence fallback: 0 of 223 errors.** Nothing was dropped as unlocatable and no quote was found in a different sentence than the one named.
+- **The lower rungs were never needed live.** Every quote matched exactly, so the normalised, fuzzy and diff-hunk paths are covered by unit tests only. gpt-6-luna quotes verbatim; the fallback model was not exercised.
+- v1 already located almost every span on this data. The measurable gain is the correction, which now comes from the model's own reference quote.
+- `replay_v1_stress.py` in the same directory reproduces the v1 column from the code at commit `b0f4936`.
+
+**Fallback model smoke test.** `deepseek/deepseek-v4.1-flash` was run as the only model on 18 Chinese gold items with the v2 prompt and schema (`fallbackmodel_smoke_zh.jsonl`, $0.0009): 16 of 16 calls returned valid JSON (2 items resolved at Tier 0), all 8 spans matched exactly, 7 of 8 explanations were shown. This checks that the schema works on the fallback model. It is not a measurement of its accuracy with this prompt.
+
+**Unknown types:** none in any run (`unknown_type` 0, `type_aliased` 0); strict structured output enforces the enum.
+
+**Cost and latency:** about $0.00010 per item (v1 $0.00005); p50 1.6–1.7 s on gold, 1.6 s on the stress set (v1 1.0–1.2 s).
+
+**Live state read on 2026-11-14 (read-only):** the active taxonomy and rubric are both version 6, and the taxonomy's subtype lists for en, zh and ja equal the grader's hardcoded lists. The "taxonomy v6 is not live" statements earlier on this page and in ADR-044's first version were out of date. With `DT_SINGLE_CALL_GRADER` now defaulting to on, deploying this code makes the single-call grader the live DT grader.
+
 ## Related Pages
 - [[decisions/ADR-044-dt-single-call-generative-grader]] — the grader built from this experiment
 - [[evaluations/jev-dt-tuning-2026-09-27]] — the September jev experiment this one follows

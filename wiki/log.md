@@ -6496,3 +6496,41 @@ the build that the owner may reverse: naturalness and range left unscored; `sour
 filled with fixed defaults; `corrected_form` derived by sentence alignment; the daily token budget
 does not degrade this flow; model note stored but not shown. Tasks added: TASK-935–941 (2 not
 started, 5 blocked). Owner chose feedback design option 2; task breakdown draft not yet reviewed.
+
+## [2026-11-14] ingest | DT single-call grader revised after owner review (prompt v2) and turned on by default
+Source: owner feedback on the first build ("the three dimensions is not enough", "fixed error doesnt
+make sense", "show model explanation", "fix unlocatable spans", "error-type list can be hardcoded,
+just needs to be exhaustive") plus approval to turn the grader on. Pages updated: 6
+([[decisions/ADR-044-dt-single-call-generative-grader]], [[features/dual-translation.tech]],
+[[evaluations/dt-decision-grading-2026-11-14]] §9.1, [[tasklist/dt-single-call-grader.tasks]],
+[[tasklist/master]], [[index]]). Pages created: 0. `wiki/design/` not touched.
+Code: `single_call_prompts.py` (new prompt, `PROMPT_VERSION = dt-single-call/v2-quotes-5dim/2026-11-14`,
+hardcoded `TYPE_DEFINITIONS`), `single_call_grader.py` (five-dimension scoring, confidence/source
+decode, shown explanation with guards, span-location ladder, unknown-type handling),
+`grader_cascade.py` (passes `age_tier`), `routes/dual_translation.py` (two more columns,
+missing-migration fallback, `explanation_parts` rebuilt for reloaded grades), `config.py`
+(`DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` default on; new
+`DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE`, default off), `migrations/dt_grading_assets.sql` (revised in
+place before first apply: seven columns, new value sets, no DROP statements; final, not applied),
+`scripts/run_dt_grading_eval.py` (`--items-file`, `--level`), `tests/conftest.py` (pins both flags
+off for the suite), `tests/test_dual_translation_single_call_grader.py` (52 → 121 tests).
+Tests: DT set 1158 passed, 9 skipped; full suite 4554 passed, 11 skipped, 2 failed
+(`test_ladder_validation_profiles`, `test_prompt_split_l4_l8`, both failing before this change).
+Measurement ($0.104738, 1,055 calls from `usage.cost`, plus two untracked calls of about $0.0002 from a unit test that reached the live model before the suite pinned the flag off; five prompt variants, the shipped one is
+`e_` in `data/eval/dt_decision_2026-11-14/prod_check/v2/`): gold acc/fid/und QWK over two runs en
+1.00/.86–.89/.79, zh .59–.68/.82–.84/.75, ja .92/.89–.91/.76 (prompt v1: 1.00/.84/.79,
+.59–.66/.82–.84/.71–.74, .92/.91/.76); pooled gold precision/recall .97/.91 and .99/.89; no clean
+gold item flagged. Heavy paraphrase: 0 of 19 clean items and 2 of 152 correct rephrased sentences
+flagged, precision/recall .94/.85 (v1 0/19, 1/152, .91/.72). Span resolution: 223 of 223 exact,
+whole-sentence fallback 0 (v1 1 of 71 on gold); corrections 222 model quote, 1 alignment.
+Confidence: high .99 precision (200/203), medium .85 (17/20); low entries withheld (2, both false
+alarms). Explanations shown for 214 of 223 errors. Naturalness scored on 238 of 285 items and
+exact on 221; range exact on 278 of 279 — gold barely varies either, so this is not a validation.
+Found while verifying: the active taxonomy and rubric are version 6 (read-only check), contrary to
+earlier wiki statements, so the default-on config makes this the live DT grader on deploy.
+Decisions taken in the revision that the owner may reverse: low-confidence errors are withheld
+rather than shown; a lowered naturalness band is discarded when its only evidence is a
+grammar/meaning error already scored; `explanation` stays the template and the model's text is the
+Application layer under it; the test suite pins both flags off. Open: TASK-935 (apply migration),
+TASK-937 (deploy + live checks), TASK-941 (cloze guard, not built), TASK-936 (shadow run skipped;
+owner to decide what replaces it), TASK-938 (nobody has reviewed the explanations now shown).
