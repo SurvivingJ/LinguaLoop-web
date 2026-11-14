@@ -58,6 +58,15 @@ export default [
     languageOptions: { sourceType: 'module', globals: { LinguaI18n: 'readonly' } },
   },
   {
+    // Page scripts that are ES modules (they mount a session player).
+    files: [
+      'static/js/pages/test.js',
+      'static/js/pages/test-dictation.js',
+      'static/js/pages/test-prestudy.js',
+    ],
+    languageOptions: { sourceType: 'module' },
+  },
+  {
     // Tooling and tests run under Node / vitest (jsdom), not the browser-script environment.
     files: ['playwright.config.js', 'tests/**/*.js'],
     languageOptions: {

@@ -1,0 +1,176 @@
+/* Test Preview Specific Styles */
+
+/* Test Type Selector - Custom Radio Buttons */
+.test-type-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.test-type-option {
+  position: relative;
+}
+
+.test-type-option input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.test-type-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-strong);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.test-type-label:hover {
+  border-color: var(--slate-400);
+  background: var(--bg-surface-hover);
+}
+
+.test-type-option input[type='radio']:checked + .test-type-label {
+  border-color: var(--primary);
+  border-width: 3px;
+  background: var(--selected-bg);
+  color: var(--primary);
+  animation: scaleIn 0.15s ease;
+}
+
+.test-type-label i {
+  font-size: 20px;
+}
+
+/* Difficulty Badge */
+.difficulty-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.difficulty-badge.t1 {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 2px solid var(--success);
+}
+
+.difficulty-badge.t2 {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 2px solid var(--info);
+}
+
+.difficulty-badge.t3 {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 2px solid var(--primary);
+}
+
+.difficulty-badge.t4 {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 2px solid var(--warning);
+}
+
+.difficulty-badge.t5 {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 2px solid var(--accent);
+}
+
+.difficulty-badge.t6 {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 2px solid var(--danger);
+}
+
+/* Metadata Icons */
+.metadata-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  color: var(--slate-600);
+  font-size: 15px;
+}
+
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metadata-item i {
+  color: var(--slate-500);
+  font-size: 16px;
+}
+
+/* Custom Badge */
+.custom-badge {
+  padding: 4px 10px;
+  background: var(--focus-ring);
+  border: 1px solid var(--primary);
+  border-radius: 4px;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Start Button Enhancements */
+.start-test-btn {
+  height: 56px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.start-test-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.start-test-btn i {
+  font-size: 24px;
+}
+
+/* Loading Spinner */
+.spinner-btn {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgb(255 255 255 / 30%);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* Responsive */
+@media (width <= 768px) {
+  .test-type-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .metadata-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
