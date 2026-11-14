@@ -33,6 +33,12 @@ practice_bp = Blueprint("practice", __name__)
 _VALID_MODES = ('acquisition', 'maintenance', 'auto')
 
 
+def _service():
+    # Imported on use: the service module pulls in the practice engine.
+    from services.practice_session_service import get_practice_session_service
+    return get_practice_session_service()
+
+
 @practice_bp.route('/session', methods=['GET'])
 @supabase_jwt_required
 def get_practice_session() -> ApiResponse:
@@ -65,8 +71,7 @@ def get_practice_session() -> ApiResponse:
         # session-budget-settings: tail=1 marks an optional-tail round.
         tail = (request.args.get('tail') or '0').lower() in ('1', 'true')
 
-        from services.practice_session_service import get_practice_session_service
-        payload = get_practice_session_service().get_session(
+        payload = _service().get_session(
             user_id=g.current_user_id,
             language_id=int(language_id),
             mode=mode,
@@ -124,8 +129,7 @@ def get_practice_extra() -> ApiResponse:
             if part.isdigit():
                 exclude.append(int(part))
 
-        from services.practice_session_service import get_practice_session_service
-        payload = get_practice_session_service().get_extra_round(
+        payload = _service().get_extra_round(
             user_id=g.current_user_id,
             language_id=int(language_id),
             reviews=reviews,
@@ -201,8 +205,7 @@ def submit_practice_attempt() -> ApiResponse:
         if session_mode is not None and session_mode not in ('acquisition', 'maintenance'):
             return bad_request("session_mode must be 'acquisition' or 'maintenance'")
 
-        from services.practice_session_service import get_practice_session_service
-        service = get_practice_session_service()
+        service = _service()
 
         # TASK-532: cloze_typed is graded on the server, not in the browser.
         # The comparison is a normalisation rule (NFKC, t2s, case, trailing
@@ -369,8 +372,7 @@ def complete_intro_words() -> ApiResponse:
         if not isinstance(results, list) or not results or len(results) > 40:
             return bad_request("results must be a list of 1-40 words")
         from services import intro_drill
-        from services.practice_session_service import get_practice_session_service
-        db = get_practice_session_service().db
+        db = _service().db
         out = []
         for r in results:
             if not isinstance(r, dict):

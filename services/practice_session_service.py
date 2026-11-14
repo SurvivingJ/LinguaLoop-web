@@ -4,8 +4,7 @@ Practice Session Service — unified vocabulary practice surface.
 Module-level factory:
   get_practice_session_service()  → returns a process-wide singleton.
 
-Back-compat methods retained on PracticeSessionService:
-  get_or_create_daily_session(...)   ← legacy daily-mixed shape
+Back-compat method retained on PracticeSessionService:
   mark_exercise_complete(...)        ← no-op under the merged engine
 
 
@@ -39,10 +38,13 @@ Follows the singleton pattern used by TestService / VocabularyKnowledgeService.
 from __future__ import annotations
 
 import logging
+import os
+import time
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from config import Config
+from services.concurrency import run_parallel
 from services.supabase_factory import get_supabase_admin
 from services import study_plan_service as _plan
 from services.day_boundary import local_date, local_day_start_utc, plan_row, plan_today_iso
@@ -136,6 +138,40 @@ PRACTICE_ATTEMPT_MAX_SECONDS = 300      # 5 minutes
 # the seed default in get_practice_session (COALESCE(..., 45)).
 DEFAULT_EXPECTED_SECONDS = 45
 
+# exercises.attempt_count is written conditionally on the value read; this is
+# how many writes one attempt may make before giving up on the condition.
+COUNTER_WRITE_ATTEMPTS = 3
+
+# record_exercise_attempt (migrations/record_exercise_attempt.sql) is used only
+# when this env flag is set. A "function not found" answer is remembered for
+# ATTEMPT_RPC_RECHECK_SECONDS so requests do not pay a failing round trip.
+ATTEMPT_RPC_ENV_FLAG = 'PRACTICE_ATTEMPT_RPC_ENABLED'
+ATTEMPT_RPC_RECHECK_SECONDS = 600
+_attempt_rpc_missing_until = 0.0
+
+
+def _settled(fn):
+    """``fn`` as a callable returning ``(value, error)`` instead of raising, so
+    a read run ahead of time fails where it is used, not where it was started."""
+    def run():
+        try:
+            return fn(), None
+        except Exception as e:
+            return None, e
+    return run
+
+
+def _unwrap(outcome):
+    value, error = outcome
+    if error is not None:
+        raise error
+    return value
+
+
+def _attempt_rpc_enabled() -> bool:
+    return os.environ.get(ATTEMPT_RPC_ENV_FLAG, '').strip().lower() in ('1', 'true', 'yes', 'on')
+
+
 class PracticeSessionService:
     """Unified Practice surface. Wraps get_practice_session + attempt recording."""
 
@@ -204,15 +240,31 @@ class PracticeSessionService:
                     user_id, language_id, e,
                 )
 
+        # The session RPC, together with the reads the later steps need that
+        # do not depend on its result.
+        db = self.db
+        from services import intro_drill, prestudy
+        from services.vocabulary_ladder import script_serving
+        reads: Dict[str, Any] = {
+            'session': lambda: self._practice_session_rpc(
+                user_id, language_id, mode, target_minutes, user_theta),
+        }
+        want_followups = mode in ('maintenance', 'auto') and not tail
+        if want_followups:
+            # The plan row is cached per request, so resolve "today" here and
+            # not on a pool thread.
+            today_iso = _settled(lambda: plan_today_iso(db, user_id, language_id))()
+            reads['followups'] = lambda: prestudy.due_followup_senses(
+                db, user_id, language_id, _unwrap(today_iso),
+                limit=PRESTUDY_FOLLOWUPS_PER_SESSION)
+        if intro_drill.ENABLED:
+            reads['intro_ids'] = lambda: intro_drill.intro_sense_ids(db, user_id)
+        if language_id in script_serving.SCRIPT_VARIANT_LANGUAGES:
+            reads['preferences'] = lambda: self._exercise_preferences(user_id)
+        fetched = dict(zip(reads, run_parallel(*[_settled(r) for r in reads.values()])))
+
         try:
-            resp = self.db.rpc('get_practice_session', {
-                'p_user_id':        user_id,
-                'p_language_id':    language_id,
-                'p_mode':           mode,
-                'p_target_minutes': target_minutes,
-                'p_user_theta':     user_theta,
-            }).execute()
-            payload = resp.data
+            payload = _unwrap(fetched['session'])
         except Exception as e:
             logger.error('get_practice_session RPC failed: %s', e)
             return {'error': 'rpc_failed', 'code': 'E_RPC', 'detail': str(e)}
@@ -243,9 +295,10 @@ class PracticeSessionService:
         # Test prestudy next-day review: senses flagged by yesterday's prestudy
         # (prestudy_followups) get one exercise each inside Maintenance. Not a
         # ladder admission, not counted against new_words_per_day.
-        if mode in ('maintenance', 'auto') and not tail:
+        if want_followups:
             try:
-                self._inject_prestudy_followups(payload, user_id, language_id)
+                self._inject_prestudy_followups(
+                    payload, user_id, language_id, due=_unwrap(fetched['followups']))
             except Exception as e:
                 logger.warning(
                     'prestudy follow-up injection failed (non-fatal) for user=%s '
@@ -257,11 +310,10 @@ class PracticeSessionService:
         # words are taught (acquisition / auto), within today's quota. Optional
         # tail rounds serve them too: that is where today's leftover words go.
         try:
-            from services import intro_drill
             if intro_drill.ENABLED:
                 # Intro words are drilled only by the drill: drop them from
                 # the regular items (BKT/FSRS reviews can still pick them).
-                intro_ids = intro_drill.intro_sense_ids(self.db, user_id)
+                intro_ids = _unwrap(fetched['intro_ids'])
                 if intro_ids and payload.get('items'):
                     payload['items'] = [i for i in payload['items']
                                         if i.get('sense_id') not in intro_ids]
@@ -303,7 +355,10 @@ class PracticeSessionService:
         # learner who prefers Traditional should get Simplified rather than an
         # error if anything here goes wrong.
         try:
-            self._apply_script_variant(payload, user_id, language_id)
+            self._apply_script_variant(
+                payload, user_id, language_id,
+                preferences=_unwrap(fetched['preferences'])
+                if 'preferences' in fetched else None)
         except Exception as e:
             logger.warning(
                 'script-variant selection failed (non-fatal) for user=%s lang=%s: %s',
@@ -341,8 +396,22 @@ class PracticeSessionService:
 
         return payload
 
+    def _practice_session_rpc(
+        self, user_id: str, language_id: int, mode: str, target_minutes: int,
+        user_theta: Optional[float] = None,
+    ):
+        """One ``get_practice_session`` call; returns its jsonb. Raises on failure."""
+        return self.db.rpc('get_practice_session', {
+            'p_user_id':        user_id,
+            'p_language_id':    language_id,
+            'p_mode':           mode,
+            'p_target_minutes': target_minutes,
+            'p_user_theta':     user_theta,
+        }).execute().data
+
     def _inject_prestudy_followups(
         self, payload: Dict[str, Any], user_id: str, language_id: int,
+        due: Optional[List[int]] = None,
     ) -> int:
         """Add one exercise per due prestudy next-day review sense, in place.
 
@@ -350,13 +419,14 @@ class PracticeSessionService:
         active exercise stay due (they were sent to generation when primed).
         Items carry ``mode: 'maintenance'`` and ``prestudy_followup: true``;
         the review completes when the learner answers any exercise of that
-        sense (``record_attempt_with_updates``).
+        sense (``record_attempt_with_updates``). ``due`` is the due sense list
+        when the caller has already read it.
         """
         from services import prestudy
-        from services.day_boundary import plan_today_iso
-        today = plan_today_iso(self.db, user_id, language_id)
-        due = prestudy.due_followup_senses(
-            self.db, user_id, language_id, today, limit=PRESTUDY_FOLLOWUPS_PER_SESSION)
+        if due is None:
+            today = plan_today_iso(self.db, user_id, language_id)
+            due = prestudy.due_followup_senses(
+                self.db, user_id, language_id, today, limit=PRESTUDY_FOLLOWUPS_PER_SESSION)
         if not due:
             return 0
         items = payload.get('items') or []
@@ -437,12 +507,28 @@ class PracticeSessionService:
         if new_words:
             admitted, targets, beyond_quota = self._admit_extra_new_words(
                 user_id, language_id, new_words)
+
+        # The acquisition and maintenance session calls do not depend on each
+        # other: start both, then build each half from its result.
+        calls: Dict[str, Any] = {}
+        if targets:
+            minutes = self._extra_acquisition_minutes(language_id, new_words)
+            calls['acquisition'] = lambda: self._practice_session_rpc(
+                user_id, language_id, 'acquisition', minutes)
+        if reviews:
+            calls['maintenance'] = lambda: self._practice_session_rpc(
+                user_id, language_id, 'maintenance', 15)
+        fetched = dict(zip(calls, run_parallel(*[_settled(c) for c in calls.values()])))
+
+        if new_words:
             acq_items = self._extra_acquisition_items(
-                user_id, language_id, targets, new_words)
+                user_id, language_id, targets, new_words,
+                fetched=fetched.get('acquisition'))
 
         rev_items: List[Dict[str, Any]] = []
         if reviews:
-            rev_items = self._extra_review_items(user_id, language_id, exclude)
+            rev_items = self._extra_review_items(
+                user_id, language_id, exclude, fetched=fetched.get('maintenance'))
 
         items = self._interleave_extras(rev_items, acq_items) if (
             rev_items and acq_items) else (rev_items or acq_items)
@@ -604,26 +690,29 @@ class PracticeSessionService:
             return []
         return [int(s) for s in (st.get('unstarted_sense_ids') or [])]
 
+    def _extra_acquisition_minutes(self, language_id: int, n: int) -> int:
+        return max(1, min(180, int(round(
+            n * float(_plan.get_minutes_per_new_word(self.db, language_id))))))
+
     def _extra_acquisition_items(
         self, user_id: str, language_id: int, targets: List[int], n: int,
+        fetched=None,
     ) -> List[Dict[str, Any]]:
-        """Acquisition items for the round's target words (oldest first)."""
+        """Acquisition items for the round's target words (oldest first).
+
+        ``fetched`` is the ``(data, error)`` of an acquisition session call the
+        caller already made; without it the call is made here.
+        """
         if not targets:
             return []
-        minutes = max(1, min(180, int(round(
-            n * float(_plan.get_minutes_per_new_word(self.db, language_id))))))
         try:
-            resp = self.db.rpc('get_practice_session', {
-                'p_user_id':        user_id,
-                'p_language_id':    language_id,
-                'p_mode':           'acquisition',
-                'p_target_minutes': minutes,
-                'p_user_theta':     None,
-            }).execute()
+            data = _unwrap(fetched) if fetched is not None else self._practice_session_rpc(
+                user_id, language_id, 'acquisition',
+                self._extra_acquisition_minutes(language_id, n))
         except Exception as e:
             logger.warning('extra round acquisition call failed: %s', e)
             return []
-        data = resp.data if isinstance(resp.data, dict) else {}
+        data = data if isinstance(data, dict) else {}
         items = [
             i for i in (data.get('items') or [])
             if not i.get('is_gate_marker') and not i.get('is_stress_test_marker')
@@ -636,10 +725,13 @@ class PracticeSessionService:
         return picked
 
     def _extra_review_items(
-        self, user_id: str, language_id: int, exclude: set,
+        self, user_id: str, language_id: int, exclude: set, fetched=None,
     ) -> List[Dict[str, Any]]:
         """Up to EXTRA_REVIEW_ITEMS reviews: due work first (prestudy next-day
-        reviews, then the Maintenance pool), then review-ahead."""
+        reviews, then the Maintenance pool), then review-ahead.
+
+        ``fetched`` is the ``(data, error)`` of a maintenance session call the
+        caller already made; without it the call is made here."""
         items: List[Dict[str, Any]] = []
         seen_senses = set(exclude)
         try:
@@ -657,14 +749,9 @@ class PracticeSessionService:
         except Exception as e:
             logger.warning('extra round prestudy follow-ups failed: %s', e)
         try:
-            resp = self.db.rpc('get_practice_session', {
-                'p_user_id':        user_id,
-                'p_language_id':    language_id,
-                'p_mode':           'maintenance',
-                'p_target_minutes': 15,
-                'p_user_theta':     None,
-            }).execute()
-            data = resp.data if isinstance(resp.data, dict) else {}
+            data = _unwrap(fetched) if fetched is not None else self._practice_session_rpc(
+                user_id, language_id, 'maintenance', 15)
+            data = data if isinstance(data, dict) else {}
             due = [i for i in (data.get('items') or [])
                    if i.get('mode') == 'maintenance']
             if len(due) > 1:
@@ -731,21 +818,16 @@ class PracticeSessionService:
         }
 
         try:
-            resp = self.db.rpc('get_practice_session', {
-                'p_user_id':        user_id,
-                'p_language_id':    language_id,
-                'p_mode':           'maintenance',
-                # Ask for the full budget rather than the deficit: the RPC
-                # spends minutes, and a two-minute request comes back with two
-                # items regardless of how much review is actually due.
-                'p_target_minutes': target_minutes,
-                'p_user_theta':     None,
-            }).execute()
+            # Ask for the full budget rather than the deficit: the RPC
+            # spends minutes, and a two-minute request comes back with two
+            # items regardless of how much review is actually due.
+            data = self._practice_session_rpc(
+                user_id, language_id, 'maintenance', target_minutes)
         except Exception as e:
             logger.warning('session floor maintenance call failed: %s', e)
             return
 
-        extra = resp.data if isinstance(resp.data, dict) else {}
+        extra = data if isinstance(data, dict) else {}
         if 'error' in extra:
             return
 
@@ -847,12 +929,18 @@ class PracticeSessionService:
             text = str(value)
             return text[:10] + 'T00:00:00' if len(text) <= 10 else text[:19]
 
-        for table, column in (('user_flashcards', 'due_date'),
-                              ('user_word_ladder', 'review_due_at')):
-            resp = (self.db.table(table).select(f'sense_id, {column}')
-                    .eq('user_id', user_id).in_('sense_id', sense_ids)
-                    .execute())
-            for row in (resp.data or []):
+        sources = (('user_flashcards', 'due_date'),
+                   ('user_word_ladder', 'review_due_at'))
+        db = self.db
+
+        def _read(table, column):
+            return lambda: (db.table(table).select(f'sense_id, {column}')
+                            .eq('user_id', user_id).in_('sense_id', sense_ids)
+                            .execute().data)
+
+        for (table, column), rows in zip(
+                sources, run_parallel(*[_read(t, c) for t, c in sources])):
+            for row in (rows or []):
                 when = _norm(row.get(column))
                 if when and (row['sense_id'] not in due or when < due[row['sense_id']]):
                     due[row['sense_id']] = when
@@ -902,6 +990,7 @@ class PracticeSessionService:
 
     def _apply_script_variant(
         self, payload: Dict[str, Any], user_id: str, language_id: int,
+        preferences: Optional[dict] = None,
     ) -> None:
         """Swap ZH item content for its Traditional mirror, in place.
 
@@ -916,7 +1005,7 @@ class PracticeSessionService:
             return
 
         variant = script_serving.variant_from_preferences(
-            self._exercise_preferences(user_id)
+            self._exercise_preferences(user_id) if preferences is None else preferences
         )
         if not script_serving.applies_to(language_id, variant):
             return
@@ -1015,59 +1104,71 @@ class PracticeSessionService:
               (the session was requested with tail=1). Forwarded as
               ``p_is_tail`` so tail minutes and tail new words are tracked.
         """
-        # 1. Look up exercise metadata
-        exercise = (
-            self.db.table('exercises')
-            .select(
-                'id, exercise_type, word_sense_id, '
-                'corpus_collocation_id, attempt_count, correct_count, language_id'
+        if _attempt_rpc_enabled():
+            via_rpc = self._record_attempt_via_rpc(
+                user_id, exercise_id, is_correct, user_response, time_taken_ms,
+                session_mode, language_id, expected_seconds, is_tail, exercise_context,
             )
-            .eq('id', exercise_id)
-            .single()
-            .execute()
-            .data
-        )
+            if via_rpc is not None:
+                return via_rpc
+
+        db = self.db
+
+        # 1. Exercise metadata and the first-attempt check (gates BKT), together.
+        def _read_exercise():
+            return (
+                db.table('exercises')
+                .select(
+                    'id, exercise_type, word_sense_id, '
+                    'corpus_collocation_id, attempt_count, correct_count, language_id'
+                )
+                .eq('id', exercise_id)
+                .single()
+                .execute()
+                .data
+            )
+
+        def _read_prior():
+            return (
+                db.table('exercise_attempts')
+                .select('id')
+                .eq('user_id', user_id)
+                .eq('exercise_id', exercise_id)
+                .limit(1)
+                .execute()
+                .data
+            )
+
+        exercise, prior = run_parallel(_read_exercise, _read_prior)
         if not exercise:
             return {'error': 'Exercise not found'}
 
         exercise_type = exercise.get('exercise_type')
         sense_id = exercise.get('word_sense_id')
         eff_language_id = language_id or exercise.get('language_id')
+        is_first_attempt = not bool(prior)
+        tracked = bool(sense_id and eff_language_id)
 
-        # 2. First-attempt detection (gates BKT)
-        prior_resp = (
-            self.db.table('exercise_attempts')
-            .select('id')
-            .eq('user_id', user_id)
-            .eq('exercise_id', exercise_id)
-            .limit(1)
-            .execute()
-        )
-        is_first_attempt = not bool(prior_resp.data)
+        # 2. Insert the attempt row; the flashcard is read alongside it.
+        def _insert_attempt():
+            inserted = db.table('exercise_attempts').insert({
+                'user_id':          user_id,
+                'exercise_id':      exercise_id,
+                'user_response':    user_response or {},
+                'is_correct':       is_correct,
+                'time_taken_ms':    time_taken_ms,
+                'exercise_type':    exercise_type,
+                'sense_id':         sense_id,
+                'is_first_attempt': is_first_attempt,
+                'created_at':       datetime.now(timezone.utc).isoformat(),
+            }).execute()
+            return (inserted.data or [{}])[0].get('id')
 
-        # 3. Insert attempt row
-        attempt_row = {
-            'user_id':       user_id,
-            'exercise_id':   exercise_id,
-            'user_response': user_response or {},
-            'is_correct':    is_correct,
-            'time_taken_ms': time_taken_ms,
-            'exercise_type': exercise_type,
-            'sense_id':      sense_id,
-            'created_at':    datetime.now(timezone.utc).isoformat(),
-        }
-        inserted = (
-            self.db.table('exercise_attempts')
-            .insert(attempt_row)
-            .execute()
-        )
-        attempt_id = (inserted.data or [{}])[0].get('id')
-
-        # 4. Exercise-level stats
-        updates = {'attempt_count': (exercise.get('attempt_count') or 0) + 1}
-        if is_correct:
-            updates['correct_count'] = (exercise.get('correct_count') or 0) + 1
-        self.db.table('exercises').update(updates).eq('id', exercise_id).execute()
+        if tracked:
+            attempt_id, card_row = run_parallel(
+                _insert_attempt, lambda: self._read_fsrs_card(user_id, sense_id))
+        else:
+            attempt_id, card_row = _insert_attempt(), None
 
         result: Dict[str, Any] = {
             'attempt_id':      attempt_id,
@@ -1075,99 +1176,232 @@ class PracticeSessionService:
             'exercise_type':   exercise_type,
             'is_first_attempt': is_first_attempt,
         }
+        seconds = self._effective_practice_seconds(time_taken_ms, expected_seconds)
 
-        # 4b. Test prestudy next-day review: answering any exercise of a due
-        # follow-up sense completes it. Best-effort; no-op without the table.
-        if sense_id:
+        # 3. Everything that only needs the attempt row, concurrently. Each
+        # step logs and swallows its own failure except the exercise counters,
+        # whose failure fails the request as before.
+        def _bkt():
+            try:
+                return VocabularyKnowledgeService(db).update_from_word_test(
+                    user_id=user_id,
+                    sense_id=sense_id,
+                    is_correct=is_correct,
+                    language_id=eff_language_id,
+                    exercise_type=exercise_type,
+                )
+            except Exception as e:
+                logger.error('BKT update failed for sense %s: %s', sense_id, e)
+                return None
+
+        def _prestudy():
+            # Test prestudy next-day review: answering any exercise of a due
+            # follow-up sense completes it. No-op without the table.
             try:
                 from services import prestudy
-                prestudy.mark_followups(self.db, user_id, [sense_id], 'completed_at')
+                prestudy.mark_followups(db, user_id, [sense_id], 'completed_at')
             except Exception as e:
                 logger.info('prestudy follow-up not completed for sense %s: %s', sense_id, e)
 
-        # 5. BKT + FSRS for sense-linked items
-        if sense_id and eff_language_id:
-            if is_first_attempt:
-                try:
-                    knowledge_svc = VocabularyKnowledgeService(self.db)
-                    bkt_result = knowledge_svc.update_from_word_test(
-                        user_id=user_id,
-                        sense_id=sense_id,
-                        is_correct=is_correct,
-                        language_id=eff_language_id,
-                        exercise_type=exercise_type,
-                    )
-                    if bkt_result:
-                        result['bkt_update'] = bkt_result
-                        self._capture_knowledge_outcome(attempt_id, bkt_result)
-                except Exception as e:
-                    logger.error('BKT update failed for sense %s: %s', sense_id, e)
-
-            self._update_fsrs_for_exercise(
-                user_id, sense_id, is_correct, time_taken_ms
-            )
-
-        # 5a. Ladder progress (rings, gates, demotion). The attempt row, BKT
-        # and FSRS are written above; ladder_apply_progress only moves the
-        # ladder, for words on it, on first attempts.
+        steps: Dict[str, Any] = {
+            'counters': lambda: self._bump_exercise_counters(exercise_id, exercise, is_correct),
+        }
         if sense_id:
-            self._apply_ladder_progress(
+            steps['prestudy'] = _prestudy
+        if tracked and is_first_attempt:
+            steps['bkt'] = _bkt
+        if card_row:
+            steps['fsrs'] = lambda: self._apply_fsrs_review(
+                card_row, sense_id, is_correct, time_taken_ms)
+        if attempt_id and eff_language_id:
+            # Weekly minutes ledger (ADR-035): every attempt, in or out of a
+            # planned session, once per exercise_attempts id.
+            steps['study_time'] = lambda: self._credit_practice_time(
+                user_id, eff_language_id, seconds, attempt_id)
+            if Config.STUDY_PLAN_ENABLED and session_mode in ('acquisition', 'maintenance'):
+                steps['progress'] = lambda: self._record_plan_progress(
+                    user_id, eff_language_id, attempt_id, session_mode, seconds,
+                    sense_id, is_tail)
+        done = dict(zip(steps, run_parallel(*steps.values())))
+
+        bkt_result = done.get('bkt')
+        if bkt_result:
+            result['bkt_update'] = bkt_result
+
+        # 4. Steps that must follow the BKT write: the FSRS lapse penalty
+        # (scales the p_known BKT just wrote) and the ladder, whose lapse path
+        # applies the same penalty.
+        after: List[Any] = []
+        if bkt_result:
+            after.append(lambda: self._capture_knowledge_outcome(attempt_id, bkt_result))
+        if done.get('fsrs'):
+            after.append(lambda: self._apply_lapse_penalty(user_id, sense_id))
+        if sense_id:
+            # Ladder progress (rings, gates, demotion): only moves the ladder,
+            # for words on it, on first attempts.
+            after.append(lambda: self._apply_ladder_progress(
                 result, user_id, sense_id, exercise_id, is_correct,
                 is_first_attempt, eff_language_id, exercise_context,
+            ))
+        run_parallel(*after)
+
+        return result
+
+    def _bump_exercise_counters(
+        self, exercise_id: str, exercise: Dict[str, Any], is_correct: bool,
+    ) -> None:
+        """``attempt_count + 1`` (and ``correct_count + 1`` when correct).
+
+        PostgREST cannot write ``col = col + 1``, so the write is conditional on
+        the ``attempt_count`` that was read: when another attempt got in first
+        no row matches, the counts are read again and the write retried. The
+        common case is one round trip. ``record_exercise_attempt`` (the RPC
+        path) increments in SQL instead.
+        """
+        row = exercise
+        for attempt in range(COUNTER_WRITE_ATTEMPTS):
+            seen = row.get('attempt_count')
+            updates = {'attempt_count': (seen or 0) + 1}
+            if is_correct:
+                updates['correct_count'] = (row.get('correct_count') or 0) + 1
+            query = self.db.table('exercises').update(updates).eq('id', exercise_id)
+            if attempt == COUNTER_WRITE_ATTEMPTS - 1:
+                query.execute()          # still contended: write unconditionally
+                return
+            query = (query.is_('attempt_count', 'null') if seen is None
+                     else query.eq('attempt_count', seen))
+            if query.execute().data:
+                return
+            fresh = (
+                self.db.table('exercises')
+                .select('attempt_count, correct_count')
+                .eq('id', exercise_id)
+                .limit(1)
+                .execute()
+                .data
+            )
+            if not isinstance(fresh, list) or not fresh:
+                return
+            row = fresh[0]
+
+    def _credit_practice_time(
+        self, user_id: str, language_id: int, seconds: int, attempt_id,
+    ) -> None:
+        try:
+            from services.study_time import credit_study_time  # lazy: avoids import cycle
+            credit_study_time(
+                self.db, user_id, language_id, 'practice', seconds,
+                'exercise_attempts', str(attempt_id),
+            )
+        except Exception as e:
+            logger.warning(
+                'study-time credit failed (non-fatal) for attempt=%s: %s',
+                attempt_id, e,
             )
 
-        # 5b. Weekly minutes ledger (ADR-035): credit every attempt, in or out
-        # of a planned session, once per exercise_attempts id. Best-effort and
-        # independent of STUDY_PLAN_ENABLED / session_mode; planner math below
-        # is untouched.
-        if attempt_id and eff_language_id:
-            try:
-                from services.study_time import credit_study_time  # lazy: avoids import cycle
-                credit_study_time(
-                    self.db, user_id, eff_language_id, 'practice',
-                    self._effective_practice_seconds(time_taken_ms, expected_seconds),
-                    'exercise_attempts', str(attempt_id),
-                )
-            except Exception as e:
-                logger.warning(
-                    'study-time credit failed (non-fatal) for attempt=%s: %s',
-                    attempt_id, e,
-                )
+    def _record_plan_progress(
+        self, user_id: str, language_id: int, attempt_id, session_mode: str,
+        seconds: int, sense_id, is_tail: bool,
+    ) -> None:
+        """Study Plan weekly counters for one attempt. Best-effort."""
+        try:
+            self.db.rpc('record_session_progress', {
+                'p_user_id':       user_id,
+                'p_language_id':   language_id,
+                'p_attempt_id':    attempt_id,
+                'p_kind':          'practice_acq' if session_mode == 'acquisition'
+                                   else 'practice_maint',
+                'p_skill':         None,
+                'p_delta_count':   0,
+                'p_delta_seconds': seconds,
+                # Session-budget-settings (TASK-872): the sense is passed
+                # only for acquisition so the RPC can count a new word the
+                # day it is first attempted; maintenance passes None.
+                'p_sense_id':      sense_id if session_mode == 'acquisition'
+                                   else None,
+                'p_is_tail':       bool(is_tail),
+            }).execute()
+        except Exception as e:
+            logger.warning(
+                'record_session_progress failed (non-fatal) for attempt=%s: %s',
+                attempt_id, e,
+            )
 
-        # 6. Study Plan progress (if session_mode given and Plan enabled)
-        if (
-            Config.STUDY_PLAN_ENABLED
-            and session_mode in ('acquisition', 'maintenance')
-            and attempt_id
-            and eff_language_id
-        ):
-            try:
-                delta_seconds = self._effective_practice_seconds(
-                    time_taken_ms, expected_seconds
-                )
-                self.db.rpc('record_session_progress', {
-                    'p_user_id':       user_id,
-                    'p_language_id':   eff_language_id,
-                    'p_attempt_id':    attempt_id,
-                    'p_kind':          'practice_acq' if session_mode == 'acquisition'
-                                       else 'practice_maint',
-                    'p_skill':         None,
-                    'p_delta_count':   0,
-                    'p_delta_seconds': delta_seconds,
-                    # Session-budget-settings (TASK-872): the sense is passed
-                    # only for acquisition so the RPC can count a new word the
-                    # day it is first attempted; maintenance passes None.
-                    'p_sense_id':      sense_id if session_mode == 'acquisition'
-                                       else None,
-                    'p_is_tail':       bool(is_tail),
-                }).execute()
-            except Exception as e:
-                # Non-fatal: progress tracking is best-effort.
-                logger.warning(
-                    'record_session_progress failed (non-fatal) for attempt=%s: %s',
-                    attempt_id, e,
-                )
+    def _record_attempt_via_rpc(
+        self,
+        user_id: str,
+        exercise_id: str,
+        is_correct: bool,
+        user_response: Optional[dict],
+        time_taken_ms: Optional[int],
+        session_mode: Optional[str],
+        language_id: Optional[int],
+        expected_seconds: Optional[int],
+        is_tail: bool,
+        exercise_context: str,
+    ) -> Optional[Dict[str, Any]]:
+        """The attempt through ``record_exercise_attempt`` (one transaction).
 
+        Returns None when the function is not deployed, so the caller uses the
+        per-step path; nothing has been written in that case. Any other RPC
+        error propagates. FSRS scheduling and the new-word-drill restart stay
+        in Python (migrations/record_exercise_attempt.sql).
+        """
+        global _attempt_rpc_missing_until
+        if _attempt_rpc_missing_until > time.monotonic():
+            return None
+        plan_kind = None
+        if Config.STUDY_PLAN_ENABLED and session_mode in ('acquisition', 'maintenance'):
+            plan_kind = 'practice_acq' if session_mode == 'acquisition' else 'practice_maint'
+        try:
+            data = self.db.rpc('record_exercise_attempt', {
+                'p_user_id':          user_id,
+                'p_exercise_id':      exercise_id,
+                'p_is_correct':       bool(is_correct),
+                'p_user_response':    user_response or {},
+                'p_time_taken_ms':    time_taken_ms,
+                'p_language_id':      language_id or None,
+                'p_credit_seconds':   self._effective_practice_seconds(
+                    time_taken_ms, expected_seconds),
+                'p_plan_kind':        plan_kind,
+                'p_is_tail':          bool(is_tail),
+                'p_exercise_context': exercise_context,
+            }).execute().data
+        except Exception as exc:
+            text = str(exc)
+            if 'PGRST202' in text or 'Could not find the function' in text:
+                _attempt_rpc_missing_until = time.monotonic() + ATTEMPT_RPC_RECHECK_SECONDS
+                logger.info('record_exercise_attempt not deployed; using the per-step path')
+                return None
+            raise
+        if isinstance(data, list) and len(data) == 1:
+            data = data[0]
+        if not isinstance(data, dict):
+            raise RuntimeError('record_exercise_attempt returned %r' % (data,))
+        if data.get('error'):
+            return {'error': 'Exercise not found'}
+
+        for warning in data.get('warnings') or []:
+            log = logger.info if warning.get('step') == 'prestudy_followups' else logger.warning
+            log('record_exercise_attempt: %s failed (non-fatal) for attempt=%s: %s',
+                warning.get('step'), data.get('attempt_id'), warning.get('error'))
+
+        sense_id = data.get('sense_id')
+        result: Dict[str, Any] = {
+            'attempt_id':      data.get('attempt_id'),
+            'is_correct':      is_correct,
+            'exercise_type':   data.get('exercise_type'),
+            'is_first_attempt': bool(data.get('is_first_attempt')),
+        }
+        if data.get('bkt_update'):
+            result['bkt_update'] = data['bkt_update']
+
+        card_row = data.get('flashcard')
+        if card_row and self._apply_fsrs_review(card_row, sense_id, is_correct, time_taken_ms):
+            self._apply_lapse_penalty(user_id, sense_id)
+        if sense_id:
+            self._report_ladder_progress(
+                result, data.get('ladder'), user_id, sense_id, data.get('language_id'))
         return result
 
     def _apply_ladder_progress(
@@ -1194,7 +1428,14 @@ class PracticeSessionService:
         except Exception as e:
             logger.warning('ladder progress failed (non-fatal) for sense %s: %s', sense_id, e)
             return
-        if not ladder or ladder.get('skipped'):
+        self._report_ladder_progress(result, ladder, user_id, sense_id, language_id)
+
+    def _report_ladder_progress(
+        self, result: Dict[str, Any], ladder: Optional[Dict[str, Any]],
+        user_id: str, sense_id: int, language_id: Optional[int],
+    ) -> None:
+        """Summarise a ``ladder_apply_progress`` result onto ``result['ladder']``."""
+        if not isinstance(ladder, dict) or ladder.get('skipped'):
             return
         result['ladder'] = {k: ladder.get(k) for k in (
             'family', 'current_ring', 'word_state', 'gate_pending',
@@ -1248,6 +1489,7 @@ class PracticeSessionService:
                 'is_correct':    bool(is_correct),
                 'exercise_type': exercise_type,
                 'sense_id':      sense_id,
+                'is_first_attempt': is_first_attempt,
                 'source':        'prestudy',
                 'created_at':    datetime.now(timezone.utc).isoformat(),
             }).execute()
@@ -1532,17 +1774,20 @@ class PracticeSessionService:
         if want <= 0:
             return empty
 
-        # Side effect only: asks for exercises for subscribed-but-unservable
-        # rows. No longer gates intake and target_active_pool is not read.
-        try:
-            self._eligible_ladder_count(user_id, language_id)
-        except Exception as e:
-            logger.warning('eligible ladder count failed (non-fatal): %s', e)
+        def _servable_pool():
+            # Side effect only: asks for exercises for subscribed-but-unservable
+            # rows. No longer gates intake and target_active_pool is not read.
+            try:
+                self._eligible_ladder_count(user_id, language_id)
+            except Exception as e:
+                logger.warning('eligible ladder count failed (non-fatal): %s', e)
 
         # Read the supply flag BEFORE set_new_words_shortfall flips it.
         today_iso = plan_today_iso(self.db, user_id, language_id)
-        prior_checked, planned_in_budget, checked_e = self._today_supply_flags(
-            user_id, language_id, today_iso
+        _, (prior_checked, planned_in_budget, checked_e), subscribed = run_parallel(
+            _servable_pool,
+            lambda: self._today_supply_flags(user_id, language_id, today_iso),
+            lambda: self._subscribed_sense_ids(user_id),
         )
         # A supply check is only valid for the E it was made under. A mid-day
         # quota change (settings edit, governor level change) makes it stale:
@@ -1551,7 +1796,6 @@ class PracticeSessionService:
         if prior_checked and checked_e is not None and checked_e != new_today:
             prior_checked = False
 
-        subscribed = self._subscribed_sense_ids(user_id)
         fresh = self._nominate_new_words(user_id, language_id, want, subscribed)
 
         inserted = bool(fresh) and self._insert_ladder_rows(user_id, fresh, language_id)
@@ -1643,10 +1887,16 @@ class PracticeSessionService:
         admitted: List[int] = []
         taken = set(exclude)
 
-        recent = self._recent_test_sense_ids(user_id, language_id)
+        recent, wrong_by_question, ledger, rows = run_parallel(
+            lambda: self._recent_test_sense_ids(user_id, language_id),
+            lambda: self._wrong_answer_sense_counts(user_id),
+            lambda: self._calibration_ledger(user_id, language_id),
+            lambda: self._evidence_rows(user_id, language_id),
+        )
         a1 = [
             c for c in self._evidence_candidates(
-                user_id, language_id, recency_first=True)
+                user_id, language_id, recency_first=True,
+                wrong_by_question=wrong_by_question, ledger=ledger, rows=rows)
             if c['sense_id'] in recent and c['sense_id'] not in taken
         ]
         admitted += self._gate_and_admit(
@@ -1654,7 +1904,8 @@ class PracticeSessionService:
         taken.update(admitted)
 
         if len(admitted) < want:
-            a2 = self._calibration_wrong_candidates(user_id, language_id, taken)
+            a2 = self._calibration_wrong_candidates(
+                user_id, language_id, taken, ledger=ledger)
             got = self._gate_and_admit(
                 a2, want - len(admitted), language_id)
             admitted += got
@@ -1728,6 +1979,7 @@ class PracticeSessionService:
                 .eq('user_id', user_id)
                 .eq('language_id', language_id)
                 .gte('created_at', since)
+                .order('created_at', desc=True)
                 .limit(RECENT_TEST_ROW_LIMIT)
                 .execute()
             )
@@ -1742,8 +1994,9 @@ class PracticeSessionService:
                      .in_('id', chunk).execute())
                 for row in (t.data or []):
                     senses.update(row.get('vocab_sense_ids') or [])
-                q = (self.db.table('questions').select('test_id, sense_ids')
-                     .in_('test_id', chunk).execute())
+                q = (self.db.table('questions').select('sense_ids')
+                     .in_('test_id', chunk)
+                     .filter('sense_ids', 'not.is', 'null').execute())
                 for row in (q.data or []):
                     senses.update(row.get('sense_ids') or [])
             return senses
@@ -1823,6 +2076,7 @@ class PracticeSessionService:
 
     def _calibration_wrong_candidates(
         self, user_id: str, language_id: int, exclude: set,
+        ledger: Optional[Dict[int, Dict[str, Any]]] = None,
     ) -> List[int]:
         """Queue A2: senses whose latest calibration answer was wrong.
 
@@ -1833,7 +2087,8 @@ class PracticeSessionService:
         by lemma frequency (Zipf desc) then most recent answer. Ranked below A1
         by the caller; the supply gate still applies.
         """
-        ledger = self._calibration_ledger(user_id, language_id)
+        if ledger is None:
+            ledger = self._calibration_ledger(user_id, language_id)
         cutoff = (
             datetime.now(timezone.utc)
             - timedelta(days=CALIBRATION_EVIDENCE_MAX_AGE_DAYS)
@@ -1927,15 +2182,6 @@ class PracticeSessionService:
                 [s for s in sense_ids if s not in servable], language_id,
             )
         return len(servable)
-
-    def _daily_minutes(self, user_id: str, language_id: int) -> int:
-        """The learner's daily-minutes target, or the configured default."""
-        row = plan_row(self.db, user_id, language_id)
-        if row:
-            return row.get(
-                'daily_minutes', Config.STUDY_PLAN_DEFAULT_DAILY_MINUTES
-            )
-        return Config.STUDY_PLAN_DEFAULT_DAILY_MINUTES
 
     def _subscribed_sense_ids(self, user_id: str) -> set:
         """Every sense already on this user's ladder, in any state."""
@@ -2058,24 +2304,8 @@ class PracticeSessionService:
             )
         return queued
 
-    def _evidence_candidates(
-        self, user_id: str, language_id: int, recency_first: bool = False,
-    ) -> List[Dict[str, Any]]:
-        """Ranked test / word-quiz evidence nominations (Queue A1), best first.
-
-        The calibration contribution is subtracted before the thresholds apply
-        (``evidence_count - cal_n``, ``word_test_wrong - cal_wrong``): a
-        calibration answer is not test or word-quiz evidence and is handled by
-        Queue A2. A row left with no evidence is dropped from A1.
-
-        ``recency_first`` ranks most-recent ``last_evidence_at`` first, then wrong
-        count, then frequency; the default is wrong count, then recency, then
-        frequency.
-        """
-        wrong_by_question = self._wrong_answer_sense_counts(user_id)
-        ledger = self._calibration_ledger(user_id, language_id)
-
-        rows: List[Dict[str, Any]] = []
+    def _evidence_rows(self, user_id: str, language_id: int) -> List[Dict[str, Any]]:
+        """Knowledge rows that carry test / word-quiz evidence ([] on a failed read)."""
         try:
             resp = (
                 self.db.table('user_vocabulary_knowledge')
@@ -2093,12 +2323,38 @@ class PracticeSessionService:
                 .limit(EVIDENCE_ROW_LIMIT)
                 .execute()
             )
-            rows = resp.data or []
+            return resp.data or []
         except Exception as e:
             logger.warning(
                 'evidence queue read failed for user=%s lang=%s: %s',
                 user_id, language_id, e,
             )
+            return []
+
+    def _evidence_candidates(
+        self, user_id: str, language_id: int, recency_first: bool = False,
+        wrong_by_question: Optional[Dict[int, int]] = None,
+        ledger: Optional[Dict[int, Dict[str, Any]]] = None,
+        rows: Optional[List[Dict[str, Any]]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Ranked test / word-quiz evidence nominations (Queue A1), best first.
+
+        The calibration contribution is subtracted before the thresholds apply
+        (``evidence_count - cal_n``, ``word_test_wrong - cal_wrong``): a
+        calibration answer is not test or word-quiz evidence and is handled by
+        Queue A2. A row left with no evidence is dropped from A1.
+
+        ``recency_first`` ranks most-recent ``last_evidence_at`` first, then wrong
+        count, then frequency; the default is wrong count, then recency, then
+        frequency.
+        """
+        # The three reads, unless the caller has already made them.
+        if wrong_by_question is None:
+            wrong_by_question = self._wrong_answer_sense_counts(user_id)
+        if ledger is None:
+            ledger = self._calibration_ledger(user_id, language_id)
+        if rows is None:
+            rows = self._evidence_rows(user_id, language_id)
 
         candidates: Dict[int, Dict[str, Any]] = {}
         for row in rows:
@@ -2174,6 +2430,9 @@ class PracticeSessionService:
                 .select('question_id, questions!inner(sense_ids)')
                 .eq('user_id', user_id)
                 .eq('is_correct', False)
+                # A question without sense ids counts nothing: leave its rows
+                # in the database and out of the row cap.
+                .filter('questions.sense_ids', 'not.is', 'null')
                 .limit(WRONG_ANSWER_ROW_LIMIT)
                 .execute()
             )
@@ -2335,6 +2594,12 @@ class PracticeSessionService:
         is_correct: bool,
         time_taken_ms: Optional[int] = None,
     ) -> None:
+        row = self._read_fsrs_card(user_id, sense_id)
+        if row and self._apply_fsrs_review(row, sense_id, is_correct, time_taken_ms):
+            self._apply_lapse_penalty(user_id, sense_id)
+
+    def _read_fsrs_card(self, user_id: str, sense_id: int) -> Optional[Dict[str, Any]]:
+        """The learner's flashcard row for a sense, or None (no card, or a failed read)."""
         try:
             card_resp = (
                 self.db.table('user_flashcards')
@@ -2346,10 +2611,24 @@ class PracticeSessionService:
                 .eq('sense_id', sense_id)
                 .execute()
             )
-            if not card_resp.data:
-                return
+            return card_resp.data[0] if card_resp.data else None
+        except Exception as e:
+            logger.error('FSRS update failed for sense %s: %s', sense_id, e)
+            return None
 
-            row = card_resp.data[0]
+    def _apply_fsrs_review(
+        self,
+        row: Dict[str, Any],
+        sense_id: int,
+        is_correct: bool,
+        time_taken_ms: Optional[int] = None,
+    ) -> bool:
+        """Rate the card and write its new schedule. True when the review was a lapse.
+
+        Never raises. The caller applies the BKT lapse penalty, after the BKT
+        update for the same attempt has been written.
+        """
+        try:
             last_review = None
             if row.get('last_review'):
                 last_review = datetime.fromisoformat(
@@ -2389,93 +2668,28 @@ class PracticeSessionService:
                 'state':       new_card.state,
                 'updated_at':  'now()',
             }).eq('id', row['id']).execute()
-
-            if new_card.lapses > card.lapses:
-                try:
-                    self.db.rpc('bkt_apply_lapse_penalty', {
-                        'p_user_id':  user_id,
-                        'p_sense_id': sense_id,
-                    }).execute()
-                except Exception as lapse_err:
-                    logger.error(
-                        'BKT lapse penalty failed for sense %s: %s',
-                        sense_id, lapse_err,
-                    )
+            return new_card.lapses > card.lapses
         except Exception as e:
             logger.error('FSRS update failed for sense %s: %s', sense_id, e)
+            return False
+
+    def _apply_lapse_penalty(self, user_id: str, sense_id: int) -> None:
+        try:
+            self.db.rpc('bkt_apply_lapse_penalty', {
+                'p_user_id':  user_id,
+                'p_sense_id': sense_id,
+            }).execute()
+        except Exception as lapse_err:
+            logger.error(
+                'BKT lapse penalty failed for sense %s: %s',
+                sense_id, lapse_err,
+            )
 
 
     # ------------------------------------------------------------------
     # Back-compat: legacy session API
     # ------------------------------------------------------------------
-    # Routes/exercises.py originally called these on ExerciseSessionService.
-    # They now translate into get_session() calls so the legacy /api/exercises
-    # surface keeps working unchanged through the deprecation cycle.
-
-    def get_or_create_daily_session(
-        self, user_id: str, language_id: int
-    ) -> Dict[str, Any]:
-        """Legacy entry point — wraps get_session('auto', ...).
-
-        Returns the legacy shape:
-          { load_date, exercises: [...], progress: {completed, total}, session_size }
-
-        target_minutes derived from the user's preferred session_size
-        (DEFAULT_EXERCISE_SESSION_SIZE) × 0.6 (matches the deprecation
-        wrapper convention in phase12_deprecation_wrappers.sql).
-        """
-        from datetime import date as _date
-        try:
-            prefs_resp = (
-                self.db.table('users')
-                .select('exercise_preferences')
-                .eq('id', user_id)
-                .single()
-                .execute()
-            )
-            prefs = (prefs_resp.data or {}).get('exercise_preferences') or {}
-        except Exception:
-            prefs = {}
-        size = int(prefs.get('session_size', Config.DEFAULT_EXERCISE_SESSION_SIZE))
-        size = max(
-            Config.MIN_EXERCISE_SESSION_SIZE,
-            min(Config.MAX_EXERCISE_SESSION_SIZE, size),
-        )
-        target_minutes = max(1, round(size * 0.6))
-
-        payload = self.get_session(
-            user_id=user_id,
-            language_id=int(language_id),
-            mode='auto',
-            target_minutes=target_minutes,
-            debug=False,
-        )
-
-        if isinstance(payload, dict) and 'error' in payload:
-            return {
-                'load_date':    _date.today().isoformat(),
-                'exercises':    [],
-                'progress':     {'completed': 0, 'total': 0},
-                'session_size': size,
-                'error':        payload.get('error'),
-            }
-
-        items = (payload or {}).get('items', []) or []
-        # Strip gate / stress markers and injected DT error cards (TASK-618)
-        # from the legacy shape — old callers don't know what to do with them
-        # and would render as empty/broken exercises.
-        exercises = [
-            it for it in items
-            if not it.get('is_gate_marker')
-            and not it.get('is_stress_test_marker')
-            and not it.get('is_error_exercise')
-        ]
-        return {
-            'load_date':    _date.today().isoformat(),
-            'exercises':    exercises,
-            'progress':     {'completed': 0, 'total': len(exercises)},
-            'session_size': size,
-        }
+    # routes/exercises.py still calls this.
 
     def mark_exercise_complete(
         self, user_id: str, language_id: int, exercise_id: str
