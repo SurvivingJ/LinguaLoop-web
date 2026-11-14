@@ -1,0 +1,20 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# tests/e2e is the Playwright suite (npm run test:e2e), not pytest.
+addopts = "--ignore=tests/e2e"
+
+[tool.ruff]
+extend-exclude = [
+    "archive",
+    "Portal",
+    "raw",
+    "wiki",
+    "data",
+    "sandbox",
+    "scratch_offline",
+    "node_modules",
+]
+
+[tool.ruff.lint]
+# Pyflakes only for now: undefined names, unused imports and variables.
+select = ["F"]
