@@ -1,8 +1,9 @@
 // static/js/session/players/pinyin.js
-// Pinyin tone-trainer player for the daily-session runner. Ported from
-// templates/test_pinyin.html. Container-scoped, leak-free teardown (document
-// keydown + timer are tracked), error-modal buttons wired via listeners (no
-// window globals), and ctx.onComplete() on finish instead of linking to /tests.
+// Pinyin tone trainer: an item of the daily session, and the whole of the
+// standalone page /test/<slug>/pinyin (static/js/pages/test-pinyin.js mounts it
+// with ctx.standalone). Container-scoped, leak-free teardown (document keydown
+// + timer are tracked), error-modal buttons wired via listeners. In the session
+// it finishes through ctx.onComplete(); the page links to Retry / All tests.
 
 import { T, nativeName, escapeHtml } from '../dom.js';
 import { createTrainer, prefetchTest } from './_syllable_trainer.js';
@@ -39,7 +40,9 @@ export function mount(container, ctx) {
   const { state, on, q, showLoading, showError, startTimer, updateProgress, flashError } = trainer;
   const dismissErrorModal = trainer.dismissErrorModal;
 
-  container.innerHTML = MARKUP;
+  // The standalone page brings its own stylesheet (static/css/pages/test-pinyin.css).
+  container.innerHTML = trainer.standalone ? MARKUP : STYLES + trainer.compact(MARKUP);
+  trainer.addBackLink();
   init();
 
   return { destroy: trainer.destroy };
@@ -48,6 +51,7 @@ export function mount(container, ctx) {
     try {
       showLoading(true);
       if (!state.slug) throw new Error('No test slug');
+      if (trainer.standalone) await trainer.prepare();
       await loadTestData();
       renderPassage();
       setupInputHandlers();
@@ -172,7 +176,7 @@ export function mount(container, ctx) {
             <div class="error-backdrop" data-pinyin-dismiss></div>
             <div class="error-modal">
                 <div class="error-char" style="color: ${toneColor(token.context_tone)}">${escapeHtml(token.char)}</div>
-                <div class="error-pinyin">${escapeHtml(applyToneMark(token.pinyin_text, token.context_tone))}<span style="color: var(--text-muted); margin-left: 4px;">(${escapeHtml(token.word)})</span></div>
+                <div class="error-pinyin">${escapeHtml(applyToneMark(token.pinyin_text, token.context_tone))}${trainer.standalone ? ' ' : ''}<span style="color: var(--text-muted); margin-left: 4px;">(${escapeHtml(token.word)})</span></div>
                 <div class="error-tones">
                     <div class="tone-label"><div class="tone-num" style="color: ${toneColor(guessedTone)}">${guessedTone}</div><div class="tone-desc">${T('pinyin.your_answer', null, 'Your answer')}</div></div>
                     <div style="font-size: 1.5rem; color: var(--text-muted); align-self: center;"><i class="bi bi-arrow-right"></i></div>
@@ -212,15 +216,17 @@ export function mount(container, ctx) {
         timeLabel: T('pinyin.stat.time', null, 'Time'),
         mistakesLabel: T('pinyin.stat.mistakes', null, 'Mistakes'),
         eloLabel: T('pinyin.stat.elo_change', null, 'ELO'),
+        retryLabel: T('pinyin.retry', null, 'Retry'),
+        allTestsLabel: T('pinyin.all_tests', null, 'All Tests'),
       },
     });
   }
 }
 
 // ========================================================================
-// MARKUP — includes scoped styles so the player is self-contained in /session
+// STYLES — scoped styles so the player is self-contained in /session
 // ========================================================================
-const MARKUP = `
+const STYLES = `
 <style>
     .session-stage { --tone-1:#E53935; --tone-2:#F57C00; --tone-3:#43A047; --tone-4:#1E88E5; --tone-5:#9E9E9E; }
     .pinyin-header { background: var(--bg-surface); border-bottom: 2px solid var(--border-default); position: sticky; top: 0; z-index: 40; box-shadow: var(--shadow-sm); }
@@ -281,44 +287,91 @@ const MARKUP = `
     .touch-area { position: fixed; top: 60px; left: 0; right: 0; bottom: 70px; z-index: 10; touch-action: none; -webkit-touch-callout: none; }
     @media (max-width: 768px) { .passage-grid { font-size: 1.6rem; line-height: 2; } .char-token.current { transform: scale(1.15); margin: 0 4px; } }
 </style>
+`;
 
-<div id="loadingOverlay" class="loading-overlay" style="display:none;">
-    <div class="loading-spinner"><div class="spinner-icon"></div><p class="mb-0 text-slate-600" data-i18n="pinyin.loading">Loading pinyin data...</p></div>
+const MARKUP = `
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner-icon"></div>
+        <p class="mb-0 text-slate-600" data-i18n="pinyin.loading">Loading pinyin data...</p>
+    </div>
 </div>
 
-<div id="errorState" class="container py-5" style="display:none;">
+<!-- Error State -->
+<div id="errorState" class="container py-5" style="display: none;">
     <div class="alert alert-danger">
         <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pinyin.error.title">Error</span></h2>
         <p id="errorMessage" class="mb-2"></p>
     </div>
 </div>
 
-<div class="pinyin-header" id="pinyinHeader" style="display:none;">
+<!-- Header -->
+<div class="pinyin-header" id="pinyinHeader" style="display: none;">
     <div class="container py-3">
         <div class="row align-items-center">
-            <div class="col"><h1 class="mb-0 h5"><i class="bi bi-translate text-primary me-2"></i><span id="testTitle" data-i18n="pinyin.title">Pinyin Tone Trainer</span></h1></div>
-            <div class="col-auto"><span class="badge bg-primary me-2" id="testLanguage"></span><span class="badge bg-info" data-i18n="pinyin.badge">Pinyin</span><span class="ms-2 text-slate-500"><i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span></span></div>
+            <div class="col">
+                <h1 class="mb-0 h5">
+                    <i class="bi bi-translate text-primary me-2"></i>
+                    <span id="testTitle" data-i18n="pinyin.title">Pinyin Tone Trainer</span>
+                </h1>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-primary me-2" id="testLanguage"></span>
+                <span class="badge bg-info" data-i18n="pinyin.badge">Pinyin</span>
+                <span class="ms-2 text-slate-500">
+                    <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
+                </span>
+            </div>
         </div>
     </div>
-    <div class="pinyin-progress-bar"><div class="pinyin-progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="pinyin-progress-bar">
+        <div class="pinyin-progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
 </div>
 
-<div class="touch-area" id="touchArea" style="display:none;"></div>
+<!-- Touch Area (for swipe detection) -->
+<div class="touch-area" id="touchArea" style="display: none;"></div>
 
-<div class="passage-container" id="passageContainer" style="display:none;">
+<!-- Passage Display -->
+<div class="passage-container" id="passageContainer" style="display: none;">
     <div class="passage-grid" id="passageGrid"></div>
 </div>
 
-<div class="controls-hint" id="controlsHint" style="display:none;">
+<!-- Controls Hint Bar -->
+<div class="controls-hint" id="controlsHint" style="display: none;">
     <div class="controls-grid">
-        <div class="control-item"><span class="control-key"><i class="bi bi-arrow-right"></i></span><span class="tone-dot" style="background: var(--tone-1);"></span><span>T1</span></div>
-        <div class="control-item"><span class="control-key"><i class="bi bi-arrow-up"></i></span><span class="tone-dot" style="background: var(--tone-2);"></span><span>T2</span></div>
-        <div class="control-item"><span class="control-key"><i class="bi bi-arrow-left"></i></span><span class="tone-dot" style="background: var(--tone-3);"></span><span>T3</span></div>
-        <div class="control-item"><span class="control-key"><i class="bi bi-arrow-down"></i></span><span class="tone-dot" style="background: var(--tone-4);"></span><span>T4</span></div>
-        <div class="control-item"><span class="control-key" data-i18n="pinyin.space">Space</span><span class="tone-dot" style="background: var(--tone-5);"></span><span data-i18n="pinyin.neutral">Neutral</span></div>
+        <div class="control-item">
+            <span class="control-key"><i class="bi bi-arrow-right"></i></span>
+            <span class="tone-dot" style="background: var(--tone-1);"></span>
+            <span>T1</span>
+        </div>
+        <div class="control-item">
+            <span class="control-key"><i class="bi bi-arrow-up"></i></span>
+            <span class="tone-dot" style="background: var(--tone-2);"></span>
+            <span>T2</span>
+        </div>
+        <div class="control-item">
+            <span class="control-key"><i class="bi bi-arrow-left"></i></span>
+            <span class="tone-dot" style="background: var(--tone-3);"></span>
+            <span>T3</span>
+        </div>
+        <div class="control-item">
+            <span class="control-key"><i class="bi bi-arrow-down"></i></span>
+            <span class="tone-dot" style="background: var(--tone-4);"></span>
+            <span>T4</span>
+        </div>
+        <div class="control-item">
+            <span class="control-key" data-i18n="pinyin.space">Space</span>
+            <span class="tone-dot" style="background: var(--tone-5);"></span>
+            <span data-i18n="pinyin.neutral">Neutral</span>
+        </div>
     </div>
 </div>
 
+<!-- Error Modal (injected dynamically) -->
 <div id="errorModalContainer"></div>
+
+<!-- Results Screen (injected dynamically) -->
 <div id="resultsContainer"></div>
 `;

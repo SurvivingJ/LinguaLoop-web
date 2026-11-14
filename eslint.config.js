@@ -67,6 +67,16 @@ export default [
     languageOptions: { sourceType: 'module' },
   },
   {
+    // Page scripts that are ES modules: a session player mounted as a page.
+    files: [
+      'static/js/pages/test-pinyin.js',
+      'static/js/pages/test-pitch-accent.js',
+      'static/js/pages/classifier-drill.js',
+      'static/js/pages/counter-drill.js',
+    ],
+    languageOptions: { sourceType: 'module', globals: { escapeHtml: 'off' } },
+  },
+  {
     // Tooling and tests run under Node / vitest (jsdom), not the browser-script environment.
     files: ['playwright.config.js', 'tests/**/*.js'],
     languageOptions: {

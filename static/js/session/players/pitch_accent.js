@@ -1,9 +1,10 @@
 // static/js/session/players/pitch_accent.js
-// Japanese pitch-accent trainer player for the daily-session runner. Ported
-// from templates/test_pitch_accent.html (whose styles live in the global
-// static/css/styles.css, so no inline CSS is needed here). Container-scoped,
-// leak-free teardown (document keydown + timer tracked), error-modal buttons
-// wired via listeners (no window globals), and ctx.onComplete() on finish.
+// Japanese pitch-accent trainer: an item of the daily session, and the whole
+// of the standalone page /test/<slug>/pitch-accent
+// (static/js/pages/test-pitch-accent.js mounts it with ctx.standalone). Its
+// styles live in the global static/css/styles.css. Container-scoped, leak-free
+// teardown (document keydown + timer tracked), error-modal buttons wired via
+// listeners. In the session it finishes through ctx.onComplete().
 
 import { T, escapeHtml } from '../dom.js';
 import { createTrainer, prefetchTest } from './_syllable_trainer.js';
@@ -62,13 +63,13 @@ export function mount(container, ctx) {
   // body.pitch-accent-page — the class templates/test_pitch_accent.html sets
   // via its body_class block. The daily-session runner's body carries
   // study-session-page instead, so without this the whole player mounts
-  // completely unstyled (no layout, no colors, no progress bar). Standalone
-  // page sets the class for its own lifetime; here we set/clear it around
-  // this player's mount/destroy so it never leaks onto other players sharing
-  // the same session body.
+  // completely unstyled (no layout, no colors, no progress bar). The class is
+  // set and cleared around this player's mount/destroy so it never leaks onto
+  // other players sharing the session body.
   document.body.classList.add('pitch-accent-page');
 
-  container.innerHTML = MARKUP;
+  container.innerHTML = trainer.standalone ? MARKUP : trainer.compact(MARKUP);
+  trainer.addBackLink();
   init();
 
   return {
@@ -91,6 +92,7 @@ export function mount(container, ctx) {
     try {
       showLoading(true);
       if (!state.slug) throw new Error('No test slug');
+      if (trainer.standalone) await trainer.prepare();
       try {
         const savedMode = localStorage.getItem('pa_mode');
         if (savedMode === 'quick' || savedMode === 'contour') state.mode = savedMode;
@@ -158,9 +160,13 @@ export function mount(container, ctx) {
       el.className = 'word-token';
       el.dataset.index = idx;
       const surfaceHtml = renderSurfaceHtml(token.surface);
-      if (token.is_punctuation || token.pattern_class === 'unknown') {
+      if (token.is_punctuation) {
         el.classList.add('punctuation');
         el.innerHTML = `<span class="word-surface">${surfaceHtml}</span>`;
+      } else if (token.pattern_class === 'unknown') {
+        el.classList.add('punctuation');
+        const title = trainer.standalone ? ' title="No accent data"' : '';
+        el.innerHTML = `<span class="word-surface"${title}>${surfaceHtml}</span>`;
       } else {
         el.classList.add('upcoming');
         el.innerHTML = `<span class="word-surface">${surfaceHtml}</span><span class="word-kana-mini">&nbsp;</span><span class="contour-mini"></span>`;
@@ -719,6 +725,8 @@ export function mount(container, ctx) {
         timeLabel: t('pitch.stat.time', 'Time'),
         mistakesLabel: t('pitch.stat.mistakes', 'Mistakes'),
         eloLabel: t('pitch.stat.elo_change', 'ELO change'),
+        retryLabel: t('pitch.retry', 'Retry'),
+        allTestsLabel: t('pitch.all_tests', 'All tests'),
       },
     });
   }
@@ -728,48 +736,63 @@ export function mount(container, ctx) {
 // MARKUP — styles come from the global static/css/styles.css (loaded by base.html)
 // ========================================================================
 const MARKUP = `
-<div id="loadingOverlay" class="loading-overlay" style="display:none;">
-    <div class="loading-spinner"><div class="spinner-icon"></div><p class="mb-0 text-slate-600" data-i18n="pitch.loading">Loading pitch accent data...</p></div>
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner-icon"></div>
+        <p class="mb-0 text-slate-600" data-i18n="pitch.loading">Loading pitch accent data...</p>
+    </div>
 </div>
 
-<div id="errorState" class="container py-5" style="display:none;">
+<div id="errorState" class="container py-5" style="display: none;">
     <div class="alert alert-danger">
         <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pitch.error.title">Error</span></h2>
         <p id="errorMessage" class="mb-2"></p>
     </div>
 </div>
 
-<div class="pa-header" id="paHeader" style="display:none;">
+<div class="pa-header" id="paHeader" style="display: none;">
     <div class="container py-3">
         <div class="row align-items-center g-2">
             <div class="col-12 col-md-auto">
-                <h1 class="mb-0 h5"><i class="bi bi-music-note-beamed text-primary me-2"></i><span id="testTitle" data-i18n="pitch.title">Pitch Accent Trainer</span></h1>
+                <h1 class="mb-0 h5">
+                    <i class="bi bi-music-note-beamed text-primary me-2"></i>
+                    <span id="testTitle" data-i18n="pitch.title">Pitch Accent Trainer</span>
+                </h1>
             </div>
             <div class="col-12 col-md-auto ms-md-auto d-flex align-items-center gap-2 flex-wrap">
                 <div class="mode-toggle" id="modeToggle">
-                    <button type="button" data-mode="quick" class="active"><i class="bi bi-lightning-charge-fill me-1"></i><span data-i18n="pitch.mode.quick">Quick</span></button>
-                    <button type="button" data-mode="contour"><i class="bi bi-graph-up me-1"></i><span data-i18n="pitch.mode.contour">Contour</span></button>
+                    <button type="button" data-mode="quick" class="active">
+                        <i class="bi bi-lightning-charge-fill me-1"></i><span data-i18n="pitch.mode.quick">Quick</span>
+                    </button>
+                    <button type="button" data-mode="contour">
+                        <i class="bi bi-graph-up me-1"></i><span data-i18n="pitch.mode.contour">Contour</span>
+                    </button>
                 </div>
                 <span class="badge bg-primary" id="testLanguage"></span>
                 <label class="furigana-toggle" id="furiganaToggleLabel" title="Furigana over kanji (halves ELO change)">
-                    <input type="checkbox" id="furiganaToggle"><span>ふりがな</span>
+                    <input type="checkbox" id="furiganaToggle">
+                    <span>ふりがな</span>
                 </label>
-                <span class="text-slate-500"><i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span></span>
+                <span class="text-slate-500">
+                    <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
+                </span>
             </div>
         </div>
     </div>
-    <div class="pa-progress-bar"><div class="pa-progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="pa-progress-bar">
+        <div class="pa-progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
 </div>
 
 <!-- Swipe-to-answer overlay (Quick mode, touch devices) -->
-<div class="touch-area" id="touchArea" style="display:none;"></div>
+<div class="touch-area" id="touchArea" style="display: none;"></div>
 
-<div class="passage-container" id="passageContainer" style="display:none;">
+<div class="passage-container" id="passageContainer" style="display: none;">
     <div class="passage-grid" id="passageGrid"></div>
     <div id="scratchpadContainer"></div>
 </div>
 
-<div class="controls-hint" id="controlsHint" style="display:none;">
+<div class="controls-hint" id="controlsHint" style="display: none;">
     <div class="controls-grid" id="controlsGrid"></div>
 </div>
 

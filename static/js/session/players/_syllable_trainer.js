@@ -11,6 +11,7 @@ import {
   formatClock,
   showLoading as setLoading,
   showError as setError,
+  applyI18n,
 } from '../dom.js';
 import { prefetchJson, takePrefetch } from '../prefetch.js';
 
@@ -31,11 +32,42 @@ export function gradeFor(accuracy) {
 }
 
 /**
+ * Mount a trainer as its own page (/test/<slug>/pinyin, .../pitch-accent)
+ * instead of inside the daily session. `ctx.standalone` switches the player to
+ * its page behaviour: the page's own stylesheet, a way back to the test list,
+ * Retry / All tests on the results card, and the daily-load slot is marked
+ * when the page was opened from that queue (?daily=true).
+ */
+export function mountTestPage(mount, { root, testType }) {
+  const parts = window.location.pathname.split('/');
+  const slug = parts[parts.indexOf('test') + 1];
+  const daily = new URLSearchParams(window.location.search).get('daily') === 'true';
+  return mount(root, {
+    item: { slug },
+    languageId: null,
+    onComplete() {},
+    standalone: {
+      daily,
+      // Runs inside the player's own load step, so a failure here shows the
+      // player's error state.
+      async prepare() {
+        if (window.LinguaTestIntro) window.LinguaTestIntro.init({ testType });
+        if (window.LinguaMetadata) await window.LinguaMetadata.load();
+        if (window.LinguaI18n && window.LinguaI18n.init) await window.LinguaI18n.init();
+        applyI18n(root);
+      },
+    },
+  });
+}
+
+/**
  * createTrainer(container, ctx, { tokenClass, errorHideIds })
  *   tokenClass    class of a passage token element ('char-token', 'word-token')
  *   errorHideIds  sections hidden when the player fails to load
+ *   ctx.standalone  { daily, prepare() } when mounted by mountTestPage
  */
 export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
+  const standalone = ctx.standalone || null;
   const state = {
     slug: ctx.item.slug,
     testData: null,
@@ -213,7 +245,8 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
    *   buildBody   ({ correct, total, timeSec, errors, startedAt, finishedAt }) => body
    *   logName     prefix for a failed-submit console line
    *   results     { labelHtml(grade), accuracyLabel, unitsLabel, timeLabel,
-   *                 mistakesLabel, eloLabel }
+   *                 mistakesLabel, eloLabel, retryLabel, allTestsLabel }
+   *                 (the last two label the standalone page's links)
    */
   function complete({ submitUrl, buildBody, logName, results }) {
     state.isComplete = true;
@@ -239,16 +272,46 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
       if (resp.ok) {
         const data = await resp.json();
         if (data.result) updateResultsWithElo(data.result);
+        if (standalone && standalone.daily) {
+          markDailyLoadComplete(state.testData ? state.testData.id : null);
+        }
       }
     } catch (err) {
       console.error(`${logName} submit error:`, err);
     }
   }
 
+  // The "Today's Test Load" queue on the Tests page only learns an attempt is
+  // finished when it is told.
+  function markDailyLoadComplete(testId) {
+    const languageId = localStorage.getItem('selectedLanguageId');
+    if (!languageId || !testId) return;
+    window
+      .authFetch('/api/tests/daily-load/complete', {
+        method: 'POST',
+        body: JSON.stringify({ test_id: testId, language_id: parseInt(languageId) }),
+      })
+      .catch((err) => console.error('Error marking daily load complete:', err));
+  }
+
   function showResults(accuracy, timeSec, text) {
     const grade = gradeFor(accuracy);
     const stat = (value, label, id) =>
       `<div class="stat-box"><div class="stat-value"${id ? ` id="${id}"` : ''}>${value}</div><div class="stat-label">${label}</div></div>`;
+    const actions = standalone
+      ? `
+                        <a href="/test/${state.slug}/preview" class="btn btn-outline-primary flex-fill">
+                            <i class="bi bi-arrow-repeat me-1"></i>${text.retryLabel}
+                        </a>
+                        <a href="/tests" class="btn btn-primary flex-fill">
+                            <i class="bi bi-list-ul me-1"></i>${text.allTestsLabel}
+                        </a>
+                    `
+      : `
+                        <button class="btn btn-primary flex-fill" type="button" data-session-next>
+                            <span>${T('session.next_item', null, 'Next')}</span><i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    `;
     const html = `
             <div class="results-overlay">
                 <div class="results-card">
@@ -261,11 +324,7 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
                         ${stat(state.errorCount, text.mistakesLabel)}
                         ${stat('--', text.eloLabel, 'eloChangeDisplay')}
                     </div>
-                    <div class="d-flex gap-2 mt-3">
-                        <button class="btn btn-primary flex-fill" type="button" data-session-next>
-                            <span>${T('session.next_item', null, 'Next')}</span><i class="bi bi-arrow-right ms-1"></i>
-                        </button>
-                    </div>
+                    <div class="d-flex gap-2 mt-3">${actions}</div>
                 </div>
             </div>`;
     q('resultsContainer').innerHTML = html;
@@ -283,8 +342,35 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
     }
   }
 
+  /**
+   * The session lays a player's markup out without the whitespace between
+   * tags (inline elements sit flush); the standalone page keeps it.
+   */
+  const compact = (markup) => markup.replace(/>\s+</g, '><');
+
+  /** Standalone page: add the way back to the test list to the error state. */
+  function addBackLink() {
+    const alert = qs('#errorState .alert');
+    if (!standalone || !alert) return;
+    const link = document.createElement('a');
+    link.href = '/tests';
+    link.className = 'btn btn-danger';
+    link.innerHTML =
+      '<i class="fas fa-arrow-left me-2"></i><span data-i18n="test.back_to_tests">Back to Tests</span>';
+    alert.appendChild(link);
+  }
+
+  /** Standalone page: what the page needs before the test loads. */
+  async function prepare() {
+    if (standalone && standalone.prepare) await standalone.prepare();
+  }
+
   return {
     state,
+    standalone,
+    addBackLink,
+    prepare,
+    compact,
     on,
     q,
     qs,

@@ -12,10 +12,8 @@ const FILES = [
   'static/js/session/players/pinyin.js',
   'static/js/session/players/pitch_accent.js',
   'static/js/session/players/classifier_drill.js',
-  'templates/test_pinyin.html',
-  'templates/test_pitch_accent.html',
-  'templates/classifier_drill.html',
-  'templates/counter_drill.html',
+  // The standalone test and drill pages mount the players above.
+  'static/js/pages/counter-drill.js',
 ];
 
 describe('test/drill submit payloads include started_at and finished_at', () => {
