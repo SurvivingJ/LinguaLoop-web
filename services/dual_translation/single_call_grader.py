@@ -1,26 +1,35 @@
-"""Single-call generative grader for Dual Translation (ADR-044).
+"""Single-call generative grader for Dual Translation (ADR-044), prompt v2.
 
-One cheap structured-output call per submission. The model returns a list of
-errors — sentence number, the offending learner text, a taxonomy-v6 type, a
-severity and a short English note — and everything else is done in Python:
+One cheap structured-output call per submission. The model returns
 
-  * the model's learner fragment is located in the reproduction (it must be
-    there verbatim, or be repairable by ``grader_cascade._reconcile_span_form``);
-  * the reference-side fragment (``span_reference`` / ``corrected_form``) is
-    derived by aligning the learner sentence with its reference sentence — the
-    model is not asked for it, because the validated prompt does not ask;
+  * a list of errors - sentence number, an exact quote of the learner fragment,
+    the reference fragment it should have been, a taxonomy-v6 type, a severity, a
+    confidence (high / medium / low), a source (interlingual / intralingual) and
+    a one-sentence explanation in the learner's L1; then
+  * a band (1-4) with a verbatim evidence quote for ``naturalness`` and ``range``.
+
+Everything else is done in Python:
+
+  * each learner quote is LOCATED in the reproduction (``_locate_learner``): exact
+    match in the named sentence -> width/kana/case/punctuation-normalised match
+    -> exact/normalised match elsewhere (a mis-numbered sentence) -> bounded fuzzy
+    match inside the named sentence -> the diff hunk of that sentence that best
+    overlaps the quote -> only then the whole sentence. The path taken is the
+    error's ``span_source`` and is counted in ``grader_trace.single_call.
+    span_resolution``;
+  * the reference quote is located the same way in the reference sentence and
+    becomes ``span_reference`` / ``corrected_form`` (``correction_source =
+    model_quote``); a missing/unlocatable quote falls back to aligning the two
+    sentences (``aligned_diff``) and finally to the whole reference sentence;
   * each error goes through the same ``grader_cascade._decode_error`` validation
     as the v1/v2 flows, so it comes out in the identical ``dt_error_instance``
     shape with the template-rendered ``explanation`` (ADR-015);
   * accuracy / fidelity / understandability are derived by the unchanged
-    ``scoring.compute_dimension_bands`` and ``scoring.compute_overall``.
-
-The prompt, schema and request parameters are the frozen Track B ``p1_expl``
-variant (``single_call_prompts``); the per-(model, language) severity rule is the
-one frozen in ``data/eval/dt_decision_2026-11-14/track_b/frozen_configs.json``.
+    ``scoring.compute_dimension_bands``; naturalness / range are the model's
+    judgments; ``scoring.compute_overall`` weighs all five.
 
 Dispatch (``grader_cascade._grade_cascade``, after the Tier 0 short-circuit,
-gated by ``Config.DT_SINGLE_CALL_GRADER``, default off):
+gated by ``Config.DT_SINGLE_CALL_GRADER``, default ON since 2026-11-14):
 
     primary model  --fails-->  fallback model (once)  --fails-->  configured flow
 
@@ -29,37 +38,56 @@ gated by ``Config.DT_SINGLE_CALL_GRADER``, default off):
 the submission with the configured v2/v1 flow, stamping why on
 ``grader_trace.single_call`` (``mark_fallback``). A single-call failure therefore
 never awards silent full marks. Any unexpected exception in here is treated the
-same way — this module must not be able to break grading.
+same way - this module must not be able to break grading.
 
-Naturalness and range — NOT scored
-----------------------------------
-The experiment could not validate either dimension: Track B's "naturalness" was
-only a derived proxy (band 3 if any naturalness-type error was reported, else 4)
-on a gold set with 2-3 informative items per language, and range is band 4 on
-every gold item. The existing contract already allows a dimension to be absent
-(a v2 grade whose Verifier judgment had no evidence leaves it out of ``scores``
-and ``scoring.compute_overall`` renormalises over what is present; the UI skips a
-missing dimension). So this flow takes the most conservative reading: it returns
-``scores`` for accuracy, fidelity and understandability ONLY, computes
-``overall_band`` over those three, and lists the other two under
-``grader_trace.single_call.unscored_dimensions``. It never invents a band 4.
+Naturalness and range - scored, but NOT validated to the same standard
+----------------------------------------------------------------------
+All five rubric dimensions are scored, as the grading contract expects. The two
+judged dimensions mirror the v2 Verifier: the same rubric band descriptors for
+the passage's age tier go in the prompt, and a judgment counts only when its
+band is 1-4 AND its evidence quote is found in the learner text
+(``_decode_judgments``, the equivalent of ``grader_cascade._judgment_band`` /
+``_has_valid_evidence``). A judgment that fails this is left out of ``scores``
+and ``overall_band`` renormalises over the rest; it is never defaulted to 4.
 
-Fields the model does not supply
---------------------------------
-``source`` (interlingual / intralingual) and ``confidence`` are NOT NULL columns
-that the validated prompt does not ask for. They are filled with fixed defaults
-(``DEFAULT_SOURCE``, ``DEFAULT_CONFIDENCE`` — the same 0.5 ``_decode_error`` uses
-for a missing confidence) and the defaults are named in the trace so nobody
-mistakes them for model judgements.
+Be clear about what the evidence is: the v6 gold set has naturalness = 3 on 7 of
+91 items and = 4 on the rest, and range = 4 on every item. Agreement on these two
+dimensions is therefore measured on almost no variation (see
+``data/eval/dt_decision_2026-11-14/prod_check/v2/REPORT.md``); it shows the model
+does not invent low bands, not that it can tell a 2 from a 3.
+
+Confidence and source - model judgments
+---------------------------------------
+``confidence`` is the model's high / medium / low mapped to 0.9 / 0.6 / 0.3
+(``single_call_prompts.CONFIDENCE_VALUES``); the label is kept as
+``confidence_label``. ``source`` is the model's interlingual / intralingual call,
+made knowing the learner's L1 (the taxonomy carries no per-type default source,
+so there is nothing to derive it from). Neither has gold labels: the confidence
+signal was checked against gold true/false positives (same REPORT), ``source`` is
+unvalidated. A missing/invalid value (possible only from a model that ignores the
+strict schema) falls back to ``DEFAULT_CONFIDENCE`` / ``DEFAULT_SOURCE`` and is
+counted in ``defaulted``.
 
 Explanations
 ------------
 ``explanation`` stays the template-rendered Rule text (ADR-015). The model's own
-short note is English, unreviewed, and may not be in the learner's L1, so it is
-kept apart as ``explanation_parts.model_note`` (after the explainer's length /
-single-paragraph / score-pattern guards) and never concatenated into
-``explanation``. ``explanation_parts.application`` is None unless
-``Config.DT_SINGLE_CALL_EXPLAINER`` runs the v2 Explainer as a second call.
+explanation is asked for in the learner's L1 and, when it passes the Explainer's
+Application-layer guards (``explainer._validated_application``: <= 240 chars,
+one paragraph, no score-like digits, mentions the learner or corrected form) plus
+a cheap wrong-language check, is SHOWN to the learner as
+``explanation_parts.application`` - the field the results UI already renders under
+the Rule text. When a guard rejects it, the template stands alone. Each error
+records which it was in ``explanation_source`` (model | template | explainer) and
+the accepted text in ``model_note``; the reject reason is in the per-error trace.
+``Config.DT_SINGLE_CALL_EXPLAINER`` (default off) runs the v2 Explainer as a
+second call; its Application layer then takes precedence.
+
+Unknown error types
+-------------------
+The strict schema restricts ``type`` to the hardcoded exhaustive list. If a model
+returns something else anyway, a v5 slug that taxonomy v6 ``legacy_aliases`` maps
+onto an allowed type is mapped and counted (``type_aliased``); anything else is
+dropped and counted (``dropped.unknown_type``) with a warning. Never silent.
 
 Budget gate
 -----------
@@ -90,6 +118,7 @@ import json
 import logging
 import re
 import time
+import unicodedata
 from typing import Optional
 
 from config import Config
@@ -122,7 +151,8 @@ REQUEST_EXTRAS: dict[str, dict] = {
 
 CALL_TIMEOUT_S = 30
 
-# Fixed fill-ins for NOT NULL columns the prompt does not ask the model for.
+# Used only when the model's value is missing/invalid (a model that ignored the
+# strict schema); counted in grader_trace.single_call.defaulted.
 DEFAULT_SOURCE = "intralingual"
 DEFAULT_CONFIDENCE = 0.5
 
@@ -131,24 +161,43 @@ DEFAULT_CONFIDENCE = 0.5
 # shown is the whole reference sentence.
 MIN_ALIGN_RATIO = 0.5
 
+# Bounded fuzzy quote matching (inside ONE sentence only).
+FUZZY_MIN_RATIO = 0.75       # SequenceMatcher ratio of the best window vs the quote
+FUZZY_MAX_TOKENS = 400       # sentences longer than this are not fuzzy-searched
+FUZZY_MIN_CHARS = {"en": 4}  # shortest quote worth fuzzy-matching (default 2)
+
 # Size caps on what is kept for storage (see migrations/dt_grading_assets.sql).
 RAW_RESPONSE_CAP = 4000      # chars of raw text kept, and only for a failed parse
 RAW_ERRORS_CAP = 50          # model error entries kept per attempt
 RAW_FIELD_CAP = 300          # chars per string field of a kept entry
 ERROR_TEXT_CAP = 300         # chars of an attempt's error message
 
-UNSCORED_DIMENSIONS = ("naturalness", "range")
-
 STATUS_OK = "ok"
 STATUS_CALL_FAILED = "call_failed"
 STATUS_MALFORMED_JSON = "malformed_json"
 STATUS_MALFORMED_SHAPE = "malformed_shape"
 
-SPAN_FROM_MODEL = "model"          # the model's fragment, found verbatim
-SPAN_REPAIRED = "repaired"         # found only after relocation / folding
-SPAN_FROM_SENTENCE = "sentence"    # not found: the whole learner sentence is used
-CORRECTION_ALIGNED = "aligned_diff"
-CORRECTION_SENTENCE = "reference_sentence"
+# span_source: how the learner span was resolved, best to worst.
+SPAN_EXACT = "exact"              # the quote, verbatim
+SPAN_NORMALISED = "normalised"    # found after width/kana/case/punctuation folding
+SPAN_FUZZY = "fuzzy"              # closest window in the named sentence (>= FUZZY_MIN_RATIO)
+SPAN_DIFF_HUNK = "diff_hunk"      # the changed region of the sentence overlapping the quote
+SPAN_SENTENCE = "sentence"        # last resort: the error is marked on the whole sentence
+SPAN_SOURCES = (SPAN_EXACT, SPAN_NORMALISED, SPAN_FUZZY, SPAN_DIFF_HUNK, SPAN_SENTENCE)
+
+CORRECTION_MODEL_QUOTE = "model_quote"     # the model's reference quote, located in REF
+CORRECTION_ALIGNED = "aligned_diff"        # found by aligning the two sentences
+CORRECTION_SENTENCE = "reference_sentence" # the whole reference sentence
+CORRECTION_SOURCES = (CORRECTION_MODEL_QUOTE, CORRECTION_ALIGNED, CORRECTION_SENTENCE)
+
+EXPLANATION_FROM_MODEL = "model"
+EXPLANATION_FROM_TEMPLATE = "template"
+EXPLANATION_FROM_EXPLAINER = "explainer"
+
+JUDGMENT_OK = "ok"
+JUDGMENT_MISSING = "missing"
+JUDGMENT_BAD_BAND = "bad_band"
+JUDGMENT_NO_EVIDENCE = "no_evidence"
 
 
 # ---------------------------------------------------------------------------
