@@ -13,7 +13,7 @@ import logging
 from flask import Blueprint, request, g
 
 from middleware.auth import jwt_required as supabase_jwt_required
-from routes.common import db
+from routes.common import get_db
 from services.dimension_service import DimensionService
 from services.drill_service import CLASSIFIER_DRILL, COUNTER_DRILL, DrillService
 from utils.responses import ApiResponse, api_errors, api_success, bad_request, server_error
@@ -97,7 +97,7 @@ def make_drill_blueprint(drill: DrillService, *, label: str, wrong_language: str
         # drills count toward weekly_plan_states.completed_counts.
         from routes.tests import _apply_timing_and_progress  # lazy: circular import
         _apply_timing_and_progress(
-            db(), rpc_result.get('attempt_id'), data,
+            get_db(), rpc_result.get('attempt_id'), data,
             user_id=g.current_user_id, language_id=language_id, kind='drill',
         )
 

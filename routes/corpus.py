@@ -3,18 +3,13 @@ import logging
 import httpx
 from flask import Blueprint, request
 from middleware.auth import admin_required
-from services.supabase_factory import get_supabase_admin
+from routes.common import get_db
 from services.corpus.ingestion import CorpusIngestionService, UnsafeURLError
 from utils.responses import api_success, api_error, bad_request, not_found
 
 logger = logging.getLogger(__name__)
 
 corpus_bp = Blueprint('corpus', __name__)
-
-
-def _get_db():
-    """Return the admin Supabase client (bypasses RLS)."""
-    return get_supabase_admin()
 
 
 @corpus_bp.route('/ingest', methods=['POST'])
@@ -44,7 +39,7 @@ def ingest_corpus():
     if not source_type or not language_id:
         return bad_request('source_type and language_id are required')
 
-    service = CorpusIngestionService(db=_get_db())
+    service = CorpusIngestionService(db=get_db())
 
     try:
         if source_type == 'url':
@@ -100,7 +95,7 @@ def analyze_style():
         return bad_request('corpus_source_id and language_id are required')
 
     # Load the raw text from the source
-    db = _get_db()
+    db = get_db()
     source = (
         db.table('corpus_sources')
         .select('raw_text')
@@ -134,7 +129,7 @@ def get_style_profile(source_id: int):
     Response (200):
         {"profile": {...}}
     """
-    db = _get_db()
+    db = get_db()
     result = (
         db.table('corpus_style_profiles')
         .select('*')

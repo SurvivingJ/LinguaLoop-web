@@ -2,11 +2,11 @@
 test and attempt history."""
 
 from flask import request, current_app, g
-import traceback
 import logging
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
+from routes.common import get_db
 from services import attempts
 from services.ai_service import ModerationServiceError
 from services.test_service import (
@@ -14,9 +14,10 @@ from services.test_service import (
     get_test_content, get_test_skill_ratings, list_tests_with_ratings,
 )
 from utils.responses import (
-    api_success, bad_request, not_found, server_error,
+    api_errors, api_success, bad_request, not_found, server_error,
     service_unavailable, unauthorized,
 )
+from utils.validation import json_body
 
 from .blueprint import tests_bp
 
@@ -43,7 +44,7 @@ def moderate_content():
         if not current_app.openai_service:
             return server_error("OpenAI service not available")
 
-        data = request.get_json(silent=True) or {}
+        data = json_body(silent=True)
         content = data.get('content', '').strip()
 
         if not content:
@@ -90,7 +91,7 @@ def get_random_test():
         return bad_request("Invalid or missing language_id parameter")
 
     # Call the get_recommended_test RPC which handles ELO matching
-    result = current_app.supabase_service.rpc('get_recommended_test', {
+    result = get_db().rpc('get_recommended_test', {
         'p_user_id': user_id,
         'p_language_id': language_id
     }).execute()
@@ -104,6 +105,7 @@ def get_random_test():
 
 @tests_bp.route('/recommended', methods=['GET'])
 @supabase_jwt_required
+@api_errors("Failed to fetch recommended tests")
 def get_recommended_tests():
     """Get recommended tests based on user's ELO ratings."""
     user_id = g.current_user_id
@@ -113,20 +115,17 @@ def get_recommended_tests():
     if not language_id:
         return bad_request("Invalid or missing language_id")
 
-    try:
-        result = current_app.supabase_service.rpc('get_recommended_tests', {
-            'p_user_id': user_id,
-            'p_language_id': language_id
-        }).execute()
+    result = get_db().rpc('get_recommended_tests', {
+        'p_user_id': user_id,
+        'p_language_id': language_id
+    }).execute()
 
-        return api_success(data={"recommended_tests": result.data or []})
-    except Exception as e:
-        logger.error(f"Error fetching recommended tests: {e}")
-        return server_error("Failed to fetch recommended tests")
+    return api_success(data={"recommended_tests": result.data or []})
 
 
 @tests_bp.route('/daily-load', methods=['GET'])
 @supabase_jwt_required
+@api_errors("Failed to fetch daily load")
 def get_daily_load():
     """Get or compute today's daily test load for the user."""
     user_id = g.current_user_id
@@ -136,23 +135,19 @@ def get_daily_load():
     if not language_id:
         return bad_request("Invalid or missing language_id")
 
-    try:
-        test_service = get_test_service()
-        daily_load = test_service.get_or_create_daily_load(user_id, language_id)
+    test_service = get_test_service()
+    daily_load = test_service.get_or_create_daily_load(user_id, language_id)
 
-        return api_success(data={"daily_load": daily_load})
-    except Exception as e:
-        logger.error(f"Error fetching daily load: {e}")
-        logger.error(traceback.format_exc())
-        return server_error("Failed to fetch daily load")
+    return api_success(data={"daily_load": daily_load})
 
 
 @tests_bp.route('/daily-load/complete', methods=['POST'])
 @supabase_jwt_required
+@api_errors("Failed to mark daily test complete")
 def complete_daily_load_test():
     """Mark a test as completed in today's daily load."""
     user_id = g.current_user_id
-    data = request.get_json(silent=True) or {}
+    data = json_body(silent=True)
 
     if not data:
         return bad_request("Request body required")
@@ -169,35 +164,24 @@ def complete_daily_load_test():
         return api_success(data=result)
     except NoMatchingAttemptError:
         return bad_request("No attempt recorded today for this test")
-    except Exception as e:
-        logger.error(f"Error marking daily test complete: {e}")
-        logger.error(traceback.format_exc())
-        return server_error("Failed to mark daily test complete")
 
 
 @tests_bp.route('/', methods=['GET'])
 @supabase_jwt_required
+@api_errors("Failed to fetch tests")
 def get_tests_with_ratings():
     """Get tests list with ELO ratings for filtering/preview."""
-    try:
-        language_id_param = request.args.get('language_id')
-        difficulty = request.args.get('difficulty')
-        limit = request.args.get('limit', 50, type=int) or 50
+    language_id_param = request.args.get('language_id')
+    difficulty = request.args.get('difficulty')
+    limit = request.args.get('limit', 50, type=int) or 50
 
-        if not current_app.supabase_service:
-            return server_error("Database service not configured")
+    tests_with_ratings = list_tests_with_ratings(
+        get_db(),
+        language_id=parse_language_id(language_id_param),
+        difficulty=difficulty, limit=limit,
+    )
 
-        tests_with_ratings = list_tests_with_ratings(
-            current_app.supabase_service,
-            language_id=parse_language_id(language_id_param),
-            difficulty=difficulty, limit=limit,
-        )
-
-        return api_success(data={"tests": tests_with_ratings})
-
-    except Exception as e:
-        current_app.logger.error(f"Error fetching tests: {e}", exc_info=True)
-        return server_error("Failed to fetch tests")
+    return api_success(data={"tests": tests_with_ratings})
 
 def _public_cacheable(response):
     """Mark a response that carries no per-user data as briefly cacheable."""
@@ -219,161 +203,146 @@ def _transcript_withheld_for(db, user_id, test):
 
 @tests_bp.route('/<slug>', methods=['GET'])
 #@supabase_jwt_required
+@api_errors("Failed to fetch test")
 def get_test(slug):
     """Get a test by slug in the shape expected by the Flutter app."""
-    try:
-        test_service = get_test_service()
-        test_data = test_service.get_test_by_slug(slug)
-        if not test_data:
-            return not_found("Test not found")
+    test_service = get_test_service()
+    test_data = test_service.get_test_by_slug(slug)
+    if not test_data:
+        return not_found("Test not found")
 
-        normalize_audio_url(test_data)
+    normalize_audio_url(test_data)
 
-        from middleware.auth import get_optional_user_id
-        user_id = get_optional_user_id(request)
-        if user_id and current_app.supabase_service and _transcript_withheld_for(
-                current_app.supabase_service, user_id, test_data):
-            test_data['transcript'] = ''
+    from middleware.auth import get_optional_user_id
+    user_id = get_optional_user_id(request)
+    if user_id and _transcript_withheld_for(
+            get_db(), user_id, test_data):
+        test_data['transcript'] = ''
 
-        logger.debug(f"Returning test data for slug: {slug}")
-        response = api_success(data={"test": test_data})
-        return response if user_id else _public_cacheable(response)
-
-    except Exception as e:
-        current_app.logger.error(f"Error in get_test route: {e}")
-        return server_error("Failed to fetch test")
+    logger.debug(f"Returning test data for slug: {slug}")
+    response = api_success(data={"test": test_data})
+    return response if user_id else _public_cacheable(response)
 
 
 @tests_bp.route('/test/<identifier>', methods=['GET'])
 #@supabase_jwt_required
+@api_errors("Failed to fetch test")
 def get_test_with_ratings(identifier):
     """Get test with ELO ratings for preview/taking. Accepts slug or UUID."""
-    try:
-        db = current_app.supabase_service
-        if not db:
-            return service_unavailable("Service not available")
+    db = get_db()
 
-        # This route is deliberately reachable without auth (public
-        # preview/taking) -- personalize the definition language only
-        # when a valid token happens to be present.
-        from middleware.auth import get_optional_user_id
-        from services.vocabulary.gloss_lookup import (
-            apply_definition_language_preference, get_user_definition_language_id,
-        )
-        optional_user_id = get_optional_user_id(request)
+    # This route is deliberately reachable without auth (public
+    # preview/taking) -- personalize the definition language only
+    # when a valid token happens to be present.
+    from middleware.auth import get_optional_user_id
+    from services.vocabulary.gloss_lookup import (
+        apply_definition_language_preference, get_user_definition_language_id,
+    )
+    optional_user_id = get_optional_user_id(request)
 
-        def _definition_language(test):
-            if not optional_user_id or not any(s for _, s in (test.get('vocab_token_map') or [])):
-                return None
-            return get_user_definition_language_id(db, optional_user_id)
+    def _definition_language(test):
+        if not optional_user_id or not any(s for _, s in (test.get('vocab_token_map') or [])):
+            return None
+        return get_user_definition_language_id(db, optional_user_id)
 
-        # Static content comes from the in-process cache; ratings and the
-        # per-user reads are fetched now, alongside whatever is not cached.
-        found = get_test_content(db, identifier, also=(
-            lambda test: get_test_skill_ratings(db, test['id']),
-            lambda test: _transcript_withheld_for(db, optional_user_id, test),
-            _definition_language,
-        ))
-        if not found:
-            return not_found("Test not found")
-        content, (ratings, dictation_pending, preferred_def_lang_id) = found
-        test = content['test']
+    # Static content comes from the in-process cache; ratings and the
+    # per-user reads are fetched now, alongside whatever is not cached.
+    found = get_test_content(db, identifier, also=(
+        lambda test: get_test_skill_ratings(db, test['id']),
+        lambda test: _transcript_withheld_for(db, optional_user_id, test),
+        _definition_language,
+    ))
+    if not found:
+        return not_found("Test not found")
+    content, (ratings, dictation_pending, preferred_def_lang_id) = found
+    test = content['test']
 
-        # Add language info for backwards compatibility
-        lang_info = test.pop('dim_languages', {}) or {}
-        test['language'] = lang_info.get('language_code', 'unknown')
-        test['language_name'] = lang_info.get('language_name', 'Unknown')
+    # Add language info for backwards compatibility
+    lang_info = test.pop('dim_languages', {}) or {}
+    test['language'] = lang_info.get('language_code', 'unknown')
+    test['language_name'] = lang_info.get('language_name', 'Unknown')
 
-        # Withhold transcript pre-submit in dictation mode — the entire point
-        # is that the learner types what they hear without seeing the text.
-        # `?mode=dictation` asks for it; a pending dictation slot in today's
-        # load enforces it whatever the caller asks for.
-        mode = (request.args.get('mode') or '').lower()
-        if mode == 'dictation' or dictation_pending:
-            test.pop('transcript', None)
-            test.pop('vocab_token_map', None)
+    # Withhold transcript pre-submit in dictation mode — the entire point
+    # is that the learner types what they hear without seeing the text.
+    # `?mode=dictation` asks for it; a pending dictation slot in today's
+    # load enforces it whatever the caller asks for.
+    mode = (request.args.get('mode') or '').lower()
+    if mode == 'dictation' or dictation_pending:
+        test.pop('transcript', None)
+        test.pop('vocab_token_map', None)
 
-        normalize_audio_url(test)
+    normalize_audio_url(test)
 
-        # Pop pinyin payload (only present for Chinese tests)
-        pinyin_payload = test.pop('pinyin_payload', None)
-        # Pop pitch accent payload (only present for Japanese tests)
-        pitch_payload = test.pop('pitch_payload', None)
-        # Pop furigana payload (only present for Japanese tests)
-        furigana_payload = test.pop('furigana_payload', None)
+    # Pop pinyin payload (only present for Chinese tests)
+    pinyin_payload = test.pop('pinyin_payload', None)
+    # Pop pitch accent payload (only present for Japanese tests)
+    pitch_payload = test.pop('pitch_payload', None)
+    # Pop furigana payload (only present for Japanese tests)
+    furigana_payload = test.pop('furigana_payload', None)
 
-        # Load definitions for vocab token map sense IDs
-        token_map = test.pop('vocab_token_map', None) or []
-        definitions = {}
-        sense_rows = content['senses'] if token_map else []
-        if sense_rows:
-            gloss_rows = []
-            for sense in sense_rows:
-                vocab = sense.get('dim_vocabulary') or {}
-                gloss_rows.append({
-                    'vocab_id': sense.get('vocab_id'),
-                    'sense_rank': sense.get('sense_rank'),
-                    'definition_level': sense.get('definition_level'),
-                    'definition': sense.get('definition', ''),
-                    'language_id': vocab.get('language_id'),
-                })
-            apply_definition_language_preference(db, gloss_rows, preferred_def_lang_id)
+    # Load definitions for vocab token map sense IDs
+    token_map = test.pop('vocab_token_map', None) or []
+    definitions = {}
+    sense_rows = content['senses'] if token_map else []
+    if sense_rows:
+        gloss_rows = []
+        for sense in sense_rows:
+            vocab = sense.get('dim_vocabulary') or {}
+            gloss_rows.append({
+                'vocab_id': sense.get('vocab_id'),
+                'sense_rank': sense.get('sense_rank'),
+                'definition_level': sense.get('definition_level'),
+                'definition': sense.get('definition', ''),
+                'language_id': vocab.get('language_id'),
+            })
+        apply_definition_language_preference(db, gloss_rows, preferred_def_lang_id)
 
-            for sense, gloss_row in zip(sense_rows, gloss_rows):
-                vocab = sense.get('dim_vocabulary') or {}
-                definitions[str(sense['id'])] = {
-                    'word': vocab.get('lemma', ''),
-                    'definition': gloss_row['definition'],
-                    'definition_language_id': gloss_row['definition_language_id'],
-                    'definition_is_gloss': gloss_row['definition_is_gloss'],
-                    'part_of_speech': vocab.get('part_of_speech', ''),
-                    'reading': sense.get('pronunciation')
-                }
+        for sense, gloss_row in zip(sense_rows, gloss_rows):
+            vocab = sense.get('dim_vocabulary') or {}
+            definitions[str(sense['id'])] = {
+                'word': vocab.get('lemma', ''),
+                'definition': gloss_row['definition'],
+                'definition_language_id': gloss_row['definition_language_id'],
+                'definition_is_gloss': gloss_row['definition_is_gloss'],
+                'part_of_speech': vocab.get('part_of_speech', ''),
+                'reading': sense.get('pronunciation')
+            }
 
-        # Build response
-        response_data = {
-            "test_data": test,
-            "questions_data": content['questions'],
-            "skill_ratings": ratings,
-            "vocab_token_map": token_map,
-            "definitions": definitions,
-        }
-        if pinyin_payload is not None:
-            response_data["pinyin_payload"] = pinyin_payload
-        if pitch_payload is not None:
-            response_data["pitch_payload"] = pitch_payload
-        if furigana_payload is not None:
-            response_data["furigana_payload"] = furigana_payload
+    # Build response
+    response_data = {
+        "test_data": test,
+        "questions_data": content['questions'],
+        "skill_ratings": ratings,
+        "vocab_token_map": token_map,
+        "definitions": definitions,
+    }
+    if pinyin_payload is not None:
+        response_data["pinyin_payload"] = pinyin_payload
+    if pitch_payload is not None:
+        response_data["pitch_payload"] = pitch_payload
+    if furigana_payload is not None:
+        response_data["furigana_payload"] = furigana_payload
 
-        response = api_success(data=response_data)
-        return response if optional_user_id else _public_cacheable(response)
-
-    except Exception as e:
-        current_app.logger.error(f"Error fetching test {identifier}: {e}")
-        return server_error("Failed to fetch test")
+    response = api_success(data=response_data)
+    return response if optional_user_id else _public_cacheable(response)
 
 
 @tests_bp.route('/history', methods=['GET'])
 @supabase_jwt_required
+@api_errors('Failed to get test history')
 def get_test_history():
     """Get user's test attempt history with manual join"""
-    try:
-        user_id = g.current_user_id
-        if not user_id:
-            return unauthorized("User ID not found")
+    user_id = g.current_user_id
+    if not user_id:
+        return unauthorized("User ID not found")
 
-        history = attempts.list_test_history(
-            current_app.supabase_service or current_app.supabase,
-            current_app.supabase_service,
-            user_id,
-            language_id=request.args.get('language_id', type=int),
-            test_type_id=request.args.get('test_type_id', type=int),
-            limit=min(request.args.get('limit', 25, type=int) or 25, 100),
-            offset=max(request.args.get('offset', 0, type=int) or 0, 0),
-        )
-        return api_success(data={'tests': history})
-
-    except Exception as e:
-        logger.error(f"Error getting test history: {e}")
-        logger.error(traceback.format_exc())
-        return server_error('Failed to get test history')
+    history = attempts.list_test_history(
+        get_db(),
+        get_db(),
+        user_id,
+        language_id=request.args.get('language_id', type=int),
+        test_type_id=request.args.get('test_type_id', type=int),
+        limit=min(request.args.get('limit', 25, type=int) or 25, 100),
+        offset=max(request.args.get('offset', 0, type=int) or 0, 0),
+    )
+    return api_success(data={'tests': history})

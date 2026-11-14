@@ -47,15 +47,16 @@ and the same ``utils.responses`` success/error helpers.
 import logging
 from uuid import uuid4
 
-from flask import Blueprint, g, request
+from flask import Blueprint, g
 
 from middleware.auth import jwt_required
 from services.word_list_import.upload_handler import process_word_list_upload
 from services.word_list_import import batch_limits
 from services.word_list_import.validation import clean_words
 from utils.responses import (
-    ApiResponse, api_error, api_success, bad_request, server_error,
+    ApiResponse, api_error, api_success, bad_request,
 )
+from utils.validation import json_body
 
 logger = logging.getLogger(__name__)
 
@@ -221,52 +222,48 @@ def _run_upload_in_background(user_id, words, language_code, upload_batch_id):
 def submit() -> ApiResponse:
     """Validate words + language, start upload processing in the
     background, return an ``upload_batch_id`` immediately."""
-    try:
-        body = request.get_json(silent=True) or {}
-        words = body.get('words')
-        language = body.get('language')
+    body = json_body(silent=True)
+    words = body.get('words')
+    language = body.get('language')
 
-        if not isinstance(words, list) or not words:
-            return bad_request('words must be a non-empty list')
-        if len(words) > MAX_WORDS_PER_SUBMIT:
-            return bad_request(
-                f'words must not exceed {MAX_WORDS_PER_SUBMIT} per submission',
-            )
-        if not language or not isinstance(language, str):
-            return bad_request('language is required')
-
-        db_client = _get_db_client()
-        if not db_client.get_language_config_by_code(language):
-            return bad_request(f'Unsupported language: {language!r}')
-
-        words, problem = clean_words(words, language)
-        if problem:
-            return bad_request(f'Invalid word list: {problem}')
-
-        user_id = g.current_user_id
-        rejection = _limiter.reserve(
-            user_id,
-            known_batches_today=batch_limits.count_recent_batches(
-                db_client.client, user_id,
-            ),
+    if not isinstance(words, list) or not words:
+        return bad_request('words must be a non-empty list')
+    if len(words) > MAX_WORDS_PER_SUBMIT:
+        return bad_request(
+            f'words must not exceed {MAX_WORDS_PER_SUBMIT} per submission',
         )
-        if rejection:
-            return _too_many(rejection)
+    if not language or not isinstance(language, str):
+        return bad_request('language is required')
 
-        upload_batch_id = str(uuid4())
-        queued = _pool.submit(
-            lambda: _run_upload_in_background(
-                user_id, words, language, upload_batch_id,
-            )
+    db_client = _get_db_client()
+    if not db_client.get_language_config_by_code(language):
+        return bad_request(f'Unsupported language: {language!r}')
+
+    words, problem = clean_words(words, language)
+    if problem:
+        return bad_request(f'Invalid word list: {problem}')
+
+    user_id = g.current_user_id
+    rejection = _limiter.reserve(
+        user_id,
+        known_batches_today=batch_limits.count_recent_batches(
+            db_client.client, user_id,
+        ),
+    )
+    if rejection:
+        return _too_many(rejection)
+
+    upload_batch_id = str(uuid4())
+    queued = _pool.submit(
+        lambda: _run_upload_in_background(
+            user_id, words, language, upload_batch_id,
         )
-        if not queued:
-            _limiter.release(user_id, refund=True)
-            return _too_many(batch_limits.REJECT_BUSY)
+    )
+    if not queued:
+        _limiter.release(user_id, refund=True)
+        return _too_many(batch_limits.REJECT_BUSY)
 
-        return api_success({'upload_batch_id': upload_batch_id}, status_code=202)
-    except Exception:
-        logger.exception('word-list submit failed')
-        return server_error()
+    return api_success({'upload_batch_id': upload_batch_id}, status_code=202)
 
 
 @word_list_import_bp.route('/watchlist', methods=['GET'])
@@ -284,23 +281,19 @@ def watchlist() -> ApiResponse:
     row already surfacing raw-ish internal names like `sense_id` and
     `language_id` rather than pre-humanized ones.
     """
-    try:
-        db_client = _get_db_client()
-        resp = (
-            db_client.client.table('user_word_watchlist')
-            .select(_WATCHLIST_COLUMNS)
-            .eq('user_id', g.current_user_id)
-            .execute()
-        )
-        rows = resp.data or []
+    db_client = _get_db_client()
+    resp = (
+        db_client.client.table('user_word_watchlist')
+        .select(_WATCHLIST_COLUMNS)
+        .eq('user_id', g.current_user_id)
+        .execute()
+    )
+    rows = resp.data or []
 
-        lemma_by_sense_id = _resolve_lemmas(
-            db_client, [row.get('sense_id') for row in rows],
-        )
-        for row in rows:
-            row['lemma'] = lemma_by_sense_id.get(row.get('sense_id'))
+    lemma_by_sense_id = _resolve_lemmas(
+        db_client, [row.get('sense_id') for row in rows],
+    )
+    for row in rows:
+        row['lemma'] = lemma_by_sense_id.get(row.get('sense_id'))
 
-        return api_success({'watchlist': rows})
-    except Exception:
-        logger.exception('word-list watchlist fetch failed')
-        return server_error()
+    return api_success({'watchlist': rows})

@@ -232,7 +232,7 @@ def _call_get(app, monkeypatch, db, practice, speed=True, tests=(), query=''):
     test_service.get_or_create_daily_load.return_value = {
         'tests': list(tests), 'load_date': '2026-10-13'}
     monkeypatch.setattr(ss, 'get_test_service', lambda: test_service)
-    monkeypatch.setattr(ss, 'get_supabase_admin', lambda: db)
+    monkeypatch.setattr(ss, 'get_db', lambda: db)
     monkeypatch.setattr(ss, '_practice_service', lambda: practice)
     monkeypatch.setattr(ss, '_today_iso', lambda *a: '2026-10-13')
     monkeypatch.setattr(ss, '_mpnw', lambda db, lang: 3.0)
@@ -327,7 +327,7 @@ def test_a_failed_optional_read_costs_only_its_own_part(app, monkeypatch):
 
 
 def _post_complete(app, monkeypatch, db, block_id):
-    monkeypatch.setattr(ss, 'get_supabase_admin', lambda: db)
+    monkeypatch.setattr(ss, 'get_db', lambda: db)
     monkeypatch.setattr(ss, '_today_iso', lambda *a: '2026-10-13')
     with app.test_request_context(
             '/api/study-session/complete-block', method='POST',

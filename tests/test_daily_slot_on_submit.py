@@ -97,13 +97,13 @@ def _rpc_ok():
 
 
 @pytest.fixture
-def test_row_db(app):
+def test_row_db(app, monkeypatch):
     db = MagicMock()
     db.table.return_value.select.return_value.eq.return_value.eq.return_value \
         .single.return_value.execute.return_value = SimpleNamespace(data={
             'id': 'T7', 'language_id': 1,
             'pinyin_payload': [{'char': c, 'is_punctuation': False} for c in '一二三四']})
-    app.supabase_service = db
+    monkeypatch.setattr('services.supabase_factory.get_supabase_admin', lambda: db)
     return db
 
 

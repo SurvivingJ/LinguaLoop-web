@@ -48,9 +48,9 @@ def window(seconds, end_ago=1):
 
 
 @pytest.fixture
-def db(app):
+def db(app, monkeypatch):
     fake = LedgerDB()
-    app.supabase_service = fake
+    monkeypatch.setattr('services.supabase_factory.get_supabase_admin', lambda: fake)
     return fake
 
 
@@ -174,8 +174,8 @@ class TestTestSubmitRoutes:
 class TestDrillRoutes:
     def test_classifier_drill_credits_kind_drill(self, client, auth_headers, db):
         body = {'language_id': 1, 'correct_items': 4, 'total_items': 5, **window(100)}
-        with patch('routes.classifier_drill.submit_session', return_value=_rpc_ok('att-c')), \
-             patch('routes.classifier_drill.DimensionService.get_test_type_id', return_value=14):
+        with patch('services.drill_service.CLASSIFIER_DRILL.submit_session', return_value=_rpc_ok('att-c')), \
+             patch('routes.drills.DimensionService.get_test_type_id', return_value=14):
             r = client.post('/api/classifier-drill/submit', json=body, headers=auth_headers)
         assert r.status_code == 200, r.data
         (c,) = db.credits()
@@ -185,8 +185,8 @@ class TestDrillRoutes:
 
     def test_counter_drill_credits_kind_drill_and_caps(self, client, auth_headers, db):
         body = {'language_id': 3, 'correct_items': 4, 'total_items': 5, **window(4 * 3600)}
-        with patch('routes.counter_drill.submit_session', return_value=_rpc_ok('att-k')), \
-             patch('routes.counter_drill.DimensionService.get_test_type_id', return_value=15):
+        with patch('services.drill_service.COUNTER_DRILL.submit_session', return_value=_rpc_ok('att-k')), \
+             patch('routes.drills.DimensionService.get_test_type_id', return_value=15):
             r = client.post('/api/counter-drill/submit', json=body, headers=auth_headers)
         assert r.status_code == 200, r.data
         (c,) = db.credits()
@@ -194,8 +194,8 @@ class TestDrillRoutes:
 
     def test_drill_without_window_no_credit(self, client, auth_headers, db):
         body = {'language_id': 3, 'correct_items': 4, 'total_items': 5, 'time_taken': 999}
-        with patch('routes.counter_drill.submit_session', return_value=_rpc_ok('att-k')), \
-             patch('routes.counter_drill.DimensionService.get_test_type_id', return_value=15):
+        with patch('services.drill_service.COUNTER_DRILL.submit_session', return_value=_rpc_ok('att-k')), \
+             patch('routes.drills.DimensionService.get_test_type_id', return_value=15):
             r = client.post('/api/counter-drill/submit', json=body, headers=auth_headers)
         assert r.status_code == 200
         assert db.credits() == []

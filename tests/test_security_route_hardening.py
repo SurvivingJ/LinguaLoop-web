@@ -64,6 +64,7 @@ def app(monkeypatch):
     a = Flask(__name__)
     a.config.update(TESTING=True, SECRET_KEY='k')
     a.supabase_service = MagicMock()
+    monkeypatch.setattr('services.supabase_factory.get_supabase_admin', lambda: a.supabase_service)
     a.register_blueprint(tests_bp, url_prefix='/api/tests')
     a.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     return a

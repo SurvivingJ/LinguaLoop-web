@@ -12,7 +12,6 @@ from services.supabase_factory import (
     SupabaseFactory, SupabaseConfigError, get_supabase, get_supabase_admin,
 )
 import logging
-import traceback
 import os
 
 # Internal imports
@@ -23,7 +22,8 @@ from services.auth_service import AuthService
 from services.device_service import DeviceService
 from middleware.auth import jwt_required as supabase_jwt_required
 from services.dimension_service import DimensionService
-from utils.responses import api_success, bad_request, server_error, service_unavailable
+from utils.responses import api_errors, api_success, bad_request, service_unavailable
+from utils.validation import json_body
 from models.requests import VocabularyExtractRequest, ErrorLogRequest
 from pydantic import ValidationError
 from web.errors import register_error_handlers
@@ -44,8 +44,8 @@ from routes.payments import payments_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
 from routes.calibration import calibration_bp
-from routes.classifier_drill import classifier_drill_bp
-from routes.counter_drill import counter_drill_bp
+from routes.common import get_db
+from routes.drills import classifier_drill_bp, counter_drill_bp
 from routes.practice import practice_bp
 from routes.study_plan import study_plan_bp
 from routes.study_session import study_session_bp
@@ -312,10 +312,11 @@ def _register_core_routes(app):
 
     @app.route('/api/vocabulary/extract', methods=['POST'])
     @supabase_jwt_required
+    @api_errors("Vocabulary extraction failed")
     def extract_vocabulary():
         """Extract vocabulary (lemmas + phrases) from text"""
         try:
-            body = VocabularyExtractRequest.model_validate(request.get_json() or {})
+            body = VocabularyExtractRequest.model_validate(json_body())
         except ValidationError as e:
             return bad_request(e.errors()[0]['msg'])
 
@@ -327,32 +328,25 @@ def _register_core_routes(app):
             return api_success({"vocabulary": vocab})
         except ValueError as e:
             return bad_request(str(e))
-        except Exception as e:
-            app.logger.error(f"Vocabulary extraction failed: {e}")
-            app.logger.error(traceback.format_exc())
-            return server_error("Vocabulary extraction failed")
 
     @app.route('/api/errors/log', methods=['POST'])
     @supabase_jwt_required
+    @api_errors("Failed to log error")
     def log_error():
         """Log an application error to the app_error_logs table"""
         try:
-            body = ErrorLogRequest.model_validate(request.get_json() or {})
+            body = ErrorLogRequest.model_validate(json_body())
         except ValidationError as e:
             return bad_request(e.errors()[0]['msg'])
 
-        try:
-            app.supabase_service.table('app_error_logs').insert({
-                'error_type': body.error_type[:100],
-                'error_message': body.error_message[:Config.MAX_INPUT_LENGTH],
-                'url': (body.url or '')[:Config.MAX_INPUT_LENGTH],
-                'user_id': g.current_user_id,
-                'metadata': body.metadata,
-            }).execute()
-            return api_success(status_code=201)
-        except Exception as e:
-            app.logger.error(f"Failed to log error: {e}")
-            return server_error("Failed to log error")
+        get_db().table('app_error_logs').insert({
+            'error_type': body.error_type[:100],
+            'error_message': body.error_message[:Config.MAX_INPUT_LENGTH],
+            'url': (body.url or '')[:Config.MAX_INPUT_LENGTH],
+            'user_id': g.current_user_id,
+            'metadata': body.metadata,
+        }).execute()
+        return api_success(status_code=201)
 
 
 if __name__ == '__main__':

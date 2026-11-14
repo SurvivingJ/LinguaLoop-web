@@ -381,6 +381,7 @@ def app(monkeypatch):
     from routes.tests import tests_bp
     a = Flask(__name__)
     a.config.update(TESTING=True, SECRET_KEY='k')
+    monkeypatch.setattr('services.supabase_factory.get_supabase_admin', lambda: a.supabase_service)
     a.register_blueprint(tests_bp, url_prefix='/api/tests')
     return a
 

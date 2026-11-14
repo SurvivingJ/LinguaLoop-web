@@ -493,7 +493,7 @@ class TestStudyPlanSetting:
                 q.execute.return_value = SimpleNamespace(data=[row])
                 q.update.side_effect = lambda payload: updates.append(payload) or q
                 return q
-        monkeypatch.setattr(ss, 'get_supabase_admin', lambda: _LoadsDB())
+        monkeypatch.setattr(ss, 'get_db', lambda: _LoadsDB())
         monkeypatch.setattr(ss, '_today_iso', lambda *a: '2026-10-31')
         with app.test_request_context('/api/study-session/complete-block', method='POST',
                                       json={'language_id': 1, 'block_id': prestudy_block_id(T1)}):
