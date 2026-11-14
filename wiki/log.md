@@ -6473,3 +6473,26 @@ Recommended grader candidate: gpt-6-luna, single call, span from the LLM. Feedba
 corrections, hints and clean messages; LLM for explanations. Open: no real learner submissions
 tested, shadow run needs result storage, Track E labels are model-verified, no native review, the
 owner has not chosen among the three feedback designs.
+
+## [2026-11-14] ingest | DT single-call grader built (ADR-044)
+Source: owner instruction ("Build out the gpt-6-luna grader for dual translation"; keep grading
+assets within a size limit) + [[evaluations/dt-decision-grading-2026-11-14]]. Pages created: 2
+([[decisions/ADR-044-dt-single-call-generative-grader]], [[tasklist/dt-single-call-grader.tasks]]).
+Pages updated: 4 ([[features/dual-translation.tech]] additive "Single-call grader (ADR-044)"
+section + `last_updated`; [[evaluations/dt-decision-grading-2026-11-14]] §9 production-path check,
+two open questions closed; [[tasklist/master]]; index). `wiki/design/` not touched.
+Code: `services/dual_translation/single_call_grader.py`, `single_call_prompts.py`
+(`PROMPT_VERSION dt-single-call/p1_expl/2026-11-14`, byte-identical to Track B), `sentence_pairs.py`;
+dispatch in `grader_cascade._grade_cascade` after Tier 0; `routes/dual_translation.py` asset
+persistence; `migrations/dt_grading_assets.sql`; `scripts/run_dt_grading_eval.py --single-call`;
+`tests/test_dual_translation_single_call_grader.py` (52 tests; DT set 1089 passed).
+Nothing applied live: `DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` default off, migration
+not applied, taxonomy v6 not live (TASK-853) so the flag would fall back to v2 today.
+Production-path gold check ($0.006097, 119 calls, `data/eval/dt_decision_2026-11-14/prod_check/`):
+replay of Track B's recorded responses is identical on all 90 items; live acc/fid/und QWK en
+1.00/.84/.79, zh .59/.84/.71 (second run .66/.82/.74), ja .92/.91/.76 against Track B's
+1.00/.84/.79, .74/.84/.74, .92/.87/.76 — the gap is model run-to-run variance. Decisions taken in
+the build that the owner may reverse: naturalness and range left unscored; `source`/`confidence`
+filled with fixed defaults; `corrected_form` derived by sentence alignment; the daily token budget
+does not degrade this flow; model note stored but not shown. Tasks added: TASK-935–941 (2 not
+started, 5 blocked). Owner chose feedback design option 2; task breakdown draft not yet reviewed.

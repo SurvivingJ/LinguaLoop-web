@@ -3,7 +3,7 @@ title: Dual Translation — Technical Specification (Feature 1: Grading)
 type: feature-tech
 status: in-progress
 prose_page: ./dual-translation.md
-last_updated: 2026-06-25
+last_updated: 2026-11-14
 dependencies:
   - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
@@ -13,6 +13,8 @@ dependencies:
   - "service: shared OpenRouter client (as used by services.model_arena.llm_runner)"
   - "new tables: dt_passage, dt_submission, dt_grade, dt_error_instance, dt_rubric_version, dt_taxonomy_version"
   - "new service: services.dual_translation.* (passage_builder, grader_cascade, router)"
+  - "service (2026-11-14, flag-gated): services.dual_translation.single_call_grader / single_call_prompts / sentence_pairs — ADR-044"
+  - "migration (NOT applied): migrations/dt_grading_assets.sql — dt_error_instance asset columns + dt_grading_call"
 breaking_change_risk: low
 ---
 
@@ -279,8 +281,160 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 - **Resilience:** malformed grader JSON → fail-open to Tier 0 marks, error logged, learner not blocked.
 - **Live smoke:** one passage per L2 (ZH/EN/JA) graded end-to-end on the configured OpenRouter slug.
 
+## Single-call grader (ADR-044) — added 2026-11-14, flag-gated, default OFF
+
+Decision: [[decisions/ADR-044-dt-single-call-generative-grader]]. Evidence:
+[[evaluations/dt-decision-grading-2026-11-14]]. Tasks: [[tasklist/dt-single-call-grader.tasks]].
+Nothing in this section is live: the flag is off, the migration is not applied, and the flow needs
+taxonomy v6 as the loaded taxonomy (TASK-853, blocked).
+
+### Flow
+
+`grader_cascade._grade_cascade` after the Tier 0 short-circuit (Tier 0 is unchanged):
+
+```
+Tier 0 resolved? ── yes ──> Tier 0 contract (no model call)
+      │ no
+single_call on? ── no ───> configured flow (v2 if DT_FRAMEWORK_V2, else v1)   [today's behaviour]
+      │ yes
+primary model ──ok──> decode ──> contract            (grader_trace.single_call.path = "primary")
+      │ call error / not a JSON object with an `errors` list
+fallback model (once) ──ok──> decode ──> contract    (path = "fallback_model")
+      │ fails too, or taxonomy is not v6, or any unexpected exception
+configured flow ──> its contract + grader_trace.single_call{used:false, path:"fallback_flow:v2|v1", reason}
+```
+
+- Modules: `services/dual_translation/single_call_grader.py` (flow, decode, trace, asset records),
+  `single_call_prompts.py` (frozen prompt + schema, `PROMPT_VERSION = "dt-single-call/p1_expl/2026-11-14"`),
+  `sentence_pairs.py` (sentence split + alignment, ported from the experiment harness).
+- Request: system prompt = frozen rubric + per-L2 type list (English, slugs); user prompt = numbered
+  sentence pairs (`S2 REF: …` / `S2 LRN: …`, identical sentences as `S2 SAME: …`); temperature 0,
+  `max_tokens` 600, `response_format: json_schema` strict, reasoning off, `usage.include`.
+- Response: `{"errors": [{sentence, span, type, severity, explanation}]}`.
+- Decode, per model entry:
+  1. type must be one of the frozen v6 types for the L2 and severity one of minor/major/critical,
+     else the entry is dropped (`invalid_entry`).
+  2. `span` must be found in the reproduction: verbatim inside the named sentence (`span_source =
+     model`); else anywhere, nearest the named sentence, with width/kana/case folding via
+     `_reconcile_span_form` (`repaired`); else the whole named learner sentence (`sentence`); else
+     the entry is dropped (`span_unlocatable`).
+  3. `span_reference` / `corrected_form` are derived by aligning the learner sentence with its
+     reference sentence and carrying the learner span across (`correction_source = aligned_diff`).
+     A dropped word touching the span is pulled in. If there is nothing local to show, the
+     correction is the whole reference sentence (`reference_sentence`).
+  4. Severity rule: gpt-6-luna → taxonomy default for en (unless the model said critical), model's
+     own for zh/ja. deepseek fallback → default for en/ja, model's own for zh. Other slugs → model's own.
+  5. The entry goes through the shared `_decode_error` (same validation and template rendering as
+     v1/v2). Rejections are counted (`decode_rejected`).
+- word_choice variants are resolved from the dictionary as in v2 (`word_choice_variant`).
+- Scoring: `scoring.compute_dimension_bands` + `compute_overall` over accuracy, fidelity,
+  understandability. **Naturalness and range are not scored** and are absent from `scores`.
+
+### Config (all env-driven, `config.py`)
+
+| Name | Default | Effect |
+|---|---|---|
+| `DT_SINGLE_CALL_GRADER` | `False` | Turns the flow on. `grade_submission(single_call=True/False)` overrides it (tests, eval harness). |
+| `DT_SINGLE_CALL_MODEL` | `openai/gpt-6-luna` | Primary slug. |
+| `DT_SINGLE_CALL_FALLBACK_MODEL` | `deepseek/deepseek-v4.1-flash` | Tried once if the primary fails. Blank disables. |
+| `DT_SINGLE_CALL_FREE_TRANSLATION` | `False` | Appends Track E's "free translations are expected" paragraph (prompt variant `p1_expl_mit`). Fewer false flags, lower recall. |
+| `DT_SINGLE_CALL_EXPLAINER` | `False` | Also runs the v2 Explainer (one more call) to fill `explanation_parts.application`. |
+| `DT_SINGLE_CALL_LOG_LLM_CALLS` | `True` | Logs each call to `llm_calls` (pipeline `dual_translation`, task `dt_single_call_grade`). |
+| `DT_GRADING_ASSET_COLUMNS` | `False` | Read/write what `migrations/dt_grading_assets.sql` adds. Must stay off until that migration is applied. |
+
+The daily token budget (`DT_DAILY_TOKEN_BUDGET`) does not degrade this flow; its tokens still count.
+
+### Contract additions (single-call grades only; everything else is the §2.2 contract)
+
+- `scores` has three keys (accuracy, fidelity, understandability). `highlights` is `[]`.
+  `provisional` is `false`.
+- `errors[]` additionally carry `sentence_index` (0-based aligned sentence pair), `model_severity`,
+  `model_note`, `span_source`, `correction_source`. `source` is the fixed default `intralingual`
+  and `confidence` the fixed default `0.5` (the model is not asked for either).
+- `errors[].explanation` is the template text (ADR-015). `errors[].explanation_parts =
+  {rule, application: null, model_note}`. `model_note` is the model's English note after the
+  Explainer's length (≤ 240), single-paragraph and score-pattern guards; it is never merged into
+  `explanation`. It is unreviewed and is not rendered by the current UI.
+- `grader_trace`: `tier = "single_call"`, `framework_version = "single_call"`, `tokens{in,out}`,
+  `slugs[]`, `prompt_version{rubric, taxonomy, single_call}`, `reason`, and
+  `single_call{used, path, model, provider, prompt_version, prompt_variant, severity_rule,
+  parse_status, usage{in,out,cached,reasoning}, cost_usd, latency_ms, attempts[], errors_raw,
+  errors_kept, dropped{invalid_entry, span_unlocatable, decode_rejected}, dropped_total,
+  span_repaired, sentence_pairs{n, aligned_ok}, unscored_dimensions, defaults, per_error[]}`.
+  `per_error[]` holds model severity vs applied severity, span/correction source and the raw model
+  explanation (≤ 300 chars).
+- `grading_assets` (one record per model attempt) is on the contract only between the grader and
+  the route. The route removes it before the response and before `_persist_grade`.
+
+### Persistence
+
+Migration: `migrations/dt_grading_assets.sql` (**not applied**; additive, idempotent).
+
+`dt_error_instance` — new nullable columns:
+
+| Column | Type | Meaning |
+|---|---|---|
+| `sentence_index` | smallint, ≥ 0 | 0-based aligned sentence pair containing the error |
+| `model_severity` | text (minor/major/critical) | severity the model returned, before the rule |
+| `model_note` | text, ≤ 240 chars | the model's short note |
+| `span_source` | text (model/repaired/sentence) | how the learner span was located |
+| `correction_source` | text (aligned_diff/reference_sentence) | how the correction was derived |
+
+`dt_grading_call` — new table, one row per grading model call, RLS on with no policies:
+
+| Column | Type | Meaning |
+|---|---|---|
+| `id` | bigint identity PK | |
+| `submission_id` | bigint FK → dt_submission, ON DELETE CASCADE, indexed | |
+| `flow` | text | `single_call` |
+| `role` | text | primary / fallback / shadow (shadow reserved; no writer yet) |
+| `model_slug`, `provider` | text | |
+| `prompt_version`, `prompt_variant` | text | reproduces the prompt with the stored texts |
+| `severity_rule` | text | model / prior |
+| `l2_code` | text | |
+| `status` | text | ok / call_failed / malformed_json / malformed_shape |
+| `error`, `finish_reason` | text | error ≤ 300 chars |
+| `tokens_in`, `tokens_out`, `cached_tokens`, `reasoning_tokens`, `latency_ms` | integer | |
+| `cost_usd` | numeric(12,8) | as reported by OpenRouter |
+| `taxonomy_version`, `rubric_version` | smallint | |
+| `response` | jsonb | the model's parsed error list (strings ≤ 300 chars, ≤ 50 entries) |
+| `errors_raw`, `errors_kept` | smallint | |
+| `dropped` | jsonb | drop counts by reason |
+| `result` | jsonb | reserved for shadow rows (decoded grade) |
+| `raw_response` | text, ≤ 4000 chars | only when parsing failed |
+| `raw_truncated` | boolean | |
+| `created_at` | timestamptz, indexed | |
+
+- `routes/dual_translation.py`: `_error_columns()` adds the five columns when
+  `DT_GRADING_ASSET_COLUMNS` is on (v1/v2 errors do not carry them and keep NULLs);
+  `_persist_grading_assets` inserts the `dt_grading_call` rows after `_persist_grade`, best-effort
+  (a failure is logged, never surfaced). With the flag off nothing new is read or written; the
+  full `grader_trace` is still stored on `dt_grade`.
+- Not stored: the prompt, and any copy of the passage or submission text.
+- Size: about 1 KB for a clean submission, about 2 KB with two errors; worst case about 9 KB
+  (both models return unparsable text). Plus one `llm_calls` row per call (about 0.3 KB).
+
+### Still needed for the guided self-repair flow (not built; TASK-939, TASK-940)
+
+Design: [[design/dt-feedback/option-2-guided-self-repair/SPEC]]. The grader side is ready
+(`sentence_index`, model span, error type, template text). Not in this migration, by decision:
+
+- a table for repair episodes per error or sentence: hint level reached (where / what kind / clue /
+  answer), number of revisions, each revision's text and re-check result, final outcome;
+- a way to re-check one revised sentence (a single-call request for one sentence pair, or the whole
+  passage again) and where those calls are logged (`dt_grading_call` can hold them);
+- a store or view of a learner's own erroneous sentences for daily practice: submission, sentence
+  index, the reference sentence, error types, last attempt, next due.
+
+### Verification
+
+- `tests/test_dual_translation_single_call_grader.py` (52 tests, no network).
+- Production path over v6 gold: `data/eval/dt_decision_2026-11-14/prod_check/REPORT.md`.
+
 ## Related Pages
 - [[features/dual-translation]] — prose
+- [[decisions/ADR-044-dt-single-call-generative-grader]] — single-call generative grader (flag-gated, default off)
+- [[tasklist/dt-single-call-grader.tasks]] — rollout tasks for the single-call grader
 - [[features/dual-translation-remediation.tech]] — Feature 2
 - [[algorithms/translation-grading-cascade.tech]] — cascade + cost levers
 - [[business-rules/translation-error-taxonomy]] — taxonomy + promotion

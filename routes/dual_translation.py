@@ -227,6 +227,11 @@ def submit(submission_id: int) -> ApiResponse:
             **(target_ctx or {}),
         )
 
+        # ADR-044: the single-call grader's per-model-call records are storage
+        # material, not part of the response contract — take them off before the
+        # contract is returned or persisted.
+        grading_assets = contract.pop('grading_assets', None)
+
         # TASK-628: a v2 grade with no scores (both the Detector and the Verifier
         # failed) is provisional and carries no evidence. Persisting it would poison
         # the idempotency cache — dt_grade.submission_id is UNIQUE, so _cached_grade
@@ -237,6 +242,7 @@ def submit(submission_id: int) -> ApiResponse:
             return api_success(contract)
 
         _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
+        _persist_grading_assets(db, submission_id, grading_assets)
 
         # TASK-910: one production-evidence row per primed sense. Not part of
         # _persist_grade (whose ordering contract is about dt_grade caching);
@@ -862,6 +868,7 @@ _ERROR_INSERT_COLUMNS = (
     'span_reproduction', 'span_reference', 'category', 'subtype', 'source',
     'severity', 'learner_form', 'corrected_form', 'explanation', 'confidence',
     'is_mistake', 'taxonomy_version', 'explanation_variant',
+    'sentence_index', 'model_severity', 'model_note', 'span_source', 'correction_source',
 )
 
 # TASK-842: columns added by migrations/dt_taxonomy_v6_columns.sql. Read and
@@ -870,11 +877,34 @@ _ERROR_INSERT_COLUMNS = (
 _TAXONOMY_ERROR_COLUMNS = ('taxonomy_version', 'explanation_variant')
 
 
+# ADR-044: columns added by migrations/dt_grading_assets.sql (per-error grader
+# fields the single-call flow emits). Same gate pattern: read and written only
+# while Config.DT_GRADING_ASSET_COLUMNS is on, i.e. after that migration is
+# applied. Errors from the v1/v2 flows simply do not carry these keys
+# (`_error_row` copies only what is present), so their rows keep NULLs.
+_GRADING_ASSET_ERROR_COLUMNS = (
+    'sentence_index', 'model_severity', 'model_note', 'span_source', 'correction_source',
+)
+
+# The dt_grading_call columns a grading-asset record may carry into the insert
+# (services.dual_translation.single_call_grader._asset_record).
+_GRADING_CALL_COLUMNS = (
+    'flow', 'role', 'model_slug', 'provider', 'prompt_version', 'prompt_variant',
+    'severity_rule', 'l2_code', 'status', 'error', 'finish_reason', 'tokens_in',
+    'tokens_out', 'cached_tokens', 'reasoning_tokens', 'cost_usd', 'latency_ms',
+    'taxonomy_version', 'rubric_version', 'response', 'errors_raw', 'errors_kept',
+    'dropped', 'result', 'raw_response', 'raw_truncated',
+)
+
+
 def _error_columns() -> tuple:
     """The dt_error_instance columns to insert and to read back right now."""
-    if Config.DT_TAXONOMY_COLUMNS:
-        return _ERROR_INSERT_COLUMNS
-    return tuple(c for c in _ERROR_INSERT_COLUMNS if c not in _TAXONOMY_ERROR_COLUMNS)
+    skip: tuple = ()
+    if not Config.DT_TAXONOMY_COLUMNS:
+        skip += _TAXONOMY_ERROR_COLUMNS
+    if not Config.DT_GRADING_ASSET_COLUMNS:
+        skip += _GRADING_ASSET_ERROR_COLUMNS
+    return tuple(c for c in _ERROR_INSERT_COLUMNS if c not in skip)
 
 
 def _error_row(error: dict, submission_id: int, columns: tuple) -> dict:
@@ -923,6 +953,28 @@ def _persist_grade(
         'diff': contract['diff'],
         'grader_trace': contract['grader_trace'],
     }).execute()
+
+
+def _persist_grading_assets(db, submission_id: int, assets: Optional[list]) -> None:
+    """Write the grader's per-model-call records to dt_grading_call (ADR-044).
+
+    Best-effort and deliberately AFTER ``_persist_grade``: these rows are design
+    and audit material, never something a learner's grade may depend on, so a
+    failure here is logged and swallowed. A no-op when the grade carried no
+    records (v1/v2/tier0 grades) or while Config.DT_GRADING_ASSET_COLUMNS is off
+    (migrations/dt_grading_assets.sql not applied yet) — the grader_trace stored
+    on dt_grade still names the model, prompt version, usage and cost."""
+    if not assets or not Config.DT_GRADING_ASSET_COLUMNS:
+        return
+    try:
+        rows = []
+        for asset in assets:
+            row = {k: asset[k] for k in _GRADING_CALL_COLUMNS if k in asset}
+            row['submission_id'] = submission_id
+            rows.append(row)
+        db.table('dt_grading_call').insert(rows).execute()
+    except Exception as e:
+        logger.warning("Could not store grading assets for submission %s: %s", submission_id, e)
 
 
 def _fetch_profile_entries(db, user_id: str) -> list:

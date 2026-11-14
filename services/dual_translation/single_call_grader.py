@@ -305,8 +305,6 @@ def mark_fallback(contract: dict, failure: dict) -> dict:
     tokens["in"] = int(tokens.get("in") or 0) + int(spent.get("in") or 0)
     tokens["out"] = int(tokens.get("out") or 0) + int(spent.get("out") or 0)
     fallback_flow = "v2" if trace.get("framework_version") == 2 else "v1"
-    if trace.get("deterministic_prefilter"):
-        fallback_flow = "tier0"
     trace["single_call"] = {
         "used": False,
         "path": f"fallback_flow:{fallback_flow}",
@@ -822,9 +820,14 @@ def _reference_counterpart(
     ref_text = gold_l2[pair.ref.start:pair.ref.end]
     lrn_text = reproduction[lrn_start:lrn_end]
     a, b = _tokens(ref_text, l2_code), _tokens(lrn_text, l2_code)
-    matcher = difflib.SequenceMatcher(None, a, b, autojunk=False)
-    if matcher.ratio() < MIN_ALIGN_RATIO:
+    # Similarity over content tokens only: matching spaces would make two
+    # unrelated English sentences look half-aligned.
+    similarity = difflib.SequenceMatcher(
+        None, [t for t in a if not t.isspace()], [t for t in b if not t.isspace()], autojunk=False,
+    ).ratio()
+    if similarity < MIN_ALIGN_RATIO:
         return whole
+    matcher = difflib.SequenceMatcher(None, a, b, autojunk=False)
     a_off, b_off = _offsets(a), _offsets(b)
     local_start, local_end = span[0] - lrn_start, span[1] - lrn_start
     j_start = next((j for j in range(len(b)) if b_off[j + 1] > local_start), len(b))

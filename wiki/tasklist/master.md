@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-11
+last_updated: 2026-11-14
 ---
 
 # Master Task List
@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 28 |
+| Not Started | 30 |
 | In Progress (`[~]`) | 11 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 21 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 26 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 233 |
+
+*2026-11-14 (DT single-call grader built, flag off):* [[decisions/ADR-044-dt-single-call-generative-grader]] accepted and built behind `DT_SINGLE_CALL_GRADER` (default off); `migrations/dt_grading_assets.sql` written, not applied. Seven rollout tasks added (TASK-935–941, [[tasklist/dt-single-call-grader.tasks]]): 2 not started, 5 blocked on open decisions. Counts: Not Started 28→30, Blocked 21→26.
 
 *2026-11-11 (Merges + consolidation live):* TASK-930 (study-session 14 → 6 DB calls, −58% median) and TASK-932 (49 merged policies on 22 tables) applied live by the developer and verified. Counts: In Progress 12→11, awaiting live apply 22→21, Done 231→233.
 
@@ -1195,6 +1197,19 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-932 | latency | Consolidate multiple permissive RLS policies (LIVE-DB, developer applies) | Done (applied live) | M | TASK-925, TASK-875, TASK-880, TASK-882 |
 | TASK-933 | latency | Trim render-blocking fonts and CSS in base.html | Done | S | — |
 | TASK-934 | latency | Stop late-loading sections from pushing the page down (CLS) | [ ] needs layout decision | S | — |
+
+### DT Single-Call Grader (ADR-044) — NEW 2026-11-14
+Full spec: [[tasklist/dt-single-call-grader.tasks]]. Implements [[decisions/ADR-044-dt-single-call-generative-grader]]. Grader, tests and migration file are built; nothing is applied or enabled live.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-935 | dt-single-call-grader | Apply `dt_grading_assets.sql`, turn on `DT_GRADING_ASSET_COLUMNS` (LIVE-DB, developer applies) | [ ] | XS | — |
+| TASK-936 | dt-single-call-grader | Shadow run of the single-call grader on real submissions | [?] needs v6 live or a pinned-v6 decision | M | TASK-935, TASK-853 |
+| TASK-937 | dt-single-call-grader | Enable `DT_SINGLE_CALL_GRADER` in production | [?] needs shadow result + owner decisions | S | TASK-936, TASK-853, TASK-941 |
+| TASK-938 | dt-single-call-grader | Native-speaker review of explanations and hint templates | [?] no reviewer named | M | TASK-936 |
+| TASK-939 | dt-single-call-grader | Guided self-repair UI (design option 2) | [?] spec not final | XL | TASK-935, TASK-937 |
+| TASK-940 | dt-single-call-grader | Re-use a learner's own erroneous sentences in daily practice | [?] spec + remediation decision | L | TASK-935, TASK-939 |
+| TASK-941 | dt-single-call-grader | Keep whole-sentence corrections out of cloze cards and synthesis | [ ] | S | TASK-935 |
 
 ### Language Packs (existing — unchanged)
 

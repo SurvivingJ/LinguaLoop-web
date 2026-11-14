@@ -5,9 +5,7 @@ status: complete
 last_updated: 2026-11-14
 open_questions:
   - "OPEN: Do any of these results hold on REAL learner submissions? Every number comes from seeded errors (Tracks A–D) or model-written paraphrases (Track E). A shadow run is the next step."
-  - "OPEN: Where do shadow-run results get stored? DT grading is not logged to llm_calls. This question has been open since [[evaluations/jev-dt-tuning-2026-09-27]]."
   - "OPEN: Is gpt-6-luna really more robust than deepseek-v4.1-flash on free translations, or did the GPT-family checker that built the Track E set flatter it?"
-  - "OPEN: Which feedback design does the owner choose: focused correction, guided self-repair or pattern coach? All three are proposed; none is selected."
   - "OPEN: All three design specs were written against the September jev grader (error probabilities per sentence, spans from the character diff). A single-call LLM grader returns an error list with spans and no probabilities. How do the specs' confidence states and 'where' marks map onto that output?"
   - "OPEN: Should the grader prompt carry the 'free translations are expected' paragraph? It removes false flags and lowers recall on near-verbatim answers; Track E calls it a product decision."
   - "OPEN: Who does the native-speaker review of a sample of LLM explanations and of the hint templates (AI-drafted, unreviewed)?"
@@ -214,7 +212,24 @@ All three specs take their grader numbers from [[evaluations/jev-dt-tuning-2026-
 
 **Option 3: Pattern Coach** — [[design/dt-feedback/option-3-pattern-coach/SPEC]]. Feedback on a single translation is deliberately short: each sentence is marked, the reference is shown, and a flagged sentence gets one error-type chip and a one-line templated rule. Every flag is logged by type into a personal pattern profile, counted per chance to make the error and tracked through four states to "under control". The learner's own previously wrong sentences are scheduled for spaced re-translation. It builds on the existing remediation tables. *Main weakness:* the value sits in the long-term profile, which depends on correct error types (top-1 on gold was 81–87% for the DeepSeek config and 77–80% for GPT-6 Luna) and on new "chance" tags for reference sentences. Whether retrying one's own sentence transfers to new sentences is the spec's own main open question, and its marks also come from the diff.
 
+## 9. Production-path check (added 2026-11-14, after the grader was built)
+
+The recommended grader was built as production code ([[decisions/ADR-044-dt-single-call-generative-grader]], flag-gated, default off) and run over the same v6 gold items through `scripts/run_dt_grading_eval.py --single-call`. Spend: $0.006097 (119 calls). Detail: `data/eval/dt_decision_2026-11-14/prod_check/REPORT.md`.
+
+| Lang | Track B (§4.2) acc / fid / und · P / R | Production path, recorded Track B responses | Production path, live |
+|---|---|---|---|
+| en | 1.00 / .84 / .79 · 1.00 / .93 | identical | 1.00 / .84 / .79 · 1.00 / .96 |
+| zh | .74 / .84 / .74 · .96 / .85 | identical | .59 / .84 / .71 · 1.00 / .81 (second run .66 / .82 / .74) |
+| ja | .92 / .87 / .76 · .96 / .89 | identical | .92 / .91 / .76 · .96 / .81 |
+
+- Fed Track B's recorded responses, the production path reproduces Track B on every item, and all 90 requests matched Track B's request hash. The prompt, schema, decode and scoring are the same.
+- Live, the model returned a different error list than Track B recorded for 20 of 90 items (a severity flip, a type swap, or one minor error more or less). That is run-to-run variance at temperature 0, which Track B did not measure. Chinese accuracy ranged .59–.74 over three runs.
+- No clean item was flagged; 6 of 6 meaning inversions were critical; no model entry was dropped.
+- The owner chose feedback design option 2 (guided self-repair) on 2026-11-14; §8 above predates that choice.
+- Two open questions are closed and removed from the frontmatter: shadow-run results go in `dt_grading_call` (`role = 'shadow'`; table defined in `migrations/dt_grading_assets.sql`, not yet applied, writer not yet built — TASK-935, TASK-936), and single-call grading calls are logged to `llm_calls`.
+
 ## Related Pages
+- [[decisions/ADR-044-dt-single-call-generative-grader]] — the grader built from this experiment
 - [[evaluations/jev-dt-tuning-2026-09-27]] — the September jev experiment this one follows
 - [[evaluations/jev-judge-feasibility-2026-09-26]] — the first jev experiment
 - [[evaluations/dt-taxonomy-v6-gate-2026-10-08]] — source of the live-grader v6 baseline and recorded outputs

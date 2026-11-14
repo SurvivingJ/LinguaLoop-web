@@ -1,0 +1,552 @@
+{
+ "spend_usd": 0.006097,
+ "calls": 119,
+ "langs": {
+  "en": {
+   "n": 30,
+   "qwk": [
+    1.0,
+    0.84,
+    0.79
+   ],
+   "P": 1.0,
+   "R": 0.96,
+   "tp_fp_fn": [
+    26,
+    0,
+    1
+   ],
+   "type_top1": 0.81,
+   "sev_exact": 0.85,
+   "clean_items_flagged": {
+    "item_fp_rate": 0.0,
+    "mean_errors": 0.0,
+    "total_errors": 0,
+    "n": 10
+   },
+   "severity_rule": "prior",
+   "paths": {
+    "primary": 29,
+    "tier0": 1
+   },
+   "errors": 26,
+   "dropped": 0,
+   "span_repaired": 0,
+   "correction_is_whole_reference_sentence": 0,
+   "p50_latency_ms": 996,
+   "track_b": {
+    "qwk": [
+     1.0,
+     0.84,
+     0.79
+    ],
+    "P": 1.0,
+    "R": 0.93
+   },
+   "items_whose_model_output_differs_from_track_b_recorded": 5,
+   "differences": [
+    {
+     "id": "en_seed_02",
+     "prod": [
+      [
+       "preposition",
+       "major",
+       71
+      ]
+     ],
+     "track_b": [
+      [
+       "preposition",
+       "minor",
+       71
+      ]
+     ]
+    },
+    {
+     "id": "en_seed_06",
+     "prod": [
+      [
+       "word_choice",
+       "minor",
+       46
+      ]
+     ],
+     "track_b": []
+    },
+    {
+     "id": "en_seed_14",
+     "prod": [
+      [
+       "meaning_inversion",
+       "critical",
+       149
+      ]
+     ],
+     "track_b": [
+      [
+       "meaning_inversion",
+       "critical",
+       147
+      ]
+     ]
+    },
+    {
+     "id": "en_multi_01",
+     "prod": [
+      [
+       "article_determiner",
+       "minor",
+       122
+      ],
+      [
+       "preposition",
+       "minor",
+       77
+      ]
+     ],
+     "track_b": [
+      [
+       "article_determiner",
+       "minor",
+       122
+      ],
+      [
+       "preposition",
+       "major",
+       71
+      ]
+     ]
+    },
+    {
+     "id": "en_multi_02",
+     "prod": [
+      [
+       "agreement",
+       "minor",
+       70
+      ],
+      [
+       "omission",
+       "major",
+       76
+      ],
+      [
+       "plural_number",
+       "minor",
+       50
+      ]
+     ],
+     "track_b": [
+      [
+       "agreement",
+       "minor",
+       70
+      ],
+      [
+       "omission",
+       "major",
+       76
+      ],
+      [
+       "plural_number",
+       "minor",
+       44
+      ]
+     ]
+    }
+   ]
+  },
+  "zh": {
+   "n": 30,
+   "qwk": [
+    0.59,
+    0.84,
+    0.71
+   ],
+   "P": 1.0,
+   "R": 0.81,
+   "tp_fp_fn": [
+    21,
+    0,
+    5
+   ],
+   "type_top1": 0.81,
+   "sev_exact": 0.67,
+   "clean_items_flagged": {
+    "item_fp_rate": 0.0,
+    "mean_errors": 0.0,
+    "total_errors": 0,
+    "n": 10
+   },
+   "severity_rule": "model",
+   "paths": {
+    "primary": 28,
+    "tier0": 2
+   },
+   "errors": 21,
+   "dropped": 0,
+   "span_repaired": 0,
+   "correction_is_whole_reference_sentence": 0,
+   "p50_latency_ms": 1178,
+   "track_b": {
+    "qwk": [
+     0.74,
+     0.84,
+     0.74
+    ],
+    "P": 0.96,
+    "R": 0.85
+   },
+   "items_whose_model_output_differs_from_track_b_recorded": 8,
+   "differences": [
+    {
+     "id": "zh_seed_01",
+     "prod": [
+      [
+       "measure_word",
+       "major",
+       8
+      ]
+     ],
+     "track_b": [
+      [
+       "measure_word",
+       "minor",
+       8
+      ]
+     ]
+    },
+    {
+     "id": "zh_seed_03",
+     "prod": [],
+     "track_b": [
+      [
+       "aspect_negation",
+       "minor",
+       83
+      ]
+     ]
+    },
+    {
+     "id": "zh_seed_08",
+     "prod": [
+      [
+       "ba_bei",
+       "major",
+       31
+      ]
+     ],
+     "track_b": [
+      [
+       "ba_bei",
+       "major",
+       33
+      ]
+     ]
+    },
+    {
+     "id": "zh_seed_14",
+     "prod": [],
+     "track_b": [
+      [
+       "word_choice",
+       "minor",
+       38
+      ]
+     ]
+    },
+    {
+     "id": "zh_multi_01",
+     "prod": [
+      [
+       "aspect_negation",
+       "major",
+       66
+      ],
+      [
+       "measure_word",
+       "major",
+       8
+      ]
+     ],
+     "track_b": [
+      [
+       "aspect_negation",
+       "minor",
+       66
+      ],
+      [
+       "measure_word",
+       "major",
+       8
+      ]
+     ]
+    },
+    {
+     "id": "zh_multi_02",
+     "prod": [
+      [
+       "de_particle",
+       "minor",
+       5
+      ],
+      [
+       "omission",
+       "major",
+       53
+      ],
+      [
+       "word_choice",
+       "minor",
+       17
+      ]
+     ],
+     "track_b": [
+      [
+       "omission",
+       "major",
+       53
+      ],
+      [
+       "word_choice",
+       "minor",
+       17
+      ]
+     ]
+    },
+    {
+     "id": "zh_multi_03",
+     "prod": [
+      [
+       "meaning_inversion",
+       "critical",
+       103
+      ],
+      [
+       "measure_word",
+       "major",
+       44
+      ]
+     ],
+     "track_b": [
+      [
+       "meaning_inversion",
+       "critical",
+       103
+      ],
+      [
+       "measure_word",
+       "minor",
+       44
+      ]
+     ]
+    },
+    {
+     "id": "zh_multi_05",
+     "prod": [
+      [
+       "ba_bei",
+       "major",
+       33
+      ]
+     ],
+     "track_b": [
+      [
+       "word_choice",
+       "minor",
+       37
+      ],
+      [
+       "word_order",
+       "major",
+       33
+      ]
+     ]
+    }
+   ]
+  },
+  "ja": {
+   "n": 30,
+   "qwk": [
+    0.92,
+    0.91,
+    0.76
+   ],
+   "P": 0.96,
+   "R": 0.81,
+   "tp_fp_fn": [
+    22,
+    1,
+    5
+   ],
+   "type_top1": 0.68,
+   "sev_exact": 0.77,
+   "clean_items_flagged": {
+    "item_fp_rate": 0.0,
+    "mean_errors": 0.0,
+    "total_errors": 0,
+    "n": 10
+   },
+   "severity_rule": "model",
+   "paths": {
+    "primary": 29,
+    "tier0": 1
+   },
+   "errors": 23,
+   "dropped": 0,
+   "span_repaired": 1,
+   "correction_is_whole_reference_sentence": 1,
+   "p50_latency_ms": 1208,
+   "track_b": {
+    "qwk": [
+     0.92,
+     0.87,
+     0.76
+    ],
+    "P": 0.96,
+    "R": 0.89
+   },
+   "items_whose_model_output_differs_from_track_b_recorded": 7,
+   "differences": [
+    {
+     "id": "ja_seed_01",
+     "prod": [
+      [
+       "case_particle",
+       "major",
+       33
+      ]
+     ],
+     "track_b": [
+      [
+       "case_particle",
+       "major",
+       28
+      ]
+     ]
+    },
+    {
+     "id": "ja_seed_06",
+     "prod": [
+      [
+       "omission",
+       "major",
+       146
+      ]
+     ],
+     "track_b": [
+      [
+       "case_particle",
+       "major",
+       150
+      ]
+     ]
+    },
+    {
+     "id": "ja_seed_09",
+     "prod": [
+      [
+       "word_choice",
+       "major",
+       16
+      ]
+     ],
+     "track_b": [
+      [
+       "register",
+       "major",
+       16
+      ]
+     ]
+    },
+    {
+     "id": "ja_seed_11",
+     "prod": [
+      [
+       "particle_other",
+       "major",
+       101
+      ]
+     ],
+     "track_b": [
+      [
+       "omission",
+       "major",
+       103
+      ]
+     ]
+    },
+    {
+     "id": "ja_seed_13",
+     "prod": [],
+     "track_b": [
+      [
+       "omission",
+       "minor",
+       0
+      ]
+     ]
+    },
+    {
+     "id": "ja_multi_01",
+     "prod": [
+      [
+       "particle_other",
+       "major",
+       31
+      ]
+     ],
+     "track_b": [
+      [
+       "case_particle",
+       "major",
+       33
+      ],
+      [
+       "word_choice",
+       "minor",
+       122
+      ]
+     ]
+    },
+    {
+     "id": "ja_multi_04",
+     "prod": [
+      [
+       "meaning_inversion",
+       "critical",
+       29
+      ],
+      [
+       "transitivity_voice",
+       "major",
+       90
+      ],
+      [
+       "word_choice",
+       "major",
+       81
+      ]
+     ],
+     "track_b": [
+      [
+       "case_particle",
+       "major",
+       90
+      ],
+      [
+       "meaning_inversion",
+       "critical",
+       29
+      ],
+      [
+       "word_choice",
+       "minor",
+       81
+      ]
+     ]
+    }
+   ]
+  }
+ }
+}
