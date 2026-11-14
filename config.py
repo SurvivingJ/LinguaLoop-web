@@ -227,6 +227,14 @@ class Config:
     # the learner is shown the Rule template plus the grading model's own L1
     # explanation (when it passes the Explainer's guards).
     DT_SINGLE_CALL_EXPLAINER = os.environ.get('DT_SINGLE_CALL_EXPLAINER', 'False').lower() == 'true'
+    # Keep the errors the grading model itself marks confidence = low ("it could
+    # well be acceptable") in the grade. Default OFF: on the v6 gold set every
+    # such entry was a false alarm on a correct sentence, and the results UI has
+    # no "unsure" state yet, so they are withheld (counted and listed in
+    # grader_trace.single_call.withheld_low_confidence). Turn on once the UI can
+    # show an unsure error differently; they are then scored like any error.
+    DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE = (
+        os.environ.get('DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE', 'False').lower() == 'true')
     # Log each single-call grading request to llm_calls (services.llm_service).
     # On by default; the offline eval harness turns it off.
     DT_SINGLE_CALL_LOG_LLM_CALLS = (

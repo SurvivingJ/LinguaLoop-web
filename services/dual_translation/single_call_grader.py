@@ -68,6 +68,12 @@ unvalidated. A missing/invalid value (possible only from a model that ignores th
 strict schema) falls back to ``DEFAULT_CONFIDENCE`` / ``DEFAULT_SOURCE`` and is
 counted in ``defaulted``.
 
+An entry the model marks ``low`` ("it could well be acceptable") is WITHHELD: not
+in ``errors``, not scored, counted in ``dropped.low_confidence`` and listed in
+``withheld_low_confidence``. On the gold set all low-confidence entries were
+false alarms on correct sentences. ``Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE``
+(default off) keeps them, for a UI that has an "unsure" state.
+
 Explanations
 ------------
 ``explanation`` stays the template-rendered Rule text (ADR-015). The model's own
@@ -155,6 +161,10 @@ CALL_TIMEOUT_S = 30
 # strict schema); counted in grader_trace.single_call.defaulted.
 DEFAULT_SOURCE = "intralingual"
 DEFAULT_CONFIDENCE = 0.5
+
+# Entries the model marks with this confidence are withheld from the grade unless
+# Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE is on.
+WITHHELD_CONFIDENCE = "low"
 
 # Below this token-level similarity a learner sentence is treated as a free
 # rewrite of its reference: no local alignment is attempted and the correction
@@ -411,7 +421,7 @@ def _grade(
     system_prompt = sc_prompts.build_system_prompt(
         l2_code, free_translation=free_translation, band_descriptors=descriptors,
     )
-    user_prompt = sc_prompts.build_user_prompt(pairs, l1_code)
+    user_prompt = sc_prompts.build_user_prompt(pairs, l1_code, l2_code)
     schema = sc_prompts.response_schema(l2_code)
     prompt_hash = hashlib.sha256((system_prompt + "\n\x00\n" + user_prompt).encode("utf-8")).digest()
 
@@ -531,6 +541,7 @@ def _grade(
         "errors_kept": len(errors),
         "dropped": dict(dropped),
         "dropped_total": sum(dropped.values()),
+        "withheld_low_confidence": counts["withheld"],
         "type_aliased": counts["type_aliased"],
         "defaulted": dict(counts["defaulted"]),
         "span_resolution": dict(counts["span"]),
@@ -745,11 +756,15 @@ def _decode(
     the enum (``invalid_entry``), when its type is neither in the hardcoded list
     nor a legacy alias of one (``unknown_type``), when its learner quote cannot be
     located AND it names no usable sentence (``span_unlocatable``), or when the
-    shared ``_decode_error`` validation rejects it (``decode_rejected``)."""
+    shared ``_decode_error`` validation rejects it (``decode_rejected``). An entry
+    the model itself marked confidence = low is withheld (``low_confidence``;
+    ``Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE`` keeps it)."""
     errors: list[dict] = []
     per_error: list[dict] = []
     counts = {
-        "dropped": {"invalid_entry": 0, "unknown_type": 0, "span_unlocatable": 0, "decode_rejected": 0},
+        "dropped": {"invalid_entry": 0, "unknown_type": 0, "low_confidence": 0,
+                    "span_unlocatable": 0, "decode_rejected": 0},
+        "withheld": [],
         "type_aliased": 0,
         "defaulted": {"confidence": 0, "source": 0},
         "span": {name: 0 for name in SPAN_SOURCES},
@@ -784,6 +799,17 @@ def _decode(
         if confidence is None:
             confidence, confidence_label = DEFAULT_CONFIDENCE, None
             counts["defaulted"]["confidence"] += 1
+        if confidence_label == WITHHELD_CONFIDENCE and not Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE:
+            # The model's own "this could well be acceptable". On gold every such
+            # entry was a false alarm on a correct sentence, so it is neither shown
+            # nor scored - but it is counted and kept in the trace for review.
+            dropped["low_confidence"] += 1
+            counts["withheld"].append({
+                key: (value[:RAW_FIELD_CAP] if isinstance(value, str) else value)
+                for key, value in entry.items()
+                if key in ("sentence", "learner_quote", "reference_quote", "type", "severity")
+            })
+            continue
         source = entry.get("source")
         if source not in sc_prompts.SOURCES:
             source = DEFAULT_SOURCE

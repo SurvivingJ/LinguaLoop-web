@@ -96,12 +96,16 @@ ERROR_FIELDS = """For each error give:
 - reference_quote: the exact REF text that learner_quote should have been, copied verbatim from that REF sentence, as short as possible - only the matching words, never the whole sentence. Replacing learner_quote with reference_quote must fix the error, so when a word is missing or extra, include the same neighbouring word in both quotes.
 - type: the error type id.
 - severity: minor, major or critical.
-- confidence: how sure you are that a careful native teacher would mark this as an error rather than accept it as a variant: high (certain), medium (probably), low (it could be acceptable).
+- confidence: how sure you are that a careful native teacher would mark this as an error rather than accept it as a variant: high (certain), medium (probably), low (it could well be acceptable - such entries are not shown to the learner).
 - source: interlingual if the error is best explained by transfer from the learner's first language (L1, named in the user message), otherwise intralingual (a slip or overgeneralisation inside the target language).
 - explanation: one sentence for the learner, WRITTEN IN THE LEARNER'S L1, at most 25 words, saying what is wrong here and quoting the learner's words or the correct words exactly."""
 
+# The types whose taxonomy-v6 `subtype_meta.dimension` is "naturalness" (pinned by
+# test): the only listed errors that should pull the naturalness band down.
+NATURALNESS_TYPES: tuple[str, ...] = ("collocation", "cohesion_connective", "topic_comment")
+
 JUDGMENT_INSTRUCTIONS = """After the error list, judge the learner text as a whole on two dimensions, each with a band from 1 to 4:
-- naturalness: does LRN read the way a native speaker would say it? Different wording from REF is not unnatural in itself, and sentences marked SAME are natural. Errors of naturalness you listed above (unnatural word choice, collocation, register, linking words, topic structure) lower this band; grammar slips and meaning errors alone do not.
+- naturalness: does LRN read the way a native speaker would say it? Start from 4. Lower it ONLY for phrasing a native speaker would not use even though it is grammatical: errors you listed above with type {naturalness_types}, or clearly non-native phrasing you did not list. Do NOT lower naturalness for grammar, spelling, missing or extra words, word-form or meaning errors - other dimensions score those. Different wording from REF is not unnatural in itself, and sentences marked SAME are natural.
 - range: is the vocabulary and sentence structure of LRN as varied as REF's? Judge against REF only: if LRN did not flatten REF into simpler or repeated forms, range is 4. Errors do not lower range.
 For each dimension give the band and `evidence`: one short phrase copied verbatim from an LRN or SAME sentence that best supports the band (for band 4, any phrase that shows natural phrasing / the preserved variety). A judgment without verbatim evidence is discarded."""
 
@@ -225,23 +229,33 @@ Error types (pick exactly one id per error):
 The "(usually ...)" hint is the typical severity for that type; override it when the reader impact differs."""
     if free_translation:
         text += FREE_TRANSLATION_PARAGRAPH.format(lang=LANG_NAME[l2_code])
-    text += "\n\n" + JUDGMENT_INSTRUCTIONS
+    natural = [t for t in NATURALNESS_TYPES if t in TYPE_IDS[l2_code]]
+    text += "\n\n" + JUDGMENT_INSTRUCTIONS.format(naturalness_types=", ".join(natural))
     if band_descriptors:
         text += "\nBand descriptors:\n" + band_descriptors
     return text
 
 
-def build_user_prompt(pairs, l1_code: str = "") -> str:
+def build_user_prompt(pairs, l1_code: str = "", l2_code: str = "") -> str:
     """The per-submission message: the learner's L1, then numbered sentence pairs
-    (1-based). A sentence identical to its reference is shown once as
-    ``S<n> SAME``. ``pairs`` is ``sentence_pairs.build_sentence_pairs(...).pairs``."""
-    out = [f"Learner's L1 (write every explanation in it): {LANG_NAME.get(l1_code, l1_code or 'unknown')}"]
+    (1-based), then the L1 instruction again. A sentence identical to its
+    reference is shown once as ``S<n> SAME``. ``pairs`` is
+    ``sentence_pairs.build_sentence_pairs(...).pairs``.
+
+    The L1 is stated twice on purpose: with it only at the top, the model wrote
+    most explanations of Chinese/Japanese errors in Chinese/Japanese (measured on
+    gold, 43 of 81) instead of the learner's L1."""
+    l1 = LANG_NAME.get(l1_code, l1_code or "the learner's first language")
+    l2 = LANG_NAME.get(l2_code, "target-language")
+    out = [f"Learner's L1: {l1}."]
     for n, pair in enumerate(pairs, 1):
         ref, lrn = pair.ref.text.strip(), pair.repro.text.strip()
         if ref == lrn:
             out.append(f"S{n} SAME: {ref}")
         else:
             out.append(f"S{n} REF: {ref}\nS{n} LRN: {lrn}")
+    out.append(f"Write every explanation in {l1} (the learner's L1), not in the language of the "
+               f"passage; quote the {l2} words exactly as written.")
     return "\n".join(out)
 
 

@@ -310,7 +310,7 @@ COMMENT ON COLUMN public.dt_grading_call.response IS
     'evidence}, "range": {band, evidence}}, each string capped at 300 chars, at most '
     '50 entries. NULL when the response could not be parsed (see raw_response).';
 COMMENT ON COLUMN public.dt_grading_call.dropped IS
-    '{invalid_entry, unknown_type, span_unlocatable, decode_rejected}: model entries not turned '
+    '{invalid_entry, unknown_type, low_confidence, span_unlocatable, decode_rejected}: model entries not turned '
     'into dt_error_instance rows, by reason.';
 COMMENT ON COLUMN public.dt_grading_call.result IS
     'Reserved for role = ''shadow'': the decoded grade (scores, overall_band, '
