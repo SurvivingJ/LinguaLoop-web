@@ -14,10 +14,8 @@ const FILES = [
   'static/js/session/players/classifier_drill.js',
   'templates/test.html',
   'templates/test_dictation.html',
-  'templates/test_pinyin.html',
-  'templates/test_pitch_accent.html',
-  'templates/classifier_drill.html',
-  'templates/counter_drill.html',
+  // The pinyin, pitch-accent and classifier pages mount the players above.
+  'static/js/pages/counter-drill.js',
 ];
 
 describe('test/drill submit payloads include started_at and finished_at', () => {
