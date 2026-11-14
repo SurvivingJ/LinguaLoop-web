@@ -440,7 +440,8 @@
       }
       if (view === 'fix') return fixHtml(s);
       if (view === 'ok') {
-        const n = s.hintsUsedNow != null ? Math.max(0, s.hintsUsedNow - s.baseHints) : s.hintsAsked;
+        // hints_used already excludes the free "where" level a daily sitting opens with
+        const n = s.hintsUsedNow != null ? s.hintsUsedNow : s.hintsAsked;
         const sub =
           n === 0
             ? mode === 'daily'

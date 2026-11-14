@@ -82,7 +82,8 @@
       kindLang: 'en',
     },
     le: {
-      prompt: "This T-shirt is blue, a really true blue, and it hasn't faded even after many washes.",
+      prompt:
+        "This T-shirt is blue, a really true blue, and it hasn't faded even after many washes.",
       text: '这件T恤是蓝色的，颜色很正，洗很多次也不会褪色。',
       ref: '这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。',
       bad: '洗很多次',
@@ -179,10 +180,40 @@
   };
 
   const SCENARIOS = {
-    en_errors: { l1: 'zh', l2: 'en', nClean: 2, passage: PASSAGE.en, steps: ['sick', 'without'], idx: [0, 2] },
-    zh_errors: { l1: 'en', l2: 'zh', nClean: 2, passage: PASSAGE.zh, steps: ['ge', 'le'], idx: [0, 2] },
-    en_unsure: { l1: 'zh', l2: 'en', nClean: 3, passage: PASSAGE.en, steps: ['enjoyable'], idx: [0], kinds: ['unsure'] },
-    zh_unsure: { l1: 'en', l2: 'zh', nClean: 3, passage: PASSAGE.zh, steps: ['relaxed'], idx: [0], kinds: ['unsure'] },
+    en_errors: {
+      l1: 'zh',
+      l2: 'en',
+      nClean: 2,
+      passage: PASSAGE.en,
+      steps: ['sick', 'without'],
+      idx: [0, 2],
+    },
+    zh_errors: {
+      l1: 'en',
+      l2: 'zh',
+      nClean: 2,
+      passage: PASSAGE.zh,
+      steps: ['ge', 'le'],
+      idx: [0, 2],
+    },
+    en_unsure: {
+      l1: 'zh',
+      l2: 'en',
+      nClean: 3,
+      passage: PASSAGE.en,
+      steps: ['enjoyable'],
+      idx: [0],
+      kinds: ['unsure'],
+    },
+    zh_unsure: {
+      l1: 'en',
+      l2: 'zh',
+      nClean: 3,
+      passage: PASSAGE.zh,
+      steps: ['relaxed'],
+      idx: [0],
+      kinds: ['unsure'],
+    },
     en_clean: { l1: 'zh', l2: 'en', nClean: 4, passage: PASSAGE.en, steps: [], clean: true },
     zh_clean: { l1: 'en', l2: 'zh', nClean: 2, passage: PASSAGE.zh, steps: [], clean: true },
     en_mixed: {
@@ -230,7 +261,14 @@
         position: i,
         sentence_index: idx,
         step_kind: k,
-        ladder: k === 'direct' ? 'none' : x.ladder === 'short' ? 'short' : k === 'unsure' ? 'short' : 'full',
+        ladder:
+          k === 'direct'
+            ? 'none'
+            : x.ladder === 'short'
+              ? 'short'
+              : k === 'unsure'
+                ? 'short'
+                : 'full',
         prompt_l1: x.prompt,
         learner_sentence: x.text,
         hint_rungs: rungsFor(x, k),
@@ -243,7 +281,18 @@
         outcome: null,
         from_date: from || null,
       };
-      mock.state[id] = { key, x, step, hintLevel: 0, checksUsed: 0, closed: false, outcome: null, answer: null, ids: {}, last: x.text };
+      mock.state[id] = {
+        key,
+        x,
+        step,
+        hintLevel: 0,
+        checksUsed: 0,
+        closed: false,
+        outcome: null,
+        answer: null,
+        ids: {},
+        last: x.text,
+      };
       if (surface === 'daily_practice' && step.hint_rungs.includes(1)) {
         step.hint_level = 1;
         step.where = whereFor(x, x.text);
@@ -313,7 +362,8 @@
       return { ok: status < 400, status, json: async () => body };
     }
     const ok = (body) => json(200, Object.assign({ status: 'success' }, body));
-    const err = (status, code, message) => json(status, { status: 'error', error: message || code, error_code: code });
+    const err = (status, code, message) =>
+      json(status, { status: 'error', error: message || code, error_code: code });
 
     mock.fail = (action, ...kinds) => {
       (mock.failures[action] = mock.failures[action] || []).push(...kinds);
@@ -330,11 +380,26 @@
       if (kind === 'notopened') return err(409, 'NOT_OPENED');
       if (kind === 'timeout') {
         await new Promise((resolve, reject) => {
-          if (signal) signal.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
+          if (signal)
+            signal.addEventListener('abort', () =>
+              reject(new DOMException('aborted', 'AbortError'))
+            );
         });
       }
       if (kind === 'error') {
-        return ok({ item_id: 0, result: 'error', reason: 'call_failed', checks_used: 0, check_cap: opt.checkCap, hints_used: 0, where: null, closed: false, outcome: null, auto_reveal: false, answer: null });
+        return ok({
+          item_id: 0,
+          result: 'error',
+          reason: 'call_failed',
+          checks_used: 0,
+          check_cap: opt.checkCap,
+          hints_used: 0,
+          where: null,
+          closed: false,
+          outcome: null,
+          auto_reveal: false,
+          answer: null,
+        });
       }
       return null;
     }
@@ -352,7 +417,13 @@
         if (!st) return err(404, 'NOT_FOUND');
         const bad = await injected(action, o && o.signal);
         if (bad) return bad;
-        if (action === 'open') return ok({ step: Object.assign({}, st.step, { hint_level: st.hintLevel, where: st.hintLevel >= 1 ? whereFor(st.x, st.last) : st.step.where }) });
+        if (action === 'open')
+          return ok({
+            step: Object.assign({}, st.step, {
+              hint_level: st.hintLevel,
+              where: st.hintLevel >= 1 ? whereFor(st.x, st.last) : st.step.where,
+            }),
+          });
         if (action === 'hint') {
           if (st.closed) return err(409, 'ITEM_CLOSED');
           const next = st.step.hint_rungs.find((r) => r > st.hintLevel);
@@ -366,7 +437,11 @@
             hint_level: next,
             hint_number: rungs.indexOf(next) + 1,
             hint_total: rungs.length,
-            hint: { type, text: type === 'kind' ? st.x.kind : type === 'clue' ? st.x.clue : null, lang: type === 'where' ? null : 'en' },
+            hint: {
+              type,
+              text: type === 'kind' ? st.x.kind : type === 'clue' ? st.x.clue : null,
+              lang: type === 'where' ? null : 'en',
+            },
             where: whereFor(st.x, st.last),
             next: more ? 'hint' : 'answer',
           });
@@ -374,24 +449,57 @@
         if (action === 'check') {
           if (st.closed) return err(409, 'ITEM_CLOSED');
           const text = norm(body.text);
-          if (body.client_check_id && st.ids[body.client_check_id]) return ok(st.ids[body.client_check_id]);
-          const base = { item_id: id, reason: null, check_cap: st.step.check_cap, hints_used: st.step.hint_rungs.filter((r) => r <= st.hintLevel).length, where: null, closed: false, outcome: null, auto_reveal: false, answer: null };
+          if (body.client_check_id && st.ids[body.client_check_id])
+            return ok(st.ids[body.client_check_id]);
+          const base = {
+            item_id: id,
+            reason: null,
+            check_cap: st.step.check_cap,
+            hints_used: Math.max(
+              0,
+              st.step.hint_rungs.filter((r) => r <= st.hintLevel).length -
+                (isDaily && st.step.hint_rungs.includes(1) ? 1 : 0)
+            ),
+            where: null,
+            closed: false,
+            outcome: null,
+            auto_reveal: false,
+            answer: null,
+          };
           let res;
-          if (text === norm(st.last)) res = Object.assign(base, { result: 'unchanged', checks_used: st.checksUsed });
+          if (text === norm(st.last))
+            res = Object.assign(base, { result: 'unchanged', checks_used: st.checksUsed });
           else {
             const fixedRe = text.includes(st.x.ok) && (st.x.bad === '' || !text.includes(st.x.bad));
             if (fixedRe) {
               st.closed = true;
               st.outcome = 'self_repaired';
-              res = Object.assign(base, { result: 'fixed', checks_used: st.checksUsed, closed: true, outcome: 'self_repaired' });
+              res = Object.assign(base, {
+                result: 'fixed',
+                checks_used: st.checksUsed,
+                closed: true,
+                outcome: 'self_repaired',
+              });
             } else if (st.x.bad && !text.includes(st.x.bad) && !st.x.point) {
               st.closed = true;
               st.outcome = 'repaired_alternative';
-              res = Object.assign(base, { result: 'no_issue_found', checks_used: st.checksUsed, closed: true, outcome: 'repaired_alternative', answer: answerFor(st, 'no_issue') });
+              res = Object.assign(base, {
+                result: 'no_issue_found',
+                checks_used: st.checksUsed,
+                closed: true,
+                outcome: 'repaired_alternative',
+                answer: answerFor(st, 'no_issue'),
+              });
             } else if (st.step.step_kind === 'unsure') {
               st.closed = true;
               st.outcome = 'unsure_revised';
-              res = Object.assign(base, { result: 'no_issue_found', checks_used: st.checksUsed, closed: true, outcome: 'unsure_revised', answer: answerFor(st, 'no_issue') });
+              res = Object.assign(base, {
+                result: 'no_issue_found',
+                checks_used: st.checksUsed,
+                closed: true,
+                outcome: 'unsure_revised',
+                answer: answerFor(st, 'no_issue'),
+              });
             } else {
               st.checksUsed += 1;
               st.last = text;
@@ -399,9 +507,25 @@
                 st.closed = true;
                 st.outcome = 'answer_shown';
                 st.hintLevel = 4;
-                res = Object.assign(base, { result: 'still_flagged', reason: 'target_present', checks_used: st.checksUsed, closed: true, outcome: 'answer_shown', auto_reveal: true, answer: answerFor(st, 'compare') });
+                res = Object.assign(base, {
+                  result: 'still_flagged',
+                  reason: 'target_present',
+                  checks_used: st.checksUsed,
+                  closed: true,
+                  outcome: 'answer_shown',
+                  auto_reveal: true,
+                  answer: answerFor(st, 'compare'),
+                });
               } else {
-                res = Object.assign(base, { result: 'still_flagged', reason: 'target_present', checks_used: st.checksUsed, where: st.hintLevel >= 1 || st.step.step_kind === 'unsure' ? whereFor(st.x, text) : null });
+                res = Object.assign(base, {
+                  result: 'still_flagged',
+                  reason: 'target_present',
+                  checks_used: st.checksUsed,
+                  where:
+                    st.hintLevel >= 1 || st.step.step_kind === 'unsure'
+                      ? whereFor(st.x, text)
+                      : null,
+                });
               }
             }
           }
@@ -411,7 +535,12 @@
         if (action === 'reveal') {
           st.closed = true;
           st.outcome = st.outcome || (body.reason === 'direct' ? 'shown_directly' : 'answer_shown');
-          return ok({ item_id: id, closed: true, outcome: st.outcome, answer: answerFor(st, st.outcome === 'repaired_alternative' ? 'no_issue' : 'compare') });
+          return ok({
+            item_id: id,
+            closed: true,
+            outcome: st.outcome,
+            answer: answerFor(st, st.outcome === 'repaired_alternative' ? 'no_issue' : 'compare'),
+          });
         }
         if (action === 'dispute') {
           st.closed = true;
@@ -420,7 +549,12 @@
             return ok({ item_id: id, closed: true, outcome: 'unsure_dismissed', answer: null });
           }
           st.outcome = 'disputed';
-          return ok({ item_id: id, closed: true, outcome: 'disputed', answer: answerFor(st, 'disputed') });
+          return ok({
+            item_id: id,
+            closed: true,
+            outcome: 'disputed',
+            answer: answerFor(st, 'disputed'),
+          });
         }
         if (action === 'skip') {
           st.closed = true;
@@ -440,9 +574,20 @@
           const f = st.outcome === 'self_repaired' || st.outcome === 'repaired_alternative';
           if (f) fixed += 1;
           if (st.outcome === 'answer_shown') help += 1;
-          if (st.step.step_kind !== 'unsure' && (!st.outcome || ['answer_shown', 'shown_directly', 'skipped'].includes(st.outcome) || (f && st.hintLevel >= 2))) saved += 1;
+          if (
+            st.step.step_kind !== 'unsure' &&
+            (!st.outcome ||
+              ['answer_shown', 'shown_directly', 'skipped'].includes(st.outcome) ||
+              (f && st.hintLevel >= 2))
+          )
+            saved += 1;
         });
-        return ok({ session_id: Number(m[1]), session_status: 'finished', summary: { fixed_yourself: fixed, needed_help: help, saved_to_practice: saved }, result_available: true });
+        return ok({
+          session_id: Number(m[1]),
+          session_status: 'finished',
+          summary: { fixed_yourself: fixed, needed_help: help, saved_to_practice: saved },
+          result_available: true,
+        });
       }
       if ((m = path.match(/^\/submissions\/(\d+)\/result$/))) {
         const bad = await injected('result', o && o.signal);
@@ -463,13 +608,42 @@
     }
 
     // The full grade contract the result view renders (shape of routes/dual_translation).
-    mock.fullContract = () => ({ status: 'success', scores: { accuracy: 3, fidelity: 2, understandability: 3 }, overall_band: 3, provisional: false, errors: [{ subtype: 'register', severity: 'minor', learner_form: 'sick', corrected_form: 'great' }], diff: [{ op: 'replace', correct: 'great', user: 'sick' }], highlights: [], grader_trace: { tier: 'single_call' } });
+    mock.fullContract = () => ({
+      status: 'success',
+      scores: { accuracy: 3, fidelity: 2, understandability: 3 },
+      overall_band: 3,
+      provisional: false,
+      errors: [
+        { subtype: 'register', severity: 'minor', learner_form: 'sick', corrected_form: 'great' },
+      ],
+      diff: [{ op: 'replace', correct: 'great', user: 'sick' }],
+      highlights: [],
+      grader_trace: { tier: 'single_call' },
+    });
     // The redacted contract the submit response carries while the session is open.
-    mock.redactedContract = () => ({ status: 'success', scores: { accuracy: 3, fidelity: 2, understandability: 3 }, overall_band: 3, provisional: false, errors: [], diff: [], highlights: [], redacted: true, n_errors: (mock.session && mock.session.steps.length) || 0 });
-    mock.submitResponse = () => Object.assign(mock.session && mock.session.clean ? mock.fullContract() : mock.redactedContract(), { repair: mock.session });
+    mock.redactedContract = () => ({
+      status: 'success',
+      scores: { accuracy: 3, fidelity: 2, understandability: 3 },
+      overall_band: 3,
+      provisional: false,
+      errors: [],
+      diff: [],
+      highlights: [],
+      redacted: true,
+      n_errors: (mock.session && mock.session.steps.length) || 0,
+    });
+    mock.submitResponse = () =>
+      Object.assign(
+        mock.session && mock.session.clean ? mock.fullContract() : mock.redactedContract(),
+        { repair: mock.session }
+      );
 
     mock.fetch = async (url, o) => {
-      const rec = { url: String(url), method: (o && o.method) || 'GET', body: o && o.body ? JSON.parse(o.body) : null };
+      const rec = {
+        url: String(url),
+        method: (o && o.method) || 'GET',
+        body: o && o.body ? JSON.parse(o.body) : null,
+      };
       mock.calls.push(rec);
       if (opt.latency) await new Promise((r) => setTimeout(r, opt.latency));
       const res = await route(String(url), o);

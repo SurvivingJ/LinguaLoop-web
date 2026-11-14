@@ -808,6 +808,7 @@
 
 .dtr-kb.dtr-tight .dtr-stage.dtr-hinted .dtr-lab {
   position: absolute;
+  white-space: nowrap;
   width: 1px;
   height: 1px;
   overflow: hidden;
@@ -816,6 +817,20 @@
 
 .dtr-kb .dtr-moment {
   padding-bottom: 0;
+}
+
+.dtr-kb .dtr-big {
+  font-size: 3.5rem;
+}
+
+.dtr-kb .dtr-moment h2 {
+  font-size: 1.375rem;
+  margin-top: 2px;
+}
+
+.dtr-kb .dtr-slot,
+.dtr-kb .dtr-slot * {
+  line-height: 1.4;
 }
 
 .dtr-kb .dtr-tally {
