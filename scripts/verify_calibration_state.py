@@ -24,16 +24,17 @@ Usage::
 from __future__ import annotations
 
 import argparse
-import os
 import random
 import sys
 import uuid
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
 
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 #: The ONLY permitted Python copy of the §1.2 anchors, and only so this script can
 #: assert the SQL agrees with it. Runtime code must call the RPC.
@@ -166,9 +167,7 @@ def main() -> None:
     ap.add_argument('--self-test', action='store_true')
     ap.parse_args()
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     from services import calibration_service as cs
 
     map_ok = check_map(db)

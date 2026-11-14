@@ -27,11 +27,14 @@ import tempfile
 import logging
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
+
+bootstrap(log_level=None)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from dotenv import load_dotenv
-load_dotenv()
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 

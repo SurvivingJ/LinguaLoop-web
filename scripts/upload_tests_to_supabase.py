@@ -5,7 +5,8 @@ Upload Generated Tests to Supabase
 Uploads tests from JSON file to Supabase database.
 
 Usage:
-    python scripts/upload_tests_to_supabase.py generated_tests_XXXXXX.json
+    python scripts/upload_tests_to_supabase.py generated_tests_XXXXXX.json           # dry run
+    python scripts/upload_tests_to_supabase.py generated_tests_XXXXXX.json --apply
 
 Environment Variables:
     - SUPABASE_URL
@@ -17,17 +18,30 @@ import os
 import sys
 import json
 from datetime import datetime, timezone
-from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    from _common import base_parser, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import base_parser, bootstrap
+
+bootstrap(log_level=None)
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
 GEN_USER_ID = os.getenv('GEN_USER_ID')
 
 
-def upload_tests(json_file: str, user_id: str):
-    """Upload tests from JSON to Supabase"""
+def upload_tests(json_file: str, user_id: str, apply: bool = False):
+    """Upload tests from JSON to Supabase; without ``apply`` only list what would be inserted."""
+    if not apply:
+        with open(json_file, 'r', encoding='utf-8') as f:
+            tests = json.load(f)
+        for i, test in enumerate(tests, 1):
+            print(f"[dry run] [{i}/{len(tests)}] {test['slug']} - {test['language']} D{test['difficulty']} "
+                  f"- {len(test.get('questions', []))} questions")
+        print(f"Dry run: {len(tests)} tests would be inserted. Nothing was written; pass --apply to upload.")
+        return
+
     from supabase import create_client
 
     if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
@@ -115,30 +129,23 @@ def upload_tests(json_file: str, user_id: str):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python upload_tests_to_supabase.py <json_file>")
-        print("\nExample:")
-        print("  python scripts/upload_tests_to_supabase.py generated_tests_20251209.json")
-        print("\nRequired environment variables:")
-        print("  SUPABASE_URL")
-        print("  SUPABASE_SERVICE_ROLE_KEY")
-        print("  GEN_USER_ID (your user UUID from Supabase)")
-        sys.exit(1)
+    parser = base_parser('Upload generated tests from a JSON file to Supabase.')
+    parser.add_argument('json_file', help='JSON file written by batch_generate_to_json.py')
+    args = parser.parse_args()
 
-    json_file = sys.argv[1]
-    if not os.path.exists(json_file):
-        print(f"ERROR: File not found: {json_file}")
+    if not os.path.exists(args.json_file):
+        print(f"ERROR: File not found: {args.json_file}")
         sys.exit(1)
 
     user_id = GEN_USER_ID
-    if not user_id:
+    if args.apply and not user_id:
         print("GEN_USER_ID not set.")
         user_id = input("Enter your Supabase user UUID: ").strip()
         if not user_id:
             print("ERROR: User ID required")
             sys.exit(1)
 
-    upload_tests(json_file, user_id)
+    upload_tests(args.json_file, user_id, apply=args.apply)
 
 
 if __name__ == '__main__':

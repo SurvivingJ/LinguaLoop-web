@@ -88,16 +88,16 @@ from __future__ import annotations
 
 import argparse
 import math
-import os
 import random
-import sys
 import uuid
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
 
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 #: Chance of a correct answer below the learner's threshold. Four options, so a
 #: pure guess is 1-in-4. Must stay in step with
@@ -169,9 +169,7 @@ def main() -> None:
                     help='knowledge-curve steepness for --learner logistic')
     args = ap.parse_args()
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     from services import calibration_service as cs
 
     print(f"{'true':>6} {'z85':>8} {'err85':>7} {'z50':>8} {'err50':>7}  known-share by band")

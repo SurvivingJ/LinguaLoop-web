@@ -11,14 +11,15 @@ Usage:
 """
 import argparse
 import logging
-import os
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
@@ -27,7 +28,6 @@ if not SupabaseFactory.is_initialized():
 
 from services.vocabulary_ladder.exercise_renderer import LadderExerciseRenderer
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 _LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}

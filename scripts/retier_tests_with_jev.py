@@ -33,25 +33,23 @@ import argparse
 import json
 import logging
 import os
-import sys
 import time
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, REPO)
+try:
+    from _common import admin_db, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap, paginate
 
-from dotenv import load_dotenv  # noqa: E402
-load_dotenv(os.path.join(REPO, '.env'))
+bootstrap(log_format='%(asctime)s %(levelname)s %(message)s')
 
-from services.supabase_factory import (  # noqa: E402
-    SupabaseFactory, get_supabase_admin,
-)
+
 from services import tier_classifier  # noqa: E402
 from services.jev_client import JevError  # noqa: E402
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger('retier_tests_with_jev')
 
 LANG_CODES = {1: 'zh', 2: 'en', 3: 'ja'}
@@ -61,18 +59,10 @@ BUDGET_STOP_USD = 0.25  # the task said "stop and ask" at $1; stop well before
 
 
 def fetch_active_tests(db, limit=None) -> list:
-    rows, start = [], 0
-    while True:
-        page = (
-            db.table('tests')
+    rows = []
+    rows.extend(paginate(lambda: db.table('tests')
             .select('id, language_id, transcript, target_age_tier, difficulty')
-            .eq('is_active', True).order('id')
-            .range(start, start + 199).execute()
-        ).data or []
-        rows.extend(page)
-        if len(page) < 200:
-            break
-        start += 200
+            .eq('is_active', True).order('id'), 200))
     return rows[:limit] if limit else rows
 
 
@@ -171,9 +161,7 @@ def main() -> int:
                         help='apply the saved results.json to tests (atomic RPC)')
     args = parser.parse_args()
 
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     if args.apply:
         return apply_saved(db)

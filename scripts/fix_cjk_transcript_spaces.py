@@ -26,13 +26,14 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import admin_db, base_parser, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, base_parser, bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
+bootstrap(log_format='%(message)s')
 
-load_dotenv(os.path.join(ROOT, '.env'))
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 log = logging.getLogger('fix_cjk_spaces')
 for noisy in ('httpx', 'jieba'):
     logging.getLogger(noisy).setLevel(logging.WARNING)
@@ -46,16 +47,12 @@ def clean(text: str) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = base_parser(__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('slug')
-    ap.add_argument('--apply', action='store_true')
     args = ap.parse_args()
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
     from services.pinyin_service import process_passage
     from scripts.sense_linking_common import VocabIndex, build_token_map_with_fallback, lemma_sense_lookup
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     rows = (db.table('tests').select('id, slug, language_id, transcript, vocab_token_map, vocab_sense_ids, pinyin_payload')
             .eq('slug', args.slug).execute().data or [])
     if not rows or rows[0]['language_id'] != 1:

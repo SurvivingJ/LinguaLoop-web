@@ -31,16 +31,18 @@ in a Claude Code session instead, see
 """
 
 import sys
-import os
 import time
 import argparse
 import logging
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
@@ -50,10 +52,6 @@ from scripts.sense_linking_common import build_token_map_with_fallback, lemma_se
 from scripts.provider_arg import add_provider_arg, apply_provider
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 
@@ -141,19 +139,10 @@ class VocabBackfillRunner:
         """Load existing dim_vocabulary rows for this language into local cache."""
         # PostgREST caps a single response at 1000 rows by default, so paginate.
         PAGE_SIZE = 1000
-        offset = 0
-        while True:
-            response = self.db.table('dim_vocabulary') \
+        for row in paginate(lambda: self.db.table('dim_vocabulary') \
                 .select('id, lemma') \
-                .eq('language_id', self.language_id) \
-                .range(offset, offset + PAGE_SIZE - 1) \
-                .execute()
-            rows = response.data or []
-            for row in rows:
-                self._vocab_cache[(row['lemma'], self.language_id)] = row['id']
-            if len(rows) < PAGE_SIZE:
-                break
-            offset += PAGE_SIZE
+                .eq('language_id', self.language_id), PAGE_SIZE):
+            self._vocab_cache[(row['lemma'], self.language_id)] = row['id']
 
         logger.info(f"Pre-loaded {len(self._vocab_cache)} existing vocab entries for {self.language_code}")
 
@@ -170,26 +159,15 @@ class VocabBackfillRunner:
         """
         PAGE_SIZE = 1000
         tests: list[dict] = []
-        offset = 0
-
-        while True:
-            rows = (self.db.table('tests')
+        for row in paginate(lambda: self.db.table('tests')
                     .select('id, slug, transcript, difficulty, vocab_sense_ids')
                     .eq('language_id', self.language_id)
                     .eq('is_active', True)
-                    .order('created_at')
-                    .range(offset, offset + PAGE_SIZE - 1)
-                    .execute()).data or []
-
-            for row in rows:
-                if not (row.get('vocab_sense_ids') or []):
-                    tests.append(row)
-                    if self.limit and len(tests) >= self.limit:
-                        return tests
-
-            if len(rows) < PAGE_SIZE:
-                break
-            offset += PAGE_SIZE
+                    .order('created_at'), PAGE_SIZE):
+            if not (row.get('vocab_sense_ids') or []):
+                tests.append(row)
+                if self.limit and len(tests) >= self.limit:
+                    return tests
 
         return tests
 

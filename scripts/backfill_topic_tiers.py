@@ -32,25 +32,20 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
-import sys
 from collections import Counter
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
-load_dotenv()
+bootstrap(log_format='%(asctime)s %(levelname)s %(message)s')
 
-from services.supabase_factory import (  # noqa: E402
-    SupabaseFactory, get_supabase_admin,
-)
+
 from services.jev_client import JevError  # noqa: E402
 from services.tier_classifier import N_TIERS  # noqa: E402
 from services.topic_generation.agents import TierFitJudge  # noqa: E402
 
-logging.basicConfig(
-    level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
-)
 logger = logging.getLogger('backfill_topic_tiers')
 
 ALL_TIERS = tuple(range(1, N_TIERS + 1))
@@ -244,9 +239,7 @@ def main() -> int:
     if not (args.report or args.stamp_tiers or args.queue_tiers):
         parser.error('nothing to do: pass --report, --stamp-tiers or --queue-tiers')
 
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     if args.report:
         report(db)

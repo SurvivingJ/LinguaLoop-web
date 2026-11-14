@@ -13,14 +13,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from dotenv import load_dotenv  # noqa: E402
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-load_dotenv()
+bootstrap(log_level=None)
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EXISTING = os.path.join(ROOT, "data", "eval", "entailment_sample_150.json")
@@ -39,8 +39,7 @@ def main() -> None:
         ROOT, "data", "eval", "entailment_prod_recent_2026-09-26.json"))
     args = ap.parse_args()
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     seen = {r["qid"] for r in json.load(open(EXISTING, encoding="utf-8"))}
 
     rows: list[dict] = []

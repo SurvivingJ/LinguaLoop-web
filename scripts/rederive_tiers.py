@@ -16,32 +16,27 @@ migrations/task821_tier_calibration.sql.
 
 from __future__ import annotations
 
-import argparse
-import os
-import sys
 from collections import Counter
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, REPO)
+try:
+    from _common import admin_db, base_parser, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, base_parser, bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
-load_dotenv(os.path.join(REPO, '.env'))
+bootstrap(log_level=None)
+
 
 from services import tier_classifier  # noqa: E402
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    ap = base_parser(__doc__.split('\n')[0])
     ap.add_argument('--lang', required=True, choices=sorted(LANG_IDS))
-    ap.add_argument('--apply', action='store_true')
     args = ap.parse_args()
 
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     rows = (
         db.table('tests')

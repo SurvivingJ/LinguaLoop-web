@@ -36,16 +36,18 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
+
+bootstrap(log_level=None)
 for _s in (sys.stdout, sys.stderr):
     try:
         _s.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
 
-from dotenv import load_dotenv  # noqa: E402
-
-load_dotenv()
 
 LANGS = {"zh": (1, "Chinese"), "en": (2, "English"), "ja": (3, "Japanese")}
 DEFAULT_TYPES = "literal_detail,vocabulary_context,main_idea,inference,supporting_detail"

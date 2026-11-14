@@ -35,7 +35,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import os
 import statistics
 import sys
 from collections import defaultdict
@@ -43,12 +42,13 @@ from datetime import datetime, timedelta, timezone
 
 # Run-as-script bootstrap (mirrors scripts/measure_judge_flag_rate.py): repo
 # root on the path and .env loaded before any app service is imported.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from dotenv import load_dotenv  # noqa: E402
+try:
+    from _common import admin_db, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap, paginate
 
-load_dotenv()
+bootstrap(log_level=None)
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 DEFAULT_PIPELINES = ('test_gen', 'vocab_ladder', 'vocab_senses', 'vocab_glosses')
 
@@ -126,21 +126,10 @@ def _fetch_all(client, table: str, since_iso: str, pipelines: list[str]) -> list
     exceeds that for llm_calls."""
     rows: list[dict] = []
     page_size = 1000
-    start = 0
-    while True:
-        resp = (
-            client.table(table)
+    rows.extend(paginate(lambda: client.table(table)
             .select('*')
             .gte('created_at', since_iso)
-            .in_('pipeline', pipelines)
-            .range(start, start + page_size - 1)
-            .execute()
-        )
-        batch = resp.data or []
-        rows.extend(batch)
-        if len(batch) < page_size:
-            break
-        start += page_size
+            .in_('pipeline', pipelines), page_size))
     return rows
 
 
@@ -264,8 +253,7 @@ def main() -> int:
     pipelines = args.pipeline or list(DEFAULT_PIPELINES)
     since_iso = (datetime.now(timezone.utc) - timedelta(hours=args.since_hours)).isoformat()
 
-    SupabaseFactory.initialize()
-    client = get_supabase_admin()
+    client = admin_db()
     if client is None:
         print('ERROR: could not obtain a Supabase admin client (check env).', file=sys.stderr)
         return 1

@@ -62,16 +62,17 @@ import argparse
 import json
 import logging
 import os
-import sys
 import time
 from collections import Counter
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
+bootstrap(log_level=None)
 
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATE_DIR = os.path.join(ROOT, 'data', 'content_builds')
@@ -587,9 +588,7 @@ def main() -> int:
     apply_provider(args.provider)
     args.sense_workers = clamp_concurrency(args.provider, args.sense_workers)
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     if args.resume:
         state = load_state(args.resume)

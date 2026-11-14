@@ -43,7 +43,12 @@ import argparse
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
+
+bootstrap(log_level=None)
 
 # The reasons come back in zh/ja; a Windows cp1252 console raises
 # UnicodeEncodeError on the first CJK character and kills the run *after* the
@@ -54,9 +59,6 @@ for _stream in (sys.stdout, sys.stderr):
     except (AttributeError, ValueError):  # non-reconfigurable stream
         pass
 
-from dotenv import load_dotenv  # noqa: E402
-
-load_dotenv()
 
 # This is a check of the LLM (Likert) path. jev is the default backend since
 # TASK-835, so pin it -- otherwise "NO RATING" would be reported for a healthy judge.
@@ -67,7 +69,6 @@ from services.exercise_generation.judges.answer_entailment import (  # noqa: E40
     _load_cfg,
     judge_answer_entailment,
 )
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 LANG_ID = {"zh": 1, "en": 2, "ja": 3}
 
@@ -131,8 +132,7 @@ def main() -> int:
     ap.add_argument("--langs", default="zh,en,ja")
     args = ap.parse_args()
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     langs = [n.strip() for n in args.langs.split(",") if n.strip()]
     failures: list[str] = []

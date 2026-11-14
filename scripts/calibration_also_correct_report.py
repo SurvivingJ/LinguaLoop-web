@@ -42,14 +42,14 @@ from __future__ import annotations
 
 import argparse
 import collections
-import os
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
 
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 #: A session is "strong" when the learner answered at least this share of their
 #: other items correctly. Not a fixed accuracy across everyone: the point is to
@@ -80,9 +80,7 @@ def main() -> None:
     ap.add_argument('--top', type=int, default=40)
     args = ap.parse_args()
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     responses = _page(db, 'calibration_responses',
                       'id, session_id, anchor_sense_id, is_correct')

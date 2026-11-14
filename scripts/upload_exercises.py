@@ -41,18 +41,19 @@ Usage:
         --answers-file data/exercise_seeding/ja/batch_001.exercises.json
 """
 
-import os
 import sys
 import json
 import uuid
 import argparse
 import logging
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
@@ -76,8 +77,6 @@ from services.vocabulary_ladder.exercise_renderer import LadderExerciseRenderer
 from services.vocabulary_ladder.tier_gate import screen_sentences, tier_for_lemma
 from services.vocabulary_ladder.validators import VocabAssetValidator
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 DEFAULT_SOURCE_MODEL = 'claude-code:batch-exercise-generation'

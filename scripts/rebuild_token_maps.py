@@ -45,15 +45,17 @@ Usage:
     python scripts/rebuild_token_maps.py --test-id <uuid-or-slug> --dry-run
 """
 
-import os
 import sys
 import argparse
 import logging
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from config import Config
 from scripts.sense_linking_common import (
@@ -65,7 +67,6 @@ from scripts.sense_linking_common import (
     lemma_sense_lookup,
 )
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -139,19 +140,11 @@ def is_default_target(test: dict, live_sense_ids: set[int]) -> bool:
 
 def fetch_tests(db, language_id: int) -> list[dict]:
     rows: list[dict] = []
-    offset = 0
-    while True:
-        page = (db.table('tests')
+    rows.extend(paginate(lambda: db.table('tests')
                 .select('id, slug, language_id, transcript, vocab_sense_ids, vocab_token_map')
                 .eq('language_id', language_id)
                 .eq('is_active', True)
-                .order('id')
-                .range(offset, offset + PAGE - 1)
-                .execute().data or [])
-        rows.extend(page)
-        if len(page) < PAGE:
-            break
-        offset += PAGE
+                .order('id'), PAGE))
     return rows
 
 
@@ -235,10 +228,7 @@ def main() -> int:
     if not (args.language or args.test_id):
         parser.error("Pass --language or --test-id")
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     if args.test_id:
         test = fetch_test(db, args.test_id)

@@ -27,16 +27,17 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import admin_db, base_parser, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, base_parser, bootstrap, paginate
 
-from dotenv import load_dotenv  # noqa: E402
+bootstrap(log_format='%(message)s')
 
-load_dotenv(os.path.join(ROOT, '.env'))
 
 from services.pinyin_service import process_passage  # noqa: E402
 from services.vocabulary import zh_segmenter  # noqa: E402
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 log = logging.getLogger('regroup_pinyin')
 for noisy in ('httpx', 'jieba'):
     logging.getLogger(noisy).setLevel(logging.WARNING)
@@ -62,22 +63,12 @@ def regroup(old: list[dict], fresh: list[dict]) -> tuple[list[dict], int]:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--apply', action='store_true')
+    ap = base_parser(__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     args = ap.parse_args()
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
-    tests, start = [], 0
-    while True:
-        chunk = (db.table('tests').select('id, slug, transcript, pinyin_payload').eq('language_id', 1)
-                 .eq('is_active', True).not_.is_('pinyin_payload', 'null').order('id')
-                 .range(start, start + 99).execute().data or [])
-        tests += chunk
-        if len(chunk) < 100:
-            break
-        start += 100
+    db = admin_db()
+    tests = []
+    tests.extend(paginate(lambda: db.table('tests').select('id, slug, transcript, pinyin_payload').eq('language_id', 1)
+                 .eq('is_active', True).not_.is_('pinyin_payload', 'null').order('id'), 100))
     plans, skipped = [], 0
     for t in tests:
         old = t['pinyin_payload'] or []

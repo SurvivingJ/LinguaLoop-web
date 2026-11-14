@@ -45,14 +45,15 @@ import argparse
 import json
 import os
 import re
-import sys
 import time
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap, paginate
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
 
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 LANG_NAME = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
 
@@ -183,19 +184,12 @@ def blocklist_tokenizer_artifacts(db, language_id: int, dry_run: bool) -> int:
               '(spaces are meaningful in English lemmas)')
         return 0
 
-    rows, offset = [], 0
-    while True:
-        page = (db.table('dim_word_senses')
+    rows = []
+    rows.extend(paginate(lambda: db.table('dim_word_senses')
                 .select('id, dim_vocabulary!inner(lemma)')
                 .eq('word_language_id', language_id)
                 .eq('definition_level', 'standard')
-                .order('id')
-                .range(offset, offset + 999)
-                .execute().data) or []
-        rows += page
-        if len(page) < 1000:
-            break
-        offset += 1000
+                .order('id'), 1000))
 
     bad = [r for r in rows
            if ' ' in ((r.get('dim_vocabulary') or {}).get('lemma') or '').strip()]
@@ -291,10 +285,8 @@ def main() -> None:
                          '(MeCab morpheme sequences); no LLM calls')
     args = ap.parse_args()
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
     from services.llm_service import call_llm
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     if args.tokenizer_artifacts:
         blocklist_tokenizer_artifacts(db, args.language, args.dry_run)

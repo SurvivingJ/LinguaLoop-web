@@ -20,7 +20,12 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
+
+bootstrap(log_level=None)
 EXP_A = os.path.join(ROOT, "data", "eval", "jev_2026-09-26", "exp_a")
 sys.path.insert(0, EXP_A)
 OUT_DIR = os.path.join(ROOT, "data", "eval", "jev_entailment_calibration_2026-09-26")
@@ -31,9 +36,6 @@ for _s in (sys.stdout, sys.stderr):
     except Exception:
         pass
 
-from dotenv import load_dotenv  # noqa: E402
-
-load_dotenv()
 
 from scripts.measure_entailment_ab import _build_items  # noqa: E402
 
@@ -143,7 +145,7 @@ def report() -> None:
                              " | ".join(str(sum(key(m) == v for m in sub)) for v in VS) + " |")
             lines.append("")
         lines += ["live (rows) x jev (cols), all items", "",
-                  "| live \ jev | accept | flag | reject |", "|---|---|---|---|"]
+                  "| live \\ jev | accept | flag | reject |", "|---|---|---|---|"]
         for lv in VS:
             lines.append(f"| {lv} | " + " | ".join(
                 str(sum(m["live_verdict"] == lv and verdict(m["jev"], lang) == jv for m in rows))

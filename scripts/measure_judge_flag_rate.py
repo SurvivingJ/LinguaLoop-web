@@ -63,15 +63,17 @@ from threading import Lock
 
 # Run-as-script bootstrap (mirrors scripts/rescore_dt_grades.py): repo root on the
 # path and .env loaded before any app service is imported.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dotenv import load_dotenv  # noqa: E402
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-load_dotenv()
+bootstrap(log_level=None)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 
 import distractor_gold as gold_lib  # noqa: E402
 from services.llm_service import call_llm  # noqa: E402
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 from services.test_generation.schemas import (  # noqa: E402
     AXIS_CONFUSABILITY,
     AXIS_FIT,
@@ -624,8 +626,7 @@ def _run_gold(args, langs: list[int]) -> None:
     arm_ratings = _stored_prerate_arms(frame)
 
     if args.gold_live_arms:
-        SupabaseFactory.initialize()
-        db = get_supabase_admin()
+        db = admin_db()
         rows = _gold_questions(frame["items"])
         arms = _parse_arms(args.arms, args.judge_model)
         since = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(time.time() - 60))
@@ -709,8 +710,7 @@ def main() -> None:
 
     arms = _parse_arms(args.arms, args.judge_model)
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     rows = _load_sample(args.sample, langs)
     _map_type_codes(db, rows)

@@ -27,20 +27,18 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
 import sys
 import uuid
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_format='%(asctime)s %(levelname)s %(message)s')
 
-load_dotenv()
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger('validate_effectiveness_view')
 
 # Distinctive so a failed cleanup is obvious and greppable.
@@ -138,9 +136,7 @@ def main() -> int:
                         help='leave the fixture rows in place for inspection')
     args = parser.parse_args()
 
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     # Real user ids: exercise_attempts.user_id is a FK to auth users.
     users = (db.table('exercise_attempts').select('user_id')

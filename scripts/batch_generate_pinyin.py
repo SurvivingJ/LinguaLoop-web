@@ -16,25 +16,22 @@ Options:
     --dry-run               Print payloads without writing to DB
 """
 
-import sys
-import os
 import json
 import argparse
 import logging
 import time
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from services.supabase_factory import get_supabase_admin
 from services.pinyin_service import process_passage, resolve_polyphones_llm
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 

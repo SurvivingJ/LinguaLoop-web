@@ -58,11 +58,13 @@ import os
 import sys
 from collections import defaultdict
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
 
-load_dotenv()
 
 logger = logging.getLogger('build_exercise_gen_reference_set')
 
@@ -408,9 +410,7 @@ def main() -> None:
     for noisy in ('httpx', 'httpcore'):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     tier_difficulty = fetch_tier_difficulty(db)
     blocklisted = fetch_blocklisted_sense_ids(db)
