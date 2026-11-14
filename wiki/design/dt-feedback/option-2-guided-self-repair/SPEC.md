@@ -64,7 +64,7 @@ describes layout, it is marked **Superseded by Revision 2**.
 | 4 | Checking | Same screen; the button shows a spinner and "Checking…", the field is read-only, a second press is ignored (1–2 s) | — | — |
 | 5a | Still not quite | Same screen; the slot says "Still not quite. Try again, or take a hint."; the field shakes once. Unchanged text: "That's the same sentence. Change something first." (no grader call) | Check | as above |
 | 5b | Fixed | Tick, "Fixed", one line ("On your own" / "With 2 hints") | Next (auto after ~1.6 s) | — |
-| 6 | Answer | "The original", the original sentence with the differing part marked, one line of explanation. Also used, with a different heading, for "No issue found. The original says:" and after a dispute ("Noted. The original says:"). Reached by "Show answer" or automatically after the 4th failed check (3rd in daily practice). | Next | — |
+| 6 | Answer | Two labelled blocks, stacked so they can be compared at a glance: **"You wrote"** (muted card) over **"Answer"** (tinted card with a stronger border), then one line of explanation. A small heading says "Compare" ("No issue found. Compare:" after an alternative fix; "Noted. Compare:" after a dispute). In "You wrote" the problem part is struck through with a tinted background; in "Answer" the corresponding corrected part is bold and underlined. Colour never carries the marking alone. Reached by "Show answer" or automatically after the 4th failed check (3rd in daily practice); same screen in daily practice and for en, zh and ja. | Next | — |
 | 7 | Summary | "All done" and three counts: Fixed yourself / Needed help / Saved to practice | Done → existing result screen | — |
 
 Progress is a row of dots in the header (the current one is longer, so shape as well as colour
@@ -121,7 +121,7 @@ The longest gold sentences were used as test items: en 69 characters (`en_clean_
    reaches this at the tested sizes.
 3. The L1 prompt is clamped to two lines. If it is cut, tapping it opens the full prompt as an
    overlay on the same screen; tapping again closes it.
-4. The answer screen uses the same type steps (24 → 20 → 17 → 15 px).
+4. The answer screen (two blocks) steps the sentence type down 22 → 19 → 17 → 15 px. If both blocks still do not fit, each sentence is clamped to 3, then 2, then 1 line; a clamped block is tappable and opens the full sentence (with its marking) as an overlay, tap to close. On the shortest keyboard-open heights the "Compare" heading is also hidden. The longest test items (ja 82 characters) fit at 375×667 without clamping.
 5. With the keyboard open on a short phone the prompt line is hidden, and below 400 px of visible
    height the label is hidden visually while a hint is showing (it stays available to screen readers).
 
@@ -144,8 +144,16 @@ longer than this fail review.
   result and latency, time since the previous event, answer shown (asked or automatic), dispute,
   skip, and the episode outcome with total time. The mockup writes these to `window.__events`.
 
-**Verified in the mockup** (2026-11-14, Chromium via Playwright, `node verify.cjs`): 766 step checks
-passed, 0 failed. They cover en and zh flows (fix first try, all hints then answer, four failed
+**Answer-screen terms (unambiguous labels).** "You wrote" is always the learner's own submitted
+sentence; "Answer" is always the correct target-language sentence. The reference or source-language
+prompt sentence is never labelled "original". If the learner made revision attempts, "You wrote"
+shows the ORIGINAL submission (`text`, the sentence the grader flagged), not the last attempt; the
+attempts are in the event rows (§2.1) and are not shown here. `verify.cjs` asserts this.
+
+**Verified in the mockup** (2026-11-14, Chromium via Playwright, `node verify.cjs`): 738 step checks
+passed, 0 failed (766 with `--shots`, which adds screenshot passes). Each Answer step is also checked
+for both labelled blocks being visible, both marked without relying on colour, stacked in order, and
+"You wrote" equal to the original submission. They cover en and zh flows (fix first try, all hints then answer, four failed
 checks, no-issue-found, dispute, clean, uncertain, daily practice) and the three longest-sentence
 items, at the three viewports and two keyboard-open sizes, in light and dark.
 

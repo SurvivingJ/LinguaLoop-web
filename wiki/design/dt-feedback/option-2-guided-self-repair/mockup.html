@@ -133,14 +133,23 @@ button{cursor:pointer;background:none;border:0;padding:0;-webkit-tap-highlight-c
 .slot.in{animation:fade .25s}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}}
 
-/* answer / original */
-.orig{margin:auto 0;padding-bottom:24px}
-.orig h2{font-family:var(--display);font-size:1.25rem;margin:0 0 14px}
-.orig .sent{font-size:1.5rem;line-height:1.45;margin:0 0 16px;overflow-wrap:anywhere}
-.orig .sent:lang(zh),.orig .sent:lang(ja){line-height:1.6}
-.orig.f1 .sent{font-size:1.25rem}.orig.f2 .sent{font-size:1.0625rem}.orig.f3 .sent{font-size:.9375rem}
-.orig .sent b{font-weight:700;background:var(--wash);border-radius:4px;text-decoration:underline 3px var(--primary);text-underline-offset:5px;padding:0 2px}
-.orig .why{margin:0;color:var(--text-2);font-size:1rem}
+/* answer: what you wrote, then the answer, stacked */
+.orig{margin:auto 0;padding-bottom:16px;display:flex;flex-direction:column;min-height:0}
+.orig h2{font-family:var(--display);font-size:1.0625rem;margin:0 0 10px;color:var(--text-2)}
+.cmp{flex:none;display:block;width:100%;text-align:left;margin:0 0 10px;padding:12px 14px;border-radius:14px;border:2px solid var(--hairline);background:var(--bg-muted);font:inherit;color:var(--text);min-height:0}
+.cmp.ans{background:var(--wash);border-color:var(--primary)}
+.cmp .tag{display:block;margin:0 0 4px;font-size:.8125rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+.cmp.ans .tag{color:var(--primary)}
+.cmp .sent{display:block;font-size:1.375rem;line-height:1.4;overflow-wrap:anywhere}
+.cmp .sent:lang(zh),.cmp .sent:lang(ja){line-height:1.6}
+.orig.f1 .sent{font-size:1.1875rem}.orig.f2 .sent{font-size:1.0625rem}.orig.f3 .sent{font-size:.9375rem}
+.orig.clamp .sent{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--cl,3);overflow:hidden}
+.orig.tt h2{display:none}.orig.tt .cmp{padding:8px 12px;margin-bottom:6px}.orig.tt .why{margin-top:2px;font-size:.875rem}
+.orig.clamp .cmp.more{cursor:pointer}
+.cmp .sent del{text-decoration:line-through 3px var(--mark);background:var(--mark-wash);border-radius:4px;padding:0 2px}
+.cmp .sent b{font-weight:700;background:var(--bg-surface);border-radius:4px;text-decoration:underline 3px var(--primary);text-underline-offset:5px;padding:0 2px}
+.orig .why{margin:6px 0 0;color:var(--text-2);font-size:1rem}
+.orig.f2 .why,.orig.f3 .why{font-size:.9375rem}
 
 /* keyboard open on a phone: keep only label + field + one row of actions */
 .kb .prompt,.kb .eyebrow,.kb #fine{display:none}
@@ -158,6 +167,9 @@ button{cursor:pointer;background:none;border:0;padding:0;-webkit-tap-highlight-c
 
 /* full-prompt overlay (tap a truncated prompt) */
 .full{position:absolute;inset:0;z-index:2;background:var(--bg-body);display:grid;place-items:center;padding:32px 24px;font-size:1.25rem;text-align:left;width:100%;height:100%}
+.full .tag{display:block;margin:0 0 6px;font-size:.8125rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+.full del{text-decoration:line-through 3px var(--mark);background:var(--mark-wash);border-radius:4px;padding:0 2px}
+.full b{font-weight:700;text-decoration:underline 3px var(--primary);text-underline-offset:5px;padding:0 2px}
 .full small{position:absolute;bottom:24px;left:0;right:0;text-align:center;color:var(--text-2);font-size:.875rem}
 </style>
 </head>
@@ -361,8 +373,12 @@ function draw(dir=true){
     h = `<div class="moment"><div class="badge n pop">${I.dash}</div><h2 tabindex="-1">Kept as written</h2><p>We’ll leave this one alone.</p></div>`;
     a = `<button class="btn primary" id="next">${nextLabel}</button>`;
   } else if(S.view==='reveal' || S.view==='alt'){
-    const t = S.view==='alt' ? 'No issue found. The original says:' : s.outcome==='disputed' ? 'Noted. The original says:' : 'The original';
-    h = `<div class="orig" id="orig"><h2 tabindex="-1">${t}</h2><p class="sent" lang="${s.lang||S.lang}">${esc(s.ref).replace(esc(s.good), `<b>${esc(s.good)}</b>`)}</p><p class="why">${esc(s.why)}</p></div>`;
+    const t = S.view==='alt' ? 'No issue found. Compare:' : s.outcome==='disputed' ? 'Noted. Compare:' : 'Compare';
+    const L = s.lang||S.lang, mine = esc(s.text).replace(esc(s.bad), `<del>${esc(s.bad)}</del>`), ans = esc(s.ref).replace(esc(s.good), `<b>${esc(s.good)}</b>`);
+    h = `<div class="orig" id="orig"><h2 tabindex="-1">${t}</h2>`
+      + `<button class="cmp mine" id="cmpMine" lang="${L}" tabindex="-1"><span class="tag">You wrote</span><span class="sent">${mine}</span></button>`
+      + `<button class="cmp ans" id="cmpAns" lang="${L}" tabindex="-1"><span class="tag">Answer</span><span class="sent">${ans}</span></button>`
+      + `<p class="why">${esc(s.why)}</p></div>`;
     a = `<button class="btn primary" id="next">${nextLabel}</button>`;
   } else if(S.view==='summary'){
     const c = tally();
@@ -398,7 +414,12 @@ function paint(){
   m.scrollTop = ta.scrollTop;
   const pr = $('#prompt'), sp = pr.firstElementChild; pr.classList.toggle('more', sp.scrollHeight > sp.clientHeight+1); pr.tabIndex = pr.classList.contains('more') ? 0 : -1;
 }
-function fitOrig(){ const o = $('#orig'); if(!o) return; const st = $('#stage'); for(const c of ['f1','f2','f3']){ if(st.scrollHeight <= st.clientHeight) break; o.classList.add(c); } }
+function fitOrig(){ const o = $('#orig'); if(!o) return; const st = $('#stage'); const over = () => st.scrollHeight > st.clientHeight;
+  for(const c of ['f1','f2','f3']){ if(!over()) break; o.classList.add(c); }
+  for(const n of [3,2,1]){ if(!over()) break; o.classList.add('clamp'); o.style.setProperty('--cl', n); }
+  if(over()){ o.classList.add('tt'); for(const n of [2,1]){ if(!over()) break; o.style.setProperty('--cl', n); } }
+  for(const b of o.querySelectorAll('.cmp')){ const sp = b.querySelector('.sent'), more = o.classList.contains('clamp') && sp.scrollHeight > sp.clientHeight+1; b.classList.toggle('more', more); b.tabIndex = more ? 0 : -1; b.onclick = () => { if(b.classList.contains('more')) showFull(b); }; } }
+function showFull(b){ const full = document.createElement('button'); full.className = 'full'; full.lang = b.lang; full.innerHTML = `<span><span class="tag" lang="en">${b.querySelector('.tag').textContent}</span>${b.querySelector('.sent').innerHTML}</span><small lang="en">Tap to close</small>`; full.onclick = () => full.remove(); $('#sheet').appendChild(full); }
 
 /* the single hint slot: a new hint or message replaces what was there */
 function slot(anim){

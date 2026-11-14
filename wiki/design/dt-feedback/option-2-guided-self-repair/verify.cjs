@@ -42,6 +42,21 @@ async function assertStep(page, tag) {
       if (el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflowX !== 'visible' && el.tagName !== 'TEXTAREA') out.push(`${name(el)} overflows horizontally`);
     }
     if (open) {
+      const sh = document.querySelector('#sheet'); if (sh.dataset.view === 'reveal' || sh.dataset.view === 'alt') {
+        const mine = sh.querySelector('#cmpMine'), ans = sh.querySelector('#cmpAns');
+        const lbl = (b, t) => b && vis(b) && b.querySelector('.tag')?.textContent.trim() === t && b.querySelector('.sent')?.textContent.trim().length > 5;
+        if (!lbl(mine, 'You wrote')) out.push('answer step: visible "You wrote" block missing');
+        if (!lbl(ans, 'Answer')) out.push('answer step: visible "Answer" block missing');
+        if (mine && ans) {
+          if (!mine.querySelector('del') || !vis(mine.querySelector('del'))) out.push('answer step: problem part not marked in "You wrote"');
+          if (!ans.querySelector('b') || !vis(ans.querySelector('b'))) out.push('answer step: corrected part not marked in "Answer"');
+          if (mine.getBoundingClientRect().bottom > ans.getBoundingClientRect().top + 1) out.push('answer step: blocks not stacked in order');
+          const dd = getComputedStyle(mine.querySelector('del')).textDecorationLine, bb = getComputedStyle(ans.querySelector('b')).textDecorationLine;
+          if (!dd.includes('line-through') || !bb.includes('underline')) out.push('answer step: marking relies on colour alone');
+          const tx = s => s.textContent.trim(); if (tx(mine.querySelector('.sent')) === tx(ans.querySelector('.sent'))) out.push('answer step: both sentences identical');
+          if (tx(mine.querySelector('.sent')) !== S.steps[S.i].text) out.push('answer step: "You wrote" is not the original submission');
+        }
+      }
       const stage = sheet.querySelector('#stage'), act = sheet.querySelector('#act').getBoundingClientRect(), st = stage.getBoundingClientRect();
       if (stage.scrollHeight > stage.clientHeight + 1) out.push(`stage content taller than its area (${stage.scrollHeight} > ${stage.clientHeight})`);
       if (act.bottom > box.bottom + .5) out.push('action area off screen');
@@ -52,7 +67,7 @@ async function assertStep(page, tag) {
         if (b.bottom > st.bottom + .5) out.push(`${name(el)} clipped by the stage`);
       }
       // text clipped inside its own box (the field may scroll inside itself only at the smallest type step)
-      for (const el of stage.querySelectorAll('.slot, .moment, .orig, .lab, .eyebrow')) if (vis(el) && el.scrollHeight > el.clientHeight + 1) out.push(`${name(el)} text clipped (${el.scrollHeight} > ${el.clientHeight})`);
+      for (const el of stage.querySelectorAll('.slot, .moment, .orig, .lab, .eyebrow, .cmp')) if (vis(el) && el.scrollHeight > el.clientHeight + 1) out.push(`${name(el)} text clipped (${el.scrollHeight} > ${el.clientHeight})`);
       const m = stage.querySelector('#mirror'); if (m && m.scrollHeight > m.clientHeight + 1) out.push('field text does not fit the field');
       const ta = stage.querySelector('#ta'); if (ta && ta.getBoundingClientRect().bottom > box.top + (box.bottom - box.top) * .62 && !sheet.classList.contains('kb')) out.push('field is not in the upper part of the screen');
       const prim = sheet.querySelectorAll('.act .btn.primary').length; if (prim > 1) out.push('more than one primary button');
