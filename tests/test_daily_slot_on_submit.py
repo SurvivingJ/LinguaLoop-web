@@ -109,11 +109,11 @@ def test_row_db(app):
 
 def test_reading_submit_marks_the_slot(client, auth_headers, test_row_db):
     body = {'responses': [{'question_id': 'q', 'selected_answer': 'a'}], 'test_mode': 'reading'}
-    with patch('routes.tests._call_submission_rpc', return_value=_rpc_ok()), \
-         patch('routes.tests._update_vocabulary_tracking', return_value=None), \
-         patch('routes.tests._build_submission_response', return_value={}), \
-         patch('routes.tests._attach_explanations'), \
-         patch('routes.tests._apply_timing_and_progress'), \
+    with patch('routes.tests.submit._call_submission_rpc', return_value=_rpc_ok()), \
+         patch('routes.tests.submit._update_vocabulary_tracking', return_value=None), \
+         patch('routes.tests.submit._build_submission_response', return_value={}), \
+         patch('routes.tests.submit._attach_explanations'), \
+         patch('routes.tests.submit._apply_timing_and_progress'), \
          patch('routes.tests.DimensionService.get_test_type_id', return_value=1), \
          patch.object(_TestService, 'mark_daily_slot_complete_on_submit', return_value=True) as mark:
         r = client.post('/api/tests/slug/submit', json=body, headers=auth_headers)
@@ -123,8 +123,8 @@ def test_reading_submit_marks_the_slot(client, auth_headers, test_row_db):
 
 
 def test_pinyin_submit_marks_the_slot(client, auth_headers, test_row_db):
-    with patch('routes.tests._call_pinyin_submission_rpc', return_value=_rpc_ok()), \
-         patch('routes.tests._apply_timing_and_progress'), \
+    with patch('routes.tests.submit._call_pinyin_submission_rpc', return_value=_rpc_ok()), \
+         patch('routes.tests.submit._apply_timing_and_progress'), \
          patch('routes.tests.DimensionService.get_test_type_id', return_value=9), \
          patch.object(_TestService, 'mark_daily_slot_complete_on_submit', return_value=True) as mark:
         r = client.post('/api/tests/slug/submit-pinyin',
@@ -134,8 +134,8 @@ def test_pinyin_submit_marks_the_slot(client, auth_headers, test_row_db):
 
 
 def test_slot_failure_does_not_fail_the_submission(client, auth_headers, test_row_db):
-    with patch('routes.tests._call_pinyin_submission_rpc', return_value=_rpc_ok()), \
-         patch('routes.tests._apply_timing_and_progress'), \
+    with patch('routes.tests.submit._call_pinyin_submission_rpc', return_value=_rpc_ok()), \
+         patch('routes.tests.submit._apply_timing_and_progress'), \
          patch('routes.tests.DimensionService.get_test_type_id', return_value=9), \
          patch.object(_TestService, 'mark_daily_slot_complete_on_submit',
                       side_effect=RuntimeError('db down')):

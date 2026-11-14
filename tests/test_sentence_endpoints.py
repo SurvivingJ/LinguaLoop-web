@@ -12,7 +12,7 @@ import json
 import pytest
 
 import routes.dual_translation as dt_routes
-import routes.tests as test_routes
+import routes.tests.sentences as test_routes
 from services.dual_translation import primed_token
 
 

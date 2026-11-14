@@ -396,10 +396,10 @@ def _rpc_ok():
 class TestCountedSubmits:
     def _post(self, app, route, body, row):
         app.supabase_service = FakeDB({'tests': [row]})
-        with patch('routes.tests._call_pinyin_submission_rpc', return_value=_rpc_ok()) as pin, \
-             patch('routes.tests._call_pitch_accent_submission_rpc', return_value=_rpc_ok()) as pitch, \
-             patch('routes.tests._apply_timing_and_progress'), \
-             patch('routes.tests._complete_daily_slot'), \
+        with patch('routes.tests.submit._call_pinyin_submission_rpc', return_value=_rpc_ok()) as pin, \
+             patch('routes.tests.submit._call_pitch_accent_submission_rpc', return_value=_rpc_ok()) as pitch, \
+             patch('routes.tests.submit._apply_timing_and_progress'), \
+             patch('routes.tests.submit._complete_daily_slot'), \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=9):
             r = app.test_client().post(f'/api/tests/s/{route}', json=body, headers=AUTH)
         return r, pin, pitch
@@ -461,7 +461,7 @@ class TestOpenRoutes:
         db = FakeDB({'tests': lambda q: [] if q.filters('eq').get('is_active') else
                      [{'id': 1, 'slug': 's', 'language_id': 1, 'difficulty': 1}]})
         app.supabase_service = db
-        with patch('routes.tests.get_test_service', return_value=_TestService(supabase_admin=db)):
+        with patch('routes.tests.catalog.get_test_service', return_value=_TestService(supabase_admin=db)):
             assert app.test_client().get('/api/tests/s').status_code == 404
 
     def test_anonymous_open_is_cacheable_and_has_transcript(self, app):
@@ -513,9 +513,9 @@ class TestOpenRoutes:
                                     'tests': [{'vocab_sense_ids': []}]},
                               rpcs={'update_vocabulary_from_test': [],
                                     'get_word_quiz_candidates': []})
-        with patch('routes.tests._call_submission_rpc', return_value=rpc), \
-             patch('routes.tests._apply_timing_and_progress') as timing, \
-             patch('routes.tests._complete_daily_slot') as slot, \
+        with patch('routes.tests.submit._call_submission_rpc', return_value=rpc), \
+             patch('routes.tests.submit._apply_timing_and_progress') as timing, \
+             patch('routes.tests.submit._complete_daily_slot') as slot, \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=1), \
              patch.object(attempts, 'VocabularyKnowledgeService',
                           return_value=VocabularyKnowledgeService(knowledge_db)):

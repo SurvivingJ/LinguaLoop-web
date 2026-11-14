@@ -202,6 +202,52 @@ def get_test_content(db, identifier, also: Tuple = ()) -> Optional[Tuple]:
     return content, results[2:]
 
 
+def list_tests_with_ratings(db, language_id=None, difficulty=None, limit=50) -> List[Dict]:
+    """Active tests with their per-skill ELO ratings (catalogue list)."""
+    query = db.table('tests').select(
+        'id, slug, title, language_id, topic_id, difficulty, style, tier, '
+        'audio_url, audio_generated, is_custom, is_featured, total_attempts'
+    ).eq('is_active', True)
+
+    if language_id:
+        query = query.eq('language_id', language_id)
+    if difficulty:
+        query = query.eq('difficulty', int(difficulty))
+
+    tests_result = query.limit(limit).execute()
+
+    test_ids = [test['id'] for test in tests_result.data]
+
+    ratings_by_test = {}
+    if test_ids:
+        ratings_result = db.table('test_skill_ratings').select(
+            'test_id, test_type_id, elo_rating, total_attempts, dim_test_types(type_code)'
+        ).in_('test_id', test_ids).execute()
+
+        for rating in ratings_result.data:
+            test_id = rating['test_id']
+            type_code = rating.get('dim_test_types', {}).get('type_code', 'unknown')
+            if test_id not in ratings_by_test:
+                ratings_by_test[test_id] = {}
+            ratings_by_test[test_id][type_code] = {
+                'elo_rating': rating['elo_rating'],
+                'total_attempts': rating['total_attempts']
+            }
+
+    tests_with_ratings = []
+    for test in tests_result.data:
+        test_ratings = ratings_by_test.get(test['id'], {})
+        test_with_ratings = {
+            **test,
+            'listening_rating': test_ratings.get('listening', {}).get('elo_rating', Config.DEFAULT_ELO_RATING),
+            'reading_rating': test_ratings.get('reading', {}).get('elo_rating', Config.DEFAULT_ELO_RATING),
+            'dictation_rating': test_ratings.get('dictation', {}).get('elo_rating', Config.DEFAULT_ELO_RATING),
+            'skill_ratings': test_ratings
+        }
+        tests_with_ratings.append(test_with_ratings)
+    return tests_with_ratings
+
+
 def get_test_skill_ratings(db, test_id) -> Dict[str, Dict]:
     """{type_code: {elo_rating, total_attempts}} for one test."""
     rows = db.table('test_skill_ratings').select(
