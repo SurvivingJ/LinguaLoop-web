@@ -1,0 +1,357 @@
+/* Structural sibling of counter_drill.html / classifier_drill.html. Their ct-*
+   and cd-* class sets are mirrored here with a cal-* prefix so the three
+   standalone modes read as one pattern. */
+.cal-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+}
+
+.cal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.cal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cal-stat {
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.cal-stat b {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.cal-stage {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 20px 24px;
+}
+
+.cal-prompt {
+  font-size: clamp(2rem, 8vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  word-break: break-word;
+}
+
+.cal-reading {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  text-align: center;
+}
+
+.cal-instruction {
+  margin-top: 14px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.cal-options {
+  display: grid;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.cal-option {
+  padding: 16px 18px;
+  border: 2px solid var(--border-default);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.cal-option:hover:not(:disabled) {
+  border-color: var(--brand-primary, #4f46e5);
+}
+
+.cal-option:disabled {
+  cursor: default;
+}
+
+.cal-option.correct {
+  border-color: var(--success, #16a34a);
+  background: color-mix(in srgb, var(--success, #16a34a) 10%, transparent);
+}
+
+.cal-option.wrong {
+  border-color: var(--danger, #dc2626);
+  background: color-mix(in srgb, var(--danger, #dc2626) 10%, transparent);
+}
+
+/* Answer feedback: the chosen option gets a spinner the instant it is clicked
+   (the answer round trip is ~0.5 s and otherwise reads as a dead click), which
+   becomes a drawn tick or cross on reveal. The badge is absolutely positioned
+   so it never shifts the option text, including centred pronunciation options. */
+/* stylelint-disable-next-line no-duplicate-selectors -- answered state, kept after the option styles */
+.cal-option {
+  position: relative;
+  padding-right: 46px;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    opacity 0.2s;
+}
+
+.cal-option.picked {
+  border-color: var(--brand-primary, #4f46e5);
+}
+
+.cal-options.answered .cal-option:not(.picked, .correct, .wrong) {
+  opacity: 0.5;
+}
+
+.cal-badge {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  pointer-events: none;
+}
+
+.cal-badge svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cal-badge .spin {
+  animation: cal-spin 0.7s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.cal-badge .draw {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: cal-draw 0.3s ease-out forwards;
+}
+
+.cal-badge .draw.second {
+  animation-delay: 0.12s;
+}
+
+@keyframes cal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cal-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cal-option {
+    transition: none;
+  }
+
+  .cal-badge .spin {
+    animation: none;
+  }
+
+  .cal-badge .draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+.cal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.cal-actions [hidden] {
+  display: none !important;
+}
+
+.cal-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cal-btn-primary {
+  background: var(--brand-primary, #4f46e5);
+  border-color: var(--brand-primary, #4f46e5);
+  color: #fff;
+}
+/* Stays on the right even when "I don't know" is hidden beside it. */
+/* stylelint-disable-next-line selector-id-pattern -- id is referenced from markup and scripts */
+#calNextBtn {
+  margin-left: auto;
+}
+
+.cal-next-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  align-self: center;
+}
+
+/* Results: the knowledge curve. One row per Zipf band. */
+.cal-results {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+/* TASK-752: what the result did to test difficulty, including refusals. */
+.cal-rating {
+  margin-top: 16px;
+  font-size: 0.9rem;
+}
+
+.cal-rating-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.cal-rating-row {
+  opacity: 0.85;
+}
+
+.cal-headline {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.cal-headline .cal-big {
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.cal-headline .cal-sub {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-top: 6px;
+}
+
+.cal-curve {
+  margin-top: 28px;
+  display: grid;
+  gap: 8px;
+}
+
+.cal-band {
+  display: grid;
+  grid-template-columns: 84px 1fr 64px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.cal-band-label {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.cal-band-track {
+  background: var(--bg-muted);
+  border-radius: 6px;
+  height: 18px;
+  overflow: hidden;
+}
+
+.cal-band-fill {
+  height: 100%;
+  background: var(--brand-primary, #4f46e5);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.cal-band-fill.thin {
+  background: var(--text-muted);
+  opacity: 0.45;
+}
+
+.cal-band-n {
+  color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cal-note {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.cal-msg {
+  max-width: 640px;
+  margin: 60px auto;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.cal-mode-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cal-mode-toggle button {
+  border: 0;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 13px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.cal-mode-toggle button.active {
+  background: var(--brand-primary, #4f46e5);
+  color: #fff;
+}
+
+.cal-mode-toggle button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* Readings are short; four of them read better in a row than stacked. */
+.cal-options.pron {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cal-options.pron .cal-option {
+  text-align: center;
+  font-size: 1.35rem;
+  padding-left: 46px;
+}

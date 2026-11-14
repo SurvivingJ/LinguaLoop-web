@@ -1,0 +1,41 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-body) 0%, var(--bg-muted) 100%);
+}
+
+.login-card {
+  background: var(--bg-surface);
+  border: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.otp-input {
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 8px;
+  font-weight: 600;
+}
+
+#loading {
+  text-align: center;
+}

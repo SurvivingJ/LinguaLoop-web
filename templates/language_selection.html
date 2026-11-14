@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% set defer_base_scripts = true %}
 
 {% block title %}Select Language - LinguaDojo{% endblock %}
 
@@ -60,7 +61,8 @@
 
                 <!-- Primary CTA: Daily Session (with Browse Tests as secondary) -->
                 <div class="mt-4">
-                    <button id="continue-btn" class="btn btn-primary w-100" disabled data-i18n="lang_select.start_session">
+                    <button id="continue-btn" class="btn btn-primary w-100" disabled data-i18n="lang_select.start_session"
+                            data-session-url="{{ url_for('study_session_page') }}">
                         Start Daily Session
                     </button>
                     <div class="text-center mt-3">
@@ -79,154 +81,9 @@
 {% endblock %}
 
 {% block extra_css %}
-<style>
-    /* Language Selection Card Styles */
-    .language-card {
-        background: var(--bg-surface);
-        border: 2px solid var(--border-strong);
-        border-radius: 12px;
-        padding: 24px;
-        cursor: pointer;
-        transition: var(--transition-fast);
-    }
-
-    .language-card:hover {
-        border-color: var(--slate-400);
-        background: var(--bg-surface-hover);
-    }
-
-    .language-card.selected {
-        border-color: var(--primary);
-        border-width: 2px;
-        background: var(--selected-bg);
-        animation: scaleIn 0.15s ease;
-    }
-
-    .language-flag {
-        font-size: 32px;
-        margin-right: 16px;
-        user-select: none;
-    }
-
-    .language-native {
-        font-size: 18px;
-        font-weight: 500;
-        color: var(--slate-700);
-        transition: var(--transition-fast);
-        display: block;
-    }
-
-    .language-english {
-        font-size: 13px;
-        line-height: 1.3;
-    }
-
-    .language-card.selected .language-native {
-        font-weight: 600;
-        color: var(--primary);
-    }
-
-    .check-icon {
-        color: var(--primary);
-        font-size: 24px;
-        margin-left: 12px;
-    }
-
-    /* Button states */
-    #continue-btn:disabled {
-        background: var(--border-strong);
-        border-color: var(--border-strong);
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/language-selection.css') }}">
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const languageCards = document.querySelectorAll('.language-card');
-        const continueBtn = document.getElementById('continue-btn');
-        const browseTestsLink = document.getElementById('browse-tests-link');
-        let selectedLanguage = null;
-
-        // Fetch native names from metadata
-        LinguaMetadata.load().then(function(meta) {
-            if (!meta || !meta.languages) return;
-            languageCards.forEach(function(card) {
-                var langId = parseInt(card.dataset.id);
-                var lang = meta.languages.find(function(l) { return l.id === langId; });
-                if (lang && lang.native_name) {
-                    var nativeEl = card.querySelector('.language-native');
-                    if (nativeEl) nativeEl.textContent = lang.native_name;
-                }
-            });
-        });
-
-        // Handle language card selection
-        languageCards.forEach(card => {
-            card.addEventListener('click', function() {
-                // Remove selection from all cards
-                languageCards.forEach(c => {
-                    c.classList.remove('selected');
-                    c.querySelector('.check-icon').style.display = 'none';
-                });
-
-                // Add selection to clicked card
-                this.classList.add('selected');
-                this.querySelector('.check-icon').style.display = 'block';
-
-                // Store selected language ID
-                selectedLanguage = {
-                    id: parseInt(this.dataset.id)
-                };
-
-                // Enable continue button and the secondary browse-tests link
-                continueBtn.disabled = false;
-                if (browseTestsLink) {
-                    browseTestsLink.style.pointerEvents = 'auto';
-                    browseTestsLink.style.opacity = '1';
-                }
-            });
-        });
-
-        // Persist the chosen language (1=Chinese, 2=English, 3=Japanese) before
-        // navigating, so both the daily session and the tests page see it.
-        function persistSelectedLanguage() {
-            if (selectedLanguage) {
-                localStorage.setItem('selectedLanguageId', selectedLanguage.id.toString());
-            }
-        }
-
-        // Primary CTA: start the daily study session.
-        continueBtn.addEventListener('click', function() {
-            if (selectedLanguage) {
-                persistSelectedLanguage();
-                window.location.href = "{{ url_for('study_session_page') }}";
-            }
-        });
-
-        // Secondary CTA: browse tests. The href already points to the tests page;
-        // this handler just persists the selection first (and no-ops until a
-        // language is chosen, matching the disabled visual state).
-        if (browseTestsLink) {
-            browseTestsLink.addEventListener('click', function(e) {
-                if (!selectedLanguage) {
-                    e.preventDefault();
-                    return;
-                }
-                persistSelectedLanguage();
-            });
-        }
-
-        // Check if language was previously selected
-        const savedLanguageId = localStorage.getItem('selectedLanguageId');
-        if (savedLanguageId) {
-            const savedCard = document.querySelector(`[data-id="${savedLanguageId}"]`);
-            if (savedCard) {
-                savedCard.click();
-            }
-        }
-    });
-</script>
+<script defer src="{{ url_for('static', filename='js/pages/language-selection.js') }}"></script>
 {% endblock %}

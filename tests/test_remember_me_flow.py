@@ -30,6 +30,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from config import Config
+from tests._page_source import page_source
 
 
 # ---------------------------------------------------------------------------
@@ -40,13 +41,12 @@ class TestRememberMe_HeadScriptOrdering:
     """The head-script that redirects unauthenticated users to /login must
     try `/api/auth/device-restore` first. Today it does not.
 
-    We assert on the rendered HTML, which is the only place this logic lives.
+    We assert on the rendered page and the scripts it loads (the bootstrap is
+    static/js/pages/base-head.js), which is the only place this logic lives.
     """
 
     def _render_base(self, client):
-        resp = client.get('/login')
-        assert resp.status_code == 200
-        return resp.get_data(as_text=True)
+        return page_source(client, '/login')
 
     def test_base_html_attempts_device_restore_before_redirect(self, client):
         html = self._render_base(client)
@@ -78,9 +78,7 @@ class TestRememberMe_HeadScriptOrdering:
         need MORE than that — login.html must add its own call so the
         restore happens at page load, before the user types anything.
         """
-        resp = client.get('/login')
-        assert resp.status_code == 200
-        html = resp.get_data(as_text=True)
+        html = page_source(client, '/login')
 
         # Count call sites, EXCLUDING the function declaration line.
         # Today base.html has exactly one call (inside authFetch). After
@@ -303,7 +301,7 @@ class TestBootstrapRenewOrdering:
         twice (inside authFetch's on-401 path + login.html's checkExistingSession).
         Adding the bootstrap attempt makes a third reference.
         """
-        html = client.get('/login').get_data(as_text=True)
+        html = page_source(client, '/login')
         refresh_refs = re.findall(r'/api/auth/refresh-token', html)
         assert len(refresh_refs) >= 3, (
             'base.html bootstrap must call /api/auth/refresh-token on load (in '
@@ -312,7 +310,7 @@ class TestBootstrapRenewOrdering:
         )
 
     def test_login_persists_on_checkbox_intent(self, client):
-        html = client.get('/login').get_data(as_text=True)
+        html = page_source(client, '/login')
         assert 'data.remembered || rememberDevice' in html, (
             'login.html must choose localStorage based on the remember checkbox '
             'intent, not only the server `remembered` flag.'

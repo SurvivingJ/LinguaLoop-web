@@ -165,6 +165,7 @@
 :lang(zh) {
   --font-sans: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', 'Inter', system-ui, sans-serif;
 }
+
 :lang(ja) {
   --font-sans: 'Hiragino Sans', 'Yu Gothic UI', meiryo, 'Noto Sans JP', 'Inter', system-ui, sans-serif;
 }
@@ -3902,5 +3903,40 @@ footer,
   100% {
     transform: translateX(0) scale(1);
     opacity: 1;
+  }
+}
+
+/* Navbar study-language indicator */
+.navbar-language-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--focus-ring);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-left: 16px;
+}
+
+.navbar-language-indicator .language-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.navbar-language-indicator .language-name {
+  color: var(--primary);
+}
+
+@media (width <= 768px) {
+  .navbar-language-indicator {
+    margin-left: 8px;
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .navbar-language-indicator .language-flag {
+    font-size: 16px;
   }
 }
