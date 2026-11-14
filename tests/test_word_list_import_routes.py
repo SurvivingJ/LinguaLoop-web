@@ -120,6 +120,13 @@ class FakeDBClient:
 AUTH_HEADERS = {'Authorization': 'Bearer fake-jwt-token-for-testing'}
 
 
+@pytest.fixture(autouse=True)
+def _fresh_limits(monkeypatch):
+    """Submission quotas are process-wide; give each test its own."""
+    from services.word_list_import import batch_limits
+    monkeypatch.setattr(wli, '_limiter', batch_limits.BatchLimiter())
+
+
 # ---------------------------------------------------------------------------
 # POST /api/word-list/submit
 # ---------------------------------------------------------------------------
