@@ -1,0 +1,545 @@
+{
+  "version": "repair-hints/2026-11-14.1",
+  "source": "data/eval/dt_decision_2026-11-14/track_d/templates.json (G0, AI-drafted, not native-reviewed); clue = Track D `hint` style; 7 clues shortened by hand to the limits (see shortened)",
+  "limits": {
+    "clue_max_latin": 120,
+    "clue_max_cjk": 60,
+    "label_max": 48
+  },
+  "type_neutral": {
+    "en": "Read your sentence against the prompt, part by part. Where does it say something different?",
+    "zh": "把你的句子和原文一部分一部分地对照，哪里说的不一样？",
+    "ja": "原文と自分の文を少しずつ比べてみましょう。どこが違うことを言っていますか。"
+  },
+  "shortened": [
+    "article_determiner.en",
+    "article_determiner.ja",
+    "case_particle.en",
+    "clause_linkage.en",
+    "phrasal_verb.ja",
+    "register.en",
+    "transitivity_voice.en"
+  ],
+  "subtypes": {
+    "omission": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Missing element",
+          "clue": "Compare “{l}” with the meaning you were asked to express: which idea has gone missing?"
+        },
+        "zh": {
+          "label": "成分缺失",
+          "clue": "把“{l}”和要表达的意思对照一下：少了哪一层意思？"
+        },
+        "ja": {
+          "label": "要素の欠落",
+          "clue": "「{l}」を、表したい意味と比べてみましょう。どの内容が抜けていますか。"
+        }
+      }
+    },
+    "addition": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Added element",
+          "clue": "Which word(s) in “{l}” have no counterpart in the meaning you were given?"
+        },
+        "zh": {
+          "label": "多余成分",
+          "clue": "“{l}”里哪个词在原文的意思中找不到对应？"
+        },
+        "ja": {
+          "label": "余分な要素",
+          "clue": "「{l}」の中で、原文の意味に対応しない語はどれですか。"
+        }
+      }
+    },
+    "word_choice": {
+      "ladder": "none",
+      "l1": {
+        "en": {
+          "label": "Word choice",
+          "clue": "Does “{l}” mean exactly what the original says? Which word in it means something different?"
+        },
+        "zh": {
+          "label": "用词不当",
+          "clue": "“{l}”的意思和原文完全一样吗？其中哪个词的意思不对？"
+        },
+        "ja": {
+          "label": "語彙選択",
+          "clue": "「{l}」は原文と同じ意味になっていますか。意味がずれている語はどれでしょう。"
+        }
+      }
+    },
+    "collocation": {
+      "ladder": "none",
+      "l1": {
+        "en": {
+          "label": "Collocation",
+          "clue": "Which word normally partners with the other words in “{l}”? Try recalling the phrase as one fixed chunk."
+        },
+        "zh": {
+          "label": "搭配不当",
+          "clue": "“{l}”里的词通常和哪个词搭配？试着把它当作一个固定短语来回想。"
+        },
+        "ja": {
+          "label": "コロケーション",
+          "clue": "「{l}」の語は、ふつうどの語と一緒に使われますか。決まり文句として思い出してみましょう。"
+        }
+      }
+    },
+    "word_order": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Word order",
+          "clue": "All the words in “{l}” are fine — can you rearrange them into the order this language requires?"
+        },
+        "zh": {
+          "label": "语序错误",
+          "clue": "“{l}”里的词都对——你能把它们排成正确的顺序吗？"
+        },
+        "ja": {
+          "label": "語順",
+          "clue": "「{l}」の語はすべて合っています。正しい順番に並べ替えられますか。"
+        }
+      }
+    },
+    "register": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Register",
+          "clue": "Read “{l}” next to the sentences around it: does its level of formality match the passage's style?"
+        },
+        "zh": {
+          "label": "语体不符",
+          "clue": "把“{l}”和前后句子放在一起读：语气一致吗？用文章的风格该怎么说？"
+        },
+        "ja": {
+          "label": "文体・レジスター",
+          "clue": "「{l}」を前後の文と並べて読んでみましょう。文体は合っていますか。文章の調子に合わせるとどうなりますか。"
+        }
+      }
+    },
+    "orthography": {
+      "ladder": "short",
+      "l1": {
+        "en": {
+          "label": "Spelling / script",
+          "clue": "Look closely at how “{l}” is written — can you spot the spelling or character slip?"
+        },
+        "zh": {
+          "label": "拼写错误",
+          "clue": "仔细看看“{l}”的写法——能发现拼写上的问题吗？"
+        },
+        "ja": {
+          "label": "表記",
+          "clue": "「{l}」の書き方をよく見てください。つづりの間違いに気づけますか。"
+        }
+      }
+    },
+    "cohesion_connective": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Linking word",
+          "clue": "How are the two ideas around “{l}” related — contrast, cause, sequence? Which linking word signals that?"
+        },
+        "zh": {
+          "label": "衔接词",
+          "clue": "“{l}”前后两层意思是什么关系——转折、因果还是顺序？哪个连接词能表示这种关系？"
+        },
+        "ja": {
+          "label": "つなぎの言葉",
+          "clue": "「{l}」の前後の内容はどんな関係ですか（逆接・因果・順序）。それを示すつなぎの言葉は何でしょう。"
+        }
+      }
+    },
+    "semantic_anomaly": {
+      "ladder": "short",
+      "l1": {
+        "en": {
+          "label": "Doesn't make sense",
+          "clue": "Read “{l}” literally: can that actually happen? Which word makes it strange?"
+        },
+        "zh": {
+          "label": "语义不通",
+          "clue": "按字面读“{l}”：这真的可能吗？是哪个词让它变得奇怪？"
+        },
+        "ja": {
+          "label": "意味が通らない",
+          "clue": "「{l}」を文字どおりに読んでみましょう。実際にあり得ますか。おかしくしているのはどの語ですか。"
+        }
+      }
+    },
+    "contradiction": {
+      "ladder": "short",
+      "l1": {
+        "en": {
+          "label": "Contradiction",
+          "clue": "Does “{l}” agree with what the rest of the passage says? Where is the clash?"
+        },
+        "zh": {
+          "label": "前后矛盾",
+          "clue": "“{l}”和文章其他地方说的一致吗？矛盾在哪里？"
+        },
+        "ja": {
+          "label": "矛盾",
+          "clue": "「{l}」は文章の他の部分と合っていますか。どこが食い違っていますか。"
+        }
+      }
+    },
+    "meaning_inversion": {
+      "ladder": "short",
+      "l1": {
+        "en": {
+          "label": "Meaning reversed",
+          "clue": "Compare what “{l}” says with the original meaning: is one positive and the other negative? What flips it?"
+        },
+        "zh": {
+          "label": "意思相反",
+          "clue": "把“{l}”和原文的意思比一比：是不是一个肯定、一个否定？是什么让意思反过来了？"
+        },
+        "ja": {
+          "label": "意味の反転",
+          "clue": "「{l}」の意味を原文と比べてみましょう。肯定と否定が逆になっていませんか。何が意味を逆にしていますか。"
+        }
+      }
+    },
+    "article_determiner": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Article / determiner",
+          "clue": "Look at the noun in “{l}”: is it countable and singular? Is it new to the reader? What small word does it need?"
+        },
+        "zh": {
+          "label": "冠词/限定词",
+          "clue": "看“{l}”里的名词：是可数名词单数吗？是第一次提到吗？它前面需要哪个小词？"
+        },
+        "ja": {
+          "label": "冠詞・限定詞",
+          "clue": "「{l}」の名詞は数えられる単数形ですか。初めて出てくる物ですか。前に何が必要でしょう。"
+        }
+      }
+    },
+    "preposition": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Preposition",
+          "clue": "Which preposition does the verb or noun in “{l}” normally take for this meaning?"
+        },
+        "zh": {
+          "label": "介词",
+          "clue": "“{l}”里的动词或名词，表达这个意思时通常搭配哪个介词？"
+        },
+        "ja": {
+          "label": "前置詞",
+          "clue": "「{l}」の動詞や名詞は、この意味のときふつうどの前置詞をとりますか。"
+        }
+      }
+    },
+    "verb_form_tense": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Verb form / tense",
+          "clue": "When does the action in “{l}” happen, compared with the rest of the passage? Which verb form shows that?"
+        },
+        "zh": {
+          "label": "动词形式/时态",
+          "clue": "和文章其他部分相比，“{l}”里的动作发生在什么时候？哪种动词形式能表示这个时间？"
+        },
+        "ja": {
+          "label": "動詞の形・時制",
+          "clue": "「{l}」の動作は、文章の他の部分と比べていつのことですか。それを表す動詞の形は何でしょう。"
+        }
+      }
+    },
+    "complementation": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Verb pattern",
+          "clue": "What form must follow the main verb in “{l}” — to + verb, -ing, or a clause?"
+        },
+        "zh": {
+          "label": "动词句型",
+          "clue": "“{l}”里的主要动词后面应该接什么形式——to do、doing，还是从句？"
+        },
+        "ja": {
+          "label": "動詞の文型",
+          "clue": "「{l}」の動詞の後ろには、to不定詞・-ing・節のどれが続きますか。"
+        }
+      }
+    },
+    "agreement": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Agreement",
+          "clue": "Find the subject (or noun) in “{l}”: is it singular or plural? Does the word that goes with it match?"
+        },
+        "zh": {
+          "label": "一致关系",
+          "clue": "找出“{l}”里的主语（或名词）：是单数还是复数？和它搭配的词一致吗？"
+        },
+        "ja": {
+          "label": "一致",
+          "clue": "「{l}」の主語（または名詞）は単数ですか、複数ですか。それと組む語の形は合っていますか。"
+        }
+      }
+    },
+    "pronoun": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Pronoun",
+          "clue": "What exactly does the pronoun in “{l}” refer back to? Is that one thing or several?"
+        },
+        "zh": {
+          "label": "代词",
+          "clue": "“{l}”里的代词指的到底是什么？是一个还是多个？"
+        },
+        "ja": {
+          "label": "代名詞",
+          "clue": "「{l}」の代名詞は何を指していますか。それは一つですか、複数ですか。"
+        }
+      }
+    },
+    "plural_number": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Singular / plural",
+          "clue": "How many things are meant in “{l}” — one or more? Does the noun's form show that?"
+        },
+        "zh": {
+          "label": "单复数",
+          "clue": "“{l}”里指的是一个还是多个？名词的形式体现出来了吗？"
+        },
+        "ja": {
+          "label": "単数・複数",
+          "clue": "「{l}」が指すものは一つですか、二つ以上ですか。名詞の形はそれを表していますか。"
+        }
+      }
+    },
+    "phrasal_verb": {
+      "ladder": "none",
+      "l1": {
+        "en": {
+          "label": "Phrasal verb",
+          "clue": "The verb in “{l}” is fine — which small word (up, out, on, off…) completes it for this meaning?"
+        },
+        "zh": {
+          "label": "短语动词",
+          "clue": "“{l}”里的动词没错——表达这个意思时，后面该接哪个小词（up、out、on、off等）？"
+        },
+        "ja": {
+          "label": "句動詞",
+          "clue": "「{l}」の動詞は合っています。この意味には、後ろにどの短い語（up, out など）が必要ですか。"
+        }
+      }
+    },
+    "lexical_form": {
+      "ladder": "none",
+      "l1": {
+        "en": {
+          "label": "Word form",
+          "clue": "What part of speech does the slot in “{l}” need — noun, verb, adjective or adverb? Which form of the word is that?"
+        },
+        "zh": {
+          "label": "词形/词性",
+          "clue": "“{l}”里这个位置需要什么词性——名词、动词、形容词还是副词？这个词对应的形式是什么？"
+        },
+        "ja": {
+          "label": "語形・品詞",
+          "clue": "「{l}」のこの位置にはどの品詞が必要ですか。その語のどの形がそれに当たりますか。"
+        }
+      }
+    },
+    "measure_word": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Measure word",
+          "clue": "What kind of thing is the noun in “{l}”? Which measure word goes with that kind of noun?"
+        }
+      }
+    },
+    "aspect_negation": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Aspect / negation",
+          "clue": "In “{l}”, is the action completed, experienced, ongoing or habitual? Which marker (or which negator) expresses that?"
+        }
+      }
+    },
+    "de_particle": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "的 / 地 / 得",
+          "clue": "In “{l}”, what follows the de — a noun, a verb, or a description of how the action turned out?"
+        }
+      }
+    },
+    "complement": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Complement",
+          "clue": "What is the result or direction of the action in “{l}”? Which word right after the verb shows that?"
+        }
+      }
+    },
+    "ba_bei": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "把 / 被 construction",
+          "clue": "In “{l}”, who does what to what? Where must the object go, and what must follow the verb?"
+        }
+      }
+    },
+    "separable_verb": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Separable verb",
+          "clue": "The verb in “{l}” is really verb + object. Where can 了, a duration or another person go?"
+        }
+      }
+    },
+    "coverb": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Coverb",
+          "clue": "Which coverb introduces the person or place in “{l}”, and does that phrase go before or after the verb?"
+        }
+      }
+    },
+    "connective": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Connective",
+          "clue": "What relationship links the clauses in “{l}”? What is the matching partner of the connective?"
+        }
+      }
+    },
+    "topic_comment": {
+      "ladder": "short",
+      "l1": {
+        "en": {
+          "label": "Topic–comment structure",
+          "clue": "What is “{l}” really about? Try putting that topic first and then saying something about it."
+        }
+      }
+    },
+    "wa_ga": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "は / が",
+          "clue": "Is the noun before the particle in “{l}” the topic of the whole sentence, or the subject inside a smaller clause?"
+        }
+      }
+    },
+    "case_particle": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Case particle",
+          "clue": "What role does the noun in “{l}” play for its verb — object, place, destination, tool? Which particle marks it?"
+        }
+      }
+    },
+    "particle_other": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Particle",
+          "clue": "What nuance does the original need at “{l}” — also, only, a limit, a list of examples? Which particle carries it?"
+        }
+      }
+    },
+    "conjugation": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Conjugation",
+          "clue": "Which conjugation group does the verb or adjective in “{l}” belong to? How does that group build this form?"
+        }
+      }
+    },
+    "tam": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Tense / aspect",
+          "clue": "Is the action in “{l}” finished, ongoing, habitual or still to come? Which ending expresses that?"
+        }
+      }
+    },
+    "keigo": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Politeness level",
+          "clue": "What politeness level do the other sentences use? Does the ending of “{l}” match it?"
+        }
+      }
+    },
+    "counter": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Counter",
+          "clue": "What kind of object is being counted in “{l}”? Which counter fits it?"
+        }
+      }
+    },
+    "transitivity_voice": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Transitive / intransitive, voice",
+          "clue": "In “{l}”, does someone act on something, or does it happen by itself? Which verb of the pair, or voice, fits?"
+        }
+      }
+    },
+    "modification": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Noun modification",
+          "clue": "How should the describing part in “{l}” connect to its noun — plain form, な, or の?"
+        }
+      }
+    },
+    "clause_linkage": {
+      "ladder": "full",
+      "l1": {
+        "en": {
+          "label": "Clause linking",
+          "clue": "How are the two actions around “{l}” related — sequence, condition, reason? Which linking form shows that?"
+        }
+      }
+    },
+    "kanji_choice": {
+      "ladder": "none",
+      "l1": {
+        "en": {
+          "label": "Kanji choice",
+          "clue": "The reading in “{l}” is right — which kanji with that reading has the meaning needed here?"
+        }
+      }
+    }
+  }
+}

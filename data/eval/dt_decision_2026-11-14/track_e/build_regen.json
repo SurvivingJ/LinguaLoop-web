@@ -1,0 +1,426 @@
+[
+ {
+  "id": "en_seed_15",
+  "sentence": 2,
+  "ok": true,
+  "gen": {
+   "sentence": "You are able to create many things without it.",
+   "errors": [
+    {
+     "fragment": "many things without it",
+     "corrected": "many things with it"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "text": "You are able to create many things without it.",
+  "errors": {
+   "0": {
+    "fragment": "many things without it",
+    "corrected": "many things with it"
+   }
+  }
+ },
+ {
+  "id": "en_seed_05",
+  "sentence": 3,
+  "ok": false,
+  "gen": {
+   "sentence": "The code tells the Arduino to do.",
+   "errors": [
+    {
+     "fragment": "the Arduino to do",
+     "corrected": "the Arduino what to do"
+    }
+   ]
+  },
+  "why": "unchanged / structure / fragment not found"
+ },
+ {
+  "id": "en_seed_08",
+  "sentence": 2,
+  "ok": true,
+  "gen": {
+   "sentence": "You are able to make the arm pick up things small.",
+   "errors": [
+    {
+     "fragment": "pick up things small",
+     "corrected": "pick up small things"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "text": "You are able to make the arm pick up things small.",
+  "errors": {
+   "0": {
+    "fragment": "pick up things small",
+    "corrected": "pick up small things"
+   }
+  }
+ },
+ {
+  "id": "en_seed_11",
+  "sentence": 2,
+  "ok": false,
+  "gen": {
+   "sentence": "You can make the robotic arm pick on tiny objects.",
+   "errors": [
+    {
+     "fragment": "pick on tiny objects",
+     "corrected": "pick up tiny objects"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "“Robotic” adds information not present in the reference.",
+     "other_severity": "minor"
+    }
+   ]
+  },
+  "why": "verifier: “Robotic” adds information not present in the reference.",
+  "text": "You can make the robotic arm pick on tiny objects.",
+  "errors": {
+   "0": {
+    "fragment": "pick on tiny objects",
+    "corrected": "pick up tiny objects"
+   }
+  }
+ },
+ {
+  "id": "en_seed_02",
+  "sentence": 1,
+  "ok": false,
+  "gen": {
+   "sentence": "You can study on robotics and electronics.",
+   "errors": [
+    {
+     "fragment": "study on robotics",
+     "corrected": "study about robotics"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": false,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "why": "verifier: planted error not OK",
+  "text": "You can study on robotics and electronics.",
+  "errors": {
+   "0": {
+    "fragment": "study on robotics",
+    "corrected": "study about robotics"
+   }
+  }
+ },
+ {
+  "id": "en_seed_13",
+  "sentence": 1,
+  "ok": false,
+  "gen": {
+   "sentence": "You make the instructions for the Arduino.",
+   "errors": [
+    {
+     "fragment": "You make the instructions",
+     "corrected": "You write the instructions"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": false,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "why": "verifier: planted error not OK",
+  "text": "You make the instructions for the Arduino.",
+  "errors": {
+   "0": {
+    "fragment": "You make the instructions",
+    "corrected": "You write the instructions"
+   }
+  }
+ },
+ {
+  "id": "en_seed_10",
+  "sentence": 3,
+  "ok": true,
+  "gen": {
+   "sentence": "You can move it to another spot.",
+   "errors": [
+    {
+     "fragment": "move it to another spot",
+     "corrected": "move them to another spot"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "text": "You can move it to another spot.",
+  "errors": {
+   "0": {
+    "fragment": "move it to another spot",
+    "corrected": "move them to another spot"
+   }
+  }
+ },
+ {
+  "id": "en_seed_09",
+  "sentence": 2,
+  "ok": false,
+  "gen": {
+   "sentence": "This motors make the robotic arm move.",
+   "errors": [
+    {
+     "fragment": "This motors",
+     "corrected": "These motors"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "“Robotic” adds a detail not present in the reference.",
+     "other_severity": "minor"
+    }
+   ]
+  },
+  "why": "verifier: “Robotic” adds a detail not present in the reference.",
+  "text": "This motors make the robotic arm move.",
+  "errors": {
+   "0": {
+    "fragment": "This motors",
+    "corrected": "These motors"
+   }
+  }
+ },
+ {
+  "id": "en_multi_04",
+  "sentence": 0,
+  "ok": true,
+  "gen": {
+   "sentence": "It's a sick way to learn through hands-on practice.",
+   "errors": [
+    {
+     "fragment": "a sick way to learn",
+     "corrected": "a great way to learn"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "text": "It's a sick way to learn through hands-on practice.",
+  "errors": {
+   "0": {
+    "fragment": "a sick way to learn",
+    "corrected": "a great way to learn"
+   }
+  }
+ },
+ {
+  "id": "en_multi_04",
+  "sentence": 2,
+  "ok": true,
+  "gen": {
+   "sentence": "You are able to create many things without it.",
+   "errors": [
+    {
+     "fragment": "many things without it",
+     "corrected": "many things with it"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "text": "You are able to create many things without it.",
+  "errors": {
+   "1": {
+    "fragment": "many things without it",
+    "corrected": "many things with it"
+   }
+  }
+ },
+ {
+  "id": "en_multi_05",
+  "sentence": 2,
+  "ok": true,
+  "gen": {
+   "sentence": "First, you an Arduino board require.",
+   "errors": [
+    {
+     "fragment": "you an Arduino board require",
+     "corrected": "you require an Arduino board"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "text": "First, you an Arduino board require.",
+  "errors": {
+   "1": {
+    "fragment": "you an Arduino board require",
+    "corrected": "you require an Arduino board"
+   }
+  }
+ },
+ {
+  "id": "zh_seed_06",
+  "sentence": 0,
+  "ok": false,
+  "gen": {
+   "sentence": "它使我感到很轻松，也很自在。",
+   "errors": [
+    {
+     "fragment": "感到很轻松",
+     "corrected": "感到很放松"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": false,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "why": "verifier: planted error not OK",
+  "text": "它使我感到很轻松，也很自在。",
+  "errors": {
+   "0": {
+    "fragment": "感到很轻松",
+    "corrected": "感到很放松"
+   }
+  }
+ },
+ {
+  "id": "ja_seed_08",
+  "sentence": 3,
+  "ok": false,
+  "gen": {
+   "sentence": "これは、物を持つのに使う部分です。",
+   "errors": [
+    {
+     "fragment": "物を持つのに",
+     "corrected": "物を掴むのに"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": false,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "why": "verifier: planted error not OK",
+  "text": "これは、物を持つのに使う部分です。",
+  "errors": {
+   "0": {
+    "fragment": "物を持つのに",
+    "corrected": "物を掴むのに"
+   }
+  }
+ },
+ {
+  "id": "ja_seed_11",
+  "sentence": 3,
+  "ok": true,
+  "gen": {
+   "sentence": "このロボットアームを作ること、物を作るだけではなく、いろいろなことを学ぶいい機会になります。",
+   "errors": [
+    {
+     "fragment": "作ること、物を",
+     "corrected": "作ることは、物を"
+    }
+   ]
+  },
+  "ver": {
+   "sentences": [
+    {
+     "sentence": 1,
+     "planted_ok": true,
+     "other_error": "",
+     "other_severity": "none"
+    }
+   ]
+  },
+  "text": "このロボットアームを作ること、物を作るだけではなく、いろいろなことを学ぶいい機会になります。",
+  "errors": {
+   "0": {
+    "fragment": "作ること、物を",
+    "corrected": "作ることは、物を"
+   }
+  }
+ }
+]

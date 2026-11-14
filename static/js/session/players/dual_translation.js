@@ -51,6 +51,7 @@ export function mount(container, ctx) {
   return {
     destroy() {
       state.destroyed = true;
+      if (state.sheet) state.sheet.dispose();
       if (timer) timer.reset();
       if (state.card) state.card.destroy();
     },
@@ -244,7 +245,88 @@ export function mount(container, ctx) {
     }
     if (state.destroyed) return;
     state.submitting = false;
-    renderResult(grade);
+    handleGrade(grade);
+  }
+
+  // Guided self-repair (wiki/features/dt-guided-self-repair.tech.md §8.7). The client reacts to the
+  // response, not to a flag: no `repair` key (flag off, ineligible grade, hook error) or a bypassed
+  // pass is today's band screen exactly. A clean or open session opens the pop-up first.
+  function handleGrade(grade) {
+    const repair = grade && grade.repair;
+    if (!repair || repair.status === 'bypassed') return renderResult(grade);
+    if (repair.clean) return openRepair(repair, () => renderResult(grade));
+    if (repair.status === 'open') return openRepair(repair, () => showServerResult(repair));
+    // finished / abandoned (a cached re-submit): the full contract came with it
+    return grade.redacted ? showServerResult(repair) : renderResult(grade);
+  }
+
+  function openRepair(repair, after) {
+    if (!window.DTRepairSheet) {
+      console.error('dual_translation: DTRepairSheet global not loaded');
+      return after();
+    }
+    state.sheet = window.DTRepairSheet.open({
+      mode: 'pass',
+      session: repair,
+      fetch: window.authFetch,
+      returnFocus: body(),
+      onDone: () => {
+        state.sheet = null;
+        if (!state.destroyed) after();
+      },
+    });
+    return undefined;
+  }
+
+  // The full contract is only served once the session is finished. One retry after 1 s; a 409
+  // (the finish call did not land) triggers one more finish. The redacted contract is never
+  // rendered or stashed.
+  async function fetchFullResult(repair) {
+    const url = `/api/dual-translation/repair/submissions/${encodeURIComponent(repair.submission_id)}/result`;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await window.authFetch(url);
+        const data = await res.json().catch(() => ({}));
+        const contract = data.data && !('status' in data) ? data.data : data;
+        if (res.ok && contract && !contract.redacted) return contract;
+        if (res.status === 409 && repair.session_id != null) {
+          await window
+            .authFetch(
+              `/api/dual-translation/repair/sessions/${encodeURIComponent(repair.session_id)}/finish`,
+              { method: 'POST', body: JSON.stringify({ closed_early: true }) }
+            )
+            .catch(() => null);
+        }
+      } catch (e) {
+        console.warn('dual_translation: result fetch failed', e);
+      }
+      if (attempt === 0) await new Promise((r) => setTimeout(r, 1000));
+    }
+    return null;
+  }
+
+  async function showServerResult(repair) {
+    if (state.destroyed) return;
+    body().innerHTML =
+      '<div class="text-center"><div class="spinner-border" role="status" aria-hidden="true"></div></div>';
+    const full = await fetchFullResult(repair);
+    if (state.destroyed) return;
+    if (full) return renderResult(full);
+    body().innerHTML = `
+      <div class="text-center">
+        <div class="alert alert-warning small" role="alert">${esc(
+          T('dt_repair.result_load_failed', null, 'Couldn’t load your full feedback.')
+        )}</div>
+        <button class="btn btn-primary me-2" type="button" data-dt-result-retry>${esc(
+          T('dt_repair.retry', null, 'Try again')
+        )}</button>
+        <button class="btn btn-link" type="button" data-dt-continue>${esc(
+          T('session.continue', null, 'Continue')
+        )}</button>
+      </div>`;
+    body().querySelector('[data-dt-result-retry]').onclick = () => showServerResult(repair);
+    body().querySelector('[data-dt-continue]').onclick = finish;
+    return undefined;
   }
 
   function showSubmitError(status, message) {

@@ -1,0 +1,286 @@
+# -*- coding: utf-8 -*-
+"""G0 — zero-LLM template feedback for DT taxonomy v6 (Track D, 2026-11-14).
+
+Hand-written for this experiment (AI-drafted, NOT native-reviewed). Three per-error
+styles + an item summary, keyed by v6 subtype slug and learner L1:
+
+  direct  "X -> Y" with the type label              (needs learner_form, corrected_form)
+  meta    the rule, <=25 words, never gives the answer (needs learner_form only)
+  hint    elicitation question, never gives the answer (needs learner_form only)
+  summary 1-2 sentences, item level                 (needs error list + severities)
+
+Placeholders: {l} learner_form, {c} corrected_form, {label} type label.
+L1 coverage: `en` for every v6 slug (40); `zh` and `ja` for the 20 slugs of the
+English-L2 list (the only L2 whose learners got a zh/ja L1 in this experiment).
+Run `python g0_templates.py` to dump templates.json.
+"""
+import json
+import os
+
+EN_L2 = ["omission", "addition", "word_choice", "collocation", "word_order", "register",
+         "orthography", "cohesion_connective", "article_determiner", "preposition",
+         "verb_form_tense", "complementation", "agreement", "pronoun", "plural_number",
+         "phrasal_verb", "lexical_form", "semantic_anomaly", "contradiction", "meaning_inversion"]
+
+# slug -> l1 -> (label, meta, hint)
+T = {
+ # ---------------- shared / universal ----------------
+ "omission": {
+  "en": ("Missing element",
+         "Every piece of meaning in the original must appear in your version. Around “{l}”, something the original says has no counterpart.",
+         "Compare “{l}” with the meaning you were asked to express: which idea has gone missing?"),
+  "zh": ("成分缺失",
+         "原文的每一层意思都要译出来。“{l}”这里少了原文中的一个成分。",
+         "把“{l}”和要表达的意思对照一下：少了哪一层意思？"),
+  "ja": ("要素の欠落",
+         "原文の内容はすべて訳文に入れる必要があります。「{l}」のあたりで、原文にある要素が一つ抜けています。",
+         "「{l}」を、表したい意味と比べてみましょう。どの内容が抜けていますか。"),
+ },
+ "addition": {
+  "en": ("Added element",
+         "Don't add information the original doesn't contain. Part of “{l}” says something the source never said.",
+         "Which word(s) in “{l}” have no counterpart in the meaning you were given?"),
+  "zh": ("多余成分", "不要添加原文没有的内容。“{l}”里有原文没说的东西。", "“{l}”里哪个词在原文的意思中找不到对应？"),
+  "ja": ("余分な要素", "原文にない情報を足してはいけません。「{l}」には原文にない内容が含まれています。", "「{l}」の中で、原文の意味に対応しない語はどれですか。"),
+ },
+ "word_choice": {
+  "en": ("Word choice",
+         "A word here doesn't carry the meaning the passage needs. Words that look alike or share a translation often differ in meaning or use.",
+         "Does “{l}” mean exactly what the original says? Which word in it means something different?"),
+  "zh": ("用词不当",
+         "这里有一个词表达不出原文需要的意思。看起来相近或中文译法相同的词，意思和用法往往不同。",
+         "“{l}”的意思和原文完全一样吗？其中哪个词的意思不对？"),
+  "ja": ("語彙選択",
+         "ここで使った語は、文が必要とする意味を表していません。形や訳語が似ていても、意味や使い方が違う語があります。",
+         "「{l}」は原文と同じ意味になっていますか。意味がずれている語はどれでしょう。"),
+ },
+ "collocation": {
+  "en": ("Collocation",
+         "Some words habitually go together. The combination in “{l}” is understandable, but it is not the pairing native speakers use.",
+         "Which word normally partners with the other words in “{l}”? Try recalling the phrase as one fixed chunk."),
+  "zh": ("搭配不当", "有些词习惯上固定搭配。“{l}”能看懂，但不是母语者惯用的搭配。", "“{l}”里的词通常和哪个词搭配？试着把它当作一个固定短语来回想。"),
+  "ja": ("コロケーション", "語には決まった組み合わせがあります。「{l}」は意味は通じますが、母語話者が使う組み合わせではありません。", "「{l}」の語は、ふつうどの語と一緒に使われますか。決まり文句として思い出してみましょう。"),
+ },
+ "word_order": {
+  "en": ("Word order",
+         "The words are right but their order is not. This language fixes where this kind of element sits in the sentence.",
+         "All the words in “{l}” are fine — can you rearrange them into the order this language requires?"),
+  "zh": ("语序错误", "用的词没错，但顺序不对。这种成分在句中的位置是固定的。", "“{l}”里的词都对——你能把它们排成正确的顺序吗？"),
+  "ja": ("語順", "使った語は正しいですが、順番が違います。この種の要素は文中の位置が決まっています。", "「{l}」の語はすべて合っています。正しい順番に並べ替えられますか。"),
+ },
+ "register": {
+  "en": ("Register",
+         "Formality should match the rest of the passage. “{l}” is noticeably more casual or more formal than the text around it.",
+         "Read “{l}” next to the sentences around it: does the level of formality match? How would it sound in the passage's style?"),
+  "zh": ("语体不符", "正式程度要和全文一致。“{l}”比上下文明显更随意或更正式。", "把“{l}”和前后句子放在一起读：语气一致吗？用文章的风格该怎么说？"),
+  "ja": ("文体・レジスター", "改まり度は文章全体でそろえます。「{l}」は前後の文より明らかにくだけている、または硬すぎます。", "「{l}」を前後の文と並べて読んでみましょう。文体は合っていますか。文章の調子に合わせるとどうなりますか。"),
+ },
+ "orthography": {
+  "en": ("Spelling / script", "The word is the right one but it is written incorrectly.",
+         "Look closely at how “{l}” is written — can you spot the spelling or character slip?"),
+  "zh": ("拼写错误", "词选对了，但写法有误。", "仔细看看“{l}”的写法——能发现拼写上的问题吗？"),
+  "ja": ("表記", "語は合っていますが、書き方が間違っています。", "「{l}」の書き方をよく見てください。つづりの間違いに気づけますか。"),
+ },
+ "cohesion_connective": {
+  "en": ("Linking word",
+         "Linking words signal how ideas relate (contrast, cause, sequence). The link here signals a different relationship from the original's.",
+         "How are the two ideas around “{l}” related — contrast, cause, sequence? Which linking word signals that?"),
+  "zh": ("衔接词", "连接词表示前后内容的关系（转折、因果、顺序）。这里用的连接词表示的关系和原文不同。", "“{l}”前后两层意思是什么关系——转折、因果还是顺序？哪个连接词能表示这种关系？"),
+  "ja": ("つなぎの言葉", "接続表現は前後の関係（逆接・因果・順序）を示します。ここで使った表現は、原文とは違う関係を示しています。", "「{l}」の前後の内容はどんな関係ですか（逆接・因果・順序）。それを示すつなぎの言葉は何でしょう。"),
+ },
+ "semantic_anomaly": {
+  "en": ("Doesn't make sense",
+         "The sentence is grammatical, but the words combine into something that does not make sense in the real world.",
+         "Read “{l}” literally: can that actually happen? Which word makes it strange?"),
+  "zh": ("语义不通", "句子语法没错，但词语组合起来在现实中说不通。", "按字面读“{l}”：这真的可能吗？是哪个词让它变得奇怪？"),
+  "ja": ("意味が通らない", "文法は合っていますが、語の組み合わせが現実にはあり得ない内容になっています。", "「{l}」を文字どおりに読んでみましょう。実際にあり得ますか。おかしくしているのはどの語ですか。"),
+ },
+ "contradiction": {
+  "en": ("Contradiction",
+         "This part states something that conflicts with another part of your own text or with the original.",
+         "Does “{l}” agree with what the rest of the passage says? Where is the clash?"),
+  "zh": ("前后矛盾", "这一处和你译文的其他部分或原文相矛盾。", "“{l}”和文章其他地方说的一致吗？矛盾在哪里？"),
+  "ja": ("矛盾", "この部分は、あなたの文章の他の部分、または原文と食い違っています。", "「{l}」は文章の他の部分と合っていますか。どこが食い違っていますか。"),
+ },
+ "meaning_inversion": {
+  "en": ("Meaning reversed",
+         "Your wording says the opposite of the original — usually a lost or added negative, or an opposite word. This changes the whole message.",
+         "Compare what “{l}” says with the original meaning: is one positive and the other negative? What flips it?"),
+  "zh": ("意思相反", "你的说法和原文意思相反——通常是漏掉或多加了否定词，或用了反义词。这会改变整句话的意思。", "把“{l}”和原文的意思比一比：是不是一个肯定、一个否定？是什么让意思反过来了？"),
+  "ja": ("意味の反転", "原文と反対の意味になっています。否定語の抜け・付け足しや、反対語の使用が主な原因です。文全体の内容が変わってしまいます。", "「{l}」の意味を原文と比べてみましょう。肯定と否定が逆になっていませんか。何が意味を逆にしていますか。"),
+ },
+ # ---------------- English L2 ----------------
+ "article_determiner": {
+  "en": ("Article / determiner",
+         "A singular countable noun needs a determiner (a/an, the, this…). Which one depends on whether the reader already knows the thing.",
+         "Look at the noun in “{l}”: is it singular and countable? Is it mentioned for the first time? What small word does it need?"),
+  "zh": ("冠词/限定词", "英语的可数名词单数前必须有限定词（a/an、the、this等）；用哪个取决于读者是否已经知道所指的事物。", "看“{l}”里的名词：是可数名词单数吗？是第一次提到吗？它前面需要哪个小词？"),
+  "ja": ("冠詞・限定詞", "英語の数えられる名詞の単数形には限定詞（a/an, the, this など）が必要です。どれを使うかは、読み手がその物をすでに知っているかで決まります。", "「{l}」の名詞を見てください。数えられる名詞の単数形ですか。初めて出てくる物ですか。前にどんな短い語が必要でしょう。"),
+ },
+ "preposition": {
+  "en": ("Preposition",
+         "Prepositions are fixed by the verb, noun or meaning they attach to; they rarely translate one-to-one from your language.",
+         "Which preposition does the verb or noun in “{l}” normally take for this meaning?"),
+  "zh": ("介词", "英语介词由它搭配的动词、名词或要表达的意思决定，很少能和中文一一对应。", "“{l}”里的动词或名词，表达这个意思时通常搭配哪个介词？"),
+  "ja": ("前置詞", "英語の前置詞は、結びつく動詞・名詞や表す意味によって決まり、日本語の助詞と一対一には対応しません。", "「{l}」の動詞や名詞は、この意味のときふつうどの前置詞をとりますか。"),
+ },
+ "verb_form_tense": {
+  "en": ("Verb form / tense",
+         "The verb's form must match the time of the passage and whatever the nearby verbs require.",
+         "When does the action in “{l}” happen, compared with the rest of the passage? Which verb form shows that?"),
+  "zh": ("动词形式/时态", "动词的形式要和文章的时间一致，也要符合前后动词的要求。", "和文章其他部分相比，“{l}”里的动作发生在什么时候？哪种动词形式能表示这个时间？"),
+  "ja": ("動詞の形・時制", "動詞の形は、文章全体の時間や前後の動詞が求める形に合わせます。", "「{l}」の動作は、文章の他の部分と比べていつのことですか。それを表す動詞の形は何でしょう。"),
+ },
+ "complementation": {
+  "en": ("Verb pattern",
+         "Each verb dictates the pattern after it: to + verb, -ing, a that-clause or an object. The pattern used here doesn't fit this verb.",
+         "What form must follow the main verb in “{l}” — to + verb, -ing, or a clause?"),
+  "zh": ("动词句型", "每个动词后面接什么形式是固定的：to do、doing、that从句或宾语。这里的形式和这个动词不搭配。", "“{l}”里的主要动词后面应该接什么形式——to do、doing，还是从句？"),
+  "ja": ("動詞の文型", "動詞ごとに後ろに続く形（to不定詞、-ing、that節、目的語）が決まっています。ここの形はこの動詞に合いません。", "「{l}」の動詞の後ろには、to不定詞・-ing・節のどれが続きますか。"),
+ },
+ "agreement": {
+  "en": ("Agreement",
+         "A verb must agree with its subject in number and person, and words like this/these must agree with their noun.",
+         "Find the subject (or noun) in “{l}”: is it singular or plural? Does the word that goes with it match?"),
+  "zh": ("一致关系", "动词要和主语在人称和单复数上保持一致；this/these这类词也要和后面的名词一致。", "找出“{l}”里的主语（或名词）：是单数还是复数？和它搭配的词一致吗？"),
+  "ja": ("一致", "動詞は主語の数・人称に一致させます。this/these のような語も後ろの名詞に一致させます。", "「{l}」の主語（または名詞）は単数ですか、複数ですか。それと組む語の形は合っていますか。"),
+ },
+ "pronoun": {
+  "en": ("Pronoun",
+         "A pronoun must match what it refers to in number, person and gender, and take the right case (it/its, they/them/their).",
+         "What exactly does the pronoun in “{l}” refer back to? Is that one thing or several?"),
+  "zh": ("代词", "代词要和它所指的对象在单复数、人称、性别上一致，并用正确的格（it/its、they/them/their）。", "“{l}”里的代词指的到底是什么？是一个还是多个？"),
+  "ja": ("代名詞", "代名詞は、指すものの数・人称・性に合わせ、正しい格（it/its, they/them/their）を使います。", "「{l}」の代名詞は何を指していますか。それは一つですか、複数ですか。"),
+ },
+ "plural_number": {
+  "en": ("Singular / plural",
+         "Countable nouns show number: a plural ending for more than one. Uncountable nouns take no plural.",
+         "How many things are meant in “{l}” — one or more? Does the noun's form show that?"),
+  "zh": ("单复数", "可数名词要体现数量：不止一个时要用复数形式；不可数名词没有复数。", "“{l}”里指的是一个还是多个？名词的形式体现出来了吗？"),
+  "ja": ("単数・複数", "数えられる名詞は数を形で表します。二つ以上なら複数形にし、数えられない名詞は複数形にしません。", "「{l}」が指すものは一つですか、二つ以上ですか。名詞の形はそれを表していますか。"),
+ },
+ "phrasal_verb": {
+  "en": ("Phrasal verb",
+         "A phrasal verb is a verb plus one specific particle; a different particle changes the meaning or breaks the expression.",
+         "The verb in “{l}” is fine — which small word (up, out, on, off…) completes it for this meaning?"),
+  "zh": ("短语动词", "短语动词是“动词+固定的小品词”；换一个小品词，意思就变了或不成立。", "“{l}”里的动词没错——表达这个意思时，后面该接哪个小词（up、out、on、off等）？"),
+  "ja": ("句動詞", "句動詞は「動詞＋決まった小辞」の組み合わせです。小辞が変わると意味が変わるか、表現として成り立ちません。", "「{l}」の動詞は合っています。この意味にするには、後ろにどの短い語（up, out, on, off など）が必要ですか。"),
+ },
+ "lexical_form": {
+  "en": ("Word form",
+         "Right word family, wrong member: this slot in the sentence needs a different part of speech (noun, verb, adjective, adverb).",
+         "What part of speech does the slot in “{l}” need — noun, verb, adjective or adverb? Which form of the word is that?"),
+  "zh": ("词形/词性", "词族选对了，但词性不对：句中这个位置需要另一种词性（名词、动词、形容词或副词）。", "“{l}”里这个位置需要什么词性——名词、动词、形容词还是副词？这个词对应的形式是什么？"),
+  "ja": ("語形・品詞", "語のグループは合っていますが品詞が違います。文のこの位置には別の品詞（名詞・動詞・形容詞・副詞）が必要です。", "「{l}」のこの位置にはどの品詞が必要ですか。その語のどの形がそれに当たりますか。"),
+ },
+ # ---------------- Chinese L2 (L1 en) ----------------
+ "measure_word": {"en": ("Measure word",
+   "After a number or 这/那, each Chinese noun takes its own measure word; 个 cannot stand in for all of them.",
+   "What kind of thing is the noun in “{l}”? Which measure word goes with that kind of noun?")},
+ "aspect_negation": {"en": ("Aspect / negation",
+   "了, 过 and 着 mark completed, experienced and ongoing actions; 不 negates habits and the future, 没 negates what did not happen.",
+   "In “{l}”, is the action completed, experienced, ongoing or habitual? Which marker (or which negator) expresses that?")},
+ "de_particle": {"en": ("的 / 地 / 得",
+   "的 links a modifier to a noun, 地 links a manner word to a verb, and 得 introduces a complement after a verb.",
+   "In “{l}”, what follows the de — a noun, a verb, or a description of how the action turned out?")},
+ "complement": {"en": ("Complement",
+   "Chinese verbs often need a complement showing the result, direction or possibility of the action; it must fit the verb and the meaning.",
+   "What is the result or direction of the action in “{l}”? Which word right after the verb shows that?")},
+ "ba_bei": {"en": ("把 / 被 construction",
+   "把 puts a definite object before the verb when something is done to it; 被 marks the passive. The verb then needs a result or other element after it.",
+   "In “{l}”, who does what to what? Where must the object go, and what must follow the verb?")},
+ "separable_verb": {"en": ("Separable verb",
+   "Verb-object compounds (见面, 帮忙, 睡觉) split: 了, durations and extra objects go inside the compound or need a coverb, not after the whole word.",
+   "The verb in “{l}” is really verb + object. Where can 了, a duration or another person go?")},
+ "coverb": {"en": ("Coverb",
+   "Coverbs (在, 给, 跟, 对, 从…) introduce a place, recipient or partner and normally stand before the main verb; each verb selects its own.",
+   "Which coverb introduces the person or place in “{l}”, and does that phrase go before or after the verb?")},
+ "connective": {"en": ("Connective",
+   "Chinese connectives often come in fixed pairs (因为…所以, 虽然…但是, 不但…而且) and have fixed positions relative to the subject.",
+   "What relationship links the clauses in “{l}”? What is the matching partner of the connective?")},
+ "topic_comment": {"en": ("Topic–comment structure",
+   "This language often states the topic first and then comments on it; building the sentence subject-first as in English sounds unnatural here.",
+   "What is “{l}” really about? Try putting that topic first and then saying something about it.")},
+ # ---------------- Japanese L2 (L1 en) ----------------
+ "wa_ga": {"en": ("は / が",
+   "が marks the subject inside a noun-modifying or subordinate clause and question-word subjects; は marks the topic of the whole sentence.",
+   "Is the noun before the particle in “{l}” the topic of the whole sentence, or the subject inside a smaller clause?")},
+ "case_particle": {"en": ("Case particle",
+   "Case particles (を, に, で, へ, と, から…) show each noun's role; the verb decides which particle its nouns take.",
+   "What role does the noun in “{l}” play for its verb — object, place of action, destination, tool? Which particle marks that role?")},
+ "particle_other": {"en": ("Particle",
+   "Particles such as も, だけ, しか, まで, や add meanings like 'also', 'only', 'as far as' or 'and so on'; each has its own nuance.",
+   "What nuance does the original need at “{l}” — also, only, a limit, a list of examples? Which particle carries it?")},
+ "conjugation": {"en": ("Conjugation",
+   "The stem is right but the ending is built incorrectly for its conjugation class (godan, ichidan, irregular; い- or な-adjective).",
+   "Which conjugation group does the verb or adjective in “{l}” belong to? How does that group build this form?")},
+ "tam": {"en": ("Tense / aspect",
+   "Endings like 〜る, 〜た, 〜ている, 〜ていた must match when the action happens and whether it is ongoing, completed or a resulting state.",
+   "Is the action in “{l}” finished, ongoing, habitual or still to come? Which ending expresses that?")},
+ "keigo": {"en": ("Politeness level",
+   "Politeness level (plain, です/ます, honorific, humble) must stay consistent with the passage and suit who is addressed or discussed.",
+   "What politeness level do the other sentences use? Does the ending of “{l}” match it?")},
+ "counter": {"en": ("Counter",
+   "Japanese counts with counters chosen by the kind of object (〜つ, 〜個, 〜本, 〜枚, 〜人…); number + counter readings can change.",
+   "What kind of object is being counted in “{l}”? Which counter fits it?")},
+ "transitivity_voice": {"en": ("Transitive / intransitive, voice",
+   "Japanese has transitive/intransitive verb pairs (開ける/開く) plus passive, causative and potential forms; the form must match who acts and the particles used.",
+   "In “{l}”, does someone do the action to something, or does it happen by itself? Which verb of the pair (or which voice) fits?")},
+ "modification": {"en": ("Noun modification",
+   "Modifiers precede the noun in a set form: verbs in plain form, い-adjectives as they are, な-adjectives with な, nouns with の.",
+   "How should the describing part in “{l}” connect to its noun — plain form, な, or の?")},
+ "clause_linkage": {"en": ("Clause linking",
+   "Clauses are joined with 〜て, 〜たり, 〜と, 〜ば, 〜たら, 〜ので, 〜のに…; each expresses a different relationship and has its own restrictions.",
+   "How are the two actions around “{l}” related — sequence, condition, reason, examples? Which linking form expresses that?")},
+ "kanji_choice": {"en": ("Kanji choice",
+   "Words with the same reading can be written with different kanji carrying different meanings; pick the kanji that fits this meaning.",
+   "The reading in “{l}” is right — which kanji with that reading has the meaning needed here?")},
+}
+
+DIRECT = {  # style (a)
+ "en": "{label}: “{l}” → “{c}”",
+ "zh": "{label}：“{l}” → “{c}”",
+ "ja": "{label}：「{l}」→「{c}」",
+}
+
+SUMMARY = {  # style (d). {label}/{l} describe the top-priority error (highest severity, first on ties)
+ "en": {"clean": "Your version says everything the original says — nothing needs fixing. Where your wording differs from the reference, it is an acceptable alternative.",
+        "one": "Almost all of your version matches the original. One thing to fix: {label} at “{l}”.",
+        "many": "Most of your version matches the original and the message comes through. Fix this first: {label} at “{l}”.",
+        "critical": "Most of the passage is accurate, but one spot changes the meaning. Fix this first: {label} at “{l}”."},
+ "zh": {"clean": "你的译文把原文的意思都表达出来了，没有需要修改的地方。和参考译文措辞不同之处，都是可以接受的说法。",
+        "one": "你的译文几乎全部与原文一致。需要修改一处：“{l}”这里的{label}问题。",
+        "many": "你的译文大部分与原文一致，意思也传达到了。最先要改的是：“{l}”这里的{label}问题。",
+        "critical": "译文大部分是准确的，但有一处改变了原意。最先要改的是：“{l}”这里的{label}问题。"},
+ "ja": {"clean": "原文の内容がすべて表現できています。直すところはありません。参照文と言い方が違う部分も、問題のない言い換えです。",
+        "one": "ほぼ全体が原文と一致しています。直すのは一か所：「{l}」の{label}です。",
+        "many": "大部分が原文と一致していて、内容は伝わります。まず直したいのは「{l}」の{label}です。",
+        "critical": "大部分は正確ですが、一か所で意味が変わっています。まず直したいのは「{l}」の{label}です。"},
+}
+
+SEV_RANK = {"minor": 0, "major": 1, "critical": 2}
+
+
+def render_error(style, subtype, l1, learner_form, corrected_form):
+    label, meta, hint = T[subtype][l1]
+    if style == "direct":
+        return DIRECT[l1].format(label=label, l=learner_form, c=corrected_form)
+    return (meta if style == "meta" else hint).format(l=learner_form)
+
+
+def render_summary(l1, errors):
+    s = SUMMARY[l1]
+    if not errors:
+        return s["clean"]
+    top = max(errors, key=lambda e: SEV_RANK[e["severity_v2"]])  # max keeps first on ties
+    key = "critical" if top["severity_v2"] == "critical" else ("one" if len(errors) == 1 else "many")
+    return s[key].format(label=T[top["subtype"]][l1][0], l=top["learner_form"])
+
+
+if __name__ == "__main__":
+    out = {"_doc": __doc__, "direct": DIRECT, "summary": SUMMARY,
+           "per_type": {k: {l1: {"label": v[0], "meta": v[1], "hint": v[2]} for l1, v in d.items()}
+                        for k, d in T.items()}}
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates.json")
+    json.dump(out, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("slugs", len(T), "en-L2 zh/ja coverage ok:", all(set(T[s]) == {"en", "zh", "ja"} for s in EN_L2))

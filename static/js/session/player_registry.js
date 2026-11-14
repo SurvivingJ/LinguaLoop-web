@@ -20,6 +20,7 @@ const LOADERS = {
   dual_translation: () => import('./players/dual_translation.js'),
   speed_round: () => import('./players/speed_round.js'),
   prestudy: () => import('./players/prestudy.js'),
+  dt_repair: () => import('./players/dt_repair.js'),
 };
 
 const _modules = {}; // name -> Promise<module>
@@ -79,6 +80,7 @@ const mountFlashcards = lazyPlayer('flashcards');
 const mountDualTranslation = lazyPlayer('dual_translation');
 const mountSpeedRound = lazyPlayer('speed_round');
 const mountPrestudy = lazyPlayer('prestudy');
+const mountDtRepair = lazyPlayer('dt_repair');
 
 // test_type -> mount fn. Phase 2/3 add dictation / pinyin / pitch_accent /
 // classifier_drill / practice. Anything still unmapped falls through to a
@@ -112,6 +114,8 @@ const KIND_PLAYERS = {
   // (wiki/features/test-prestudy.md). Opens the prestudy page, which completes
   // the block and returns to the session.
   prestudy: mountPrestudy,
+  // Daily "fix your own sentences" block (wiki/features/dt-guided-self-repair.tech.md §7.6, §8.8).
+  dt_repair: mountDtRepair,
 };
 
 const STANDALONE_URL = {
@@ -135,6 +139,7 @@ const KIND_MODULES = {
   dual_translation: 'dual_translation',
   speed_round: 'speed_round',
   prestudy: 'prestudy',
+  dt_repair: 'dt_repair',
 };
 
 const moduleNameFor = (item) =>

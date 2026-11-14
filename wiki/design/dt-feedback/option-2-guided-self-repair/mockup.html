@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>DT feedback — Guided self-repair, app-style flow (mockup v2)</title>
+<style>
+/* Tokens mirror static/css/styles.css ("Still Water" light, "Midnight" dark). */
+:root{
+  --on-primary:#fff;--primary:#0e7569;--primary-hover:#0a574e;--wash:#ddeeea;
+  --mark:#c9661f;--mark-wash:#fbe9da;
+  --bg-body:#f6f9f8;--bg-surface:#fff;--bg-muted:#eaf1ef;
+  --text:#13282b;--text-2:#51686a;
+  --hairline:#dde7e5;--field-border:#5e7375;--focus-ring:rgb(14 117 105 / 25%);
+  --success:#2e7d4f;--success-bg:#ddefe4;
+  --scrim:rgb(19 40 43 / 55%);
+  --sans:'Inter','Hiragino Sans','Yu Gothic UI',meiryo,'PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  --display:'Sora',var(--sans);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --on-primary:#06201c;--primary:#3db3a0;--primary-hover:#5cc6b5;--wash:rgb(61 179 160 / 18%);
+  --mark:#f0975a;--mark-wash:rgb(240 151 90 / 22%);
+  --bg-body:#0b1416;--bg-surface:#122021;--bg-muted:#18292a;
+  --text:#eef4f3;--text-2:#bcd0cd;
+  --hairline:#1f3335;--field-border:#93a6a4;--focus-ring:rgb(61 179 160 / 35%);
+  --success:#7fc79b;--success-bg:rgb(87 168 119 / 18%);
+  --scrim:rgb(0 0 0 / 65%);
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:var(--bg-body);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+:lang(zh){font-family:'PingFang SC','Microsoft YaHei','Noto Sans SC','Noto Sans CJK SC','Inter',system-ui,sans-serif;line-height:1.7}
+:lang(ja){font-family:'Hiragino Sans','Yu Gothic UI',meiryo,'Noto Sans JP','Noto Sans CJK JP','Inter',system-ui,sans-serif;line-height:1.7}
+button,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* ---------- shared buttons ---------- */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 20px;border-radius:14px;font-weight:650;font-size:1.0625rem;border:2px solid transparent}
+.btn.primary{background:var(--primary);color:var(--on-primary)}
+.btn.primary:hover{background:var(--primary-hover)}
+.btn.plain{background:var(--bg-surface);border-color:var(--field-border);color:var(--text)}
+.btn[aria-busy="true"]{opacity:.85;cursor:progress}
+.txt{min-height:44px;padding:0 10px;border-radius:10px;color:var(--primary);font-weight:600;font-size:.9375rem}
+.txt:hover{text-decoration:underline}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentcolor;border-right-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(1turn)}}
+
+/* ---------- the exercise screen behind (mock chrome, deliberately plain) ---------- */
+.ex{height:100dvh;max-width:480px;margin:0 auto;display:flex;flex-direction:column;padding:0 20px}
+.ex-hd{flex:none;height:52px;display:flex;align-items:center;justify-content:space-between}
+.ex-hd b{font-family:var(--display);color:var(--primary)}
+.ex-main{flex:1 1 0;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.ex h1{font-family:var(--display);font-size:1.375rem;line-height:1.25;margin:4px 0 0}
+.box{border:1px solid var(--hairline);background:var(--bg-surface);border-radius:14px;padding:12px 14px;min-height:0;overflow:hidden}
+.box p{margin:0;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+.box.src{flex:0 1 auto;color:var(--text-2);font-size:.9375rem}.box.src p{-webkit-line-clamp:3}
+.box.mine{flex:0 1 auto;font-size:1.0625rem}.box.mine p{-webkit-line-clamp:6}
+.ex-act{flex:none;padding:12px 0 calc(10px + env(safe-area-inset-bottom))}
+.demo{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;font-size:.8125rem;color:var(--text-2)}
+.demo .txt{font-size:.8125rem;padding:0 6px}
+.demo select{font-size:.8125rem;background:transparent;border:0;color:var(--text-2);min-height:44px;max-width:150px}
+.langs{display:flex;gap:2px}
+.langs button{min-width:44px;min-height:44px;font-size:.8125rem;color:var(--text-2);border-radius:10px}
+.langs button[aria-pressed="true"]{color:var(--text);font-weight:700;text-decoration:underline;text-underline-offset:4px}
+
+/* ---------- the pop-up ---------- */
+.scrim{position:fixed;inset:0;background:var(--scrim);opacity:0;transition:opacity .25s;z-index:10}
+.scrim.on{opacity:1}
+.sheet{position:fixed;z-index:11;left:0;top:var(--vvt,0px);width:100%;height:var(--vvh,100dvh);background:var(--bg-body);display:flex;flex-direction:column;overflow:hidden;
+  transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.sheet.on{transform:none}
+@media (min-width:600px){
+  .sheet{left:50%;top:50%;width:420px;height:min(780px,calc(100dvh - 48px));border-radius:24px;box-shadow:0 24px 60px rgb(0 0 0 / 30%);transform:translate(-50%,-46%);opacity:0;transition:transform .28s,opacity .28s}
+  .sheet.on{transform:translate(-50%,-50%);opacity:1}
+}
+.hd{flex:none;height:52px;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding-top:env(safe-area-inset-top)}
+.x{width:44px;height:44px;margin-left:8px;border-radius:50%;display:grid;place-items:center;color:var(--text-2)}
+.dots{display:flex;gap:6px;justify-content:center;align-items:center}
+.dots i{width:8px;height:8px;border-radius:4px;border:2px solid var(--field-border)}
+.dots i.done{background:var(--field-border)}
+.dots i.cur{width:26px;background:var(--primary);border-color:var(--primary)}
+.stage{flex:1 1 0;min-height:0;display:flex;flex-direction:column;padding:4px 20px 0;overflow:hidden}
+.act{flex:none;padding:4px 20px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:4px}
+.quiet{display:flex;justify-content:space-between;min-height:44px}
+.quiet:empty{display:none}
+.pair{display:flex;gap:12px}.pair .btn{flex:1 1 0;padding:0 8px}
+.stage.in,.act.in{animation:in .24s ease-out}
+@keyframes in{from{opacity:0;transform:translateX(28px)}}
+.noanim *, .noanim{animation-duration:0s!important;transition-duration:0s!important}
+@media (prefers-reduced-motion:reduce){*{animation-duration:0s!important;transition-duration:0s!important}.spin{animation-duration:1.6s!important}}
+
+/* moments: one centred focal point */
+.moment{margin:auto 0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:24px}
+.big{font-family:var(--display);font-size:5.5rem;line-height:1;font-weight:700;color:var(--primary)}
+.moment h2{font-family:var(--display);font-size:1.625rem;line-height:1.25;margin:6px 0 0}
+.moment p{margin:0;color:var(--text-2);font-size:1.0625rem}
+.badge{width:88px;height:88px;border-radius:50%;display:grid;place-items:center;background:var(--success-bg);color:var(--success)}
+.badge.n{background:var(--bg-muted);color:var(--text-2)}
+.pop{animation:pop .36s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.tally{list-style:none;margin:18px 0 0;padding:0;width:100%;max-width:300px}
+.tally li{display:flex;justify-content:space-between;align-items:baseline;padding:12px 4px;border-top:1px solid var(--hairline);font-size:1.0625rem;text-align:left}
+.tally b{font-family:var(--display);font-size:1.375rem}
+
+/* fix step */
+.eyebrow{margin:0 0 2px;font-size:.8125rem;font-weight:600;color:var(--text-2)}
+.prompt{flex:none;display:block;width:100%;text-align:left;margin:0 0 14px;color:var(--text-2);font-size:.9375rem;min-height:0;cursor:default}
+.prompt span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.prompt.more{cursor:pointer}
+.prompt em{font-style:normal;color:var(--text);text-decoration:underline 2px var(--mark);text-underline-offset:4px}
+.lab{flex:none;display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:1.25rem;line-height:1.3;margin:0 0 10px}
+.lab svg{flex:none;color:var(--primary)}
+.field{flex:0 1 auto;min-height:64px;display:grid;grid-template-rows:minmax(0,1fr);border:2px solid var(--field-border);border-radius:16px;background:var(--bg-surface);overflow:hidden;font-size:1.25rem;line-height:1.5;transition:box-shadow .15s,border-color .15s}
+.field:lang(zh),.field:lang(ja){line-height:1.65}
+.field.f1{font-size:1.125rem}.field.f2{font-size:1rem}.field.f3{font-size:.9375rem}
+.field>*{grid-area:1/1;margin:0;border:0;padding:14px 16px;font:inherit;line-height:inherit;letter-spacing:inherit;white-space:pre-wrap;overflow-wrap:anywhere;min-height:0;width:100%}
+.mirror{color:transparent;overflow:hidden;pointer-events:none;user-select:none}
+.mirror mark{color:transparent;background:var(--mark-wash);border-radius:3px;text-decoration:underline 3px var(--mark);text-underline-offset:5px}
+.mirror mark.maybe{text-decoration-style:dotted}
+.field textarea{background:transparent;color:var(--text);resize:none;outline:none;overflow:auto;height:100%;caret-color:var(--primary)}
+.field:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px var(--focus-ring)}
+.field.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.slot{flex:0 1 auto;min-height:0;overflow:hidden;margin-top:14px;font-size:1rem;display:flex;gap:10px;align-items:flex-start}
+.slot svg{flex:none;margin-top:3px;color:var(--mark)}
+.slot p{margin:0}
+.slot small{display:block;font-size:.8125rem;font-weight:600;color:var(--text-2)}
+.slot.in{animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}}
+
+/* answer: what you wrote, then the answer, stacked */
+.orig{margin:auto 0;padding-bottom:16px;display:flex;flex-direction:column;min-height:0}
+.orig h2{font-family:var(--display);font-size:1.0625rem;margin:0 0 10px;color:var(--text-2)}
+.cmp{flex:none;display:block;width:100%;text-align:left;margin:0 0 10px;padding:12px 14px;border-radius:14px;border:2px solid var(--hairline);background:var(--bg-muted);font:inherit;color:var(--text);min-height:0}
+.cmp.ans{background:var(--wash);border-color:var(--primary)}
+.cmp .tag{display:block;margin:0 0 4px;font-size:.8125rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+.cmp.ans .tag{color:var(--primary)}
+.cmp .sent{display:block;font-size:1.375rem;line-height:1.4;overflow-wrap:anywhere}
+.cmp .sent:lang(zh),.cmp .sent:lang(ja){line-height:1.6}
+.orig.f1 .sent{font-size:1.1875rem}.orig.f2 .sent{font-size:1.0625rem}.orig.f3 .sent{font-size:.9375rem}
+.orig.clamp .sent{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--cl,3);overflow:hidden}
+.orig.tt h2{display:none}.orig.tt .cmp{padding:8px 12px;margin-bottom:6px}.orig.tt .why{margin-top:2px;font-size:.875rem}
+.orig.clamp .cmp.more{cursor:pointer}
+.cmp .sent del{text-decoration:line-through 3px var(--mark);background:var(--mark-wash);border-radius:4px;padding:0 2px}
+.cmp .sent b{font-weight:700;background:var(--bg-surface);border-radius:4px;text-decoration:underline 3px var(--primary);text-underline-offset:5px;padding:0 2px}
+.orig .why{margin:6px 0 0;color:var(--text-2);font-size:1rem}
+.orig.f2 .why,.orig.f3 .why{font-size:.9375rem}
+
+/* keyboard open on a phone: keep only label + field + one row of actions */
+.kb .prompt,.kb .eyebrow,.kb #fine{display:none}
+.kb .hd{height:44px}
+.kb .lab{font-size:1.0625rem;margin-bottom:6px}
+.kb .field{font-size:1.0625rem}.kb .field.f1,.kb .field.f2{font-size:1rem}.kb .field.f3{font-size:.9375rem}
+.kb .field>*{padding:10px 14px}
+.kb .slot{margin-top:8px;font-size:.875rem}.kb .slot small{display:none}
+.kb.tight .stage.hinted .lab{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.kb .moment{padding-bottom:0}.kb .tally{margin-top:6px}.kb .tally li{padding:5px 4px}
+.kb .act{flex-direction:row-reverse;align-items:center;gap:8px;padding-bottom:8px}
+.kb .act .btn{flex:1 1 0;min-height:48px}
+.kb .quiet{flex:none}
+.kb .pair{flex:1 1 0}
+
+/* full-prompt overlay (tap a truncated prompt) */
+.full{position:absolute;inset:0;z-index:2;background:var(--bg-body);display:grid;place-items:center;padding:32px 24px;font-size:1.25rem;text-align:left;width:100%;height:100%}
+.full .tag{display:block;margin:0 0 6px;font-size:.8125rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2)}
+.full del{text-decoration:line-through 3px var(--mark);background:var(--mark-wash);border-radius:4px;padding:0 2px}
+.full b{font-weight:700;text-decoration:underline 3px var(--primary);text-underline-offset:5px;padding:0 2px}
+.full small{position:absolute;bottom:24px;left:0;right:0;text-align:center;color:var(--text-2);font-size:.875rem}
+</style>
+</head>
+<body>
+
+<!-- ============ The exercise screen (stands in for the real DT page) ============ -->
+<div class="ex" id="ex">
+  <div class="ex-hd">
+    <b>LinguaLoop</b>
+    <div class="langs" role="group" aria-label="Mockup language" id="langs"></div>
+  </div>
+  <div class="ex-main">
+    <h1 id="exTitle"></h1>
+    <div class="box src"><p id="exSrc"></p></div>
+    <div class="box mine"><p id="exMine"></p></div>
+  </div>
+  <div class="ex-act">
+    <button class="btn primary" id="submit">Submit</button>
+    <div class="demo">
+      <button class="txt" id="daily">Daily practice</button>
+      <label><span class="sr">Mock grader result</span>
+        <select id="scen"><option value="errors">mock: 2 flagged</option><option value="unsure">mock: unsure flag</option><option value="clean">mock: clean</option></select></label>
+    </div>
+  </div>
+</div>
+
+<!-- ============ The feedback pop-up ============ -->
+<div class="scrim" id="scrim" hidden></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Feedback" hidden>
+  <header class="hd">
+    <button class="x" id="close" aria-label="Close"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l12 12M16 4L4 16"/></svg></button>
+    <div class="dots" id="dots"></div>
+  </header>
+  <div class="stage" id="stage"></div>
+  <footer class="act" id="act"></footer>
+  <div class="sr" aria-live="polite" id="live"></div>
+</section>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Data: learner sentences are real reproductions from tests/fixtures/dt_gold_v6
+   (ids in `gold`). L1 prompt sentences, clues and explanations are illustrative.
+   UI copy is shown in English for review; in the app it is in the learner's L1.
+--------------------------------------------------------------------------- */
+const F = (o)=>Object.assign({level:0,start:0,tries:0,events:[],outcome:null},o);
+const DATA = {
+  en:{ title:'Translate into English', lang:'en', l1lang:'zh',
+    errors:{ gold:'en_multi_04',
+      l1:'这是一个在实践中学习的好方法。Arduino 是做 DIY 项目的强大工具。你可以用它做很多东西。这个机械臂只是其中一个想法。',
+      mine:"It's a sick way to learn by doing. The Arduino is a powerful tool for DIY projects. You can make many things without it. This robot arm is just one idea.",
+      clean:2, steps:[
+      {prompt:'这是一个在实践中学习的好方法。', text:"It's a sick way to learn by doing.", ref:"It's a great way to learn by doing.", bad:'sick', good:'great',
+       kind:'Register — how formal it sounds', clue:'One word here is casual slang. The passage is plain, neutral writing.',
+       why:'“Sick” for “very good” is slang; neutral writing uses “great”.', ok:/\ba great way\b/i},
+      {prompt:'你可以用它做很多东西。', l1mark:'用它', text:'You can make many things without it.', ref:'You can make many things with it.', bad:'without it', good:'with it',
+       kind:'Opposite meaning', clue:'Read the prompt again: are the things made using it, or not using it?',
+       why:'“Without” says the opposite of the prompt (用它 = with it).', ok:/\bwith it\b/i}]},
+    unsure:{ gold:'en_clean_01',
+      l1:'用 Arduino 做一个简单的机械臂是一个有趣的 DIY 项目。你可以学到机器人和电子方面的知识。首先，你需要一块 Arduino 板。这是一台小型电脑。',
+      mine:'Building a simple robot arm with Arduino is an enjoyable DIY project. You can learn about robotics and electronics. First, you need an Arduino board. This is a small computer.',
+      clean:3, steps:[
+      {low:true, prompt:'用 Arduino 做一个简单的机械臂是一个有趣的 DIY 项目。', text:'Building a simple robot arm with Arduino is an enjoyable DIY project.', ref:'Building a simple robot arm with Arduino is a fun DIY project.', bad:'an enjoyable', good:'a fun',
+       why:'Both words work here; “fun” is the more everyday choice.', ok:/\ba fun\b/i}]},
+    clean:{ gold:'en_clean_02', l1:'它帮助控制东西。你还需要一些伺服电机。这些电机让机械臂动起来。你需要电线把所有东西连接起来。',
+      mine:"It helps control things. You also need some servo motors. These motors make the arm move. You'll need wires to connect everything.", clean:4, steps:[]},
+    daily:[
+      {from:'Tuesday', gold:'en_multi_01', start:1, prompt:'你可以学到机器人和电子方面的知识。', text:'You can learn on robotics and electronics.', ref:'You can learn about robotics and electronics.', bad:'learn on', good:'learn about',
+       kind:'Preposition', clue:'Which small word follows “learn” when you name the subject you study?', why:'You learn about a subject; “on” does not follow “learn” here.', ok:/\blearn about\b/i},
+      {from:'Sunday', gold:'en_multi_01', start:1, prompt:'首先，你需要一块 Arduino 板。', text:'First, you need Arduino board.', ref:'First, you need an Arduino board.', bad:'need Arduino', good:'need an Arduino',
+       kind:'Article (a / an / the)', clue:'“Board” is one countable thing, mentioned for the first time.', why:'A singular countable noun needs an article: an Arduino board.', ok:/\ban Arduino board\b/i}]
+  },
+  zh:{ title:'Translate into Chinese', lang:'zh', l1lang:'en',
+    errors:{ gold:'zh_multi_01',
+      l1:"My favourite T-shirt is a very special piece of clothing. It isn't an expensive brand, and it isn't the latest style, but it's my favourite of all my clothes. This T-shirt is blue, a really true blue, and it hasn't faded even after many washes. The fabric is comfortable: soft against the skin and breathable, so it doesn't feel hot even in summer.",
+      mine:'我最喜欢的T恤是一个非常特别的衣服。它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。这件T恤是蓝色的，颜色很正，洗很多次也不会褪色。它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。',
+      clean:2, steps:[
+      {prompt:'My favourite T-shirt is a very special piece of clothing.', text:'我最喜欢的T恤是一个非常特别的衣服。', ref:'我最喜欢的T恤是一件非常特别的衣服。', bad:'一个', good:'一件',
+       kind:'Measure word (量词)', clue:'衣服 doesn’t take the all-purpose 个. Which measure word goes with clothes worn on the upper body?',
+       why:'件 is the measure word for upper-body clothing: 一件衣服.', ok:/一件/},
+      {prompt:"This T-shirt is blue, a really true blue, and it hasn't faded even after many washes.", text:'这件T恤是蓝色的，颜色很正，洗很多次也不会褪色。', ref:'这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。', bad:'洗很多次', good:'洗了很多次',
+       kind:'Aspect marker (了 / 过 / 着)', clue:'The washing has already happened, many times. How does Chinese mark a completed action that comes with a count?',
+       why:'A completed action with a count takes 了 after the verb: 洗了很多次.', ok:/洗了很多次/}]},
+    unsure:{ gold:'zh_seed_06',
+      l1:"It makes me feel relaxed and at ease. It isn't like clothes that need careful matching: I put it on and can head straight out. Its simplicity and comfort put my mind at rest. Of course, I have other nice clothes too.",
+      mine:'它让我感到很轻松，很自在。它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。它的简单和舒适，让我觉得很安心。当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。',
+      clean:3, steps:[
+      {low:true, prompt:'It makes me feel relaxed and at ease.', text:'它让我感到很轻松，很自在。', ref:'它让我感到很放松，很自在。', bad:'轻松', good:'放松',
+       why:'放松 is “relaxed”; 轻松 leans towards “easy, light”. Both can be said here.', ok:/放松/}]},
+    clean:{ gold:'zh_clean (passage 8)', l1:"I hope this T-shirt can stay with me until it becomes very, very old; even then, I'll put it away carefully as a lovely keepsake. Its picture, that smiling kitten, will always be the warmest thing in my heart.",
+      mine:'我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏起来，作为一份美好的纪念。它的图案，那个微笑的小猫，永远是我心中最温暖的存在。', clean:2, steps:[]},
+    daily:[
+      {from:'Tuesday', gold:'zh_multi_01', start:1, prompt:"This T-shirt is blue, a really true blue, and it hasn't faded even after many washes.", text:'这件T恤是蓝色的，颜色很正，洗很多次也不会褪色。', ref:'这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。', bad:'洗很多次', good:'洗了很多次',
+       kind:'Aspect marker (了 / 过 / 着)', clue:'The washing has already happened, many times. How does Chinese mark a completed action that comes with a count?', why:'A completed action with a count takes 了 after the verb: 洗了很多次.', ok:/洗了很多次/},
+      {from:'Sunday', gold:'zh_seed_14', start:1, prompt:"I hope this T-shirt can stay with me until it becomes very, very old; even then, I'll put it away carefully as a lovely keepsake.", text:'我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏下来，作为一份美好的纪念。', ref:'我希望这件T恤能一直陪伴我，直到它变得非常非常旧，但即使那样，我也会把它好好收藏起来，作为一份美好的纪念。', bad:'收藏下来', good:'收藏起来',
+       kind:'Complement after the verb (起来 / 下来 …)', clue:'Putting something away for safekeeping: which direction word finishes 收藏?', why:'收藏起来 means “put away and keep”; 下来 does not combine with 收藏 this way.', ok:/收藏起来/}]
+  }
+};
+/* Longest gold sentences, reachable only by URL (?stress=ja|zh|en) for the no-scroll test. */
+const STRESS = {
+  ja:{lang:'ja', prompt:'You teach the computer, in words it can easily understand (a programming language), how you want the arm to move: instructions such as "move left", "grab the object" and "move right".', text:'アームをどのように動かしたいか、例えば「左に動かす」「物に掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。', ref:'アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。', bad:'物に掴む', good:'物を掴む',
+    kind:'Particle (を / に / で …)', clue:'掴む acts directly on the thing that is grabbed. Which particle marks a direct object?', why:'掴む takes its object with を: 物を掴む.', ok:/物を掴む/, gold:'ja_seed_02'},
+  zh:{lang:'zh', ...DATA.zh.daily[1], from:undefined, start:0},
+  en:{lang:'en', l1lang:'zh', ...DATA.en.unsure.steps[0], low:false, kind:'Word choice', clue:'One adjective here is a little more formal than the prompt suggests. What is the everyday word?'}
+};
+
+const Q = new URLSearchParams(location.search);
+const FAST = Q.has('fast'), NOAUTO = Q.has('noauto');
+const wait = ms => new Promise(r=>setTimeout(r, FAST ? Math.min(ms,40) : ms));
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const I = {
+  pen:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l1-4L14 3l3 3L7 16l-4 1z"/></svg>',
+  bulb:'<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 14a5.5 5.5 0 116 0v2H7v-2zM8 19h4"/></svg>',
+  again:'<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10a6 6 0 11-2-4.5M14 2v4h-4"/></svg>',
+  tick:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 23l8 8 14-17"/></svg>',
+  dash:'<svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" aria-hidden="true"><path d="M12 22h20"/></svg>'
+};
+
+let lang = Q.get('lang')==='zh' ? 'zh' : 'en', scen = 'errors';
+let S = null;                       /* the open flow */
+const EVENTS = window.__events = [];  /* stands in for dt_repair_event rows */
+
+/* ---------------- exercise screen ---------------- */
+function drawEx(){
+  const d = DATA[lang], p = d[scen];
+  $('#exTitle').textContent = d.title;
+  $('#exSrc').textContent = p.l1; $('#exSrc').lang = d.l1lang;
+  $('#exMine').textContent = p.mine; $('#exMine').lang = d.lang;
+  $('#langs').innerHTML = [['en','EN'],['zh','中文']].map(([k,t])=>`<button data-l="${k}" aria-pressed="${k===lang}">${t}</button>`).join('');
+}
+$('#langs').onclick = e => { const b = e.target.closest('button'); if(b){ lang = b.dataset.l; drawEx(); } };
+$('#scen').onchange = e => { scen = e.target.value; drawEx(); };
+$('#submit').onclick = async e => {
+  const b = e.currentTarget; if(b.ariaBusy==='true') return;
+  b.ariaBusy = 'true'; b.innerHTML = '<span class="spin"></span>Checking…';
+  await wait(900);
+  b.ariaBusy = 'false'; b.textContent = 'Submit';
+  const d = DATA[lang], p = d[scen];
+  openFlow({daily:false, lang:d.lang, l1lang:d.l1lang, clean:p.clean, steps:p.steps.map(F)});
+};
+$('#daily').onclick = () => { const d = DATA[lang]; openFlow({daily:true, lang:d.lang, l1lang:d.l1lang, steps:d.daily.map(F)}); };
+
+/* ---------------- sheet open / close ---------------- */
+function openFlow(flow){
+  S = flow; S.i = 0; S.steps.forEach(s=>{ s.level = s.start; s.value = s.checked = s.text; });
+  S.view = S.daily ? 'fix' : (S.steps.length ? 'result' : 'clean');
+  $('#scrim').hidden = $('#sheet').hidden = false; $('#ex').inert = true;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ $('#scrim').classList.add('on'); $('#sheet').classList.add('on'); }));
+  if(S.view==='fix') begin();
+  draw();
+}
+function shut(){
+  clearTimeout(S && S.timer); S = null;
+  $('#scrim').classList.remove('on'); $('#sheet').classList.remove('on'); $('#ex').inert = false;
+  setTimeout(()=>{ if(!S){ $('#scrim').hidden = $('#sheet').hidden = true; } }, FAST?0:320);
+  $('#submit').focus();
+}
+$('#close').onclick = shut;
+addEventListener('keydown', e => { if(e.key==='Escape' && S){ if($('.full')) $('.full').remove(); else shut(); } });
+
+/* ---------------- recording (every step event; nothing of this is shown) ---------------- */
+const cur = () => S.steps[S.i];
+function begin(){ const s = cur(); s.t0 = s.tPrev = performance.now(); }
+function rec(kind, extra={}){
+  const s = cur(), now = performance.now();
+  const ev = {surface:S.daily?'daily_practice':'repair_pass', sentence:S.i, gold:s.gold, kind, hint_level:s.level, since_prev_ms:Math.round(now-s.tPrev), ...extra};
+  s.tPrev = now; s.events.push(ev); EVENTS.push(ev);
+}
+function finish(outcome){ const s = cur(); s.outcome = outcome; s.time_ms = Math.round(performance.now()-s.t0);
+  EVENTS.push({kind:'episode_closed', sentence:S.i, outcome, max_level:s.level, n_checks:s.events.filter(e=>e.kind==='revision_checked').length, time_ms:s.time_ms, first_text:s.text, final_text:s.value}); }
+
+/* ---------------- rendering: one view = one screen ---------------- */
+function draw(dir=true){
+  const st = $('#stage'), act = $('#act'), s = S.steps[S.i];
+  const onStep = ['fix','ok','kept','reveal','alt'].includes(S.view);
+  $('#dots').innerHTML = onStep && S.steps.length>1 ? S.steps.map((_,k)=>`<i class="${k<S.i?'done':k===S.i?'cur':''}"></i>`).join('') + `<span class="sr">Sentence ${S.i+1} of ${S.steps.length}</span>` : '';
+  const last = S.i === S.steps.length-1, nextLabel = last ? 'Finish' : 'Next';
+  let h = '', a = '';
+  if(S.view==='result'){
+    const n = S.steps.length, q = S.steps.every(x=>x.low);
+    h = `<div class="moment"><div class="big">${n}</div><h2 tabindex="-1">${n===1?'sentence':'sentences'} to ${q?'look at':'fix'}</h2><p>The other ${S.clean} look fine.</p></div>`;
+    a = `<button class="btn primary" id="go">Start</button>`;
+  } else if(S.view==='clean'){
+    h = `<div class="moment"><div class="badge pop">${I.tick}</div><h2 tabindex="-1">No issues found</h2><p>Nothing was flagged in your translation.</p></div>`;
+    a = `<button class="btn primary" id="done">Done</button>`;
+  } else if(S.view==='fix'){
+    const label = s.low ? 'This part may need another look' : 'Fix your sentence';
+    h = (s.from ? `<p class="eyebrow">From your translation on ${s.from}</p>` : '')
+      + `<button class="prompt" id="prompt" lang="${S.l1lang||'en'}" tabindex="-1"><span>${promptHtml(s)}</span></button>`
+      + `<label class="lab" for="ta" id="lab">${I.pen}<span>${label}</span></label>`
+      + `<div class="field" id="field" lang="${s.lang||S.lang}"><div class="mirror" id="mirror" aria-hidden="true"></div><textarea id="ta" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" enterkeyhint="done" aria-describedby="slot">${esc(s.value)}</textarea></div>`
+      + `<div class="slot" id="slot"></div>`;
+    a = s.low
+      ? `<div class="pair"><button class="btn plain" id="fine">Mine is fine</button><button class="btn plain" id="check">Check</button></div>`
+      : `<div class="quiet"><button class="txt" id="hint"></button><button class="txt" id="fine">Mine is fine</button></div><button class="btn primary" id="check">Check</button>`;
+  } else if(S.view==='ok'){
+    const sub = s.level<=s.start ? (s.start? 'Without any more help' : 'On your own') : `With ${s.level-s.start} hint${s.level-s.start>1?'s':''}`;
+    h = `<div class="moment"><div class="badge pop">${I.tick}</div><h2 tabindex="-1">Fixed</h2><p>${sub}</p></div>`;
+    a = `<button class="btn primary" id="next">${nextLabel}</button>`;
+  } else if(S.view==='kept'){
+    h = `<div class="moment"><div class="badge n pop">${I.dash}</div><h2 tabindex="-1">Kept as written</h2><p>We’ll leave this one alone.</p></div>`;
+    a = `<button class="btn primary" id="next">${nextLabel}</button>`;
+  } else if(S.view==='reveal' || S.view==='alt'){
+    const t = S.view==='alt' ? 'No issue found. Compare:' : s.outcome==='disputed' ? 'Noted. Compare:' : 'Compare';
+    const L = s.lang||S.lang, mine = esc(s.text).replace(esc(s.bad), `<del>${esc(s.bad)}</del>`), ans = esc(s.ref).replace(esc(s.good), `<b>${esc(s.good)}</b>`);
+    h = `<div class="orig" id="orig"><h2 tabindex="-1">${t}</h2>`
+      + `<button class="cmp mine" id="cmpMine" lang="${L}" tabindex="-1"><span class="tag">You wrote</span><span class="sent">${mine}</span></button>`
+      + `<button class="cmp ans" id="cmpAns" lang="${L}" tabindex="-1"><span class="tag">Answer</span><span class="sent">${ans}</span></button>`
+      + `<p class="why">${esc(s.why)}</p></div>`;
+    a = `<button class="btn primary" id="next">${nextLabel}</button>`;
+  } else if(S.view==='summary'){
+    const c = tally();
+    h = `<div class="moment"><h2 tabindex="-1">${S.daily?'Practice done':'All done'}</h2><ul class="tally"><li>Fixed yourself <b>${c.self}</b></li><li>Needed help <b>${c.help}</b></li><li>${S.daily?'Back in practice later':'Saved to practice'} <b>${c.saved}</b></li></ul></div>`;
+    a = `<button class="btn primary" id="done">Done</button>`;
+  }
+  st.innerHTML = h; act.innerHTML = a; st.classList.remove('hinted');
+  $('#sheet').dataset.view = S.view; $('#sheet').dataset.i = S.i;
+  if(dir){ for(const el of [st,act]){ el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); } }
+  wire();
+  if(S.view==='fix'){ paint(); slot(); if(matchMedia('(pointer:fine)').matches){ const ta=$('#ta'); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } else st.querySelector('.lab').focus?.(); }
+  else { st.querySelector('h2')?.focus({preventScroll:true}); fitOrig(); }
+  if((S.view==='ok'||S.view==='kept') && !NOAUTO && !matchMedia('(prefers-reduced-motion:reduce)').matches) S.timer = setTimeout(next, 1600);
+}
+function promptHtml(s){ const p = esc(s.prompt); return s.l1mark && s.level>=1 ? p.replace(esc(s.l1mark), `<em>${esc(s.l1mark)}</em>`) : p; }
+function tally(){
+  const c = {self:0, help:0, saved:0};
+  for(const s of S.steps){
+    const fixed = s.outcome==='self_repaired' || s.outcome==='repaired_alternative';
+    if(fixed) c.self++; if(s.outcome==='answer_shown') c.help++;
+    if(s.outcome==='answer_shown' || (fixed && s.level>=2)) c.saved++;
+  }
+  return c;
+}
+
+/* the field: a mirror layer under the textarea draws the "where" underline */
+function paint(){
+  const s = cur(), ta = $('#ta'), m = $('#mirror'), f = $('#field'); if(!ta) return;
+  const v = ta.value, k = (s.low || s.level>=1) ? v.indexOf(s.bad) : -1;
+  m.innerHTML = (k<0 ? esc(v) : esc(v.slice(0,k)) + `<mark class="${s.low?'maybe':''}">${esc(s.bad)}</mark>` + esc(v.slice(k+s.bad.length))) + '​';
+  /* long sentence: step the type scale down until it fits; past the last step the field scrolls inside itself */
+  f.className = 'field'; for(const c of ['f1','f2','f3']){ if(m.scrollHeight <= m.clientHeight+1) break; f.classList.add(c); }
+  m.scrollTop = ta.scrollTop;
+  const pr = $('#prompt'), sp = pr.firstElementChild; pr.classList.toggle('more', sp.scrollHeight > sp.clientHeight+1); pr.tabIndex = pr.classList.contains('more') ? 0 : -1;
+}
+function fitOrig(){ const o = $('#orig'); if(!o) return; const st = $('#stage'); const over = () => st.scrollHeight > st.clientHeight;
+  for(const c of ['f1','f2','f3']){ if(!over()) break; o.classList.add(c); }
+  for(const n of [3,2,1]){ if(!over()) break; o.classList.add('clamp'); o.style.setProperty('--cl', n); }
+  if(over()){ o.classList.add('tt'); for(const n of [2,1]){ if(!over()) break; o.style.setProperty('--cl', n); } }
+  for(const b of o.querySelectorAll('.cmp')){ const sp = b.querySelector('.sent'), more = o.classList.contains('clamp') && sp.scrollHeight > sp.clientHeight+1; b.classList.toggle('more', more); b.tabIndex = more ? 0 : -1; b.onclick = () => { if(b.classList.contains('more')) showFull(b); }; } }
+function showFull(b){ const full = document.createElement('button'); full.className = 'full'; full.lang = b.lang; full.innerHTML = `<span><span class="tag" lang="en">${b.querySelector('.tag').textContent}</span>${b.querySelector('.sent').innerHTML}</span><small lang="en">Tap to close</small>`; full.onclick = () => full.remove(); $('#sheet').appendChild(full); }
+
+/* the single hint slot: a new hint or message replaces what was there */
+function slot(anim){
+  const s = cur(), el = $('#slot'), hb = $('#hint'); if(!el) return;
+  let h = '';
+  if(s.msg==='still') h = `${I.again}<p>Still not quite. Try again${s.level<3?', or take a hint':''}.</p>`;
+  else if(s.msg==='same') h = `${I.again}<p>That’s the same sentence. Change something first.</p>`;
+  else if(!s.low && s.level>s.start){
+    const n = `<small>Hint ${s.level} of 3</small>`;
+    h = I.bulb + (s.level===1 ? `<p>${n}Look at the underlined part.</p>` : s.level===2 ? `<p>${n}${esc(s.kind)}</p>` : `<p>${n}${esc(s.clue)}</p>`);
+  }
+  el.innerHTML = h; el.setAttribute('aria-live','polite'); $('#stage').classList.toggle('hinted', !!h);
+  if(anim){ el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); }
+  if(hb) hb.textContent = s.level>=3 ? 'Show answer' : s.level>s.start ? 'Another hint' : 'Need a hint?';
+  const pr = $('#prompt'); if(pr) pr.firstElementChild.innerHTML = promptHtml(s);
+  paint();
+}
+
+function wire(){
+  const on = (id, fn) => { const el = $(id); if(el) el.onclick = fn; };
+  on('#go', () => { S.view = 'fix'; begin(); draw(); });
+  on('#done', shut);
+  on('#next', next);
+  on('#check', check);
+  on('#hint', () => { const s = cur(); s.msg = '';
+    if(s.level>=3){ s.level = 4; rec('answer_shown'); finish('answer_shown'); S.view = 'reveal'; return draw(); }
+    s.level++; rec('hint_shown', {hint_source: s.level===1?'grader_span':'template'}); slot(true); });
+  on('#fine', () => { const s = cur(); rec('disputed');
+    if(s.low){ finish('unsure_dismissed'); S.view = 'kept'; } else { finish('disputed'); S.view = 'reveal'; } draw(); });
+  on('#prompt', () => { const p = $('#prompt'); if(!p.classList.contains('more')) return;
+    const o = document.createElement('button'); o.className = 'full'; o.lang = p.lang; o.innerHTML = `<span>${promptHtml(cur())}</span><small lang="en">Tap to close</small>`;
+    o.onclick = () => { o.remove(); p.focus(); }; $('#sheet').append(o); o.focus(); });
+  const ta = $('#ta');
+  if(ta){
+    ta.oninput = () => { const s = cur(); s.value = ta.value.replace(/\n/g,' '); if(ta.value!==s.value) ta.value = s.value;
+      if(s.msg){ s.msg = ''; slot(); } else paint();
+      if(s.low) $('#check').className = 'btn ' + (s.value.trim()!==s.text ? 'primary' : 'plain'); };
+    ta.onscroll = () => { $('#mirror').scrollTop = ta.scrollTop; };
+    ta.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); check(); } };
+  }
+}
+
+/* scripted re-check (real grader: one call, p50 about 1.4 s) */
+async function check(){
+  const s = cur(), b = $('#check'), ta = $('#ta'); if(!b || b.ariaBusy==='true') return;
+  const v = ta.value.trim();
+  if(v===s.checked){ s.msg = 'same'; slot(true); shake(); return; }
+  b.ariaBusy = 'true'; b.innerHTML = '<span class="spin"></span>Checking…'; ta.readOnly = true;
+  $('#live').textContent = 'Checking';
+  const t = performance.now(); await wait(1100 + Math.random()*500); if(!S || cur()!==s) return;
+  s.checked = s.value = v;
+  const result = s.ok.test(v) ? 'fixed' : (s.low || !v.includes(s.bad)) ? 'no_issue_found' : 'still_flagged';
+  if(result==='still_flagged') s.tries++;
+  rec('revision_checked', {text:v, result, latency_ms:Math.round(performance.now()-t)});
+  if(result==='fixed'){ finish('self_repaired'); S.view = 'ok'; return draw(); }
+  if(result==='no_issue_found'){ finish('repaired_alternative'); S.view = 'alt'; return draw(); }
+  if(s.tries >= (S.daily?3:4)){ s.level = 4; rec('answer_shown', {auto:true}); finish('answer_shown'); S.view = 'reveal'; return draw(); }
+  b.ariaBusy = 'false'; b.textContent = 'Check'; ta.readOnly = false;
+  s.msg = 'still'; slot(true); shake(); $('#live').textContent = 'Still not quite';
+}
+function shake(){ const f = $('#field'); f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake'); }
+function next(){
+  if(!S) return; clearTimeout(S.timer);
+  if(S.i < S.steps.length-1){ S.i++; S.view = 'fix'; begin(); } else S.view = 'summary';
+  draw();
+}
+
+/* viewport: follow the visual viewport so the action bar rides above an open keyboard */
+function vv(){
+  const v = window.visualViewport, h = v ? v.height : innerHeight, r = document.documentElement;
+  if(innerWidth < 600){ r.style.setProperty('--vvh', h+'px'); r.style.setProperty('--vvt', (v?v.offsetTop:0)+'px'); } else { r.style.removeProperty('--vvh'); r.style.removeProperty('--vvt'); }
+  $('#sheet').classList.toggle('kb', innerWidth < 600 && h < 560); $('#sheet').classList.toggle('tight', h < 400);
+  if(S && S.view==='fix') paint();
+}
+(window.visualViewport||window).addEventListener('resize', vv); window.visualViewport?.addEventListener('scroll', vv); addEventListener('resize', vv);
+
+if(FAST) document.documentElement.classList.add('noanim');
+drawEx(); vv();
+if(STRESS[Q.get('stress')]){ const x = STRESS[Q.get('stress')]; openFlow({daily:false, lang:x.lang, l1lang:x.l1lang||'en', clean:3, steps:[F(x)]}); }
+</script>
+</body>
+</html>

@@ -100,6 +100,7 @@ def grade_submission(
     age_tier: int,
     max_tier: str = "tier2",
     framework_v2: Optional[bool] = None,
+    single_call: Optional[bool] = None,
     target_sense_ids: Optional[list[int]] = None,
     target_token_map: Optional[list] = None,
     target_lemmas: Optional[dict] = None,
@@ -132,6 +133,7 @@ def grade_submission(
         age_tier=age_tier,
         max_tier=max_tier,
         framework_v2=framework_v2,
+        single_call=single_call,
     )
     if target_sense_ids:
         l2_code = DimensionService.get_language_code(l2_language_id) or ""
@@ -315,6 +317,7 @@ def _grade_cascade(
     age_tier: int,
     max_tier: str = "tier2",
     framework_v2: Optional[bool] = None,
+    single_call: Optional[bool] = None,
 ) -> dict:
     """Grade one submission end-to-end and return the §2.2 contract dict.
 
@@ -335,6 +338,11 @@ def _grade_cascade(
             Config.DT_FRAMEWORK_V2; pass True/False to force the v2 Detector/
             Verifier flow or the v1 tier1/tier2 flow explicitly (tests). The v2
             path derives scores in Python and never silent-full-marks on failure.
+        single_call: ADR-044 dispatch override. None (default) reads
+            Config.DT_SINGLE_CALL_GRADER; pass True/False to force or skip the
+            single-call generative grader explicitly (tests, the eval harness).
+            When it runs and cannot produce a grade, the flow selected by
+            `framework_v2` grades instead and the trace records why.
     """
     l2_code = DimensionService.get_language_code(l2_language_id)
     if not l2_code:
@@ -371,6 +379,51 @@ def _grade_cascade(
     # forms it then can't verify against the raw texts. Map each token back to the
     # raw substring it came from before handing it over as a hint.
     regions = _diff_regions(tier0_result.diff, gold_l2, reproduction, l2_code)
+
+    # ADR-044: single-call generative grader. Gated by Config.DT_SINGLE_CALL_GRADER
+    # (default ON since 2026-11-14); `single_call` overrides for tests / the eval harness. Runs
+    # after the Tier 0 short-circuit and shares the rubric/taxonomy context above.
+    # On success its contract is returned as-is. If neither its primary nor its
+    # fallback model produced usable JSON (or the loaded taxonomy's type list is not
+    # the one hardcoded in its prompt), the configured v2/v1 flow below grades
+    # the submission — re-entered with single_call=False so it cannot loop — and
+    # `mark_fallback` stamps the reason on grader_trace.single_call. Never a
+    # silent full-marks default.
+    use_single_call = Config.DT_SINGLE_CALL_GRADER if single_call is None else single_call
+    if use_single_call:
+        from services.dual_translation import single_call_grader  # lazy: it imports this module
+
+        contract, failure = single_call_grader.grade(
+            db,
+            tier0_result=tier0_result,
+            rubric_cfg=rubric_cfg,
+            taxonomy_cfg=taxonomy_cfg,
+            subtypes=subtypes,
+            gold_l2=gold_l2,
+            reproduction=reproduction,
+            l2_code=l2_code,
+            l1_code=l1_code,
+            l2_language_id=l2_language_id,
+            l1_language_id=l1_language_id,
+            age_tier=age_tier,
+        )
+        if contract is not None:
+            return contract
+        return single_call_grader.mark_fallback(
+            _grade_cascade(
+                db,
+                passage_id=passage_id,
+                gold_l2=gold_l2,
+                reproduction=reproduction,
+                l2_language_id=l2_language_id,
+                l1_language_id=l1_language_id,
+                age_tier=age_tier,
+                max_tier=max_tier,
+                framework_v2=framework_v2,
+                single_call=False,
+            ),
+            failure,
+        )
 
     # TASK-628: Evidence-First Grading v2 (Detector/Verifier). Gated by
     # Config.DT_FRAMEWORK_V2 (default OFF); `framework_v2` overrides for tests.

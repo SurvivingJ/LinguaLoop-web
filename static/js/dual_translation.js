@@ -320,6 +320,13 @@
       return showErrorCard(data);
     }
     startPassage(data);
+    if (!state.resumeTried) {
+      state.resumeTried = true;
+      // /next always creates a NEW submission, so the open session (if any) is found by the id
+      // remembered when its sheet opened, not by data.submission_id.
+      const open = takeOpenRepair();
+      if (open) resumeRepair(open);
+    }
   }
 
   function startPassage(data) {
@@ -460,10 +467,196 @@
       return failSubmit(resp && resp.status);
     }
     const contract = await resp.json();
-    state.lastContract = contract;
     state.reproduction = reproduction;
     state.submitting = false;
+    handleGrade(contract);
+  }
+
+  // ---------------------------------------------------- guided self-repair
+  // wiki/features/dt-guided-self-repair.tech.md §8.7. The page reacts to the response, not to a
+  // flag: no `repair` key (flag off, ineligible grade, hook error) or a bypassed pass renders
+  // today's result view; a clean or open session opens the pop-up first. A redacted contract
+  // (an open session) is never rendered or kept.
+  function handleGrade(contract) {
+    const repair = contract && contract.repair;
+    if (!repair || repair.status === 'bypassed') return showFull(contract);
+    if (repair.clean) {
+      return openRepair(repair, function () {
+        showFull(contract);
+      });
+    }
+    if (repair.status === 'open' || contract.redacted) {
+      rememberOpenRepair(repair);
+      return openRepair(repair, function () {
+        showServerResult(repair);
+      });
+    }
+    return showFull(contract);
+  }
+
+  // An open repair pass survives a reload: only the ids and the learner's own text are kept
+  // (never anything from the grade), and only until the pass is finished or 24 h old.
+  const OPEN_REPAIR_KEY = 'dt_repair_open';
+  const OPEN_REPAIR_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+  function rememberOpenRepair(repair) {
+    try {
+      window.localStorage.setItem(
+        OPEN_REPAIR_KEY,
+        JSON.stringify({
+          submission_id: repair.submission_id,
+          reproduction: state.reproduction || '',
+          age_tier: state.ageTier,
+          at: Date.now(),
+        })
+      );
+    } catch {
+      /* storage blocked: no resume after a reload */
+    }
+  }
+
+  function forgetOpenRepair() {
+    try {
+      window.localStorage.removeItem(OPEN_REPAIR_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function takeOpenRepair() {
+    try {
+      const raw = window.localStorage && window.localStorage.getItem(OPEN_REPAIR_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data || data.submission_id == null || !(Date.now() - data.at < OPEN_REPAIR_MAX_AGE_MS)) {
+        forgetOpenRepair();
+        return null;
+      }
+      return data;
+    } catch {
+      forgetOpenRepair();
+      return null;
+    }
+  }
+
+  function showFull(contract) {
+    state.lastContract = contract;
     renderResult(contract);
+  }
+
+  function openRepair(repair, after, resume) {
+    if (!window.DTRepairSheet) {
+      console.error('dual_translation: DTRepairSheet global not loaded');
+      return after();
+    }
+    state.sheet = window.DTRepairSheet.open({
+      mode: 'pass',
+      session: repair,
+      resume: !!resume,
+      fetch: window.authFetch,
+      returnFocus: el.submit,
+      onDone: function () {
+        state.sheet = null;
+        forgetOpenRepair();
+        after();
+      },
+    });
+    return undefined;
+  }
+
+  function sleep(ms) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  // The full contract is only served once the session is finished: one retry after 1 s, and a 409
+  // (the finish call did not land) triggers one more finish.
+  async function fetchFullResult(repair) {
+    const base = '/api/dual-translation/repair/';
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await window.authFetch(
+          base + 'submissions/' + encodeURIComponent(repair.submission_id) + '/result'
+        );
+        const data = await res.json().catch(function () {
+          return {};
+        });
+        const contract = data.data && !('status' in data) ? data.data : data;
+        if (res.ok && contract && !contract.redacted) return contract;
+        if (res.status === 409 && repair.session_id != null) {
+          await window
+            .authFetch(base + 'sessions/' + encodeURIComponent(repair.session_id) + '/finish', {
+              method: 'POST',
+              body: JSON.stringify({ closed_early: true }),
+            })
+            .catch(function () {
+              return null;
+            });
+        }
+      } catch (e) {
+        console.warn('dual_translation: result fetch failed', e);
+      }
+      if (attempt === 0) await sleep(1000);
+    }
+    return null;
+  }
+
+  async function showServerResult(repair) {
+    showPhase('loading');
+    const full = await fetchFullResult(repair);
+    if (full) return showFull(full);
+    el.error.innerHTML =
+      '<p>' +
+      escapeHtml(label('dt_repair.result_load_failed', 'Couldn’t load your full feedback.')) +
+      '</p><button class="dt-secondary" type="button" data-dt-result-retry>' +
+      escapeHtml(label('dt_repair.retry', 'Try again')) +
+      '</button> <button class="dt-secondary" type="button" data-dt-result-other>' +
+      escapeHtml(label('dual_translation.try_another', 'Try another')) +
+      '</button>';
+    el.error.querySelector('[data-dt-result-retry]').onclick = function () {
+      showServerResult(repair);
+    };
+    el.error.querySelector('[data-dt-result-other]').onclick = loadNext;
+    showPhase('error');
+    return undefined;
+  }
+
+  // After a reload with an open session the pop-up reopens at the first open step. Best effort:
+  // no session (404) or any failure leaves the fresh passage as it is.
+  async function resumeRepair(open) {
+    try {
+      const res = await window.authFetch(
+        '/api/dual-translation/repair/submissions/' +
+          encodeURIComponent(open.submission_id) +
+          '/session'
+      );
+      if (!res.ok) {
+        if (res.status === 404 || res.status === 403) forgetOpenRepair();
+        return;
+      }
+      const data = await res.json();
+      const session = (data.data && !('status' in data) ? data.data : data).session;
+      if (!session || session.status !== 'open') {
+        forgetOpenRepair();
+        return;
+      }
+      if (!window.DTRepairSheet || state.sheet || state.submitting) return;
+      // The result view that follows the sheet belongs to that submission, not to the fresh one.
+      state.submissionId = session.submission_id;
+      state.reproduction = open.reproduction || '';
+      if (open.age_tier != null) state.ageTier = open.age_tier;
+      if (session.prompt_l1_passage) el.reference.textContent = session.prompt_l1_passage;
+      openRepair(
+        session,
+        function () {
+          showServerResult(session);
+        },
+        true
+      );
+    } catch {
+      /* resume is optional */
+    }
   }
 
   function failSubmit(status) {

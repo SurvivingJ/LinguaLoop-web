@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DT Focused Correction</title>
+<style>
+/* Layout: one reading column (the app's 760px DT column) holding a single
+   "fix this first" card above the full passage; a quiet rail for focus areas
+   at desktop width that drops under the column on phones. */
+:root {
+  --bg: #f6f9f8; --surface: #fff; --surface-2: #eaf1ef;
+  --ink: #13282b; --ink-2: #51686a; --ink-3: #5e7375;
+  --line: #dde7e5; --line-2: #b9cac7;
+  --teal: #0e7569; --teal-deep: #0a574e; --teal-wash: #ddeeea; --on-teal: #fff;
+  --fix: #a35417; --fix-line: #c9661f; --fix-wash: #fbe9da;
+  --ok: #245f3d; --ok-wash: #ddefe4;
+  --maybe: #3b5f8f; --maybe-wash: #e1eaf5;
+  --shadow: 0 1px 2px rgb(19 40 43 / 5%), 0 4px 14px rgb(19 40 43 / 6%);
+  --sans: 'Inter', 'Hiragino Sans', 'Yu Gothic UI', Meiryo, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --display: 'Sora', 'Inter', system-ui, sans-serif;
+  --ja: 'Hiragino Sans', 'Yu Gothic UI', 'Noto Sans JP', 'Noto Sans CJK JP', Meiryo, sans-serif;
+  --zh: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC', sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b1416; --surface: #122021; --surface-2: #18292a;
+  --ink: #eef4f3; --ink-2: #bcd0cd; --ink-3: #93a6a4;
+  --line: #1f3335; --line-2: #33494b;
+  --teal: #3db3a0; --teal-deep: #5cc6b5; --teal-wash: rgb(61 179 160 / 16%); --on-teal: #06211d;
+  --fix: #f0a66f; --fix-line: #f0975a; --fix-wash: rgb(240 151 90 / 15%);
+  --ok: #7cc79a; --ok-wash: rgb(87 168 119 / 16%);
+  --maybe: #9dbde6; --maybe-wash: rgb(122 163 214 / 16%);
+  --shadow: 0 1px 2px rgb(0 0 0 / 40%);
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0b1416; --surface: #122021; --surface-2: #18292a;
+  --ink: #eef4f3; --ink-2: #bcd0cd; --ink-3: #93a6a4;
+  --line: #1f3335; --line-2: #33494b;
+  --teal: #3db3a0; --teal-deep: #5cc6b5; --teal-wash: rgb(61 179 160 / 16%); --on-teal: #06211d;
+  --fix: #f0a66f; --fix-line: #f0975a; --fix-wash: rgb(240 151 90 / 15%);
+  --ok: #7cc79a; --ok-wash: rgb(87 168 119 / 16%);
+  --maybe: #9dbde6; --maybe-wash: rgb(122 163 214 / 16%);
+  --shadow: 0 1px 2px rgb(0 0 0 / 40%);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 4px; }
+[hidden] { display: none !important; }
+
+/* Demo chrome (not part of the product UI) */
+.demo { background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.demo-in { max-width: 1120px; margin: 0 auto; padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.demo-tag { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.tabs { display: flex; gap: 6px; overflow-x: auto; flex: 1 1 300px; min-width: 0; padding: 2px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { white-space: nowrap; border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: .82rem; color: var(--ink-2); min-height: 34px; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 600; }
+.theme { border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: .82rem; min-height: 34px; }
+.demo-note { flex-basis: 100%; font-size: .78rem; color: var(--ink-3); margin: 0; }
+
+.page { max-width: 1120px; margin: 0 auto; padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+@media (min-width: 1000px) { .page { grid-template-columns: minmax(0, 720px) minmax(0, 1fr); gap: 32px; align-items: start; } .page.solo { grid-template-columns: minmax(0, 760px); justify-content: center; } }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.head { display: flex; align-items: center; gap: 12px; }
+.head h1 { font: 700 1.3rem/1.2 var(--display); margin: 0; }
+.back { color: var(--ink-3); font-size: 1.2rem; text-decoration: none; }
+.head .step { margin-left: auto; font-size: .82rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; box-shadow: var(--shadow); min-width: 0; }
+.label { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+:lang(zh) .label, :lang(ja) .label { letter-spacing: .02em; font-size: .8rem; }
+
+/* Outcome line: words, not a band wall */
+.outcome { display: flex; gap: 12px; align-items: flex-start; }
+.outcome .glyph { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; }
+.glyph.g-fix { background: var(--fix-wash); color: var(--fix); }
+.glyph.g-ok { background: var(--ok-wash); color: var(--ok); }
+.glyph.g-maybe { background: var(--maybe-wash); color: var(--maybe); }
+.outcome h2 { font: 700 1.12rem/1.3 var(--display); margin: 2px 0 2px; text-wrap: balance; }
+.outcome p { margin: 0; color: var(--ink-2); font-size: .92rem; }
+
+/* L2 text */
+.l2 { font-size: 1.22rem; line-height: 1.75; overflow-wrap: anywhere; }
+.l2:lang(ja) { font-family: var(--ja); line-height: 2; line-break: strict; }
+.l2:lang(zh) { font-family: var(--zh); line-height: 2; line-break: strict; }
+.l2:lang(en) { font-size: 1.14rem; }
+
+/* Marks: shape carries the meaning, colour only reinforces it */
+.mk { border: 0; background: none; padding: 0 1px; font: inherit; color: inherit; border-radius: 3px; text-decoration-line: underline; text-underline-offset: .28em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.mk-fix { text-decoration-style: solid; text-decoration-thickness: 3px; text-decoration-color: var(--fix-line); background: var(--fix-wash); font-weight: 600; }
+.mk-more { text-decoration-style: solid; text-decoration-thickness: 1.5px; text-decoration-color: var(--fix-line); }
+.mk-maybe { text-decoration-style: dotted; text-decoration-thickness: 2.5px; text-decoration-color: var(--maybe); }
+.mk-var { text-decoration-style: dashed; text-decoration-thickness: 1.5px; text-decoration-color: var(--ok); }
+.mk-good { text-decoration-style: solid; text-decoration-thickness: 3px; text-decoration-color: var(--teal); background: var(--teal-wash); font-weight: 600; cursor: default; }
+.mk-gap { text-decoration: none; color: var(--fix); font-weight: 700; padding: 0 2px; }
+.mk sup, .gapmark sup { font: 700 .62em/1 var(--sans); margin-left: 1px; vertical-align: super; text-decoration: none; display: inline-block; }
+.mk-fix sup, .mk-more sup { color: var(--fix); } .mk-maybe sup { color: var(--maybe); } .mk-var sup { color: var(--ok); }
+
+/* Fix-first card */
+.fix { border-color: var(--fix-line); border-width: 1.5px; }
+.fix.is-maybe { border-color: var(--maybe); }
+.fix-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: .76rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.pill-fix { background: var(--fix-wash); color: var(--fix); }
+.pill-maybe { background: var(--maybe-wash); color: var(--maybe); }
+.pill-focus { background: var(--teal-wash); color: var(--teal-deep); }
+.pill-plain { background: var(--surface-2); color: var(--ink-2); }
+.pair { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; align-items: baseline; }
+.pair dt { font-size: .76rem; font-weight: 700; color: var(--ink-3); white-space: nowrap; padding-top: .5em; }
+.pair dd { margin: 0; min-width: 0; }
+.pair .l1 { font-size: .92rem; color: var(--ink-2); }
+.why { margin: 16px 0 0; font-size: 1rem; }
+.why b { font-weight: 700; }
+.more-why { margin-top: 10px; }
+.link { border: 0; background: none; padding: 6px 0; color: var(--teal); font-weight: 600; font-size: .88rem; text-decoration: underline; text-underline-offset: 3px; min-height: 36px; }
+.extra { margin: 6px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); font-size: .92rem; color: var(--ink-2); }
+.extra small { display: block; color: var(--ink-3); font-size: .74rem; margin-top: 4px; }
+
+.next { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line-2); display: flex; flex-direction: column; gap: 10px; }
+.next-h { font-weight: 700; font-size: .95rem; }
+.next-h span { color: var(--teal); }
+.retype { width: 100%; min-height: 84px; resize: vertical; padding: 12px 14px; border: 2px solid var(--line-2); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 1.12rem; line-height: 1.7; }
+.retype:lang(ja) { font-family: var(--ja); } .retype:lang(zh) { font-family: var(--zh); } .retype:lang(en) { font-family: var(--sans); font-size: 1.05rem; }
+.retype:focus { border-color: var(--teal); outline: none; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 600; min-height: 46px; }
+.btn-p { background: var(--teal); color: var(--on-teal); }
+.btn-p:hover { background: var(--teal-deep); }
+.btn-s { background: var(--surface); border: 1px solid var(--line-2); color: var(--ink); }
+.btn-wide { flex: 1 1 200px; }
+.msg { font-size: .92rem; margin: 0; }
+.msg.good { color: var(--ok); font-weight: 600; }
+.msg.again { color: var(--fix); }
+.dispute { margin-top: 4px; font-size: .84rem; color: var(--ink-3); }
+.withdrawn { padding: 14px; border-radius: 12px; background: var(--surface-2); color: var(--ink-2); font-size: .95rem; }
+
+/* Whole passage */
+.sents { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; }
+.sent { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 8px; padding: 12px 0; border-top: 1px solid var(--line); }
+.sent:first-child { border-top: 0; padding-top: 2px; }
+.sent .n { font: 600 .78rem/1 var(--sans); color: var(--ink-3); padding-top: .95em; font-variant-numeric: tabular-nums; }
+.sent .body { min-width: 0; }
+.sent .ref { margin-top: 6px; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); }
+.sent .ref .l2 { font-size: 1.08rem; }
+.sent .ref .l1 { font-size: .86rem; color: var(--ink-2); margin-top: 2px; }
+.sent-tools { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+.sent-tools .link { font-size: .8rem; font-weight: 500; color: var(--ink-3); padding: 4px 0; min-height: 32px; }
+.note { margin-top: 6px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); font-size: .92rem; display: flex; flex-direction: column; gap: 6px; }
+.note .forms { font-size: 1rem; }
+.note .forms s { text-decoration-thickness: 1px; color: var(--ink-2); }
+.note .forms b { color: var(--teal-deep); }
+.note .choice { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: .84rem; min-height: 36px; }
+.chip[aria-pressed="true"] { background: var(--teal-wash); border-color: var(--teal); color: var(--teal-deep); font-weight: 600; }
+.moretoggle { width: 100%; margin-top: 12px; display: flex; align-items: center; gap: 10px; text-align: left; border: 1px dashed var(--line-2); background: none; border-radius: 12px; padding: 12px 14px; font-size: .92rem; min-height: 48px; }
+.moretoggle .chev { margin-left: auto; transition: transform .15s; color: var(--ink-3); }
+.moretoggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.moretoggle small { display: block; color: var(--ink-3); font-size: .8rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: .8rem; color: var(--ink-3); }
+.legend .mk { cursor: default; color: var(--ink); }
+.honest { font-size: .82rem; color: var(--ink-3); margin: 12px 0 0; }
+.missform { margin-top: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 8px; font-size: .9rem; }
+.missform input { width: 100%; padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; }
+
+/* Focus areas (rail + progress view) */
+.rail { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+@media (min-width: 1000px) { .rail { position: sticky; top: 16px; } }
+.rail h3 { font: 700 1rem/1.3 var(--display); margin: 4px 0 2px; }
+.rail p { margin: 0; font-size: .86rem; color: var(--ink-2); }
+.fa { display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-top: 1px solid var(--line); }
+.fa-name { font-weight: 600; font-size: .95rem; }
+.fa-name span { font-weight: 400; color: var(--ink-3); font-size: .82rem; }
+.fa-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: .8rem; color: var(--ink-3); }
+.dots { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.dot { width: 13px; height: 13px; flex: none; display: inline-block; position: relative; }
+.dot.hit { border-radius: 50%; background: var(--teal); }
+.dot.miss { border: 2px solid var(--fix-line); border-radius: 3px; }
+.dot.miss::after { content: ""; position: absolute; left: 1px; right: 1px; top: 50%; height: 2px; margin-top: -1px; background: var(--fix-line); transform: rotate(-45deg); }
+.dot.unsure { border-radius: 50%; border: 2px dotted var(--ink-3); }
+.dot.new { outline: 2px solid var(--ink); outline-offset: 2px; }
+.st { font-size: .74rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.st-work { background: var(--fix-wash); color: var(--fix); }
+.st-fade { background: var(--maybe-wash); color: var(--maybe); }
+.st-done { background: var(--ok-wash); color: var(--ok); }
+
+.prog-h { font: 700 1.5rem/1.2 var(--display); margin: 0 0 4px; text-wrap: balance; }
+.prog-sub { color: var(--ink-2); margin: 0; max-width: 60ch; }
+.week { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.week div { font-size: .88rem; color: var(--ink-2); }
+.week b { display: block; font: 700 1.5rem/1.2 var(--display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.area { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.area + .area { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.area-top { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.area-top h3 { font: 700 1.08rem/1.3 var(--display); margin: 0; flex: 1 1 220px; min-width: 0; }
+.area .eg { font-size: 1.02rem; color: var(--ink-2); }
+.area .eg b { color: var(--teal-deep); }
+.strip { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.strip .cap { font-size: .8rem; color: var(--ink-3); }
+.area .rule { font-size: .9rem; color: var(--ink-2); margin: 0; }
+.keylist { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .8rem; color: var(--ink-3); margin-top: 14px; }
+.keylist span { display: inline-flex; gap: 6px; align-items: center; }
+.plainlist { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.plainlist li { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: .94rem; }
+.plainlist small { color: var(--ink-3); }
+details.quiet > summary { cursor: pointer; font-weight: 600; font-size: .92rem; color: var(--ink-2); min-height: 32px; }
+@media (max-width: 600px) { .card { padding: 16px; } .l2 { font-size: 1.14rem; } .l2:lang(en) { font-size: 1.06rem; } .pair { grid-template-columns: minmax(0, 1fr); gap: 0; } .pair dt { padding-top: 8px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="demo-in">
+    <span class="demo-tag">Mockup states</span>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <button class="theme" id="themeBtn" type="button">Theme: auto</button>
+    <p class="demo-note" id="demoNote"></p>
+  </div>
+</div>
+<main class="page" id="page"></main>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------- UI strings in the learner's L1 ---------- */
+var STR = {
+  en: {
+    title: 'Dual Translation', passage: 'Passage {n} of 5',
+    fixFirst: 'Fix this first', secondLook: 'Worth a second look', changesMeaning: 'Changes the meaning',
+    focusTag: 'Your focus area', you: 'You wrote', orig: 'Original', meant: 'Meaning',
+    nextStep: 'Next step', retypeAsk: 'Edit your sentence so it says what the original says.',
+    check: 'Check', skip: 'Skip for now', retypeOk: 'That matches the original now.', retypeNo: 'Not yet. Look at the marked part once more.',
+    explain: 'Why?', dispute: 'I think mine is right', withdrawn: 'Removed. This will not count toward your focus areas, and a person will review it. Thanks for telling us.',
+    undo: 'Undo', whole: 'Your whole passage', showOrig: 'Show original', hideOrig: 'Hide original', missed: 'I see a mistake here',
+    moreOne: '{n} smaller thing in this passage', moreMany: '{n} smaller things in this passage', moreSub: 'Optional. They are saved either way.',
+    moreFocus: 'One is in your focus area {a}.',
+    legendFix: 'fix first', legendMore: 'smaller', legendMaybe: 'not sure', legendVar: 'different, also fine',
+    nextPassage: 'Next passage', seeProgress: 'See my focus areas',
+    mineOk: 'Mine works too', changeIt: 'I would change it', maybeSaved1: 'Kept as yours. Nothing is recorded as a mistake.', maybeSaved2: 'Noted for your review. It only becomes a focus area if it keeps coming up.',
+    missAsk: 'What should it have been? (optional)', missSave: 'Save note', missSaved: 'Saved to your notes. Spotting your own slips is the skill this exercise trains.',
+    railH: 'Your focus areas', railP: 'The few patterns you are working on right now.', lastTen: 'last 10 chances',
+    work: 'Working on it', fade: 'Fading', done: 'Resolved', thisPassage: 'this passage'
+  },
+  zh: {
+    title: '对译练习', passage: '第 {n} 段，共 5 段',
+    fixFirst: '先改这一处', secondLook: '值得再看一眼', changesMeaning: '意思变了',
+    focusTag: '你的重点项', you: '你写的', orig: '原文', meant: '意思',
+    nextStep: '下一步', retypeAsk: '改一改你的句子，让它和原文意思一致。',
+    check: '检查', skip: '先跳过', retypeOk: '现在和原文一致了。', retypeNo: '还差一点，再看看标出的地方。',
+    explain: '为什么？', dispute: '我觉得我写的没错', withdrawn: '已撤回。这一处不会计入你的重点项，我们会人工复核。谢谢你的反馈。',
+    undo: '撤销', whole: '你的整段译文', showOrig: '看原文', hideOrig: '收起原文', missed: '我发现这里有错',
+    moreOne: '这一段还有 {n} 处小问题', moreMany: '这一段还有 {n} 处小问题', moreSub: '可以不看，系统都会记录。',
+    moreFocus: '其中一处属于你的重点项「{a}」。',
+    legendFix: '先改', legendMore: '小问题', legendMaybe: '不确定', legendVar: '不一样，但也对',
+    nextPassage: '下一段', seeProgress: '查看我的重点项',
+    mineOk: '我的也可以', changeIt: '我会改', maybeSaved1: '保留你的写法，不记为错误。', maybeSaved2: '已记下，供你复习。只有反复出现才会成为重点项。',
+    missAsk: '应该怎么写？（可不填）', missSave: '保存', missSaved: '已保存到你的笔记。自己发现问题，正是这个练习要练的能力。',
+    railH: '你的重点项', railP: '你目前正在攻克的几个语法点。', lastTen: '最近 10 次机会',
+    work: '正在练', fade: '快好了', done: '已解决', thisPassage: '本段'
+  }
+};
+
+/* ---------- Scenes. Passages, learner text and error spans are real items
+   from tests/fixtures/dt_gold/. L1 lines, confidence levels and templates
+   are written for this mockup. ---------- */
+var SCENES = [
+  { id: 'many', tab: 'Many errors · ja', ui: 'en', l2: 'ja', step: 2, gold: 'ja_multi_04',
+    note: 'Gold item ja_multi_04 (3 annotated errors: critical word choice, minor word choice, major case particle). English-L1 learner. Only the meaning-changing error is shown at first; the other two are collapsed.',
+    outcome: { g: 'fix', glyph: '1', h: 'One part says the opposite of what you meant.', p: 'Start there. The rest of your passage reads clearly.' },
+    sents: [
+      { you: ['「ロボット工学」の基本的な仕組みを知ることで、将来、もっと', { t: '簡単', e: 'a' }, 'なロボットがどのように作られているのか、理解する手助けになります。'],
+        ref: ['「ロボット工学」の基本的な仕組みを知ることで、将来、もっと', { t: '複雑', g: 1 }, 'なロボットがどのように作られているのか、理解する手助けになります。'],
+        l1: 'Knowing the basics of robotics will help you understand how more complex robots are built in the future.' },
+      { you: ['「電子工作」を通して、電気や部品の', { t: '仕事', e: 'b' }, 'を学び、実際に手', { t: 'が', e: 'c' }, '動かすことの楽しさを体験できます。'],
+        ref: ['「電子工作」を通して、電気や部品の', { t: '役割', g: 1 }, 'を学び、実際に手', { t: 'を', g: 1 }, '動かすことの楽しさを体験できます。'],
+        l1: 'Through hands-on electronics you learn what electricity and each part does, and you get to enjoy working with your hands.' },
+      { you: ['そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。'], ref: null,
+        l1: 'And by learning programming, you build the ability to instruct a computer and to think logically.' },
+      { you: ['さらに面白くするには？'], ref: null, l1: 'How can we make it even more interesting?' }
+    ],
+    errs: {
+      a: { kind: 'fix', s: 0, meaning: true, why: 'You wrote <b lang="ja">簡単</b> (simple). The reference says more <b>complex</b> robots: <b lang="ja">複雑</b>.',
+           extra: '簡単 and 複雑 are opposites, so the sentence now promises help with simpler robots. Everything else in this sentence matches the original.',
+           must: '複雑', mustNot: '簡単' },
+      b: { kind: 'maybe', s: 1, from: '仕事', to: '役割', why: 'The original has 役割 (role). 仕事 (job) may work here too. We are not sure this is a mistake.' },
+      c: { kind: 'more', s: 1, focus: 'を・に・が', from: '手が動かす', to: '手を動かす', why: 'The thing being moved takes を with 動かす.' }
+    },
+    rail: 'ja' },
+
+  { id: 'en', tab: 'Focus area · en / 中文', ui: 'zh', l2: 'en', step: 3, gold: 'en_multi_02',
+    note: 'Gold item en_multi_02 (plural, agreement, omission). Chinese-L1 learner, so all interface copy is in Chinese. The fix-first item is a missing word; the explanation is a template, with the longer "why" loaded only on request.',
+    outcome: { g: 'fix', glyph: '1', h: '有一句话少了一个词。', p: '先改这一处。其他地方意思都清楚。' },
+    sents: [
+      { you: ['It helps control things.'], ref: null, l1: '它可以帮助控制东西。' },
+      { you: ['You also need some servo ', { t: 'motor', e: 'b' }, '.'], ref: ['You also need some servo ', { t: 'motors', g: 1 }, '.'], l1: '你还需要一些伺服电机。' },
+      { you: ['These motors ', { t: 'makes', e: 'c' }, ' the arm', { gap: 'a' }, '.'], ref: ['These motors ', { t: 'make', g: 1 }, ' the arm ', { t: 'move', g: 1 }, '.'], l1: '这些电机让机械臂动起来。' },
+      { you: ['You will need wires to connect everything.'], ref: null, l1: '你还需要电线把所有部件连接起来。' }
+    ],
+    errs: {
+      a: { kind: 'fix', s: 2, meaning: false, why: '原文在 <b lang="en">the arm</b> 后面还有一个词：<b lang="en">move</b>。你的句子里没有。',
+           extra: '<span lang="en">make</span> + 宾语 + 动词原形，表示「让……做某事」。少了 <span lang="en">move</span>，句子只说了「电机让机械臂」，没有说让它怎么样。',
+           must: 'move', mustNot: null, hideOthers: ['c'] },
+      b: { kind: 'more', s: 1, from: 'some servo motor', to: 'some servo motors', why: '<span lang="en">some</span> 后面的可数名词用复数。' },
+      c: { kind: 'more', s: 2, focus: '主谓一致', from: 'These motors makes', to: 'These motors make', why: '主语 <span lang="en">motors</span> 是复数，动词不加 <span lang="en">-s</span>。' }
+    },
+    rail: 'en' },
+
+  { id: 'clean', tab: 'Clean item · ja', ui: 'en', l2: 'ja', step: 4, gold: 'ja_clean_02',
+    note: 'Gold item ja_clean_02 (no errors; 掴む written as つかむ, an accepted variant). The screen says nothing was found, not that the answer is perfect, because the checker misses about half of small errors in Japanese and Chinese.',
+    outcome: { g: 'ok', glyph: '✓', h: 'We found nothing to fix.', p: 'Your meaning matches the original all the way through.' },
+    sents: [
+      { you: ['まず、アームを動かすための「モーター」。'], ref: null, l1: 'First, the "motor" that moves the arm.' },
+      { you: ['これは、電気を力に変えて、アームを動かす役割をします。'], ref: null, l1: 'It turns electricity into force and does the job of moving the arm.' },
+      { you: ['次に、アームの指先にあたる「グリッパー」。'], ref: null, l1: 'Next, the "gripper", which is the arm\'s fingertips.' },
+      { you: ['これは、物を', { t: 'つかむ', e: 'v' }, 'ための部分です。'], ref: ['これは、物を', { t: '掴む', g: 1 }, 'ための部分です。'], l1: 'This is the part for gripping things.' }
+    ],
+    errs: { v: { kind: 'var', s: 3, from: 'つかむ', to: '掴む', why: 'Same word, written in kana instead of kanji. Both are correct.' } },
+    clean: { focus: 'を・に・が', count: 5 },
+    rail: 'ja-clean' },
+
+  { id: 'unsure', tab: 'Checker unsure · zh', ui: 'en', l2: 'zh', step: 1, gold: 'zh_seed_06',
+    note: 'Gold item zh_seed_06 (minor word choice 放松→轻松). The checker flags it with low confidence, so the screen asks rather than tells, shows both forms, and lets the learner decide. Nothing is recorded as an error unless the learner agrees.',
+    outcome: { g: 'maybe', glyph: '?', h: 'Nothing we are sure about. One spot is worth a second look.', p: 'You decide whether to change it.' },
+    sents: [
+      { you: ['它让我感到很', { t: '轻松', e: 'a' }, '，很自在。'], ref: ['它让我感到很', { t: '放松', g: 1 }, '，很自在。'], l1: 'It makes me feel relaxed and at ease.' },
+      { you: ['它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。'], ref: null, l1: 'Unlike clothes that need careful matching, I can put it on and head straight out to do what I want.' },
+      { you: ['它的简单和舒适，让我觉得很安心。'], ref: null, l1: 'Its simplicity and comfort put my mind at rest.' },
+      { you: ['当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。'], ref: null, l1: 'Of course I have other nice clothes too, some for parties and some for work.' }
+    ],
+    errs: { a: { kind: 'maybefix', s: 0, from: '轻松', to: '放松',
+      why: 'You wrote <b lang="zh">轻松</b> where the original has <b lang="zh">放松</b>. These two are close in meaning, and yours may be fine here.' } },
+    rail: 'zh' },
+
+  { id: 'progress', tab: 'Progress view', ui: 'en', l2: 'ja',
+    note: 'The tracking view (replaces today\'s "My Error Profile"). Learner data here is illustrative. Each mark is one chance to use the pattern, so the strip shows how often it now comes out right without quoting a percentage the checker cannot support.' }
+];
+
+var RAILS = {
+  'ja': [ { name: 'を・に・が', sub: 'which particle the verb takes', st: 'work', dots: 'hmhhmhhmh', add: 'm' },
+          { name: 'は or が inside a describing clause', sub: '', st: 'fade', dots: 'mhhhhhhhhh' },
+          { name: 'です・ます all the way through', sub: '', st: 'work', dots: 'hmhh' } ],
+  'ja-clean': [ { name: 'を・に・が', sub: 'which particle the verb takes', st: 'work', dots: 'mhhmhhmh', add: 'hh' },
+          { name: 'は or が inside a describing clause', sub: '', st: 'fade', dots: 'mhhhhhhhhh' },
+          { name: 'です・ます all the way through', sub: '', st: 'work', dots: 'hmhh', add: 'h' } ],
+  'en': [ { name: '主谓一致', sub: 'make / makes', st: 'work', dots: 'hmhhmhh', add: 'm' },
+          { name: '冠词 a / an / the', sub: '', st: 'fade', dots: 'hhmhhhhhh', add: 'h' } ],
+  'zh': [ { name: '了 after the verb', sub: 'finished actions', st: 'work', dots: 'mhmhhmh', add: 'h' },
+          { name: '的 · 得 · 地', sub: '', st: 'fade', dots: 'hhhmhhhhh' } ]
+};
+
+var state = { scene: 'many', more: false, open: {}, origOpen: {}, withdrawn: false, retype: null, extra: false, maybe: {}, miss: {} };
+var page = document.getElementById('page');
+
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function T(sc, k, v) { var s = STR[sc.ui][k]; if (v) Object.keys(v).forEach(function (x) { s = s.replace('{' + x + '}', v[x]); }); return s; }
+function scene() { return SCENES.filter(function (s) { return s.id === state.scene; })[0]; }
+function plain(segs) { return segs.map(function (x) { return typeof x === 'string' ? x : (x.t || ''); }).join(''); }
+
+var NUM = { a: '1' };
+function markClass(kind) { return { fix: 'mk-fix', maybefix: 'mk-maybe', more: 'mk-more', maybe: 'mk-maybe', 'var': 'mk-var' }[kind]; }
+function markSup(sc, id, e) { if (e.kind === 'fix') return '1'; if (e.kind === 'maybe' || e.kind === 'maybefix') return '?'; if (e.kind === 'var') return '✓'; return '+'; }
+
+/* visible = which error marks to draw in the learner's line */
+function visible(sc, id) {
+  var e = sc.errs[id];
+  if (e.kind === 'fix' || e.kind === 'maybefix') return !state.withdrawn;
+  if (e.kind === 'var') return true;
+  return state.more;
+}
+function renderYou(sc, segs, opts) {
+  opts = opts || {};
+  return segs.map(function (x) {
+    if (typeof x === 'string') return esc(x);
+    if (x.gap) {
+      if (!visible(sc, x.gap)) return '';
+      return '<button type="button" class="mk mk-gap gapmark" data-err="' + x.gap + '" aria-label="' + esc(T(sc, 'fixFirst')) + '">⌃<sup>1</sup></button>';
+    }
+    var e = sc.errs[x.e];
+    if (opts.only && opts.only !== x.e) return esc(x.t);
+    if (!visible(sc, x.e)) return esc(x.t);
+    var lbl = { fix: T(sc, 'legendFix'), maybefix: T(sc, 'legendMaybe'), more: T(sc, 'legendMore'), maybe: T(sc, 'legendMaybe'), 'var': T(sc, 'legendVar') }[e.kind];
+    return '<button type="button" class="mk ' + markClass(e.kind) + '" data-err="' + x.e + '" aria-label="' + esc(x.t + ': ' + lbl) + '">' + esc(x.t) + '<sup aria-hidden="true">' + markSup(sc, x.e, e) + '</sup></button>';
+  }).join('');
+}
+function renderRef(segs, onlyIdx) {
+  var i = -1;
+  return segs.map(function (x) {
+    if (typeof x === 'string') return esc(x);
+    i++;
+    if (onlyIdx != null && onlyIdx.indexOf(i) < 0) return esc(x.t);
+    return '<span class="mk mk-good">' + esc(x.t) + '</span>';
+  }).join('');
+}
+
+function dotsHtml(d, add) {
+  var out = '';
+  var all = (d + (add || '')).split('');
+  var start = Math.max(0, all.length - 10);
+  all.forEach(function (c, i) {
+    if (i < start) return;
+    var cls = c === 'h' ? 'hit' : c === 'm' ? 'miss' : 'unsure';
+    var isNew = add && i >= d.length;
+    var lab = c === 'h' ? 'matched' : c === 'm' ? 'flagged' : 'unsure';
+    out += '<span class="dot ' + cls + (isNew ? ' new' : '') + '" role="img" aria-label="' + lab + (isNew ? ', this passage' : '') + '"></span>';
+  });
+  return '<span class="dots">' + out + '</span>';
+}
+
+function fixCard(sc) {
+  var id = Object.keys(sc.errs).filter(function (k) { return sc.errs[k].kind === 'fix' || sc.errs[k].kind === 'maybefix'; })[0];
+  if (!id) return '';
+  var e = sc.errs[id], s = sc.sents[e.s], isMaybe = e.kind === 'maybefix';
+  if (state.withdrawn) {
+    return '<section class="card"><div class="withdrawn">' + esc(T(sc, 'withdrawn')) + ' <button type="button" class="link" data-act="undo">' + esc(T(sc, 'undo')) + '</button></div></section>';
+  }
+  var refIdx = null;
+  if (e.hideOthers) { refIdx = [1]; }
+  var h = '<section class="card fix' + (isMaybe ? ' is-maybe' : '') + '" aria-labelledby="fixh">';
+  h += '<div class="fix-top"><span id="fixh" class="pill ' + (isMaybe ? 'pill-maybe' : 'pill-fix') + '">' + (isMaybe ? '?' : '1') + ' · ' + esc(T(sc, isMaybe ? 'secondLook' : 'fixFirst')) + '</span>';
+  if (e.meaning) h += '<span class="pill pill-plain">' + esc(T(sc, 'changesMeaning')) + '</span>';
+  h += '</div>';
+  h += '<dl class="pair">';
+  h += '<dt>' + esc(T(sc, 'you')) + '</dt><dd class="l2" lang="' + sc.l2 + '">' + renderYou(sc, s.you, { only: id }) + '</dd>';
+  h += '<dt>' + esc(T(sc, 'orig')) + '</dt><dd class="l2" lang="' + sc.l2 + '">' + renderRef(s.ref, refIdx) + '</dd>';
+  h += '<dt>' + esc(T(sc, 'meant')) + '</dt><dd class="l1">' + esc(s.l1) + '</dd>';
+  h += '</dl>';
+  h += '<p class="why">' + e.why + '</p>';
+  if (e.extra) {
+    h += '<div class="more-why"><button type="button" class="link" data-act="extra" aria-expanded="' + state.extra + '">' + esc(T(sc, 'explain')) + '</button>';
+    if (state.extra) h += '<div class="extra">' + e.extra + '<small>Mockup note: this longer explanation is the one optional model call, made only when the learner asks.</small></div>';
+    h += '</div>';
+  }
+  h += '<div class="next"><div class="next-h"><span>→</span> ' + esc(T(sc, 'nextStep')) + '</div>';
+  if (isMaybe) {
+    var m = state.maybe[id];
+    h += '<div class="row"><button type="button" class="chip" data-act="maybe" data-id="' + id + '" data-v="1" aria-pressed="' + (m === 1) + '">' + esc(T(sc, 'mineOk')) + '</button>';
+    h += '<button type="button" class="chip" data-act="maybe" data-id="' + id + '" data-v="2" aria-pressed="' + (m === 2) + '">' + esc(T(sc, 'changeIt')) + '</button></div>';
+    if (m) h += '<p class="msg">' + esc(T(sc, m === 1 ? 'maybeSaved1' : 'maybeSaved2')) + '</p>';
+  } else {
+    h += '<label for="retype" class="msg">' + esc(T(sc, 'retypeAsk')) + '</label>';
+    h += '<textarea id="retype" class="retype" lang="' + sc.l2 + '" spellcheck="false">' + esc(state.retypeText != null ? state.retypeText : plain(s.you)) + '</textarea>';
+    h += '<div class="row"><button type="button" class="btn btn-p" data-act="check">' + esc(T(sc, 'check')) + '</button>';
+    if (state.retype === 'ok') h += '<p class="msg good" role="status">✓ ' + esc(T(sc, 'retypeOk')) + '</p>';
+    if (state.retype === 'no') h += '<p class="msg again" role="status">' + esc(T(sc, 'retypeNo')) + '</p>';
+    h += '</div>';
+  }
+  h += '<div class="dispute"><button type="button" class="link" style="color:inherit;font-weight:500" data-act="dispute">' + esc(T(sc, 'dispute')) + '</button></div>';
+  h += '</div></section>';
+  return h;
+}
+
+function noteHtml(sc, id) {
+  var e = sc.errs[id];
+  if (e.kind === 'fix' || e.kind === 'maybefix') return '';
+  var h = '<div class="note">';
+  if (e.focus) h += '<span><span class="pill pill-focus">◎ ' + esc(T(sc, 'focusTag')) + ' · ' + esc(e.focus) + '</span></span>';
+  h += '<div class="forms" lang="' + sc.l2 + '">' + (e.kind === 'more' ? '<s>' + esc(e.from) + '</s> → <b>' + esc(e.to) + '</b>' : esc(e.from) + ' / <b>' + esc(e.to) + '</b>') + '</div>';
+  h += '<div>' + e.why + '</div>';
+  if (e.kind === 'maybe') {
+    var m = state.maybe[id];
+    h += '<div class="choice"><button type="button" class="chip" data-act="maybe" data-id="' + id + '" data-v="1" aria-pressed="' + (m === 1) + '">' + esc(T(sc, 'mineOk')) + '</button><button type="button" class="chip" data-act="maybe" data-id="' + id + '" data-v="2" aria-pressed="' + (m === 2) + '">' + esc(T(sc, 'changeIt')) + '</button></div>';
+    if (m) h += '<div class="msg">' + esc(T(sc, m === 1 ? 'maybeSaved1' : 'maybeSaved2')) + '</div>';
+  }
+  return h + '</div>';
+}
+
+function passageCard(sc) {
+  var ids = Object.keys(sc.errs);
+  var extra = ids.filter(function (k) { return sc.errs[k].kind === 'more' || sc.errs[k].kind === 'maybe'; });
+  var h = '<section class="card"><div class="label">' + esc(T(sc, 'whole')) + '</div><ol class="sents">';
+  sc.sents.forEach(function (s, i) {
+    h += '<li class="sent"><span class="n">' + (i + 1) + '</span><div class="body"><div class="l2" lang="' + sc.l2 + '">' + renderYou(sc, s.you) + '</div>';
+    ids.forEach(function (k) { if (sc.errs[k].s === i && state.open[k] && visible(sc, k)) h += noteHtml(sc, k); });
+    if (state.origOpen[i]) h += '<div class="ref"><div class="l2" lang="' + sc.l2 + '">' + (s.ref ? renderRef(s.ref) : esc(plain(s.you))) + '</div><div class="l1">' + esc(s.l1) + '</div></div>';
+    h += '<div class="sent-tools"><button type="button" class="link" data-act="orig" data-i="' + i + '" aria-expanded="' + !!state.origOpen[i] + '">' + esc(T(sc, state.origOpen[i] ? 'hideOrig' : 'showOrig')) + '</button>';
+    h += '<button type="button" class="link" data-act="miss" data-i="' + i + '">' + esc(T(sc, 'missed')) + '</button></div>';
+    if (state.miss[i] === 'open') h += '<div class="missform"><label for="miss' + i + '">' + esc(T(sc, 'missAsk')) + '</label><input id="miss' + i + '" type="text" lang="' + sc.l2 + '"><div><button type="button" class="btn btn-s" data-act="missSave" data-i="' + i + '">' + esc(T(sc, 'missSave')) + '</button></div></div>';
+    if (state.miss[i] === 'saved') h += '<div class="missform" role="status">✓ ' + esc(T(sc, 'missSaved')) + '</div>';
+    h += '</div></li>';
+  });
+  h += '</ol>';
+  if (extra.length) {
+    var foc = extra.map(function (k) { return sc.errs[k].focus; }).filter(Boolean)[0];
+    h += '<button type="button" class="moretoggle" data-act="more" aria-expanded="' + state.more + '"><span><b>' + esc(T(sc, extra.length === 1 ? 'moreOne' : 'moreMany', { n: extra.length })) + '</b><small>' + esc(T(sc, 'moreSub')) + (foc ? ' ' + esc(T(sc, 'moreFocus', { a: foc })) : '') + '</small></span><span class="chev" aria-hidden="true">▾</span></button>';
+  }
+  var kinds = {};
+  ids.forEach(function (k) { if (visible(sc, k)) kinds[sc.errs[k].kind] = 1; });
+  var lg = '';
+  if (kinds.fix) lg += '<span><span class="mk mk-fix">Aa<sup>1</sup></span> ' + esc(T(sc, 'legendFix')) + '</span>';
+  if (kinds.more) lg += '<span><span class="mk mk-more">Aa<sup>+</sup></span> ' + esc(T(sc, 'legendMore')) + '</span>';
+  if (kinds.maybe || kinds.maybefix) lg += '<span><span class="mk mk-maybe">Aa<sup>?</sup></span> ' + esc(T(sc, 'legendMaybe')) + '</span>';
+  if (kinds['var']) lg += '<span><span class="mk mk-var">Aa<sup>✓</sup></span> ' + esc(T(sc, 'legendVar')) + '</span>';
+  if (lg) h += '<div class="legend">' + lg + '</div>';
+  if (sc.clean) {
+    h += '<p class="honest"><span class="pill pill-focus">◎ ' + esc(T(sc, 'focusTag')) + ' · ' + esc(sc.clean.focus) + '</span> came up ' + sc.clean.count + ' times in this passage and matched the original every time.</p>';
+    h += '<p class="honest">Our checker catches the mistakes that matter, but it can miss small ones. Open the original for any sentence to compare for yourself.</p>';
+  }
+  return h + '</section>';
+}
+
+function railHtml(sc) {
+  var list = RAILS[sc.rail] || [];
+  var h = '<aside class="rail"><div class="card"><div class="label">' + esc(T(sc, 'railH')) + '</div><p style="margin-top:6px">' + esc(T(sc, 'railP')) + '</p>';
+  list.forEach(function (f) {
+    h += '<div class="fa"><div class="fa-name">' + esc(f.name) + (f.sub ? ' <span>' + esc(f.sub) + '</span>' : '') + '</div>';
+    h += '<div class="fa-meta"><span class="st st-' + f.st + '">' + esc(T(sc, f.st)) + '</span>' + dotsHtml(f.dots, f.add) + '</div>';
+    h += '<div class="fa-meta">' + esc(T(sc, 'lastTen')) + (f.add ? ' · <span class="dot ' + (f.add[0] === 'h' ? 'hit' : 'miss') + ' new" style="margin:0 4px 0 6px"></span> ' + esc(T(sc, 'thisPassage')) : '') + '</div></div>';
+  });
+  h += '<div style="border-top:1px solid var(--line);padding-top:10px"><button type="button" class="link" data-act="goProgress">' + esc(T(sc, 'seeProgress')) + ' →</button></div></div></aside>';
+  return h;
+}
+
+function resultView(sc) {
+  var o = sc.outcome;
+  var h = '<div class="col">';
+  h += '<div class="head"><a class="back" href="#" aria-label="Back">←</a><h1>' + esc(T(sc, 'title')) + '</h1><span class="step">' + esc(T(sc, 'passage', { n: sc.step })) + '</span></div>';
+  h += '<section class="card"><div class="outcome"><span class="glyph g-' + o.g + '" aria-hidden="true">' + o.glyph + '</span><div><h2>' + esc(o.h) + '</h2><p>' + esc(o.p) + '</p></div></div></section>';
+  h += fixCard(sc);
+  h += passageCard(sc);
+  h += '<div class="row"><button type="button" class="btn btn-p btn-wide">' + esc(T(sc, 'nextPassage')) + '</button></div>';
+  h += '</div>' + railHtml(sc);
+  return h;
+}
+
+function progressView() {
+  var key = '<div class="keylist"><span><span class="dot hit"></span> came out right</span><span><span class="dot miss"></span> flagged</span><span><span class="dot unsure"></span> checker unsure (not counted)</span></div>';
+  var h = '<div class="col">';
+  h += '<div class="head"><a class="back" href="#" aria-label="Back">←</a><h1>My focus areas</h1><span class="step">Japanese</span></div>';
+  h += '<section class="card"><p class="prog-h">Three things you are working on.</p><p class="prog-sub">Each mark below is one time the pattern came up in a passage you translated. Older marks are on the left.</p>';
+  h += '<div class="week" style="margin-top:16px"><div><b>12</b>passages this week</div><div><b>9</b>fix-firsts corrected</div><div><b>1</b>area resolved</div></div></section>';
+
+  h += '<section class="card"><div class="label">Working on now</div><div style="margin-top:14px">';
+  h += '<div class="area"><div class="area-top"><h3>を・に・が: which particle the verb takes</h3><span class="st st-work">Working on it</span></div>';
+  h += '<div class="eg l2" lang="ja" style="font-size:1.05rem"><s>手が動かす</s> → <b>手を動かす</b></div>';
+  h += '<div class="strip">' + dotsHtml('mhmhhmhhmh') + '<span class="cap">6 of the last 10 chances came out right</span></div>';
+  h += '<p class="rule">Before you write a verb, ask what it acts on. That word usually takes を.</p>';
+  h += '<div class="row"><button type="button" class="btn btn-p">Practise 3 sentences</button><button type="button" class="link" data-act="pause">Pause this area</button></div></div>';
+
+  h += '<div class="area"><div class="area-top"><h3>です・ます all the way through</h3><span class="st st-work">Working on it</span></div>';
+  h += '<div class="eg l2" lang="ja" style="font-size:1.05rem"><s>部品が必要だ</s> → <b>部品が必要です</b></div>';
+  h += '<div class="strip">' + dotsHtml('hmhhh') + '<span class="cap">New this week. 5 chances so far.</span></div>';
+  h += '<p class="rule">If the passage starts polite, keep every sentence ending polite.</p></div>';
+
+  h += '<div class="area"><div class="area-top"><h3>は or が inside a describing clause</h3><span class="st st-fade">Fading</span></div>';
+  h += '<div class="eg l2" lang="ja" style="font-size:1.05rem"><s>部品はセットになったもの</s> → <b>部品がセットになったもの</b></div>';
+  h += '<div class="strip">' + dotsHtml('mhhhuhhhhh') + '<span class="cap">Right 8 times running. 2 more passages on different days and this is resolved.</span></div></div>';
+  h += key + '</div></section>';
+
+  h += '<section class="card"><div class="label">Resolved</div><ul class="plainlist">';
+  h += '<li><span class="st st-done">✓ Resolved</span> <span lang="ja">見つけれる → 見つけられる</span> (dropping ら) <small>28 Oct · came out right 9 times across 4 days</small></li>';
+  h += '<li><span class="st st-done">✓ Resolved</span> Counters (<span lang="ja">本・枚・個</span>) <small>11 Oct</small></li></ul>';
+  h += '<p class="honest">If a resolved pattern shows up again twice, it quietly returns to your focus areas.</p></section>';
+
+  h += '<section class="card"><details class="quiet"><summary>Seen once or twice (not tracked yet)</summary><ul class="plainlist">';
+  h += '<li>Word choice <small>2 passages, different words each time</small></li><li>A word left out <small>1 passage</small></li><li>Mistakes you spotted yourself <small>3 notes</small></li></ul>';
+  h += '<p class="honest">One-off slips are normal. Something becomes a focus area only when it comes up in two different passages.</p></details></section>';
+  h += '<p class="honest" style="max-width:62ch">The checker reliably catches the mistakes that matter but misses some small ones, so read these strips as a trend, not an exact count.</p>';
+  h += '</div>';
+  return h;
+}
+
+function render() {
+  var sc = scene();
+  document.documentElement.lang = sc.ui === 'zh' ? 'zh-Hans' : 'en';
+  document.getElementById('demoNote').textContent = sc.note;
+  page.className = 'page' + (sc.id === 'progress' ? ' solo' : '');
+  page.innerHTML = sc.id === 'progress' ? progressView() : resultView(sc);
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) { b.setAttribute('aria-selected', b.dataset.id === state.scene); });
+}
+function reset(id) { state = { scene: id, more: false, open: {}, origOpen: {}, withdrawn: false, retype: null, extra: false, maybe: {}, miss: {} }; }
+
+var tabs = document.getElementById('tabs');
+SCENES.forEach(function (s) {
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab'); b.dataset.id = s.id; b.textContent = s.tab;
+  b.addEventListener('click', function () { reset(s.id); render(); window.scrollTo(0, 0); });
+  tabs.appendChild(b);
+});
+
+page.addEventListener('click', function (ev) {
+  var t = ev.target.closest('[data-act],[data-err]'); if (!t) return;
+  var sc = scene(), act = t.dataset.act, keep = document.getElementById('retype');
+  if (keep) state.retypeText = keep.value;
+  if (t.dataset.err && !act) {
+    var e = sc.errs[t.dataset.err];
+    if (e.kind === 'fix' || e.kind === 'maybefix') { var f = document.getElementById('fixh'); if (f) f.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+    state.open[t.dataset.err] = !state.open[t.dataset.err];
+  } else if (act === 'more') {
+    state.more = !state.more;
+    Object.keys(sc.errs).forEach(function (k) { if (sc.errs[k].kind === 'more' || sc.errs[k].kind === 'maybe') state.open[k] = state.more; });
+  } else if (act === 'orig') { state.origOpen[t.dataset.i] = !state.origOpen[t.dataset.i]; }
+  else if (act === 'extra') { state.extra = !state.extra; }
+  else if (act === 'dispute') { state.withdrawn = true; }
+  else if (act === 'undo') { state.withdrawn = false; }
+  else if (act === 'maybe') { state.maybe[t.dataset.id] = Number(t.dataset.v); }
+  else if (act === 'miss') { state.miss[t.dataset.i] = state.miss[t.dataset.i] ? null : 'open'; }
+  else if (act === 'missSave') { state.miss[t.dataset.i] = 'saved'; }
+  else if (act === 'goProgress') { reset('progress'); window.scrollTo(0, 0); }
+  else if (act === 'check') {
+    var id = Object.keys(sc.errs).filter(function (k) { return sc.errs[k].kind === 'fix'; })[0], e2 = sc.errs[id];
+    var v = (state.retypeText || '');
+    state.retype = (v.indexOf(e2.must) >= 0 && (!e2.mustNot || v.indexOf(e2.mustNot) < 0)) ? 'ok' : 'no';
+  } else { return; }
+  render();
+});
+
+var themes = [null, 'light', 'dark'], ti = 0, tb = document.getElementById('themeBtn');
+tb.addEventListener('click', function () {
+  ti = (ti + 1) % 3;
+  if (themes[ti]) document.documentElement.setAttribute('data-theme', themes[ti]); else document.documentElement.removeAttribute('data-theme');
+  tb.textContent = 'Theme: ' + (themes[ti] || 'auto');
+});
+var q = /[?&]scene=([a-z]+)/.exec(location.search); if (q) reset(q[1]);
+var qt = /[?&]theme=(dark|light)/.exec(location.search); if (qt) { document.documentElement.setAttribute('data-theme', qt[1]); tb.textContent = 'Theme: ' + qt[1]; }
+if (/[?&]more=1/.test(location.search)) { state.more = true; var s0 = scene(); Object.keys(s0.errs || {}).forEach(function (k) { if (s0.errs[k].kind === 'more' || s0.errs[k].kind === 'maybe') state.open[k] = true; }); }
+render();
+})();
+</script>
+</body>
+</html>

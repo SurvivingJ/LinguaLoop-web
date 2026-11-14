@@ -1,10 +1,13 @@
 ---
 title: "ADR-031: Dual Translation Taxonomy v6 — Merge with jev Grammar Taxonomy"
-status: proposed
+status: accepted
 date: 2026-09-27
+accepted: 2026-11-14
 ---
 
 # ADR-031: Dual Translation Taxonomy v6 — Merge with jev Grammar Taxonomy
+
+> **Accepted 2026-11-14, by owner decision, with the TASK-850 acceptance gate still NO-GO** (8 Oct) and never re-run for the v2 flow. Owner's words: "approve the 3 next steps" and, when told the gate was NO-GO: "get rid of history and activate v6 in database now". The cutover was executed the same day with deviations from the runbook below: DT learner history (one user's test data) was **deleted, not rewritten**, so no snapshot tables exist and the TASK-852 rewrite/restore do not apply. v6 is the active taxonomy in production; v5 is kept, inactive. Still owed: restart of all web workers and deploy of the code. The single-call grader (ADR-044) was validated on the v6 gold set instead of the gate. Record: [[tasklist/dt-taxonomy-v6.tasks]] TASK-853. Text below is the original proposal and still says "proposed" in places.
 
 ## Context
 The live Dual Translation (DT) error taxonomy is **v5** ([[business-rules/translation-error-taxonomy]],

@@ -1,0 +1,297 @@
+{
+ "stats": {
+  "regen_attempted": 14,
+  "regen_passed": 7,
+  "items": 60,
+  "sentences": 228,
+  "sentences_passed": 193,
+  "revert_unintended_problem": 20,
+  "revert_generator_declined_or_structure": 1,
+  "unchanged": 7,
+  "items_dropped_from_heavy": 7,
+  "revert_planted_error_not_ok": 7
+ },
+ "per_lang": {
+  "en": {
+   "orig": 20,
+   "heavy": 19,
+   "moderate": 20,
+   "heavy_dropped": 1
+  },
+  "zh": {
+   "orig": 20,
+   "heavy": 18,
+   "moderate": 20,
+   "heavy_dropped": 2
+  },
+  "ja": {
+   "orig": 20,
+   "heavy": 16,
+   "moderate": 20,
+   "heavy_dropped": 4
+  }
+ },
+ "composition": {
+  "en/orig": {
+   "items": 20,
+   "clean": 7,
+   "errors": 16,
+   "errors_in_para_sentence": 0,
+   "sentences": 80,
+   "sentences_para": 0
+  },
+  "en/heavy": {
+   "items": 19,
+   "clean": 7,
+   "errors": 15,
+   "errors_in_para_sentence": 10,
+   "sentences": 76,
+   "sentences_para": 67
+  },
+  "en/moderate": {
+   "items": 20,
+   "clean": 7,
+   "errors": 16,
+   "errors_in_para_sentence": 5,
+   "sentences": 80,
+   "sentences_para": 40
+  },
+  "zh/orig": {
+   "items": 20,
+   "clean": 7,
+   "errors": 16,
+   "errors_in_para_sentence": 0,
+   "sentences": 74,
+   "sentences_para": 0
+  },
+  "zh/heavy": {
+   "items": 18,
+   "clean": 7,
+   "errors": 13,
+   "errors_in_para_sentence": 10,
+   "sentences": 70,
+   "sentences_para": 63
+  },
+  "zh/moderate": {
+   "items": 20,
+   "clean": 7,
+   "errors": 16,
+   "errors_in_para_sentence": 7,
+   "sentences": 74,
+   "sentences_para": 37
+  },
+  "ja/orig": {
+   "items": 20,
+   "clean": 7,
+   "errors": 17,
+   "errors_in_para_sentence": 0,
+   "sentences": 74,
+   "sentences_para": 0
+  },
+  "ja/heavy": {
+   "items": 16,
+   "clean": 5,
+   "errors": 12,
+   "errors_in_para_sentence": 11,
+   "sentences": 58,
+   "sentences_para": 53
+  },
+  "ja/moderate": {
+   "items": 20,
+   "clean": 7,
+   "errors": 17,
+   "errors_in_para_sentence": 6,
+   "sentences": 74,
+   "sentences_para": 34
+  }
+ },
+ "reverted_sentences": [
+  {
+   "id": "en_clean_07",
+   "sentence": 3,
+   "why": "verifier: “How wires are connected” describes how they are joined, rather than teaching the learner how to connect them.",
+   "text": "You find out how wires are connected.",
+   "ref": "You learn how to connect wires."
+  },
+  {
+   "id": "en_clean_09",
+   "sentence": 2,
+   "why": "verifier: \"A great way\" strengthens the reference's \"a good start\" and describes a method rather than a starting point.",
+   "text": "It's a great way to begin learning about robotics.",
+   "ref": "This is a good start for learning robotics."
+  },
+  {
+   "id": "en_seed_15",
+   "sentence": 3,
+   "why": "generator declined to keep the error / structure check"
+  },
+  {
+   "id": "en_seed_08",
+   "sentence": 1,
+   "why": "verifier: “Crucial” strengthens “important.”",
+   "text": "Coding plays a crucial role.",
+   "ref": "The coding is important."
+  },
+  {
+   "id": "en_multi_04",
+   "sentence": 4,
+   "why": "verifier: “One example idea” is an unnatural collocation; “one idea” or “one example” would be natural.",
+   "text": "This robotic arm is just one example idea.",
+   "ref": "This robot arm is just one idea."
+  },
+  {
+   "id": "zh_clean_07",
+   "sentence": 1,
+   "why": "verifier: “简单却美好”表示转折，而原文的“简单而美好”是并列关系。",
+   "text": "它让我明白，生活当中存在着许多简单却美好的事物，这些都值得我们去发现、去珍惜。",
+   "ref": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。"
+  },
+  {
+   "id": "zh_clean_01",
+   "sentence": 1,
+   "why": "verifier: “最爱穿的”指最喜欢穿，而非最喜欢的T恤，意思略有变化。",
+   "text": "在我所有的衣服当中，我最爱穿的那件T恤格外与众不同。",
+   "ref": "我最喜欢的T恤是一件非常特别的衣服。"
+  },
+  {
+   "id": "zh_clean_09",
+   "sentence": 1,
+   "why": "verifier: “最爱穿的”指最喜欢穿，而非最喜欢的T恤，意思略有变化。",
+   "text": "在我所有的衣服当中，我最爱穿的那件T恤格外与众不同。",
+   "ref": "我最喜欢的T恤是一件非常特别的衣服。"
+  },
+  {
+   "id": "zh_seed_02",
+   "sentence": 3,
+   "why": "verifier: planted error not OK",
+   "text": "这件T恤是蓝色的，颜色非常正，洗很多次也不会褪色。"
+  },
+  {
+   "id": "zh_seed_14",
+   "sentence": 1,
+   "why": "verifier: planted error not OK",
+   "text": "我希望这件T恤可以一直陪着我，哪怕它变得特别特别旧了，到那个时候我也要把它好好收藏下来，当作一份美好的纪念。"
+  },
+  {
+   "id": "zh_seed_06",
+   "sentence": 1,
+   "why": "verifier: planted error not OK",
+   "text": "它让我感到很轻松，很自在。"
+  },
+  {
+   "id": "zh_seed_04",
+   "sentence": 1,
+   "why": "verifier: “心情……开心”搭配不自然，应说“我……一样开心”或“心情……一样好”。",
+   "text": "那一天，我跑来跑去，心情就跟那个小猫图案一样开心。",
+   "ref": "那天，我跑来跑去，和小猫图案一样开心。"
+  },
+  {
+   "id": "zh_multi_05",
+   "sentence": 1,
+   "why": "verifier: planted error not OK",
+   "text": "我希望这件T恤可以一直陪着我，一直到它变得非常非常旧为止，不过就算到了那个时候，我也会它好好收藏下来，当作一份美好的纪念。"
+  },
+  {
+   "id": "zh_multi_01",
+   "sentence": 3,
+   "why": "verifier: planted error not OK",
+   "text": "这件T恤呈蓝色，色泽很正，就算洗很多次，颜色也不会掉。"
+  },
+  {
+   "id": "ja_clean_03",
+   "sentence": 2,
+   "why": "verifier: 「アーム」を「腕」とすると、人や動物の腕のように受け取られ、機械のアームを指すことが不明瞭です。",
+   "text": "製作の手順 設計図を描く: はじめに、腕をどんな形状にするのか、簡単なスケッチを作成しましょう。",
+   "ref": "製作のステップ 設計図を描く: まず、どのような形のアームにするか、簡単な設計図を描きましょう。"
+  },
+  {
+   "id": "ja_clean_06",
+   "sentence": 3,
+   "why": "verifier: 「作るのだろうか」は自問・推量の形で、原文の相手に理由を尋ねる「作るの？」とは異なります。",
+   "text": "どうしてこれを作るのだろうか？",
+   "ref": "なぜこれを作るの？"
+  },
+  {
+   "id": "ja_clean_06",
+   "sentence": 4,
+   "why": "verifier: 「絶好の機会」は原文の「良い機会」よりも意味が強くなっています。",
+   "text": "このロボットアームの制作は、単なるものづくりにとどまらず、いろいろなことを学ぶための絶好の機会となります。",
+   "ref": "このロボットアームを作ることは、単に物を作るだけでなく、様々なことを学ぶ良い機会になります。"
+  },
+  {
+   "id": "ja_clean_01",
+   "sentence": 1,
+   "why": "verifier: 「シンプルな構造」と、シンプルなのが構造であるという限定が加わっている。",
+   "text": "私たちが製作するのは、小さなものをつかめる、非常にシンプルな構造のロボットアームです。",
+   "ref": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。"
+  },
+  {
+   "id": "ja_clean_01",
+   "sentence": 2,
+   "why": "verifier: 「達成感」が「満足感」に変わっており、達成したという意味が弱まっている。",
+   "text": "「電子工作」の面白さを味わうにはまさにうってつけで、完成させたときの満足感は格別なものがあります。",
+   "ref": "これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。"
+  },
+  {
+   "id": "ja_clean_01",
+   "sentence": 3,
+   "why": "verifier: カジュアルな「どうやって作るの？」が丁寧な「どのように作るのでしょうか」に変わっている。",
+   "text": "では、どのように作るのでしょうか。",
+   "ref": "どうやって作るの？"
+  },
+  {
+   "id": "ja_clean_10",
+   "sentence": 2,
+   "why": "verifier: 「設計図を参考にしながら」は、設計図に従うという意味を弱めています。",
+   "text": "組み立てる: 設計図を参考にしながら、各部品を順番に組み立てていきます。",
+   "ref": "組み立てる: 設計図に従って、部品を組み立てていきます。"
+  },
+  {
+   "id": "ja_seed_11",
+   "sentence": 3,
+   "why": "verifier: 参照文の普通体に対して丁寧体になっている。",
+   "text": "どうしてこれを作るのでしょうか。",
+   "ref": "なぜこれを作るの？"
+  },
+  {
+   "id": "ja_seed_13",
+   "sentence": 2,
+   "why": "verifier: 「対象物を認識する」は、対象物を見つけることとは意味が異なります。",
+   "text": "たとえば、カメラを搭載して対象物を認識できるようにしたり、物をつかむ力を調節できるようにしたりすることも可能です。",
+   "ref": "例えば、カメラをつけて、対象物を見つけられるようにしたり、掴む力を調整できるようにしたりすることも可能です。"
+  },
+  {
+   "id": "ja_multi_04",
+   "sentence": 1,
+   "why": "verifier: 「基本的な仕組み」が「基礎的な構造」となり、意味がやや異なる。",
+   "text": "「ロボット工学」の基礎的な構造を理解しておくと、将来、もっと簡単なロボットがどのような仕組みで作られているかを把握する助けとなります。",
+   "ref": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。"
+  },
+  {
+   "id": "ja_multi_04",
+   "sentence": 2,
+   "why": "verifier: planted error not OK",
+   "text": "「電子工作」に取り組むことで、電気や部品の仕事について学び、実際に手が動かすことの面白さを体感することができます。"
+  },
+  {
+   "id": "ja_multi_04",
+   "sentence": 3,
+   "why": "verifier: 「学ぶこと」が「習得すること」となり、学習の達成度が強められている。",
+   "text": "そして、「プログラミング」を習得することで、コンピューターへの指示の出し方や論理的な思考力が身につきます。",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。"
+  },
+  {
+   "id": "ja_multi_01",
+   "sentence": 2,
+   "why": "verifier: 「設計図を見ながら」は、参照文の「設計図に従って」という指示に沿う意味が弱い。",
+   "text": "組み立てる:設計図を見ながら、部品を一つずつ組み立てていきます。",
+   "ref": "組み立てる: 設計図に従って、部品を組み立てていきます。"
+  },
+  {
+   "id": "ja_multi_01",
+   "sentence": 4,
+   "why": "verifier: planted error not OK",
+   "text": "この作業こそが「電子工作」の面白さですね。"
+  }
+ ]
+}

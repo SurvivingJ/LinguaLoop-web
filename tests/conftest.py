@@ -19,6 +19,22 @@ def _entailment_backend_llm(monkeypatch):
     monkeypatch.setenv('ENTAILMENT_JUDGE_BACKEND', 'llm')
 
 
+@pytest.fixture(autouse=True)
+def _dt_single_call_off(monkeypatch):
+    """Pin the two ADR-044 flags OFF for the whole suite.
+
+    Their production default is ON (2026-11-14). The older Dual Translation tests
+    exercise the v1/v2 flows and the pre-ADR-044 persistence through
+    ``grade_submission`` / ``_persist_grade`` without naming a flow; with the
+    single-call grader on they would be graded by it instead - and, with an
+    OpenRouter key in the environment, make a real paid call.
+    ``tests/test_dual_translation_single_call_grader.py`` turns each flag on per
+    test and checks the production defaults in a fresh interpreter.
+    """
+    monkeypatch.setattr(Config, 'DT_SINGLE_CALL_GRADER', False)
+    monkeypatch.setattr(Config, 'DT_GRADING_ASSET_COLUMNS', False)
+
+
 # ---------------------------------------------------------------------------
 # Test configuration
 # ---------------------------------------------------------------------------

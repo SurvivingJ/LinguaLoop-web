@@ -13,6 +13,11 @@ const practiceMount = vi.fn((container) => {
 const practiceDestroy = vi.fn();
 
 vi.mock('../../static/js/session/players/practice.js', () => ({ mount: practiceMount }));
+const dtRepairMount = vi.fn((container) => {
+  container.innerHTML = '<p>dt repair player</p>';
+  return { destroy: vi.fn() };
+});
+vi.mock('../../static/js/session/players/dt_repair.js', () => ({ mount: dtRepairMount }));
 
 const { getPlayer, preloadPlayers } = await import('../../static/js/session/player_registry.js');
 
@@ -59,5 +64,17 @@ describe('lazy player registry', () => {
     getPlayer({ kind: 'test', test_type: 'mystery', slug: 's' }).mount(stage, { onSkip });
     stage.querySelector('[data-session-skip]').click();
     expect(onSkip).toHaveBeenCalled();
+  });
+
+  it('dispatches the dt_repair block kind to its player and preloads it', async () => {
+    const stage = document.createElement('div');
+    getPlayer({ kind: 'dt_repair', id: 'dt_repair' }).mount(stage, {});
+    await flush();
+    expect(dtRepairMount).toHaveBeenCalledTimes(1);
+    expect(stage.textContent).toContain('dt repair player');
+    dtRepairMount.mockClear();
+    preloadPlayers([{ kind: 'dt_repair' }]);
+    await flush();
+    expect(dtRepairMount).not.toHaveBeenCalled();
   });
 });

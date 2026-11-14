@@ -1,0 +1,74 @@
+{
+ "body": {
+  "diff": [
+   {
+    "correct": "great",
+    "op": "replace",
+    "user": "sick"
+   }
+  ],
+  "errors": [
+   {
+    "confidence": 0.9,
+    "confidence_label": "high",
+    "corrected_form": "great",
+    "correction_source": "model_quote",
+    "explanation": "Register: “sick” → “great”.",
+    "explanation_source": "model",
+    "learner_form": "sick",
+    "model_note": "“sick” 是俚语，这里应该用 “great”。",
+    "sentence_index": 0,
+    "severity": "major",
+    "span_reference": [
+     7,
+     12
+    ],
+    "span_reproduction": [
+     7,
+     11
+    ],
+    "span_source": "exact",
+    "subtype": "register"
+   },
+   {
+    "confidence": 0.9,
+    "confidence_label": "high",
+    "corrected_form": "with it",
+    "correction_source": "model_quote",
+    "explanation": "Meaning reversed: “without it” → “with it”.",
+    "explanation_source": "template",
+    "learner_form": "without it",
+    "model_note": null,
+    "sentence_index": 2,
+    "severity": "critical",
+    "span_reference": [
+     89,
+     96
+    ],
+    "span_reproduction": [
+     88,
+     98
+    ],
+    "span_source": "exact",
+    "subtype": "meaning_inversion"
+   }
+  ],
+  "grader_trace": {
+   "tier": "tier2",
+   "tokens": {
+    "in": 1500,
+    "out": 300
+   }
+  },
+  "highlights": [],
+  "overall_band": 3,
+  "provisional": false,
+  "scores": {
+   "accuracy": 3,
+   "fidelity": 2,
+   "understandability": 3
+  },
+  "status": "success"
+ },
+ "http": 200
+}

@@ -23,6 +23,13 @@ Cost/paid discipline:
   * Per-call (model, tokens) are recorded by wrapping grader_cascade.call_model_with_usage;
     USD cost is computed from the OpenRouter pricing map (services.model_arena.pricing).
 
+Single-call grader (ADR-044): `--single-call` grades through the PRODUCTION single-call
+flow (`grade_submission(..., single_call=True)` -> services.dual_translation.single_call_grader),
+needs taxonomy v6 (`--taxonomy-file migrations/dt_taxonomy_v6_seed.sql --fixture-set v6`),
+reports the cost OpenRouter itself returned (grader_trace.single_call.cost_usd), never writes
+llm_calls rows, and honours `--max-cost-usd` (stop grading once the reported spend reaches it).
+`--dump-jsonl PATH` appends one line per graded item (errors, scores, grader_trace).
+
 Usage:
     python scripts/run_dt_grading_eval.py --l2 ja --out report.md --live
     python scripts/run_dt_grading_eval.py --l2 en --out report.md            # dry plan, no calls
@@ -286,6 +293,25 @@ def _load_fixture(l2: str, fixture_set: str = "v5") -> list[dict]:
         return json.load(fh)
 
 
+def _load_items_file(path: str, l2: str, level: str | None, fixture_set: str) -> list[dict]:
+    """Items of a JSONL file in the gold-fixture schema (ADR-044 stress runs). An
+    item without `source_passage_id` takes it from the gold item named by its
+    `base_id` (it only selects the age tier of the rubric band descriptors)."""
+    passage_by_id = {it["id"]: it.get("source_passage_id") for it in _load_fixture(l2, fixture_set)}
+    items = []
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            if not line.strip():
+                continue
+            it = json.loads(line)
+            if it.get("lang") != l2 or (level is not None and it.get("level") != level):
+                continue
+            if it.get("source_passage_id") is None:
+                it["source_passage_id"] = passage_by_id.get(it.get("base_id"), -1)
+            items.append(it)
+    return items
+
+
 def _pred_errors(contract: dict) -> list[dict]:
     """Normalize the v1 grading contract's errors[] into the eval record shape.
     `explanation_variant` is None until the grader emits it (TASK-845)."""
@@ -386,6 +412,23 @@ class _CallRecorder:
     @property
     def tokens_out(self) -> int:
         return sum(c["out"] for c in self.calls)
+
+
+def _tally_single_call(stats: dict, grader_trace: dict) -> None:
+    """Accumulate the single-call flow's own usage from one grader_trace (ADR-044):
+    every attempt's tokens and OpenRouter-reported cost, and which path graded."""
+    sc = (grader_trace or {}).get("single_call")
+    if not isinstance(sc, dict):
+        return
+    stats["paths"][sc.get("path")] = stats["paths"].get(sc.get("path"), 0) + 1
+    for attempt in sc.get("attempts") or []:
+        stats["calls"] += 1
+        stats["slugs"].add(attempt.get("slug"))
+        tokens = attempt.get("tokens") or {}
+        stats["tokens_in"] += int(tokens.get("in") or 0)
+        stats["tokens_out"] += int(tokens.get("out") or 0)
+        if isinstance(attempt.get("cost_usd"), (int, float)):
+            stats["cost"] += attempt["cost_usd"]
 
 
 def _load_candidate_rubric(path: str) -> tuple[int, dict]:
@@ -530,8 +573,13 @@ def _render_report(l2: str, metrics: dict, meta: dict) -> str:
     fw_label = ("v2 Detector/Verifier cascade (`grade_submission(framework_v2=True)`)"
                 if meta.get("framework_v2")
                 else "v1 tier1/tier2 cascade (`grade_submission(framework_v2=False)`)")
+    fw_short = "v2" if meta.get("framework_v2") else "v1"
+    if meta.get("single_call"):
+        fw_label = ("single-call generative grader (`grade_submission(single_call=True)`, ADR-044); "
+                    f"fallback flow {fw_short}; paths: {json.dumps(meta.get('single_call_paths') or {})}")
+        fw_short = "single-call"
     lines: list[str] = []
-    lines.append(f"# DT Grading Eval — {'v2' if meta.get('framework_v2') else 'v1'} ({l2.upper()})")
+    lines.append(f"# DT Grading Eval — {fw_short} ({l2.upper()})")
     lines.append("")
     lines.append(f"- **Run date:** {meta['date']}")
     lines.append(f"- **L2 / L1:** {l2} / {meta['l1']}")
@@ -553,7 +601,10 @@ def _render_report(l2: str, metrics: dict, meta: dict) -> str:
         lines.append("- **Taxonomy:** live (active DB row, or the DT_TAXONOMY_VERSION pin)")
     lines.append(f"- **Tokens:** {meta['tokens_in']:,} in / {meta['tokens_out']:,} out — "
                  f"model calls: {meta['n_calls']}")
-    lines.append(f"- **Est. cost:** ${meta['cost']:.4f} USD (model-arena pricing)")
+    if meta.get("single_call"):
+        lines.append(f"- **Cost:** ${meta['cost']:.6f} USD (as reported by OpenRouter on usage.cost)")
+    else:
+        lines.append(f"- **Est. cost:** ${meta['cost']:.4f} USD (model-arena pricing)")
     lines.append("")
 
     span = metrics["span"]
@@ -622,6 +673,14 @@ def main() -> int:
                     help="Grade through the TASK-628 Detector/Verifier v2 flow instead of the "
                          "v1 tier1/tier2 cascade. Passed explicitly to grade_submission — the "
                          "ambient DT_FRAMEWORK_V2 env var is ignored either way.")
+    ap.add_argument("--single-call", action="store_true",
+                    help="Grade with the ADR-044 single-call generative grader (production code "
+                         "path, passed explicitly as single_call=True). Needs taxonomy v6.")
+    ap.add_argument("--dump-jsonl", default=None,
+                    help="Append one JSON line per graded item (errors, scores, grader_trace).")
+    ap.add_argument("--max-cost-usd", type=float, default=None,
+                    help="--single-call only: stop grading once the OpenRouter-reported spend "
+                         "of this run reaches this many USD.")
     ap.add_argument("--rubric-file", default=None,
                     help="Evaluate a CANDIDATE rubric config without activating it live: path to "
                          "a dt_rubric_v*_seed.sql; its $rubric$...$rubric$ config literal is "
@@ -636,11 +695,22 @@ def main() -> int:
     ap.add_argument("--fixture-set", default="v5", choices=sorted(FIXTURE_DIRS),
                     help="Gold set: v5 = tests/fixtures/dt_gold (default), v6 = dt_gold_v6, "
                          "v6_silver = dt_silver_v6 (TASK-847).")
+    ap.add_argument("--items-file", default=None,
+                    help="Grade the items of this JSONL file (gold-fixture schema plus `lang`, "
+                         "optional `level` / `base_id`) instead of the --fixture-set gold set, "
+                         "e.g. data/eval/dt_decision_2026-11-14/track_e/stress_set.jsonl. Only "
+                         "items whose `lang` is --l2 are graded. --fixture-set still says which "
+                         "taxonomy the labels are on.")
+    ap.add_argument("--level", default=None,
+                    help="--items-file only: keep items whose `level` equals this (e.g. heavy).")
     args = ap.parse_args()
 
     l2 = args.l2
     l1 = args.l1 or _DEFAULT_L1[l2]
-    items = _load_fixture(l2, args.fixture_set)
+    if args.items_file:
+        items = _load_items_file(args.items_file, l2, args.level, args.fixture_set)
+    else:
+        items = _load_fixture(l2, args.fixture_set)
     if args.limit:
         items = items[: args.limit]
 
@@ -649,7 +719,8 @@ def main() -> int:
         kinds[it["kind"]] = kinds.get(it["kind"], 0) + 1
     print(f"[plan] L2={l2} L1={l1} fixture-set={args.fixture_set} items={len(items)} "
           f"(clean {kinds['clean']} / single {kinds['single']} / multi {kinds['multi']}) "
-          f"framework={'v2' if args.framework_v2 else 'v1'}")
+          f"framework={'v2' if args.framework_v2 else 'v1'}"
+          f"{' single-call=on' if args.single_call else ''}")
 
     cand_tax = None
     if args.taxonomy_file:
@@ -711,6 +782,12 @@ def main() -> int:
 
     rubric_cfg = gc.get_active_rubric(db)
 
+    if args.single_call:
+        # An eval run is not production traffic: keep it out of llm_calls.
+        from config import Config as _Config
+        _Config.DT_SINGLE_CALL_LOG_LLM_CALLS = False
+    sc_stats = {"cost": 0.0, "tokens_in": 0, "tokens_out": 0, "calls": 0, "slugs": set(), "paths": {}}
+
     # Resume: reuse already-graded records/skips (never re-paid), then grade the rest.
     ckpt = _load_checkpoint(args.resume)
     records: list[dict] = list(ckpt["records"])
@@ -725,6 +802,11 @@ def main() -> int:
             if it["id"] in done_ids:
                 print(f"[{idx}/{len(items)}] {it['id']} — reused from checkpoint")
                 continue
+            if (args.single_call and args.max_cost_usd is not None
+                    and sc_stats["cost"] >= args.max_cost_usd):
+                print(f"[budget] reported spend ${sc_stats['cost']:.6f} reached --max-cost-usd "
+                      f"{args.max_cost_usd}; stopping before {it['id']}")
+                break
             age_tier = age_by_id.get(it["source_passage_id"], _DEFAULT_AGE_TIER[l2])
             # Bounded retry on transient errors; skip-and-log (never raise) on give-up,
             # so a single DNS blip or bad item can't orphan the whole L2 run (TASK-625).
@@ -739,6 +821,7 @@ def main() -> int:
                     age_tier=_age,
                     max_tier="tier2",
                     framework_v2=args.framework_v2,
+                    single_call=args.single_call,
                 )),
                 it["id"],
             )
@@ -753,6 +836,14 @@ def main() -> int:
             records.append(record)
             _save_checkpoint(args.resume, record=record)
             gt = contract.get("grader_trace", {})
+            _tally_single_call(sc_stats, gt)
+            if args.dump_jsonl:
+                with open(args.dump_jsonl, "a", encoding="utf-8") as fh:
+                    fh.write(json.dumps({
+                        "id": it["id"], "l2": l2, "kind": it["kind"],
+                        "scores": contract.get("scores"), "overall_band": contract.get("overall_band"),
+                        "errors": contract.get("errors"), "grader_trace": gt,
+                    }, ensure_ascii=False) + "\n")
             print(f"[{idx}/{len(items)}] {it['id']} kind={it['kind']} "
                   f"pred_errors={len(contract['errors'])} tier={gt.get('tier')} "
                   f"fell_open={gt.get('fell_open')}")
@@ -775,15 +866,26 @@ def main() -> int:
         logger.warning("could not fetch pricing map (%s); cost will show 0", exc)
         pricing_map = {}
     cost = rec.total_cost(pricing_map)
+    slugs, tokens_in, tokens_out, n_calls = rec.slugs, rec.tokens_in, rec.tokens_out, len(rec.calls)
+    if args.single_call:
+        # The single call does not go through call_model_with_usage; add what its
+        # traces reported (any v2/v1 fallback calls are already in `rec`).
+        cost += sc_stats["cost"]
+        slugs = sorted(set(slugs) | sc_stats["slugs"])
+        tokens_in += sc_stats["tokens_in"]
+        tokens_out += sc_stats["tokens_out"]
+        n_calls += sc_stats["calls"]
 
     meta = {
         "date": _dt.date.today().isoformat(),
         "l1": l1,
-        "slugs": rec.slugs,
-        "tokens_in": rec.tokens_in,
-        "tokens_out": rec.tokens_out,
-        "n_calls": len(rec.calls),
+        "slugs": slugs,
+        "tokens_in": tokens_in,
+        "tokens_out": tokens_out,
+        "n_calls": n_calls,
         "cost": cost,
+        "single_call": args.single_call,
+        "single_call_paths": sc_stats["paths"],
         "resumed": resumed_count,
         "skipped": [s["id"] for s in skipped],
         "framework_v2": args.framework_v2,

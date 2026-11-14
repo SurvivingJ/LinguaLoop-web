@@ -6457,3 +6457,141 @@ Pages updated: index. Branch `claude/lucid-volta-gu0g2l`, not merged. Tests: Pyt
 for moved code (routes/tests package, services/practice, services/study_session, web/) are now
 stale and need an ingest pass. Two tests read `prompt_templates` from the live database when real
 credentials are in the environment; CI deselects them.
+
+## [2026-11-14] query | DT decision-model grading and feedback design experiment
+Question: can a cheap decision model or a cheap LLM grade Dual Translation and produce feedback?
+Sources: `data/eval/dt_decision_2026-11-14/track_a`–`track_e` (five `REPORT.md`). Output filed as:
+[[evaluations/dt-decision-grading-2026-11-14]]. Pages created: 1. Pages updated: index (new
+"Design" heading for the three `wiki/design/dt-feedback/` option specs; `wiki/design/` is not yet
+in the CLAUDE.md schema). Spend: $1.272 of a $3.00 OpenRouter cap (track ledgers sum to $1.2691).
+Nothing applied live, no production code changed. Findings: diff-focused jev fixes recall
+(.52/.50/.80 → .83/.96/.92 zh/ja/en) but band gains are within noise; one cheap LLM call per item
+matches or beats the live grader on seeded gold at or below jev's cost; cascades with jev lose to
+the cheap model alone; on paraphrased translations the decision pipelines flag 31–76% of correct
+rephrased sentences, `openai/gpt-6-luna` 1 of 152 and `deepseek/deepseek-v4.1-flash` 12 of 152.
+Recommended grader candidate: gpt-6-luna, single call, span from the LLM. Feedback: templates for
+corrections, hints and clean messages; LLM for explanations. Open: no real learner submissions
+tested, shadow run needs result storage, Track E labels are model-verified, no native review, the
+owner has not chosen among the three feedback designs.
+
+## [2026-11-14] ingest | DT single-call grader built (ADR-044)
+Source: owner instruction ("Build out the gpt-6-luna grader for dual translation"; keep grading
+assets within a size limit) + [[evaluations/dt-decision-grading-2026-11-14]]. Pages created: 2
+([[decisions/ADR-044-dt-single-call-generative-grader]], [[tasklist/dt-single-call-grader.tasks]]).
+Pages updated: 4 ([[features/dual-translation.tech]] additive "Single-call grader (ADR-044)"
+section + `last_updated`; [[evaluations/dt-decision-grading-2026-11-14]] §9 production-path check,
+two open questions closed; [[tasklist/master]]; index). `wiki/design/` not touched.
+Code: `services/dual_translation/single_call_grader.py`, `single_call_prompts.py`
+(`PROMPT_VERSION dt-single-call/p1_expl/2026-11-14`, byte-identical to Track B), `sentence_pairs.py`;
+dispatch in `grader_cascade._grade_cascade` after Tier 0; `routes/dual_translation.py` asset
+persistence; `migrations/dt_grading_assets.sql`; `scripts/run_dt_grading_eval.py --single-call`;
+`tests/test_dual_translation_single_call_grader.py` (52 tests; DT set 1089 passed).
+Nothing applied live: `DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` default off, migration
+not applied, taxonomy v6 not live (TASK-853) so the flag would fall back to v2 today.
+Production-path gold check ($0.006097, 119 calls, `data/eval/dt_decision_2026-11-14/prod_check/`):
+replay of Track B's recorded responses is identical on all 90 items; live acc/fid/und QWK en
+1.00/.84/.79, zh .59/.84/.71 (second run .66/.82/.74), ja .92/.91/.76 against Track B's
+1.00/.84/.79, .74/.84/.74, .92/.87/.76 — the gap is model run-to-run variance. Decisions taken in
+the build that the owner may reverse: naturalness and range left unscored; `source`/`confidence`
+filled with fixed defaults; `corrected_form` derived by sentence alignment; the daily token budget
+does not degrade this flow; model note stored but not shown. Tasks added: TASK-935–941 (2 not
+started, 5 blocked). Owner chose feedback design option 2; task breakdown draft not yet reviewed.
+
+## [2026-11-14] ingest | DT single-call grader revised after owner review (prompt v2) and turned on by default
+Source: owner feedback on the first build ("the three dimensions is not enough", "fixed error doesnt
+make sense", "show model explanation", "fix unlocatable spans", "error-type list can be hardcoded,
+just needs to be exhaustive") plus approval to turn the grader on. Pages updated: 6
+([[decisions/ADR-044-dt-single-call-generative-grader]], [[features/dual-translation.tech]],
+[[evaluations/dt-decision-grading-2026-11-14]] §9.1, [[tasklist/dt-single-call-grader.tasks]],
+[[tasklist/master]], [[index]]). Pages created: 0. `wiki/design/` not touched.
+Code: `single_call_prompts.py` (new prompt, `PROMPT_VERSION = dt-single-call/v2-quotes-5dim/2026-11-14`,
+hardcoded `TYPE_DEFINITIONS`), `single_call_grader.py` (five-dimension scoring, confidence/source
+decode, shown explanation with guards, span-location ladder, unknown-type handling),
+`grader_cascade.py` (passes `age_tier`), `routes/dual_translation.py` (two more columns,
+missing-migration fallback, `explanation_parts` rebuilt for reloaded grades), `config.py`
+(`DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` default on; new
+`DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE`, default off), `migrations/dt_grading_assets.sql` (revised in
+place before first apply: seven columns, new value sets, no DROP statements; final, not applied),
+`scripts/run_dt_grading_eval.py` (`--items-file`, `--level`), `tests/conftest.py` (pins both flags
+off for the suite), `tests/test_dual_translation_single_call_grader.py` (52 → 121 tests).
+Tests: DT set 1158 passed, 9 skipped; full suite 4554 passed, 11 skipped, 2 failed
+(`test_ladder_validation_profiles`, `test_prompt_split_l4_l8`, both failing before this change).
+Measurement ($0.104738, 1,055 calls from `usage.cost`, plus two untracked calls of about $0.0002 from a unit test that reached the live model before the suite pinned the flag off; five prompt variants, the shipped one is
+`e_` in `data/eval/dt_decision_2026-11-14/prod_check/v2/`): gold acc/fid/und QWK over two runs en
+1.00/.86–.89/.79, zh .59–.68/.82–.84/.75, ja .92/.89–.91/.76 (prompt v1: 1.00/.84/.79,
+.59–.66/.82–.84/.71–.74, .92/.91/.76); pooled gold precision/recall .97/.91 and .99/.89; no clean
+gold item flagged. Heavy paraphrase: 0 of 19 clean items and 2 of 152 correct rephrased sentences
+flagged, precision/recall .94/.85 (v1 0/19, 1/152, .91/.72). Span resolution: 223 of 223 exact,
+whole-sentence fallback 0 (v1 1 of 71 on gold); corrections 222 model quote, 1 alignment.
+Confidence: high .99 precision (200/203), medium .85 (17/20); low entries withheld (2, both false
+alarms). Explanations shown for 214 of 223 errors. Naturalness scored on 238 of 285 items and
+exact on 221; range exact on 278 of 279 — gold barely varies either, so this is not a validation.
+Found while verifying: the active taxonomy and rubric are version 6 (read-only check), contrary to
+earlier wiki statements, so the default-on config makes this the live DT grader on deploy.
+Decisions taken in the revision that the owner may reverse: low-confidence errors are withheld
+rather than shown; a lowered naturalness band is discarded when its only evidence is a
+grammar/meaning error already scored; `explanation` stays the template and the model's text is the
+Application layer under it; the test suite pins both flags off. Open: TASK-935 (apply migration),
+TASK-937 (deploy + live checks), TASK-941 (cloze guard, not built), TASK-936 (shadow run skipped;
+owner to decide what replaces it), TASK-938 (nobody has reviewed the explanations now shown).
+
+## [2026-11-14] update | DT taxonomy v6 cutover + grading-assets migration applied
+Performed in the production Supabase project by the orchestrator at the owner's explicit instruction
+("approve the 3 next steps"; then, told the 8 Oct gate was NO-GO and never re-run, "get rid of history and
+activate v6 in database now"). Applied: (1) `dt_taxonomy_v6_columns.sql`, column part only (the five
+`dt_v5_snapshot_*` tables deliberately not created); (2) taxonomy version 6 inserted from
+`dt_taxonomy_v6_seed.sql` (stored JSON verified equal to the file); (3) ALL DT learner history deleted — 5
+`dt_submission`, 2 `dt_grade`, 16 `dt_error_instance`, 4 `dt_error_profile_entry`, 4 `dt_card`, 5
+`dt_card_review` (one user, the developer's test data; `dt_passage` 68 and `dt_passage_reference` 134
+untouched); (4) v6 activated in one transaction (single active row = 6, v5 inactive); (5)
+`dt_grading_assets.sql` (seven `dt_error_instance` columns + CHECKs, `dt_grading_call` + indexes, RLS on,
+privileges revoked; column COMMENTs not applied except a short table comment, re-run adds them).
+History rewrite (TASK-852 script) not run and no longer needed; snapshot-restore rollback does not apply.
+Repo: wrote `migrations/dt_taxonomy_v6_activate.sql` and `migrations/dt_taxonomy_v6_rollback.sql`
+(headers record the production application and the deviation); `config.py` `DT_TAXONOMY_COLUMNS` default
+False → True (DT tests unchanged: 1158 passed, 9 skipped; migration security lint 13 passed).
+Pages updated: [[decisions/ADR-031-dt-taxonomy-v6-merge]] (accepted 2026-11-14, gate still NO-GO, owner
+decision), [[tasklist/dt-taxonomy-v6.tasks]] (TASK-853 done with deviations; TASK-854 adjusted; TASK-852
+superseded; TASK-970 added), [[tasklist/dt-single-call-grader.tasks]] (TASK-935 in progress, TASK-937 notes),
+[[tasklist/master]], [[decisions/ADR-044-dt-single-call-generative-grader]],
+[[evaluations/dt-decision-grading-2026-11-14]], [[features/dual-translation.tech]] (v6 columns, config row,
+status corrections), [[business-rules/translation-error-taxonomy]] (additive v6 banner only; rewrite is
+TASK-970), index. `wiki/design/`, `features/dt-guided-self-repair*` and its task file not touched.
+NOT done (owner): restart all web workers (taxonomy cached with no TTL), deploy
+`claude/epic-noether-xi87pj` (PR to be opened). Until deploy, restarted workers grade under v6 with the
+currently deployed code. Not done at all: shadow run on real submissions, native-speaker review of model
+explanations, post-restart test grade/smoke (moved to TASK-854), v6 acceptance gate re-run (the
+single-call grader was validated on the v6 gold set instead).
+Contradiction found: the 2026-11-14 revision of ADR-044 / the evaluation page / the single-call task file
+claimed a read-only check showed taxonomy v6 already active before the cutover; the cutover record says v5
+was active until today. Corrected to the cutover record; the earlier read is marked unreconciled.
+
+## [2026-11-14] update | DT guided self-repair: WP-INT integration (backend × frontend)
+The backend (WP-BE) and frontend (WP-FE) were built in parallel and never run together; the frontend
+had only been verified against its own stand-in API. WP-INT drove the REAL routes (submit hook +
+`dt_repair` blueprint + repair services, in-memory store, scripted model) through every flow and
+committed the responses as `tests/unit/fixtures/dt-repair/real/` (60 files) with a drift test
+(`tests/test_dt_repair_contract.py`) and a JS contract test (`tests/unit/dt-repair-contract.test.js`:
+mock keys == real keys, every read field present, strict replay through the real sheet, leak scan).
+Nine mismatches fixed (listed in [[tasklist/dt-guided-self-repair.tasks]] TASK-969): daily Steps
+without `l1`/`l2` (the player guessed the UI language), no prompt fallback on daily items, client-side
+guess of "Back in practice later" (now `back_later` from the server), garbage `where` on closed steps,
+page reload never resuming an open pass, the real DT page scrolling under the sheet (body now pinned),
+mock drift, `explanation_lang` on the English label fallback, unescaped summary counts. Missing
+repair tables are now detected once per process (one warning, no error per submit). Real app in a
+browser without production access: `tests/e2e/dt-repair/devserver.py` (real app/templates/routes over
+the in-memory store, all SUPABASE_/OPENROUTER_ env removed) + `integrated.cjs` at 390×844 and
+375×667: 196 checks, 0 failures; screenshots in
+`wiki/design/dt-feedback/option-2-guided-self-repair/built-integrated/`. Not done: migration
+(owner), deploy, authenticated E2E on staging, real devices/Safari/screen reader/IME, native review,
+re-check evaluation (TASK-966, 967, 971–974).
+Pages: created [[decisions/ADR-045-dt-guided-self-repair]]; updated [[features/dt-guided-self-repair]]
+(status in-progress), [[features/dt-guided-self-repair.tech]] (contract additions, answer type steps
+22→19→17→15 px per the mockup, page pinning, resume, missing-tables rule, integration verification),
+[[tasklist/dt-guided-self-repair.tasks]] (statuses; TASK-969, 971–974 added), [[tasklist/master]],
+[[tasklist/dt-single-call-grader.tasks]] (TASK-939/940 superseded), [[features/dual-translation.tech]]
+(pointer), index. No task id is duplicated (TASK-970 belongs to dt-taxonomy-v6 only).
+Correction: ADR-044, [[evaluations/dt-decision-grading-2026-11-14]] and the single-call task file
+called an earlier "taxonomy v6 already active" read "unreconciled". It is not a conflict: v5 was
+active until the orchestrator's cutover on 2026-11-14, and the grader agent's read was made after that
+cutover the same day. All three now say so.

@@ -1,0 +1,201 @@
+{
+ "frozen": {
+  "det": "meanDS",
+  "tau": 0.3,
+  "sub": "S",
+  "crit": "DS",
+  "tau_c": 0.6,
+  "sev": "graded",
+  "tau_m": 0.6
+ },
+ "sept_only_refit": {
+  "det": "S",
+  "tau": 0.3,
+  "sub": "S",
+  "crit": "S",
+  "tau_c": 0.7,
+  "sev": "prior"
+ },
+ "silver_oof_qwk": {
+  "zh": {
+   "accuracy": 0.4462603563727159,
+   "fidelity": 0.9106577449191271,
+   "understandability": 0.7393526405451447
+  },
+  "ja": {
+   "accuracy": 0.2325870646766169,
+   "fidelity": 0.8252762950154123,
+   "understandability": 1.0
+  },
+  "en": {
+   "accuracy": 1.0,
+   "fidelity": 0.8226292310078858,
+   "understandability": 0.798154555940023
+  }
+ },
+ "objective": "mean QWK + 0.25*exact + 0.10*unit F1, pooled over zh/ja/en silver",
+ "top8": [
+  {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.6,
+   "sev": "graded",
+   "tau_m": 0.6
+  },
+  {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.7,
+   "sev": "graded",
+   "tau_m": 0.6
+  },
+  {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.8,
+   "sev": "graded",
+   "tau_m": 0.6
+  },
+  {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.6,
+   "sev": "prior"
+  },
+  {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.7,
+   "sev": "prior"
+  },
+  {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.8,
+   "sev": "prior"
+  },
+  {
+   "det": "maxDvS",
+   "tau": 0.4,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.6,
+   "sev": "graded",
+   "tau_m": 0.6
+  },
+  {
+   "det": "maxDvS",
+   "tau": 0.4,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.7,
+   "sev": "graded",
+   "tau_m": 0.6
+  }
+ ],
+ "model": "typesafe/jev-1.13",
+ "calls_per_unit": [
+  "Sept A3 request (full-passage, L2 questions)",
+  "arm D (diff-focused, EN questions) + D2 variant_ok"
+ ],
+ "configs": {
+  "A_fused": {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.7,
+   "sev": "graded",
+   "tau_m": 0.6
+  },
+  "A_fused_prior": {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.7,
+   "sev": "prior"
+  },
+  "A_sept_refit": {
+   "det": "S",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "S",
+   "tau_c": 0.7,
+   "sev": "prior"
+  },
+  "A_D_only": {
+   "det": "D",
+   "tau": 0.3,
+   "sub": "D",
+   "crit": "D",
+   "tau_c": 0.6,
+   "sev": "prior"
+  }
+ },
+ "routing": {
+  "zh": {
+   "sept": {
+    "tau_r": 0.05,
+    "n_routed_silver": 0,
+    "n_silver": 34
+   },
+   "fused": {
+    "tau_r": 0.35,
+    "n_routed_silver": 6,
+    "n_silver": 34
+   },
+   "D": {
+    "tau_r": 0.35,
+    "n_routed_silver": 7,
+    "n_silver": 34
+   }
+  },
+  "ja": {
+   "sept": {
+    "tau_r": 0.2,
+    "n_routed_silver": 8,
+    "n_silver": 32
+   },
+   "fused": {
+    "tau_r": 0.6,
+    "n_routed_silver": 13,
+    "n_silver": 32
+   },
+   "D": {
+    "tau_r": 0.45,
+    "n_routed_silver": 11,
+    "n_silver": 32
+   }
+  },
+  "en": {
+   "sept": {
+    "tau_r": 0.45,
+    "n_routed_silver": 6,
+    "n_silver": 35
+   },
+   "fused": {
+    "tau_r": 0.5,
+    "n_routed_silver": 6,
+    "n_silver": 35
+   },
+   "D": {
+    "tau_r": 0.5,
+    "n_routed_silver": 7,
+    "n_silver": 35
+   }
+  }
+ }
+}

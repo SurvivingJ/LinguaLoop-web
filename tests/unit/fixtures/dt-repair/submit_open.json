@@ -1,0 +1,73 @@
+{
+  "status": "success",
+  "scores": {
+    "accuracy": 3,
+    "fidelity": 2,
+    "understandability": 3
+  },
+  "overall_band": 3,
+  "provisional": false,
+  "errors": [],
+  "diff": [],
+  "highlights": [],
+  "redacted": true,
+  "n_errors": 2,
+  "repair": {
+    "session_id": 501,
+    "submission_id": 9001,
+    "status": "open",
+    "clean": false,
+    "surface": "repair_pass",
+    "l1": "zh",
+    "l2": "en",
+    "n_sentences": 4,
+    "n_clean": 2,
+    "auto_advance_ms": 1600,
+    "prompt_l1_passage": "这是一个在实践中学习的好方法。Arduino 是做 DIY 项目的强大工具。你可以用它做很多东西。这个机械臂只是其中一个想法。",
+    "summary": null,
+    "steps": [
+      {
+        "item_id": 7001,
+        "position": 0,
+        "sentence_index": 0,
+        "step_kind": "repair",
+        "ladder": "full",
+        "prompt_l1": "这是一个在实践中学习的好方法。",
+        "learner_sentence": "It's a sick way to learn by doing.",
+        "hint_rungs": [
+          1,
+          2,
+          3
+        ],
+        "hint_level": 0,
+        "where": null,
+        "last_text": null,
+        "checks_used": 0,
+        "check_cap": 4,
+        "state": "open",
+        "outcome": null,
+        "from_date": null
+      },
+      {
+        "item_id": 7002,
+        "position": 1,
+        "sentence_index": 2,
+        "step_kind": "repair",
+        "ladder": "short",
+        "prompt_l1": "你可以用它做很多东西。",
+        "learner_sentence": "You can make many things without it.",
+        "hint_rungs": [
+          1
+        ],
+        "hint_level": 0,
+        "where": null,
+        "last_text": null,
+        "checks_used": 0,
+        "check_cap": 4,
+        "state": "open",
+        "outcome": null,
+        "from_date": null
+      }
+    ]
+  }
+}

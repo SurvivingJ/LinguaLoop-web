@@ -1,0 +1,82 @@
+{
+ "body": {
+  "diff": [],
+  "errors": [],
+  "highlights": [],
+  "n_errors": 2,
+  "overall_band": 3,
+  "provisional": false,
+  "redacted": true,
+  "repair": {
+   "auto_advance_ms": 1600,
+   "clean": false,
+   "l1": "zh",
+   "l2": "en",
+   "n_clean": 2,
+   "n_sentences": 4,
+   "prompt_l1_passage": "这是一个在实践中学习的好方法。Arduino 是强大的工具。你可以用它做很多东西。这个机械臂只是一个想法。",
+   "session_id": 501,
+   "status": "open",
+   "steps": [
+    {
+     "check_cap": 4,
+     "checks_used": 0,
+     "from_date": null,
+     "hint_level": 0,
+     "hint_rungs": [
+      1,
+      2,
+      3
+     ],
+     "item_id": 7002,
+     "l1": "zh",
+     "l2": "en",
+     "ladder": "full",
+     "last_text": "It's a fine way to learn by doing.",
+     "learner_sentence": "It's a sick way to learn by doing.",
+     "outcome": "repaired_alternative",
+     "position": 0,
+     "prompt_l1": "这是一个在实践中学习的好方法。",
+     "prompt_l1_passage": null,
+     "sentence_index": 0,
+     "state": "closed",
+     "step_kind": "repair",
+     "where": null
+    },
+    {
+     "check_cap": 4,
+     "checks_used": 0,
+     "from_date": null,
+     "hint_level": 0,
+     "hint_rungs": [
+      1
+     ],
+     "item_id": 7003,
+     "l1": "zh",
+     "l2": "en",
+     "ladder": "short",
+     "last_text": null,
+     "learner_sentence": "You can make many things without it.",
+     "outcome": "disputed",
+     "position": 1,
+     "prompt_l1": "你可以用它做很多东西。",
+     "prompt_l1_passage": null,
+     "sentence_index": 2,
+     "state": "closed",
+     "step_kind": "repair",
+     "where": null
+    }
+   ],
+   "submission_id": 9001,
+   "summary": null,
+   "surface": "repair_pass"
+  },
+  "scores": {
+   "accuracy": 3,
+   "fidelity": 2,
+   "understandability": 3
+  },
+  "status": "success"
+ },
+ "http": 200
+}

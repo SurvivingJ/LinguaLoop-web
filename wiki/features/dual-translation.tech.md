@@ -3,7 +3,7 @@ title: Dual Translation — Technical Specification (Feature 1: Grading)
 type: feature-tech
 status: in-progress
 prose_page: ./dual-translation.md
-last_updated: 2026-06-25
+last_updated: 2026-11-14
 dependencies:
   - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
@@ -13,6 +13,9 @@ dependencies:
   - "service: shared OpenRouter client (as used by services.model_arena.llm_runner)"
   - "new tables: dt_passage, dt_submission, dt_grade, dt_error_instance, dt_rubric_version, dt_taxonomy_version"
   - "new service: services.dual_translation.* (passage_builder, grader_cascade, router)"
+  - "service (2026-11-14, flag-gated): services.dual_translation.single_call_grader / single_call_prompts / sentence_pairs — ADR-044"
+  - "migration (applied to production 2026-11-14): migrations/dt_grading_assets.sql — dt_error_instance asset columns + dt_grading_call"
+  - "migration (column part applied 2026-11-14): migrations/dt_taxonomy_v6_columns.sql — taxonomy_version / explanation_variant / remap_flag"
 breaking_change_risk: low
 ---
 
@@ -185,7 +188,7 @@ age tier. Never hardcoded in app code.
 
 ### `dt_taxonomy_version`
 Versioned taxonomy config (JSONB): the cross-linguistic schema + per-pair subtype tables. Never
-hardcoded in app code. **Live: v4 (TASK-616, 2026-07-04)** — all six directed-pair tables
+hardcoded in app code. **Live: v6 since 2026-11-14 (TASK-853; v5 kept, inactive; before that v5 from 2026-07-13, v4 from TASK-616 2026-07-04)** — the v4 description follows — all six directed-pair tables
 (`ja-en`/`zh-en`/`en-ja`/`zh-ja`/`en-zh`/`ja-zh`) + en/ja/zh baselines, with enriched per-L1 templates /
 per-L2 glosses. Dimension **weights** are *not* here — they live in `dt_rubric_version` (v2 raised
 `ja.fidelity` 0.30, `zh.accuracy` 0.40); see [[algorithms/translation-grading-cascade.tech]].
@@ -279,8 +282,252 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 - **Resilience:** malformed grader JSON → fail-open to Tier 0 marks, error logged, learner not blocked.
 - **Live smoke:** one passage per L2 (ZH/EN/JA) graded end-to-end on the configured OpenRouter slug.
 
+## Single-call grader (ADR-044) — added 2026-11-14, prompt v2, default ON
+
+Decision: [[decisions/ADR-044-dt-single-call-generative-grader]]. Evidence:
+[[evaluations/dt-decision-grading-2026-11-14]] §9 and §9.1. Tasks: [[tasklist/dt-single-call-grader.tasks]].
+State: `DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` default to on in `config.py` (owner
+approval 2026-11-14). Taxonomy v6 was activated in production on 2026-11-14 (TASK-853; v5 kept,
+inactive) and `migrations/dt_grading_assets.sql` was applied the same day (TASK-935), so this flow
+grades live once the code is deployed and the web workers are restarted (the taxonomy is cached per
+process with no TTL). `DT_TAXONOMY_COLUMNS` also defaults to on now that its columns exist. Not done:
+shadow run on real submissions, native-speaker review of the model explanations, deploy. If the
+migration were missing, grades would still be saved without the asset columns.
+
+### Flow
+
+`grader_cascade._grade_cascade` after the Tier 0 short-circuit (Tier 0 is unchanged):
+
+```
+Tier 0 resolved? ── yes ──> Tier 0 contract (no model call)
+      │ no
+single_call on? ── no ───> configured flow (v2 if DT_FRAMEWORK_V2, else v1)
+      │ yes (default)
+primary model ──ok──> decode ──> contract            (grader_trace.single_call.path = "primary")
+      │ call error / not a JSON object with an `errors` list
+fallback model (once) ──ok──> decode ──> contract    (path = "fallback_model")
+      │ fails too, or the taxonomy's type list is not the hardcoded one, or any unexpected exception
+configured flow ──> its contract + grader_trace.single_call{used:false, path:"fallback_flow:v2|v1", reason}
+```
+
+- Modules: `services/dual_translation/single_call_grader.py` (flow, decode, span location, trace,
+  asset records), `single_call_prompts.py` (prompt + schema + hardcoded type list,
+  `PROMPT_VERSION = "dt-single-call/v2-quotes-5dim/2026-11-14"`), `sentence_pairs.py` (sentence
+  split + alignment).
+- Request: system prompt = task, "not errors" paragraph, error fields, per-L2 type list, severity
+  rubric, then the judgment instructions and the rubric's naturalness/range band descriptors for
+  the passage's `age_tier` (last, so the cached prefix is shared across age tiers). User prompt =
+  `Learner's L1: <language>.`, numbered sentence pairs (`S2 REF: …` / `S2 LRN: …`, identical
+  sentences as `S2 SAME: …`), then one line repeating that explanations are written in the L1.
+  Temperature 0, `max_tokens` 1400, `response_format: json_schema` strict, reasoning off,
+  `usage.include`.
+- Response, in this order:
+  `{"errors": [{sentence, learner_quote, reference_quote, type, severity, confidence, source,
+  explanation}], "naturalness": {band, evidence}, "range": {band, evidence}}`.
+
+### Decode, per model entry
+
+1. Not an object, or severity not minor/major/critical → dropped (`invalid_entry`).
+2. **Type.** In the hardcoded list for the L2 → kept. A v5 slug that the taxonomy's
+   `legacy_aliases` maps onto a listed type → mapped, counted (`type_aliased`) and logged. Anything
+   else → dropped (`unknown_type`) and logged.
+3. **Confidence** high / medium / low → 0.9 / 0.6 / 0.3 (`confidence`, `confidence_label`). A bare
+   number in [0, 1] is accepted and bucketed. Unusable → 0.5, label null, counted
+   (`defaulted.confidence`). An entry marked `low` is withheld: not in `errors`, not scored, counted
+   (`dropped.low_confidence`) and listed in `withheld_low_confidence`, unless
+   `DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE` is on.
+4. **Source** interlingual / intralingual from the model. Unusable → `intralingual`, counted
+   (`defaulted.source`).
+5. **Learner span** (`_locate_learner`), first hit wins; the path is `span_source`:
+
+   | Order | Rule | `span_source` |
+   |---|---|---|
+   | 1 | exact match of `learner_quote` inside the named sentence; of several occurrences, the first that touches a changed region of the sentence | `exact` |
+   | 2 | match after width / kana / case folding, then with punctuation dropped | `normalised` |
+   | 3 | exact or normalised match elsewhere in the text, nearest the named sentence (counted in `span_other_sentence`) | `exact` / `normalised` |
+   | 4 | fuzzy: the window of the named sentence most similar to the quote, ratio ≥ 0.75, window length within a third of the quote's, sentence ≤ 400 tokens, quote ≥ 2 characters (4 for English) | `fuzzy` |
+   | 5 | the diff hunk of the named sentence whose learner side shares a token with the learner quote, or whose reference side shares one with the reference quote; best overlap, then smallest. A dropped word gives a zero-width point | `diff_hunk` |
+   | 6 | the whole named learner sentence | `sentence` |
+
+   No usable sentence number and no match anywhere → dropped (`span_unlocatable`).
+6. **Correction** (`_reference_side`); the path is `correction_source`:
+   `reference_quote` found exactly or normalised in the reference sentence, different from the
+   learner form and not the whole sentence → `model_quote`; else the reference side of the diff
+   hunk → `aligned_diff`; else the reference quote fuzzy-matched → `model_quote`; else the learner
+   span carried across a token alignment of the two sentences → `aligned_diff`; else the whole
+   reference sentence → `reference_sentence`.
+7. Severity rule: gpt-6-luna → taxonomy default for en (unless the model said critical), model's
+   own for zh/ja. deepseek fallback → default for en/ja, model's own for zh. Other slugs → model's own.
+8. The entry goes through the shared `_decode_error` (same validation and template rendering as
+   v1/v2). Rejections are counted (`decode_rejected`).
+9. **Explanation.** The model's text is shown only if it passes `explainer._validated_application`
+   (≤ 240 characters, one paragraph, no score-like digits, shares ≥ 2 characters with the learner
+   or corrected form) and a wrong-language check (L1 en: more Latin letters than CJK characters
+   outside the quoted forms; L1 zh: at least 4 Han characters and not more kana than Han; L1 ja: at
+   least 2 kana). The first failing guard is recorded (`missing`, `too_long`, `multi_paragraph`,
+   `score_pattern`, `no_form_mention`, `wrong_language`).
+
+word_choice variants are resolved from the dictionary as in v2 (`word_choice_variant`).
+
+### Scoring
+
+- Accuracy, fidelity, understandability: `scoring.compute_dimension_bands` over the kept errors.
+- Naturalness, range: the model's band, kept only if the band is an integer 1–4 and the evidence
+  quote is found in the learner text (exact or normalised). A naturalness band below 4 is also
+  discarded when its evidence overlaps listed errors and none of them is a naturalness-mapped type
+  (`collocation`, `cohesion_connective`, `topic_comment`). Judgment status values: `ok`, `missing`,
+  `bad_band`, `no_evidence`, `evidence_is_scored_error`.
+- `scoring.compute_overall` over the dimensions that are present. A discarded judgment is absent
+  from `scores` and listed in `unscored_dimensions`; it is never defaulted.
+- Naturalness and range are not validated to the standard of the other three (gold barely varies
+  them). See [[evaluations/dt-decision-grading-2026-11-14]] §9.1.
+
+### Hardcoded type list
+
+`single_call_prompts.TYPE_DEFINITIONS[l2]` = (slug, native name, English definition, usual
+severity) for every subtype taxonomy v6 allows for that L2: 20 for en, 20 for zh, 23 for ja.
+`TestTypeListExhaustive` fails on a missing or extra slug per language (baseline and every directed
+pair), a different order, an empty definition or a severity hint that is not the taxonomy default.
+At run time a loaded taxonomy whose list differs in either direction makes the flow fall back to
+the configured flow ("taxonomy mismatch").
+
+### Config (all env-driven, `config.py`)
+
+| Name | Default | Effect |
+|---|---|---|
+| `DT_SINGLE_CALL_GRADER` | `True` | Turns the flow on. `grade_submission(single_call=True/False)` overrides it (tests, eval harness). |
+| `DT_SINGLE_CALL_MODEL` | `openai/gpt-6-luna` | Primary slug. |
+| `DT_SINGLE_CALL_FALLBACK_MODEL` | `deepseek/deepseek-v4.1-flash` | Tried once if the primary fails. Blank disables. |
+| `DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE` | `False` | Keeps entries the model marks `low` in the grade (scored like any error). For a UI with an "unsure" state. |
+| `DT_SINGLE_CALL_FREE_TRANSLATION` | `False` | Appends Track E's "free translations are expected" paragraph (prompt variant `v2_mit`). Not re-measured with prompt v2. |
+| `DT_SINGLE_CALL_EXPLAINER` | `False` | Also runs the v2 Explainer (one more call); its Application layer then replaces the grading model's explanation. |
+| `DT_SINGLE_CALL_LOG_LLM_CALLS` | `True` | Logs each call to `llm_calls` (pipeline `dual_translation`, task `dt_single_call_grade`). |
+| `DT_TAXONOMY_COLUMNS` | `True` (was `False` until 2026-11-14) | Read/write `dt_error_instance.taxonomy_version` / `.explanation_variant` and the `dt_error_profile_entry` / `dt_card` `taxonomy_version` stamps. On only because `migrations/dt_taxonomy_v6_columns.sql` (column part) is applied in production; set `false` for a database without those columns, or PostgREST rejects every graded submission. |
+| `DT_GRADING_ASSET_COLUMNS` | `True` | Read/write what `migrations/dt_grading_assets.sql` adds. Safe if the migration is missing (see Persistence). |
+
+The daily token budget (`DT_DAILY_TOKEN_BUDGET`) does not degrade this flow; its tokens still count.
+`tests/conftest.py` pins `DT_SINGLE_CALL_GRADER` and `DT_GRADING_ASSET_COLUMNS` off for the suite (`DT_TAXONOMY_COLUMNS` is not pinned; tests that depend on it set it explicitly).
+
+### Contract additions (single-call grades only; everything else is the §2.2 contract)
+
+- `scores` has up to five keys. `highlights` is `[]`. `provisional` is `false`.
+- `errors[]` additionally carry `sentence_index` (0-based aligned sentence pair), `model_severity`,
+  `confidence_label`, `model_note`, `explanation_source`, `span_source`, `correction_source`.
+  `source` and `confidence` are the model's judgments. A `diff_hunk` error for a dropped word has
+  a zero-width `span_reproduction` and an empty `learner_form`.
+- `errors[].explanation` is the template text (ADR-015), unchanged. `errors[].explanation_parts =
+  {rule, application}`: `application` is the model's L1 explanation when it passed the guards,
+  else null. `static/js/dual_translation.js` `buildExplanation` renders `rule` and, under it,
+  `application`. `explanation_source` is `model`, `template` (model text missing or rejected) or
+  `explainer`. `model_note` holds the accepted model text.
+- `grader_trace`: `tier = "single_call"`, `framework_version = "single_call"`, `tokens{in,out}`,
+  `slugs[]`, `prompt_version{rubric, taxonomy, single_call}`, `reason`, and
+  `single_call{used, path, model, provider, prompt_version, prompt_variant, severity_rule,
+  parse_status, usage{in,out,cached,reasoning}, cost_usd, latency_ms, attempts[], errors_raw,
+  errors_kept, dropped{invalid_entry, unknown_type, low_confidence, span_unlocatable,
+  decode_rejected}, dropped_total, withheld_low_confidence[], type_aliased,
+  defaulted{confidence, source}, span_resolution{exact, normalised, fuzzy, diff_hunk, sentence},
+  span_other_sentence, correction_resolution{model_quote, aligned_diff, reference_sentence},
+  explanation_sources{model, template}, explanation_rejections{reason: n}, sentence_pairs{n,
+  aligned_ok}, judgments{naturalness, range}, unscored_dimensions, band_descriptors,
+  confidence_scale, per_error[]}`. `per_error[]` holds model severity vs applied severity,
+  confidence, source, span/correction source, the raw model explanation (≤ 300 chars), the reject
+  reason and `explanation_source`.
+- `grading_assets` (one record per model attempt) is on the contract only between the grader and
+  the route. The route removes it before the response and before `_persist_grade`.
+
+### Persistence
+
+Taxonomy-v6 columns (`migrations/dt_taxonomy_v6_columns.sql`, column part applied to production 2026-11-14; the five
+`dt_v5_snapshot_*` tables in that file were deliberately NOT created because history was deleted rather than rewritten):
+
+| Table | Column | Constraint |
+|---|---|---|
+| `dt_error_instance`, `dt_error_profile_entry`, `dt_card` | `taxonomy_version` | nullable; version whose slug vocabulary the row's `subtype` is in |
+| `dt_error_instance` | `explanation_variant` | CHECK: only for `subtype = 'word_choice'` (`wrong_word` / `wrong_sense` / `false_synonym`) |
+| `dt_error_instance`, `dt_error_profile_entry`, `dt_card` | `remap_flag` | CHECK: `split_needs_review` / `merged`; only the (not run) TASK-852 rewrite sets it, so it is always NULL in production |
+
+Migration: `migrations/dt_grading_assets.sql` (**applied to production 2026-11-14**; the seven new `dt_error_instance` columns with CHECKs, the `dt_grading_call` table with indexes, RLS enabled, privileges revoked; column COMMENTs from the file were not applied except a short table comment, re-running the file adds them). Additive and idempotent,
+no destructive statement: `ADD COLUMN IF NOT EXISTS`, `CREATE TABLE / INDEX IF NOT EXISTS`, each
+CHECK added only if absent (`NOT VALID`, validated after commit).
+
+`dt_error_instance` — new nullable columns:
+
+| Column | Type | Meaning |
+|---|---|---|
+| `sentence_index` | smallint, ≥ 0 | 0-based aligned sentence pair containing the error |
+| `model_severity` | text (minor/major/critical) | severity the model returned, before the rule |
+| `model_note` | text, ≤ 240 chars | the model's L1 explanation, stored only when it passed the guards and was shown |
+| `explanation_source` | text (model/template/explainer) | which this-sentence explanation the learner saw |
+| `confidence_label` | text (high/medium/low) | the model's confidence; `confidence` holds 0.9/0.6/0.3 |
+| `span_source` | text (exact/normalised/fuzzy/diff_hunk/sentence) | how the learner span was located |
+| `correction_source` | text (model_quote/aligned_diff/reference_sentence) | how the correction was derived |
+
+`dt_grading_call` — new table, one row per grading model call, RLS on with no policies:
+
+| Column | Type | Meaning |
+|---|---|---|
+| `id` | bigint identity PK | |
+| `submission_id` | bigint FK → dt_submission, ON DELETE CASCADE, indexed | |
+| `flow` | text | `single_call` |
+| `role` | text | primary / fallback / shadow (shadow reserved; no writer yet) |
+| `model_slug`, `provider` | text | |
+| `prompt_version`, `prompt_variant` | text | reproduces the prompt with the stored texts |
+| `severity_rule` | text | model / prior |
+| `l2_code` | text | |
+| `status` | text | ok / call_failed / malformed_json / malformed_shape |
+| `error`, `finish_reason` | text | error ≤ 300 chars |
+| `tokens_in`, `tokens_out`, `cached_tokens`, `reasoning_tokens`, `latency_ms` | integer | |
+| `cost_usd` | numeric(12,8) | as reported by OpenRouter |
+| `taxonomy_version`, `rubric_version` | smallint | |
+| `response` | jsonb | the model's parsed error list and two judgments (strings ≤ 300 chars, ≤ 50 entries) |
+| `errors_raw`, `errors_kept` | smallint | |
+| `dropped` | jsonb | drop counts by reason |
+| `result` | jsonb | reserved for shadow rows (decoded grade) |
+| `raw_response` | text, ≤ 4000 chars | only when parsing failed |
+| `raw_truncated` | boolean | |
+| `created_at` | timestamptz, indexed | |
+
+- `routes/dual_translation.py`: `_error_columns()` adds the seven columns when
+  `DT_GRADING_ASSET_COLUMNS` is on (v1/v2 errors do not carry them and keep NULLs);
+  `_persist_grading_assets` inserts the `dt_grading_call` rows after `_persist_grade`, best-effort
+  (a failure is logged, never surfaced).
+- **Missing migration.** If the error insert fails while naming the seven columns, it is retried
+  once without them; if that works the grade is saved, the columns are treated as unavailable for
+  10 minutes (later submissions skip the failing attempt), and one error is logged per process
+  naming the migration. After the pause the columns are probed again, so applying the migration
+  needs no restart. A failure of the plain insert still propagates and leaves the submission
+  ungraded, as before. The cached-grade read degrades the same way.
+- **Reloaded grades.** `explanation_parts` is not a column. `_cached_grade` rebuilds it for rows
+  with `explanation_source = 'model'` from `explanation` and `model_note`, so a reloaded grade
+  shows the same two layers. Without the migration a reloaded grade shows the template only.
+- Not stored: the prompt, and any copy of the passage or submission text.
+- Size: about 1.5 KB for a clean submission, about 3 KB with two errors; worst case about 9 KB
+  (both models return unparsable text). Plus one `llm_calls` row per call (about 0.3 KB).
+
+### Guided self-repair (built 2026-11-14; supersedes TASK-939, TASK-940)
+
+The flow that uses these grader fields — redacted submit response, hint ladder, one-sentence
+re-check with the single-call prompt, daily practice of the learner's own sentences, and its three
+tables (`migrations/dt_guided_self_repair.sql`, not yet applied) — is specified in
+[[features/dt-guided-self-repair.tech]] and recorded in [[decisions/ADR-045-dt-guided-self-repair]].
+The only edits it makes to this route file are the submit hook (`repair.hooks.after_grade` /
+`for_cached`) and `_tokens_used_today` adding re-check tokens.
+
+### Verification
+
+- `tests/test_dual_translation_single_call_grader.py` (121 tests, no network).
+- Production path over v6 gold and the Track E stress set:
+  [[evaluations/dt-decision-grading-2026-11-14]] §9.1; raw runs in
+  `data/eval/dt_decision_2026-11-14/prod_check/v2/`. Prompt v1 check:
+  `data/eval/dt_decision_2026-11-14/prod_check/REPORT.md`.
+- `scripts/run_dt_grading_eval.py --single-call` grades the gold set through the production path;
+  `--items-file <jsonl> --level <level>` grades any item file in the gold schema (the stress set).
+
 ## Related Pages
 - [[features/dual-translation]] — prose
+- [[decisions/ADR-044-dt-single-call-generative-grader]] — single-call generative grader (flag-gated, default on since 2026-11-14)
+- [[tasklist/dt-single-call-grader.tasks]] — rollout tasks for the single-call grader
 - [[features/dual-translation-remediation.tech]] — Feature 2
 - [[algorithms/translation-grading-cascade.tech]] — cascade + cost levers
 - [[business-rules/translation-error-taxonomy]] — taxonomy + promotion

@@ -1,0 +1,199 @@
+{
+ "en": {
+  "n": 19,
+  "qwk": [
+   0.89,
+   0.75,
+   0.73
+  ],
+  "exact": [
+   0.95,
+   0.89,
+   0.84
+  ],
+  "P": 0.93,
+  "R": 0.87,
+  "tp_fp_fn": [
+   13,
+   1,
+   2
+  ],
+  "type_top1": 0.85,
+  "sev_exact": 0.85,
+  "clean_items": 7,
+  "clean_items_flagged": 0
+ },
+ "zh": {
+  "n": 18,
+  "qwk": [
+   0.68,
+   0.97,
+   1.0
+  ],
+  "exact": [
+   0.89,
+   0.94,
+   1.0
+  ],
+  "P": 1.0,
+  "R": 0.77,
+  "tp_fp_fn": [
+   10,
+   0,
+   3
+  ],
+  "type_top1": 0.9,
+  "sev_exact": 0.8,
+  "clean_items": 7,
+  "clean_items_flagged": 0
+ },
+ "ja": {
+  "n": 16,
+  "qwk": [
+   0.82,
+   0.95,
+   0.88
+  ],
+  "exact": [
+   0.94,
+   0.94,
+   0.94
+  ],
+  "P": 0.92,
+  "R": 0.92,
+  "tp_fp_fn": [
+   11,
+   1,
+   1
+  ],
+  "type_top1": 0.91,
+  "sev_exact": 0.82,
+  "clean_items": 5,
+  "clean_items_flagged": 0
+ },
+ "pooled": {
+  "P": 0.94,
+  "R": 0.85,
+  "tp_fp_fn": [
+   34,
+   2,
+   6
+  ],
+  "clean_items_flagged": "0/19",
+  "span_resolution": {
+   "exact": 36
+  },
+  "span_found_in_other_sentence": 0,
+  "correction_resolution": {
+   "model_quote": 36
+  },
+  "explanation_shown": {
+   "model": 36
+  },
+  "explanation_rejections": {},
+  "dropped": {
+   "invalid_entry": 0,
+   "unknown_type": 0,
+   "low_confidence": 2,
+   "span_unlocatable": 0,
+   "decode_rejected": 0
+  },
+  "type_aliased": 0,
+  "source": {
+   "intralingual": 28,
+   "interlingual": 8
+  },
+  "confidence": {
+   "true_positive": {
+    "high": 33,
+    "medium": 1
+   },
+   "false_positive": {
+    "high": 1,
+    "medium": 1
+   },
+   "precision_by_label": {
+    "high": 0.97,
+    "medium": 0.5
+   },
+   "auc_tp_vs_fp": 0.735
+  },
+  "judged": {
+   "naturalness": {
+    "n": 53,
+    "scored": 45,
+    "exact": 41,
+    "confusion": {
+     "gold4->pred4": 41,
+     "gold3->pred4": 2,
+     "gold4->pred3": 2
+    },
+    "status": {
+     "ok": 45,
+     "evidence_is_scored_error": 7,
+     "no_evidence": 1
+    }
+   },
+   "range": {
+    "n": 53,
+    "scored": 51,
+    "exact": 51,
+    "confusion": {
+     "gold4->pred4": 51
+    },
+    "status": {
+     "ok": 51,
+     "no_evidence": 2
+    }
+   }
+  },
+  "overall_band": {
+   "n": 53,
+   "exact": 50,
+   "qwk": 0.74
+  },
+  "paths": {
+   "primary": 53
+  },
+  "p50_latency_ms": 1565
+ },
+ "sentences": {
+  "clean_identical": {
+   "n": 9,
+   "flagged": 0,
+   "flagged_major_plus": 0
+  },
+  "clean_para": {
+   "n": 152,
+   "flagged": 2,
+   "flagged_major_plus": 1
+  },
+  "clean_verbatim_edit": {
+   "n": 3,
+   "flagged": 0,
+   "flagged_major_plus": 0
+  },
+  "err_para": {
+   "n": 31,
+   "flagged": 27,
+   "flagged_major_plus": 19
+  },
+  "err_verbatim_edit": {
+   "n": 9,
+   "flagged": 7,
+   "flagged_major_plus": 1
+  }
+ },
+ "gold_error_location": {
+  "para": {
+   "n": 31,
+   "sentence_flagged": 27,
+   "span_located": 27
+  },
+  "verbatim": {
+   "n": 9,
+   "sentence_flagged": 7,
+   "span_located": 7
+  }
+ }
+}

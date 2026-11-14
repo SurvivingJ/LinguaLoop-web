@@ -1,0 +1,201 @@
+{
+ "en": {
+  "n": 20,
+  "qwk": [
+   0.89,
+   0.97,
+   0.9
+  ],
+  "exact": [
+   0.95,
+   0.95,
+   0.9
+  ],
+  "P": 1.0,
+  "R": 0.88,
+  "tp_fp_fn": [
+   14,
+   0,
+   2
+  ],
+  "type_top1": 0.79,
+  "sev_exact": 0.86,
+  "clean_items": 7,
+  "clean_items_flagged": 0
+ },
+ "zh": {
+  "n": 20,
+  "qwk": [
+   0.81,
+   0.97,
+   0.93
+  ],
+  "exact": [
+   0.9,
+   0.95,
+   0.95
+  ],
+  "P": 1.0,
+  "R": 0.75,
+  "tp_fp_fn": [
+   12,
+   0,
+   4
+  ],
+  "type_top1": 1.0,
+  "sev_exact": 0.75,
+  "clean_items": 7,
+  "clean_items_flagged": 0
+ },
+ "ja": {
+  "n": 20,
+  "qwk": [
+   1.0,
+   0.97,
+   1.0
+  ],
+  "exact": [
+   1.0,
+   0.95,
+   1.0
+  ],
+  "P": 0.93,
+  "R": 0.76,
+  "tp_fp_fn": [
+   13,
+   1,
+   4
+  ],
+  "type_top1": 1.0,
+  "sev_exact": 0.92,
+  "clean_items": 7,
+  "clean_items_flagged": 0
+ },
+ "pooled": {
+  "P": 0.97,
+  "R": 0.8,
+  "tp_fp_fn": [
+   39,
+   1,
+   10
+  ],
+  "clean_items_flagged": "0/21",
+  "span_resolution": {
+   "exact": 40
+  },
+  "span_found_in_other_sentence": 0,
+  "correction_resolution": {
+   "model_quote": 40
+  },
+  "explanation_shown": {
+   "model": 39,
+   "template": 1
+  },
+  "explanation_rejections": {
+   "no_form_mention": 1
+  },
+  "dropped": {
+   "invalid_entry": 0,
+   "unknown_type": 0,
+   "low_confidence": 0,
+   "span_unlocatable": 0,
+   "decode_rejected": 0
+  },
+  "type_aliased": 0,
+  "source": {
+   "interlingual": 13,
+   "intralingual": 27
+  },
+  "confidence": {
+   "true_positive": {
+    "high": 37,
+    "medium": 2
+   },
+   "false_positive": {
+    "medium": 1
+   },
+   "precision_by_label": {
+    "high": 1.0,
+    "medium": 0.67
+   },
+   "auc_tp_vs_fp": 0.974
+  },
+  "judged": {
+   "naturalness": {
+    "n": 60,
+    "scored": 56,
+    "exact": 51,
+    "confusion": {
+     "gold4->pred4": 50,
+     "gold3->pred4": 3,
+     "gold4->pred3": 2,
+     "gold3->pred3": 1
+    },
+    "status": {
+     "ok": 56,
+     "evidence_is_scored_error": 4
+    }
+   },
+   "range": {
+    "n": 60,
+    "scored": 58,
+    "exact": 58,
+    "confusion": {
+     "gold4->pred4": 58
+    },
+    "status": {
+     "ok": 58,
+     "no_evidence": 2
+    }
+   }
+  },
+  "overall_band": {
+   "n": 60,
+   "exact": 58,
+   "qwk": 0.9
+  },
+  "paths": {
+   "primary": 60
+  },
+  "p50_latency_ms": 1556
+ },
+ "sentences": {
+  "clean_identical": {
+   "n": 77,
+   "flagged": 0,
+   "flagged_major_plus": 0
+  },
+  "clean_para": {
+   "n": 93,
+   "flagged": 0,
+   "flagged_major_plus": 0
+  },
+  "clean_verbatim_edit": {
+   "n": 11,
+   "flagged": 0,
+   "flagged_major_plus": 0
+  },
+  "err_para": {
+   "n": 18,
+   "flagged": 15,
+   "flagged_major_plus": 12
+  },
+  "err_verbatim_edit": {
+   "n": 29,
+   "flagged": 23,
+   "flagged_major_plus": 12
+  }
+ },
+ "gold_error_location": {
+  "para": {
+   "n": 18,
+   "sentence_flagged": 15,
+   "span_located": 15
+  },
+  "verbatim": {
+   "n": 31,
+   "sentence_flagged": 25,
+   "span_located": 24
+  }
+ }
+}
