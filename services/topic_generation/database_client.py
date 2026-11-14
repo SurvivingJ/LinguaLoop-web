@@ -12,6 +12,7 @@ from uuid import UUID
 from dataclasses import dataclass, field
 
 from ..supabase_factory import get_supabase_admin
+from ..prompt_service import load_template_text
 
 logger = logging.getLogger(__name__)
 
@@ -178,24 +179,6 @@ class TopicDatabaseClient:
         logger.info(f"Loaded {len(lenses)} active lenses")
         return lenses
 
-    def get_lens_by_code(self, lens_code: str) -> Optional[Lens]:
-        """
-        Lookup lens by code using cached data.
-
-        Args:
-            lens_code: Lens code (e.g., 'historical')
-
-        Returns:
-            Lens object or None if not found
-        """
-        if self._lens_cache is None:
-            self.get_active_lenses()
-
-        for lens in self._lens_cache.values():
-            if lens.lens_code.lower() == lens_code.lower():
-                return lens
-        return None
-
     def _get_status_id(self, status_code: str) -> int:
         """Get status ID by code with caching."""
         if self._status_cache is None:
@@ -210,38 +193,6 @@ class TopicDatabaseClient:
         if status_code not in self._status_cache:
             raise KeyError(f"Unknown status code: {status_code!r}")
         return self._status_cache[status_code]
-
-    def get_language_by_code(self, language_code: str) -> Optional[Language]:
-        """
-        Lookup language by code (e.g., 'zh', 'ja', 'en').
-
-        Args:
-            language_code: Language code to lookup
-
-        Returns:
-            Language object or None if not found
-        """
-        # Try cache first
-        if self._language_cache is not None:
-            for lang in self._language_cache.values():
-                if lang.language_code.lower() == language_code.lower():
-                    return lang
-
-        # Query database
-        response = self.client.table('dim_languages') \
-            .select('id, language_code, language_name, native_name') \
-            .ilike('language_code', language_code) \
-            .limit(1) \
-            .execute()
-
-        if response.data:
-            return Language(
-                id=response.data[0]['id'],
-                language_code=response.data[0]['language_code'],
-                language_name=response.data[0]['language_name'],
-                native_name=response.data[0]['native_name']
-            )
-        return None
 
     def get_languages_by_codes(self, codes: List[str]) -> Dict[str, Language]:
         """
@@ -564,37 +515,9 @@ class TopicDatabaseClient:
         Returns:
             str: Template text with {placeholders}, or None if not found
         """
-        # Try language-specific template first
-        response = self.client.table('prompt_templates') \
-            .select('template_text') \
-            .eq('task_name', task_name) \
-            .eq('language_id', language_id) \
-            .eq('is_active', True) \
-            .order('version', desc=True) \
-            .limit(1) \
-            .execute()
-
-        if response.data:
-            logger.debug(f"Loaded prompt template: {task_name} for language_id={language_id}")
-            return response.data[0]['template_text']
-
-        # Fallback to English (language_id=2) if not found
-        if language_id != 2:
-            response = self.client.table('prompt_templates') \
-                .select('template_text') \
-                .eq('task_name', task_name) \
-                .eq('language_id', 2) \
-                .eq('is_active', True) \
-                .order('version', desc=True) \
-                .limit(1) \
-                .execute()
-
-            if response.data:
-                logger.debug(f"Loaded fallback English prompt template: {task_name}")
-                return response.data[0]['template_text']
-
-        logger.warning(f"Prompt template not found: {task_name} for language_id={language_id}")
-        return None
+        return load_template_text(
+            self.client, task_name, language_id, required=False
+        )
 
     # ============================================================
     # METRICS QUERIES

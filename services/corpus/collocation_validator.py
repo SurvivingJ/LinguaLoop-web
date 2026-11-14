@@ -11,11 +11,11 @@ ingestion pipeline.
 
 import logging
 from services.corpus.llm_client import call_llm
+from services.dimension_service import LANGUAGE_ID_TO_DISPLAY
 
 logger = logging.getLogger(__name__)
 
 # Language ID → English name used in prompts
-_LANG_NAMES = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
 
 # Process collocations in batches of this size per LLM call
 BATCH_SIZE = 80
@@ -80,7 +80,7 @@ def validate_collocations(
         The same list, enriched with scores. Does NOT filter — caller decides
         the threshold.
     """
-    language = _LANG_NAMES.get(language_id, 'Unknown')
+    language = LANGUAGE_ID_TO_DISPLAY.get(language_id, 'Unknown')
 
     if not collocations:
         return collocations

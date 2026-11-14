@@ -475,3 +475,44 @@ def test_sweep_is_not_upload_specific_missing_created_at_is_fine():
     out = ms.sweep_immediate_matches([row], db)
 
     assert out['matched'] == 1
+
+
+def test_rows_matching_the_same_test_share_one_write_per_match_kind():
+    db = FakeDB()
+    _seed_dim_test_types(db)
+    db.seed('tests', [
+        {'id': 'test-a', 'vocab_sense_ids': [500], 'is_active': True, 'language_id': LANG_EN},
+    ])
+    db.seed('test_skill_ratings', [
+        {'test_id': 'test-a', 'test_type_id': LISTENING, 'elo_rating': 1200},
+    ])
+    db.seed('user_word_watchlist', [
+        _watchlist_row(id=1),
+        _watchlist_row(id=2, user_id='user-2'),
+        _watchlist_row(id=3, user_id='user-3', last_matched_test_id='test-a',
+                       last_matched_surfaced_at='2026-01-01T00:00:00+00:00'),
+    ])
+
+    writes = []
+    real_table = db.table
+
+    def spying_table(name):
+        query = real_table(name)
+        real_update = query.update
+
+        def update(payload):
+            writes.append((name, dict(payload)))
+            return real_update(payload)
+
+        query.update = update
+        return query
+
+    db.table = spying_table
+    out = ms.sweep_immediate_matches(db._tables['user_word_watchlist'], db)
+
+    assert (out['matched'], out['reaffirmed']) == (2, 1)
+    assert len(writes) == 2  # one for the two new matches, one for the re-affirm
+    by_id = {r['id']: r for r in db._tables['user_word_watchlist']}
+    assert by_id[1]['last_matched_test_id'] == by_id[2]['last_matched_test_id'] == 'test-a'
+    assert by_id[1]['last_matched_surfaced_at'] is None
+    assert by_id[3]['last_matched_surfaced_at'] == '2026-01-01T00:00:00+00:00'

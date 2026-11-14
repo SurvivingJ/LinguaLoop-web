@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 
 from config import Config
 from ..supabase_factory import get_supabase_admin
+from ..prompt_service import load_template_text
 from ..dictation.cap import passage_word_range_for_tier
 
 logger = logging.getLogger(__name__)
@@ -169,7 +170,6 @@ class TestDatabaseClient:
         self._question_type_cache: Optional[Dict[str, QuestionType]] = None
         self._tier_distribution_cache: Optional[Dict[int, List[str]]] = None
         self._status_cache: Optional[Dict[str, int]] = None
-        self._config_cache: Optional[Dict[str, str]] = None
 
     # ============================================================
     # QUEUE OPERATIONS
@@ -737,44 +737,9 @@ class TestDatabaseClient:
             RuntimeError: required=True and no active template for the task in the
                 requested language or the English fallback.
         """
-        # Try language-specific template first
-        response = self.client.table('prompt_templates') \
-            .select('template_text') \
-            .eq('task_name', task_name) \
-            .eq('language_id', language_id) \
-            .eq('is_active', True) \
-            .order('version', desc=True) \
-            .limit(1) \
-            .execute()
-
-        if response.data:
-            logger.debug(f"Loaded prompt template: {task_name} for language_id={language_id}")
-            return response.data[0]['template_text']
-
-        # Fallback to English (language_id=2) if not found
-        if language_id != 2:
-            response = self.client.table('prompt_templates') \
-                .select('template_text') \
-                .eq('task_name', task_name) \
-                .eq('language_id', 2) \
-                .eq('is_active', True) \
-                .order('version', desc=True) \
-                .limit(1) \
-                .execute()
-
-            if response.data:
-                logger.debug(f"Loaded fallback English prompt template: {task_name}")
-                return response.data[0]['template_text']
-
-        if required:
-            raise RuntimeError(
-                f"No active prompt_templates row for task_name={task_name!r} "
-                f"language_id={language_id} (and no English fallback). "
-                f"Populate the table; there is no hardcoded prompt fallback."
-            )
-
-        logger.warning(f"Prompt template not found: {task_name} for language_id={language_id}")
-        return None
+        return load_template_text(
+            self.client, task_name, language_id, required=required
+        )
 
     # ============================================================
     # TEST INSERTION
@@ -953,30 +918,6 @@ class TestDatabaseClient:
         )
 
     # ============================================================
-    # CONFIG TABLE
-    # ============================================================
-
-    def get_config_value(self, key: str, default: str = None) -> Optional[str]:
-        """Get runtime config value from database."""
-        if self._config_cache is None:
-            self._load_config_cache()
-
-        return self._config_cache.get(key, default)
-
-    def _load_config_cache(self) -> None:
-        """Load config values into cache."""
-        response = self.client.table('test_generation_config') \
-            .select('config_key, config_value') \
-            .execute()
-
-        self._config_cache = {}
-        if response.data:
-            for row in response.data:
-                self._config_cache[row['config_key']] = row['config_value']
-
-        logger.info(f"Loaded {len(self._config_cache)} config values")
-
-    # ============================================================
     # UTILITY METHODS
     # ============================================================
 
@@ -1002,7 +943,6 @@ class TestDatabaseClient:
         self._question_type_cache = None
         self._tier_distribution_cache = None
         self._status_cache = None
-        self._config_cache = None
         logger.debug("Cleared database caches")
 
     def generate_test_slug(

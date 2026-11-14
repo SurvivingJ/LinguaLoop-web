@@ -1,4 +1,5 @@
 from services.corpus.tokenizers import LanguageTokenizer, _get_nlp_en, _get_nlp_ja
+from services.dimension_service import LANGUAGE_ID_TO_DISPLAY
 from services.corpus.constants import (
     EN_QUOTE_ANCHORS,
     ZH_QUOTE_ANCHORS, ZH_LIGHT_SCAFFOLD_NOUNS,
@@ -270,8 +271,7 @@ class CollocationClassifier:
         logger = logging.getLogger(__name__)
 
         lang_id = self.tokenizer.language_id
-        lang_names = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
-        language = lang_names.get(lang_id, 'Unknown')
+        language = LANGUAGE_ID_TO_DISPLAY.get(lang_id, 'Unknown')
 
         # Filter to multi-word, high-PMI candidates not already classified
         marker_set = self._marker_sets.get(lang_id, frozenset())

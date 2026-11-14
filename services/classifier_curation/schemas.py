@@ -6,9 +6,13 @@ which validates the parsed JSON and runs one deterministic repair turn on failur
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field
+
+from services.measure_curation import JudgeRatings, group_validator
 
 from .config import GROUPS
+
+__all__ = ['NounExample', 'NounList', 'ClassifierMeta', 'JudgeRatings']
 
 
 class NounExample(BaseModel):
@@ -35,21 +39,4 @@ class ClassifierMeta(BaseModel):
     difficulty_tier: int = Field(..., ge=1, le=4)
     semantic_label: str = ''
 
-    @field_validator('group')
-    @classmethod
-    def _group_known(cls, v: str) -> str:
-        if v not in GROUPS:
-            raise ValueError(f"group {v!r} not in {GROUPS}")
-        return v
-
-
-class JudgeRatings(BaseModel):
-    """Per-noun idiomatic-validity ratings, in the same order as the input."""
-    ratings: list[int] = Field(default_factory=list, description="Likert 1-5 per noun")
-    reasons: list[str] = Field(default_factory=list)
-
-    @model_validator(mode='after')
-    def _align_reasons(self) -> 'JudgeRatings':
-        if len(self.reasons) < len(self.ratings):
-            self.reasons = self.reasons + [''] * (len(self.ratings) - len(self.reasons))
-        return self
+    _group_known = group_validator(GROUPS)

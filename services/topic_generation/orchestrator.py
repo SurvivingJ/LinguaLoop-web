@@ -159,27 +159,37 @@ class TopicGenerationOrchestrator:
                     "T%s: Explorer generated %d candidates", tier, len(tier_candidates)
                 )
 
-                approved_this_tier = 0
+                # Validate lenses (explorer defaults a neutral lens when the
+                # model returns null, so lens_code is set), then embed every
+                # signature of the tier in one call. The similarity search
+                # itself stays per candidate so it sees topics inserted
+                # earlier in this loop.
+                prepared = []
                 for candidate in tier_candidates:
-                    if approved_count >= topic_gen_config.daily_topic_quota:
-                        break
-                    if approved_this_tier >= topic_gen_config.topics_per_tier:
-                        break
-
-                    # Validate lens exists (explorer defaults a neutral lens
-                    # when the model returns null, so lens_code is set)
                     lens = lens_map.get((candidate.lens_code or '').lower())
                     if not lens:
                         logger.warning(f"Unknown lens code: {candidate.lens_code}")
                         continue
-
-                    # Check novelty
                     signature = self.archivist.construct_semantic_signature(
                         category.name,
                         candidate.concept,
                         lens,
                         candidate.keywords
                     )
+                    prepared.append((candidate, lens, signature))
+
+                if approved_count >= topic_gen_config.daily_topic_quota:
+                    prepared = []
+                embeddings = self.archivist.embed_signatures(
+                    [signature for _, _, signature in prepared]
+                )
+
+                approved_this_tier = 0
+                for (candidate, lens, signature), precomputed in zip(prepared, embeddings):
+                    if approved_count >= topic_gen_config.daily_topic_quota:
+                        break
+                    if approved_this_tier >= topic_gen_config.topics_per_tier:
+                        break
 
                     # T3.2: the threshold scales with tier — stricter where the
                     # concept space is small (T1) than where it is wide (T6).
@@ -187,7 +197,8 @@ class TopicGenerationOrchestrator:
                         category.id,
                         signature,
                         topic_gen_config.threshold_for_tier(tier),
-                        scope='global'
+                        scope='global',
+                        embedding=precomputed,
                     )
 
                     if not is_novel:

@@ -10,10 +10,10 @@ Called after collocation validation in the ingestion pipeline.
 
 import logging
 from services.corpus.llm_client import call_llm
+from services.dimension_service import LANGUAGE_ID_TO_DISPLAY
 
 logger = logging.getLogger(__name__)
 
-_LANG_NAMES = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
 
 BATCH_SIZE = 100
 
@@ -58,7 +58,7 @@ def tag_collocations(
     Returns:
         The same list, with 'semantic_tags' added to each dict.
     """
-    language = _LANG_NAMES.get(language_id, 'Unknown')
+    language = LANGUAGE_ID_TO_DISPLAY.get(language_id, 'Unknown')
 
     for c in collocations:
         c.setdefault('semantic_tags', [])
