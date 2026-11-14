@@ -3,12 +3,14 @@ Flask Backend for LinguaDojo Language Learning Platform
 Clean, production-ready implementation with proper error handling
 """
 
-from flask import Flask, request, jsonify, make_response, render_template, redirect, url_for, g
+from flask import Flask, request, jsonify, make_response, g
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime, timezone
 import stripe
-from services.supabase_factory import SupabaseFactory, get_supabase, get_supabase_admin
+from services.supabase_factory import (
+    SupabaseFactory, SupabaseConfigError, get_supabase, get_supabase_admin,
+)
 import logging
 import traceback
 import os
@@ -17,7 +19,6 @@ import os
 from config import Config
 from services.service_factory import ServiceFactory
 from services.r2_service import R2Service
-from services.prompt_service import PromptService
 from services.auth_service import AuthService
 from services.device_service import DeviceService
 from middleware.auth import jwt_required as supabase_jwt_required
@@ -25,6 +26,11 @@ from services.dimension_service import DimensionService
 from utils.responses import api_success, bad_request, server_error, service_unavailable
 from models.requests import VocabularyExtractRequest, ErrorLogRequest
 from pydantic import ValidationError
+from web.errors import register_error_handlers
+from web.pages import register_pages
+from web.rate_limits import init_rate_limits
+from web.scheduler import init_scheduler
+from web.security import init_request_size_limit, init_security_headers
 
 # Import blueprints
 from routes.auth import auth_bp
@@ -74,32 +80,27 @@ def create_app(config_class=Config):
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    # Setup CORS
     _setup_cors(app)
-
-    # Attach report-only Content-Security-Policy (observes violations; no block)
-    _setup_security_headers(app)
+    init_security_headers(app)
+    init_request_size_limit(app)
 
     # Compression + content-hashed, long-cached static URLs (latency 2026-11)
     from services.static_assets import init_static_assets
     init_static_assets(app)
 
-    # Initialize all services
-    _initialize_services(app)
+    _initialize_services(app, config_class)
+    # Test apps never run background jobs.
+    if not app.config.get('TESTING'):
+        _initialize_scheduler(app)
 
-    # Background scheduler (nightly IRT calibration, etc.)
-    _initialize_scheduler(app)
-
-    # Register blueprints
     _register_blueprints(app)
-    
-    # Register error handlers
-    _register_error_handlers(app)
-    
-    # Register core routes (API + Web pages)
+    register_error_handlers(app)
     _register_core_routes(app)
-    _register_web_routes(app)
-    
+    register_pages(app)
+
+    # After every route exists: limits are attached by endpoint name.
+    init_rate_limits(app)
+
     app.logger.info("LinguaDojo application initialized successfully")
     return app
 
@@ -135,45 +136,7 @@ def _setup_cors(app):
             return response
 
 
-# Content-Security-Policy in REPORT-ONLY mode. This does not block anything —
-# the browser only reports violations — so it's safe to ship while inline
-# <script>/<style> are still pervasive (removed in Phase 3). 'unsafe-inline'
-# is intentional for now; tighten to nonces/hashes once inline code is gone.
-# Bootstrap, Font Awesome and Bootstrap Icons are self-hosted under
-# static/vendor/ (TASK-933); the only third party left is Google Fonts.
-_CSP_REPORT_ONLY = "; ".join([
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' data: https://fonts.gstatic.com",
-    "img-src 'self' data: https:",
-    "connect-src 'self'",
-    "base-uri 'self'",
-    "frame-ancestors 'self'",
-])
-
-
-def _setup_security_headers(app):
-    """Attach a report-only Content-Security-Policy to HTML responses.
-
-    Report-only means no breakage: the browser still loads everything but
-    posts violations to its console / report endpoint, letting us observe what
-    a future enforced policy would block before flipping it on.
-    """
-
-    @app.after_request
-    def _apply_csp(response):
-        # Only bother with documents the browser parses as HTML; skip JSON API
-        # responses and static assets where a CSP has no effect.
-        content_type = response.headers.get('Content-Type', '')
-        if content_type.startswith('text/html'):
-            response.headers.setdefault(
-                'Content-Security-Policy-Report-Only', _CSP_REPORT_ONLY
-            )
-        return response
-
-
-def _initialize_services(app):
+def _initialize_services(app, config_class=Config):
     """Initialize all external services with error handling"""
 
     # Supabase initialization via centralized factory
@@ -182,7 +145,10 @@ def _initialize_services(app):
             SupabaseFactory.initialize(
                 supabase_url=Config.SUPABASE_URL,
                 supabase_key=Config.SUPABASE_KEY,
-                service_role_key=Config.SUPABASE_SERVICE_ROLE_KEY
+                service_role_key=Config.SUPABASE_SERVICE_ROLE_KEY,
+                postgrest_timeout=Config.SUPABASE_POSTGREST_TIMEOUT,
+                # Test configurations run on mocked clients.
+                require_service_role=not getattr(config_class, 'TESTING', False),
             )
             app.supabase = get_supabase()
             app.supabase_service = get_supabase_admin()
@@ -194,11 +160,14 @@ def _initialize_services(app):
             from services.test_service import get_test_service
             from services.practice_session_service import get_practice_session_service
             DimensionService.initialize(app.supabase_service)
-            app.test_service = get_test_service()  # Singleton for reuse
-            app.practice_session_service = get_practice_session_service()
+            # Build the singletons now, before worker threads can race to.
+            get_test_service()
+            get_practice_session_service()
             app.logger.info("DimensionService cache, TestService, and PracticeSessionService initialized")
         else:
             raise ValueError("Missing Supabase credentials")
+    except SupabaseConfigError:
+        raise
     except Exception as e:
         app.logger.error(f"Supabase initialization failed: {e}")
         app.supabase = None
@@ -208,7 +177,6 @@ def _initialize_services(app):
 
     try:
         service_factory = ServiceFactory(Config)
-        app.service_factory = service_factory
         app.openai_service = service_factory.openai_service if Config.OPENAI_API_KEY else None
         app.logger.info(f"OpenAI service: {'enabled' if app.openai_service else 'disabled'}")
     except Exception as e:
@@ -231,13 +199,6 @@ def _initialize_services(app):
     except Exception as e:
         app.logger.error(f"Stripe initialization error: {e}")
 
-    try:
-        app.prompt_service = PromptService()
-        app.logger.info("Prompt service initialized")
-    except Exception as e:
-        app.logger.error(f"Prompt service error: {e}")
-        app.prompt_service = None
-
     # Vocabulary extraction pipeline
     try:
         if app.openai_service and app.supabase_service:
@@ -259,206 +220,8 @@ def _initialize_services(app):
 
 
 def _initialize_scheduler(app):
-    """Start the APScheduler background scheduler with nightly jobs.
-
-    Opt-out via DISABLE_SCHEDULER=true (used by tests and one-off CLI runs).
-    Cross-worker safety is enforced inside each job via Postgres advisory
-    locks (see services/irt/calibrator.irt_try_lock) — APScheduler running
-    in every gunicorn worker is fine; only one will acquire the lock.
-    """
-    if os.environ.get('DISABLE_SCHEDULER', '').lower() in ('1', 'true', 'yes'):
-        app.logger.info("Scheduler disabled via DISABLE_SCHEDULER")
-        return
-
-    try:
-        from apscheduler.schedulers.background import BackgroundScheduler
-        from apscheduler.triggers.cron import CronTrigger
-    except ImportError:
-        app.logger.warning("APScheduler not installed — nightly jobs will not run")
-        return
-
-    scheduler = BackgroundScheduler(timezone='UTC')
-
-    def _run_irt_calibration():
-        try:
-            from services.irt.calibrator import calibrate_all_active_languages
-            summaries = calibrate_all_active_languages()
-            app.logger.info("Nightly IRT calibration: %s", summaries)
-        except Exception as exc:
-            app.logger.exception("Nightly IRT calibration crashed: %s", exc)
-
-    scheduler.add_job(
-        _run_irt_calibration,
-        trigger=CronTrigger(hour=4, minute=0),
-        id='irt_calibration_nightly',
-        coalesce=True,
-        max_instances=1,
-        replace_existing=True,
-    )
-
-    # Phase 13 — Study Plans cron jobs. See [[features/study-plans.tech]]
-    # section "Cron jobs". Both jobs are guarded with try/except so a single
-    # crash doesn't kill the scheduler, and both rely on Postgres advisory
-    # locks (or idempotent UPSERTs) for cross-worker safety.
-
-    def _run_study_plan_weekly_recompute():
-        try:
-            from services.study_plan_service import _run_weekly_plan_recompute
-            summary = _run_weekly_plan_recompute()
-            app.logger.info("Weekly Study Plan recompute: %s", summary)
-        except Exception as exc:
-            app.logger.exception("Weekly Study Plan recompute crashed: %s", exc)
-
-    scheduler.add_job(
-        _run_study_plan_weekly_recompute,
-        trigger=CronTrigger(day_of_week='sun', hour=23, minute=0),
-        id='study_plan_weekly_recompute',
-        coalesce=True,
-        max_instances=1,
-        replace_existing=True,
-    )
-
-    def _run_exercise_time_estimate_refresh():
-        try:
-            from services.study_plan_service import _refresh_exercise_time_estimates
-            summary = _refresh_exercise_time_estimates()
-            app.logger.info("Time-estimate refresh: %s", summary)
-        except Exception as exc:
-            app.logger.exception("Time-estimate refresh crashed: %s", exc)
-
-    scheduler.add_job(
-        _run_exercise_time_estimate_refresh,
-        trigger=CronTrigger(hour=4, minute=5),
-        id='exercise_time_estimate_refresh',
-        coalesce=True,
-        max_instances=1,
-        replace_existing=True,
-    )
-
-    # TASK-510 — nightly model-slug health probe. Scheduled after IRT so a slow
-    # calibration sweep doesn't delay it; advisory-locked inside the service.
-    def _run_slug_health_check():
-        try:
-            from services.model_health import run_slug_health_check
-            report = run_slug_health_check()
-            dead = report.get('dead') or []
-            if dead:
-                app.logger.error(
-                    "Slug health: %d dead model slug(s) — %s",
-                    len(dead), ', '.join(e['model'] for e in dead),
-                )
-            else:
-                app.logger.info(
-                    "Slug health: %d slug(s) probed, all live",
-                    report.get('probed', 0),
-                )
-        except Exception as exc:
-            app.logger.exception("Nightly slug health check crashed: %s", exc)
-
-    scheduler.add_job(
-        _run_slug_health_check,
-        trigger=CronTrigger(hour=4, minute=10),
-        id='slug_health_nightly',
-        coalesce=True,
-        max_instances=1,
-        replace_existing=True,
-    )
-
-    # TASK-731 — nightly Dual Translation error synthesis. Scheduled at 03:50,
-    # AHEAD of the 04:00-04:15 chain: it promotes recurring error clusters to
-    # `queued`, and the card materialisation those promotions drive happens
-    # lazily on the next GET /next / /cards/due, so it wants to land before the
-    # morning traffic rather than compete with the 04:xx sweeps. Serialised
-    # across gunicorn workers by a Postgres advisory lock inside the runner
-    # (key 'DTSy' — migrations/dt_synthesis_advisory_lock.sql).
-    def _run_dt_error_synthesis():
-        try:
-            from scripts.dt_nightly_synthesis import run_nightly_synthesis
-            summary = run_nightly_synthesis()
-            if summary.get('skipped'):
-                app.logger.info("DT error synthesis: skipped (%s)",
-                                summary.get('reason'))
-            else:
-                app.logger.info("DT error synthesis: %s", summary)
-        except Exception as exc:
-            app.logger.exception("DT error synthesis crashed: %s", exc)
-
-    scheduler.add_job(
-        _run_dt_error_synthesis,
-        trigger=CronTrigger(hour=3, minute=50),
-        id='dt_error_synthesis_nightly',
-        coalesce=True,
-        max_instances=1,
-        replace_existing=True,
-    )
-
-    # TASK-517 — nightly coverage sweep + generation-queue drain. Last of the
-    # 04:xx chain on purpose: it regenerates content, so it runs after the
-    # slug-health probe has had its chance to flag a dead model rather than
-    # spending the night's drain budget on calls that were going to 404.
-    def _run_generation_queue_drain():
-        try:
-            from services.vocabulary_ladder.queue_drain import run_nightly_drain
-            summary = run_nightly_drain()
-            if summary.get('skipped'):
-                app.logger.info("Generation queue drain: skipped (%s)",
-                                summary.get('reason'))
-            else:
-                app.logger.info("Generation queue drain: %s", summary)
-        except Exception as exc:
-            app.logger.exception("Generation queue drain crashed: %s", exc)
-
-    scheduler.add_job(
-        _run_generation_queue_drain,
-        trigger=CronTrigger(hour=4, minute=15),
-        id='generation_queue_drain_nightly',
-        coalesce=True,
-        max_instances=1,
-        replace_existing=True,
-    )
-
-    # word-list-import Step 5 — recurring watchlist match-sweep (wiki/
-    # tasklist/word-list-import.plan.md). Scheduled last in the 04:xx chain,
-    # immediately after generation_queue_drain_nightly, for the same reason
-    # that job is last: it should run after any nightly content
-    # regeneration has had a chance to land, so the sweep's "tests created
-    # since the last run" scan sees a settled picture rather than racing
-    # in-flight writes. Cross-worker safety is a Postgres advisory lock
-    # inside run_watchlist_sweep itself (key 'WUSw'), matching every other
-    # job in this chain.
-    def _run_word_upload_watchlist_sweep():
-        try:
-            from services.word_list_import.sweep_cron import run_watchlist_sweep
-            summary = run_watchlist_sweep(get_supabase_admin())
-            if summary.get('skipped'):
-                app.logger.info("Word-upload watchlist sweep: skipped (%s)",
-                                summary.get('reason'))
-            else:
-                app.logger.info("Word-upload watchlist sweep: %s", summary)
-        except Exception as exc:
-            app.logger.exception("Word-upload watchlist sweep crashed: %s", exc)
-
-    scheduler.add_job(
-        _run_word_upload_watchlist_sweep,
-        trigger=CronTrigger(hour=4, minute=20),
-        id='word_upload_watchlist_sweep_nightly',
-        coalesce=True,
-        max_instances=1,
-        replace_existing=True,
-    )
-
-    scheduler.start()
-    app.scheduler = scheduler
-    app.logger.info(
-        "APScheduler started — jobs: "
-        "dt_error_synthesis_nightly @ 03:50 UTC, "
-        "irt_calibration_nightly @ 04:00 UTC, "
-        "exercise_time_estimate_refresh @ 04:05 UTC, "
-        "slug_health_nightly @ 04:10 UTC, "
-        "generation_queue_drain_nightly @ 04:15 UTC, "
-        "word_upload_watchlist_sweep_nightly @ 04:20 UTC, "
-        "study_plan_weekly_recompute @ Sun 23:00 UTC"
-    )
+    """Start the background scheduler (jobs are declared in web/scheduler.py)."""
+    init_scheduler(app)
 
 
 def _register_blueprints(app):
@@ -489,166 +252,6 @@ def _register_blueprints(app):
     app.register_blueprint(word_list_import_bp)
 
     app.logger.info("Blueprints registered")
-
-
-def _register_error_handlers(app):
-    """Register global error handlers"""
-    
-    @app.errorhandler(404)
-    def not_found(error):
-        # Check if it's an API request
-        if request.path.startswith('/api/'):
-            return jsonify({
-                "error": "Endpoint not found",
-                "status": "not_found"
-            }), 404
-        # Otherwise, redirect to login or show 404 page
-        return redirect(url_for('login'))
-    
-    @app.errorhandler(405)
-    def method_not_allowed(error):
-        return jsonify({
-            "error": "Method not allowed",
-            "status": "method_not_allowed"
-        }), 405
-    
-    @app.errorhandler(500)
-    def internal_error(error):
-        app.logger.error(f"Internal server error: {error}")
-        app.logger.error(traceback.format_exc())
-        
-        if request.path.startswith('/api/'):
-            return jsonify({
-                "error": "Internal server error",
-                "status": "internal_error"
-            }), 500
-        return render_template('error.html', error="Internal server error"), 500
-
-
-def _register_web_routes(app):
-    """Register web page routes (HTML rendering)"""
-    
-    @app.route('/')
-    def index():
-        """Root route - redirect to login page"""
-        return redirect(url_for('login'))
-    
-    @app.route('/login')
-    def login():
-        """Render login page"""
-        return render_template('login.html')
-    
-    @app.route('/signup')
-    def signup():
-        """Render signup page (uses same login.html template)"""
-        return render_template('login.html')
-    
-    @app.route('/welcome')
-    def welcome():
-        """Render onboarding page for new users"""
-        return render_template('onboarding.html')
-
-    @app.route('/language-selection')
-    def language_selection():
-        """Render language selection page"""
-        return render_template('language_selection.html')
-    
-    @app.route('/tests')
-    def tests():
-        """Render test list page"""
-        return render_template('test_list.html')
-
-    @app.route('/profile')
-    def profile():
-        """Render user profile page"""
-        return render_template('profile.html')
-
-    @app.route('/study-plan')
-    def study_plan_page():
-        """Render the Study Plan editor (Phase 13)."""
-        return render_template('study_plan.html')
-
-    @app.route('/session')
-    def study_session_page():
-        """Render the single-page daily study-session runner (Phase 13)."""
-        return render_template('study_session.html')
-
-    @app.route('/test/<slug>/preview')
-    def test_preview(slug):
-        """Render test preview page (client-side rendered)"""
-        return render_template('test_preview.html')
-
-    @app.route('/test/<slug>/prestudy')
-    def test_prestudy_page(slug):
-        """Render the test prestudy page: study a test's words before taking it
-        (client-side rendered; wiki/features/test-prestudy.md)."""
-        return render_template('test_prestudy.html')
-
-    @app.route('/test/<slug>')
-    def test_page(slug):
-        """Render test taking page (client-side rendered)"""
-        return render_template('test.html')
-
-    @app.route('/test/<slug>/pinyin')
-    def pinyin_test_page(slug):
-        """Render pinyin tone trainer page (client-side rendered)"""
-        return render_template('test_pinyin.html')
-
-    @app.route('/test/<slug>/pitch-accent')
-    def pitch_accent_test_page(slug):
-        """Render Japanese pitch accent trainer page (client-side rendered)"""
-        return render_template('test_pitch_accent.html')
-
-    @app.route('/test/<slug>/dictation')
-    def dictation_test_page(slug):
-        """Render dictation test page (client-side rendered)"""
-        return render_template('test_dictation.html')
-
-    @app.route('/flashcards')
-    def flashcards():
-        """Render flashcards review page"""
-        return render_template('flashcards.html')
-
-    @app.route('/word-list')
-    def word_list_page():
-        """Render the word-list upload + watchlist page (Step 8 of
-        wiki/tasklist/word-list-import.plan.md)."""
-        return render_template('word_list.html')
-
-    @app.route('/calibration')
-    def calibration_page():
-        """Render the standalone vocabulary calibration mode."""
-        return render_template('calibration.html')
-
-    @app.route('/classifier-drill')
-    def classifier_drill_page():
-        """Render Chinese measure-word infinite trainer."""
-        return render_template('classifier_drill.html')
-
-    @app.route('/counter-drill')
-    def counter_drill_page():
-        """Render Japanese counter (助数詞) infinite trainer."""
-        return render_template('counter_drill.html')
-
-    @app.route('/dual-translation')
-    def dual_translation_page():
-        """Render the dual-translation reproduce → diff-centric result UI (TASK-608)."""
-        return render_template('dual_translation.html')
-
-    @app.route('/dual-translation/profile')
-    def dual_translation_profile_page():
-        """Render the error-profile self-regulation dashboard (TASK-611)."""
-        return render_template('dual_translation_profile.html')
-
-    @app.route('/admin/vocab-preview')
-    def admin_vocab_preview():
-        """Render admin vocabulary preview page"""
-        return render_template('admin_vocab_preview.html')
-
-    @app.route('/logout')
-    def logout():
-        """Handle logout - redirect to login page"""
-        return redirect(url_for('login'))
 
 
 def _register_core_routes(app):
@@ -713,13 +316,13 @@ def _register_core_routes(app):
     @supabase_jwt_required
     def extract_vocabulary():
         """Extract vocabulary (lemmas + phrases) from text"""
-        if not app.vocab_pipeline:
-            return service_unavailable("Vocabulary service unavailable")
-
         try:
             body = VocabularyExtractRequest.model_validate(request.get_json() or {})
         except ValidationError as e:
             return bad_request(e.errors()[0]['msg'])
+
+        if not app.vocab_pipeline:
+            return service_unavailable("Vocabulary service unavailable")
 
         try:
             vocab = app.vocab_pipeline.extract(body.text, body.language_code)
@@ -753,8 +356,7 @@ def _register_core_routes(app):
             app.logger.error(f"Failed to log error: {e}")
             return server_error("Failed to log error")
 
-app = create_app()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=Config.DEBUG)
+    create_app().run(host='0.0.0.0', port=port, debug=Config.DEBUG)

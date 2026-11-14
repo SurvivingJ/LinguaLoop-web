@@ -22,10 +22,14 @@ class TestSubmissionRequest(BaseModel):
         return v.strip().lower()
 
 
+# One extraction runs an LLM pipeline over the whole text; cap what a request can submit.
+VOCAB_EXTRACT_MAX_CHARS = 20000
+
+
 class VocabularyExtractRequest(BaseModel):
     """Request body for POST /api/vocabulary/extract."""
-    text: str = Field(min_length=1)
-    language_code: str = Field(min_length=1)
+    text: str = Field(min_length=1, max_length=VOCAB_EXTRACT_MAX_CHARS)
+    language_code: str = Field(min_length=1, max_length=16)
 
     @field_validator('text', 'language_code')
     @classmethod
