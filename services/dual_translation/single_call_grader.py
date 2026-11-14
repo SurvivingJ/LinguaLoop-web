@@ -321,8 +321,12 @@ def grade(
     l1_code: str,
     l2_language_id: int,
     l1_language_id: Optional[int] = None,
+    age_tier: Optional[int] = None,
 ) -> tuple[Optional[dict], Optional[dict]]:
     """Grade one Tier-0-unresolved submission with the single-call flow.
+
+    ``age_tier`` selects the rubric's naturalness/range band descriptors quoted in
+    the prompt (as the v2 Verifier does); None quotes none.
 
     Returns ``(contract, None)`` on success, or ``(None, failure)`` when the flow
     could not produce a grade — the caller then runs the configured flow and
@@ -334,6 +338,7 @@ def grade(
             db, tier0_result=tier0_result, rubric_cfg=rubric_cfg, taxonomy_cfg=taxonomy_cfg,
             subtypes=subtypes, gold_l2=gold_l2, reproduction=reproduction, l2_code=l2_code,
             l1_code=l1_code, l2_language_id=l2_language_id, l1_language_id=l1_language_id,
+            age_tier=age_tier,
         )
     except Exception as exc:  # noqa: BLE001 — never let this flow break grading
         logger.warning(
@@ -372,19 +377,21 @@ def mark_fallback(contract: dict, failure: dict) -> dict:
 
 def _grade(
     db, *, tier0_result, rubric_cfg, taxonomy_cfg, subtypes, gold_l2, reproduction,
-    l2_code, l1_code, l2_language_id, l1_language_id,
+    l2_code, l1_code, l2_language_id, l1_language_id, age_tier,
 ) -> tuple[Optional[dict], Optional[dict]]:
     from services.dual_translation import grader_cascade as gc  # lazy: gc imports this module's caller
 
-    # ── Preconditions: a frozen prompt for this L2, under a matching taxonomy ──
+    # ── Preconditions: a prompt for this L2 whose type list IS the taxonomy's ──
     if not sc_prompts.supports(l2_code):
         return None, _failure(f"no single-call prompt for l2={l2_code!r}", [], [])
-    type_ids = sc_prompts.FROZEN_TYPE_IDS[l2_code]
+    type_ids = sc_prompts.TYPE_IDS[l2_code]
     missing = [t for t in type_ids if t not in subtypes]
-    if missing:
+    extra = [t for t in subtypes if t not in type_ids]
+    if missing or extra:
         return None, _failure(
-            "taxonomy mismatch: the loaded taxonomy lacks single-call types "
-            f"{missing[:5]} (taxonomy v6 required)", [], [],
+            "taxonomy mismatch: the hardcoded single-call type list is not the loaded "
+            f"taxonomy's list for {l1_code}-{l2_code} (not in taxonomy: {missing[:5]}; "
+            f"not in prompt: {extra[:5]}) - taxonomy v6 required", [], [],
         )
     scoring.scoring_params(rubric_cfg)  # raises (-> fallback) on a pre-v5 rubric
 
@@ -400,8 +407,11 @@ def _grade(
     variant = sc_prompts.prompt_variant(free_translation)
     alignment = build_sentence_pairs(gold_l2, reproduction)
     pairs = alignment.pairs
-    system_prompt = sc_prompts.build_system_prompt(l2_code, free_translation=free_translation)
-    user_prompt = sc_prompts.build_user_prompt(pairs)
+    descriptors = _band_descriptors(rubric_cfg, age_tier, l2_code)
+    system_prompt = sc_prompts.build_system_prompt(
+        l2_code, free_translation=free_translation, band_descriptors=descriptors,
+    )
+    user_prompt = sc_prompts.build_user_prompt(pairs, l1_code)
     schema = sc_prompts.response_schema(l2_code)
     prompt_hash = hashlib.sha256((system_prompt + "\n\x00\n" + user_prompt).encode("utf-8")).digest()
 
@@ -434,11 +444,13 @@ def _grade(
     slug = used["slug"]
     severity_rule = SEVERITY_RULES.get(slug, {}).get(l2_code, DEFAULT_SEVERITY_RULE)
     subtype_meta = (taxonomy_cfg or {}).get("subtype_meta", {}) or {}
-    errors, per_error, dropped, span_repaired = _decode(
+    errors, per_error, counts = _decode(
         gc, payload["errors"], pairs=pairs, type_ids=type_ids, subtypes=subtypes,
         taxonomy_cfg=taxonomy_cfg, subtype_meta=subtype_meta, severity_rule=severity_rule,
         l1_code=l1_code, l2_code=l2_code, gold_l2=gold_l2, reproduction=reproduction,
     )
+    dropped = counts["dropped"]
+    judged_bands, judgment_trace = _decode_judgments(payload, reproduction, l2_code)
     assets[-1]["severity_rule"] = severity_rule
     assets[-1]["errors_kept"] = len(errors)
     assets[-1]["dropped"] = dict(dropped)
@@ -453,6 +465,9 @@ def _grade(
         gc.rerender_variant_explanations(errors, taxonomy_cfg, l1_code)
 
     # ── Explanation layers ──────────────────────────────────────────────
+    # `explanation` stays the Rule template (ADR-015). The model's own L1
+    # explanation, when it passed the guards in _decode, is what the UI shows as
+    # the Application layer; a rejected one leaves the template on its own.
     tokens_in, tokens_out = _sum_tokens(attempts)
     explainer_trace = None
     if errors and Config.DT_SINGLE_CALL_EXPLAINER:
@@ -463,20 +478,35 @@ def _grade(
         tokens_in += exp_in
         tokens_out += exp_out
         explainer_trace = {"tokens": {"in": exp_in, "out": exp_out}, "reason": exp_reason}
-    for err in errors:
+    explanation_sources = {EXPLANATION_FROM_MODEL: 0, EXPLANATION_FROM_TEMPLATE: 0}
+    for err, row in zip(errors, per_error):
         parts = err.get("explanation_parts")
         if not isinstance(parts, dict):
             parts = {"rule": err.get("explanation", ""), "application": None}
             err["explanation_parts"] = parts
-        parts["model_note"] = err.get("model_note")
+        if parts.get("application"):  # the opt-in second Explainer call won
+            err["explanation_source"] = EXPLANATION_FROM_EXPLAINER
+        elif err.get("model_note"):
+            parts["application"] = err["model_note"]
+            err["explanation_source"] = EXPLANATION_FROM_MODEL
+        else:
+            err["explanation_source"] = EXPLANATION_FROM_TEMPLATE
+        row["explanation_source"] = err["explanation_source"]
+        explanation_sources[err["explanation_source"]] = (
+            explanation_sources.get(err["explanation_source"], 0) + 1)
 
     if Config.DT_TAXONOMY_COLUMNS:
         for err in errors:
             err["taxonomy_version"] = taxonomy_version
 
-    # ── Derived scoring (accuracy / fidelity / understandability only) ───
-    bands = scoring.compute_dimension_bands(errors, subtype_meta, rubric_cfg)
+    # ── Scoring: three derived dimensions + the two judged ones ──────────
+    bands = dict(scoring.compute_dimension_bands(errors, subtype_meta, rubric_cfg))
     present_dims = list(scoring.DERIVED_DIMENSIONS)
+    for dim in sc_prompts.JUDGED_DIMENSIONS:
+        if dim in judged_bands:
+            bands[dim] = judged_bands[dim]
+            present_dims.append(dim)
+    unscored = [d for d in sc_prompts.JUDGED_DIMENSIONS if d not in judged_bands]
     weights = scoring.resolve_weights(rubric_cfg, l2_code)
     overall_band = scoring.compute_overall(bands, weights, present_dims)
     scores = {dim: bands[dim] for dim in present_dims}
@@ -501,10 +531,18 @@ def _grade(
         "errors_kept": len(errors),
         "dropped": dict(dropped),
         "dropped_total": sum(dropped.values()),
-        "span_repaired": span_repaired,
+        "type_aliased": counts["type_aliased"],
+        "defaulted": dict(counts["defaulted"]),
+        "span_resolution": dict(counts["span"]),
+        "span_other_sentence": counts["span_other_sentence"],
+        "correction_resolution": dict(counts["correction"]),
+        "explanation_sources": explanation_sources,
+        "explanation_rejections": dict(counts["explanation_rejections"]),
         "sentence_pairs": {"n": len(pairs), "aligned_ok": bool(alignment.ok)},
-        "unscored_dimensions": list(UNSCORED_DIMENSIONS),
-        "defaults": {"source": DEFAULT_SOURCE, "confidence": DEFAULT_CONFIDENCE},
+        "judgments": judgment_trace,
+        "unscored_dimensions": unscored,
+        "band_descriptors": bool(descriptors),
+        "confidence_scale": dict(sc_prompts.CONFIDENCE_VALUES),
         "per_error": per_error,
     }
     if explainer_trace is not None:
@@ -546,6 +584,19 @@ def _grade(
         "grading_assets": assets,
     }
     return contract, None
+
+
+def _band_descriptors(rubric_cfg: dict, age_tier, l2_code: str) -> str:
+    """The active rubric's naturalness/range band descriptors for this age tier
+    (the same text the v2 Verifier quotes), or "" when there are none."""
+    if age_tier is None:
+        return ""
+    try:
+        return prompts._band_descriptors_text(
+            rubric_cfg, sc_prompts.JUDGED_DIMENSIONS, age_tier, l2_code) or ""
+    except Exception as exc:  # noqa: BLE001 — descriptors only calibrate; never block grading
+        logger.warning("dual_translation.single_call_grader: no band descriptors: %s", exc)
+        return ""
 
 
 def _attempt(role: str, slug: str, system_prompt: str, user_prompt: str, schema: dict):
@@ -608,7 +659,7 @@ def _asset_record(
     Structured JSON, never the prompt: the prompt is reproducible from
     ``prompt_version`` + ``prompt_variant`` + the stored reference/reproduction.
     The raw text is kept (capped) only when it could not be parsed; a parsed
-    answer is kept as the model's own error list, capped per field."""
+    answer is kept as the model's own error list and two judgments, capped per field."""
     ok = attempt["status"] == STATUS_OK
     raw = raw_text or ""
     return {
@@ -631,7 +682,7 @@ def _asset_record(
         "latency_ms": attempt.get("latency_ms"),
         "taxonomy_version": taxonomy_version,
         "rubric_version": rubric_version,
-        "response": {"errors": _capped_entries(parsed["errors"])} if ok else None,
+        "response": _capped_response(parsed) if ok else None,
         "errors_raw": len(parsed["errors"]) if ok else None,
         "errors_kept": None,
         "dropped": None,
@@ -640,13 +691,22 @@ def _asset_record(
     }
 
 
+def _capped_response(parsed: dict) -> dict:
+    out = {"errors": _capped_entries(parsed["errors"])}
+    for dim in sc_prompts.JUDGED_DIMENSIONS:
+        judgment = parsed.get(dim)
+        if isinstance(judgment, dict):
+            out[dim] = _capped_entries([judgment])[0]
+    return out
+
+
 def _capped_entries(entries: list) -> list:
     out = []
     for entry in entries[:RAW_ERRORS_CAP]:
         if isinstance(entry, dict):
             out.append({
                 str(k)[:40]: (v[:RAW_FIELD_CAP] if isinstance(v, str) else v)
-                for k, v in list(entry.items())[:8]
+                for k, v in list(entry.items())[:10]
                 if isinstance(v, (str, int, float, bool)) or v is None
             })
         else:
@@ -676,49 +736,86 @@ def _sum_cost(attempts: list) -> Optional[float]:
 def _decode(
     gc, raw_errors: list, *, pairs: list[SentencePair], type_ids, subtypes, taxonomy_cfg,
     subtype_meta, severity_rule, l1_code, l2_code, gold_l2, reproduction,
-) -> tuple[list[dict], list[dict], dict, int]:
-    """Model entries -> (decoded errors, per-error trace rows, drop counts, repaired).
+) -> tuple[list[dict], list[dict], dict]:
+    """Model entries -> (decoded errors, per-error trace rows, counts).
 
-    An entry is dropped (and counted) when its type/severity is not in the schema
-    enums (``invalid_entry``), when its learner fragment cannot be located AND it
-    names no usable sentence (``span_unlocatable``), or when the shared
-    ``_decode_error`` validation rejects it (``decode_rejected``). A fragment that
-    cannot be located in a sentence the model did name is REPAIRED to that whole
-    learner sentence (Track B scored it the same way) and counted in
-    ``span_repaired`` together with relocated fragments."""
+    ``counts`` = {dropped, type_aliased, defaulted, span, span_other_sentence,
+    correction, explanation_rejections}. An entry is dropped - always counted and
+    logged, never silently - when it is not an object or its severity is not in
+    the enum (``invalid_entry``), when its type is neither in the hardcoded list
+    nor a legacy alias of one (``unknown_type``), when its learner quote cannot be
+    located AND it names no usable sentence (``span_unlocatable``), or when the
+    shared ``_decode_error`` validation rejects it (``decode_rejected``)."""
     errors: list[dict] = []
     per_error: list[dict] = []
-    dropped = {"invalid_entry": 0, "span_unlocatable": 0, "decode_rejected": 0}
-    span_repaired = 0
+    counts = {
+        "dropped": {"invalid_entry": 0, "unknown_type": 0, "span_unlocatable": 0, "decode_rejected": 0},
+        "type_aliased": 0,
+        "defaulted": {"confidence": 0, "source": 0},
+        "span": {name: 0 for name in SPAN_SOURCES},
+        "span_other_sentence": 0,
+        "correction": {name: 0 for name in CORRECTION_SOURCES},
+        "explanation_rejections": {},
+    }
+    dropped = counts["dropped"]
 
     for entry in raw_errors:
-        if (not isinstance(entry, dict) or entry.get("type") not in type_ids
-                or entry.get("type") not in subtypes
-                or entry.get("severity") not in sc_prompts.SEVERITIES):
+        if not isinstance(entry, dict) or entry.get("severity") not in sc_prompts.SEVERITIES:
             dropped["invalid_entry"] += 1
             logger.warning("dual_translation.single_call_grader: dropping invalid entry: %.200r", entry)
             continue
-        subtype, model_severity = entry["type"], entry["severity"]
+        subtype, aliased_from = _resolve_type(entry.get("type"), type_ids, subtypes, taxonomy_cfg)
+        if subtype is None:
+            dropped["unknown_type"] += 1
+            logger.warning(
+                "dual_translation.single_call_grader: dropping entry with unknown error type %r: %.200r",
+                entry.get("type"), entry,
+            )
+            continue
+        if aliased_from is not None:
+            counts["type_aliased"] += 1
+            logger.warning(
+                "dual_translation.single_call_grader: mapped legacy error type %r -> %r",
+                aliased_from, subtype,
+            )
+        model_severity = entry["severity"]
+
+        confidence, confidence_label = _confidence(entry.get("confidence"))
+        if confidence is None:
+            confidence, confidence_label = DEFAULT_CONFIDENCE, None
+            counts["defaulted"]["confidence"] += 1
+        source = entry.get("source")
+        if source not in sc_prompts.SOURCES:
+            source = DEFAULT_SOURCE
+            counts["defaulted"]["source"] += 1
 
         number = entry.get("sentence")
         named = (pairs[number - 1]
                  if isinstance(number, int) and not isinstance(number, bool) and 1 <= number <= len(pairs)
                  else None)
-        span, learner_form, span_source = _locate_fragment(gc, entry.get("span"), named, reproduction, l2_code)
-        if span is None:
+        located = _locate_learner(
+            gc, entry.get("learner_quote"), entry.get("reference_quote"), named,
+            gold_l2, reproduction, l2_code,
+        )
+        if located is None:
             dropped["span_unlocatable"] += 1
             logger.warning(
                 "dual_translation.single_call_grader: dropping entry whose learner text cannot be located: %.200r",
                 entry,
             )
             continue
-        if span_source != SPAN_FROM_MODEL:
-            span_repaired += 1
+        span, learner_form, span_source, hunk_ref = located
 
-        sentence_index = _pair_index(pairs, span[0])
+        if named is not None and named.repro.start <= span[0] and span[1] <= named.repro.end:
+            sentence_index = number - 1  # also covers a zero-width point at a sentence edge
+        else:
+            sentence_index = _pair_index(pairs, span[0])
         pair = pairs[sentence_index] if sentence_index is not None else named
-        span_ref, corrected_form, correction_source = _reference_counterpart(
-            pair, span, span_source, gold_l2, reproduction, l2_code,
+        if named is not None and pair is not named:
+            counts["span_other_sentence"] += 1
+        span_ref, corrected_form, correction_source = _reference_side(
+            gc, entry.get("reference_quote"), pair, span, learner_form, span_source, hunk_ref,
+            gold_l2, reproduction, l2_code,
         )
 
         severity = _apply_severity_rule(severity_rule, model_severity, subtype, subtype_meta)
@@ -728,60 +825,291 @@ def _decode(
             "learner_form": learner_form,
             "corrected_form": corrected_form,
             "category": gc._enum_index(prompts.CATEGORY_ENUM, gc._derive_category(taxonomy_cfg, subtype)),
-            "source": gc._enum_index(prompts.SOURCE_ENUM, DEFAULT_SOURCE),
+            "source": gc._enum_index(prompts.SOURCE_ENUM, source),
             "severity": gc._enum_index(prompts.SEVERITY_ENUM, severity),
             "subtype": gc._enum_index(subtypes, subtype),
-            "confidence": DEFAULT_CONFIDENCE,
+            "confidence": confidence,
         }
         decoded = gc._decode_error(raw, subtypes, taxonomy_cfg, l1_code, reproduction, gold_l2, l2_code)
         if decoded is None:
             dropped["decode_rejected"] += 1
+            logger.warning(
+                "dual_translation.single_call_grader: entry rejected by the shared decode: %.200r", entry)
             continue
 
         explanation = entry.get("explanation")
+        shown, rejection = _validate_explanation(
+            explanation, decoded["learner_form"], decoded["corrected_form"], l1_code)
+        if rejection is not None:
+            counts["explanation_rejections"][rejection] = (
+                counts["explanation_rejections"].get(rejection, 0) + 1)
+        counts["span"][span_source] += 1
+        counts["correction"][correction_source] += 1
+
         decoded["sentence_index"] = sentence_index
         decoded["model_severity"] = model_severity
-        decoded["model_note"] = _validated_model_note(explanation)
+        decoded["confidence_label"] = confidence_label
+        decoded["model_note"] = shown
         decoded["span_source"] = span_source
         decoded["correction_source"] = correction_source
         errors.append(decoded)
         per_error.append({
             "sentence_index": sentence_index,
             "subtype": subtype,
+            "type_aliased_from": aliased_from,
             "model_severity": model_severity,
             "applied_severity": severity,
+            "confidence": confidence,
+            "confidence_label": confidence_label,
+            "source": source,
             "span_source": span_source,
             "correction_source": correction_source,
             "model_explanation": explanation[:RAW_FIELD_CAP] if isinstance(explanation, str) else None,
-            "confidence": None,  # the prompt does not ask for one
+            "explanation_rejected": rejection,
         })
-    return errors, per_error, dropped, span_repaired
+    return errors, per_error, counts
 
 
-def _locate_fragment(gc, fragment, named: Optional[SentencePair], reproduction: str, l2_code: str):
-    """Locate the model's learner fragment in the reproduction.
+def _resolve_type(value, type_ids, subtypes, taxonomy_cfg) -> tuple[Optional[str], Optional[str]]:
+    """-> (subtype, aliased_from). A type in the hardcoded list is returned as is.
+    Otherwise a slug that the taxonomy's ``legacy_aliases`` maps onto an allowed
+    type is mapped (aliased_from = the model's slug). Anything else -> (None, None)."""
+    if not isinstance(value, str):
+        return None, None
+    if value in type_ids and value in subtypes:
+        return value, None
+    alias = ((taxonomy_cfg or {}).get("legacy_aliases") or {}).get(value)
+    target = alias.get("to") if isinstance(alias, dict) else None
+    if isinstance(target, str) and target in type_ids and target in subtypes:
+        return target, value
+    return None, None
 
-    -> (span, learner_form, span_source), or (None, "", None) when it cannot be
-    located and no sentence fallback exists. Order: verbatim inside the sentence
-    the model named (the Track B rule); else ``_reconcile_span_form`` anywhere in
-    the text, nearest the named sentence, with width/kana/case folding; else the
-    whole named learner sentence."""
-    text = fragment.strip() if isinstance(fragment, str) else ""
-    if text:
+
+def _confidence(value) -> tuple[Optional[float], Optional[str]]:
+    """The model's confidence -> (number, label), or (None, None) when unusable.
+    A bare number in [0, 1] (a model that ignored the enum) is accepted and
+    bucketed to the nearest label."""
+    if isinstance(value, str) and value in sc_prompts.CONFIDENCE_VALUES:
+        return sc_prompts.CONFIDENCE_VALUES[value], value
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and 0 <= value <= 1:
+        number = float(value)
+        label = min(sc_prompts.CONFIDENCE_VALUES,
+                    key=lambda name: abs(sc_prompts.CONFIDENCE_VALUES[name] - number))
+        return number, label
+    return None, None
+
+
+def _decode_judgments(payload: dict, reproduction: str, l2_code: str) -> tuple[dict, dict]:
+    """The model's naturalness / range judgments -> ({dim: band}, trace).
+
+    Mirrors the v2 Verifier's gate (``grader_cascade._judgment_band``): a judgment
+    counts only with a band in 1..4 AND evidence that is really in the learner
+    text. Here the evidence is a quote, so "valid" means it is found in the
+    reproduction verbatim or after normalisation. A judgment that fails is left
+    out (the overall renormalises); it is never replaced by a default band."""
+    from services.dual_translation import grader_cascade as gc
+
+    bands: dict[str, int] = {}
+    trace: dict[str, dict] = {}
+    for dim in sc_prompts.JUDGED_DIMENSIONS:
+        judgment = payload.get(dim) if isinstance(payload, dict) else None
+        if not isinstance(judgment, dict):
+            trace[dim] = {"status": JUDGMENT_MISSING}
+            continue
+        band = judgment.get("band")
+        if isinstance(band, bool) or not isinstance(band, int) or band not in sc_prompts.BANDS:
+            trace[dim] = {"status": JUDGMENT_BAD_BAND}
+            continue
+        evidence = judgment.get("evidence")
+        quote = evidence.strip() if isinstance(evidence, str) else ""
+        hit = _find_quote(gc, reproduction, 0, len(reproduction), quote, l2_code) if quote else None
+        if hit is None:
+            trace[dim] = {"status": JUDGMENT_NO_EVIDENCE, "band": band}
+            continue
+        bands[dim] = band
+        trace[dim] = {"status": JUDGMENT_OK, "band": band, "evidence_span": [hit[0], hit[1]]}
+    return bands, trace
+
+
+# ---------------------------------------------------------------------------
+# Locating a quote
+# ---------------------------------------------------------------------------
+
+def _punct_fold(gc, ch: str, l2_code: str) -> str:
+    """Width/kana/case fold, with punctuation dropped and any whitespace as one
+    space: a quote that lost its full stop or has straight for curly quotes."""
+    if ch.isspace():
+        return " "
+    if unicodedata.category(ch).startswith("P"):
+        return ""
+    return gc._char_fold_l2(ch, l2_code)
+
+
+def _find_quote(gc, text: str, lo: int, hi: int, quote: str, l2_code: str):
+    """``quote`` inside ``text[lo:hi]`` -> (start, end, SPAN_EXACT | SPAN_NORMALISED)
+    in ``text`` offsets, or None. Exact first; then the cascade's width/kana/case
+    fold; then that fold with punctuation dropped."""
+    idx = text.find(quote, lo, hi)
+    if idx >= 0:
+        return idx, idx + len(quote), SPAN_EXACT
+    segment = text[lo:hi]
+    for fold in (lambda ch: gc._char_fold_l2(ch, l2_code), lambda ch: _punct_fold(gc, ch, l2_code)):
+        folded, index_map = gc._fold_map(segment, fold)
+        folded_quote = "".join(fold(ch) for ch in quote).strip()
+        if not folded_quote:
+            continue
+        pos = folded.find(folded_quote)
+        if pos >= 0:
+            start = lo + index_map[pos]
+            end = lo + index_map[pos + len(folded_quote) - 1] + 1
+            return start, end, SPAN_NORMALISED
+    return None
+
+
+def _fuzzy_find(gc, text: str, lo: int, hi: int, quote: str, l2_code: str):
+    """The window of ``text[lo:hi]`` most similar to ``quote`` -> (start, end), or
+    None when nothing reaches ``FUZZY_MIN_RATIO``. Bounded: one sentence, at most
+    ``FUZZY_MAX_TOKENS`` tokens, windows within a third of the quote's length."""
+    quote = quote.strip()
+    if len(quote) < FUZZY_MIN_CHARS.get(l2_code, 2):
+        return None
+    tokens = _tokens(text[lo:hi], l2_code)
+    if not tokens or len(tokens) > FUZZY_MAX_TOKENS:
+        return None
+    offsets = _offsets(tokens)
+    fold = lambda value: "".join(gc._char_fold_l2(ch, l2_code) for ch in value)  # noqa: E731
+    folded_quote = fold(quote)
+    n = len(_tokens(quote, l2_code))
+    slack = max(1, n // 3)
+    best = None  # (ratio, -length, i, j)
+    for size in range(max(1, n - slack), n + slack + 1):
+        for i in range(0, len(tokens) - size + 1):
+            if tokens[i].isspace() or tokens[i + size - 1].isspace():
+                continue
+            window = "".join(tokens[i:i + size])
+            ratio = difflib.SequenceMatcher(None, fold(window), folded_quote, autojunk=False).ratio()
+            key = (ratio, -len(window), i, i + size)
+            if best is None or key[:2] > best[:2]:
+                best = key
+    if best is None or best[0] < FUZZY_MIN_RATIO:
+        return None
+    return lo + offsets[best[2]], lo + offsets[best[3]]
+
+
+def _content_tokens(gc, text: str, l2_code: str) -> set:
+    return {
+        "".join(gc._char_fold_l2(ch, l2_code) for ch in token)
+        for token in _tokens(text, l2_code)
+        if not token.isspace() and not all(unicodedata.category(ch).startswith("P") for ch in token)
+    }
+
+
+def _diff_hunks(pair: SentencePair, gold_l2: str, reproduction: str, l2_code: str) -> list[dict]:
+    """The changed regions between a reference sentence and its learner sentence:
+    [{ref: (start, end), lrn: (start, end)}] in absolute offsets, whitespace-only
+    changes left out. Empty for a free rewrite (< ``MIN_ALIGN_RATIO``), where the
+    "hunk" would be most of the sentence."""
+    ref_text = gold_l2[pair.ref.start:pair.ref.end]
+    lrn_text = reproduction[pair.repro.start:pair.repro.end]
+    a, b = _tokens(ref_text, l2_code), _tokens(lrn_text, l2_code)
+    similarity = difflib.SequenceMatcher(
+        None, [t for t in a if not t.isspace()], [t for t in b if not t.isspace()], autojunk=False,
+    ).ratio()
+    if similarity < MIN_ALIGN_RATIO:
+        return []
+    a_off, b_off = _offsets(a), _offsets(b)
+    hunks = []
+    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes():
+        if tag == "equal":
+            continue
+        if not "".join(a[i1:i2]).strip() and not "".join(b[j1:j2]).strip():
+            continue
+        hunks.append({
+            "ref": (pair.ref.start + a_off[i1], pair.ref.start + a_off[i2]),
+            "lrn": (pair.repro.start + b_off[j1], pair.repro.start + b_off[j2]),
+        })
+    return hunks
+
+
+def _best_hunk(gc, hunks: list[dict], learner_quote: str, reference_quote: str,
+               gold_l2: str, reproduction: str, l2_code: str) -> Optional[dict]:
+    """The diff hunk that overlaps the model's quotes: the learner side must share
+    a token with the learner quote, or the reference side with the reference
+    quote. Among overlapping hunks the best-overlapping wins, then the smallest."""
+    lrn_q = _content_tokens(gc, learner_quote, l2_code)
+    ref_q = _content_tokens(gc, reference_quote, l2_code)
+    best = None
+    for hunk in hunks:
+        lrn_t = _content_tokens(gc, reproduction[hunk["lrn"][0]:hunk["lrn"][1]], l2_code)
+        ref_t = _content_tokens(gc, gold_l2[hunk["ref"][0]:hunk["ref"][1]], l2_code)
+        score = 0.0
+        if lrn_q and lrn_t:
+            score = max(score, len(lrn_q & lrn_t) / len(lrn_q | lrn_t))
+        if ref_q and ref_t:
+            score = max(score, len(ref_q & ref_t) / len(ref_q | ref_t))
+        if score <= 0:
+            continue
+        size = (hunk["lrn"][1] - hunk["lrn"][0]) + (hunk["ref"][1] - hunk["ref"][0])
+        key = (score, -size)
+        if best is None or key > best[0]:
+            best = (key, hunk)
+    return best[1] if best else None
+
+
+def _locate_learner(gc, learner_quote, reference_quote, named: Optional[SentencePair],
+                    gold_l2: str, reproduction: str, l2_code: str):
+    """Locate the model's learner quote in the reproduction.
+
+    -> (span, learner_form, span_source, hunk_ref) or None (cannot be located and
+    no sentence to fall back on). ``hunk_ref`` is the reference side of the diff
+    hunk when the span came from one, else None. Resolution order:
+
+      1. exact, inside the sentence the model named            -> exact
+      2. normalised (width/kana/case, then punctuation-free)   -> normalised
+      3. exact / normalised anywhere else in the text (the model mis-numbered the
+         sentence); nearest the named sentence wins            -> exact / normalised
+      4. bounded fuzzy match inside the named sentence         -> fuzzy
+      5. the diff hunk of the named sentence that overlaps the learner quote (or
+         whose reference side overlaps the reference quote)    -> diff_hunk
+      6. the whole named learner sentence                      -> sentence
+    """
+    quote = learner_quote.strip() if isinstance(learner_quote, str) else ""
+    ref_quote = reference_quote.strip() if isinstance(reference_quote, str) else ""
+
+    if quote:
         if named is not None:
-            idx = reproduction.find(text, named.repro.start, named.repro.end)
-            if idx >= 0:
-                return [idx, idx + len(text)], text, SPAN_FROM_MODEL
+            hit = _find_quote(gc, reproduction, named.repro.start, named.repro.end, quote, l2_code)
+            if hit is not None:
+                return [hit[0], hit[1]], reproduction[hit[0]:hit[1]], hit[2], None
         anchor = named.repro.start if named is not None else None
-        hint = [anchor, anchor] if anchor is not None else None
-        span, form = gc._reconcile_span_form(reproduction, hint, text, l2_code)
+        span, form = gc._reconcile_span_form(
+            reproduction, [anchor, anchor] if anchor is not None else None, quote, l2_code)
         if span is not None:
-            return span, form, SPAN_REPAIRED
-    if named is not None:
-        bounds = _stripped_bounds(reproduction, named.repro.start, named.repro.end)
-        if bounds is not None:
-            return list(bounds), reproduction[bounds[0]:bounds[1]], SPAN_FROM_SENTENCE
-    return None, "", None
+            return span, form, (SPAN_EXACT if form == quote else SPAN_NORMALISED), None
+        if named is not None:
+            fuzzy = _fuzzy_find(gc, reproduction, named.repro.start, named.repro.end, quote, l2_code)
+            if fuzzy is not None:
+                return [fuzzy[0], fuzzy[1]], reproduction[fuzzy[0]:fuzzy[1]], SPAN_FUZZY, None
+    if named is None:
+        return None
+
+    sentence = _stripped_bounds(reproduction, named.repro.start, named.repro.end)
+    hunk = _best_hunk(
+        gc, _diff_hunks(named, gold_l2, reproduction, l2_code), quote, ref_quote,
+        gold_l2, reproduction, l2_code,
+    )
+    if hunk is not None:
+        bounds = _stripped_bounds(reproduction, *hunk["lrn"])
+        if bounds is None:
+            # The learner dropped text here: a zero-width point, corrected by the
+            # reference side of the hunk (which is never empty in that case).
+            point = hunk["lrn"][0]
+            return [point, point], "", SPAN_DIFF_HUNK, hunk["ref"]
+        if sentence is None or bounds != sentence:
+            return list(bounds), reproduction[bounds[0]:bounds[1]], SPAN_DIFF_HUNK, hunk["ref"]
+    if sentence is not None:
+        return list(sentence), reproduction[sentence[0]:sentence[1]], SPAN_SENTENCE, None
+    return None
 
 
 def _stripped_bounds(text: str, start: int, end: int) -> Optional[tuple[int, int]]:
@@ -809,22 +1137,53 @@ def _apply_severity_rule(rule: str, model_severity: str, subtype: str, subtype_m
     return model_severity
 
 
-def _validated_model_note(text) -> Optional[str]:
-    """The model's short note, or None. Reuses the Explainer's Application-layer
-    guards (``explainer.MAX_APPLICATION_CHARS``, single paragraph, no score-like
-    digits). The "must quote a form" guard is deliberately NOT applied: the note
-    is English prose about a zh/ja fragment and rarely quotes it, and unlike an
-    Application layer it is never merged into ``explanation``."""
-    if not isinstance(text, str):
-        return None
+_HAN_RE = re.compile(r"[一-鿿㐀-䶿]")
+_KANA_RE = re.compile(r"[぀-ヿ]")
+_LATIN_RE = re.compile(r"[A-Za-z]")
+
+
+def _validate_explanation(text, learner_form: str, corrected_form: str, l1_code: str):
+    """The model's explanation -> (text to show, None) or (None, reject reason).
+
+    The verdict is the Explainer's own Application-layer guard
+    (``explainer._validated_application``: <= ``MAX_APPLICATION_CHARS``, a single
+    paragraph, no score-like digits, mentions the learner or the corrected form),
+    plus one cheap check the Explainer does not need because its whole prompt is
+    in the L1: the text must look like the learner's L1. The reason names the
+    first guard that fails; ``missing`` = the model sent no text."""
+    if not isinstance(text, str) or not text.strip():
+        return None, "missing"
     trimmed = text.strip()
-    if not trimmed or len(trimmed) > explainer.MAX_APPLICATION_CHARS:
-        return None
+    if len(trimmed) > explainer.MAX_APPLICATION_CHARS:
+        return None, "too_long"
     if "\n" in trimmed or "\r" in trimmed:
-        return None
+        return None, "multi_paragraph"
     if explainer._SCORE_PATTERN.search(trimmed):
-        return None
-    return trimmed
+        return None, "score_pattern"
+    if explainer._validated_application(trimmed, learner_form, corrected_form) is None:
+        return None, "no_form_mention"
+    if _wrong_language(trimmed, l1_code, (learner_form, corrected_form)):
+        return None, "wrong_language"
+    return trimmed, None
+
+
+def _wrong_language(text: str, l1_code: str, forms) -> bool:
+    """True when ``text`` (with the quoted L2 forms taken out) is clearly not in
+    the learner's L1: an English L1 needs more Latin letters than CJK characters;
+    a Chinese L1 needs Han characters and more of them than kana; a Japanese L1
+    needs kana. Other L1s are not checked."""
+    body = text
+    for form in forms:
+        if form:
+            body = body.replace(form, " ")
+    han, kana, latin = (len(rx.findall(body)) for rx in (_HAN_RE, _KANA_RE, _LATIN_RE))
+    if l1_code == "en":
+        return latin <= han + kana
+    if l1_code == "zh":
+        return han < 4 or kana > han
+    if l1_code == "ja":
+        return kana < 2
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -840,6 +1199,42 @@ def _tokens(text: str, l2_code: str) -> list[str]:
     if l2_code == "en":
         return _EN_TOKEN_RE.findall(text)
     return list(text)
+
+
+def _reference_side(
+    gc, reference_quote, pair: Optional[SentencePair], span: list[int], learner_form: str,
+    span_source: str, hunk_ref, gold_l2: str, reproduction: str, l2_code: str,
+) -> tuple[list[int], str, str]:
+    """-> (span_reference, corrected_form, correction_source) for a learner span.
+
+      1. the model's reference quote, located in the reference sentence (exact ->
+         normalised -> bounded fuzzy), as long as it differs from the learner
+         form and is not the whole sentence                    -> model_quote
+      2. the reference side of the diff hunk the span came from -> aligned_diff
+      3. ``_reference_counterpart``: carry the learner span across a token
+         alignment of the two sentences                        -> aligned_diff
+      4. the whole reference sentence                          -> reference_sentence
+    The returned form always sits exactly at the returned span in ``gold_l2``."""
+    if pair is None:
+        return [0, 0], "", CORRECTION_SENTENCE
+    quote = reference_quote.strip() if isinstance(reference_quote, str) else ""
+    if quote and pair.ref.end > pair.ref.start:
+        hit = _find_quote(gc, gold_l2, pair.ref.start, pair.ref.end, quote, l2_code)
+        if hit is None:
+            fuzzy = _fuzzy_find(gc, gold_l2, pair.ref.start, pair.ref.end, quote, l2_code)
+            hit = (fuzzy[0], fuzzy[1]) if fuzzy is not None else None
+        if hit is not None:
+            form = gold_l2[hit[0]:hit[1]]
+            whole = _stripped_bounds(gold_l2, pair.ref.start, pair.ref.end)
+            is_sentence = whole is not None and (hit[0], hit[1]) == whole
+            if form.strip() != learner_form.strip() and not is_sentence:
+                return [hit[0], hit[1]], form, CORRECTION_MODEL_QUOTE
+    if hunk_ref is not None:
+        bounds = _stripped_bounds(gold_l2, hunk_ref[0], hunk_ref[1])
+        if bounds is None:  # the learner added text with no reference counterpart
+            return [hunk_ref[0], hunk_ref[0]], "", CORRECTION_ALIGNED
+        return [bounds[0], bounds[1]], gold_l2[bounds[0]:bounds[1]], CORRECTION_ALIGNED
+    return _reference_counterpart(pair, span, span_source, gold_l2, reproduction, l2_code)
 
 
 def _reference_counterpart(
@@ -860,7 +1255,7 @@ def _reference_counterpart(
     if pair is None:
         return [0, 0], "", CORRECTION_SENTENCE
     whole = _whole_reference_sentence(pair, gold_l2)
-    if span_source == SPAN_FROM_SENTENCE or pair.ref.end <= pair.ref.start:
+    if span_source == SPAN_SENTENCE or pair.ref.end <= pair.ref.start:
         return whole
     lrn_start, lrn_end = pair.repro.start, pair.repro.end
     if not (lrn_start <= span[0] and span[1] <= lrn_end):

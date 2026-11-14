@@ -381,11 +381,11 @@ def _grade_cascade(
     regions = _diff_regions(tier0_result.diff, gold_l2, reproduction, l2_code)
 
     # ADR-044: single-call generative grader. Gated by Config.DT_SINGLE_CALL_GRADER
-    # (default OFF); `single_call` overrides for tests / the eval harness. Runs
+    # (default ON since 2026-11-14); `single_call` overrides for tests / the eval harness. Runs
     # after the Tier 0 short-circuit and shares the rubric/taxonomy context above.
     # On success its contract is returned as-is. If neither its primary nor its
-    # fallback model produced usable JSON (or the loaded taxonomy is not the one
-    # its frozen prompt was validated for), the configured v2/v1 flow below grades
+    # fallback model produced usable JSON (or the loaded taxonomy's type list is not
+    # the one hardcoded in its prompt), the configured v2/v1 flow below grades
     # the submission — re-entered with single_call=False so it cannot loop — and
     # `mark_fallback` stamps the reason on grader_trace.single_call. Never a
     # silent full-marks default.
@@ -405,6 +405,7 @@ def _grade_cascade(
             l1_code=l1_code,
             l2_language_id=l2_language_id,
             l1_language_id=l1_language_id,
+            age_tier=age_tier,
         )
         if contract is not None:
             return contract
