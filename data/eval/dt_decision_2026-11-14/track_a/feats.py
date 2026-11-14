@@ -58,9 +58,9 @@ def table(lang: str, set_name: str, sources: dict[str, tuple[str, str]] | None =
                 row.update(d_features(r[u["key"]]["answers"], lang, p))
             if isinstance(v, tuple) and len(v) > 2 and v[2] == "D2":
                 for kk in RQ.D2_EN:
-                    row[p + kk] = float((r[u["key"]]["answers"].get(kk) or {}).get("noul") or 0.0)
-                row[p + "_usd2"] = r[u["key"]]["usd"]
-                row[p + "_lat2"] = r[u["key"]]["latency_s"]
+                    row[kk] = float((r[u["key"]]["answers"].get(kk) or {}).get("noul") or 0.0)
+                row["_usd2"] = r[u["key"]]["usd"]
+                row["_lat2"] = r[u["key"]]["latency_s"]
                 continue
             row[p + "_usd"] = r[u["key"]]["usd"]
             row[p + "_lat"] = r[u["key"]]["latency_s"]

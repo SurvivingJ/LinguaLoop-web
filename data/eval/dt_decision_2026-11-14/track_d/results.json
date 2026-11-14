@@ -5508,5 +5508,162 @@
    "J1_note": "Wrongly says the particle は should change to が; the actual error is 私たちは.",
    "J2_note": ""
   }
- ]
+ ],
+ "manual_adjudication": {
+  "method": "all 39 texts flagged c=0 by either judge were read by the experiment author (Claude, not a native speaker panel); 12 upheld, 27 rejected as judge error (vague!=wrong, judge misread gold, summary naming one fix). Plus an unflagged skim of all G1-G3 meta+app texts for zh/ja L2 and G1 for en L2: no further falsehoods found.",
+  "flagged": 39,
+  "upheld": 12,
+  "upheld_list": [
+   {
+    "item": "en_clean_03",
+    "generator": "G1",
+    "style": "summary",
+    "error_index": null,
+    "verdict": "genuine",
+    "reason": "invents a fix (basic->simple) on a clean item"
+   },
+   {
+    "item": "ja_seed_10",
+    "generator": "G1",
+    "style": "meta",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "calls 見つける a godan verb (it is ichidan)"
+   },
+   {
+    "item": "ja_seed_10",
+    "generator": "G1",
+    "style": "app",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "calls 見つける a godan verb (it is ichidan)"
+   },
+   {
+    "item": "ja_seed_07",
+    "generator": "G1",
+    "style": "app",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "calls シンプルな an i-adjective (it is a na-adjective)"
+   },
+   {
+    "item": "en_multi_01",
+    "generator": "G1",
+    "style": "meta",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "says 'on' is redundant after transitive learn -> contradicts the correction 'learn about'"
+   },
+   {
+    "item": "en_multi_02",
+    "generator": "G1",
+    "style": "meta",
+    "error_index": 2,
+    "verdict": "genuine",
+    "reason": "false reason ('make is transitive so needs an object'; the object is present) + gives the answer"
+   },
+   {
+    "item": "ja_seed_10",
+    "generator": "G2",
+    "style": "meta",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "says 'dropping ら is fine' - 見つけれる IS the ら-dropped form"
+   },
+   {
+    "item": "ja_seed_10",
+    "generator": "G3",
+    "style": "meta",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "claims ら-dropping is OK for 見れる but not 見つけれる (no such rule)"
+   },
+   {
+    "item": "en_seed_05",
+    "generator": "G3",
+    "style": "hint",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "points the learner AFTER 'to do'; the missing word goes before it"
+   },
+   {
+    "item": "ja_seed_11",
+    "generator": "G0",
+    "style": "meta",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "template mismatch: learner dropped は; template talks about subject-first ordering"
+   },
+   {
+    "item": "ja_seed_11",
+    "generator": "G0",
+    "style": "hint",
+    "error_index": 0,
+    "verdict": "genuine",
+    "reason": "template mismatch: topic is already first; hint asks to move it first"
+   },
+   {
+    "item": "zh_multi_02",
+    "generator": "G0live",
+    "style": "app",
+    "error_index": 1,
+    "verdict": "genuine",
+    "reason": "false_synonym variant template asserts 普通/简单 share one English translation (unverifiable, doubtful)"
+   }
+  ],
+  "genuine_wrong_by_generator": {
+   "G0": {
+    "n_wrong": 2,
+    "n_texts": 213,
+    "rate": 0.0094
+   },
+   "G0live": {
+    "n_wrong": 1,
+    "n_texts": 56,
+    "rate": 0.0179
+   },
+   "G1": {
+    "n_wrong": 6,
+    "n_texts": 269,
+    "rate": 0.0223
+   },
+   "G2": {
+    "n_wrong": 1,
+    "n_texts": 264,
+    "rate": 0.0038
+   },
+   "G3": {
+    "n_wrong": 2,
+    "n_texts": 269,
+    "rate": 0.0074
+   }
+  },
+  "genuine_wrong_by_generator_l2": {
+   "G0": {
+    "en": 0,
+    "zh": 0,
+    "ja": 2
+   },
+   "G0live": {
+    "en": 0,
+    "zh": 1,
+    "ja": 0
+   },
+   "G1": {
+    "en": 3,
+    "zh": 0,
+    "ja": 3
+   },
+   "G2": {
+    "en": 0,
+    "zh": 0,
+    "ja": 1
+   },
+   "G3": {
+    "en": 1,
+    "zh": 0,
+    "ja": 1
+   }
+  }
+ }
 }

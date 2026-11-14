@@ -18,9 +18,10 @@ def top_subtype(row: dict, lang: str, src: str) -> str:
         p = row["_subprobs"]
     elif src == "S":
         p = row["s__subprobs"]
-    else:  # ens: sum of available sources
+    else:  # ens: sum of the listed sources ("ens" = D + Sept; "ens:a,b" = explicit prefixes)
         p = {}
-        for k in ("_subprobs", "s__subprobs", "n__subprobs"):
+        keys = ("_subprobs", "s__subprobs") if src == "ens" else tuple(x + "_subprobs" for x in src[4:].split(","))
+        for k in keys:
             for s, v in (row.get(k) or {}).items():
                 p[s] = p.get(s, 0) + v
     return max(cands, key=lambda s: p.get(s, 0.0))
@@ -28,6 +29,11 @@ def top_subtype(row: dict, lang: str, src: str) -> str:
 
 def det_score(row: dict, mode: str) -> float:
     e = row.get("err", 0.0)
+    if mode.startswith("mean:"):
+        ks = mode[5:].split(",")
+        return sum(row[k] for k in ks) / len(ks)
+    if mode.startswith("max:"):
+        return max(row[k] for k in mode[4:].split(","))
     if mode == "D":
         return e
     if mode == "S":
