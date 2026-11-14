@@ -22,6 +22,12 @@
 --
 -- The composed factor is persisted to test_attempts.elo_reduction_factor so
 -- the existing profile.html "Review · 0.45×" badge renderer picks it up.
+--
+-- SECURITY (hardened in place so re-running this file cannot reopen client
+-- access): pinned search_path, a gate that rejects a NULL auth.uid() unless
+-- the caller is the service-role backend, and EXECUTE for service_role only.
+-- This matches the live state set by sec_submission_rpcs_auth_gate.sql and
+-- security_function_grants_group_b.sql. Function logic is otherwise unchanged.
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION public.process_dictation_submission(
@@ -39,7 +45,7 @@ CREATE OR REPLACE FUNCTION public.process_dictation_submission(
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO 'public', 'pg_temp'
+SET search_path = public, pg_temp
 AS $function$
 DECLARE
   v_user_elo integer;
@@ -72,8 +78,13 @@ BEGIN
   -- ========================================================================
   -- SECURITY
   -- ========================================================================
-  IF p_user_id != auth.uid() THEN
-    RAISE EXCEPTION 'Unauthorized: Cannot submit test for another user';
+  -- Caller must be the user themselves, or the service-role backend (which has
+  -- already verified the user's JWT). Written so a NULL auth.uid() REJECTS.
+  -- RETURN (not RAISE) so WHEN OTHERS doesn't flatten it.
+  IF p_user_id IS NULL
+     OR (auth.uid() IS DISTINCT FROM p_user_id
+         AND COALESCE(auth.role(), '') <> 'service_role') THEN
+    RETURN jsonb_build_object('success', false, 'error_code', 'unauthorized');
   END IF;
 
   -- ========================================================================
@@ -380,4 +391,6 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $function$;
 
-GRANT EXECUTE ON FUNCTION public.process_dictation_submission TO authenticated;
+REVOKE ALL ON FUNCTION public.process_dictation_submission(uuid, uuid, smallint, smallint, integer, integer, smallint, jsonb, boolean, uuid)
+    FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.process_dictation_submission(uuid, uuid, smallint, smallint, integer, integer, smallint, jsonb, boolean, uuid) TO service_role;
