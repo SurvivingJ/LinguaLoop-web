@@ -47,7 +47,7 @@ def test_moderation_route_returns_200_for_safe_content(client, app):
         'error': None,
     }
 
-    with patch('routes.tests.get_test_service') as get_svc:
+    with patch('routes.tests.catalog.get_test_service') as get_svc:
         resp = _post_moderate(client, 'totally fine')
 
         assert resp.status_code == 200
@@ -67,7 +67,7 @@ def test_moderation_route_returns_200_with_flagged_for_unsafe(client, app):
         'error': None,
     }
 
-    with patch('routes.tests.get_test_service') as get_svc:
+    with patch('routes.tests.catalog.get_test_service') as get_svc:
         fake_test_service = MagicMock()
         get_svc.return_value = fake_test_service
 
@@ -92,7 +92,7 @@ def test_moderation_route_returns_503_when_service_raises(client, app):
         'OpenAI moderation timed out'
     )
 
-    with patch('routes.tests.get_test_service') as get_svc:
+    with patch('routes.tests.catalog.get_test_service') as get_svc:
         resp = _post_moderate(client, 'any content')
 
         assert resp.status_code == 503, (

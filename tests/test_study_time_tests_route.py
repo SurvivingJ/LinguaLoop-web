@@ -128,10 +128,10 @@ class TestTestSubmitRoutes:
     def test_reading_submit_credits_once(self, client, auth_headers, db):
         body = {'responses': [{'question_id': 'q', 'selected_answer': 'a'}],
                 'test_mode': 'reading', **window(240)}
-        with patch('routes.tests._call_submission_rpc', return_value=_rpc_ok()), \
-             patch('routes.tests._update_vocabulary_tracking', return_value=None), \
-             patch('routes.tests._build_submission_response', return_value={}), \
-             patch('routes.tests._attach_explanations'), \
+        with patch('routes.tests.submit._call_submission_rpc', return_value=_rpc_ok()), \
+             patch('routes.tests.submit._update_vocabulary_tracking', return_value=None), \
+             patch('routes.tests.submit._build_submission_response', return_value={}), \
+             patch('routes.tests.submit._attach_explanations'), \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=1):
             r = client.post('/api/tests/slug/submit', json=body, headers=auth_headers)
         assert r.status_code == 200, r.data
@@ -141,19 +141,20 @@ class TestTestSubmitRoutes:
 
     def test_reading_submit_without_window_no_credit(self, client, auth_headers, db):
         body = {'responses': [{'question_id': 'q', 'selected_answer': 'a'}]}
-        with patch('routes.tests._call_submission_rpc', return_value=_rpc_ok()), \
-             patch('routes.tests._update_vocabulary_tracking', return_value=None), \
-             patch('routes.tests._build_submission_response', return_value={}), \
-             patch('routes.tests._attach_explanations'), \
+        with patch('routes.tests.submit._call_submission_rpc', return_value=_rpc_ok()), \
+             patch('routes.tests.submit._update_vocabulary_tracking', return_value=None), \
+             patch('routes.tests.submit._build_submission_response', return_value={}), \
+             patch('routes.tests.submit._attach_explanations'), \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=1):
             r = client.post('/api/tests/slug/submit', json=body, headers=auth_headers)
         assert r.status_code == 200
         assert db.credits() == []
 
     def test_pinyin_submit_credits(self, client, auth_headers, db):
-        db.test_row = {'id': 7, 'language_id': 1}
+        db.test_row = {'id': 7, 'language_id': 1,
+                       'pinyin_payload': [{'char': c, 'is_punctuation': False} for c in '一二三四']}
         body = {'correct_chars': 3, 'total_chars': 4, **window(90)}
-        with patch('routes.tests._call_pinyin_submission_rpc', return_value=_rpc_ok('att-p')), \
+        with patch('routes.tests.submit._call_pinyin_submission_rpc', return_value=_rpc_ok('att-p')), \
              patch('routes.tests.DimensionService.get_test_type_id', return_value=9):
             r = client.post('/api/tests/slug/submit-pinyin', json=body, headers=auth_headers)
         assert r.status_code == 200, r.data

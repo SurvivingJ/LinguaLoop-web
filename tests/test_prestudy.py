@@ -8,7 +8,7 @@ client with the DB-touching helpers monkeypatched for the routes.
 import json
 from unittest.mock import MagicMock
 
-import routes.tests as test_routes
+import routes.tests.prestudy as test_routes
 from routes.tests import _call_submission_rpc
 from services import prestudy
 
