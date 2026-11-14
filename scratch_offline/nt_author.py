@@ -63,8 +63,56 @@ def runner(cmd, run, *extra):
 LIMIT_WAIT = 600  # seconds between retries while a usage limit is in force
 
 
+# NT_TRANSPORT=api sends the same calls straight to the Anthropic Messages API
+# (key in CLAUDE_API, or ANTHROPIC_API_KEY) instead of `claude -p`. Same models,
+# effort, system prompt and prompt; the reply is shaped like the CLI's JSON so
+# call_model is unchanged. Costs are computed from the per-MTok prices below.
+API_MODELS = {'haiku': 'claude-haiku-5-5', 'sonnet': 'claude-sonnet-5-5', 'opus': 'claude-opus-5-5'}
+API_PRICES = {  # $/MTok: input, output, cache read, cache write (5 min)
+    'claude-haiku-5-5': (0.10, 0.50, 0.01, 0.125),
+    'claude-sonnet-5-5': (2.00, 10.00, 0.10, 2.50),
+    'claude-opus-5-5': (4.00, 20.00, 0.20, 5.00),
+}
+_api_client = None
+
+
+class _ApiProc:  # stands in for subprocess.CompletedProcess in call_model
+    def __init__(self, stdout='', stderr=''):
+        self.stdout, self.stderr = stdout, stderr
+
+
+def _api(args, system, prompt):
+    global _api_client
+    import anthropic
+    if _api_client is None:
+        _api_client = anthropic.Anthropic(
+            api_key=os.environ.get('CLAUDE_API') or os.environ.get('ANTHROPIC_API_KEY'),
+            base_url='https://api.anthropic.com', max_retries=4, timeout=1800)
+    model = API_MODELS.get(args.model, args.model)
+    try:
+        with _api_client.messages.stream(
+                model=model, max_tokens=64000, output_config={'effort': args.effort},
+                system=[{'type': 'text', 'text': system, 'cache_control': {'type': 'ephemeral'}}],
+                messages=[{'role': 'user', 'content': prompt}]) as stream:
+            msg = stream.get_final_message()
+    except (anthropic.RateLimitError, anthropic.InternalServerError) as e:
+        return {'is_error': True, 'result': f'rate limit / overloaded 429 529: {e}'}, _ApiProc(stderr=str(e))
+    u = msg.usage
+    pi, po, pcr, pcw = API_PRICES.get(model, (0, 0, 0, 0))
+    cr, cw = u.cache_read_input_tokens or 0, u.cache_creation_input_tokens or 0
+    cost = (u.input_tokens * pi + u.output_tokens * po + cr * pcr + cw * pcw) / 1e6
+    text = ''.join(b.text for b in msg.content if b.type == 'text')
+    res = {'result': text, 'is_error': msg.stop_reason == 'refusal', 'stop_reason': msg.stop_reason,
+           'total_cost_usd': round(cost, 6),
+           'usage': {'input_tokens': u.input_tokens, 'output_tokens': u.output_tokens,
+                     'cache_read_input_tokens': cr, 'cache_creation_input_tokens': cw}}
+    return res, _ApiProc()
+
+
 def _cli(args, system, prompt):
     system = nt_lang.localise(system)  # NT_LANG: name the target language
+    if os.environ.get('NT_TRANSPORT') == 'api':
+        return _api(args, system, prompt)
     p = subprocess.run(
         ['claude', '-p', '--model', args.model, '--effort', args.effort,
          '--tools', '', '--no-session-persistence', '--output-format', 'json',
