@@ -1,0 +1,7994 @@
+{
+ "graders": {
+  "deepseek-v4.1-flash p1_expl": {
+   "en/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.917,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": -0.05,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.9,
+    "span_p": 0.941,
+    "span_r": 1.0,
+    "tp_fp_fn": [
+     16,
+     1,
+     0
+    ],
+    "type_top1": 0.75,
+    "type_n": 16,
+    "sev_exact": 0.875,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 58,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 16,
+      "flagged_major_plus": 9
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 16,
+      "sentence_flagged": 16,
+      "span_located": 16
+     }
+    },
+    "usd_per_item": 1.79e-05,
+    "p50_latency_s": 1.91,
+    "p90_latency_s": 3.04,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 17,
+    "severity_rule": "prior"
+   },
+   "en/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.789,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 1.0,
+    "exact_fidelity": 1.0,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 0.958,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.9,
+    "span_p": 0.882,
+    "span_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     2,
+     1
+    ],
+    "type_top1": 0.867,
+    "type_n": 15,
+    "sev_exact": 0.933,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 25,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 35,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 5,
+      "flagged": 4,
+      "flagged_major_plus": 3
+     },
+     "err_verbatim_edit": {
+      "n": 11,
+      "flagged": 11,
+      "flagged_major_plus": 4
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 5,
+      "sentence_flagged": 4,
+      "span_located": 4
+     },
+     "verbatim": {
+      "n": 11,
+      "sentence_flagged": 11,
+      "span_located": 11
+     }
+    },
+    "usd_per_item": 2.23e-05,
+    "p50_latency_s": 1.55,
+    "p90_latency_s": 1.9,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 17,
+    "severity_rule": "prior"
+   },
+   "en/heavy": {
+    "n": 19,
+    "qwk_accuracy": 0.888,
+    "exact_accuracy": 0.947,
+    "mean_signed_err_accuracy": 0.053,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.947,
+    "mean_signed_err_fidelity": -0.053,
+    "qwk_understandability": 0.958,
+    "exact_understandability": 0.947,
+    "mean_signed_err_understandability": 0.053,
+    "exact_3dim": 0.895,
+    "span_p": 0.619,
+    "span_r": 0.867,
+    "tp_fp_fn": [
+     13,
+     8,
+     2
+    ],
+    "type_top1": 0.846,
+    "type_n": 13,
+    "sev_exact": 0.923,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 2,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 57,
+      "flagged": 6,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 8,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 5,
+      "flagged": 5,
+      "flagged_major_plus": 2
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 10,
+      "sentence_flagged": 8,
+      "span_located": 8
+     },
+     "verbatim": {
+      "n": 5,
+      "sentence_flagged": 5,
+      "span_located": 5
+     }
+    },
+    "usd_per_item": 2.74e-05,
+    "p50_latency_s": 1.39,
+    "p90_latency_s": 2.65,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 21,
+    "severity_rule": "prior"
+   },
+   "zh/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.537,
+    "exact_accuracy": 0.75,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.94,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 0.933,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.05,
+    "exact_3dim": 0.75,
+    "span_p": 0.933,
+    "span_r": 0.875,
+    "tp_fp_fn": [
+     14,
+     1,
+     2
+    ],
+    "type_top1": 0.786,
+    "type_n": 14,
+    "sev_exact": 0.786,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 15,
+      "flagged": 13,
+      "flagged_major_plus": 10
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 16,
+      "sentence_flagged": 14,
+      "span_located": 14
+     }
+    },
+    "usd_per_item": 3.17e-05,
+    "p50_latency_s": 1.8,
+    "p90_latency_s": 3.86,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 15,
+    "severity_rule": "model"
+   },
+   "zh/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.211,
+    "exact_accuracy": 0.7,
+    "mean_signed_err_accuracy": 0.1,
+    "qwk_fidelity": 0.91,
+    "exact_fidelity": 0.85,
+    "mean_signed_err_fidelity": -0.05,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.7,
+    "span_p": 0.769,
+    "span_r": 0.625,
+    "tp_fp_fn": [
+     10,
+     3,
+     6
+    ],
+    "type_top1": 0.7,
+    "type_n": 10,
+    "sev_exact": 0.9,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 30,
+      "flagged": 2,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 7,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 8,
+      "flagged": 4,
+      "flagged_major_plus": 3
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 7,
+      "sentence_flagged": 5,
+      "span_located": 5
+     },
+     "verbatim": {
+      "n": 9,
+      "sentence_flagged": 5,
+      "span_located": 5
+     }
+    },
+    "usd_per_item": 2.82e-05,
+    "p50_latency_s": 1.73,
+    "p90_latency_s": 2.16,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 13,
+    "severity_rule": "model"
+   },
+   "zh/heavy": {
+    "n": 18,
+    "qwk_accuracy": 0.368,
+    "exact_accuracy": 0.778,
+    "mean_signed_err_accuracy": 0.111,
+    "qwk_fidelity": 0.744,
+    "exact_fidelity": 0.889,
+    "mean_signed_err_fidelity": -0.111,
+    "qwk_understandability": 0.769,
+    "exact_understandability": 0.944,
+    "mean_signed_err_understandability": -0.111,
+    "exact_3dim": 0.778,
+    "span_p": 0.889,
+    "span_r": 0.615,
+    "tp_fp_fn": [
+     8,
+     1,
+     5
+    ],
+    "type_top1": 0.625,
+    "type_n": 8,
+    "sev_exact": 0.875,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 53,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 8,
+      "flagged_major_plus": 6
+     },
+     "err_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 10,
+      "sentence_flagged": 8,
+      "span_located": 8
+     },
+     "verbatim": {
+      "n": 3,
+      "sentence_flagged": 0,
+      "span_located": 0
+     }
+    },
+    "usd_per_item": 3.78e-05,
+    "p50_latency_s": 1.47,
+    "p90_latency_s": 1.9,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 9,
+    "severity_rule": "model"
+   },
+   "ja/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.875,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.875,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": -0.15,
+    "qwk_understandability": 0.853,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.1,
+    "exact_3dim": 0.85,
+    "span_p": 1.0,
+    "span_r": 1.0,
+    "tp_fp_fn": [
+     17,
+     0,
+     0
+    ],
+    "type_top1": 0.882,
+    "type_n": 17,
+    "sev_exact": 0.824,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 52,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 16,
+      "flagged_major_plus": 13
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 17,
+      "sentence_flagged": 17,
+      "span_located": 17
+     }
+    },
+    "usd_per_item": 3.74e-05,
+    "p50_latency_s": 1.97,
+    "p90_latency_s": 2.46,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 17,
+    "severity_rule": "prior"
+   },
+   "ja/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.529,
+    "exact_accuracy": 0.8,
+    "mean_signed_err_accuracy": -0.1,
+    "qwk_fidelity": 0.81,
+    "exact_fidelity": 0.75,
+    "mean_signed_err_fidelity": -0.2,
+    "qwk_understandability": 0.715,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.15,
+    "exact_3dim": 0.65,
+    "span_p": 0.625,
+    "span_r": 0.882,
+    "tp_fp_fn": [
+     15,
+     9,
+     2
+    ],
+    "type_top1": 0.8,
+    "type_n": 15,
+    "sev_exact": 0.8,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 28,
+      "flagged": 5,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 6,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 10,
+      "flagged": 10,
+      "flagged_major_plus": 8
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 6,
+      "sentence_flagged": 5,
+      "span_located": 4
+     },
+     "verbatim": {
+      "n": 11,
+      "sentence_flagged": 11,
+      "span_located": 11
+     }
+    },
+    "usd_per_item": 3.36e-05,
+    "p50_latency_s": 1.76,
+    "p90_latency_s": 2.57,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 24,
+    "severity_rule": "prior"
+   },
+   "ja/heavy": {
+    "n": 16,
+    "qwk_accuracy": 0.673,
+    "exact_accuracy": 0.875,
+    "mean_signed_err_accuracy": -0.125,
+    "qwk_fidelity": 0.635,
+    "exact_fidelity": 0.625,
+    "mean_signed_err_fidelity": -0.5,
+    "qwk_understandability": 0.389,
+    "exact_understandability": 0.812,
+    "mean_signed_err_understandability": -0.312,
+    "exact_3dim": 0.562,
+    "span_p": 0.48,
+    "span_r": 1.0,
+    "tp_fp_fn": [
+     12,
+     13,
+     0
+    ],
+    "type_top1": 0.75,
+    "type_n": 12,
+    "sev_exact": 0.667,
+    "clean_items": {
+     "n_clean": 5,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 42,
+      "flagged": 5,
+      "flagged_major_plus": 1
+     },
+     "err_para": {
+      "n": 11,
+      "flagged": 11,
+      "flagged_major_plus": 11
+     },
+     "err_verbatim_edit": {
+      "n": 1,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 11,
+      "sentence_flagged": 11,
+      "span_located": 11
+     },
+     "verbatim": {
+      "n": 1,
+      "sentence_flagged": 1,
+      "span_located": 1
+     }
+    },
+    "usd_per_item": 3.85e-05,
+    "p50_latency_s": 1.79,
+    "p90_latency_s": 2.45,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 25,
+    "severity_rule": "prior"
+   }
+  },
+  "gpt-6-luna p1_expl": {
+   "en/orig": {
+    "n": 20,
+    "qwk_accuracy": 1.0,
+    "exact_accuracy": 1.0,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.9,
+    "span_p": 1.0,
+    "span_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     0,
+     1
+    ],
+    "type_top1": 0.8,
+    "type_n": 15,
+    "sev_exact": 0.867,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 58,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 15,
+      "flagged_major_plus": 6
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 16,
+      "sentence_flagged": 15,
+      "span_located": 15
+     }
+    },
+    "usd_per_item": 4.1e-05,
+    "p50_latency_s": 1.19,
+    "p90_latency_s": 1.65,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 15,
+    "severity_rule": "prior"
+   },
+   "en/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.889,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": 0.05,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.898,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": 0.1,
+    "exact_3dim": 0.85,
+    "span_p": 1.0,
+    "span_r": 0.812,
+    "tp_fp_fn": [
+     13,
+     0,
+     3
+    ],
+    "type_top1": 0.769,
+    "type_n": 13,
+    "sev_exact": 0.846,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 25,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 35,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 5,
+      "flagged": 4,
+      "flagged_major_plus": 3
+     },
+     "err_verbatim_edit": {
+      "n": 11,
+      "flagged": 9,
+      "flagged_major_plus": 2
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 5,
+      "sentence_flagged": 4,
+      "span_located": 4
+     },
+     "verbatim": {
+      "n": 11,
+      "sentence_flagged": 9,
+      "span_located": 9
+     }
+    },
+    "usd_per_item": 4.19e-05,
+    "p50_latency_s": 1.2,
+    "p90_latency_s": 1.57,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 13,
+    "severity_rule": "prior"
+   },
+   "en/heavy": {
+    "n": 19,
+    "qwk_accuracy": 0.888,
+    "exact_accuracy": 0.947,
+    "mean_signed_err_accuracy": 0.053,
+    "qwk_fidelity": 0.969,
+    "exact_fidelity": 0.947,
+    "mean_signed_err_fidelity": 0.053,
+    "qwk_understandability": 0.897,
+    "exact_understandability": 0.895,
+    "mean_signed_err_understandability": 0.105,
+    "exact_3dim": 0.842,
+    "span_p": 0.923,
+    "span_r": 0.8,
+    "tp_fp_fn": [
+     12,
+     1,
+     3
+    ],
+    "type_top1": 0.75,
+    "type_n": 12,
+    "sev_exact": 0.833,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 57,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 8,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 5,
+      "flagged": 4,
+      "flagged_major_plus": 1
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 10,
+      "sentence_flagged": 8,
+      "span_located": 8
+     },
+     "verbatim": {
+      "n": 5,
+      "sentence_flagged": 4,
+      "span_located": 4
+     }
+    },
+    "usd_per_item": 4.47e-05,
+    "p50_latency_s": 1.2,
+    "p90_latency_s": 1.49,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 13,
+    "severity_rule": "prior"
+   },
+   "zh/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.737,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": 0.1,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": -0.05,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.9,
+    "span_p": 0.929,
+    "span_r": 0.812,
+    "tp_fp_fn": [
+     13,
+     1,
+     3
+    ],
+    "type_top1": 0.769,
+    "type_n": 13,
+    "sev_exact": 0.692,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 15,
+      "flagged": 13,
+      "flagged_major_plus": 8
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 16,
+      "sentence_flagged": 14,
+      "span_located": 13
+     }
+    },
+    "usd_per_item": 5.31e-05,
+    "p50_latency_s": 1.56,
+    "p90_latency_s": 2.25,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 14,
+    "severity_rule": "model"
+   },
+   "zh/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.875,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": 0.05,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.9,
+    "span_p": 0.917,
+    "span_r": 0.688,
+    "tp_fp_fn": [
+     11,
+     1,
+     5
+    ],
+    "type_top1": 0.909,
+    "type_n": 11,
+    "sev_exact": 0.636,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 30,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 7,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 8,
+      "flagged": 6,
+      "flagged_major_plus": 3
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 7,
+      "sentence_flagged": 5,
+      "span_located": 5
+     },
+     "verbatim": {
+      "n": 9,
+      "sentence_flagged": 7,
+      "span_located": 6
+     }
+    },
+    "usd_per_item": 5.59e-05,
+    "p50_latency_s": 1.35,
+    "p90_latency_s": 1.7,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 12,
+    "severity_rule": "model"
+   },
+   "zh/heavy": {
+    "n": 18,
+    "qwk_accuracy": 0.684,
+    "exact_accuracy": 0.889,
+    "mean_signed_err_accuracy": 0.111,
+    "qwk_fidelity": 0.939,
+    "exact_fidelity": 0.889,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.833,
+    "span_p": 0.875,
+    "span_r": 0.538,
+    "tp_fp_fn": [
+     7,
+     1,
+     6
+    ],
+    "type_top1": 0.857,
+    "type_n": 7,
+    "sev_exact": 0.714,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 6,
+      "flagged_major_plus": 6
+     },
+     "err_verbatim_edit": {
+      "n": 3,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 10,
+      "sentence_flagged": 6,
+      "span_located": 6
+     },
+     "verbatim": {
+      "n": 3,
+      "sentence_flagged": 1,
+      "span_located": 1
+     }
+    },
+    "usd_per_item": 5.89e-05,
+    "p50_latency_s": 1.23,
+    "p90_latency_s": 1.78,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 8,
+    "severity_rule": "model"
+   },
+   "ja/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.875,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.941,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.9,
+    "span_p": 0.938,
+    "span_r": 0.882,
+    "tp_fp_fn": [
+     15,
+     1,
+     2
+    ],
+    "type_top1": 0.867,
+    "type_n": 15,
+    "sev_exact": 0.933,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 52,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 15,
+      "flagged_major_plus": 12
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 17,
+      "sentence_flagged": 16,
+      "span_located": 15
+     }
+    },
+    "usd_per_item": 5.94e-05,
+    "p50_latency_s": 1.28,
+    "p90_latency_s": 1.91,
+    "json_valid": 1.0,
+    "span_not_verbatim": 1,
+    "n_pred_errors": 16,
+    "severity_rule": "model"
+   },
+   "ja/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.733,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.9,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": -0.1,
+    "qwk_understandability": 0.715,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.15,
+    "exact_3dim": 0.85,
+    "span_p": 0.933,
+    "span_r": 0.824,
+    "tp_fp_fn": [
+     14,
+     1,
+     3
+    ],
+    "type_top1": 0.857,
+    "type_n": 14,
+    "sev_exact": 0.786,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 28,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 6,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 10,
+      "flagged": 8,
+      "flagged_major_plus": 7
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 6,
+      "sentence_flagged": 5,
+      "span_located": 5
+     },
+     "verbatim": {
+      "n": 11,
+      "sentence_flagged": 9,
+      "span_located": 9
+     }
+    },
+    "usd_per_item": 6.56e-05,
+    "p50_latency_s": 1.41,
+    "p90_latency_s": 1.72,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 15,
+    "severity_rule": "model"
+   },
+   "ja/heavy": {
+    "n": 16,
+    "qwk_accuracy": 0.818,
+    "exact_accuracy": 0.938,
+    "mean_signed_err_accuracy": -0.062,
+    "qwk_fidelity": 0.949,
+    "exact_fidelity": 0.938,
+    "mean_signed_err_fidelity": 0.062,
+    "qwk_understandability": 0.879,
+    "exact_understandability": 0.938,
+    "mean_signed_err_understandability": 0.062,
+    "exact_3dim": 0.875,
+    "span_p": 0.909,
+    "span_r": 0.833,
+    "tp_fp_fn": [
+     10,
+     1,
+     2
+    ],
+    "type_top1": 0.9,
+    "type_n": 10,
+    "sev_exact": 0.8,
+    "clean_items": {
+     "n_clean": 5,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 42,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 11,
+      "flagged": 10,
+      "flagged_major_plus": 8
+     },
+     "err_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 11,
+      "sentence_flagged": 10,
+      "span_located": 10
+     },
+     "verbatim": {
+      "n": 1,
+      "sentence_flagged": 0,
+      "span_located": 0
+     }
+    },
+    "usd_per_item": 6.82e-05,
+    "p50_latency_s": 1.31,
+    "p90_latency_s": 1.87,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 11,
+    "severity_rule": "model"
+   }
+  },
+  "A_fused (jev-1.13)": {
+   "en/orig": {
+    "n": 20,
+    "n_units": 22,
+    "qwk_accuracy": 1.0,
+    "exact_accuracy": 1.0,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.444,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.9,
+    "unit_p": 1.0,
+    "unit_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     0,
+     1
+    ],
+    "type_top1": 0.867,
+    "sev_exact": 0.867,
+    "auc": 0.979,
+    "unit_split": {
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.938,
+      "tp": 15,
+      "fp": 0,
+      "fn": 1,
+      "tn": 6,
+      "subtype_top1": 0.867,
+      "severity_acc": 0.867
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 58,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 15,
+      "flagged_major_plus": 8
+     }
+    },
+    "usd_per_item": 0.000193,
+    "p50_latency_s": 0.34
+   },
+   "en/moderate": {
+    "n": 20,
+    "n_units": 55,
+    "qwk_accuracy": 0.72,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": 0.15,
+    "qwk_fidelity": 0.531,
+    "exact_fidelity": 0.85,
+    "mean_signed_err_fidelity": -0.2,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.85,
+    "unit_p": 0.833,
+    "unit_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     3,
+     1
+    ],
+    "type_top1": 0.8,
+    "sev_exact": 0.867,
+    "auc": 0.942,
+    "unit_split": {
+     "para": {
+      "precision": 0.625,
+      "recall": 1.0,
+      "tp": 5,
+      "fp": 3,
+      "fn": 0,
+      "tn": 32,
+      "subtype_top1": 0.8,
+      "severity_acc": 1.0
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.909,
+      "tp": 10,
+      "fp": 0,
+      "fn": 1,
+      "tn": 4,
+      "subtype_top1": 0.8,
+      "severity_acc": 0.8
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 25,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 35,
+      "flagged": 3,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 5,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 11,
+      "flagged": 10,
+      "flagged_major_plus": 4
+     }
+    },
+    "usd_per_item": 0.000486,
+    "p50_latency_s": 0.4
+   },
+   "en/heavy": {
+    "n": 19,
+    "n_units": 73,
+    "qwk_accuracy": 0.716,
+    "exact_accuracy": 0.947,
+    "mean_signed_err_accuracy": 0.158,
+    "qwk_fidelity": 0.414,
+    "exact_fidelity": 0.789,
+    "mean_signed_err_fidelity": -0.158,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.789,
+    "unit_p": 0.667,
+    "unit_r": 0.933,
+    "tp_fp_fn": [
+     14,
+     7,
+     1
+    ],
+    "type_top1": 0.857,
+    "sev_exact": 0.857,
+    "auc": 0.93,
+    "unit_split": {
+     "para": {
+      "precision": 0.562,
+      "recall": 0.9,
+      "tp": 9,
+      "fp": 7,
+      "fn": 1,
+      "tn": 50,
+      "subtype_top1": 0.889,
+      "severity_acc": 1.0
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "subtype_top1": 0.8,
+      "severity_acc": 0.6
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 2,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 57,
+      "flagged": 7,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 9,
+      "flagged_major_plus": 6
+     },
+     "err_verbatim_edit": {
+      "n": 5,
+      "flagged": 5,
+      "flagged_major_plus": 2
+     }
+    },
+    "usd_per_item": 0.000681,
+    "p50_latency_s": 0.43
+   },
+   "zh/orig": {
+    "n": 20,
+    "n_units": 21,
+    "qwk_accuracy": 0.474,
+    "exact_accuracy": 0.8,
+    "mean_signed_err_accuracy": 0.1,
+    "qwk_fidelity": 0.94,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.75,
+    "unit_p": 0.917,
+    "unit_r": 0.733,
+    "tp_fp_fn": [
+     11,
+     1,
+     4
+    ],
+    "type_top1": 0.818,
+    "sev_exact": 0.818,
+    "auc": 0.911,
+    "unit_split": {
+     "verbatim": {
+      "precision": 0.917,
+      "recall": 0.733,
+      "tp": 11,
+      "fp": 1,
+      "fn": 4,
+      "tn": 5,
+      "subtype_top1": 0.818,
+      "severity_acc": 0.818
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 15,
+      "flagged": 11,
+      "flagged_major_plus": 7
+     }
+    },
+    "usd_per_item": 0.000249,
+    "p50_latency_s": 0.37
+   },
+   "zh/moderate": {
+    "n": 20,
+    "n_units": 48,
+    "qwk_accuracy": 0.516,
+    "exact_accuracy": 0.7,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.859,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": -0.05,
+    "qwk_understandability": 0.872,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": -0.1,
+    "exact_3dim": 0.65,
+    "unit_p": 0.55,
+    "unit_r": 0.733,
+    "tp_fp_fn": [
+     11,
+     9,
+     4
+    ],
+    "type_top1": 0.727,
+    "sev_exact": 0.818,
+    "auc": 0.811,
+    "unit_split": {
+     "para": {
+      "precision": 0.438,
+      "recall": 1.0,
+      "tp": 7,
+      "fp": 9,
+      "fn": 0,
+      "tn": 21,
+      "subtype_top1": 0.714,
+      "severity_acc": 0.714
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "tp": 4,
+      "fp": 0,
+      "fn": 4,
+      "tn": 3,
+      "subtype_top1": 0.75,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 3,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 30,
+      "flagged": 9,
+      "flagged_major_plus": 2
+     },
+     "clean_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 7,
+      "flagged": 7,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 8,
+      "flagged": 4,
+      "flagged_major_plus": 3
+     }
+    },
+    "usd_per_item": 0.00058,
+    "p50_latency_s": 0.41
+   },
+   "zh/heavy": {
+    "n": 18,
+    "n_units": 68,
+    "qwk_accuracy": 0.287,
+    "exact_accuracy": 0.722,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.858,
+    "exact_fidelity": 0.889,
+    "mean_signed_err_fidelity": -0.167,
+    "qwk_understandability": 0.87,
+    "exact_understandability": 0.889,
+    "mean_signed_err_understandability": -0.111,
+    "exact_3dim": 0.667,
+    "unit_p": 0.323,
+    "unit_r": 0.769,
+    "tp_fp_fn": [
+     10,
+     21,
+     3
+    ],
+    "type_top1": 0.6,
+    "sev_exact": 0.8,
+    "auc": 0.785,
+    "unit_split": {
+     "para": {
+      "precision": 0.323,
+      "recall": 1.0,
+      "tp": 10,
+      "fp": 21,
+      "fn": 0,
+      "tn": 32,
+      "subtype_top1": 0.6,
+      "severity_acc": 0.8
+     },
+     "verbatim": {
+      "precision": null,
+      "recall": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 3,
+      "tn": 2,
+      "subtype_top1": null,
+      "severity_acc": null
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 5,
+     "flagged_major_plus": 0,
+     "band_below_4": 1
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 53,
+      "flagged": 21,
+      "flagged_major_plus": 2
+     },
+     "clean_verbatim_edit": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 10,
+      "flagged_major_plus": 6
+     },
+     "err_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "usd_per_item": 0.000919,
+    "p50_latency_s": 0.48
+   },
+   "ja/orig": {
+    "n": 20,
+    "n_units": 22,
+    "qwk_accuracy": 0.286,
+    "exact_accuracy": 0.75,
+    "mean_signed_err_accuracy": 0.05,
+    "qwk_fidelity": 0.941,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0.1,
+    "qwk_understandability": 0.898,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": 0.1,
+    "exact_3dim": 0.65,
+    "unit_p": 0.941,
+    "unit_r": 1.0,
+    "tp_fp_fn": [
+     16,
+     1,
+     0
+    ],
+    "type_top1": 0.625,
+    "sev_exact": 0.562,
+    "auc": 0.979,
+    "unit_split": {
+     "verbatim": {
+      "precision": 0.941,
+      "recall": 1.0,
+      "tp": 16,
+      "fp": 1,
+      "fn": 0,
+      "tn": 5,
+      "subtype_top1": 0.625,
+      "severity_acc": 0.562
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 52,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 16,
+      "flagged_major_plus": 8
+     }
+    },
+    "usd_per_item": 0.000298,
+    "p50_latency_s": 0.36
+   },
+   "ja/moderate": {
+    "n": 20,
+    "n_units": 48,
+    "qwk_accuracy": -0.053,
+    "exact_accuracy": 0.65,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.778,
+    "exact_fidelity": 0.6,
+    "mean_signed_err_fidelity": -0.2,
+    "qwk_understandability": 0.85,
+    "exact_understandability": 0.85,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.45,
+    "unit_p": 0.5,
+    "unit_r": 1.0,
+    "tp_fp_fn": [
+     16,
+     16,
+     0
+    ],
+    "type_top1": 0.438,
+    "sev_exact": 0.625,
+    "auc": 0.918,
+    "unit_split": {
+     "para": {
+      "precision": 0.286,
+      "recall": 1.0,
+      "tp": 6,
+      "fp": 15,
+      "fn": 0,
+      "tn": 13,
+      "subtype_top1": 0.167,
+      "severity_acc": 0.5
+     },
+     "verbatim": {
+      "precision": 0.909,
+      "recall": 1.0,
+      "tp": 10,
+      "fp": 1,
+      "fn": 0,
+      "tn": 3,
+      "subtype_top1": 0.6,
+      "severity_acc": 0.7
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 5,
+     "flagged_major_plus": 1,
+     "band_below_4": 3
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 28,
+      "flagged": 15,
+      "flagged_major_plus": 2
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 6,
+      "flagged": 6,
+      "flagged_major_plus": 1
+     },
+     "err_verbatim_edit": {
+      "n": 10,
+      "flagged": 10,
+      "flagged_major_plus": 6
+     }
+    },
+    "usd_per_item": 0.000659,
+    "p50_latency_s": 0.43
+   },
+   "ja/heavy": {
+    "n": 16,
+    "n_units": 54,
+    "qwk_accuracy": 0.2,
+    "exact_accuracy": 0.75,
+    "mean_signed_err_accuracy": -0.188,
+    "qwk_fidelity": 0.654,
+    "exact_fidelity": 0.562,
+    "mean_signed_err_fidelity": -0.188,
+    "qwk_understandability": 0.895,
+    "exact_understandability": 0.938,
+    "mean_signed_err_understandability": -0.062,
+    "exact_3dim": 0.438,
+    "unit_p": 0.364,
+    "unit_r": 1.0,
+    "tp_fp_fn": [
+     12,
+     21,
+     0
+    ],
+    "type_top1": 0.417,
+    "sev_exact": 0.5,
+    "auc": 0.927,
+    "unit_split": {
+     "para": {
+      "precision": 0.344,
+      "recall": 1.0,
+      "tp": 11,
+      "fp": 21,
+      "fn": 0,
+      "tn": 21,
+      "subtype_top1": 0.364,
+      "severity_acc": 0.455
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 5,
+     "flagged_any": 3,
+     "flagged_major_plus": 1,
+     "band_below_4": 2
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 42,
+      "flagged": 21,
+      "flagged_major_plus": 2
+     },
+     "err_para": {
+      "n": 11,
+      "flagged": 11,
+      "flagged_major_plus": 6
+     },
+     "err_verbatim_edit": {
+      "n": 1,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     }
+    },
+    "usd_per_item": 0.000932,
+    "p50_latency_s": 0.42
+   }
+  },
+  "A_D_only (jev-1.13)": {
+   "en/orig": {
+    "n": 20,
+    "n_units": 22,
+    "qwk_accuracy": 0.974,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": 0.05,
+    "qwk_fidelity": 0.643,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.9,
+    "unit_p": 1.0,
+    "unit_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     0,
+     1
+    ],
+    "type_top1": 0.867,
+    "sev_exact": 0.867,
+    "auc": 0.979,
+    "unit_split": {
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.938,
+      "tp": 15,
+      "fp": 0,
+      "fn": 1,
+      "tn": 6,
+      "subtype_top1": 0.867,
+      "severity_acc": 0.867
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 58,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 15,
+      "flagged_major_plus": 6
+     }
+    },
+    "usd_per_item": 0.000101,
+    "p50_latency_s": 0.28
+   },
+   "en/moderate": {
+    "n": 20,
+    "n_units": 55,
+    "qwk_accuracy": 0.974,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.318,
+    "exact_fidelity": 0.85,
+    "mean_signed_err_fidelity": -0.05,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.8,
+    "unit_p": 0.5,
+    "unit_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     15,
+     1
+    ],
+    "type_top1": 0.933,
+    "sev_exact": 0.933,
+    "auc": 0.941,
+    "unit_split": {
+     "para": {
+      "precision": 0.25,
+      "recall": 1.0,
+      "tp": 5,
+      "fp": 15,
+      "fn": 0,
+      "tn": 20,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.909,
+      "tp": 10,
+      "fp": 0,
+      "fn": 1,
+      "tn": 4,
+      "subtype_top1": 0.9,
+      "severity_acc": 0.9
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 5,
+     "flagged_major_plus": 1,
+     "band_below_4": 2
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 25,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 35,
+      "flagged": 15,
+      "flagged_major_plus": 1
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 5,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 11,
+      "flagged": 10,
+      "flagged_major_plus": 3
+     }
+    },
+    "usd_per_item": 0.000257,
+    "p50_latency_s": 0.37
+   },
+   "en/heavy": {
+    "n": 19,
+    "n_units": 73,
+    "qwk_accuracy": 0.946,
+    "exact_accuracy": 0.895,
+    "mean_signed_err_accuracy": -0.105,
+    "qwk_fidelity": 0.038,
+    "exact_fidelity": 0.579,
+    "mean_signed_err_fidelity": -0.316,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.947,
+    "mean_signed_err_understandability": 0.053,
+    "exact_3dim": 0.474,
+    "unit_p": 0.326,
+    "unit_r": 0.933,
+    "tp_fp_fn": [
+     14,
+     29,
+     1
+    ],
+    "type_top1": 0.929,
+    "sev_exact": 0.929,
+    "auc": 0.921,
+    "unit_split": {
+     "para": {
+      "precision": 0.237,
+      "recall": 0.9,
+      "tp": 9,
+      "fp": 29,
+      "fn": 1,
+      "tn": 28,
+      "subtype_top1": 0.889,
+      "severity_acc": 0.889
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 6,
+     "flagged_major_plus": 2,
+     "band_below_4": 3
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 57,
+      "flagged": 29,
+      "flagged_major_plus": 4
+     },
+     "clean_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 9,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 5,
+      "flagged": 5,
+      "flagged_major_plus": 2
+     }
+    },
+    "usd_per_item": 0.000361,
+    "p50_latency_s": 0.39
+   },
+   "zh/orig": {
+    "n": 20,
+    "n_units": 21,
+    "qwk_accuracy": 0.762,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.94,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.85,
+    "unit_p": 0.824,
+    "unit_r": 0.933,
+    "tp_fp_fn": [
+     14,
+     3,
+     1
+    ],
+    "type_top1": 0.786,
+    "sev_exact": 0.857,
+    "auc": 0.889,
+    "unit_split": {
+     "verbatim": {
+      "precision": 0.824,
+      "recall": 0.933,
+      "tp": 14,
+      "fp": 3,
+      "fn": 1,
+      "tn": 3,
+      "subtype_top1": 0.786,
+      "severity_acc": 0.857
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 3,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 3,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 15,
+      "flagged": 14,
+      "flagged_major_plus": 9
+     }
+    },
+    "usd_per_item": 0.000117,
+    "p50_latency_s": 0.36
+   },
+   "zh/moderate": {
+    "n": 20,
+    "n_units": 48,
+    "qwk_accuracy": 0.5,
+    "exact_accuracy": 0.7,
+    "mean_signed_err_accuracy": -0.2,
+    "qwk_fidelity": 0.825,
+    "exact_fidelity": 0.7,
+    "mean_signed_err_fidelity": -0.2,
+    "qwk_understandability": 0.933,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.05,
+    "exact_3dim": 0.45,
+    "unit_p": 0.341,
+    "unit_r": 0.933,
+    "tp_fp_fn": [
+     14,
+     27,
+     1
+    ],
+    "type_top1": 0.714,
+    "sev_exact": 0.857,
+    "auc": 0.859,
+    "unit_split": {
+     "para": {
+      "precision": 0.212,
+      "recall": 1.0,
+      "tp": 7,
+      "fp": 26,
+      "fn": 0,
+      "tn": 4,
+      "subtype_top1": 0.571,
+      "severity_acc": 0.714
+     },
+     "verbatim": {
+      "precision": 0.875,
+      "recall": 0.875,
+      "tp": 7,
+      "fp": 1,
+      "fn": 1,
+      "tn": 2,
+      "subtype_top1": 0.857,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 7,
+     "flagged_major_plus": 2,
+     "band_below_4": 4
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 30,
+      "flagged": 26,
+      "flagged_major_plus": 5
+     },
+     "clean_verbatim_edit": {
+      "n": 3,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 7,
+      "flagged": 7,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 8,
+      "flagged": 7,
+      "flagged_major_plus": 5
+     }
+    },
+    "usd_per_item": 0.000278,
+    "p50_latency_s": 0.39
+   },
+   "zh/heavy": {
+    "n": 18,
+    "n_units": 68,
+    "qwk_accuracy": 0.455,
+    "exact_accuracy": 0.667,
+    "mean_signed_err_accuracy": -0.222,
+    "qwk_fidelity": 0.569,
+    "exact_fidelity": 0.389,
+    "mean_signed_err_fidelity": -0.722,
+    "qwk_understandability": 0.897,
+    "exact_understandability": 0.889,
+    "mean_signed_err_understandability": -0.111,
+    "exact_3dim": 0.167,
+    "unit_p": 0.2,
+    "unit_r": 0.923,
+    "tp_fp_fn": [
+     12,
+     48,
+     1
+    ],
+    "type_top1": 0.667,
+    "sev_exact": 0.833,
+    "auc": 0.826,
+    "unit_split": {
+     "para": {
+      "precision": 0.175,
+      "recall": 1.0,
+      "tp": 10,
+      "fp": 47,
+      "fn": 0,
+      "tn": 6,
+      "subtype_top1": 0.6,
+      "severity_acc": 0.8
+     },
+     "verbatim": {
+      "precision": 0.667,
+      "recall": 0.667,
+      "tp": 2,
+      "fp": 1,
+      "fn": 1,
+      "tn": 1,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 7,
+     "flagged_major_plus": 3,
+     "band_below_4": 7
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 53,
+      "flagged": 47,
+      "flagged_major_plus": 8
+     },
+     "clean_verbatim_edit": {
+      "n": 2,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 10,
+      "flagged_major_plus": 6
+     },
+     "err_verbatim_edit": {
+      "n": 3,
+      "flagged": 2,
+      "flagged_major_plus": 2
+     }
+    },
+    "usd_per_item": 0.000441,
+    "p50_latency_s": 0.41
+   },
+   "ja/orig": {
+    "n": 20,
+    "n_units": 22,
+    "qwk_accuracy": 0.875,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.971,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": -0.05,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.9,
+    "unit_p": 0.889,
+    "unit_r": 1.0,
+    "tp_fp_fn": [
+     16,
+     2,
+     0
+    ],
+    "type_top1": 1.0,
+    "sev_exact": 0.875,
+    "auc": 0.969,
+    "unit_split": {
+     "verbatim": {
+      "precision": 0.889,
+      "recall": 1.0,
+      "tp": 16,
+      "fp": 2,
+      "fn": 0,
+      "tn": 4,
+      "subtype_top1": 1.0,
+      "severity_acc": 0.875
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 2,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 52,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 2,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 16,
+      "flagged_major_plus": 13
+     }
+    },
+    "usd_per_item": 0.000131,
+    "p50_latency_s": 0.36
+   },
+   "ja/moderate": {
+    "n": 20,
+    "n_units": 48,
+    "qwk_accuracy": 0.81,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": -0.1,
+    "qwk_fidelity": 0.65,
+    "exact_fidelity": 0.3,
+    "mean_signed_err_fidelity": -0.6,
+    "qwk_understandability": 0.883,
+    "exact_understandability": 0.85,
+    "mean_signed_err_understandability": -0.15,
+    "exact_3dim": 0.25,
+    "unit_p": 0.372,
+    "unit_r": 1.0,
+    "tp_fp_fn": [
+     16,
+     27,
+     0
+    ],
+    "type_top1": 0.875,
+    "sev_exact": 0.75,
+    "auc": 0.917,
+    "unit_split": {
+     "para": {
+      "precision": 0.188,
+      "recall": 1.0,
+      "tp": 6,
+      "fp": 26,
+      "fn": 0,
+      "tn": 2,
+      "subtype_top1": 0.667,
+      "severity_acc": 0.5
+     },
+     "verbatim": {
+      "precision": 0.909,
+      "recall": 1.0,
+      "tp": 10,
+      "fp": 1,
+      "fn": 0,
+      "tn": 3,
+      "subtype_top1": 1.0,
+      "severity_acc": 0.9
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 7,
+     "flagged_major_plus": 1,
+     "band_below_4": 5
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 28,
+      "flagged": 26,
+      "flagged_major_plus": 4
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 6,
+      "flagged": 6,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 10,
+      "flagged": 10,
+      "flagged_major_plus": 8
+     }
+    },
+    "usd_per_item": 0.000296,
+    "p50_latency_s": 0.36
+   },
+   "ja/heavy": {
+    "n": 16,
+    "n_units": 54,
+    "qwk_accuracy": 0.5,
+    "exact_accuracy": 0.688,
+    "mean_signed_err_accuracy": -0.312,
+    "qwk_fidelity": 0.339,
+    "exact_fidelity": 0.062,
+    "mean_signed_err_fidelity": -0.938,
+    "qwk_understandability": 0.525,
+    "exact_understandability": 0.625,
+    "mean_signed_err_understandability": -0.375,
+    "exact_3dim": 0.062,
+    "unit_p": 0.235,
+    "unit_r": 1.0,
+    "tp_fp_fn": [
+     12,
+     39,
+     0
+    ],
+    "type_top1": 0.833,
+    "sev_exact": 0.667,
+    "auc": 0.913,
+    "unit_split": {
+     "para": {
+      "precision": 0.22,
+      "recall": 1.0,
+      "tp": 11,
+      "fp": 39,
+      "fn": 0,
+      "tn": 3,
+      "subtype_top1": 0.818,
+      "severity_acc": 0.636
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 5,
+     "flagged_any": 5,
+     "flagged_major_plus": 3,
+     "band_below_4": 5
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 42,
+      "flagged": 39,
+      "flagged_major_plus": 9
+     },
+     "err_para": {
+      "n": 11,
+      "flagged": 11,
+      "flagged_major_plus": 10
+     },
+     "err_verbatim_edit": {
+      "n": 1,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     }
+    },
+    "usd_per_item": 0.00042,
+    "p50_latency_s": 0.38
+   }
+  },
+  "A_sept_refit (jev-1.13)": {
+   "en/orig": {
+    "n": 20,
+    "n_units": 22,
+    "qwk_accuracy": 1.0,
+    "exact_accuracy": 1.0,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.643,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.95,
+    "unit_p": 1.0,
+    "unit_r": 0.875,
+    "tp_fp_fn": [
+     14,
+     0,
+     2
+    ],
+    "type_top1": 0.929,
+    "sev_exact": 0.929,
+    "auc": 0.979,
+    "unit_split": {
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.875,
+      "tp": 14,
+      "fp": 0,
+      "fn": 2,
+      "tn": 6,
+      "subtype_top1": 0.929,
+      "severity_acc": 0.929
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 58,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 14,
+      "flagged_major_plus": 7
+     }
+    },
+    "usd_per_item": 9.1e-05,
+    "p50_latency_s": 0.28
+   },
+   "en/moderate": {
+    "n": 20,
+    "n_units": 55,
+    "qwk_accuracy": 0.72,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": 0.15,
+    "qwk_fidelity": 0.643,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": -0.1,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.95,
+    "unit_p": 1.0,
+    "unit_r": 0.875,
+    "tp_fp_fn": [
+     14,
+     0,
+     2
+    ],
+    "type_top1": 0.857,
+    "sev_exact": 0.929,
+    "auc": 0.943,
+    "unit_split": {
+     "para": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 35,
+      "subtype_top1": 0.8,
+      "severity_acc": 1.0
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.818,
+      "tp": 9,
+      "fp": 0,
+      "fn": 2,
+      "tn": 4,
+      "subtype_top1": 0.889,
+      "severity_acc": 0.889
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 25,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 35,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 5,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 11,
+      "flagged": 9,
+      "flagged_major_plus": 3
+     }
+    },
+    "usd_per_item": 0.000229,
+    "p50_latency_s": 0.38
+   },
+   "en/heavy": {
+    "n": 19,
+    "n_units": 73,
+    "qwk_accuracy": 0.665,
+    "exact_accuracy": 0.895,
+    "mean_signed_err_accuracy": 0.211,
+    "qwk_fidelity": 0.642,
+    "exact_fidelity": 0.947,
+    "mean_signed_err_fidelity": -0.105,
+    "qwk_understandability": 0.897,
+    "exact_understandability": 0.895,
+    "mean_signed_err_understandability": 0.105,
+    "exact_3dim": 0.895,
+    "unit_p": 1.0,
+    "unit_r": 0.733,
+    "tp_fp_fn": [
+     11,
+     0,
+     4
+    ],
+    "type_top1": 0.909,
+    "sev_exact": 1.0,
+    "auc": 0.935,
+    "unit_split": {
+     "para": {
+      "precision": 1.0,
+      "recall": 0.7,
+      "tp": 7,
+      "fp": 0,
+      "fn": 3,
+      "tn": 57,
+      "subtype_top1": 0.857,
+      "severity_acc": 1.0
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.8,
+      "tp": 4,
+      "fp": 0,
+      "fn": 1,
+      "tn": 1,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 57,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 7,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 5,
+      "flagged": 4,
+      "flagged_major_plus": 2
+     }
+    },
+    "usd_per_item": 0.00032,
+    "p50_latency_s": 0.4
+   },
+   "zh/orig": {
+    "n": 20,
+    "n_units": 21,
+    "qwk_accuracy": 0.583,
+    "exact_accuracy": 0.85,
+    "mean_signed_err_accuracy": 0.15,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": -0.05,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.85,
+    "unit_p": 1.0,
+    "unit_r": 0.533,
+    "tp_fp_fn": [
+     8,
+     0,
+     7
+    ],
+    "type_top1": 0.875,
+    "sev_exact": 1.0,
+    "auc": 0.967,
+    "unit_split": {
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.533,
+      "tp": 8,
+      "fp": 0,
+      "fn": 7,
+      "tn": 6,
+      "subtype_top1": 0.875,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 15,
+      "flagged": 8,
+      "flagged_major_plus": 7
+     }
+    },
+    "usd_per_item": 0.000132,
+    "p50_latency_s": 0.28
+   },
+   "zh/moderate": {
+    "n": 20,
+    "n_units": 48,
+    "qwk_accuracy": 0.583,
+    "exact_accuracy": 0.85,
+    "mean_signed_err_accuracy": 0.15,
+    "qwk_fidelity": 0.888,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": -0.1,
+    "qwk_understandability": 0.933,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.05,
+    "exact_3dim": 0.85,
+    "unit_p": 0.667,
+    "unit_r": 0.533,
+    "tp_fp_fn": [
+     8,
+     4,
+     7
+    ],
+    "type_top1": 0.875,
+    "sev_exact": 1.0,
+    "auc": 0.765,
+    "unit_split": {
+     "para": {
+      "precision": 0.5,
+      "recall": 0.571,
+      "tp": 4,
+      "fp": 4,
+      "fn": 3,
+      "tn": 26,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "tp": 4,
+      "fp": 0,
+      "fn": 4,
+      "tn": 3,
+      "subtype_top1": 0.75,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 30,
+      "flagged": 4,
+      "flagged_major_plus": 1
+     },
+     "clean_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 7,
+      "flagged": 4,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 8,
+      "flagged": 4,
+      "flagged_major_plus": 3
+     }
+    },
+    "usd_per_item": 0.000302,
+    "p50_latency_s": 0.35
+   },
+   "zh/heavy": {
+    "n": 18,
+    "n_units": 68,
+    "qwk_accuracy": 0.491,
+    "exact_accuracy": 0.833,
+    "mean_signed_err_accuracy": 0.167,
+    "qwk_fidelity": 0.939,
+    "exact_fidelity": 0.889,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.778,
+    "unit_p": 0.545,
+    "unit_r": 0.462,
+    "tp_fp_fn": [
+     6,
+     5,
+     7
+    ],
+    "type_top1": 0.667,
+    "sev_exact": 1.0,
+    "auc": 0.754,
+    "unit_split": {
+     "para": {
+      "precision": 0.545,
+      "recall": 0.6,
+      "tp": 6,
+      "fp": 5,
+      "fn": 4,
+      "tn": 48,
+      "subtype_top1": 0.667,
+      "severity_acc": 1.0
+     },
+     "verbatim": {
+      "precision": null,
+      "recall": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 3,
+      "tn": 2,
+      "subtype_top1": null,
+      "severity_acc": null
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 53,
+      "flagged": 5,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 6,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "usd_per_item": 0.000477,
+    "p50_latency_s": 0.47
+   },
+   "ja/orig": {
+    "n": 20,
+    "n_units": 22,
+    "qwk_accuracy": 0.077,
+    "exact_accuracy": 0.7,
+    "mean_signed_err_accuracy": 0.1,
+    "qwk_fidelity": 0.912,
+    "exact_fidelity": 0.85,
+    "mean_signed_err_fidelity": 0.15,
+    "qwk_understandability": 0.898,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": 0.1,
+    "exact_3dim": 0.6,
+    "unit_p": 1.0,
+    "unit_r": 0.562,
+    "tp_fp_fn": [
+     9,
+     0,
+     7
+    ],
+    "type_top1": 0.556,
+    "sev_exact": 0.444,
+    "auc": 0.974,
+    "unit_split": {
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.562,
+      "tp": 9,
+      "fp": 0,
+      "fn": 7,
+      "tn": 6,
+      "subtype_top1": 0.556,
+      "severity_acc": 0.444
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 52,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 9,
+      "flagged_major_plus": 6
+     }
+    },
+    "usd_per_item": 0.000166,
+    "p50_latency_s": 0.28
+   },
+   "ja/moderate": {
+    "n": 20,
+    "n_units": 48,
+    "qwk_accuracy": 0.077,
+    "exact_accuracy": 0.7,
+    "mean_signed_err_accuracy": 0.1,
+    "qwk_fidelity": 0.882,
+    "exact_fidelity": 0.8,
+    "mean_signed_err_fidelity": 0.2,
+    "qwk_understandability": 0.898,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": 0.1,
+    "exact_3dim": 0.6,
+    "unit_p": 0.727,
+    "unit_r": 0.5,
+    "tp_fp_fn": [
+     8,
+     3,
+     8
+    ],
+    "type_top1": 0.625,
+    "sev_exact": 0.625,
+    "auc": 0.829,
+    "unit_split": {
+     "para": {
+      "precision": 0.5,
+      "recall": 0.5,
+      "tp": 3,
+      "fp": 3,
+      "fn": 3,
+      "tn": 25,
+      "subtype_top1": 0.333,
+      "severity_acc": 0.667
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "tp": 5,
+      "fp": 0,
+      "fn": 5,
+      "tn": 4,
+      "subtype_top1": 0.8,
+      "severity_acc": 0.6
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 28,
+      "flagged": 3,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 6,
+      "flagged": 3,
+      "flagged_major_plus": 1
+     },
+     "err_verbatim_edit": {
+      "n": 10,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     }
+    },
+    "usd_per_item": 0.000363,
+    "p50_latency_s": 0.38
+   },
+   "ja/heavy": {
+    "n": 16,
+    "n_units": 54,
+    "qwk_accuracy": -0.103,
+    "exact_accuracy": 0.75,
+    "mean_signed_err_accuracy": 0.125,
+    "qwk_fidelity": 0.794,
+    "exact_fidelity": 0.75,
+    "mean_signed_err_fidelity": 0.25,
+    "qwk_understandability": 0.879,
+    "exact_understandability": 0.938,
+    "mean_signed_err_understandability": 0.062,
+    "exact_3dim": 0.562,
+    "unit_p": 0.571,
+    "unit_r": 0.333,
+    "tp_fp_fn": [
+     4,
+     3,
+     8
+    ],
+    "type_top1": 0.25,
+    "sev_exact": 0.25,
+    "auc": 0.809,
+    "unit_split": {
+     "para": {
+      "precision": 0.571,
+      "recall": 0.364,
+      "tp": 4,
+      "fp": 3,
+      "fn": 7,
+      "tn": 39,
+      "subtype_top1": 0.25,
+      "severity_acc": 0.25
+     },
+     "verbatim": {
+      "precision": null,
+      "recall": 0.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "tn": 0,
+      "subtype_top1": null,
+      "severity_acc": null
+     }
+    },
+    "clean_items": {
+     "n_clean": 5,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 42,
+      "flagged": 3,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 11,
+      "flagged": 4,
+      "flagged_major_plus": 2
+     },
+     "err_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "usd_per_item": 0.000512,
+    "p50_latency_s": 0.37
+   }
+  },
+  "D_only (liquid/d1-ultra)": {
+   "en/orig": {
+    "n": 20,
+    "n_units": 22,
+    "qwk_accuracy": 1.0,
+    "exact_accuracy": 1.0,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.643,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.95,
+    "unit_p": 1.0,
+    "unit_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     0,
+     1
+    ],
+    "type_top1": 0.867,
+    "sev_exact": 0.933,
+    "auc": 1.0,
+    "unit_split": {
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.938,
+      "tp": 15,
+      "fp": 0,
+      "fn": 1,
+      "tn": 6,
+      "subtype_top1": 0.867,
+      "severity_acc": 0.933
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 58,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 15,
+      "flagged_major_plus": 7
+     }
+    },
+    "usd_per_item": 7.7e-05,
+    "p50_latency_s": 0.48
+   },
+   "en/moderate": {
+    "n": 20,
+    "n_units": 55,
+    "qwk_accuracy": 0.945,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": 0.1,
+    "qwk_fidelity": 0.643,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.898,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": 0.1,
+    "exact_3dim": 0.85,
+    "unit_p": 0.722,
+    "unit_r": 0.812,
+    "tp_fp_fn": [
+     13,
+     5,
+     3
+    ],
+    "type_top1": 0.846,
+    "sev_exact": 0.923,
+    "auc": 0.955,
+    "unit_split": {
+     "para": {
+      "precision": 0.375,
+      "recall": 0.6,
+      "tp": 3,
+      "fp": 5,
+      "fn": 2,
+      "tn": 30,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.909,
+      "tp": 10,
+      "fp": 0,
+      "fn": 1,
+      "tn": 4,
+      "subtype_top1": 0.8,
+      "severity_acc": 0.9
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 2,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 25,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 35,
+      "flagged": 5,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 5,
+      "flagged": 3,
+      "flagged_major_plus": 2
+     },
+     "err_verbatim_edit": {
+      "n": 11,
+      "flagged": 10,
+      "flagged_major_plus": 3
+     }
+    },
+    "usd_per_item": 0.000195,
+    "p50_latency_s": 0.5
+   },
+   "en/heavy": {
+    "n": 19,
+    "n_units": 73,
+    "qwk_accuracy": 0.944,
+    "exact_accuracy": 0.895,
+    "mean_signed_err_accuracy": 0.105,
+    "qwk_fidelity": 0.441,
+    "exact_fidelity": 0.895,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 0.897,
+    "exact_understandability": 0.895,
+    "mean_signed_err_understandability": 0.105,
+    "exact_3dim": 0.789,
+    "unit_p": 0.6,
+    "unit_r": 0.8,
+    "tp_fp_fn": [
+     12,
+     8,
+     3
+    ],
+    "type_top1": 0.833,
+    "sev_exact": 0.917,
+    "auc": 0.947,
+    "unit_split": {
+     "para": {
+      "precision": 0.467,
+      "recall": 0.7,
+      "tp": 7,
+      "fp": 8,
+      "fn": 3,
+      "tn": 49,
+      "subtype_top1": 0.857,
+      "severity_acc": 0.857
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 1,
+      "subtype_top1": 0.8,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 2,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 57,
+      "flagged": 8,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 7,
+      "flagged_major_plus": 3
+     },
+     "err_verbatim_edit": {
+      "n": 5,
+      "flagged": 5,
+      "flagged_major_plus": 2
+     }
+    },
+    "usd_per_item": 0.000275,
+    "p50_latency_s": 0.53
+   },
+   "zh/orig": {
+    "n": 20,
+    "n_units": 21,
+    "qwk_accuracy": 1.0,
+    "exact_accuracy": 1.0,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.95,
+    "unit_p": 0.867,
+    "unit_r": 0.867,
+    "tp_fp_fn": [
+     13,
+     2,
+     2
+    ],
+    "type_top1": 0.923,
+    "sev_exact": 0.923,
+    "auc": 0.922,
+    "unit_split": {
+     "verbatim": {
+      "precision": 0.867,
+      "recall": 0.867,
+      "tp": 13,
+      "fp": 2,
+      "fn": 2,
+      "tn": 4,
+      "subtype_top1": 0.923,
+      "severity_acc": 0.923
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 2,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 2,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 15,
+      "flagged": 13,
+      "flagged_major_plus": 8
+     }
+    },
+    "usd_per_item": 8.8e-05,
+    "p50_latency_s": 0.47
+   },
+   "zh/moderate": {
+    "n": 20,
+    "n_units": 48,
+    "qwk_accuracy": 0.821,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": -0.1,
+    "qwk_fidelity": 0.91,
+    "exact_fidelity": 0.85,
+    "mean_signed_err_fidelity": -0.05,
+    "qwk_understandability": 0.933,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.05,
+    "exact_3dim": 0.75,
+    "unit_p": 0.542,
+    "unit_r": 0.867,
+    "tp_fp_fn": [
+     13,
+     11,
+     2
+    ],
+    "type_top1": 0.923,
+    "sev_exact": 0.923,
+    "auc": 0.871,
+    "unit_split": {
+     "para": {
+      "precision": 0.353,
+      "recall": 0.857,
+      "tp": 6,
+      "fp": 11,
+      "fn": 1,
+      "tn": 19,
+      "subtype_top1": 0.833,
+      "severity_acc": 0.833
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.875,
+      "tp": 7,
+      "fp": 0,
+      "fn": 1,
+      "tn": 3,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 6,
+     "flagged_major_plus": 2,
+     "band_below_4": 3
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 30,
+      "flagged": 11,
+      "flagged_major_plus": 3
+     },
+     "clean_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 7,
+      "flagged": 6,
+      "flagged_major_plus": 3
+     },
+     "err_verbatim_edit": {
+      "n": 8,
+      "flagged": 7,
+      "flagged_major_plus": 5
+     }
+    },
+    "usd_per_item": 0.000212,
+    "p50_latency_s": 0.5
+   },
+   "zh/heavy": {
+    "n": 18,
+    "n_units": 68,
+    "qwk_accuracy": 0.609,
+    "exact_accuracy": 0.833,
+    "mean_signed_err_accuracy": -0.056,
+    "qwk_fidelity": 0.603,
+    "exact_fidelity": 0.556,
+    "mean_signed_err_fidelity": -0.444,
+    "qwk_understandability": 0.72,
+    "exact_understandability": 0.889,
+    "mean_signed_err_understandability": -0.167,
+    "exact_3dim": 0.5,
+    "unit_p": 0.379,
+    "unit_r": 0.846,
+    "tp_fp_fn": [
+     11,
+     18,
+     2
+    ],
+    "type_top1": 0.818,
+    "sev_exact": 0.818,
+    "auc": 0.853,
+    "unit_split": {
+     "para": {
+      "precision": 0.333,
+      "recall": 0.9,
+      "tp": 9,
+      "fp": 18,
+      "fn": 1,
+      "tn": 35,
+      "subtype_top1": 0.778,
+      "severity_acc": 0.778
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 0.667,
+      "tp": 2,
+      "fp": 0,
+      "fn": 1,
+      "tn": 2,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 6,
+     "flagged_major_plus": 2,
+     "band_below_4": 4
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 53,
+      "flagged": 18,
+      "flagged_major_plus": 4
+     },
+     "clean_verbatim_edit": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 9,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 3,
+      "flagged": 2,
+      "flagged_major_plus": 2
+     }
+    },
+    "usd_per_item": 0.000338,
+    "p50_latency_s": 0.64
+   },
+   "ja/orig": {
+    "n": 20,
+    "n_units": 22,
+    "qwk_accuracy": 0.765,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": -0.1,
+    "qwk_fidelity": 0.882,
+    "exact_fidelity": 0.8,
+    "mean_signed_err_fidelity": 0.1,
+    "qwk_understandability": 0.958,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.7,
+    "unit_p": 0.938,
+    "unit_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     1,
+     1
+    ],
+    "type_top1": 0.8,
+    "sev_exact": 0.667,
+    "auc": 0.979,
+    "unit_split": {
+     "verbatim": {
+      "precision": 0.938,
+      "recall": 0.938,
+      "tp": 15,
+      "fp": 1,
+      "fn": 1,
+      "tn": 5,
+      "subtype_top1": 0.8,
+      "severity_acc": 0.667
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 52,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 15,
+      "flagged_major_plus": 11
+     }
+    },
+    "usd_per_item": 9.5e-05,
+    "p50_latency_s": 0.44
+   },
+   "ja/moderate": {
+    "n": 20,
+    "n_units": 48,
+    "qwk_accuracy": 0.667,
+    "exact_accuracy": 0.85,
+    "mean_signed_err_accuracy": -0.15,
+    "qwk_fidelity": 0.853,
+    "exact_fidelity": 0.75,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.918,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.6,
+    "unit_p": 0.536,
+    "unit_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     13,
+     1
+    ],
+    "type_top1": 0.8,
+    "sev_exact": 0.667,
+    "auc": 0.886,
+    "unit_split": {
+     "para": {
+      "precision": 0.333,
+      "recall": 1.0,
+      "tp": 6,
+      "fp": 12,
+      "fn": 0,
+      "tn": 16,
+      "subtype_top1": 0.667,
+      "severity_acc": 0.5
+     },
+     "verbatim": {
+      "precision": 0.9,
+      "recall": 0.9,
+      "tp": 9,
+      "fp": 1,
+      "fn": 1,
+      "tn": 3,
+      "subtype_top1": 0.889,
+      "severity_acc": 0.778
+     }
+    },
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 5,
+     "flagged_major_plus": 1,
+     "band_below_4": 1
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 28,
+      "flagged": 12,
+      "flagged_major_plus": 2
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 6,
+      "flagged": 6,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 10,
+      "flagged": 9,
+      "flagged_major_plus": 6
+     }
+    },
+    "usd_per_item": 0.000216,
+    "p50_latency_s": 0.5
+   },
+   "ja/heavy": {
+    "n": 16,
+    "n_units": 54,
+    "qwk_accuracy": 0.347,
+    "exact_accuracy": 0.75,
+    "mean_signed_err_accuracy": -0.125,
+    "qwk_fidelity": 0.551,
+    "exact_fidelity": 0.5,
+    "mean_signed_err_fidelity": -0.312,
+    "qwk_understandability": 0.775,
+    "exact_understandability": 0.875,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.312,
+    "unit_p": 0.344,
+    "unit_r": 0.917,
+    "tp_fp_fn": [
+     11,
+     21,
+     1
+    ],
+    "type_top1": 0.727,
+    "sev_exact": 0.545,
+    "auc": 0.864,
+    "unit_split": {
+     "para": {
+      "precision": 0.323,
+      "recall": 0.909,
+      "tp": 10,
+      "fp": 21,
+      "fn": 1,
+      "tn": 21,
+      "subtype_top1": 0.7,
+      "severity_acc": 0.5
+     },
+     "verbatim": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "subtype_top1": 1.0,
+      "severity_acc": 1.0
+     }
+    },
+    "clean_items": {
+     "n_clean": 5,
+     "flagged_any": 5,
+     "flagged_major_plus": 2,
+     "band_below_4": 3
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 42,
+      "flagged": 21,
+      "flagged_major_plus": 4
+     },
+     "err_para": {
+      "n": 11,
+      "flagged": 10,
+      "flagged_major_plus": 8
+     },
+     "err_verbatim_edit": {
+      "n": 1,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     }
+    },
+    "usd_per_item": 0.000308,
+    "p50_latency_s": 0.52
+   }
+  }
+ },
+ "false_flag_examples": [
+  {
+   "grader": "deepseek41f",
+   "id": "en_clean_03@moderate",
+   "cat": "clean_verbatim_edit",
+   "ref": "Or you can use simple sticks and glue.",
+   "lrn": "Or you can use basic sticks and glue.",
+   "flagged_span": "basic",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "'Basic' is acceptable; no real error here."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "en_clean_06@heavy",
+   "cat": "clean_para",
+   "ref": "You can move them to a new spot.",
+   "lrn": "You can then move them to a new location.",
+   "flagged_span": "then",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "'then' adds a time link not in the source."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "en_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "flagged_span": "essentially",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "'Essentially' adds emphasis not present in the source sentence."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "en_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "You write the instructions for the Arduino.",
+   "flagged_span": "the instructions",
+   "type": "article_determiner",
+   "severity": "minor",
+   "explanation": "Extra definite article not needed before 'instructions' here."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "en_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "You can move them to a new spot.",
+   "lrn": "You can then move them to a different location.",
+   "flagged_span": "then",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "'Then' adds a sequence not present in the source."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "en_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "You learn how to connect wires.",
+   "lrn": "You find out how to join wires together.",
+   "flagged_span": "find out",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "'find out' is less natural than 'learn' for acquiring a skill here."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "en_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "You learn how to connect wires.",
+   "lrn": "You find out how to join wires together.",
+   "flagged_span": "join wires together",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "'join wires together' is acceptable; no error."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "en_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "You learn how motors work.",
+   "lrn": "You learn the way motors operate.",
+   "flagged_span": "the way motors operate",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "'the way motors operate' is a wordy but acceptable rephrasing."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "zh_clean_03@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "我每次看到这个图案，都会觉得心情变好。",
+   "lrn": "我每当看到这个图案，都会觉得心情变好。",
+   "flagged_span": "我每当",
+   "type": "word_order",
+   "severity": "minor",
+   "explanation": "Use 每次 or 每当 alone; 我每当 is unnatural word order."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "zh_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "我每次看到这个图案，都会觉得心情变好。",
+   "lrn": "每次看到这个图案，我都会不由自主地心情愉快起来。",
+   "flagged_span": "不由自主地",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "Adds 'involuntarily', which is not in the source."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "zh_multi_01@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料摸起来很舒服，穿上身软软的，透气性好，就算夏天穿着也不会觉得闷热。",
+   "flagged_span": "摸起来",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "'摸起来' adds a tactile sense not in the source; source just says the fabric is comfortable."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "zh_multi_01@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料摸起来很舒服，穿上身软软的，透气性好，就算夏天穿着也不会觉得闷热。",
+   "flagged_span": "闷热",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "'闷热' means muggy/stuffy, not the source's 'hot'; slight meaning shift."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "zh_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "这只猫的毛发被画得十分细腻，尽管图案本身很简单，却显得栩栩如生、充满活力。",
+   "flagged_span": "被画得",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "Adding 被 makes the painting passive; the source describes the drawing, not being drawn."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "この「製作」を通して、科学技術の面白さを感じ、未来の技術者を目指すきっかけになれば嬉しいです。",
+   "lrn": "この「製作」の体験を通じて、科学技術のおもしろさに気づき、将来エンジニアを志すきっかけになったら、とても嬉しく思います。",
+   "flagged_span": "おもしろさ",
+   "type": "orthography",
+   "severity": "minor",
+   "explanation": "おもしろさ is a variant spelling; not an error."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_seed_08@moderate",
+   "cat": "clean_para",
+   "ref": "まず、アームを動かすための「モーター」。",
+   "lrn": "最初に、アームを動かすために使われる「モーター」です。",
+   "flagged_span": "です",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "Adding です changes the source's noun-phrase list style into full sentences."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_seed_08@moderate",
+   "cat": "clean_para",
+   "ref": "次に、アームの指先にあたる「グリッパー」。",
+   "lrn": "続いて、アームの指先の部分にあたる「グリッパー」です。",
+   "flagged_span": "です",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "Adding です changes the source's noun-phrase list style into full sentences."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "flagged_span": "作り方はどうするの",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "作り方はどうするの is unnatural; どうやって作るの is the natural phrasing."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "このロボットアームを作るには、いくつかの部品が必要です。",
+   "lrn": "このロボットアームを組み立てるには、いくつかの部品が必要になります。",
+   "flagged_span": "必要になります",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "必要です is a state; 必要になります adds an unnecessary change nuance."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "まず、アームを動かすための「モーター」。",
+   "lrn": "最初に、アームを動かすために使われる「モーター」です。",
+   "flagged_span": "です",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "Refers to the motor as a thing; adding です changes the fragment structure."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+   "lrn": "皆さんの発想次第で、ロボットアームはどんどん進化していくのです。",
+   "flagged_span": "進化していくのです",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "のです adds explanatory emphasis not in the source; plain ていきます fits."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "flagged_span": "作り方はどうするの？",
+   "type": "register",
+   "severity": "major",
+   "explanation": "Polite question form needed; plain form is too casual for this register."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "flagged_span": "作り方はどうするの？",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "「どうやって作るの？」の意味が「作り方はどうするの？」では不自然です。"
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "このロボットアームを作るには、いくつかの部品が必要です。",
+   "lrn": "このロボットアームを組み立てるには、いくつかの部品が必要になります。",
+   "flagged_span": "必要になります",
+   "type": "addition",
+   "severity": "minor",
+   "explanation": "原文は「必要です」で、「必要になります」は余分な変化です。"
+  },
+  {
+   "grader": "gpt6luna",
+   "id": "en_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "You write the instructions for the Arduino.",
+   "flagged_span": "the instructions",
+   "type": "article_determiner",
+   "severity": "minor",
+   "explanation": "The reference describes instructions generally, so the definite article is unnecessary."
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "You can learn about robotics and electronics.",
+   "lrn": "It allows you to gain knowledge of both robotics and electronics.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_seed_15@moderate",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robotic arm represents just one such idea.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.425
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_seed_13@moderate",
+   "cat": "clean_para",
+   "ref": "You can move them to a new spot.",
+   "lrn": "You can then move them to a different location.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "You can learn about robotics and electronics.",
+   "lrn": "It allows you to gain knowledge of both robotics and electronics.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "This makes the arm do a series of actions.",
+   "lrn": "As a result, the arm performs a sequence of movements.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.45
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "The Arduino is a powerful tool for DIY projects.",
+   "lrn": "Arduino is a highly capable tool for do-it-yourself projects.",
+   "type": "article",
+   "severity": "minor",
+   "det_score": 0.335
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robotic arm represents just one such idea.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "You can move them to a new spot.",
+   "lrn": "You can then move them to a different location.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "You can learn about robotics and electronics.",
+   "lrn": "It gives you the chance to learn about robotics and electronics.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.335
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "en_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "You can learn about robotics and electronics.",
+   "lrn": "You get to learn about robotics and electronics in the process.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.315
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_03@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "我每次看到这个图案，都会觉得心情变好。",
+   "lrn": "我每当看到这个图案，都会觉得心情变好。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫的皮毛被画得十分精细，尽管图案本身很简单，却显得栩栩如生，洋溢着生命力。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.38
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.325
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。",
+   "lrn": "它不像那种得费心思搭配的衣服，我套上它马上就能出门，去忙自己想忙的事。",
+   "type": "classifier",
+   "severity": "minor",
+   "det_score": 0.345
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_13@moderate",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤的前胸部分印着一幅小巧又可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.545
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_08@moderate",
+   "cat": "clean_para",
+   "ref": "它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+   "lrn": "它上面那个微笑的小猫图案，永远都是我心里最温暖的存在。",
+   "type": "ba_construction",
+   "severity": "major",
+   "det_score": 0.385
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_09@moderate",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我喜欢这件T恤，原因不只是它的颜色和图案，更因为它承载着许多美好的回忆。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.515
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_09@moderate",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "记得我第一次穿上这件T恤，是在一个阳光灿烂的周末，那天我和家人一起到公园去野餐。",
+   "type": "omission",
+   "severity": "minor",
+   "det_score": 0.525
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_multi_03@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤最与众不同的地方就在于它身上的图案。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.62
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+   "lrn": "它身上那个微笑小猫的图案，永远都是我心里最温暖的存在。",
+   "type": "ba_construction",
+   "severity": "major",
+   "det_score": 0.385
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫的皮毛被画得十分精细，尽管图案本身很简单，却显得栩栩如生，洋溢着生命力。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.38
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我之所以喜欢这件T恤，不单单是因为它的颜色和图案，更因为它承载着许多美好的回忆。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.37
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+   "lrn": "它之所以是我\"最喜欢的\"衣服，是因为它承载着舒适、快乐，以及珍贵的回忆。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.325
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。",
+   "lrn": "它不像那种得费心思搭配的衣服，我套上它马上就能出门，去忙自己想忙的事。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤衫最与众不同的地方就在于它的图案。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.665
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤的前胸部分印着一幅小巧又可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.555
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。",
+   "lrn": "图画中是一只正在微笑的小猫，它仿佛在注视着我，又仿佛在跟我讲话。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.595
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "这只猫的毛发被画得十分细腻，尽管图案本身很简单，却显得栩栩如生、充满活力。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.35
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+   "lrn": "它上面那个微笑的小猫图案，永远都是我心里最温暖的存在。",
+   "type": "ba_construction",
+   "severity": "major",
+   "det_score": 0.385
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_11@heavy",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "我记得第一次穿上这件T恤，是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.425
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+   "lrn": "有时候我就待在家里，穿着那件T恤，随便看看书，听听音乐。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.43
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。",
+   "lrn": "它让我明白，生活当中有许多简单却美好的事情，值得我们去留意和珍惜。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.475
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+   "lrn": "它是我\"最爱\"的衣服，因为它象征着舒适、快乐以及珍贵的回忆。",
+   "type": "word_order",
+   "severity": "major",
+   "det_score": 0.395
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫身上的这些毛发线条刻画得十分细腻，虽然图案本身并不复杂，却画得栩栩如生，透着一股生命力。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.35
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我喜欢这件T恤，原因不只是它的颜色和图案，更因为它承载着许多美好的回忆。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.395
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "记得我第一次穿上这件T恤，是在一个阳光灿烂的周末，那天我和家人一起到公园去野餐。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.36
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_multi_03@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤最与众不同的地方就在于它身上的图案。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.605
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_multi_03@heavy",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤胸前的位置上，印着一幅小小的、十分可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.64
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "zh_multi_01@heavy",
+   "cat": "clean_para",
+   "ref": "它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。",
+   "lrn": "它既不是什么昂贵的牌子，款式也算不上最新潮，可在我全部的衣服里，我却最喜欢它。",
+   "type": "classifier",
+   "severity": "minor",
+   "det_score": 0.345
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_09@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "ぜひ、挑戦してみてください！",
+   "lrn": "ぜひ、挑戦してみて下さい！",
+   "type": "orthography",
+   "severity": "minor",
+   "det_score": 0.345
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。",
+   "lrn": "さらに、こうした部品同士をつなげて動かすには「基板」が、そしてそれをコントロールするには「プログラミング」が欠かせません。",
+   "type": "particle_wa_ga",
+   "severity": "major",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "部品を集める: 設計図をもとに、必要な部品を揃えます。",
+   "lrn": "部品を揃える: 描いた設計図に基づいて、必要となる部品を集めます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "このロボットアームを作るには、いくつかの部品が必要です。",
+   "lrn": "このロボットアームを組み立てるには、いくつかの部品を用意する必要があります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_09@moderate",
+   "cat": "clean_verbatim_edit",
+   "ref": "ぜひ、挑戦してみてください！",
+   "lrn": "ぜひ、挑戦してみて下さい！",
+   "type": "orthography",
+   "severity": "minor",
+   "det_score": 0.335
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "モーターをアームに取り付けたり、グリッパーを接続したりします。",
+   "lrn": "アームにモーターを取り付けたり、グリッパーをつないだりする作業です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.405
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "この作業が「電子工作」の醍醐味ですね。",
+   "lrn": "こうした作業こそ、「電子工作」ならではの楽しさだと言えるでしょう。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "プログラミング: ここが一番面白いところかもしれません。",
+   "lrn": "プログラミング：もしかすると、これが最も興味深い部分なのではないでしょうか。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.445
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "このプログラミングのおかげで、ロボットアームは私たちが与えた指示どおりに動作するようになります。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.365
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_15@moderate",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.395
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_05@moderate",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "さらに、「プログラミング」を学ぶことによって、コンピューターに指示を与える方法や、論理的に考える力を身につけることができます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_08@moderate",
+   "cat": "clean_para",
+   "ref": "まず、アームを動かすための「モーター」。",
+   "lrn": "最初に、アームを動かすために使われる「モーター」です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_08@moderate",
+   "cat": "clean_para",
+   "ref": "次に、アームの指先にあたる「グリッパー」。",
+   "lrn": "続いて、アームの指先の部分にあたる「グリッパー」です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_02@moderate",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "この「プログラミング」のおかげで、ロボットアームは私たちが与えた指示どおりに動けるようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.335
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_10@moderate",
+   "cat": "clean_para",
+   "ref": "このシンプルなロボットアームをベースに、さらに色々な機能を追加することもできます。",
+   "lrn": "このシンプルなロボットアームを土台にして、他にも様々な機能を加えることができます。",
+   "type": "verb_conjugation",
+   "severity": "major",
+   "det_score": 0.315
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_multi_04@moderate",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするにはどうすればよいでしょうか？",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.455
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "このロボットアームを作るには、いくつかの部品が必要です。",
+   "lrn": "このロボットアームを組み立てるには、いくつかの部品が必要になります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "部品を集める: 設計図をもとに、必要な部品を揃えます。",
+   "lrn": "部品を揃える: 描いた設計図に基づいて、必要となる部品を集めます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.385
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "モーターをアームに取り付けたり、グリッパーを接続したりします。",
+   "lrn": "アームにモーターを取り付けたり、グリッパーをつないだりする作業です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "この作業が「電子工作」の醍醐味ですね。",
+   "lrn": "こうした作業こそ、「電子工作」ならではの楽しさだと言えるでしょう。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "プログラミング: ここが一番面白いところかもしれません。",
+   "lrn": "プログラミング：もしかすると、これが最も興味深い部分なのではないでしょうか。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。",
+   "lrn": "「左へ動かす」「ものをつかむ」「右へ動かす」など、アームにどう動いてほしいかを、コンピューターが理解できる言葉、つまりプログラミング言語を使って伝えていきます。",
+   "type": "particle_case",
+   "severity": "major",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "このプログラミングのおかげで、ロボットアームは私たちが与えた指示どおりに動作するようになります。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.36
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+   "lrn": "テスト：組み立てとプログラミングを終えたら、実際に動かして確かめてみましょう。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.405
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.395
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "そして、「プログラミング」を学ぶことによって、コンピューターに指示を与える方法や、論理的に考える力が身につきます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.365
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするにはどうすればいいでしょうか？",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.45
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "さらに、「プログラミング」を学ぶことによって、コンピューターに指示を与える方法や、論理的に考える力を身につけることができます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "まず、アームを動かすための「モーター」。",
+   "lrn": "最初に、アームを動かすために使われる「モーター」です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "次に、アームの指先にあたる「グリッパー」。",
+   "lrn": "続いて、アームの指先の部分にあたる「グリッパー」です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.325
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "プログラミング: ここが一番面白いところかもしれません。",
+   "lrn": "プログラミング：もしかするとここが最も面白い部分かもしれません。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.415
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "この「プログラミング」のおかげで、ロボットアームは私たちが与えた指示どおりに動けるようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.35
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+   "lrn": "テスト：組み立てとプログラミングを終えたら、実際に動かして試してみましょう。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.43
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+   "lrn": "皆さんの発想次第で、ロボットアームはどんどん進化していくのです。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.445
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。",
+   "lrn": "私たちが制作するのは、小さな物をつかめる、とてもシンプルな作りのロボットアームです。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "このシンプルなロボットアームをベースに、さらに色々な機能を追加することもできます。",
+   "lrn": "このシンプルなロボットアームを土台にして、他にも様々な機能を加えることができます。",
+   "type": "verb_conjugation",
+   "severity": "major",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+   "lrn": "皆さんの発想次第で、ロボットアームはこれからもどんどん進化していくのです。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.46
+  },
+  {
+   "grader": "A_fused (jev-1.13)",
+   "id": "ja_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "このロボットアームを作るには、いくつかの部品が必要です。",
+   "lrn": "このロボットアームを組み立てるには、いくつかの部品が必要になります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.305
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "The code tells the Arduino what to do.",
+   "lrn": "The code instructs the Arduino on what it should do.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.33
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_06@moderate",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "Instructions for the Arduino are written by you.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_06@moderate",
+   "cat": "clean_para",
+   "ref": "You can make the arm pick up small things.",
+   "lrn": "You can get the arm to pick up small objects.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "You can learn about robotics and electronics.",
+   "lrn": "It allows you to gain knowledge of both robotics and electronics.",
+   "type": "pronoun_reference",
+   "severity": "major",
+   "det_score": 0.58
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "You can build more complex robots later.",
+   "lrn": "Later on, you'll be able to build robots that are more complex.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robot arm is just one example.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.43
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_15@moderate",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robotic arm represents just one such idea.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.64
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_05@moderate",
+   "cat": "clean_para",
+   "ref": "You will also need to learn some coding.",
+   "lrn": "You will also need to pick up some coding skills.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.33
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_13@moderate",
+   "cat": "clean_para",
+   "ref": "You can move them to a new spot.",
+   "lrn": "You can then move them to a different location.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.56
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_06@moderate",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "You learn how to connect wires.",
+   "lrn": "You find out how to join wires together.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "You learn how motors work.",
+   "lrn": "You learn the way motors operate.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_10@moderate",
+   "cat": "clean_para",
+   "ref": "The coding is important.",
+   "lrn": "Coding plays a key role.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_09@moderate",
+   "cat": "clean_para",
+   "ref": "It helps control things.",
+   "lrn": "It is used to control things.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "Or you can use simple sticks and glue.",
+   "lrn": "Alternatively, you could simply use sticks and glue.",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "The code tells the Arduino what to do.",
+   "lrn": "The code instructs the Arduino on what it should do.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.33
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_06@heavy",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "Instructions for the Arduino are written by you.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_06@heavy",
+   "cat": "clean_para",
+   "ref": "You can make the arm pick up small things.",
+   "lrn": "You can get the arm to pick up small objects.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_06@heavy",
+   "cat": "clean_para",
+   "ref": "You can move them to a new spot.",
+   "lrn": "You can then move them to a new location.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.49
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "You can learn about robotics and electronics.",
+   "lrn": "It allows you to gain knowledge of both robotics and electronics.",
+   "type": "pronoun_reference",
+   "severity": "major",
+   "det_score": 0.58
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "This makes the arm do a series of actions.",
+   "lrn": "As a result, the arm performs a sequence of movements.",
+   "type": "cohesion_connective",
+   "severity": "minor",
+   "det_score": 0.8
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "You can build more complex robots later.",
+   "lrn": "Later on, you'll be able to build robots that are more complex.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robot arm is just one example.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.43
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "One motor can make the arm go up and down.",
+   "lrn": "The arm can be raised and lowered by one motor.",
+   "type": "article",
+   "severity": "minor",
+   "det_score": 0.49
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "A third motor can open and close a gripper.",
+   "lrn": "Opening and closing the gripper is handled by yet another motor.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.49
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "The Arduino is a powerful tool for DIY projects.",
+   "lrn": "Arduino is a highly capable tool for do-it-yourself projects.",
+   "type": "article",
+   "severity": "minor",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robotic arm represents just one such idea.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.64
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "You will also need to learn some coding.",
+   "lrn": "You will also need to pick up some coding skills.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.33
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "You write the instructions for the Arduino.",
+   "type": "article",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_11@heavy",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "You write instructions for the Arduino to follow.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.35
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "You can make the arm pick up small things.",
+   "lrn": "The arm can be made to pick up small objects.",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "You can move them to a new spot.",
+   "lrn": "You can then move them to a different location.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.56
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "You can learn about robotics and electronics.",
+   "lrn": "It gives you the chance to learn about robotics and electronics.",
+   "type": "pronoun_reference",
+   "severity": "major",
+   "det_score": 0.64
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "You learn how to connect wires.",
+   "lrn": "You find out how to join wires together.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "You learn how motors work.",
+   "lrn": "You learn the way motors operate.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "The coding is important.",
+   "lrn": "Coding plays a key role.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "You write the instructions that the Arduino follows.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "You can make the arm pick up small things.",
+   "lrn": "You can get the arm to pick up small objects.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "It helps control things.",
+   "lrn": "It is used to control things.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "You will need wires to connect everything.",
+   "lrn": "Wires will be needed to connect everything together.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "en_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "You can learn about robotics and electronics.",
+   "lrn": "You get to learn about robotics and electronics in the process.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.55
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_03@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "我每次看到这个图案，都会觉得心情变好。",
+   "lrn": "我每当看到这个图案，都会觉得心情变好。",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.56
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_07@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。",
+   "lrn": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍视。",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.5
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_10@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常开心。",
+   "lrn": "小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角轻轻向上翘起，看起来非常开心。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫的皮毛被画得十分精细，尽管图案本身很简单，却显得栩栩如生，洋溢着生命力。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.7
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "我每次看到这个图案，都会觉得心情变好。",
+   "lrn": "每次看到这个图案，我都会不由自主地心情愉快起来。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.49
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_07@moderate",
+   "cat": "clean_verbatim_edit",
+   "ref": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。",
+   "lrn": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍视。",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.5
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_07@moderate",
+   "cat": "clean_para",
+   "ref": "它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+   "lrn": "它之所以是我\"最喜欢的\"衣服，是因为它承载着舒适、快乐，以及珍贵的回忆。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.55
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_06@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤的图案，那只微笑的小猫，也让我联想到很多关于快乐和友谊的东西。",
+   "lrn": "这件T恤上那只微笑的小猫图案，也让我想起许多与快乐、友情相关的事情。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。",
+   "lrn": "它既不是什么昂贵的名牌，也算不上是时髦的新款，不过在我所有的衣服里，我最中意的就是它。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。",
+   "lrn": "这件T恤呈蓝色，颜色十分纯正，即使洗过很多遍也不会掉色。",
+   "type": "aspect_marker",
+   "severity": "major",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。",
+   "lrn": "这件T恤呈蓝色，颜色十分纯正，即使洗过很多遍也不会掉色。",
+   "type": "aspect_marker",
+   "severity": "major",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "directional_complement",
+   "severity": "minor",
+   "det_score": 0.59
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤胸前的位置上印着一幅小巧而讨人喜欢的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。",
+   "lrn": "它不像那种得费心思搭配的衣服，我套上它马上就能出门，去忙自己想忙的事。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.62
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "它的简单和舒适，让我觉得很安心。",
+   "lrn": "正因为它既简单又舒服，我心里才特别踏实。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_13@moderate",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤的前胸部分印着一幅小巧又可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_08@moderate",
+   "cat": "clean_para",
+   "ref": "它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+   "lrn": "它上面那个微笑的小猫图案，永远都是我心里最温暖的存在。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.53
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_11@moderate",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我喜欢这件T恤，不只是因为它的颜色和图案，更是因为它承载着许多美好的回忆。",
+   "type": "aspect_marker",
+   "severity": "major",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_02@moderate",
+   "cat": "clean_para",
+   "ref": "我最喜欢的T恤是一件非常特别的衣服。",
+   "lrn": "我最爱的T恤是一件相当特别的衣服。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_02@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料穿起来很舒适，贴在身上软软的，透气性也好，就算夏天穿也不会感到闷热。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_14@moderate",
+   "cat": "clean_para",
+   "ref": "它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+   "lrn": "它上面的图案，那只微笑的小猫，将永远是我心里最温暖的存在。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_06@moderate",
+   "cat": "clean_para",
+   "ref": "它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。",
+   "lrn": "它不像那些要精心搭配的衣服，一穿上它，我立马就能出门，去做想做的事。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.48
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_06@moderate",
+   "cat": "clean_para",
+   "ref": "当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+   "lrn": "当然，我也有别的漂亮衣服，有适合去派对穿的，也有适合上班穿的。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。",
+   "lrn": "那件T恤仿佛一位老朋友，伴着我度过了许多愉快的日子。",
+   "type": "aspect_marker",
+   "severity": "major",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_10@moderate",
+   "cat": "clean_para",
+   "ref": "每次看到它，我都会想起那些无忧无虑的日子，想起那些真心对我好的人。",
+   "lrn": "每当看见它，我就会想起那些无忧无虑的时光，也会想起那些真心待我好的人。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_09@moderate",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我喜欢这件T恤，原因不只是它的颜色和图案，更因为它承载着许多美好的回忆。",
+   "type": "cohesion_connective",
+   "severity": "minor",
+   "det_score": 0.73
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_09@moderate",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "记得我第一次穿上这件T恤，是在一个阳光灿烂的周末，那天我和家人一起到公园去野餐。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.65
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_multi_03@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤最与众不同的地方就在于它身上的图案。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.33
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+   "lrn": "它身上那个微笑小猫的图案，永远都是我心里最温暖的存在。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.58
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_multi_01@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料摸起来很舒服，穿上身软软的，透气性好，就算夏天穿着也不会觉得闷热。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫的皮毛被画得十分精细，尽管图案本身很简单，却显得栩栩如生，洋溢着生命力。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.7
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "我每次看到这个图案，都会觉得心情变好。",
+   "lrn": "每次看到这个图案，我都会不由自主地心情愉快起来。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.49
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我之所以喜欢这件T恤，不单单是因为它的颜色和图案，更因为它承载着许多美好的回忆。",
+   "type": "cohesion_connective",
+   "severity": "minor",
+   "det_score": 0.7
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "我还记得，第一次穿上这件T恤是在一个阳光灿烂的周末，那天我和家人一起去公园野餐。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_07@heavy",
+   "cat": "clean_verbatim_edit",
+   "ref": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。",
+   "lrn": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍视。",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.5
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "每次看到它，我都会想起那些无忧无虑的日子，想起那些真心对我好的人。",
+   "lrn": "每当看到它，那些无忧无虑的日子，还有那些真心待我好的人，都会浮现在我的脑海里。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+   "lrn": "它之所以是我\"最喜欢的\"衣服，是因为它承载着舒适、快乐，以及珍贵的回忆。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.55
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_06@heavy",
+   "cat": "clean_para",
+   "ref": "但是，当我想找一件最舒服、最能代表我心情的衣服时，我总是会选择这件蓝色的T恤，带着那个微笑的小猫图案。",
+   "lrn": "不过，每当我想挑一件最舒适、最能体现我当下心情的衣服时，我总会挑中这件印着那只微笑小猫图案的蓝色T恤。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.36
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_06@heavy",
+   "cat": "clean_para",
+   "ref": "它不仅仅是一件衣服，更像是我心情的一个晴雨表，它总是能在我需要的时候，给我带来温暖和力量。",
+   "lrn": "它对我来说并不只是一件衣服，倒更像是反映我心情的晴雨表，每次在我需要的时候，都能给我带来力量和温暖。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.49
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_06@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤的图案，那只微笑的小猫，也让我联想到很多关于快乐和友谊的东西。",
+   "lrn": "这件T恤上那只微笑的小猫图案，也让我想起许多与快乐、友情相关的事情。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。",
+   "lrn": "它既不是什么昂贵的名牌，也算不上是时髦的新款，不过在我所有的衣服里，我最中意的就是它。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。",
+   "lrn": "这件T恤呈蓝色，颜色十分纯正，即使洗过很多遍也不会掉色。",
+   "type": "aspect_marker",
+   "severity": "major",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "directional_complement",
+   "severity": "minor",
+   "det_score": 0.59
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。",
+   "lrn": "它既不是什么昂贵的名牌，也算不上是时髦的新款，不过在我所有的衣服里，我最中意的就是它。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。",
+   "lrn": "这件T恤呈蓝色，颜色十分纯正，即使洗过很多遍也不会掉色。",
+   "type": "aspect_marker",
+   "severity": "major",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "directional_complement",
+   "severity": "minor",
+   "det_score": 0.59
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤胸前的位置上印着一幅小巧而讨人喜欢的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。",
+   "lrn": "那幅图画画的是一只正在微笑的小猫，它仿佛正望着我，又仿佛正在跟我说话。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.46
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "它让我感到很放松，很自在。",
+   "lrn": "穿上它，我整个人都觉得特别轻松自在。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.42
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。",
+   "lrn": "它不像那种得费心思搭配的衣服，我套上它马上就能出门，去忙自己想忙的事。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.62
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "它的简单和舒适，让我觉得很安心。",
+   "lrn": "正因为它既简单又舒服，我心里才特别踏实。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+   "lrn": "当然啦，我也有别的好看衣服，有的适合聚会穿，有的适合上班穿。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤衫最与众不同的地方就在于它的图案。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.49
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤的前胸部分印着一幅小巧又可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。",
+   "lrn": "图画中是一只正在微笑的小猫，它仿佛在注视着我，又仿佛在跟我讲话。",
+   "type": "register",
+   "severity": "major",
+   "det_score": 0.58
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "这只猫的毛发被画得十分细腻，尽管图案本身很简单，却显得栩栩如生、充满活力。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.64
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "我还记得，第一次穿上这件T恤是在一个阳光灿烂的周末，那天我和家人一起到公园野餐。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.43
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+   "lrn": "它上面那个微笑的小猫图案，永远都是我心里最温暖的存在。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.53
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_11@heavy",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我喜欢这件T恤，不只是因为它的颜色和图案，更是因为它承载着许多美好的回忆。",
+   "type": "aspect_marker",
+   "severity": "major",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_11@heavy",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "我记得第一次穿上这件T恤，是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.8
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "我最喜欢的T恤是一件非常特别的衣服。",
+   "lrn": "我最爱的T恤是一件相当特别的衣服。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。",
+   "lrn": "它既不是昂贵的名牌，也不是最新潮的款式，不过在我所有的衣服中，我最喜欢它。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.48
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料穿起来很舒适，贴在身上软软的，透气性也好，就算夏天穿也不会感到闷热。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。",
+   "lrn": "它不像那些要精心搭配的衣服，一穿上它，我立马就能出门，去做想做的事。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.48
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "它的简单和舒适，让我觉得很安心。",
+   "lrn": "它那种简单和舒适的感觉，让我觉得很安心。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+   "lrn": "当然，我也有别的漂亮衣服，有适合去派对穿的，也有适合上班穿的。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.41
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤就像一个老朋友，陪伴我度过了很多快乐的时光。",
+   "lrn": "那件T恤仿佛一位老朋友，伴着我度过了许多愉快的日子。",
+   "type": "aspect_marker",
+   "severity": "major",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+   "lrn": "有时候我就待在家里，穿着那件T恤，随便看看书，听听音乐。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.64
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。",
+   "lrn": "它让我明白，生活当中有许多简单却美好的事情，值得我们去留意和珍惜。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.79
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "每次看到它，我都会想起那些无忧无虑的日子，想起那些真心对我好的人。",
+   "lrn": "每当看见它，我就会想起那些无忧无虑的时光，也会想起那些真心待我好的人。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+   "lrn": "它是我\"最爱\"的衣服，因为它象征着舒适、快乐以及珍贵的回忆。",
+   "type": "de_particles",
+   "severity": "minor",
+   "det_score": 0.7
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫身上的这些毛发线条刻画得十分细腻，虽然图案本身并不复杂，却画得栩栩如生，透着一股生命力。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.61
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我喜欢这件T恤，原因不只是它的颜色和图案，更因为它承载着许多美好的回忆。",
+   "type": "cohesion_connective",
+   "severity": "minor",
+   "det_score": 0.73
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "记得我第一次穿上这件T恤，是在一个阳光灿烂的周末，那天我和家人一起到公园去野餐。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.65
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_multi_03@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤最与众不同的地方就在于它身上的图案。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.33
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_multi_03@heavy",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤胸前的位置上，印着一幅小小的、十分可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.45
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_multi_01@heavy",
+   "cat": "clean_para",
+   "ref": "它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。",
+   "lrn": "它既不是什么昂贵的牌子，款式也算不上最新潮，可在我全部的衣服里，我却最喜欢它。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.62
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "zh_multi_01@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料摸起来很舒服，穿上身软软的，透气性好，就算夏天穿着也不会觉得闷热。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_03@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。",
+   "lrn": "そして、これらの部品をつなぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。",
+   "type": "script_choice",
+   "severity": "minor",
+   "det_score": 0.38
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_09@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "ぜひ、挑戦してみてください！",
+   "lrn": "ぜひ、挑戦してみて下さい！",
+   "type": "script_choice",
+   "severity": "minor",
+   "det_score": 0.59
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。",
+   "lrn": "さらに、こうした部品同士をつなげて動かすには「基板」が、そしてそれをコントロールするには「プログラミング」が欠かせません。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.48
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "部品を集める: 設計図をもとに、必要な部品を揃えます。",
+   "lrn": "部品を揃える: 描いた設計図に基づいて、必要となる部品を集めます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.71
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_07@moderate",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて電気や部品が果たす役割を学ぶとともに、自分の手で何かを作る楽しさも味わうことができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_07@moderate",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "また、「プログラミング」を学ぶことにより、コンピューターへの指示の出し方や論理的な思考力が身につきます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_06@moderate",
+   "cat": "clean_para",
+   "ref": "小さなブロックや消しゴムなどを掴ませて、うまく掴めるか確認します。",
+   "lrn": "小さなブロックや消しゴムなどを掴ませてみて、きちんと掴むことができるかどうかを確かめます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.43
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_06@moderate",
+   "cat": "clean_para",
+   "ref": "もしうまく動かない場合は、プログラミングに間違いがないか、部品の接続は確実かなどをチェックします。",
+   "lrn": "うまく動かないときには、プログラムのどこかに誤りがないか、また部品がしっかりつながっているかなどを調べます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.34
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "このロボットアームを作るには、いくつかの部品が必要です。",
+   "lrn": "このロボットアームを組み立てるには、いくつかの部品を用意する必要があります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.62
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "この「製作」を通して、科学技術の面白さを感じ、未来の技術者を目指すきっかけになれば嬉しいです。",
+   "lrn": "この「製作」の体験を通じて、科学技術のおもしろさに気づき、将来エンジニアを志すきっかけになったら、とても嬉しく思います。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_09@moderate",
+   "cat": "clean_verbatim_edit",
+   "ref": "ぜひ、挑戦してみてください！",
+   "lrn": "ぜひ、挑戦してみて下さい！",
+   "type": "script_choice",
+   "severity": "minor",
+   "det_score": 0.59
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "モーターをアームに取り付けたり、グリッパーを接続したりします。",
+   "lrn": "アームにモーターを取り付けたり、グリッパーをつないだりする作業です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.73
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "この作業が「電子工作」の醍醐味ですね。",
+   "lrn": "こうした作業こそ、「電子工作」ならではの楽しさだと言えるでしょう。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.52
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "プログラミング: ここが一番面白いところかもしれません。",
+   "lrn": "プログラミング：もしかすると、これが最も興味深い部分なのではないでしょうか。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.79
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "このプログラミングのおかげで、ロボットアームは私たちが与えた指示どおりに動作するようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.66
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_15@moderate",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_05@moderate",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品の役割を学びながら、自分の手で何かを作る楽しさを味わうことができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_05@moderate",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "さらに、「プログラミング」を学ぶことによって、コンピューターに指示を与える方法や、論理的に考える力を身につけることができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.55
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_08@moderate",
+   "cat": "clean_para",
+   "ref": "まず、アームを動かすための「モーター」。",
+   "lrn": "最初に、アームを動かすために使われる「モーター」です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.54
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_08@moderate",
+   "cat": "clean_para",
+   "ref": "次に、アームの指先にあたる「グリッパー」。",
+   "lrn": "続いて、アームの指先の部分にあたる「グリッパー」です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.58
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_02@moderate",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "この「プログラミング」のおかげで、ロボットアームは私たちが与えた指示どおりに動けるようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.56
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_06@moderate",
+   "cat": "clean_para",
+   "ref": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。",
+   "lrn": "「ロボット工学」がどのような仕組みで成り立っているかを理解しておくと、今後、より高度なロボットがどう作られているのかを把握する助けになります。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.45
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。",
+   "lrn": "これは「電子工作」の面白さを味わうのにうってつけで、完成させたときの満足感は格別です。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.46
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.36
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_10@moderate",
+   "cat": "clean_para",
+   "ref": "このシンプルなロボットアームをベースに、さらに色々な機能を追加することもできます。",
+   "lrn": "このシンプルなロボットアームを土台にして、他にも様々な機能を加えることができます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.54
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_multi_04@moderate",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするにはどうすればよいでしょうか？",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.36
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "このロボットアームを作るには、いくつかの部品が必要です。",
+   "lrn": "このロボットアームを組み立てるには、いくつかの部品が必要になります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.46
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_multi_01@moderate",
+   "cat": "clean_para",
+   "ref": "モーターをアームに取り付けたり、グリッパーを接続したりします。",
+   "lrn": "アームにモーターを取り付けたり、グリッパーをつないだりします。",
+   "type": "word_order",
+   "severity": "major",
+   "det_score": 0.37
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。",
+   "lrn": "さらに、こうした部品同士をつなげて動かすには「基板」が、そしてそれをコントロールするには「プログラミング」が欠かせません。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.48
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "どこにモーターをつけて、グリッパーはどう動かすかなどを考えます。",
+   "lrn": "モーターをどこに取り付けるか、グリッパーをどのように動かすか、といった点を検討します。",
+   "type": "particle_case",
+   "severity": "major",
+   "det_score": 0.52
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "部品を集める: 設計図をもとに、必要な部品を揃えます。",
+   "lrn": "部品を揃える: 描いた設計図に基づいて、必要となる部品を集めます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.71
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。",
+   "lrn": "「ロボット工学」の基礎的な仕組みを理解しておくと、将来もっと複雑なロボットがどうやって作られるのかを知る際に役立ちます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.42
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて電気や部品が果たす役割を学ぶとともに、自分の手で何かを作る楽しさも味わうことができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "また、「プログラミング」を学ぶことにより、コンピューターへの指示の出し方や論理的な思考力が身につきます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするにはどうすればいいでしょうか？",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "この「製作」を通して、科学技術の面白さを感じ、未来の技術者を目指すきっかけになれば嬉しいです。",
+   "lrn": "この「製作」の体験を通じて、科学技術のおもしろさに気づき、将来エンジニアを志すきっかけになったら、とても嬉しく思います。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "ぜひ、挑戦してみてください！",
+   "lrn": "どうぞ、チャレンジしてみてくださいね！",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.31
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "インターネットで「ロボットアーム キット」と検索すると、必要な部品がセットになったものも見つかります。",
+   "lrn": "「ロボットアーム キット」というキーワードでインターネット検索をすれば、必要な部品がひとまとめになっている商品も見つかるでしょう。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "モーターをアームに取り付けたり、グリッパーを接続したりします。",
+   "lrn": "アームにモーターを取り付けたり、グリッパーをつないだりする作業です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.73
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "この作業が「電子工作」の醍醐味ですね。",
+   "lrn": "こうした作業こそ、「電子工作」ならではの楽しさだと言えるでしょう。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.52
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "プログラミング: ここが一番面白いところかもしれません。",
+   "lrn": "プログラミング：もしかすると、これが最も興味深い部分なのではないでしょうか。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.79
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。",
+   "lrn": "「左へ動かす」「ものをつかむ」「右へ動かす」など、アームにどう動いてほしいかを、コンピューターが理解できる言葉、つまりプログラミング言語を使って伝えていきます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.54
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "このプログラミングのおかげで、ロボットアームは私たちが与えた指示どおりに動作するようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.66
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+   "lrn": "テスト：組み立てとプログラミングを終えたら、実際に動かして確かめてみましょう。",
+   "type": "particle_case",
+   "severity": "major",
+   "det_score": 0.73
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするにはどうすればいいでしょうか？",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品の役割を学びながら、自分の手で何かを作る楽しさを味わうことができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.47
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "さらに、「プログラミング」を学ぶことによって、コンピューターに指示を与える方法や、論理的に考える力を身につけることができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.55
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするにはどうすればいいでしょうか？",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "まず、アームを動かすための「モーター」。",
+   "lrn": "最初に、アームを動かすために使われる「モーター」です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.54
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "これは、電気を力に変えて、アームを動かす役割をします。",
+   "lrn": "これは、電気のエネルギーを力に変換して、アームを動かすという役割を果たします。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.39
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_08@heavy",
+   "cat": "clean_para",
+   "ref": "次に、アームの指先にあたる「グリッパー」。",
+   "lrn": "続いて、アームの指先の部分にあたる「グリッパー」です。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.58
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_11@heavy",
+   "cat": "clean_para",
+   "ref": "小さなブロックや消しゴムなどを掴ませて、うまく掴めるか確認します。",
+   "lrn": "小さなブロックや消しゴムなどを掴ませてみて、しっかりと掴めるかどうかを確かめます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.51
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "プログラミング: ここが一番面白いところかもしれません。",
+   "lrn": "プログラミング：もしかするとここが最も面白い部分かもしれません。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.67
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "この「プログラミング」のおかげで、ロボットアームは私たちが与えた指示どおりに動けるようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.56
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+   "lrn": "テスト：組み立てとプログラミングを終えたら、実際に動かして試してみましょう。",
+   "type": "particle_case",
+   "severity": "major",
+   "det_score": 0.72
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+   "lrn": "皆さんの発想次第で、ロボットアームはどんどん進化していくのです。",
+   "type": "verb_conjugation",
+   "severity": "major",
+   "det_score": 0.81
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。",
+   "lrn": "「ロボット工学」がどのような仕組みで成り立っているかを理解しておくと、今後、より高度なロボットがどう作られているのかを把握する助けになります。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.45
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を体験することで、電気や部品が果たす役割を学べるとともに、自分の手で作業する楽しさも味わえます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.33
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするためにはどうすればいいでしょうか？",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.32
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。",
+   "lrn": "私たちが制作するのは、小さな物をつかめる、とてもシンプルな作りのロボットアームです。",
+   "type": "particle_other",
+   "severity": "minor",
+   "det_score": 0.56
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。",
+   "lrn": "これは「電子工作」の面白さを味わうのにうってつけで、完成させたときの満足感は格別です。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.46
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.36
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "このシンプルなロボットアームをベースに、さらに色々な機能を追加することもできます。",
+   "lrn": "このシンプルなロボットアームを土台にして、他にも様々な機能を加えることができます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.54
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+   "lrn": "皆さんの発想次第で、ロボットアームはこれからもどんどん進化していくのです。",
+   "type": "cohesion_connective",
+   "severity": "minor",
+   "det_score": 0.82
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.36
+  },
+  {
+   "grader": "A_D_only (jev-1.13)",
+   "id": "ja_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "このロボットアームを作るには、いくつかの部品が必要です。",
+   "lrn": "このロボットアームを組み立てるには、いくつかの部品が必要になります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.46
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_seed_13@moderate",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤的前胸部分印着一幅小巧又可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.75
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_seed_09@moderate",
+   "cat": "clean_para",
+   "ref": "我喜欢这件T恤，不仅仅是因为它的颜色和图案，更是因为它承载了很多美好的回忆。",
+   "lrn": "我喜欢这件T恤，原因不只是它的颜色和图案，更因为它承载着许多美好的回忆。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_seed_09@moderate",
+   "cat": "clean_para",
+   "ref": "我记得第一次穿这件T恤是在一个阳光明媚的周末，我和家人一起去公园野餐。",
+   "lrn": "记得我第一次穿上这件T恤，是在一个阳光灿烂的周末，那天我和家人一起到公园去野餐。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.4
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_multi_03@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤最与众不同的地方就在于它身上的图案。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.91
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤衫最与众不同的地方就在于它的图案。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.84
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤的前胸部分印着一幅小巧又可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.77
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "这个图画是一只正在微笑的小猫，它好像在看着我，又好像在和我说话。",
+   "lrn": "图画中是一只正在微笑的小猫，它仿佛在注视着我，又仿佛在跟我讲话。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.61
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_multi_03@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤最特别的地方是它的图案。",
+   "lrn": "这件T恤最与众不同的地方就在于它身上的图案。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.88
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "zh_multi_03@heavy",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤胸前的位置上，印着一幅小小的、十分可爱的图画。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.83
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "ja_seed_15@moderate",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.35
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "ja_seed_15@moderate",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "そして、「プログラミング」を学ぶことによって、コンピューターに指示を与える方法や、論理的に考える力が身につきます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.3
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "ja_multi_04@moderate",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするにはどうすればよいでしょうか？",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.6
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.35
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "そして、「プログラミング」を学ぶことで、コンピューターに指示を出す方法や、論理的に考える力が養われます。",
+   "lrn": "そして、「プログラミング」を学ぶことによって、コンピューターに指示を与える方法や、論理的に考える力が身につきます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.44
+  },
+  {
+   "grader": "A_sept_refit (jev-1.13)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "さらに面白くするには？",
+   "lrn": "もっと面白くするにはどうすればいいでしょうか？",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.58
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.633
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robot arm is just one example.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.574
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_15@moderate",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robotic arm represents just one such idea.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.698
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_06@moderate",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.633
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "You learn how to connect wires.",
+   "lrn": "You find out how to join wires together.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.512
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.633
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robot arm is just one example.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.574
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "The Arduino is a powerful tool for DIY projects.",
+   "lrn": "Arduino is a highly capable tool for do-it-yourself projects.",
+   "type": "article",
+   "severity": "minor",
+   "det_score": 0.633
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "This robot arm is just one idea.",
+   "lrn": "This robotic arm represents just one such idea.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.698
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_11@heavy",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "You write instructions for the Arduino to follow.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.719
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "This is a small computer.",
+   "lrn": "This is essentially a small computer.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.633
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "You learn how to connect wires.",
+   "lrn": "You find out how to join wires together.",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.512
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "en_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "You write instructions for the Arduino.",
+   "lrn": "You write the instructions that the Arduino follows.",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.537
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_03@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "我每次看到这个图案，都会觉得心情变好。",
+   "lrn": "我每当看到这个图案，都会觉得心情变好。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.829
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_10@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角微微向上翘起，看起来非常开心。",
+   "lrn": "小猫的眼睛是圆圆的，带着一点点好奇，它的嘴角轻轻向上翘起，看起来非常开心。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.574
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫的皮毛被画得十分精细，尽管图案本身很简单，却显得栩栩如生，洋溢着生命力。",
+   "type": "bei_passive",
+   "severity": "major",
+   "det_score": 0.537
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_07@moderate",
+   "cat": "clean_para",
+   "ref": "它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+   "lrn": "它之所以是我\"最喜欢的\"衣服，是因为它承载着舒适、快乐，以及珍贵的回忆。",
+   "type": "de_particles",
+   "severity": "minor",
+   "det_score": 0.561
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_01@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。",
+   "lrn": "这件T恤呈蓝色，颜色十分纯正，即使洗过很多遍也不会掉色。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.597
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。",
+   "lrn": "这件T恤呈蓝色，颜色十分纯正，即使洗过很多遍也不会掉色。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.597
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.5
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤胸前的位置上印着一幅小巧而讨人喜欢的图画。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.644
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。",
+   "lrn": "它不像那种得费心思搭配的衣服，我套上它马上就能出门，去忙自己想忙的事。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.791
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_02@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料穿起来很舒适，贴在身上软软的，透气性也好，就算夏天穿也不会感到闷热。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.512
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_06@moderate",
+   "cat": "clean_para",
+   "ref": "当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+   "lrn": "当然，我也有别的漂亮衣服，有适合去派对穿的，也有适合上班穿的。",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.5
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "它的图案，那个微笑的小猫，永远是我心中最温暖的存在。",
+   "lrn": "它身上那个微笑小猫的图案，永远都是我心里最温暖的存在。",
+   "type": "word_order",
+   "severity": "major",
+   "det_score": 0.549
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_multi_01@moderate",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料摸起来很舒服，穿上身软软的，透气性好，就算夏天穿着也不会觉得闷热。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.849
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫的皮毛被画得十分精细，尽管图案本身很简单，却显得栩栩如生，洋溢着生命力。",
+   "type": "bei_passive",
+   "severity": "major",
+   "det_score": 0.537
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+   "lrn": "它之所以是我\"最喜欢的\"衣服，是因为它承载着舒适、快乐，以及珍贵的回忆。",
+   "type": "de_particles",
+   "severity": "minor",
+   "det_score": 0.561
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。",
+   "lrn": "这件T恤呈蓝色，颜色十分纯正，即使洗过很多遍也不会掉色。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.597
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_01@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.5
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。",
+   "lrn": "这件T恤呈蓝色，颜色十分纯正，即使洗过很多遍也不会掉色。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.597
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的面料摸起来很舒适，穿上去柔软又透气，就算在夏天穿也不会感到闷热。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.5
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "在T恤的胸口位置，有一个小小的、很可爱的图画。",
+   "lrn": "T恤胸前的位置上印着一幅小巧而讨人喜欢的图画。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.644
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "它不像那些需要精心搭配的衣服，穿上它，我就能立刻出门，去做我想做的事情。",
+   "lrn": "它不像那种得费心思搭配的衣服，我套上它马上就能出门，去忙自己想忙的事。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.791
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_05@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "这只猫的毛发被画得十分细腻，尽管图案本身很简单，却显得栩栩如生、充满活力。",
+   "type": "bei_passive",
+   "severity": "major",
+   "det_score": 0.549
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。",
+   "lrn": "它既不是昂贵的名牌，也不是最新潮的款式，不过在我所有的衣服中，我最喜欢它。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.512
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料穿起来很舒适，贴在身上软软的，透气性也好，就算夏天穿也不会感到闷热。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.512
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "当然，我也有其他漂亮的衣服，有适合参加派对的，有适合上班的。",
+   "lrn": "当然，我也有别的漂亮衣服，有适合去派对穿的，也有适合上班穿的。",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.5
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "有时候，我会在家里，只是穿着这件T恤，看看书，听听音乐。",
+   "lrn": "有时候我就待在家里，穿着那件T恤，随便看看书，听听音乐。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.537
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "它提醒我，生活中有很多简单而美好的事物值得我们去发现和珍惜。",
+   "lrn": "它让我明白，生活当中有许多简单却美好的事情，值得我们去留意和珍惜。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.597
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "它是我的\"最喜欢的\"衣服，因为它代表着舒适、快乐和珍贵的回忆。",
+   "lrn": "它是我\"最爱\"的衣服，因为它象征着舒适、快乐以及珍贵的回忆。",
+   "type": "orthography",
+   "severity": "minor",
+   "det_score": 0.549
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_seed_09@heavy",
+   "cat": "clean_para",
+   "ref": "猫咪的毛发画得很细致，虽然只是一个简单的图案，但却栩栩如生，充满了生命力。",
+   "lrn": "猫身上的这些毛发线条刻画得十分细腻，虽然图案本身并不复杂，却画得栩栩如生，透着一股生命力。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.574
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_multi_01@heavy",
+   "cat": "clean_para",
+   "ref": "它不是那种很贵的牌子，也不是最新款式的，但它是我所有衣服里最喜欢的。",
+   "lrn": "它既不是什么昂贵的牌子，款式也算不上最新潮，可在我全部的衣服里，我却最喜欢它。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.512
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "zh_multi_01@heavy",
+   "cat": "clean_para",
+   "ref": "它的布料很舒服，穿在身上软软的，很透气，夏天穿也不会觉得热。",
+   "lrn": "它的布料摸起来很舒服，穿上身软软的，透气性好，就算夏天穿着也不会觉得闷热。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.849
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_09@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "ぜひ、挑戦してみてください！",
+   "lrn": "ぜひ、挑戦してみて下さい！",
+   "type": "script_choice",
+   "severity": "minor",
+   "det_score": 0.525
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_03@moderate",
+   "cat": "clean_para",
+   "ref": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。",
+   "lrn": "さらに、こうした部品同士をつなげて動かすには「基板」が、そしてそれをコントロールするには「プログラミング」が欠かせません。",
+   "type": "particle_other",
+   "severity": "minor",
+   "det_score": 0.561
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_07@moderate",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて電気や部品が果たす役割を学ぶとともに、自分の手で何かを作る楽しさも味わうことができます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.537
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_09@moderate",
+   "cat": "clean_para",
+   "ref": "この「製作」を通して、科学技術の面白さを感じ、未来の技術者を目指すきっかけになれば嬉しいです。",
+   "lrn": "この「製作」の体験を通じて、科学技術のおもしろさに気づき、将来エンジニアを志すきっかけになったら、とても嬉しく思います。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.549
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_09@moderate",
+   "cat": "clean_verbatim_edit",
+   "ref": "ぜひ、挑戦してみてください！",
+   "lrn": "ぜひ、挑戦してみて下さい！",
+   "type": "script_choice",
+   "severity": "minor",
+   "det_score": 0.525
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_10@moderate",
+   "cat": "clean_para",
+   "ref": "この作業が「電子工作」の醍醐味ですね。",
+   "lrn": "こうした作業こそ、「電子工作」ならではの楽しさだと言えるでしょう。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.609
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "プログラミング: ここが一番面白いところかもしれません。",
+   "lrn": "プログラミング：もしかすると、これが最も興味深い部分なのではないでしょうか。",
+   "type": "orthography",
+   "severity": "minor",
+   "det_score": 0.688
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_05@moderate",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "このプログラミングのおかげで、ロボットアームは私たちが与えた指示どおりに動作するようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.609
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_15@moderate",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+   "type": "orthography",
+   "severity": "minor",
+   "det_score": 0.597
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_02@moderate",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "この「プログラミング」のおかげで、ロボットアームは私たちが与えた指示どおりに動けるようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.574
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_06@moderate",
+   "cat": "clean_para",
+   "ref": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。",
+   "lrn": "「ロボット工学」がどのような仕組みで成り立っているかを理解しておくと、今後、より高度なロボットがどう作られているのかを把握する助けになります。",
+   "type": "particle_wa_ga",
+   "severity": "major",
+   "det_score": 0.574
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。",
+   "lrn": "これは「電子工作」の面白さを味わうのにうってつけで、完成させたときの満足感は格別です。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.836
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.757
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.757
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_03@heavy",
+   "cat": "clean_para",
+   "ref": "そして、これらの部品を繋ぎ合わせ、動かすための「基板」と、それを制御するための「プログラミング」が必要です。",
+   "lrn": "さらに、こうした部品同士をつなげて動かすには「基板」が、そしてそれをコントロールするには「プログラミング」が欠かせません。",
+   "type": "particle_other",
+   "severity": "minor",
+   "det_score": 0.561
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。",
+   "lrn": "「ロボット工学」の基礎的な仕組みを理解しておくと、将来もっと複雑なロボットがどうやって作られるのかを知る際に役立ちます。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.621
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_07@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて電気や部品が果たす役割を学ぶとともに、自分の手で何かを作る楽しさも味わうことができます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.537
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "この「製作」を通して、科学技術の面白さを感じ、未来の技術者を目指すきっかけになれば嬉しいです。",
+   "lrn": "この「製作」の体験を通じて、科学技術のおもしろさに気づき、将来エンジニアを志すきっかけになったら、とても嬉しく思います。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.549
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_09@heavy",
+   "cat": "clean_para",
+   "ref": "ぜひ、挑戦してみてください！",
+   "lrn": "どうぞ、チャレンジしてみてくださいね！",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.597
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_10@heavy",
+   "cat": "clean_para",
+   "ref": "この作業が「電子工作」の醍醐味ですね。",
+   "lrn": "こうした作業こそ、「電子工作」ならではの楽しさだと言えるでしょう。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.609
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "プログラミング: ここが一番面白いところかもしれません。",
+   "lrn": "プログラミング：もしかすると、これが最も興味深い部分なのではないでしょうか。",
+   "type": "orthography",
+   "severity": "minor",
+   "det_score": 0.688
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "アームをどのように動かしたいか、例えば「左に動かす」「物を掴む」「右に動かす」といった指示を、コンピューターに分かりやすい言葉（プログラミング言語）で教え込みます。",
+   "lrn": "「左へ動かす」「ものをつかむ」「右へ動かす」など、アームにどう動いてほしいかを、コンピューターが理解できる言葉、つまりプログラミング言語を使って伝えていきます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.677
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "このプログラミングのおかげで、ロボットアームは私たちが与えた指示どおりに動作するようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.609
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_clean_05@heavy",
+   "cat": "clean_para",
+   "ref": "テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+   "lrn": "テスト：組み立てとプログラミングを終えたら、実際に動かして確かめてみましょう。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.525
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+   "type": "orthography",
+   "severity": "minor",
+   "det_score": 0.597
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "この「プログラミング」によって、ロボットアームは私たちの指示通りに動くようになるのです。",
+   "lrn": "この「プログラミング」のおかげで、ロボットアームは私たちが与えた指示どおりに動けるようになります。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.574
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_02@heavy",
+   "cat": "clean_para",
+   "ref": "テストする: 組み立てとプログラミングが終わったら、実際に動かしてテストしてみましょう。",
+   "lrn": "テスト：組み立てとプログラミングを終えたら、実際に動かして試してみましょう。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.655
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_13@heavy",
+   "cat": "clean_para",
+   "ref": "皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+   "lrn": "皆さんの発想次第で、ロボットアームはどんどん進化していくのです。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.633
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "「ロボット工学」の基本的な仕組みを知ることで、将来、もっと複雑なロボットがどのように作られているのか、理解する手助けになります。",
+   "lrn": "「ロボット工学」がどのような仕組みで成り立っているかを理解しておくと、今後、より高度なロボットがどう作られているのかを把握する助けになります。",
+   "type": "particle_wa_ga",
+   "severity": "major",
+   "det_score": 0.574
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_06@heavy",
+   "cat": "clean_para",
+   "ref": "「電子工作」を通して、電気や部品の役割を学び、実際に手を動かすことの楽しさを体験できます。",
+   "lrn": "「電子工作」を体験することで、電気や部品が果たす役割を学べるとともに、自分の手で作業する楽しさも味わえます。",
+   "type": "omission",
+   "severity": "major",
+   "det_score": 0.549
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "私たちが作るものは、小さな物を掴むことができる、とてもシンプルなロボットアームです。",
+   "lrn": "私たちが制作するのは、小さな物をつかめる、とてもシンプルな作りのロボットアームです。",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.688
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "これは「電子工作」の楽しさを体験するのにぴったりで、完成した時の達成感は格別ですよ。",
+   "lrn": "これは「電子工作」の面白さを味わうのにうってつけで、完成させたときの満足感は格別です。",
+   "type": "word_choice",
+   "severity": "minor",
+   "det_score": 0.836
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.757
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_seed_10@heavy",
+   "cat": "clean_para",
+   "ref": "皆さんのアイデア次第で、ロボットアームはどんどん進化していきます。",
+   "lrn": "皆さんの発想次第で、ロボットアームはこれからもどんどん進化していくのです。",
+   "type": "addition",
+   "severity": "minor",
+   "det_score": 0.609
+  },
+  {
+   "grader": "D_only (liquid/d1-ultra)",
+   "id": "ja_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "type": "collocation",
+   "severity": "minor",
+   "det_score": 0.757
+  }
+ ],
+ "diff_locality": {
+  "en/orig": {
+   "gold_errors": 16,
+   "diff_is_small_local_edit": 13,
+   "single_hunk_on_error": 15,
+   "some_hunk_touches_error": 16,
+   "highlight_mostly_on_error": 16,
+   "median_hunks": 1.0,
+   "median_share_of_sentence_highlighted": 0.111,
+   "mean_highlight_precision": 0.995,
+   "clean_changed_sentences": 6,
+   "hunks_per_clean_changed_sentence": 1.0
+  },
+  "zh/orig": {
+   "gold_errors": 16,
+   "diff_is_small_local_edit": 16,
+   "single_hunk_on_error": 13,
+   "some_hunk_touches_error": 16,
+   "highlight_mostly_on_error": 15,
+   "median_hunks": 1.0,
+   "median_share_of_sentence_highlighted": 0.088,
+   "mean_highlight_precision": 0.877,
+   "clean_changed_sentences": 6,
+   "hunks_per_clean_changed_sentence": 1.0
+  },
+  "ja/orig": {
+   "gold_errors": 17,
+   "diff_is_small_local_edit": 17,
+   "single_hunk_on_error": 15,
+   "some_hunk_touches_error": 17,
+   "highlight_mostly_on_error": 16,
+   "median_hunks": 1,
+   "median_share_of_sentence_highlighted": 0.062,
+   "mean_highlight_precision": 0.851,
+   "clean_changed_sentences": 6,
+   "hunks_per_clean_changed_sentence": 1.0
+  },
+  "all/orig": {
+   "gold_errors": 49,
+   "diff_is_small_local_edit": 46,
+   "single_hunk_on_error": 43,
+   "some_hunk_touches_error": 49,
+   "highlight_mostly_on_error": 47,
+   "median_hunks": 1,
+   "median_share_of_sentence_highlighted": 0.083,
+   "mean_highlight_precision": 0.906,
+   "clean_changed_sentences": 18,
+   "hunks_per_clean_changed_sentence": 1.0
+  },
+  "en/moderate": {
+   "gold_errors": 16,
+   "diff_is_small_local_edit": 10,
+   "single_hunk_on_error": 11,
+   "some_hunk_touches_error": 16,
+   "highlight_mostly_on_error": 14,
+   "median_hunks": 1.0,
+   "median_share_of_sentence_highlighted": 0.164,
+   "mean_highlight_precision": 0.836,
+   "clean_changed_sentences": 39,
+   "hunks_per_clean_changed_sentence": 1.462
+  },
+  "zh/moderate": {
+   "gold_errors": 16,
+   "diff_is_small_local_edit": 10,
+   "single_hunk_on_error": 7,
+   "some_hunk_touches_error": 16,
+   "highlight_mostly_on_error": 8,
+   "median_hunks": 2.0,
+   "median_share_of_sentence_highlighted": 0.127,
+   "mean_highlight_precision": 0.586,
+   "clean_changed_sentences": 33,
+   "hunks_per_clean_changed_sentence": 4.0
+  },
+  "ja/moderate": {
+   "gold_errors": 17,
+   "diff_is_small_local_edit": 11,
+   "single_hunk_on_error": 9,
+   "some_hunk_touches_error": 17,
+   "highlight_mostly_on_error": 10,
+   "median_hunks": 1,
+   "median_share_of_sentence_highlighted": 0.156,
+   "mean_highlight_precision": 0.626,
+   "clean_changed_sentences": 32,
+   "hunks_per_clean_changed_sentence": 3.406
+  },
+  "all/moderate": {
+   "gold_errors": 49,
+   "diff_is_small_local_edit": 31,
+   "single_hunk_on_error": 27,
+   "some_hunk_touches_error": 49,
+   "highlight_mostly_on_error": 32,
+   "median_hunks": 1,
+   "median_share_of_sentence_highlighted": 0.156,
+   "mean_highlight_precision": 0.682,
+   "clean_changed_sentences": 104,
+   "hunks_per_clean_changed_sentence": 2.865
+  },
+  "en/heavy": {
+   "gold_errors": 15,
+   "diff_is_small_local_edit": 5,
+   "single_hunk_on_error": 8,
+   "some_hunk_touches_error": 15,
+   "highlight_mostly_on_error": 10,
+   "median_hunks": 1,
+   "median_share_of_sentence_highlighted": 0.406,
+   "mean_highlight_precision": 0.658,
+   "clean_changed_sentences": 58,
+   "hunks_per_clean_changed_sentence": 1.517
+  },
+  "zh/heavy": {
+   "gold_errors": 13,
+   "diff_is_small_local_edit": 4,
+   "single_hunk_on_error": 3,
+   "some_hunk_touches_error": 13,
+   "highlight_mostly_on_error": 4,
+   "median_hunks": 3,
+   "median_share_of_sentence_highlighted": 0.5,
+   "mean_highlight_precision": 0.439,
+   "clean_changed_sentences": 55,
+   "hunks_per_clean_changed_sentence": 4.364
+  },
+  "ja/heavy": {
+   "gold_errors": 12,
+   "diff_is_small_local_edit": 3,
+   "single_hunk_on_error": 1,
+   "some_hunk_touches_error": 12,
+   "highlight_mostly_on_error": 2,
+   "median_hunks": 4.0,
+   "median_share_of_sentence_highlighted": 0.352,
+   "mean_highlight_precision": 0.308,
+   "clean_changed_sentences": 42,
+   "hunks_per_clean_changed_sentence": 3.619
+  },
+  "all/heavy": {
+   "gold_errors": 40,
+   "diff_is_small_local_edit": 12,
+   "single_hunk_on_error": 12,
+   "some_hunk_touches_error": 40,
+   "highlight_mostly_on_error": 16,
+   "median_hunks": 2.0,
+   "median_share_of_sentence_highlighted": 0.416,
+   "mean_highlight_precision": 0.482,
+   "clean_changed_sentences": 155,
+   "hunks_per_clean_changed_sentence": 3.097
+  }
+ }
+}

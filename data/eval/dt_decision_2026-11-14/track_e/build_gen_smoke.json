@@ -1,0 +1,148 @@
+{
+ "en_clean_03": {
+  "lang": "en",
+  "gen": {
+   "sentences": [
+    "The arm pieces can be made with a 3D printer.",
+    "Alternatively, you could simply use sticks and glue.",
+    "You'll need to pick up some coding skills as well.",
+    "The code instructs the Arduino on what it should do."
+   ],
+   "errors": [],
+   "struct_revert": []
+  },
+  "gen_err": null,
+  "gen_usage": {
+   "prompt_tokens": 1296,
+   "completion_tokens": 86,
+   "reasoning_tokens": 0,
+   "cost": 0.003452
+  },
+  "finish": "stop"
+ },
+ "en_seed_15": {
+  "lang": "en",
+  "gen": {
+   "sentences": [
+    "Learning by doing turns out to be an excellent approach.",
+    "Arduino is a highly capable tool for do-it-yourself projects.",
+    "You can make many things without it.",
+    "This robotic arm represents just one such idea."
+   ],
+   "errors": [
+    {
+     "fragment": "many things without it",
+     "corrected": "many things with it",
+     "kept": false
+    }
+   ],
+   "struct_revert": [
+    2
+   ]
+  },
+  "gen_err": null,
+  "gen_usage": {
+   "prompt_tokens": 1389,
+   "completion_tokens": 191,
+   "reasoning_tokens": 0,
+   "cost": 0.004688
+  },
+  "finish": "stop"
+ },
+ "zh_clean_03": {
+  "lang": "zh",
+  "gen": {
+   "sentences": [
+    "猫的皮毛被画得十分精细，尽管图案本身很简单，却显得栩栩如生，洋溢着生命力。",
+    "每次看到这个图案，我都会不由自主地心情愉快起来。",
+    "我之所以喜欢这件T恤，不单单是因为它的颜色和图案，更因为它承载着许多美好的回忆。",
+    "我还记得，第一次穿上这件T恤是在一个阳光灿烂的周末，那天我和家人一起去公园野餐。"
+   ],
+   "errors": [],
+   "struct_revert": []
+  },
+  "gen_err": null,
+  "gen_usage": {
+   "prompt_tokens": 1423,
+   "completion_tokens": 181,
+   "reasoning_tokens": 0,
+   "cost": 0.004656
+  },
+  "finish": "stop"
+ },
+ "zh_seed_13": {
+  "lang": "zh",
+  "gen": {
+   "sentences": [
+    "这件T恤衫最与众不同的地方就在于它的图案。",
+    "T恤的前胸部分印着一幅小巧又可爱的图画。",
+    "图画中是一只正在微笑的小猫，它仿佛在注视着我，又仿佛在跟我讲话。",
+    "小猫的眼睛圆圆的，透出一丝好奇，嘴角微微上扬，看起来非常伤心。"
+   ],
+   "errors": [
+    {
+     "fragment": "看起来非常伤心",
+     "corrected": "看起来非常开心",
+     "kept": true
+    }
+   ],
+   "struct_revert": []
+  },
+  "gen_err": null,
+  "gen_usage": {
+   "prompt_tokens": 1550,
+   "completion_tokens": 191,
+   "reasoning_tokens": 0,
+   "cost": 0.00501
+  },
+  "finish": "stop"
+ },
+ "ja_clean_03": {
+  "lang": "ja",
+  "gen": {
+   "sentences": [
+    "さらに、こうした部品同士をつなげて動かすには「基板」が、そしてそれをコントロールするには「プログラミング」が欠かせません。",
+    "製作の手順 設計図を描く: はじめに、腕をどんな形状にするのか、簡単なスケッチを作成しましょう。",
+    "モーターをどこに取り付けるか、グリッパーをどのように動かすか、といった点を検討します。",
+    "部品を揃える: 描いた設計図に基づいて、必要となる部品を集めます。"
+   ],
+   "errors": [],
+   "struct_revert": []
+  },
+  "gen_err": null,
+  "gen_usage": {
+   "prompt_tokens": 1398,
+   "completion_tokens": 186,
+   "reasoning_tokens": 0,
+   "cost": 0.004656
+  },
+  "finish": "stop"
+ },
+ "ja_seed_15": {
+  "lang": "ja",
+  "gen": {
+   "sentences": [
+    "「ロボット工学」の基本的な仕組みを理解しておくと、将来、もっと簡単なロボットがどのように作られているのかを知る助けになります。",
+    "「電子工作」を通じて、電気や部品がどんな役割を果たしているのかを学び、実際に手を動かす楽しさを味わうことができます。",
+    "そして、「プログラミング」を学ぶことによって、コンピューターに指示を与える方法や、論理的に考える力が身につきます。",
+    "もっと面白くするにはどうすればいいでしょうか？"
+   ],
+   "errors": [
+    {
+     "fragment": "もっと簡単なロボット",
+     "corrected": "もっと複雑なロボット",
+     "kept": true
+    }
+   ],
+   "struct_revert": []
+  },
+  "gen_err": null,
+  "gen_usage": {
+   "prompt_tokens": 1559,
+   "completion_tokens": 242,
+   "reasoning_tokens": 0,
+   "cost": 0.005538
+  },
+  "finish": "stop"
+ }
+}

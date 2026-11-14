@@ -1,0 +1,1367 @@
+{
+ "graders": {
+  "deepseek-v4.1-flash p1_expl": {
+   "en/orig": {
+    "n": 20,
+    "qwk_accuracy": 1.0,
+    "exact_accuracy": 1.0,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 1.0,
+    "exact_fidelity": 1.0,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 1.0,
+    "span_p": 1.0,
+    "span_r": 0.938,
+    "tp_fp_fn": [
+     15,
+     0,
+     1
+    ],
+    "type_top1": 0.867,
+    "type_n": 15,
+    "sev_exact": 0.933,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 58,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 15,
+      "flagged_major_plus": 8
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 16,
+      "sentence_flagged": 15,
+      "span_located": 15
+     }
+    },
+    "usd_per_item": 3.47e-05,
+    "p50_latency_s": 1.81,
+    "p90_latency_s": 2.17,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 15,
+    "severity_rule": "prior"
+   },
+   "en/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.889,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": 0.05,
+    "qwk_fidelity": 1.0,
+    "exact_fidelity": 1.0,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 0.958,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.95,
+    "span_p": 1.0,
+    "span_r": 0.875,
+    "tp_fp_fn": [
+     14,
+     0,
+     2
+    ],
+    "type_top1": 0.857,
+    "type_n": 14,
+    "sev_exact": 0.929,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 25,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 35,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 5,
+      "flagged": 4,
+      "flagged_major_plus": 3
+     },
+     "err_verbatim_edit": {
+      "n": 11,
+      "flagged": 10,
+      "flagged_major_plus": 4
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 5,
+      "sentence_flagged": 4,
+      "span_located": 4
+     },
+     "verbatim": {
+      "n": 11,
+      "sentence_flagged": 10,
+      "span_located": 10
+     }
+    },
+    "usd_per_item": 3.35e-05,
+    "p50_latency_s": 1.69,
+    "p90_latency_s": 2.24,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 14,
+    "severity_rule": "prior"
+   },
+   "en/heavy": {
+    "n": 19,
+    "qwk_accuracy": 0.787,
+    "exact_accuracy": 0.895,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 1.0,
+    "exact_fidelity": 1.0,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 0.958,
+    "exact_understandability": 0.947,
+    "mean_signed_err_understandability": 0.053,
+    "exact_3dim": 0.895,
+    "span_p": 0.867,
+    "span_r": 0.867,
+    "tp_fp_fn": [
+     13,
+     2,
+     2
+    ],
+    "type_top1": 0.846,
+    "type_n": 13,
+    "sev_exact": 0.923,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 57,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 8,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 5,
+      "flagged": 5,
+      "flagged_major_plus": 2
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 10,
+      "sentence_flagged": 8,
+      "span_located": 8
+     },
+     "verbatim": {
+      "n": 5,
+      "sentence_flagged": 5,
+      "span_located": 5
+     }
+    },
+    "usd_per_item": 3.72e-05,
+    "p50_latency_s": 1.67,
+    "p90_latency_s": 2.13,
+    "json_valid": 1.0,
+    "span_not_verbatim": 1,
+    "n_pred_errors": 15,
+    "severity_rule": "prior"
+   },
+   "zh/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.625,
+    "exact_accuracy": 0.85,
+    "mean_signed_err_accuracy": 0.05,
+    "qwk_fidelity": 0.94,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.85,
+    "span_p": 0.923,
+    "span_r": 0.75,
+    "tp_fp_fn": [
+     12,
+     1,
+     4
+    ],
+    "type_top1": 0.75,
+    "type_n": 12,
+    "sev_exact": 0.917,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 1,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 1,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 15,
+      "flagged": 12,
+      "flagged_major_plus": 7
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 16,
+      "sentence_flagged": 13,
+      "span_located": 12
+     }
+    },
+    "usd_per_item": 2.54e-05,
+    "p50_latency_s": 1.53,
+    "p90_latency_s": 1.93,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 13,
+    "severity_rule": "model"
+   },
+   "zh/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.375,
+    "exact_accuracy": 0.75,
+    "mean_signed_err_accuracy": 0.05,
+    "qwk_fidelity": 0.94,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 0.947,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.05,
+    "exact_3dim": 0.75,
+    "span_p": 1.0,
+    "span_r": 0.625,
+    "tp_fp_fn": [
+     10,
+     0,
+     6
+    ],
+    "type_top1": 0.7,
+    "type_n": 10,
+    "sev_exact": 0.9,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 30,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 7,
+      "flagged": 6,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 8,
+      "flagged": 4,
+      "flagged_major_plus": 4
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 7,
+      "sentence_flagged": 6,
+      "span_located": 6
+     },
+     "verbatim": {
+      "n": 9,
+      "sentence_flagged": 5,
+      "span_located": 4
+     }
+    },
+    "usd_per_item": 2.58e-05,
+    "p50_latency_s": 1.47,
+    "p90_latency_s": 1.86,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 10,
+    "severity_rule": "model"
+   },
+   "zh/heavy": {
+    "n": 18,
+    "qwk_accuracy": 0.491,
+    "exact_accuracy": 0.833,
+    "mean_signed_err_accuracy": 0.167,
+    "qwk_fidelity": 0.744,
+    "exact_fidelity": 0.889,
+    "mean_signed_err_fidelity": -0.111,
+    "qwk_understandability": 0.769,
+    "exact_understandability": 0.944,
+    "mean_signed_err_understandability": -0.111,
+    "exact_3dim": 0.778,
+    "span_p": 1.0,
+    "span_r": 0.538,
+    "tp_fp_fn": [
+     7,
+     0,
+     6
+    ],
+    "type_top1": 0.714,
+    "type_n": 7,
+    "sev_exact": 0.714,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 7,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 10,
+      "sentence_flagged": 7,
+      "span_located": 7
+     },
+     "verbatim": {
+      "n": 3,
+      "sentence_flagged": 0,
+      "span_located": 0
+     }
+    },
+    "usd_per_item": 2.78e-05,
+    "p50_latency_s": 1.39,
+    "p90_latency_s": 2.08,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 7,
+    "severity_rule": "model"
+   },
+   "ja/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.875,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.9,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": -0.1,
+    "qwk_understandability": 0.853,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.1,
+    "exact_3dim": 0.9,
+    "span_p": 0.929,
+    "span_r": 0.765,
+    "tp_fp_fn": [
+     13,
+     1,
+     4
+    ],
+    "type_top1": 0.846,
+    "type_n": 13,
+    "sev_exact": 0.846,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 52,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 13,
+      "flagged_major_plus": 12
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 17,
+      "sentence_flagged": 14,
+      "span_located": 13
+     }
+    },
+    "usd_per_item": 4.33e-05,
+    "p50_latency_s": 1.75,
+    "p90_latency_s": 2.26,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 14,
+    "severity_rule": "prior"
+   },
+   "ja/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.733,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.881,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": -0.15,
+    "qwk_understandability": 0.819,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": -0.15,
+    "exact_3dim": 0.8,
+    "span_p": 0.765,
+    "span_r": 0.765,
+    "tp_fp_fn": [
+     13,
+     4,
+     4
+    ],
+    "type_top1": 0.846,
+    "type_n": 13,
+    "sev_exact": 0.846,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 28,
+      "flagged": 2,
+      "flagged_major_plus": 1
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 6,
+      "flagged": 4,
+      "flagged_major_plus": 3
+     },
+     "err_verbatim_edit": {
+      "n": 10,
+      "flagged": 8,
+      "flagged_major_plus": 8
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 6,
+      "sentence_flagged": 4,
+      "span_located": 4
+     },
+     "verbatim": {
+      "n": 11,
+      "sentence_flagged": 9,
+      "span_located": 9
+     }
+    },
+    "usd_per_item": 3.88e-05,
+    "p50_latency_s": 1.51,
+    "p90_latency_s": 2.32,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 17,
+    "severity_rule": "prior"
+   },
+   "ja/heavy": {
+    "n": 16,
+    "qwk_accuracy": 0.429,
+    "exact_accuracy": 0.875,
+    "mean_signed_err_accuracy": -0.188,
+    "qwk_fidelity": 0.789,
+    "exact_fidelity": 0.812,
+    "mean_signed_err_fidelity": -0.25,
+    "qwk_understandability": 0.389,
+    "exact_understandability": 0.812,
+    "mean_signed_err_understandability": -0.312,
+    "exact_3dim": 0.75,
+    "span_p": 0.667,
+    "span_r": 0.833,
+    "tp_fp_fn": [
+     10,
+     5,
+     2
+    ],
+    "type_top1": 0.8,
+    "type_n": 10,
+    "sev_exact": 0.7,
+    "clean_items": {
+     "n_clean": 5,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 42,
+      "flagged": 3,
+      "flagged_major_plus": 2
+     },
+     "err_para": {
+      "n": 11,
+      "flagged": 10,
+      "flagged_major_plus": 10
+     },
+     "err_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 11,
+      "sentence_flagged": 10,
+      "span_located": 10
+     },
+     "verbatim": {
+      "n": 1,
+      "sentence_flagged": 0,
+      "span_located": 0
+     }
+    },
+    "usd_per_item": 3.96e-05,
+    "p50_latency_s": 1.64,
+    "p90_latency_s": 2.15,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 15,
+    "severity_rule": "prior"
+   }
+  },
+  "gpt-6-luna p1_expl": {
+   "en/orig": {
+    "n": 20,
+    "qwk_accuracy": 1.0,
+    "exact_accuracy": 1.0,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.95,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.9,
+    "span_p": 1.0,
+    "span_r": 0.875,
+    "tp_fp_fn": [
+     14,
+     0,
+     2
+    ],
+    "type_top1": 0.786,
+    "type_n": 14,
+    "sev_exact": 0.857,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 58,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 14,
+      "flagged_major_plus": 6
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 16,
+      "sentence_flagged": 14,
+      "span_located": 14
+     }
+    },
+    "usd_per_item": 4.91e-05,
+    "p50_latency_s": 1.48,
+    "p90_latency_s": 2.05,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 14,
+    "severity_rule": "prior"
+   },
+   "en/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.889,
+    "exact_accuracy": 0.95,
+    "mean_signed_err_accuracy": 0.05,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.898,
+    "exact_understandability": 0.9,
+    "mean_signed_err_understandability": 0.1,
+    "exact_3dim": 0.85,
+    "span_p": 1.0,
+    "span_r": 0.812,
+    "tp_fp_fn": [
+     13,
+     0,
+     3
+    ],
+    "type_top1": 0.769,
+    "type_n": 13,
+    "sev_exact": 0.846,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 25,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 35,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 5,
+      "flagged": 4,
+      "flagged_major_plus": 3
+     },
+     "err_verbatim_edit": {
+      "n": 11,
+      "flagged": 9,
+      "flagged_major_plus": 2
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 5,
+      "sentence_flagged": 4,
+      "span_located": 4
+     },
+     "verbatim": {
+      "n": 11,
+      "sentence_flagged": 9,
+      "span_located": 9
+     }
+    },
+    "usd_per_item": 4.37e-05,
+    "p50_latency_s": 1.43,
+    "p90_latency_s": 1.76,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 13,
+    "severity_rule": "prior"
+   },
+   "en/heavy": {
+    "n": 19,
+    "qwk_accuracy": 0.888,
+    "exact_accuracy": 0.947,
+    "mean_signed_err_accuracy": 0.053,
+    "qwk_fidelity": 0.969,
+    "exact_fidelity": 0.947,
+    "mean_signed_err_fidelity": 0.053,
+    "qwk_understandability": 0.897,
+    "exact_understandability": 0.895,
+    "mean_signed_err_understandability": 0.105,
+    "exact_3dim": 0.842,
+    "span_p": 1.0,
+    "span_r": 0.8,
+    "tp_fp_fn": [
+     12,
+     0,
+     3
+    ],
+    "type_top1": 0.75,
+    "type_n": 12,
+    "sev_exact": 0.833,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 57,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 8,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 5,
+      "flagged": 4,
+      "flagged_major_plus": 1
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 10,
+      "sentence_flagged": 8,
+      "span_located": 8
+     },
+     "verbatim": {
+      "n": 5,
+      "sentence_flagged": 4,
+      "span_located": 4
+     }
+    },
+    "usd_per_item": 4.54e-05,
+    "p50_latency_s": 1.34,
+    "p90_latency_s": 1.68,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 12,
+    "severity_rule": "prior"
+   },
+   "zh/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.524,
+    "exact_accuracy": 0.8,
+    "mean_signed_err_accuracy": 0,
+    "qwk_fidelity": 0.94,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 0.947,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.05,
+    "exact_3dim": 0.8,
+    "span_p": 1.0,
+    "span_r": 0.625,
+    "tp_fp_fn": [
+     10,
+     0,
+     6
+    ],
+    "type_top1": 0.7,
+    "type_n": 10,
+    "sev_exact": 0.7,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 15,
+      "flagged": 10,
+      "flagged_major_plus": 9
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 16,
+      "sentence_flagged": 11,
+      "span_located": 10
+     }
+    },
+    "usd_per_item": 5.84e-05,
+    "p50_latency_s": 1.16,
+    "p90_latency_s": 1.33,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 10,
+    "severity_rule": "model"
+   },
+   "zh/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.659,
+    "exact_accuracy": 0.85,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.97,
+    "exact_fidelity": 0.95,
+    "mean_signed_err_fidelity": 0.05,
+    "qwk_understandability": 0.947,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": -0.05,
+    "exact_3dim": 0.85,
+    "span_p": 1.0,
+    "span_r": 0.625,
+    "tp_fp_fn": [
+     10,
+     0,
+     6
+    ],
+    "type_top1": 0.7,
+    "type_n": 10,
+    "sev_exact": 0.7,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 30,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 7,
+      "flagged": 6,
+      "flagged_major_plus": 5
+     },
+     "err_verbatim_edit": {
+      "n": 8,
+      "flagged": 4,
+      "flagged_major_plus": 4
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 7,
+      "sentence_flagged": 6,
+      "span_located": 6
+     },
+     "verbatim": {
+      "n": 9,
+      "sentence_flagged": 5,
+      "span_located": 4
+     }
+    },
+    "usd_per_item": 5.57e-05,
+    "p50_latency_s": 1.2,
+    "p90_latency_s": 1.47,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 10,
+    "severity_rule": "model"
+   },
+   "zh/heavy": {
+    "n": 18,
+    "qwk_accuracy": 0.684,
+    "exact_accuracy": 0.889,
+    "mean_signed_err_accuracy": 0.111,
+    "qwk_fidelity": 0.939,
+    "exact_fidelity": 0.889,
+    "mean_signed_err_fidelity": 0,
+    "qwk_understandability": 1.0,
+    "exact_understandability": 1.0,
+    "mean_signed_err_understandability": 0,
+    "exact_3dim": 0.833,
+    "span_p": 1.0,
+    "span_r": 0.615,
+    "tp_fp_fn": [
+     8,
+     0,
+     5
+    ],
+    "type_top1": 0.75,
+    "type_n": 8,
+    "sev_exact": 0.875,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 53,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 2,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 10,
+      "flagged": 8,
+      "flagged_major_plus": 6
+     },
+     "err_verbatim_edit": {
+      "n": 3,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 10,
+      "sentence_flagged": 8,
+      "span_located": 8
+     },
+     "verbatim": {
+      "n": 3,
+      "sentence_flagged": 0,
+      "span_located": 0
+     }
+    },
+    "usd_per_item": 6.1e-05,
+    "p50_latency_s": 1.17,
+    "p90_latency_s": 1.5,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 8,
+    "severity_rule": "model"
+   },
+   "ja/orig": {
+    "n": 20,
+    "qwk_accuracy": 0.765,
+    "exact_accuracy": 0.9,
+    "mean_signed_err_accuracy": -0.1,
+    "qwk_fidelity": 0.941,
+    "exact_fidelity": 0.9,
+    "mean_signed_err_fidelity": 0.1,
+    "qwk_understandability": 0.958,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.85,
+    "span_p": 1.0,
+    "span_r": 0.882,
+    "tp_fp_fn": [
+     15,
+     0,
+     2
+    ],
+    "type_top1": 0.667,
+    "type_n": 15,
+    "sev_exact": 0.867,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 52,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 6,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_verbatim_edit": {
+      "n": 16,
+      "flagged": 14,
+      "flagged_major_plus": 11
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 0,
+      "sentence_flagged": 0,
+      "span_located": 0
+     },
+     "verbatim": {
+      "n": 17,
+      "sentence_flagged": 15,
+      "span_located": 15
+     }
+    },
+    "usd_per_item": 6.98e-05,
+    "p50_latency_s": 1.53,
+    "p90_latency_s": 2.04,
+    "json_valid": 1.0,
+    "span_not_verbatim": 1,
+    "n_pred_errors": 15,
+    "severity_rule": "model"
+   },
+   "ja/moderate": {
+    "n": 20,
+    "qwk_accuracy": 0.625,
+    "exact_accuracy": 0.85,
+    "mean_signed_err_accuracy": -0.05,
+    "qwk_fidelity": 0.912,
+    "exact_fidelity": 0.85,
+    "mean_signed_err_fidelity": 0.15,
+    "qwk_understandability": 0.958,
+    "exact_understandability": 0.95,
+    "mean_signed_err_understandability": 0.05,
+    "exact_3dim": 0.75,
+    "span_p": 1.0,
+    "span_r": 0.765,
+    "tp_fp_fn": [
+     13,
+     0,
+     4
+    ],
+    "type_top1": 0.769,
+    "type_n": 13,
+    "sev_exact": 0.769,
+    "clean_items": {
+     "n_clean": 7,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 26,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 28,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_verbatim_edit": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 6,
+      "flagged": 5,
+      "flagged_major_plus": 4
+     },
+     "err_verbatim_edit": {
+      "n": 10,
+      "flagged": 7,
+      "flagged_major_plus": 5
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 6,
+      "sentence_flagged": 5,
+      "span_located": 5
+     },
+     "verbatim": {
+      "n": 11,
+      "sentence_flagged": 8,
+      "span_located": 8
+     }
+    },
+    "usd_per_item": 6.51e-05,
+    "p50_latency_s": 1.6,
+    "p90_latency_s": 2.16,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 13,
+    "severity_rule": "model"
+   },
+   "ja/heavy": {
+    "n": 16,
+    "qwk_accuracy": 0.818,
+    "exact_accuracy": 0.938,
+    "mean_signed_err_accuracy": -0.062,
+    "qwk_fidelity": 0.898,
+    "exact_fidelity": 0.875,
+    "mean_signed_err_fidelity": 0.125,
+    "qwk_understandability": 0.879,
+    "exact_understandability": 0.938,
+    "mean_signed_err_understandability": 0.062,
+    "exact_3dim": 0.812,
+    "span_p": 1.0,
+    "span_r": 0.75,
+    "tp_fp_fn": [
+     9,
+     0,
+     3
+    ],
+    "type_top1": 0.889,
+    "type_n": 9,
+    "sev_exact": 0.778,
+    "clean_items": {
+     "n_clean": 5,
+     "flagged_any": 0,
+     "flagged_major_plus": 0,
+     "band_below_4": 0
+    },
+    "sentences": {
+     "clean_identical": {
+      "n": 4,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "clean_para": {
+      "n": 42,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     },
+     "err_para": {
+      "n": 11,
+      "flagged": 9,
+      "flagged_major_plus": 7
+     },
+     "err_verbatim_edit": {
+      "n": 1,
+      "flagged": 0,
+      "flagged_major_plus": 0
+     }
+    },
+    "gold_error_location": {
+     "para": {
+      "n": 11,
+      "sentence_flagged": 9,
+      "span_located": 9
+     },
+     "verbatim": {
+      "n": 1,
+      "sentence_flagged": 0,
+      "span_located": 0
+     }
+    },
+    "usd_per_item": 6.7e-05,
+    "p50_latency_s": 1.56,
+    "p90_latency_s": 1.79,
+    "json_valid": 1.0,
+    "span_not_verbatim": 0,
+    "n_pred_errors": 9,
+    "severity_rule": "model"
+   }
+  }
+ },
+ "false_flag_examples": [
+  {
+   "grader": "deepseek41f",
+   "id": "en_seed_15@heavy",
+   "cat": "clean_para",
+   "ref": "The Arduino is a powerful tool for DIY projects.",
+   "lrn": "Arduino is a highly capable tool for do-it-yourself projects.",
+   "flagged_span": "Arduino",
+   "type": "article_determiner",
+   "severity": "minor",
+   "explanation": "Missing article before the proper noun 'Arduino'."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "zh_clean_03@orig",
+   "cat": "clean_verbatim_edit",
+   "ref": "我每次看到这个图案，都会觉得心情变好。",
+   "lrn": "我每当看到这个图案，都会觉得心情变好。",
+   "flagged_span": "每当",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "每当 is not used with 看到 this way; 每次看到 is the natural form."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_seed_04@moderate",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "flagged_span": "どうするの？",
+   "type": "register",
+   "severity": "major",
+   "explanation": "Polite question expected; plain form is too casual for this register."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_multi_05@moderate",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "flagged_span": "どうするの",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "どうするの asks 'what to do', not 'how to make'."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_seed_11@heavy",
+   "cat": "clean_para",
+   "ref": "もしうまく動かない場合は、プログラミングに間違いがないか、部品の接続は確実かなどをチェックします。",
+   "lrn": "もしうまく動かない時は、プログラムに誤りがないか、部品がしっかり接続されているかなどを確認します。",
+   "flagged_span": "プログラムに誤りがないか",
+   "type": "wa_ga",
+   "severity": "major",
+   "explanation": "The subject marker が is needed before ないか in the subordinate clause."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_seed_04@heavy",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "flagged_span": "どうするの",
+   "type": "register",
+   "severity": "major",
+   "explanation": "Polite question form needed; plain 'どうするの' is too casual for this register."
+  },
+  {
+   "grader": "deepseek41f",
+   "id": "ja_multi_05@heavy",
+   "cat": "clean_para",
+   "ref": "どうやって作るの？",
+   "lrn": "作り方はどうするの？",
+   "flagged_span": "作り方はどうするの",
+   "type": "word_choice",
+   "severity": "minor",
+   "explanation": "作り方はどうするの is unnatural; どうやって作るの is the natural phrasing."
+  }
+ ]
+}
