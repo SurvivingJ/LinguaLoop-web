@@ -6449,3 +6449,11 @@ old design), with their 110 `user_flashcards` and 4 pending `prestudy_followups`
 reachable by anon/authenticated). Kept: `exercise_attempts`, `user_exercise_history`,
 `user_vocabulary_knowledge`. Ladder now holds only the 40 drill-native rows. Re-nominated
 words come back as fresh intro words. `_promote_unstarted_to_intro` stays as a guard.
+
+## [2026-11-14] refactor | Codebase review executed by agent swarm
+Source: review of 2026-11-13. Pages created: 1 ([[evaluations/codebase-review-2026-11-13]]).
+Pages updated: index. Branch `claude/lucid-volta-gu0g2l`, not merged. Tests: Python 4,432 pass /
+1 stale failure, JS 431 pass. Nothing applied live; 12 migration files await approval. Spec pages
+for moved code (routes/tests package, services/practice, services/study_session, web/) are now
+stale and need an ingest pass. Two tests read `prompt_templates` from the live database when real
+credentials are in the environment; CI deselects them.
