@@ -6457,3 +6457,19 @@ Pages updated: index. Branch `claude/lucid-volta-gu0g2l`, not merged. Tests: Pyt
 for moved code (routes/tests package, services/practice, services/study_session, web/) are now
 stale and need an ingest pass. Two tests read `prompt_templates` from the live database when real
 credentials are in the environment; CI deselects them.
+
+## [2026-11-14] query | DT decision-model grading and feedback design experiment
+Question: can a cheap decision model or a cheap LLM grade Dual Translation and produce feedback?
+Sources: `data/eval/dt_decision_2026-11-14/track_a`–`track_e` (five `REPORT.md`). Output filed as:
+[[evaluations/dt-decision-grading-2026-11-14]]. Pages created: 1. Pages updated: index (new
+"Design" heading for the three `wiki/design/dt-feedback/` option specs; `wiki/design/` is not yet
+in the CLAUDE.md schema). Spend: $1.272 of a $3.00 OpenRouter cap (track ledgers sum to $1.2691).
+Nothing applied live, no production code changed. Findings: diff-focused jev fixes recall
+(.52/.50/.80 → .83/.96/.92 zh/ja/en) but band gains are within noise; one cheap LLM call per item
+matches or beats the live grader on seeded gold at or below jev's cost; cascades with jev lose to
+the cheap model alone; on paraphrased translations the decision pipelines flag 31–76% of correct
+rephrased sentences, `openai/gpt-6-luna` 1 of 152 and `deepseek/deepseek-v4.1-flash` 12 of 152.
+Recommended grader candidate: gpt-6-luna, single call, span from the LLM. Feedback: templates for
+corrections, hints and clean messages; LLM for explanations. Open: no real learner submissions
+tested, shadow run needs result storage, Track E labels are model-verified, no native review, the
+owner has not chosen among the three feedback designs.
