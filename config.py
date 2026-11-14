@@ -196,6 +196,51 @@ class Config:
     # submission. Turned on in the TASK-853 cutover runbook.
     DT_TAXONOMY_COLUMNS = os.environ.get('DT_TAXONOMY_COLUMNS', 'False').lower() == 'true'
 
+    # Dual Translation — single-call generative grader (ADR-044). Global config
+    # flag (ADR-013 rollout pattern), default OFF: live grading is unchanged until
+    # an operator exports DT_SINGLE_CALL_GRADER=true. When on, a submission that
+    # Tier 0 does not resolve is graded by ONE structured-output call
+    # (services.dual_translation.single_call_grader — the frozen Track B
+    # "span + explanation" prompt from wiki/evaluations/dt-decision-grading-2026-11-14.md)
+    # that returns an error list; bands are derived in Python by
+    # services.dual_translation.scoring, exactly as in the v2 flow. If the primary
+    # model errors or returns unusable JSON the fallback model is tried once; if
+    # that fails too the submission is graded by the configured flow below
+    # (DT_FRAMEWORK_V2 -> v2, else v1) — never silently full-marked.
+    # Requires taxonomy v6 and the rubric v5+ scoring keys to be the loaded
+    # config; under any other taxonomy the single call is skipped and the
+    # configured flow grades (grader_trace.single_call.reason says why).
+    DT_SINGLE_CALL_GRADER = os.environ.get('DT_SINGLE_CALL_GRADER', 'False').lower() == 'true'
+    DT_SINGLE_CALL_MODEL = os.environ.get('DT_SINGLE_CALL_MODEL', 'openai/gpt-6-luna')
+    # Tried once when the primary call fails. Blank disables the model fallback.
+    DT_SINGLE_CALL_FALLBACK_MODEL = os.environ.get(
+        'DT_SINGLE_CALL_FALLBACK_MODEL', 'deepseek/deepseek-v4.1-flash')
+    # Track E's "free translations are expected" prompt paragraph. Default OFF:
+    # it removes false flags on rephrased sentences but lowers recall on
+    # near-verbatim answers (gpt-6-luna .88 -> .80) — a product decision to take
+    # after the shadow run. Turning it on changes the recorded prompt variant.
+    DT_SINGLE_CALL_FREE_TRANSLATION = (
+        os.environ.get('DT_SINGLE_CALL_FREE_TRANSLATION', 'False').lower() == 'true')
+    # Also run the v2 Explainer (one more cheap L1 call per error-bearing
+    # submission) on single-call grades. Default OFF: the flow stays one call and
+    # explanations are the Rule template plus the model's short note.
+    DT_SINGLE_CALL_EXPLAINER = os.environ.get('DT_SINGLE_CALL_EXPLAINER', 'False').lower() == 'true'
+    # Log each single-call grading request to llm_calls (services.llm_service).
+    # On by default; the offline eval harness turns it off.
+    DT_SINGLE_CALL_LOG_LLM_CALLS = (
+        os.environ.get('DT_SINGLE_CALL_LOG_LLM_CALLS', 'True').lower() == 'true')
+
+    # Dual Translation — grading-asset persistence (ADR-044). Default OFF. Gates
+    # every read/write of what migrations/dt_grading_assets.sql adds: the
+    # dt_error_instance columns sentence_index / model_severity / model_note /
+    # span_source / correction_source, and the dt_grading_call table (one row per
+    # grading model call). Same contract as DT_TAXONOMY_COLUMNS: it MUST stay
+    # off until that migration is applied live — PostgREST rejects an
+    # insert/select naming a column that does not exist, which would fail every
+    # graded submission. The single-call grader itself does not need it: without
+    # it the grade and its full grader_trace are still stored in dt_grade.
+    DT_GRADING_ASSET_COLUMNS = os.environ.get('DT_GRADING_ASSET_COLUMNS', 'False').lower() == 'true'
+
     # ==========================================================================
     # ELO & GAME CONSTANTS
     # ==========================================================================
