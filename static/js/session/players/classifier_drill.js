@@ -14,33 +14,26 @@
 // Self-contained: inline <style>, all DOM scoped to `container`, and every
 // document-level listener / timer is tracked and torn down in destroy().
 
-const T = (key, params, fallback) =>
-  window.LinguaI18n && typeof LinguaI18n.t === 'function'
-    ? LinguaI18n.t(key, params) || fallback || key
-    : fallback || key;
+import { T, escapeHtml, shuffle } from '../dom.js';
+import { prefetchJson, takePrefetch } from '../prefetch.js';
 
 const BATCH_SIZE = 20;
 
-function localEsc(s) {
-  if (window.LinguaUtils && LinguaUtils.escapeHtml)
-    return LinguaUtils.escapeHtml(String(s == null ? '' : s));
-  const d = document.createElement('div');
-  d.textContent = s == null ? '' : s;
-  return d.innerHTML;
-}
+const sessionUrl = (languageId) =>
+  '/api/classifier-drill/session?language_id=' + languageId + '&count=' + BATCH_SIZE;
 
-function shuffle(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+/**
+ * Session prefetch hook: the batch, unless a classifier drill is running (its
+ * submit changes what the next batch should hold).
+ */
+export function prefetch(item, ctx) {
+  const current = ctx && ctx.current;
+  if (current && current.test_type === 'classifier_drill') return null;
+  return prefetchJson(sessionUrl((ctx && ctx.languageId) || 1));
 }
 
 export function mount(container, ctx) {
   const languageId = (ctx && ctx.languageId) || 1;
-  const escapeHtml = localEsc;
 
   const state = {
     mode: localStorage.getItem('cd_mode') || 'auto',
@@ -242,23 +235,26 @@ export function mount(container, ctx) {
     el.results.style.display = 'none';
     el.controls.style.display = 'none';
 
-    const url = '/api/classifier-drill/session?language_id=' + languageId + '&count=' + BATCH_SIZE;
-    let resp;
-    try {
-      resp = await window.authFetch(url);
-    } catch (e) {
-      console.error('Classifier drill load failed:', e);
-      return showEmptyState(T('classifier_drill.error_load', null, 'Couldn’t load the drill.'));
+    const pre = await takePrefetch(ctx && ctx.item);
+    let data = pre && pre.data;
+    if (!pre) {
+      let resp;
+      try {
+        resp = await window.authFetch(sessionUrl(languageId));
+      } catch (e) {
+        console.error('Classifier drill load failed:', e);
+        return showEmptyState(T('classifier_drill.error_load', null, 'Couldn’t load the drill.'));
+      }
+      if (!resp.ok) {
+        return showEmptyState(
+          T('classifier_drill.error_load', null, 'Couldn’t load the drill.') +
+            ' (' +
+            resp.status +
+            ')'
+        );
+      }
+      data = await resp.json();
     }
-    if (!resp.ok) {
-      return showEmptyState(
-        T('classifier_drill.error_load', null, 'Couldn’t load the drill.') +
-          ' (' +
-          resp.status +
-          ')'
-      );
-    }
-    const data = await resp.json();
     const items = (data && ((data.data && data.data.items) || data.items)) || [];
     if (!items.length) {
       return showEmptyState(

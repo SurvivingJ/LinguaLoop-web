@@ -9,19 +9,7 @@
 // resumes on the test itself. "Take it cold" completes the block and moves on:
 // prestudy never blocks a test.
 
-const T = (key, params, fallback) => {
-  if (window.LinguaI18n && typeof LinguaI18n.t === 'function') {
-    const v = LinguaI18n.t(key, params);
-    if (v && v !== key) return v;
-  }
-  return fallback || key;
-};
-
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = s == null ? '' : s;
-  return d.innerHTML;
-}
+import { T, escapeHtml as esc } from '../dom.js';
 
 export function prestudyUrl(item, languageId) {
   const p = new URLSearchParams({

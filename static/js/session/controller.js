@@ -3,7 +3,9 @@
 // (tests + practice) inside one page, persists completion, and resumes from
 // server state. See plan we-now-have-the-swirling-haven.md.
 
-import { getPlayer, preloadPlayers } from './player_registry.js';
+import { getPlayer, preloadPlayers, prefetchItem } from './player_registry.js';
+import { createSaveQueue } from './save_queue.js';
+import { T, escapeHtml, applyI18n, toastSaveFailed } from './dom.js';
 import {
   hasTail,
   tailCounts,
@@ -18,18 +20,8 @@ import {
   makeExtraItem,
   splitPracticeQueue,
 } from './tail.js';
-import {
-  practiceSessionUrl,
-  fetchPracticePayload,
-  summarizePracticePayload,
-  practiceCountText,
-} from './players/practice.js';
 
 const $ = (id) => document.getElementById(id);
-const T = (key, params, fallback) =>
-  window.LinguaI18n && typeof window.LinguaI18n.t === 'function'
-    ? window.LinguaI18n.t(key, params)
-    : fallback || key;
 
 // Looks up a dim_languages language_code (e.g. 'zh', 'ja') from a numeric
 // language_id, using the metadata LinguaMetadata.load() already cached
@@ -48,7 +40,6 @@ const session = {
   queue: [], // [{ kind:'test'|'practice', id, slug?, test_type?, mode?, is_completed }]
   index: 0,
   player: null, // { destroy() } handle for the currently-mounted player
-  _completing: false, // re-entrancy latch for onItemComplete (M3)
   // Practice-only mode (`/session?mode=practice`, nav "Practice" link):
   // exercises only. The queue is the daily-session queue filtered client-side
   // to its review (maintenance) practice chunks — tests, flashcards, dual
@@ -157,8 +148,30 @@ function studySessionUrl() {
   return `/api/study-session?language_id=${session.languageId}${scope}`;
 }
 
+// The page starts this request from an inline script, before the module graph
+// has loaded (templates/study_session.html); use that response once.
+function takeEarlySession(url) {
+  const early = window.__ldSessionEarly;
+  window.__ldSessionEarly = null;
+  return early && early.url === url && early.promise ? early.promise : null;
+}
+
+async function fetchSession() {
+  const url = studySessionUrl();
+  const early = takeEarlySession(url);
+  if (early) {
+    try {
+      const res = await early;
+      if (res && res.ok) return res;
+    } catch (e) {
+      console.warn('[session] early session request failed, retrying:', e);
+    }
+  }
+  return window.authFetch(url);
+}
+
 async function loadSession() {
-  const res = await window.authFetch(studySessionUrl());
+  const res = await fetchSession();
   if (!res.ok) throw new Error(`Session load failed (${res.status})`);
   const body = await res.json();
   const data = body.data || body;
@@ -237,34 +250,48 @@ function renderStart() {
   };
 }
 
-// Start card: when the next item is a practice round, load it now and say how
-// many exercises it holds, so the learner knows the size before starting. The
-// practice player reuses this payload (item.prefetch) instead of loading again.
+// Start card: load the first item's data now, so it is ready when the learner
+// presses Start. When that item is a practice round, also say how many
+// exercises it holds (the player's `describePrefetch` hook), so the learner
+// knows the size before starting.
 function showPracticeCount() {
   const el = $('sessionStartCount');
-  if (!el) return;
   let i = session.index;
   while (i < session.queue.length && session.queue[i].is_completed) i++;
   const next = session.queue[i];
-  if (!next || next.kind !== 'practice' || next.is_extra) {
-    el.classList.add('d-none');
+  if (!next) {
+    if (el) el.classList.add('d-none');
     return;
+  }
+  const counted = !!el && next.kind === 'practice' && !next.is_extra;
+  if (el) {
+    el.textContent = counted ? T('session.count_loading', null, 'Counting exercises…') : '';
+    el.classList.toggle('d-none', !counted);
   }
   const moreRounds = session.queue
     .slice(i + 1)
     .filter((q) => q.kind === 'practice' && !q.is_completed).length;
-  el.textContent = T('session.count_loading', null, 'Counting exercises…');
-  el.classList.remove('d-none');
-  if (!next.prefetch) {
-    next.prefetch = fetchPracticePayload(practiceSessionUrl(next, session.languageId));
-  }
-  next.prefetch.then((res) => {
-    const text = res && res.ok
-      ? practiceCountText(summarizePracticePayload(res.data), moreRounds, T)
-      : '';
-    el.textContent = text;
-    el.classList.toggle('d-none', !text);
+  prefetchItem(next, { languageId: session.languageId, current: null }).then((mod) => {
+    if (!counted) return;
+    const describe = mod && mod.describePrefetch;
+    if (typeof describe !== 'function' || !next.prefetch) {
+      el.classList.add('d-none');
+      return;
+    }
+    next.prefetch.then((res) => {
+      const text = describe(res, { moreRounds, t: T });
+      el.textContent = text;
+      el.classList.toggle('d-none', !text);
+    });
   });
+}
+
+// While an item is in progress, let the next one start loading its data.
+function prefetchUpcoming(current) {
+  let i = session.index + 1;
+  while (i < session.queue.length && session.queue[i].is_completed) i++;
+  const next = session.queue[i];
+  if (next) prefetchItem(next, { languageId: session.languageId, current });
 }
 
 function runCurrent() {
@@ -308,9 +335,8 @@ function runCurrent() {
 
   // Translate the data-i18n markup the player just injected into the stage
   // (applyToDOM normally runs only at page load, before the stage exists).
-  if (window.LinguaI18n && typeof LinguaI18n.applyToDOM === 'function') {
-    LinguaI18n.applyToDOM(stage);
-  }
+  applyI18n(stage);
+  prefetchUpcoming(item);
 }
 
 // Persist one item's completion. Returns true only on an acknowledged 2xx.
@@ -334,40 +360,63 @@ async function persistCompletion(item) {
           '/api/study-session/complete-block',
           { block_id: item.id, language_id: session.languageId },
         ];
-  const res = await window.authFetch(url, { method: 'POST', body: JSON.stringify(payload) });
+  // keepalive: the save outlives the page if the learner leaves right away.
+  const res = await window.authFetch(url, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    keepalive: true,
+  });
   return !!(res && res.ok);
 }
 
-async function onItemComplete(item, result) {
-  // Re-entrancy latch (M3): players can fire onComplete more than once (e.g. a
-  // second click during the await). Without this, completion POSTs twice and
-  // ELO can be awarded twice.
-  if (session._completing) return;
-  session._completing = true;
-  try {
-    // Every queue kind persists — surfaces included. An allow-list here would
-    // have to be widened for each new kind, and forgetting to is invisible:
-    // the item completes on screen and no counter ever moves (F2 / TASK-701).
-    if (item.kind) {
-      let ok = false;
-      try {
-        ok = await persistCompletion(item);
-        if (!ok) ok = await persistCompletion(item); // one silent retry (M2)
-      } catch (e) {
-        console.error('Failed to persist completion:', e);
-      }
-      if (!ok && typeof window.showToast === 'function') {
-        // Surface the failure but still advance — the learner already finished.
-        window.showToast(
-          T('session.save_failed', null, 'Couldn’t save your progress — check your connection.')
-        );
-      }
-    }
-    item.is_completed = true;
-    advance();
-  } finally {
-    session._completing = false;
+// Completions are saved in the background so the next item shows at once.
+// Each is retried; one that still fails stays in the queue, raises the save
+// banner (with Retry) and is tried again before the session's last step.
+const saves = createSaveQueue({
+  onFail: () => {
+    // The banner says it and stays; the toast is only for pages without one.
+    if (!$('sessionSaveStatus')) toastSaveFailed();
+  },
+  onChange: renderSaveStatus,
+});
+
+function renderSaveStatus({ failed }) {
+  const box = $('sessionSaveStatus');
+  if (!box) return;
+  box.classList.toggle('d-none', !failed);
+  box.classList.toggle('d-flex', !!failed);
+  const retry = $('sessionSaveRetry');
+  if (retry) {
+    retry.disabled = false;
+    retry.onclick = () => {
+      retry.disabled = true;
+      saves.retryFailed();
+    };
   }
+}
+
+// Resolves once every completion is saved or has finally failed; failed ones
+// get one more round first. True when nothing is left unsaved.
+async function settleSaves() {
+  if (await saves.settle()) return true;
+  return saves.retryFailed();
+}
+
+// A backoff in progress is cut short when the page is being left.
+window.addEventListener('pagehide', () => saves.hurry());
+
+function onItemComplete(item) {
+  // Players can fire onComplete more than once (a second click, a late
+  // callback from a player already torn down). Only the item on stage, and
+  // only once, may complete — otherwise completion POSTs twice (M3) or a
+  // stale callback skips the item that replaced it.
+  if (item.is_completed || session.queue[session.index] !== item) return;
+  item.is_completed = true;
+  // Every queue kind persists — surfaces included. An allow-list here would
+  // have to be widened for each new kind, and forgetting to is invisible:
+  // the item completes on screen and no counter ever moves (F2 / TASK-701).
+  if (item.kind) saves.enqueue(() => persistCompletion(item), item.id);
+  advance();
 }
 
 function advance() {
@@ -379,6 +428,7 @@ function advance() {
 // but flag it so the progress dots and end-of-session summary can show it as
 // skipped rather than merely "not done".
 function onItemSkip(item) {
+  if (session.queue[session.index] !== item) return;
   item.skipped = true;
   advance();
 }
@@ -439,18 +489,6 @@ function dotStateLabel(item, i) {
   if (item.skipped) return T('session.item_skipped', null, 'Skipped');
   if (i === session.index) return T('session.item_current', null, 'In progress');
   return T('session.item_pending', null, 'Not started');
-}
-
-// Escape a string for safe interpolation into innerHTML / attribute context.
-// Item titles come from the server, so this guards the summary and dot labels
-// against markup injection.
-function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 function showSummary() {
@@ -571,6 +609,9 @@ async function offerTail({ fromEmpty = false } = {}) {
   const token = ++session._tailToken;
   let data;
   try {
+    // The server only offers the tail once every required item is recorded
+    // complete, so the completions still being saved go first.
+    await settleSaves();
     const res = await window.authFetch(studySessionUrl());
     if (!res || !res.ok) {
       if (token === session._tailToken) renderExtraPanel();

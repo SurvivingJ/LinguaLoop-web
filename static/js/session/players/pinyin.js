@@ -4,29 +4,10 @@
 // keydown + timer are tracked), error-modal buttons wired via listeners (no
 // window globals), and ctx.onComplete() on finish instead of linking to /tests.
 
-const TONE_NAMES = {
-  1: '1st (flat)',
-  2: '2nd (rising)',
-  3: '3rd (dip)',
-  4: '4th (falling)',
-  5: 'Neutral',
-};
+import { T, nativeName, escapeHtml } from '../dom.js';
+import { createTrainer, prefetchTest } from './_syllable_trainer.js';
 
-const T = (key, params, fallback) =>
-  window.LinguaI18n && typeof LinguaI18n.t === 'function'
-    ? LinguaI18n.t(key, params) || fallback || key
-    : fallback || key;
-
-const nativeName = (code) =>
-  (window.LinguaMetadata && LinguaMetadata.getNativeName && LinguaMetadata.getNativeName(code)) ||
-  (code ? String(code).toUpperCase() : '');
-
-function escapeHtml(text) {
-  if (text == null) return '';
-  const div = document.createElement('div');
-  div.textContent = String(text);
-  return div.innerHTML;
-}
+export const prefetch = prefetchTest;
 
 function applyToneMark(syllable, tone) {
   const TONE_TABLE = {
@@ -51,46 +32,17 @@ function applyToneMark(syllable, tone) {
 }
 
 export function mount(container, ctx) {
-  const state = {
-    slug: ctx.item.slug,
-    testData: null,
-    allTokens: [],
-    playableTokens: [],
-    playableIndices: [],
-    currentIndex: 0,
-    correctCount: 0,
-    errorCount: 0,
-    errors: [],
-    startTime: null,
-    timerInterval: null,
-    isComplete: false,
-    isPaused: false,
-  };
-
-  const cleanup = [];
-  const on = (el, ev, fn, opts) => {
-    el.addEventListener(ev, fn, opts);
-    cleanup.push(() => el.removeEventListener(ev, fn, opts));
-  };
-  const q = (id) => container.querySelector('#' + id);
-  const qs = (sel) => container.querySelector(sel);
+  const trainer = createTrainer(container, ctx, {
+    tokenClass: 'char-token',
+    errorHideIds: ['pinyinHeader', 'passageContainer', 'controlsHint', 'touchArea'],
+  });
+  const { state, on, q, showLoading, showError, startTimer, updateProgress, flashError } = trainer;
+  const dismissErrorModal = trainer.dismissErrorModal;
 
   container.innerHTML = MARKUP;
   init();
 
-  return {
-    destroy() {
-      if (state.timerInterval) {
-        clearInterval(state.timerInterval);
-        state.timerInterval = null;
-      }
-      cleanup.forEach((fn) => {
-        try {
-          fn();
-        } catch (_) {}
-      });
-    },
-  };
+  return { destroy: trainer.destroy };
 
   async function init() {
     try {
@@ -114,21 +66,14 @@ export function mount(container, ctx) {
   }
 
   async function loadTestData() {
-    const resp = await window.authFetch(`/api/tests/test/${state.slug}`);
-    if (!resp.ok)
-      throw new Error(T('pinyin.error.load_failed', { status: resp.statusText }, 'Failed to load'));
-    const data = await resp.json();
+    const data = await trainer.fetchTest((resp) =>
+      T('pinyin.error.load_failed', { status: resp.statusText }, 'Failed to load')
+    );
     state.testData = data.test_data;
     if (!data.pinyin_payload || data.pinyin_payload.length === 0) {
       throw new Error(T('pinyin.error.no_data', null, 'No pinyin data for this test.'));
     }
-    state.allTokens = data.pinyin_payload;
-    state.allTokens.forEach((tok, i) => {
-      if (!tok.is_punctuation) {
-        state.playableIndices.push(i);
-        state.playableTokens.push(tok);
-      }
-    });
+    trainer.setTokens(data.pinyin_payload, (tok) => !tok.is_punctuation);
     if (state.playableTokens.length === 0) {
       throw new Error(T('pinyin.error.no_chars', null, 'No characters to play.'));
     }
@@ -157,45 +102,20 @@ export function mount(container, ctx) {
 
   function highlightCurrent() {
     if (state.isComplete) return;
-    const prev = qs('.char-token.current');
-    if (prev) prev.classList.remove('current');
-    const allIdx = state.playableIndices[state.currentIndex];
-    const el = qs(`.char-token[data-index="${allIdx}"]`);
-    if (el) {
-      el.classList.remove('upcoming');
-      el.classList.add('current');
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    trainer.markCurrent();
     updateProgress();
   }
 
   function colorChar(playableIdx, tone) {
-    const allIdx = state.playableIndices[playableIdx];
-    const el = qs(`.char-token[data-index="${allIdx}"]`);
-    const token = state.allTokens[allIdx];
+    const el = trainer.tokenEl(playableIdx);
+    const token = state.playableTokens[playableIdx];
     if (el) {
       el.classList.remove('current', 'upcoming');
       el.classList.add('completed', `tone-${tone}`);
       const pinyinEl = el.querySelector('.char-pinyin');
       if (pinyinEl) pinyinEl.textContent = applyToneMark(token.pinyin_text, token.context_tone);
-      el.classList.add('correct-flash');
-      setTimeout(() => el.classList.remove('correct-flash'), 200);
+      trainer.flashCorrect(el);
     }
-  }
-
-  function flashError(playableIdx) {
-    const allIdx = state.playableIndices[playableIdx];
-    const el = qs(`.char-token[data-index="${allIdx}"]`);
-    if (el) {
-      el.classList.add('error-flash');
-      setTimeout(() => el.classList.remove('error-flash'), 300);
-    }
-  }
-
-  function updateProgress() {
-    const total = state.playableTokens.length;
-    const pct = total > 0 ? (state.currentIndex / total) * 100 : 0;
-    q('progressFill').style.width = pct + '%';
   }
 
   function handleToneInput(guessedTone) {
@@ -234,48 +154,15 @@ export function mount(container, ctx) {
       if (e.key === 'Enter' && state.isPaused) dismissErrorModal();
     });
 
-    const touchArea = q('touchArea');
-    let startX, startY, startTime;
-    on(
-      touchArea,
-      'touchstart',
-      (e) => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        startTime = Date.now();
-      },
-      { passive: true }
-    );
-    on(
-      touchArea,
-      'touchend',
-      (e) => {
-        if (startX === undefined) return;
-        const dx = e.changedTouches[0].clientX - startX;
-        const dy = e.changedTouches[0].clientY - startY;
-        const absDx = Math.abs(dx),
-          absDy = Math.abs(dy);
-        const elapsed = Date.now() - startTime;
-        const threshold = 30;
-        if (absDx < threshold && absDy < threshold && elapsed < 300) handleToneInput(5);
-        else if (absDx > absDy) handleToneInput(dx > 0 ? 1 : 3);
-        else handleToneInput(dy < 0 ? 2 : 4);
-        startX = startY = undefined;
-      },
-      { passive: true }
-    );
-    on(
-      touchArea,
-      'touchmove',
-      (e) => {
-        e.preventDefault();
-      },
-      { passive: false }
+    const SWIPE_TONE = { right: 1, up: 2, left: 3, down: 4 };
+    trainer.bindSwipe(
+      q('touchArea'),
+      (direction) => handleToneInput(SWIPE_TONE[direction]),
+      () => handleToneInput(5)
     );
   }
 
   function showErrorModal(token, guessedTone) {
-    state.isPaused = true;
     const toneColor = (tn) => `var(--tone-${tn})`;
     let sandhiHtml = '';
     if (token.is_sandhi && token.sandhi_rule) {
@@ -294,131 +181,38 @@ export function mount(container, ctx) {
                 ${sandhiHtml}
                 <button class="error-continue-btn" type="button" data-pinyin-dismiss>${T('pinyin.continue', null, 'Continue')} <span style="font-size: 0.8em; opacity: 0.7;">(Enter)</span></button>
             </div>`;
-    const cont = q('errorModalContainer');
-    cont.innerHTML = html;
-    cont.querySelectorAll('[data-pinyin-dismiss]').forEach((el) => {
-      el.addEventListener('click', dismissErrorModal);
-    });
-  }
-
-  function dismissErrorModal() {
-    q('errorModalContainer').innerHTML = '';
-    state.isPaused = false;
+    trainer.showErrorModal(html, 'data-pinyin-dismiss');
   }
 
   function completeGame() {
     state.isComplete = true;
-    clearInterval(state.timerInterval);
     q('touchArea').style.display = 'none';
     q('controlsHint').style.display = 'none';
-    const total = state.playableTokens.length;
-    const accuracy = total > 0 ? (Math.max(0, total - state.errorCount) / total) * 100 : 0;
-    const timeSec = Math.floor((Date.now() - state.startTime) / 1000);
-    submitResults(accuracy, timeSec);
-    showResults(accuracy, timeSec);
-  }
-
-  async function submitResults(accuracy, timeSec) {
-    try {
-      const startedAtIso = state.startTime ? new Date(state.startTime).toISOString() : null;
-      const finishedAtIso = new Date().toISOString();
-      const resp = await window.authFetch(`/api/tests/${state.slug}/submit-pinyin`, {
-        method: 'POST',
-        body: JSON.stringify({
-          correct_chars: Math.max(0, state.playableTokens.length - state.errorCount),
-          total_chars: state.playableTokens.length,
-          time_taken: timeSec,
-          errors: state.errors.slice(0, 50),
-          started_at: startedAtIso,
-          finished_at: finishedAtIso,
-        }),
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.result) updateResultsWithElo(data.result);
-      }
-    } catch (err) {
-      console.error('Pinyin submit error:', err);
-    }
-  }
-
-  function showResults(accuracy, timeSec) {
-    let grade = 'poor',
-      label = T('pinyin.grade.poor', null, 'Keep Practicing');
-    if (accuracy >= 95) {
-      grade = 'excellent';
-      label = T('pinyin.grade.excellent', null, 'Excellent!');
-    } else if (accuracy >= 80) {
-      grade = 'good';
-      label = T('pinyin.grade.good', null, 'Great Job!');
-    } else if (accuracy >= 60) {
-      grade = 'fair';
-      label = T('pinyin.grade.fair', null, 'Good Effort');
-    }
-
-    const minutes = Math.floor(timeSec / 60);
-    const seconds = timeSec % 60;
-    const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-    const html = `
-            <div class="results-overlay">
-                <div class="results-card">
-                    <h2 class="h3">${label}</h2>
-                    <div class="results-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">${T('pinyin.tone_accuracy', null, 'Tone accuracy')}</p>
-                    <div class="results-stats">
-                        <div class="stat-box"><div class="stat-value">${state.correctCount}/${state.playableTokens.length}</div><div class="stat-label">${T('pinyin.stat.characters', null, 'Characters')}</div></div>
-                        <div class="stat-box"><div class="stat-value">${timeStr}</div><div class="stat-label">${T('pinyin.stat.time', null, 'Time')}</div></div>
-                        <div class="stat-box"><div class="stat-value">${state.errorCount}</div><div class="stat-label">${T('pinyin.stat.mistakes', null, 'Mistakes')}</div></div>
-                        <div class="stat-box"><div class="stat-value" id="eloChangeDisplay">--</div><div class="stat-label">${T('pinyin.stat.elo_change', null, 'ELO')}</div></div>
-                    </div>
-                    <div class="d-flex gap-2 mt-3">
-                        <button class="btn btn-primary flex-fill" type="button" data-session-next>
-                            <span>${T('session.next_item', null, 'Next')}</span><i class="bi bi-arrow-right ms-1"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-    q('resultsContainer').innerHTML = html;
-    const nextBtn = q('resultsContainer').querySelector('[data-session-next]');
-    if (nextBtn) nextBtn.onclick = () => ctx.onComplete({ accuracy });
-  }
-
-  function updateResultsWithElo(result) {
-    const eloEl = q('eloChangeDisplay');
-    if (eloEl && result.user_elo_change) {
-      const change = result.user_elo_change.change || 0;
-      const sign = change >= 0 ? '+' : '';
-      eloEl.textContent = sign + change;
-      eloEl.className = 'stat-value ' + (change >= 0 ? 'text-success' : 'text-danger');
-    }
-  }
-
-  function startTimer() {
-    state.startTime = Date.now();
-    const el = q('elapsedTime');
-    state.timerInterval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-      const m = Math.floor(elapsed / 60),
-        s = elapsed % 60;
-      if (el) el.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }, 1000);
-  }
-
-  function showLoading(show) {
-    const el = q('loadingOverlay');
-    if (el) el.style.display = show ? 'flex' : 'none';
-  }
-
-  function showError(msg) {
-    const err = q('errorState');
-    if (err) {
-      err.style.display = 'block';
-      q('errorMessage').textContent = msg;
-    }
-    ['pinyinHeader', 'passageContainer', 'controlsHint', 'touchArea'].forEach((id) => {
-      const el = q(id);
-      if (el) el.style.display = 'none';
+    const gradeLabels = {
+      excellent: T('pinyin.grade.excellent', null, 'Excellent!'),
+      good: T('pinyin.grade.good', null, 'Great Job!'),
+      fair: T('pinyin.grade.fair', null, 'Good Effort'),
+      poor: T('pinyin.grade.poor', null, 'Keep Practicing'),
+    };
+    trainer.complete({
+      submitUrl: `/api/tests/${state.slug}/submit-pinyin`,
+      logName: 'Pinyin',
+      buildBody: ({ correct, total, timeSec, errors, startedAt, finishedAt }) => ({
+        correct_chars: correct,
+        total_chars: total,
+        time_taken: timeSec,
+        errors,
+        started_at: startedAt,
+        finished_at: finishedAt,
+      }),
+      results: {
+        labelHtml: (grade) => gradeLabels[grade],
+        accuracyLabel: T('pinyin.tone_accuracy', null, 'Tone accuracy'),
+        unitsLabel: T('pinyin.stat.characters', null, 'Characters'),
+        timeLabel: T('pinyin.stat.time', null, 'Time'),
+        mistakesLabel: T('pinyin.stat.mistakes', null, 'Mistakes'),
+        eloLabel: T('pinyin.stat.elo_change', null, 'ELO'),
+      },
     });
   }
 }
