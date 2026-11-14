@@ -2,9 +2,14 @@
 title: "DT Feedback — Option 2: Guided Self-Repair (hint ladder, retry before reveal)"
 type: feature
 status: planned
+decision: "Chosen by the owner on 2026-11-14 over options 1 and 3. Not yet built."
 last_updated: 2026-11-14
 open_questions:
-  - "OPEN: Where does the 'where' hint come from on real (non-seeded) submissions? The grader judges a sentence pair, not a span. This spec uses the existing deterministic diff and drops the rung when the diff is not a small local edit; how often that happens on real learner text is unmeasured."
+  - "ANSWERED 2026-11-14: The 'where' hint uses the span returned by the generative grader, not the diff (see Revision 2026-11-14)."
+  - "OPEN: The chosen grader returns an error list with no probabilities. The 'unsure' state and the two-type fallback have no data source until a confidence field is added to the grader schema and tested."
+  - "OPEN: Recall falls to .72 on heavily rephrased text and nothing has been run on real learner submissions; a shadow run comes first."
+  - "OPEN: Daily-practice intervals, caps and the 'resolved' rule (section 8) are design defaults, not tuned values."
+  - "OPEN: Which database size limit applies, and where grading results are stored at all (open since September)."
   - "OPEN: Thresholds (confidence bands, repair cap of 3, attempt cap of 4, credit weights) are design defaults, not tuned values."
   - "OPEN: Hint templates need writing and native review for ~20 types x 3 L2s x 3 L1s."
 ---
@@ -12,16 +17,46 @@ open_questions:
 # Option 2 — Guided Self-Repair
 
 One of three competing options for presenting and tracking Dual Translation (DT) feedback.
-Companion files: [`mockup.html`](./mockup.html) (working simulation), `mobile.png`, `desktop.png`.
+Companion files: [`mockup.html`](./mockup.html) (working simulation), `mobile.png`, `desktop.png`
+(revision step), `mobile-daily.png`, `desktop-daily.png` (daily practice).
 Context: [[features/dual-translation]], [[decisions/ADR-031-dt-taxonomy-v6-merge]],
 [[evaluations/jev-dt-tuning-2026-09-27]].
+
+## Revision 2026-11-14 (post-experiment)
+
+**Status.** The owner chose this option on 2026-11-14: "the guided process in mockup two is the way
+to go - it just needs to be clearer what the input box is. We can then keep track of these errors and
+include them in the daily practice having them fix the error in their translations." Frontmatter
+`status` stays `planned` (nothing is built); the choice is recorded in `decision`.
+
+The original spec assumed the September jev grader. [[evaluations/dt-decision-grading-2026-11-14]]
+replaces that assumption. Sections below are corrected in place and marked **(rev. 2026-11-14)**.
+
+| # | Was | Now | Where |
+|---|---|---|---|
+| 1 | Grader = jev decision model, one call per changed sentence, returns `p_error` and type probabilities | Grader = one generative call, `openai/gpt-6-luna`, structured output: a list of errors, each with subtype, severity, a span in the learner's text and a short explanation. Decision models are rejected (they flagged 31–76% of correct rephrased sentences). | §1.1, §5.1 |
+| 2 | "Where" hint from the character diff | "Where" hint from the model's span. On heavily rephrased text the diff was a small local edit for only 12 of 40 errors; the model's span was on the error every time it flagged the right sentence (24 of 24 for GPT-6 Luna). | §1.2, §5.2 |
+| 3 | Re-check in about 0.3 s | Re-check in about 1–2 s (p50 1.36 s). The UI needs a real checking state and a double-submit guard. | §1.2a |
+| 4 | $0.0002 per call | About $0.00006 per call. Figures recomputed with arithmetic. | §5.4 |
+| 5 | Explanation from the existing explainer | A short explanation arrives with the grade. Hint text for "what kind" and "clue" stays templated: model-written hints leaked the answer in 9–40% of texts, templates in 0%. Any model hint must pass a code-level leak filter. | §5.3 |
+| 6 | Confidence bands from `p_error` | No probabilities exist. A sentence is flagged if the error list has an entry for it. The "unsure" state is kept in the design but has no data source yet. | §1.1, §1.3 |
+| 7 | Input field described in one line | The field is specified as a component, pre-filled, with the decision recorded. | §1.2a |
+| 8 | Unrepaired errors fed the existing remediation queue only | Errors not self-repaired at the first hint level return in daily practice as "fix your own sentence" items. | §8 |
+| 9 | Event log sketched | Per-attempt record and storage budget specified. | §2.1, §8.5 |
+
+Not changed: the ladder, the credit model, the pedagogy citations (§3; none added), the A/B design.
+
+Caveats carried over from the experiment: every number is from seeded errors or model-written
+paraphrases, none from real learners; n = 30 per language; the Track E checker is from the same model
+family as GPT-6 Luna, which may flatter its false-alarm rate; hint templates and explanations have
+had no native-speaker review.
 
 ## 0. The option in one paragraph
 
 After the learner submits, the app does not show the correction. It marks which sentences have a
 problem and lets the learner fix them. Help arrives one step at a time and only when asked for:
 **where** the problem is, **what kind** it is, a **clue** about the rule, and finally the **answer**.
-Every revision is re-checked by the cheap grader in about 0.3 s. Every episode ends with the original
+Every revision is re-checked by the cheap grader in about 1–2 s (rev. 2026-11-14; was 0.3 s). Every episode ends with the original
 sentence on screen, whoever produced the fix. What gets tracked is how much help each error type
 needed, which separates slips from gaps and shows a rule forming long before the error disappears.
 
@@ -34,9 +69,15 @@ screen (diff, bands, error cards), which stays as the final step.
 
 ### 1.1 Sequence
 
-1. **Submit.** The passage is split into aligned sentence pairs. Sentences identical to the reference
-   are clean at no cost. Every other sentence gets one grader call.
-2. **Triage** (server, instant). Each graded sentence falls into one of four groups:
+1. **Submit.** The passage is split into aligned sentence pairs. **(rev. 2026-11-14)** The whole
+   item goes to the grader in one call, which returns a list of errors; each error names its
+   sentence, subtype, severity, a span in the learner's text and a short explanation. A passage
+   identical to the reference skips the call.
+2. **Triage** (server, instant). Each graded sentence falls into one of four groups.
+   **(rev. 2026-11-14)** The grader returns no probabilities, so read the table below as:
+   *clean* = no error listed for the sentence; *repair target* / *shown directly* = an error is
+   listed; *unsure* = not available until the grader schema carries a confidence field (untested;
+   open question). The `p_error` thresholds are kept only as the original design intent.
 
    | Group | Rule (defaults) | What the learner gets |
    |---|---|---|
@@ -54,21 +95,25 @@ screen (diff, bands, error cards), which stays as the final step.
 
 ### 1.2 The ladder
 
-The learner's own sentence is pre-filled in an editable field. They can edit and press "Check again"
-at any rung, or take the next hint.
+The learner's own sentence is pre-filled in an editable field (§1.2a). They can edit and press
+"Check" at any rung, or take the next hint.
 
 | Rung | Button | What appears | Source | Cost |
 |---|---|---|---|---|
-| 0 | (none) | Sentence is marked "Take another look". No location, no type. | `p_error` | 0 |
-| 1 Where | "Hint: where?" | Underline on the suspect part of the learner's sentence. For meaning errors, the matching part of the L1 prompt is highlighted too. | deterministic diff (§5.2) | 0 |
-| 2 What kind | "Hint: what kind?" | v6 type name in the learner's L1, e.g. "Measure word (量词)" | grader top-1 type | 0 |
+| 0 | (none) | Sentence is marked "Take another look". No location, no type. | error listed for the sentence | 0 |
+| 1 Where | "Hint: where?" | Underline on the suspect part of the learner's sentence. For meaning errors, the matching part of the L1 prompt is highlighted too. | grader span (§5.2; rev. 2026-11-14, was the diff) | 0 |
+| 2 What kind | "Hint: what kind?" | v6 type name in the learner's L1, e.g. "Measure word (量词)" | grader subtype → taxonomy name template | 0 |
 | 3 Clue | "Hint: give me a clue" | One or two sentences that state the rule or pose a question. Never contains the corrected form. | template per type x L1 | 0 |
-| 4 Answer | "Show the answer" | Original sentence, differing part marked, explanation (the existing Rule + Application text) | reference + existing explainer | 0 extra |
+| 4 Answer | "Show the answer" | Original sentence, differing part marked, explanation | reference + the explanation returned with the grade | 0 extra |
 
 Hints accumulate on screen. A four-segment bar labelled Where / What kind / Clue / Answer shows how
 far the learner has gone; taken rungs get a tick as well as a fill.
 
-**Re-check outcomes.** Each "Check again" is one grader call on the revised sentence.
+**Re-check outcomes.** Each check is one grader call on the revised sentence. **(rev. 2026-11-14)**
+Without probabilities the rows collapse to three results: the flagged error is gone and the text
+matches the reference there (**fixed**); no error is listed but the text differs from the reference
+(**no issue found**); an error is still listed for the sentence (**still flagged**). The
+`closed_unsure` row cannot occur until a confidence field exists.
 
 | Result of re-check | Shown | Recorded outcome |
 |---|---|---|
@@ -79,12 +124,84 @@ far the learner has gone; taken rungs get a tick as well as a fill.
 | Text unchanged | "That's the same sentence. Change something, or take a hint." | no call made |
 | 4th failed check | Answer shown automatically: "This one's worth seeing rather than guessing." | `answer_shown` |
 
-The wording follows what the grader can support. A flag is almost always real (precision ≈ 1.0), so
-"still flagged" is safe to say. A pass is not proof (recall 50–95%), so the app says "no issue
-found", never "correct", and always puts the original next to it.
+The wording follows what the grader can support. **(rev. 2026-11-14)** For GPT-6 Luna a flag is
+usually real (precision .96 on near-copies, .91 on heavily rephrased text), so "still flagged" is
+safe to say and the dispute link covers the rest. A pass is not proof (recall .88, falling to .72 on
+heavily rephrased text), so the app says "no issue found", never "correct", and always puts the
+original next to it.
+
+### 1.2a The revision field (rev. 2026-11-14)
+
+**What was unclear in the first mockup** (screenshots at 390 px and 1280 px): the learner's sentence
+appeared twice with nothing saying which copy was which; the editable copy had no label and looked
+like a second read-only display; the hint-progress bar sat between the two, reading as a heading for
+the box; nothing said whether to retype the whole sentence or only the fix; the button said "Check
+again" before anything had been checked; the field border (`--border-strong` on white, about 1.7:1)
+and the 25%-alpha focus ring were below the 3:1 that WCAG 1.4.11 asks for; and the re-check was
+instant, so there was no checking state.
+
+**Decision: pre-fill the field with the learner's own sentence, editable in place.** Not an empty box.
+
+- The task is to repair a sentence, and repair is an edit. An empty box turns it into a second
+  translation and invites new errors in parts that were fine, which the grader would then flag.
+- Retyping 20–40 characters through an IME on a phone is the largest cost in the flow; pre-filling
+  cuts the best case to a one- or two-character change.
+- It answers "whole sentence or just the fix?" without words: the whole sentence is there, change
+  the part that is wrong. The re-check needs the whole sentence anyway.
+- Cost: the learner can press Check without changing anything. That case makes no grader call and
+  shows "That's the same sentence".
+- Cost: less retrieval effort than producing the sentence again. Accepted here; the daily-practice
+  item (§8) is where the delayed attempt happens, and it is pre-filled for the same reasons.
+
+**Component (same one in the repair pass and in daily practice).** One bordered panel contains, top
+to bottom:
+
+1. Caption "You wrote" (after a re-check: "Your last checked version") and the sentence read-only.
+   The "where" underline lives here, because a textarea cannot carry marks. Having the read-only
+   copy and the field in one panel is the visible link between the sentence and its input.
+2. A real `<label for>`: pencil icon + **"Rewrite your sentence"**. Never placeholder text.
+3. Helper text: "Your sentence is already in the box. Change only the part you think is wrong, then
+   press Check." Wired with `aria-describedby`.
+4. The textarea: white on the tinted panel, 2 px border in `--field-border` (#5e7375 on white, above
+   4.5:1; #93a6a4 on the dark surface), inset shadow, at least two lines tall, 18 px text. Focus:
+   border plus a solid 3 px outline in `--focus`, offset 2 px (WCAG 2.4.7 / 2.4.11; replaces the
+   translucent ring everywhere in the mockup).
+5. Primary button **"Check"** ("Check again" after the first check), full width on phones. On
+   pointer devices 700 px and wider, a hint beside it: `Enter` to check · `Shift` + `Enter` for a
+   new line. Enter is ignored while an IME composition is open (§4).
+6. A status line (`role="status"`), hidden when empty.
+
+The hint-progress bar moved below the panel, captioned "Hints used", next to the hint buttons.
+
+**Checking state.** On Check: the button is disabled and shows a spinner and "Checking…"; the field
+becomes read-only with a dashed border; the status line reads "Checking your sentence. This takes a
+second or two."; hint, answer and dispute controls are disabled; a second Enter or tap is ignored.
+The spinner stops under `prefers-reduced-motion` and the text carries the state. If the call takes
+longer than 5 s or fails, re-enable everything, keep the learner's text, and say "Couldn't check
+just now — try again" (not in the mockup). The mockup simulates 1.1–1.8 s.
+
+**Result states** (each has its own icon, text and border, not colour alone):
+
+| Result | What the learner sees |
+|---|---|
+| Fixed | Card turns green-bordered, chip "✓ Fixed …", first try vs. now, explanation |
+| No issue found | Blue-bordered card, chip "○ No issue found in your new version", the learner's version beside the original. Deliberately not green and not a tick. |
+| Still flagged | Amber box under the button: "↻ Still flagged. Try once more, or take the next hint." with "Check 1 of 4" at the right; focus returns to the field |
+| Nothing changed | Neutral box: "That's the same sentence. Change something, or take a hint." No call made. |
+| 4th failed check | Answer shown with "This one's worth seeing rather than guessing." |
+
+In production the status line should be updated in place so screen readers announce it; the mockup
+re-renders the card, which is not a reliable test of the live region.
 
 ### 1.3 Encoding severity and confidence
 
+- **(rev. 2026-11-14)** The figures in this section (severity 54–75%, "all 8 meaning inversions")
+  are from the September jev run. Severity accuracy for GPT-6 Luna is not in the summary report
+  read for this revision; on gold the DeepSeek config flagged 6 of 6 inversions as critical, and it
+  also typed 3 other errors as `meaning_inversion`. The design rule is unchanged: severity orders
+  the cards and is not shown. The type-confidence rule at the end of this section needs a
+  confidence field that the chosen grader does not return; until then rung 2 shows the single
+  returned subtype (top-1 type was right 77–80% of the time for GPT-6 Luna on gold).
 - **Severity is not shown as a label.** It is the least reliable field (54–75% accurate; human raters
   agree only 62–85%). It is used for ordering only. The one exception is the meaning check: all 8
   meaning inversions in the eval were caught, so sentences where the narrow checks fire get a distinct
@@ -128,7 +245,7 @@ Hints only help when there is a rule to reach for. Types are marked `hintable` i
 | **Unsure flag** | Dotted card, two buttons: "Compare with the original" (shows both, differing word marked, "Both can work here; the original uses the highlighted word") and "Leave it". Never counted. |
 | **Learner disputes** | "I think mine is right" is on every open card. One tap: the original is shown with "Fair enough. Yours may be just as good. We've sent this flag for review and left it out of your progress." The flag is logged for grader QA and, if budget allows, re-judged by the live grader offline. No argument, no penalty. |
 | **Learner gives up** | "Show the answer" is one tap at any rung, same visual weight as the other links, no confirmation. Recorded as `answer_shown` at the rung reached. |
-| **Location unknown** | If the diff is not a small local edit, rung 1 is removed and the bar shows three segments. If the learner's revision moves text so the marked part no longer exists, the underline moves to the part they changed, or the hint says the location can no longer be pinpointed. |
+| **Location unknown** | **(rev. 2026-11-14)** If the grader returns no span, or a span that is not a substring of the learner's sentence, rung 1 is removed and the bar shows three segments. Every re-check returns a fresh span for the revised text, so the underline follows the learner's edits; if a re-check returns none, the hint says the location can no longer be pinpointed. |
 | **Adaptive start** | If a type's last 3 episodes all needed rung 1 or more, the card opens at rung 1 with a one-line reason. If the last 3 all ended in `answer_shown`, the type switches to direct mode until a review drill succeeds (§2.4). |
 
 ### 1.6 Copy (learner's L1)
@@ -183,9 +300,27 @@ streaks, no red crosses. "Flagged" and "no issue found" are the only verdict wor
 | `counts_toward_mastery` | bool | false for `unsure`, `disputed`, `closed_unsure`, `skipped` |
 | `grader_version`, `taxonomy_version` | | |
 
-**`dt_repair_event`** — append-only, one row per action: `episode_id`, `ts`, `kind`
-(`hint_shown` / `revision_checked` / `answer_shown` / `disputed` / `skipped`), `rung`, `text`,
-`p_error_after`, `type_after`. This is the audit trail and the dataset for tuning thresholds.
+**(rev. 2026-11-14)** Changes to the table above: `type_prob` and `p_error` are null for the
+generative grader; add `error_instance_id` (the id of the flagged error, shared with daily practice,
+§8), `span_start` / `span_end` (character offsets in `first_text`, from the grader) and
+`span_source` (`grader` / `none`); `location_available` is false when the grader gave no usable span.
+
+**`dt_repair_event`** — append-only, one row per action. This is the audit trail, the input to the
+daily-practice queue and the dataset for tuning. **(rev. 2026-11-14)** Fields:
+
+| Field | Notes |
+|---|---|
+| `episode_id`, `error_instance_id`, `sentence_idx` | which error, which sentence |
+| `surface` | `repair_pass` / `daily_practice` |
+| `ts`, `kind` | `hint_shown` / `revision_checked` / `answer_shown` / `disputed` / `skipped` |
+| `hint_level` | level reached when the event happened (0–4) |
+| `text` | on `revision_checked` only: the learner's revised sentence |
+| `result` | on `revision_checked`: `fixed` / `no_issue_found` / `still_flagged`, plus the returned subtype, severity, span offsets and short explanation if an error is still listed |
+| `latency_ms`, `since_prev_ms` | grader latency; time since the learner's previous event |
+| `hint_source`, `hint_template_id` | on `hint_shown`: `grader_span` / `template` / `model`; template id and version. Hint text is stored only when the source is `model`. |
+
+Whether the learner disputed the flag is the `disputed` event plus `outcome` on the episode.
+Storage budget: §8.5.
 
 The mockup's summary card has a "What gets recorded" disclosure that prints the episode rows live.
 
@@ -425,6 +560,25 @@ checker is fallible and says so.
 
 ### 5.1 From the grader, per sentence pair (first grade and every re-grade)
 
+**(rev. 2026-11-14)** The table below describes the jev grader and is superseded. The chosen grader
+(`openai/gpt-6-luna`, single call, "span + explanation" prompt variant, strict JSON schema,
+temperature 0) returns per error:
+
+| Field | Use |
+|---|---|
+| sentence index | card ↔ L1 sentence |
+| `subtype` (v6 taxonomy) | rung 2 name, clue template lookup, tracking |
+| `severity` | ordering only |
+| `span` in the learner's text | rung 1 "where"; underline in daily practice |
+| `explanation` (short; the tested variant capped it at 15 words) | shown with the answer and on a fix |
+| `grader_version` (model + prompt version) | audit |
+
+Not returned: any probability, top-3 types, the narrow meaning checks as separate signals (a
+meaning error arrives as a subtype such as `meaning_inversion`). The red "meaning differs" card
+therefore keys on subtype.
+
+Superseded jev table, kept for history:
+
 | Field | Have today? | Use |
 |---|---|---|
 | `p_error` | yes | triage, pass/fail on re-check |
@@ -434,7 +588,18 @@ checker is fallible and says so.
 | sentence alignment index | yes | card ↔ L1 sentence |
 | `grader_version` | — | audit |
 
-### 5.2 Span offsets — not from the grader
+### 5.2 Span offsets — from the grader (rev. 2026-11-14)
+
+**Corrected.** The "where" hint uses the span the grader returns with each error, on the first grade
+and on every re-check. Evidence (Track E): the diff was a small local edit for 46 of 49 errors on
+near-copies, 31 of 49 at moderate and 12 of 40 at heavy paraphrase; the model's span was on the
+planted error whenever it flagged the right sentence (24 of 24 for GPT-6 Luna, 27 of 27 for
+DeepSeek). The limit is recall, not location. Validate in code: the span must be a non-empty
+substring of the learner's sentence and cover at most about 40% of it; otherwise
+`location_available = false` and rung 1 is dropped. The diff is no longer used to locate errors.
+The mockup fakes a fresh span per re-check.
+
+The original diff procedure, superseded:
 
 The grader judges a sentence pair and returns no span. The "where" hint uses the existing
 deterministic diff:
@@ -454,29 +619,51 @@ is unknown and should be measured from stored reproductions before build.
 
 | Rung | Source | Cost |
 |---|---|---|
-| Where | diff | 0 |
-| What kind | taxonomy `name` per L1 (exists in v6) | 0 |
+| Where | grader span (rev. 2026-11-14) | 0 extra |
+| What kind | taxonomy `name` per L1 (exists in v6), looked up from the returned subtype | 0 |
 | Clue | new template per type x L1, about 60 per L2 x L1 pair incl. tier variants | 0 at runtime; one-off authoring + native review |
-| Answer | reference + existing explainer text | 0 extra |
+| Answer | reference + the explanation returned with the grade | 0 extra |
 
-An LLM-written, sentence-specific clue is optional and not in the base design: it adds cost and
-latency, and risks leaking the answer or asserting something false about a sentence the grader
-mislabelled.
+**(rev. 2026-11-14)** Hint text comes from templates, and Track D supports that: template hints
+never leaked the answer (0% by judge) and were rated good 78% of the time; model-written hints
+leaked in 9–40% of texts, and model-written rule statements broke the no-answer instruction in
+22–66%. Explanations are the opposite case: the model's were good 91–94% of the time against 55%
+for the rule template alone, so the explanation comes from the grade. A longer explanation from the
+live Explainer prompt is an optional extra call (about $0.000183 per error-bearing submission with
+GPT-6 Luna).
+
+If a model-written hint is ever used, it must pass a leak filter in code before display, with the
+template as the fallback: reject the text if it contains the reference's wording for the flagged
+part, or any token of that part that is absent from the learner's sentence (after the same
+normalisation used for matching, e.g. readings for Japanese), and cap its length. Track D's code
+check agreed with the better judge at κ = 0.74. Templates were weak for types that cover several
+different mistakes (`topic_comment`) and are AI-drafted and unreviewed.
 
 ### 5.4 Cost
 
-Taking the brief's $0.0002 and 0.3 s per call as upper bounds:
+**(rev. 2026-11-14) Recomputed** at $0.00006 per call (GPT-6 Luna measured $0.000051–0.000057 per
+item with provider prompt caching; a re-check sends one sentence, not the item, so this is on the
+high side for re-checks) and 1–2 s per call.
 
-| | Calls | Cost |
-|---|---|---|
-| First grade, 4-sentence passage | ≤ 4 | ≤ $0.0008 |
-| Repair, expected (≈ 1.5 targets x ≈ 1.6 checks) | ≈ 2.4 | ≈ $0.0005 |
-| Repair, worst case (3 targets x 4 checks) | 12 | $0.0024 |
+| | Calls | Arithmetic | Cost per passage |
+|---|---|---|---|
+| First grade | 1 | 1 × $0.00006 | $0.00006 |
+| Repair, expected | ≈ 2.4 | 1.5 targets × 1.6 checks × $0.00006 | ≈ $0.000144 |
+| Repair, worst case | 12 | 3 targets × 4 checks × $0.00006 | $0.00072 |
+| **Total, expected** | ≈ 3.4 | $0.00006 + $0.000144 | **≈ $0.0002** |
+| **Total, worst case** | 13 | $0.00006 + $0.00072 | **$0.00078** |
 
-Worst case, repair triples the cheap grader's cost per passage and is still a small fraction of one
-live-grader call (the eval puts the cheap grader at 200–400x cheaper). At 1,000 passages a day the
-repair pass costs about $0.50 expected, $2.40 worst case. The expected figures rest on my assumptions
-about flag and retry rates.
+At 1,000 passages a day the repair pass costs about $0.14 expected (1,000 × $0.000144) and $0.72
+worst case (1,000 × $0.00072); with the first grade, about $0.20 and $0.78. The previous figures
+were $0.50 and $2.40 for the repair pass alone.
+
+Daily practice (§8) adds, per learner per day: expected 3 items × 1.5 checks × $0.00006 ≈ $0.00027;
+worst case 3 items × 3 checks × $0.00006 = $0.00054.
+
+Qualifiers: the 1.5 targets, 1.6 checks and 1.5 daily checks are my assumptions, not measurements.
+At low or bursty traffic the cache misses and list price applies ($0.00008–0.00025 per item), so
+the worst case at list price is 13 × $0.00025 ≈ $0.0033 per passage. The live grader costs
+$0.025–0.05 per item.
 
 ## 6. Risks and mitigations
 
@@ -487,7 +674,10 @@ about flag and retry rates.
 | **Valid alternative.** The revision is fine but differs from the reference. | Pass is decided by the grader, not by string match; outcome `repaired_alternative`, full credit; reference shown as "how the original puts it". |
 | **False pass.** The revision is still wrong but the grader misses it. | "No issue found", never "correct"; reference always shown beside it. |
 | **Revision introduces a new error elsewhere.** | Still flagged, so the card stays open; after 2 failed checks the copy points to the next hint; hard stop at 4. |
-| **Location unavailable or wrong.** | Rung dropped when the diff is not local (§5.2); underline follows the learner's edits. |
+| **Location unavailable or wrong.** | Rung dropped when the grader's span fails validation (§5.2); a fresh span comes with every re-check. |
+| **Slow or failed re-check** (1–2 s typical). | Checking state, double-submit guard, 5 s timeout with the learner's text preserved (§1.2a). |
+| **Missed errors on rephrased text** (recall .72 at heavy paraphrase). | Same as the recall row below; the "free translations are expected" prompt paragraph is a separate product decision. |
+| **Practice queue nags or grows without bound.** | Daily cap of 3, 30-day expiry, retirement after 3 unsuccessful sittings, disputes remove the item (§8). |
 | **Time and fatigue.** | Caps, skip, bypass for failed passages, direct mode; guardrail metrics in §7. |
 | **Frustration at being made to guess.** | Rung 0 is an invitation, not a gate: the answer is one tap away from the first second. |
 | **Trial-and-error gaming.** | Attempt cap; credit halved at 3+ revisions; unchanged text is not re-checked. |
@@ -526,7 +716,89 @@ episodes fixed at rung 0–1 over time (arm B only).
 time cost, the ladder should not ship and only the tracking of first-attempt self-repair (rung 0) is
 worth keeping.
 
+## 8. Daily-practice loop: "fix your own sentence" (rev. 2026-11-14)
+
+Shown in the mockup's "Daily practice" tab. All numbers here are design defaults.
+
+### 8.1 What gets queued
+
+One queue entry per **error instance** (one flagged error in one sentence of one attempt), decided
+when its repair episode closes:
+
+| Episode outcome | Queued? |
+|---|---|
+| Fixed at hint level 0 (second look) or 1 ("where") | No. Treated as a slip, as in §2.4. |
+| Fixed at level 2 or 3 ("what kind", "clue") | Yes |
+| Answer shown (asked for, automatic after the 4th check, or via "Skip — show me everything") | Yes |
+| Shown directly (not hintable, or over the cap of 3) | Yes, the learner saw the answer without an attempt |
+| No issue found in the revision (`repaired_alternative`) | By the level reached, as for a fix |
+| Disputed, unsure, dismissed | No |
+
+Each entry keeps the hint level reached, so the queue can order by it.
+
+### 8.2 When it resurfaces
+
+- First due the next calendar day, and not sooner than 20 hours after the episode.
+- At most 3 such items per daily session; the rest wait. Order: meaning-changing errors, then
+  highest hint level reached, then oldest.
+- Not served while the learner is on the same passage.
+- Entries expire unresolved after 30 days.
+
+### 8.3 The item
+
+The learner sees the L1 prompt sentence, their own earlier sentence with the grader's span
+underlined (the item opens at the "where" level, since by definition that hint was not enough or
+was never the issue), and the same revision field as §1.2a, pre-filled with their earlier sentence.
+"What kind", "clue" and the answer are available as before; the check cap is 3. Only the sentence
+index, span and the learner's text are needed; the L1 and reference sentences are read from the test.
+
+### 8.4 What counts as resolved
+
+| Result in daily practice | Consequence |
+|---|---|
+| Fixed, or no issue found, with no hint beyond the underline | **Resolved.** Removed from the queue. Acknowledged on the card: then vs. now, the explanation, "Resolved — removed from your practice list. Last time you needed the answer. Today you fixed it yourself." and the count for that pattern. |
+| Fixed with "what kind" or "clue" | Not yet resolved. Returns once after 3 days; an unaided fix then resolves it. |
+| Answer shown, or 3 failed checks | Returns after 2 days, then 4, then 7. After 3 such sittings it is retired and the type goes to direct mode and the existing drills (§2.4). |
+| Disputed | Removed, sent for review, not counted. |
+
+"Fixed" is decided by the grader on the revised sentence, as in the repair pass, so a valid
+alternative resolves the item. A resolved item is evidence about that sentence only; the per-type
+state (§2.3) still moves on new passages.
+
+### 8.5 What is recorded, and how much space it takes
+
+Every attempt, in the repair pass and in daily practice, writes `dt_repair_event` rows (§2.1). Per
+attempt that covers: error instance id, sentence index, surface, hint level reached, each revision
+text, each re-check result, grader latency and time between events, whether the learner disputed
+the flag, and which hints were shown with their source and template id. The mockup's "What gets
+recorded" disclosures print these live.
+
+The owner asked to "save as much as possible while considering the size limit". Recommendation:
+
+- **Store:** every revision text; the structured result of every check (subtype, severity, span
+  offsets, the short explanation, since it is model output and cannot be regenerated identically);
+  every hint event as level + source + template id and version; timings; dispute; grader and
+  prompt version ids.
+- **Do not store:** the prompt sent to the grader; the raw model response; the L1 or reference
+  sentence (join on test id and sentence index); the text of template hints (the id and version
+  reproduce it); a revision identical to the previous one (no call is made for it).
+
+Rough size, UTF-8, including about 60 bytes of row and index overhead per row. These are estimates:
+
+| Row | Arithmetic | Size |
+|---|---|---|
+| Check event | 32 B ids and numbers + revision text 90–150 B (30–50 CJK characters at 3 B, or 80–120 Latin characters) + result with explanation 60–100 B + 60 B overhead | ≈ 0.3 KB |
+| Hint event | 32 B + 8 B template id + 60 B overhead | ≈ 0.1 KB |
+| Episode row | 120 B fields + first text ≈ 120 B + 60 B overhead | ≈ 0.3 KB |
+
+Per episode, expected: 0.3 + 1.6 checks × 0.3 + 1 hint × 0.1 ≈ 0.9 KB. Per passage at 1.5 targets:
+≈ 1.3 KB. At 1,000 passages a day: ≈ 1.3 MB a day, under 0.5 GB a year. Worst case per passage:
+3 × (0.3 + 4 × 0.3 + 3 × 0.1) = 5.4 KB. Storing the prompt and raw response for each call would be
+several KB per call (estimate), roughly ten times the above, which is why they are left out. The
+applicable database limit was not checked for this revision.
+
 ## Related Pages
+- [[evaluations/dt-decision-grading-2026-11-14]] — the experiment behind the 2026-11-14 revision
 - [[features/dual-translation]] · [[features/dual-translation.tech]]
 - [[features/dual-translation-remediation.tech]]
 - [[decisions/ADR-031-dt-taxonomy-v6-merge]]

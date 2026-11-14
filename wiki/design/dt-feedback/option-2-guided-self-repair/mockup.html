@@ -16,7 +16,7 @@
   --danger:#c24a3f;--danger-text:#9e3a31;--danger-bg:#f6e2df;
   --warning:#c28f2c;--warning-text:#7d5a10;--warning-bg:#f7ecd6;
   --info:#3b6ea8;--info-text:#2f5887;--info-bg:#e1eaf5;
-  --shadow-sm:0 1px 2px rgb(19 40 43 / 5%);
+  --shadow-sm:0 1px 2px rgb(19 40 43 / 5%);--field-border:#5e7375;--focus:#0e7569;
   --font-sans:'Inter','Hiragino Sans','Yu Gothic UI',meiryo,'PingFang SC','Microsoft YaHei',system-ui,sans-serif;
   --font-display:'Sora',var(--font-sans);
   color-scheme:light;
@@ -31,7 +31,7 @@
   --danger:#e0796f;--danger-text:#ec9089;--danger-bg:rgb(224 121 111 / 18%);
   --warning:#dcae54;--warning-text:#dcae54;--warning-bg:rgb(220 174 84 / 16%);
   --info:#7aa3d6;--info-text:#9bbbe2;--info-bg:rgb(122 163 214 / 18%);
-  --shadow-sm:0 1px 2px rgb(0 0 0 / 40%);color-scheme:dark;
+  --shadow-sm:0 1px 2px rgb(0 0 0 / 40%);--field-border:#93a6a4;--focus:#7fd8c8;color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --on-primary:#06201c;--primary:#3db3a0;--primary-hover:#5cc6b5;--selected-bg:rgb(61 179 160 / 18%);
@@ -43,7 +43,7 @@
   --danger:#e0796f;--danger-text:#ec9089;--danger-bg:rgb(224 121 111 / 18%);
   --warning:#dcae54;--warning-text:#dcae54;--warning-bg:rgb(220 174 84 / 16%);
   --info:#7aa3d6;--info-text:#9bbbe2;--info-bg:rgb(122 163 214 / 18%);
-  --shadow-sm:0 1px 2px rgb(0 0 0 / 40%);color-scheme:dark;
+  --shadow-sm:0 1px 2px rgb(0 0 0 / 40%);--field-border:#93a6a4;--focus:#7fd8c8;color-scheme:dark;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -51,7 +51,8 @@ body{margin:0;background:var(--bg-body);color:var(--text-primary);font-family:va
 :lang(zh){font-family:'PingFang SC','Microsoft YaHei','Noto Sans SC','Noto Sans CJK SC','Inter',system-ui,sans-serif}
 :lang(ja){font-family:'Hiragino Sans','Yu Gothic UI',meiryo,'Noto Sans JP','Noto Sans CJK JP','Inter',system-ui,sans-serif}
 button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus-ring);outline-offset:2px}
+button:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sent[tabindex="-1"]:focus{outline:none}
 .nav{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg-surface);border-bottom:1px solid var(--border-default)}
 .brand{font-family:var(--font-display);font-weight:700;color:var(--primary);font-size:1.05rem}
 .pill{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--bg-muted);color:var(--text-secondary);white-space:nowrap}
@@ -112,9 +113,48 @@ details.l1wrap[open]>summary .label{margin-bottom:8px}
 .hint.new{animation:pop .35s ease-out}
 @keyframes pop{from{transform:translateY(-4px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.hint.new{animation:none}}
-.edit{display:flex;gap:8px;align-items:stretch}
-.edit textarea{flex:1;min-width:0;font:inherit;font-size:1.1rem;line-height:1.55;padding:10px 12px;border:2px solid var(--border-strong);border-radius:10px;background:var(--bg-surface);color:var(--text-primary);resize:none;outline:none}
-.edit textarea:focus{border-color:var(--primary)}
+/* ---- the revision field: one panel holds the sentence being fixed AND the box to fix it in ---- */
+.cap{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:2px}
+.fix{background:var(--bg-muted);border:1px solid var(--border-strong);border-radius:12px;padding:12px 14px 14px;margin:0 0 12px}
+.fix .orig{padding-bottom:10px;margin-bottom:10px;border-bottom:1px dashed var(--border-strong)}
+.fix .mine{margin:0;font-size:1.1rem;line-height:1.6}
+.fix label{display:flex;gap:7px;align-items:center;font-weight:700;font-size:1rem;color:var(--text-primary);cursor:pointer}
+.fix label .pen{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--primary);color:var(--on-primary);font-size:.8rem;flex:0 0 auto}
+.fix .help{font-size:.86rem;color:var(--text-secondary);margin:2px 0 8px}
+.fix textarea{display:block;width:100%;font:inherit;font-size:1.15rem;line-height:1.55;padding:10px 12px;border:2px solid var(--field-border);border-radius:10px;background:var(--bg-surface);color:var(--text-primary);caret-color:var(--primary);resize:vertical;min-height:4.3em;box-shadow:inset 0 1px 2px rgb(0 0 0 / 8%)}
+.fix textarea:hover{border-color:var(--text-primary)}
+.fix textarea:focus,.fix textarea:focus-visible{border-color:var(--focus);outline:3px solid var(--focus);outline-offset:2px}
+.fix textarea[readonly]{background:var(--bg-muted);border-style:dashed;color:var(--text-secondary);box-shadow:none}
+.fixrow{display:flex;gap:8px 14px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.fixrow .btn.primary{min-width:132px;font-size:1rem}
+.kbdhint{font-size:.8rem;color:var(--text-secondary);display:none}
+@media (hover:hover) and (pointer:fine) and (min-width:700px){.kbdhint{display:inline}}
+kbd{font:inherit;font-size:.74rem;font-weight:600;border:1px solid var(--field-border);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--bg-surface);color:var(--text-primary)}
+.spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;display:inline-block;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:8px;flex:0 0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none;border-style:dotted;border-right-color:currentColor}}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.busy[disabled]{opacity:1;cursor:progress;background:var(--primary-hover)}
+.res{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;padding:9px 12px;border-radius:10px;margin-top:10px;border:1px solid var(--border-strong);background:var(--bg-surface);color:var(--text-secondary)}
+.res[hidden]{display:none}
+.res>span:nth-child(2){flex:1;min-width:0}
+.res .ico{font-weight:700}
+.res .spin{margin:3px 0 0}
+.res .n{margin-left:auto;white-space:nowrap;font-size:.78rem;padding-top:2px}
+.res.try{background:var(--warning-bg);border-color:var(--warning);color:var(--warning-text)}
+.res.busy{background:var(--info-bg);border-color:var(--info);color:var(--info-text)}
+.helpbar{display:flex;gap:12px;align-items:flex-start;margin:0 0 8px}
+.helpbar .cap{margin:0;white-space:nowrap;padding-top:6px}
+.helpbar .ladder{flex:1;margin:0}
+.sent.flag.alt{border-left-color:var(--info)}
+.chip.info{background:var(--info-bg);color:var(--info-text)}
+.resolved{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--success-bg);border:1px solid var(--success)}
+.resolved.later{background:var(--bg-muted);border-color:var(--border-strong)}
+.resolved .big{width:34px;height:34px;border-radius:50%;background:var(--success);color:var(--bg-surface);font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+.resolved.later .big{background:var(--text-muted)}
+.resolved b{display:block}
+.resolved p{margin:2px 0 0;font-size:.9rem;color:var(--text-secondary)}
+.dmeta{font-size:.86rem;color:var(--text-secondary)}
 .btn{border:0;border-radius:10px;padding:10px 16px;font-weight:600;font-size:.95rem;min-height:44px}
 .btn.primary{background:var(--primary);color:var(--on-primary)}
 :root[data-theme="dark"] .btn.primary{color:#06201c}
@@ -139,8 +179,8 @@ details.l1wrap[open]>summary .label{margin-bottom:8px}
 .summary h2{font-family:var(--font-display);font-size:1.05rem;margin:0 0 8px}
 .sumrow{display:flex;gap:8px;align-items:baseline;font-size:.95rem;padding:5px 0;border-top:1px solid var(--border-default)}
 .sumrow:first-of-type{border-top:0}
-.sumrow .k{flex:1;min-width:0}
-.sumrow .v{color:var(--text-secondary);font-size:.86rem;text-align:right}
+.sumrow .k{flex:1 1 40%;min-width:0}
+.sumrow .v{flex:1 1 55%;min-width:0;color:var(--text-secondary);font-size:.86rem;text-align:right}
 details.rec{margin-top:12px;font-size:.82rem;color:var(--text-muted)}
 details.rec summary{cursor:pointer;padding:6px 0}
 details.rec pre{overflow-x:auto;background:var(--bg-muted);padding:10px;border-radius:8px;font-size:.74rem;line-height:1.45;color:var(--text-secondary);margin:6px 0 0}
@@ -177,7 +217,7 @@ details.rec pre{overflow-x:auto;background:var(--bg-muted);padding:10px;border-r
 .banner{font-size:.82rem;color:var(--text-muted);padding:8px 12px;border:1px dashed var(--border-strong);border-radius:10px;margin-bottom:14px}
 @media (max-width:600px){
   .wrap{padding:12px 16px}.card{padding:14px 14px}.sent.flag{padding:12px 12px}
-  .mine{font-size:1.12rem}.edit{flex-direction:column}.edit .btn{width:100%}
+  .fix{padding:12px 12px 14px}.fixrow .btn.primary{width:100%}.helpbar{flex-direction:column;gap:2px}.helpbar .ladder{width:100%}.helpbar .cap{padding-top:0}
   .ladder li{font-size:.64rem}
   .sent.ok{flex-wrap:wrap}.sent.ok .t{flex-basis:calc(100% - 40px)}.sent.ok .tag{margin-left:32px;padding-top:0}
   .nav .pill{display:none}
@@ -187,7 +227,7 @@ details.rec pre{overflow-x:auto;background:var(--bg-muted);padding:10px;border-r
 <body>
 <div class="nav">
   <span class="brand">LinguaDojo</span>
-  <span class="pill">Option 2 mockup · scripted re-check</span>
+  <span class="pill">Option 2 mockup · scripted re-check (simulated 1–2 s)</span>
   <span class="sp"></span>
   <button class="theme-btn" id="themeBtn" aria-label="Toggle light/dark theme">Theme</button>
 </div>
@@ -205,7 +245,11 @@ const STR = {
     rungs:['Where','What kind','Clue','Answer'], hWhere:'Where', hKind:'What kind', hClue:'Clue',
     whereTxt:'It\'s in the underlined part.', whereL1:'Compare the underlined part with the highlighted part of the prompt.',
     whereLost:'Your new version moved things around, so we can\'t pinpoint it any more — the hint types below still apply.',
-    check:'Check again', next:['Hint: where?','Hint: what kind?','Hint: give me a clue','Show the answer'], show:'Show the answer', dispute:'I think mine is right',
+    promptOne:'Prompt', youWrote:'You wrote', lastChecked:'Your last checked version', fieldLabel:'Rewrite your sentence',
+    fieldHelp:'Your sentence is already in the box. Change only the part you think is wrong, then press Check.',
+    check:'Check', checkAgain:'Check again', checking:'Checking…', checkingMsg:'Checking your sentence. This takes a second or two.',
+    kbd1:'to check', kbd2:'for a new line', attempt:(n,c)=>`Check ${n} of ${c}`, help:'Hints used',
+    next:['Hint: where?','Hint: what kind?','Hint: give me a clue','Show the answer'], show:'Show the answer', dispute:'I think mine is right',
     same:'That\'s the same sentence. Change something, or take a hint.', still:'Still flagged. Try once more, or take the next hint.',
     still2:'Still flagged — the next hint may help.', auto:'Here\'s the answer — this one\'s worth seeing rather than guessing.',
     fixed:h=>h===0?'Fixed on your own, on a second look':h===1?'Fixed once you knew where':`Fixed with ${h} hints`,
@@ -216,7 +260,14 @@ const STR = {
     sumT:'Repair summary', sumNone:'Nothing to repair', full:'Continue to full comparison & score', rec:'What gets recorded (tracking model preview)',
     queue:'Added to your review queue', noqueue:'Counted as a slip — no drill', startKind:'Hints',
     cleanT:'Nothing flagged', cleanP:'The checker found no problems in any sentence. It can miss small things, so the original is below if you want to compare.',
-    cleanCmp:'Compare with the original', cleanSame:'Your translation matches the original word for word.'
+    cleanCmp:'Compare with the original', cleanSame:'Your translation matches the original word for word.',
+    dChip:'From 3 days ago', dWhy:'You needed the answer last time. The part to fix is underlined.',
+    dFixed:'Fixed on your own this time', dFixedHint:'Fixed with a hint', dAgo:'3 days ago', dToday:'Today',
+    dResolved:'Resolved — removed from your practice list', dResolvedP:'Last time you needed the answer. Today you fixed it yourself.',
+    dHint:'Fixed with a hint — one more round', dHintP:'It comes back once more in 3 days. Fix it without a hint and it leaves your list.',
+    dNoIssue:'The checker finds nothing wrong with your new version, so this counts.',
+    dBack:'Not yet — it comes back in 2 days', dBackP:'Read the original once more. Next time it starts the same way: your sentence, the part to fix underlined.',
+    dDisp:'Removed from practice', dDispP:'Sent for review and not counted against you.'
   },
   zh: {
     prompt:'请翻译', yours:'你的译文', nothing:'未发现问题', showPrompt:'展开',
@@ -226,7 +277,11 @@ const STR = {
     rungs:['位置','类型','提示','答案'], hWhere:'位置', hKind:'类型', hClue:'提示',
     whereTxt:'问题在划线的部分。', whereL1:'把划线部分和中文原句里标出的部分对照一下。',
     whereLost:'你改动后的句子变化较大，无法再定位，但下面的提示仍然适用。',
-    check:'再检查一次', next:['提示：在哪里？','提示：哪一类问题？','提示：给我一点线索','看答案'], show:'看答案', dispute:'我觉得我的没错',
+    promptOne:'中文原句', youWrote:'你写的', lastChecked:'你上次检查的版本', fieldLabel:'改写你的句子',
+    fieldHelp:'你的句子已经填在框里。只改你觉得有问题的地方，然后点“检查”。',
+    check:'检查', checkAgain:'再检查一次', checking:'正在检查…', checkingMsg:'正在检查你的句子，需要一两秒。',
+    kbd1:'检查', kbd2:'换行', attempt:(n,c)=>`第 ${n} 次检查（最多 ${c} 次）`, help:'已用提示',
+    next:['提示：在哪里？','提示：哪一类问题？','提示：给我一点线索','看答案'], show:'看答案', dispute:'我觉得我的没错',
     same:'句子没有变化。改一改，或者看一个提示。', still:'仍然有问题。再试一次，或者看下一个提示。',
     still2:'仍然有问题——下一个提示也许有帮助。', auto:'直接看答案吧——这一处与其猜，不如看一看。',
     fixed:h=>h===0?'再看一眼后自己改对了':h===1?'知道位置后自己改对了':`用了 ${h} 个提示后改对了`,
@@ -307,25 +362,38 @@ const ITEMS = [
     {text:'它的图案，那个微笑的小猫，永远是我心中最温暖的存在。'}
    ]}
 ];
-ITEMS.forEach(it=>it.sents.forEach(s=>{ if(s.flag){ const f=s.flag;
-  Object.assign(f,{rung:f.low?0:(f.start||0), startRung:f.start||0, tries:0, status:'open', draft:s.text, cur:s.text, msg:'', msgCls:'', t0:null, ms:0, revs:[], fresh:false}); }}));
+/* Daily practice: one queued error instance (answer was shown 3 days ago). Opens with the grader's span already marked. */
+const DAILY = { id:'daily', daily:true, lang:'zh', ui:'en', cap:3, instance:'ei_7f3a…c21', from:'My favourite T-shirt',
+   l1:['This T-shirt is blue, a really true blue, and it hasn\'t faded even after many washes.'],
+   sents:[{text:'这件T恤是蓝色的，颜色很正，洗很多次也不会褪色。', ref:'这件T恤是蓝色的，颜色很正，洗了很多次也不会褪色。', idx:2,
+     flag:{type:'aspect_negation', kind:'Aspect marker (了 / 过 / 着)', bad:'洗很多次', good:'洗了很多次', conf:.88, sev:'major', start:1,
+       clue:'The washing has already happened, many times over. How does Chinese mark a completed action that comes with a count like 很多次?',
+       expl:'A completed action with a quantity takes 了 right after the verb: 洗了很多次. (洗过很多次, stressing experience, also works.)',
+       fix:has('洗了很多次'), alt:has(/洗过(很多|许多)次|洗了许多次/)}}] };
+[...ITEMS,DAILY].forEach(it=>it.sents.forEach(s=>{ if(s.flag){ const f=s.flag;
+  Object.assign(f,{rung:f.low?0:(f.start||0), startRung:f.start||0, tries:0, status:'open', draft:s.text, cur:s.text, msg:'', msgCls:'', t0:null, ms:0, revs:[], checks:[], hintLog:[], checking:false, auto:false, fresh:false}); }}));
+/* Simulated grader latency (real: p50 ≈ 1.4 s). ?fast shortens it for screenshots. */
+const DELAY=()=>/[?&]fast\b/.test(location.search)?120:1100+Math.random()*700;
+const HINT_SRC=[null,{level:'where',source:'grader_span'},{level:'what_kind',source:'template',template_id:'kind/v6'},{level:'clue',source:'template',template_id:'clue/v1'}];
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const mark=(text,frag,cls)=>{ const i=frag?text.indexOf(frag):-1; return i<0?esc(text):esc(text.slice(0,i))+`<mark${cls?` class="${cls}"`:''}>`+esc(frag)+'</mark>'+esc(text.slice(i+frag.length)); };
 let cur='zh';
-/* Where is the problem in the CURRENT text? Original span if untouched; else the region the learner changed. */
+/* Stand-in for the grader's span. In production every (re-)check returns a fresh learner-text span from the model;
+   here we fake it: the original span if untouched, else the region the learner changed. Never the reference diff. */
 function locate(orig,now,bad){ if(now.includes(bad)) return bad; let a=0; while(a<orig.length&&a<now.length&&orig[a]===now[a]) a++;
   let b=0; while(b<orig.length-a&&b<now.length-a&&orig[orig.length-1-b]===now[now.length-1-b]) b++;
   const frag=now.slice(a,now.length-b); return (frag&&frag.length<=Math.max(6,now.length*0.4))?frag:''; }
 
 function renderTabs(){
-  const tabs=[...ITEMS.map(i=>[i.id,i.tab]),['progress','Progress view']];
+  const tabs=[...ITEMS.map(i=>[i.id,i.tab]),['daily','Daily practice'],['progress','Progress view']];
   document.getElementById('tabs').innerHTML=tabs.map(([id,l])=>`<button class="tab" role="tab" aria-selected="${id===cur}" data-tab="${id}">${esc(l)}</button>`).join('');
 }
 function render(){
   renderTabs();
   const m=document.getElementById('main');
   if(cur==='progress'){ m.innerHTML=progressHTML(); return; }
+  if(cur==='daily'){ m.innerHTML=dailyHTML(); return; }
   const it=ITEMS.find(i=>i.id===cur), S=STR[it.ui], flags=it.sents.filter(s=>s.flag), open=flags.filter(s=>s.flag.status==='open');
   const active=open[0];
   const l1=it.l1.map((t,i)=>{ const s=it.sents[i], f=s&&s.flag; const on=active&&s===active;
@@ -349,42 +417,82 @@ function sentHTML(it,S,s,i){
   if(f.low) return `<div class="sent flag low" data-i="${i}"><div class="fh" lang="${it.ui}">${n}<span class="chip low"><span aria-hidden="true">?</span> ${S.maybe}</span></div>
     <div class="mine" lang="${it.lang}">${esc(f.cur)}</div><p class="fb" lang="${it.ui}" style="margin:0 0 4px">${S.unsure}</p>
     <div class="acts" lang="${it.ui}"><button class="btn ghost" data-act="lowcmp">${S.cmpBtn}</button><button class="btn link" data-act="lowleave">${S.leave}</button></div></div>`;
-  const loc=locate(s.text,f.cur,f.bad), located=!!loc;
+  const loc=locate(s.text,f.cur,f.bad), located=!!loc, busy=f.checking, dis=busy?' disabled':'';
   const hints=[];
   if(f.rung>=1) hints.push([S.hWhere, located?(f.meaning?S.whereL1:S.whereTxt):S.whereLost]);
   if(f.rung>=2) hints.push([S.hKind, esc(f.kind)]);
   if(f.rung>=3) hints.push([S.hClue, esc(f.clue)]);
+  const chip=it.daily?`<span class="chip"><span aria-hidden="true">↻</span> ${S.dChip}</span><span class="why">${S.dWhy}</span>`
+    :`<span class="chip${f.meaning?' meaning':''}"><span aria-hidden="true">${f.meaning?'≠':'↻'}</span> ${f.meaning?S.meaning:S.look}</span><span class="why">${S.likely}</span>`;
   return `<div class="sent flag${f.meaning?' meaning':''}" data-i="${i}">
-    <div class="fh" lang="${it.ui}">${n}<span class="chip${f.meaning?' meaning':''}"><span aria-hidden="true">${f.meaning?'≠':'↻'}</span> ${f.meaning?S.meaning:S.look}</span><span class="why">${S.likely}</span></div>
-    <p class="pl1" lang="${it.ui}">${f.l1mark&&f.rung>=1?mark(it.l1[i],f.l1mark):esc(it.l1[i])}</p>
-    <div class="mine" lang="${it.lang}">${f.rung>=1?mark(f.cur,loc):esc(f.cur)}</div>
-    <ol class="ladder" lang="${it.ui}" aria-label="hint ladder">${S.rungs.map((r,k)=>`<li class="${f.rung>k?'on':''}">${r}</li>`).join('')}</ol>
-    ${f.startRung&&f.rung===f.startRung&&S.adapt?`<p class="note" style="margin:0 0 8px">${S.adapt}</p>`:''}
+    <div class="fh" lang="${it.ui}">${n}${chip}</div>
+    <p class="pl1" lang="${it.ui}"><span class="cap">${S.promptOne}</span>${f.l1mark&&f.rung>=1?mark(it.l1[i],f.l1mark):esc(it.l1[i])}</p>
+    ${!it.daily&&f.startRung&&f.rung===f.startRung&&S.adapt?`<p class="note" style="margin:0 0 8px">${S.adapt}</p>`:''}
     ${hints.length?`<div class="hints" lang="${it.ui}">${hints.map((h,k)=>`<div class="hint${f.fresh&&k===hints.length-1?' new':''}"><b>${h[0]}</b>${h[1]}</div>`).join('')}</div>`:''}
-    <div class="edit"><textarea rows="2" lang="${it.lang}" data-i="${i}" aria-label="${S.yours}" autocapitalize="off" autocomplete="off" spellcheck="false">${esc(f.draft)}</textarea>
-      <button class="btn primary" data-act="check" lang="${it.ui}">${S.check}</button></div>
-    <p class="fb ${f.msgCls}" role="status" aria-live="polite" lang="${it.ui}">${f.msg?`<span class="ico" aria-hidden="true">${f.msgCls==='try'?'↻':'·'}</span>${f.msg}`:''}</p>
-    <div class="acts" lang="${it.ui}"><button class="btn ${f.rung>=3?'quiet':'ghost'}" data-act="hint">${S.next[Math.min(f.rung,3)]}</button><span class="sp"></span>
-      ${f.rung<3?`<button class="btn link" data-act="show">${S.show}</button>`:''}<button class="btn link" data-act="dispute">${S.dispute}</button></div>
+    ${fieldHTML(it,S,s,i,f.rung>=1?mark(f.cur,loc):esc(f.cur))}
+    <div class="helpbar" lang="${it.ui}"><span class="cap" id="lad-${it.id}-${i}">${S.help}</span><ol class="ladder" aria-labelledby="lad-${it.id}-${i}">${S.rungs.map((r,k)=>`<li class="${f.rung>k?'on':''}">${r}</li>`).join('')}</ol></div>
+    <div class="acts" lang="${it.ui}"><button class="btn ${f.rung>=3?'quiet':'ghost'}" data-act="hint"${dis}>${S.next[Math.min(f.rung,3)]}</button><span class="sp"></span>
+      ${f.rung<3?`<button class="btn link" data-act="show"${dis}>${S.show}</button>`:''}<button class="btn link" data-act="dispute"${dis}>${S.dispute}</button></div>
+  </div>`;
+}
+/* The revision field. Same component in the repair pass and in daily practice.
+   - real <label for>, helper text and result line wired with aria-describedby
+   - pre-filled with the learner's own sentence; the read-only copy above it carries the "where" underline
+   - while a re-check is in flight: field read-only, button disabled + spinner, status line says so */
+function fieldHTML(it,S,s,i,sentHtml){
+  const f=s.flag, id=`fix-${it.id}-${i}`, busy=f.checking, cap=it.cap||4;
+  const res=busy?`<span class="spin" aria-hidden="true"></span><span>${S.checkingMsg}</span>`
+    :f.msg?`<span class="ico" aria-hidden="true">${f.msgCls==='try'?'↻':'·'}</span><span>${f.msg}</span>${f.msgCls==='try'?`<span class="n">${S.attempt(f.tries,cap)}</span>`:''}`:'';
+  return `<div class="fix"${busy?' aria-busy="true"':''}>
+    <div class="orig"><span class="cap" lang="${it.ui}">${f.revs.length?S.lastChecked:S.youWrote}</span><div class="mine" lang="${it.lang}">${sentHtml}</div></div>
+    <label for="${id}" lang="${it.ui}"><span class="pen" aria-hidden="true">✎</span>${S.fieldLabel}</label>
+    <p class="help" id="${id}-h" lang="${it.ui}">${S.fieldHelp}</p>
+    <textarea id="${id}" rows="2" lang="${it.lang}" data-i="${i}" aria-describedby="${id}-h ${id}-r"${busy?' readonly':''} autocapitalize="off" autocomplete="off" spellcheck="false">${esc(f.draft)}</textarea>
+    <div class="fixrow" lang="${it.ui}"><button class="btn primary${busy?' busy':''}" data-act="check"${busy?' disabled':''}>${busy?`<span class="spin" aria-hidden="true"></span>${S.checking}`:(f.revs.length?S.checkAgain:S.check)}</button>
+      <span class="kbdhint"><kbd>Enter</kbd> ${S.kbd1} · <kbd>Shift</kbd> + <kbd>Enter</kbd> ${S.kbd2}</span></div>
+    <div class="res ${busy?'busy':f.msgCls}" id="${id}-r" role="status" aria-live="polite" lang="${it.ui}"${res?'':' hidden'}>${res}</div>
   </div>`;
 }
 function doneHTML(it,S,s,i){
   const f=s.flag, n=`<span class="num" aria-hidden="true">${i+1}</span>`;
-  const you=`<dt>${S.you}</dt><dd lang="${it.lang}">${esc(f.cur)}</dd>`;
+  const you=`<dt>${it.daily?S.dToday:S.you}</dt><dd lang="${it.lang}">${esc(f.cur)}</dd>`;
   const orig=`<dt>${S.orig}</dt><dd lang="${it.lang}">${f.good?mark(s.ref,f.good,'a'):esc(s.ref)}</dd>`;
-  const first=`<dt>${S.first}</dt><dd lang="${it.lang}">${mark(s.text,f.bad,'b')}</dd>`;
+  const first=`<dt>${it.daily?S.dAgo:S.first}</dt><dd lang="${it.lang}">${mark(s.text,f.bad,'b')}</dd>`;
   let chip,cls='done',body;
-  if(f.status==='fixed'){ chip=`<span class="chip good"><span aria-hidden="true">✓</span> ${S.fixed(f.rung)}</span>`; body=`<dl class="cmp">${first}${you}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div>`; }
-  else if(f.status==='alt'){ chip=`<span class="chip good"><span aria-hidden="true">✓</span> ${S.alt}</span>`; body=`<p class="note" style="margin:0 0 4px">${S.altNote}</p><dl class="cmp">${you}${orig}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div>`; }
-  else if(f.status==='revealed'){ cls='shown'; chip=`<span class="chip neutral"><span aria-hidden="true">→</span> ${S.shownT}</span>`; body=`<dl class="cmp">${first}${orig}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div><p class="note">${S.queue}</p>`; }
+  if(f.status==='fixed'){ chip=`<span class="chip good"><span aria-hidden="true">✓</span> ${it.daily?(f.rung<=1?S.dFixed:S.dFixedHint):S.fixed(f.rung)}</span>`; body=`<dl class="cmp">${first}${you}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div>`; }
+  else if(f.status==='alt'){ cls='alt'; chip=`<span class="chip info"><span aria-hidden="true">○</span> ${S.alt}</span>`; body=`<p class="note" style="margin:0 0 4px">${S.altNote}</p><dl class="cmp">${you}${orig}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div>`; }
+  else if(f.status==='revealed'){ cls='shown'; chip=`<span class="chip neutral"><span aria-hidden="true">→</span> ${S.shownT}</span>`; body=`${f.auto?`<p class="note" style="margin:0 0 4px">${S.auto}</p>`:''}<dl class="cmp">${first}${orig}</dl><div class="expl" lang="${it.ui}">${esc(f.expl)}</div>${it.daily?'':`<p class="note">${S.queue}</p>`}`; }
   else if(f.status==='disputed'){ cls='shown'; chip=`<span class="chip neutral"><span aria-hidden="true">–</span> ${S.disputedT}</span>`; body=`<p class="note" style="margin:0 0 4px">${S.disputedNote}</p><dl class="cmp">${you}${orig}</dl>`; }
   else if(f.status==='lowcmp'){ cls='shown'; chip=`<span class="chip low"><span aria-hidden="true">?</span> ${S.maybe}</span>`; body=`<dl class="cmp"><dt>${S.you}</dt><dd lang="${it.lang}">${mark(f.cur,f.bad,'b')}</dd>${orig}</dl><p class="note">${S.lowNote}</p>`; }
   else { cls='shown'; chip=`<span class="chip low"><span aria-hidden="true">?</span> ${S.maybe}</span>`; body=`<div class="mine" lang="${it.lang}" style="margin:0">${esc(f.cur)}</div><p class="note">${S.lowLeft}</p>`; }
-  return `<div class="sent flag ${cls}" data-i="${i}"><div class="fh" lang="${it.ui}">${n}${chip}</div>${body}</div>`;
+  return `<div class="sent flag ${cls}" data-i="${i}" tabindex="-1"><div class="fh" lang="${it.ui}">${n}${chip}</div>${body}${it.daily?dailyFoot(S,f):''}</div>`;
+}
+/* ---------- daily practice: "fix your own sentence" ---------- */
+function dailyFoot(S,f){
+  const box=(cls,ico,t,p)=>`<div class="resolved ${cls}" lang="en"><span class="big" aria-hidden="true">${ico}</span><div><b>${t}</b><p>${p}</p></div></div>`;
+  if(f.status==='fixed'||f.status==='alt'){ const extra=f.status==='alt'?' '+S.dNoIssue:'';
+    return f.rung<=1?box('', '✓', S.dResolved, S.dResolvedP+extra)+`<p class="note">了 / 过 / 着 sentences saved for practice: 2 of 3 now resolved.</p>`:box('later','↻',S.dHint,S.dHintP+extra); }
+  if(f.status==='disputed') return box('later','–',S.dDisp,S.dDispP);
+  return box('later','↻',S.dBack,S.dBackP);
+}
+function attemptRecord(it,s){ const f=s.flag; return {error_instance_id:it.instance, sentence_idx:s.idx, surface:'daily_practice', scheduled_gap_days:3,
+  hint_level_start:f.startRung, hint_level_reached:f.status==='revealed'?4:f.rung, hints_shown:f.hintLog,
+  checks:f.checks, disputed:f.status==='disputed', outcome:{open:'open',fixed:'self_repaired',alt:'repaired_alternative',revealed:'answer_shown',disputed:'disputed'}[f.status],
+  resolved:(f.status==='fixed'||f.status==='alt')&&f.rung<=1, time_ms:f.ms}; }
+function dailyHTML(){
+  const it=DAILY, S=STR[it.ui], s=it.sents[0], f=s.flag, open=f.status==='open';
+  if(open&&f.t0===null) f.t0=Date.now(); const html=sentHTML(it,S,s,0); f.fresh=false;
+  return `<div class="head"><h1>Daily practice</h1><span class="sub">Fix your own sentence · sample data</span></div>
+  <div class="banner">One item type inside the existing daily practice session. Sentences you did not fix by yourself (or with only the “where” hint) come back here a few days later, with the part to fix marked.</div>
+  <div class="statusline"><span class="chip neutral">Fix your own sentence · 1 of 2 today</span><span class="dmeta">From “${esc(it.from)}” · sentence ${s.idx+1}</span></div>
+  ${html}
+  ${open?`<div class="sent ok"><span class="num" aria-hidden="true">2</span><div class="t" lang="ja">私たちは作るものは、小さな物を掴むことができる…</div><span class="tag">Up next · from 5 days ago</span></div>`
+    :`<div class="acts" style="margin-top:4px"><button class="btn primary" data-act="noop">Next sentence</button><button class="btn link" data-act="reset">Reset demo</button></div>`}
+  <details class="rec"><summary>What gets recorded for this attempt</summary><pre>${esc(JSON.stringify(attemptRecord(it,s),null,1))}</pre></details>`;
 }
 function episode(it,s,i){ const f=s.flag; return {sentence_idx:i, error_type:f.type, p_error:f.conf, severity:f.sev, start_rung:f.startRung, max_rung:f.status==='revealed'?4:f.rung,
   outcome:{fixed:'self_repaired',alt:'repaired_alternative',revealed:'answer_shown',disputed:'disputed',lowcmp:'unsure_compared',lowleft:'unsure_dismissed'}[f.status],
-  revisions:f.revs.length, time_ms:f.ms, counts_toward_mastery:!f.low&&f.status!=='disputed'}; }
+  hints_shown:f.hintLog, checks:f.checks, time_ms:f.ms, counts_toward_mastery:!f.low&&f.status!=='disputed'}; }
 function summaryHTML(it,S){
   const rows=it.sents.map((s,i)=>s.flag?[s,i]:null).filter(Boolean).map(([s,i])=>{ const f=s.flag;
     const v={fixed:S.fixed(f.rung)+' · '+(f.rung<=1?S.noqueue:S.queue),alt:S.alt,revealed:S.shownT+' · '+S.queue,disputed:S.disputedT,lowcmp:S.maybe,lowleft:S.maybe}[f.status];
@@ -402,35 +510,43 @@ function cleanHTML(it,S){
 
 /* ---------- scripted "re-grade" ---------- */
 function close(f,status){ f.status=status; f.ms=f.t0?Date.now()-f.t0:0; }
+function focusField(i){ const ta=document.querySelector(`textarea[data-i="${i}"]`); if(ta){ ta.focus({preventScroll:true}); ta.setSelectionRange(ta.value.length,ta.value.length); } }
 function act(a,i,el){
-  const it=ITEMS.find(x=>x.id===cur); if(!it) return;
+  const tab=cur, it=cur==='daily'?DAILY:ITEMS.find(x=>x.id===cur); if(!it) return;
   if(a==='reset'){ location.reload(); return; }
   if(a==='noop') return;
   if(a==='skipall'){ it.sents.forEach(s=>{ if(s.flag&&s.flag.status==='open') close(s.flag,s.flag.low?'lowcmp':'revealed'); }); render(); return; }
-  const s=it.sents[i], f=s.flag, S=STR[it.ui];
+  const s=it.sents[i], f=s.flag, S=STR[it.ui], cap=it.cap||4;
+  if(f.checking) return;                       /* no double-submit, no hint taps while a re-check is in flight */
   if(a==='lowcmp') close(f,'lowcmp');
   else if(a==='lowleave') close(f,'lowleft');
   else if(a==='show') close(f,'revealed');
   else if(a==='dispute') close(f,'disputed');
-  else if(a==='hint'){ if(f.rung>=3) close(f,'revealed'); else { f.rung++; f.fresh=true; f.msg=''; } }
+  else if(a==='hint'){ if(f.rung>=3) close(f,'revealed'); else { f.rung++; f.fresh=true; f.msg=''; f.hintLog.push(HINT_SRC[f.rung]); } }
   else if(a==='check'){
     const t=f.draft.trim();
-    if(t===f.cur){ f.msg=S.same; f.msgCls=''; }
-    else { f.revs.push(t); f.cur=t; f.draft=t;
-      if(t===s.ref||f.fix(t)) close(f,'fixed');
-      else if(f.alt&&f.alt(t)) close(f,'alt');
-      else { f.tries++; if(f.tries>=4){ close(f,'revealed'); } else { f.msg=f.tries>=2?S.still2:S.still; f.msgCls='try'; } }
-    }
+    if(t===f.cur){ f.msg=S.same; f.msgCls=''; }   /* unchanged text: no call is made */
+    else { const t1=Date.now(); f.checking=true; render(); focusField(i);
+      setTimeout(()=>{ f.checking=false; if(f.status!=='open'){ render(); return; }
+        f.revs.push(t); f.cur=t; f.draft=t; let r;
+        if(t===s.ref||f.fix(t)){ r='fixed'; close(f,'fixed'); }
+        else if(f.alt&&f.alt(t)){ r='no_issue_found'; close(f,'alt'); }
+        else { r='still_flagged'; f.tries++; if(f.tries>=cap){ f.auto=true; close(f,'revealed'); } else { f.msg=f.tries>=2?S.still2:S.still; f.msgCls='try'; } }
+        f.checks.push({text:t,result:r,hint_level:f.rung,latency_ms:Date.now()-t1});
+        render(); if(cur!==tab) return;
+        if(f.status==='open') focusField(i); else { const c=document.querySelector(`.sent[data-i="${i}"]`); if(c) c.focus({preventScroll:true}); }
+      }, DELAY());
+      return; }
   }
   render();
-  if(f.status==='open'){ const ta=document.querySelector(`textarea[data-i="${i}"]`); if(ta&&a==='check'){ ta.focus({preventScroll:true}); ta.setSelectionRange(ta.value.length,ta.value.length);} }
+  if(f.status==='open'&&a==='check') focusField(i);
 }
 document.addEventListener('click',e=>{
   const tab=e.target.closest('[data-tab]'); if(tab){ cur=tab.dataset.tab; render(); window.scrollTo(0,0); return; }
   const b=e.target.closest('[data-act]'); if(!b) return;
   const box=b.closest('[data-i]'); act(b.dataset.act, box?+box.dataset.i:null, b);
 });
-document.addEventListener('input',e=>{ if(e.target.matches('textarea[data-i]')){ const it=ITEMS.find(x=>x.id===cur); it.sents[+e.target.dataset.i].flag.draft=e.target.value; }});
+document.addEventListener('input',e=>{ if(e.target.matches('textarea[data-i]')){ const it=cur==='daily'?DAILY:ITEMS.find(x=>x.id===cur); it.sents[+e.target.dataset.i].flag.draft=e.target.value; }});
 /* Enter = check, but never while an IME composition is open (zh/ja candidate selection also uses Enter). */
 document.addEventListener('keydown',e=>{ if(e.target.matches('textarea[data-i]')&&e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){ e.preventDefault(); act('check',+e.target.dataset.i); }});
 document.getElementById('themeBtn').addEventListener('click',()=>{ const r=document.documentElement; const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches; r.dataset.theme=dark?'light':'dark'; });
