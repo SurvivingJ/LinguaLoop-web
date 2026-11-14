@@ -11,16 +11,149 @@ open_questions:
   - "OPEN: Daily-practice intervals, caps and the 'resolved' rule (section 8) are design defaults, not tuned values."
   - "OPEN: Which database size limit applies, and where grading results are stored at all (open since September)."
   - "OPEN: Thresholds (confidence bands, repair cap of 3, attempt cap of 4, credit weights) are design defaults, not tuned values."
+  - "OPEN (Revision 2): zh and ja interface strings for the app-style flow are not written; real-device and keyboard behaviour is untested."
   - "OPEN: Hint templates need writing and native review for ~20 types x 3 L2s x 3 L1s."
 ---
 
 # Option 2 — Guided Self-Repair
 
 One of three competing options for presenting and tracking Dual Translation (DT) feedback.
-Companion files: [`mockup.html`](./mockup.html) (working simulation), `mobile.png`, `desktop.png`
-(revision step), `mobile-daily.png`, `desktop-daily.png` (daily practice).
+Companion files (Revision 2): [`mockup.html`](./mockup.html) (working simulation), `mobile.png` and
+`desktop.png` (contact sheets), `steps/` (one PNG per step, en flow), [`verify.cjs`](./verify.cjs)
+(the no-scroll test). Superseded, kept for reference: `mockup-v1.html`, `mobile-v1.png`,
+`desktop-v1.png`, `mobile-daily-v1.png`, `desktop-daily-v1.png`.
 Context: [[features/dual-translation]], [[decisions/ADR-031-dt-taxonomy-v6-merge]],
 [[evaluations/jev-dt-tuning-2026-09-27]].
+
+## Revision 2 — 2026-11-14 (app-style flow)
+
+**Why.** The owner rejected the first mockup: "the mockup is much too busy - imagine it needs to be
+designed like an app. it just pops up, you get through one part and it opens the next - no scrolling."
+Earlier: "it just needs to be clearer what the input box is." The first mockup put the whole passage
+on one long page (4,152 px tall at 390 px wide for two flagged sentences) with every card, hint bar,
+chip and counter visible at once.
+
+This revision changes the **presentation only**. The ladder, the grader contract, the credit model and
+the daily-practice rules (§1.2 outcomes, §2, §5, §8.1–8.4) are unchanged. Where an older section
+describes layout, it is marked **Superseded by Revision 2**.
+
+### R2.1 Interaction model
+
+1. **It pops up.** After Submit, feedback opens as a modal sheet over the exercise: full screen on a
+   phone, a centred 420 px card on wider screens with the exercise dimmed behind it.
+2. **One step per screen.** Each screen has one sentence, one problem, one input and one primary
+   button. The sheet has three fixed zones: header (close button, progress dots), content, and a
+   bottom action area in thumb reach.
+3. **No scrolling, ever** (acceptance criterion, R2.5).
+4. **It advances by itself.** A successful check shows a short success moment and moves to the next
+   sentence after about 1.6 s; a "Next" button is there for people who do not want to wait, and it is
+   the only way forward when reduced motion is requested.
+5. **Hints replace each other.** There is one hint slot under the field. A new hint, or a "still not
+   quite" message, takes the place of what was there.
+6. Steps change with a short slide and fade (off under `prefers-reduced-motion`).
+
+### R2.2 Steps
+
+| # | Screen | What is on it | Primary action | Quiet actions |
+|---|---|---|---|---|
+| 0 | Exercise (existing page) | Prompt, the learner's translation | Submit (shows "Checking…") | — |
+| 1a | Result | A large number and "sentences to fix"; one line "The other N look fine." | Start | — |
+| 1b | Result, clean | Tick, "No issues found", one line | Done | — |
+| 2 | Fix | The L1 prompt sentence (quiet, two lines at most); the label "Fix your sentence"; the field, pre-filled with the learner's sentence | Check | "Need a hint?", "Mine is fine" |
+| 3 | Fix + hint | Same screen. Hint 1 underlines the grader's span inside the field ("Look at the underlined part."); hint 2 names the type; hint 3 is the clue. Each replaces the last. The quiet button reads "Need a hint?" → "Another hint" → "Show answer". | Check | as above |
+| 4 | Checking | Same screen; the button shows a spinner and "Checking…", the field is read-only, a second press is ignored (1–2 s) | — | — |
+| 5a | Still not quite | Same screen; the slot says "Still not quite. Try again, or take a hint."; the field shakes once. Unchanged text: "That's the same sentence. Change something first." (no grader call) | Check | as above |
+| 5b | Fixed | Tick, "Fixed", one line ("On your own" / "With 2 hints") | Next (auto after ~1.6 s) | — |
+| 6 | Answer | "The original", the original sentence with the differing part marked, one line of explanation. Also used, with a different heading, for "No issue found. The original says:" and after a dispute ("Noted. The original says:"). Reached by "Show answer" or automatically after the 4th failed check (3rd in daily practice). | Next | — |
+| 7 | Summary | "All done" and three counts: Fixed yourself / Needed help / Saved to practice | Done → existing result screen | — |
+
+Progress is a row of dots in the header (the current one is longer, so shape as well as colour
+carries it) with "Sentence 1 of 2" for screen readers. The close button ends the pass and goes to the
+existing result screen; unfinished sentences are recorded as `skipped` and queued per §8.1. This
+replaces the always-visible "Skip — show me everything" link.
+
+**Uncertain flag** (needs a confidence field from the grader, still an open question): the same
+single screen, phrased as a question. The label is "This part may need another look", the span has a
+dotted underline from the start, there is no hint ladder, and the action area holds two buttons of
+equal weight, "Mine is fine" and "Check". "Check" becomes the filled button only after the learner
+changes the text. "Mine is fine" shows "Kept as written" and moves on.
+
+**Daily practice** uses screen 2 unchanged, opened from the practice entry point, one item at a time,
+with one extra line above the prompt: "From your translation on Tuesday". It opens with the span
+already underlined (§8.3), so the first hint asked for is the type. The summary's third count reads
+"Back in practice later".
+
+**The field** (replaces the layout part of §1.2a; the behaviour there still holds). A real `<label>`
+with a pencil icon, "Fix your sentence", sits directly on a large bordered field (2 px border, 20 px
+text, the page's only white surface). It is pre-filled with the learner's sentence. It takes focus
+automatically on pointer devices; on touch devices it waits for a tap so the keyboard does not cover
+the screen before the learner has read it. Focus shows a 4 px ring and a coloured caret. The "where"
+underline is drawn inside the field, under the learner's own words, and disappears once those words
+are edited away. Enter submits; the field holds one sentence and no line breaks. The field stays in
+the upper part of the screen. When the on-screen keyboard is open the screen keeps only the label,
+the field, the hint and one row with "Check" and the hint button.
+
+### R2.3 Removed from v1, and why
+
+| Removed | Why |
+|---|---|
+| The whole passage on one page, clean sentences listed between flagged ones | The cause of the scrolling. Clean sentences are now one line on the result screen. |
+| Demo tab bar inside the screen | Mock controls must not look like product UI. Language and scenario are two small controls on the mock start screen only. |
+| "Take another look" / "Meaning differs" / severity chips, numbered sentence badges, "2 to look at · 2 with nothing flagged" counters | Several competing labels per card. The step label and the result number say the same thing once. |
+| Four-segment "Hints used" bar (Where / What kind / Clue / Answer) | A legend for something the learner does not need to manage. Replaced by "Hint 2 of 3" on the hint itself. |
+| Hints stacking above the field | Pushed the field down and off the screen. One slot, replaced in place. |
+| "Your last checked version" panel above the field, and the instruction paragraph "Your sentence is already in the box…" | The field itself now carries the underline, and the label is enough. |
+| "Check 1 of 4" counter | Pressure without information. The cap still applies. |
+| Then-vs-now comparison and explanation after a self-fix | The success moment is a beat, not a reading task. The explanation is shown when the answer had to be given, and is on the existing result screen for every sentence. |
+| "What gets recorded" disclosure, per-type progress panel, side panel with the full prompt | Developer or secondary content. Recording is specified in §2 and is not shown to the learner here. |
+| Always-visible "Skip — show me everything" | Replaced by the close button. |
+
+Kept deliberately: at most two quiet text buttons, and "Mine is fine" on every fix step, because the
+grader can be wrong (§1.2).
+
+### R2.4 Long sentences
+
+The longest gold sentences were used as test items: en 69 characters (`en_clean_01`), zh 53
+(`zh_seed_14`), ja 82 (`ja_seed_02`).
+
+1. The field grows with its text. If it would not fit, the type steps down 20 → 18 → 16 → 15 px.
+2. Past the smallest step the field scrolls inside itself; the page still does not. No gold sentence
+   reaches this at the tested sizes.
+3. The L1 prompt is clamped to two lines. If it is cut, tapping it opens the full prompt as an
+   overlay on the same screen; tapping again closes it.
+4. The answer screen uses the same type steps (24 → 20 → 17 → 15 px).
+5. With the keyboard open on a short phone the prompt line is hidden, and below 400 px of visible
+   height the label is hidden visually while a hint is showing (it stays available to screen readers).
+
+Hint text is limited by rule: a clue is at most two short sentences (about 120 Latin characters or
+60 CJK characters) and an explanation is one line (about 90 Latin or 45 CJK characters). Templates
+longer than this fail review.
+
+### R2.5 Acceptance criteria for implementation
+
+- **No scroll.** On every step, in every state, `document.scrollingElement.scrollHeight <= window.innerHeight`
+  and there is no horizontal overflow, at 390×844, 375×667 and 1280×800, in light and dark, and with
+  the keyboard open (visible height 500 and 340 px). No element is clipped by, or hidden behind, the
+  bottom action area. `verify.cjs` is the reference test; the implementation needs an equivalent.
+- One primary button per screen (the uncertain step has two neutral ones). At most two quiet actions.
+  At most three text elements above the field.
+- Touch targets at least 44×44 px; WCAG 2.2 AA contrast; the underline, the dot shapes and the icons
+  carry meaning without colour; CJK text uses the CJK font stacks and a line height of 1.65–1.7.
+- No mock or debug control appears inside the flow.
+- Every step event is still recorded (§2.1): hint level reached, each checked revision with its
+  result and latency, time since the previous event, answer shown (asked or automatic), dispute,
+  skip, and the episode outcome with total time. The mockup writes these to `window.__events`.
+
+**Verified in the mockup** (2026-11-14, Chromium via Playwright, `node verify.cjs`): 766 step checks
+passed, 0 failed. They cover en and zh flows (fix first try, all hints then answer, four failed
+checks, no-issue-found, dispute, clean, uncertain, daily practice) and the three longest-sentence
+items, at the three viewports and two keyboard-open sizes, in light and dark.
+
+**Not verified:** real devices and real on-screen keyboards (the keyboard is simulated by a shorter
+viewport); Safari and Firefox; screen readers; contrast was chosen from the app's tokens and not
+measured by a tool; the Japanese and Chinese glyphs in the screenshots come from the test machine's
+fallback font; UI copy is shown in English only, so the length of zh and ja interface strings is
+untested; the mockup's ja item is reachable only by `?stress=ja`.
 
 ## Revision 2026-11-14 (post-experiment)
 
@@ -69,6 +202,8 @@ screen (diff, bands, error cards), which stays as the final step.
 
 ### 1.1 Sequence
 
+> **Superseded by Revision 2 (layout only).** Step 3 is no longer a page of cards: one sentence per screen (R2.2). "Skip — show me everything" is the close button. Triage, cap and scoring are unchanged.
+
 1. **Submit.** The passage is split into aligned sentence pairs. **(rev. 2026-11-14)** The whole
    item goes to the grader in one call, which returns a list of errors; each error names its
    sentence, subtype, severity, a span in the learner's text and a short explanation. A passage
@@ -94,6 +229,8 @@ screen (diff, bands, error cards), which stays as the final step.
    repairs never change the score.
 
 ### 1.2 The ladder
+
+> **Superseded by Revision 2 (layout only).** Hints no longer accumulate and there is no four-segment bar; one hint slot is replaced in place (R2.1, R2.2). Rungs, sources and re-check outcomes are unchanged.
 
 The learner's own sentence is pre-filled in an editable field (§1.2a). They can edit and press
 "Check" at any rung, or take the next hint.
@@ -131,6 +268,8 @@ heavily rephrased text), so the app says "no issue found", never "correct", and 
 original next to it.
 
 ### 1.2a The revision field (rev. 2026-11-14)
+
+> **Superseded by Revision 2 (layout only).** The field's placement and surrounding panels are replaced by R2.2 "The field". Pre-filling, the checking state and the double-submit guard still apply.
 
 **What was unclear in the first mockup** (screenshots at 390 px and 1280 px): the learner's sentence
 appeared twice with nothing saying which copy was which; the editable copy had no label and looked
@@ -195,6 +334,8 @@ re-renders the card, which is not a reliable test of the live region.
 
 ### 1.3 Encoding severity and confidence
 
+> **Superseded by Revision 2 (layout only).** Chips and card colours are removed (R2.3). Severity only orders the steps; low confidence changes the wording of the step (R2.2).
+
 - **(rev. 2026-11-14)** The figures in this section (severity 54–75%, "all 8 meaning inversions")
   are from the September jev run. Severity accuracy for GPT-6 Luna is not in the summary report
   read for this revision; on gold the DeepSeek config flagged 6 of 6 inversions as critical, and it
@@ -238,6 +379,8 @@ Hints only help when there is a rule to reach for. Types are marked `hintable` i
 
 ### 1.5 States
 
+> **Superseded by Revision 2 (layout only).** The states are now the screens in R2.2.
+
 | State | Behaviour |
 |---|---|
 | **Clean item** | Success card: "Nothing flagged. The checker can miss small things, so the original is below if you want to compare." Reference behind one tap. No repair pass. |
@@ -249,6 +392,8 @@ Hints only help when there is a rule to reach for. Types are marked `hintable` i
 | **Adaptive start** | If a type's last 3 episodes all needed rung 1 or more, the card opens at rung 1 with a one-line reason. If the last 3 all ended in `answer_shown`, the type switches to direct mode until a review drill succeeds (§2.4). |
 
 ### 1.6 Copy (learner's L1)
+
+> **Superseded by Revision 2 (layout only).** Chip and skip strings are no longer used. Current strings are in R2.2; zh and ja versions of the new strings are not written yet.
 
 | Key | English | 中文 | 日本語 |
 |---|---|---|---|
@@ -322,7 +467,7 @@ daily-practice queue and the dataset for tuning. **(rev. 2026-11-14)** Fields:
 Whether the learner disputed the flag is the `disputed` event plus `outcome` on the episode.
 Storage budget: §8.5.
 
-The mockup's summary card has a "What gets recorded" disclosure that prints the episode rows live.
+~~The mockup's summary card has a "What gets recorded" disclosure that prints the episode rows live.~~ Superseded by Revision 2: nothing about recording is shown in the flow; the mockup writes the event rows to `window.__events`.
 
 ### 2.2 Per-episode credit
 
@@ -718,7 +863,7 @@ worth keeping.
 
 ## 8. Daily-practice loop: "fix your own sentence" (rev. 2026-11-14)
 
-Shown in the mockup's "Daily practice" tab. All numbers here are design defaults.
+Reached from the "Daily practice" link on the mockup's start screen (Revision 2; was a tab). Screen layout: R2.2. All numbers here are design defaults.
 
 ### 8.1 What gets queued
 
