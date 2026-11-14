@@ -1,15 +1,15 @@
 """Sentence spans of a test with the learner's L1 references."""
 
-from flask import request, current_app, g
-import traceback
+from flask import request, g
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from routes.common import get_db
 from services.day_boundary import local_day_start_utc, plan_timezone
 from services.dual_translation.sentence_refs import LANG_ID as SENTENCE_L1_IDS
 from services.test_service import find_active_test
 from utils.responses import (
-    api_success, api_error, bad_request, not_found, server_error, service_unavailable,
+    api_errors, api_success, api_error, bad_request, not_found,
 )
 
 from .blueprint import tests_bp
@@ -111,6 +111,7 @@ def build_sentence_payload(rows, references, withhold_l2):
 
 @tests_bp.route('/<identifier>/sentences', methods=['GET'])
 @supabase_jwt_required
+@api_errors('Failed to load sentences')
 def get_test_sentences(identifier):
     """Sentence spans of a test with the learner's L1 references (TASK-909).
 
@@ -122,40 +123,32 @@ def get_test_sentences(identifier):
     the backfill script re-segments); an empty ``sentences`` list means the
     test has no rows yet (the client falls back to its own split).
     """
-    try:
-        db = current_app.supabase_service
-        if not db:
-            return service_unavailable("Service not available")
+    db = get_db()
 
-        test = _find_test_for_sentences(db, identifier)
-        if not test:
-            return not_found("Test not found")
+    test = _find_test_for_sentences(db, identifier)
+    if not test:
+        return not_found("Test not found")
 
-        l1_language_id = _resolve_sentence_l1(db, g.current_user_id, request.args.get('l1'))
-        if l1_language_id is None:
-            return bad_request("Unknown l1 language code")
+    l1_language_id = _resolve_sentence_l1(db, g.current_user_id, request.args.get('l1'))
+    if l1_language_id is None:
+        return bad_request("Unknown l1 language code")
 
-        rows = _load_sentence_rows(db, test['id'])
-        stored_hash = test.get('transcript_hash')
-        if rows and stored_hash and any(r.get('transcript_hash') != stored_hash for r in rows):
-            return api_error(
-                "Sentence rows are stale for this transcript", 409, error_code="SENTENCES_STALE",
-            )
-
-        mode = (request.args.get('mode') or '').lower()
-        withhold = mode == 'produce' and not _has_attempt_today(
-            db, g.current_user_id, test['id'], test.get('language_id'),
+    rows = _load_sentence_rows(db, test['id'])
+    stored_hash = test.get('transcript_hash')
+    if rows and stored_hash and any(r.get('transcript_hash') != stored_hash for r in rows):
+        return api_error(
+            "Sentence rows are stale for this transcript", 409, error_code="SENTENCES_STALE",
         )
 
-        references = _load_active_references(db, [r['id'] for r in rows], l1_language_id)
-        return api_success(data={
-            'test_id': test['id'],
-            'l1_language_id': l1_language_id,
-            'l2_withheld': withhold,
-            'sentences': build_sentence_payload(rows, references, withhold),
-        })
+    mode = (request.args.get('mode') or '').lower()
+    withhold = mode == 'produce' and not _has_attempt_today(
+        db, g.current_user_id, test['id'], test.get('language_id'),
+    )
 
-    except Exception as e:
-        logger.error("Error loading sentences for %s: %s", identifier, e)
-        logger.error(traceback.format_exc())
-        return server_error('Failed to load sentences')
+    references = _load_active_references(db, [r['id'] for r in rows], l1_language_id)
+    return api_success(data={
+        'test_id': test['id'],
+        'l1_language_id': l1_language_id,
+        'l2_withheld': withhold,
+        'sentences': build_sentence_payload(rows, references, withhold),
+    })

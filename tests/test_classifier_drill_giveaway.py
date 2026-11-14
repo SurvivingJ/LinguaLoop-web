@@ -5,7 +5,7 @@ not shown as a meaning label."""
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
-import services.classifier_drill_service as cds
+import services.drill_service as cds
 
 
 def _db(rows):

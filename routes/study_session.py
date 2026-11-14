@@ -42,6 +42,7 @@ import logging
 from flask import Blueprint, g, request
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from routes.common import get_db
 from services import study_plan_service as _plan  # noqa: F401  (patched by tests)
 from services.day_boundary import plan_today_iso
 from services.study_session import session as _session
@@ -66,11 +67,11 @@ from services.study_session.queue import (  # noqa: F401  (re-exported: earlier 
     valid_block_ids as _valid_block_ids,
 )
 from services.study_session.session import minutes_per_new_word as _mpnw
-from services.supabase_factory import get_supabase_admin
 from services.test_service import get_test_service, parse_language_id
 from utils.responses import (
-    ApiResponse, api_success, bad_request, not_found, server_error,
+    api_errors, ApiResponse, api_success, bad_request, not_found,
 )
+from utils.validation import json_body
 
 logger = logging.getLogger(__name__)
 study_session_bp = Blueprint("study_session", __name__)
@@ -99,25 +100,21 @@ def _practice_service():
 
 @study_session_bp.route('', methods=['GET'])
 @supabase_jwt_required
+@api_errors("Failed to build study session")
 def get_study_session() -> ApiResponse:
     """Return today's ordered session queue (tests + practice) with progress."""
-    try:
-        language_id = parse_language_id(request.args.get('language_id'))
-        if not language_id:
-            return bad_request("Invalid or missing language_id")
+    language_id = parse_language_id(request.args.get('language_id'))
+    if not language_id:
+        return bad_request("Invalid or missing language_id")
 
-        user_id = g.current_user_id
-        db = get_supabase_admin()
-        return api_success(_session.build_study_session(
-            db, user_id, language_id, _today_iso(db, user_id, language_id),
-            test_service=get_test_service(),
-            practice_service=_practice_service(),
-            mpnw=lambda: _mpnw(db, language_id),
-        ))
-
-    except Exception as e:
-        logger.error("get_study_session failed: %s", e)
-        return server_error("Failed to build study session")
+    user_id = g.current_user_id
+    db = get_db()
+    return api_success(_session.build_study_session(
+        db, user_id, language_id, _today_iso(db, user_id, language_id),
+        test_service=get_test_service(),
+        practice_service=_practice_service(),
+        mpnw=lambda: _mpnw(db, language_id),
+    ))
 
 
 # ---------------------------------------------------------------------------
@@ -126,30 +123,26 @@ def get_study_session() -> ApiResponse:
 
 @study_session_bp.route('/complete-block', methods=['POST'])
 @supabase_jwt_required
+@api_errors("Failed to mark block complete")
 def complete_block() -> ApiResponse:
     """Mark a non-test block complete for today (idempotent).
 
     Test slots are completed via POST /api/tests/daily-load/complete instead.
     """
+    data = json_body(silent=True)
+    language_id = parse_language_id(data.get('language_id'))
+    if not language_id:
+        return bad_request("Invalid or missing language_id")
+
+    user_id = g.current_user_id
+    db = get_db()
     try:
-        data = request.get_json(silent=True) or {}
-        language_id = parse_language_id(data.get('language_id'))
-        if not language_id:
-            return bad_request("Invalid or missing language_id")
-
-        user_id = g.current_user_id
-        db = get_supabase_admin()
-        try:
-            blocks = _session.complete_block(
-                db, user_id, language_id, _today_iso(db, user_id, language_id),
-                data.get('block_id'),
-            )
-        except _session.NoDailyLoad as e:
-            return not_found(str(e))
-        except _session.InvalidBlockId as e:
-            return bad_request(str(e))
-        return api_success({'completed_blocks': blocks})
-
-    except Exception as e:
-        logger.error("complete_block failed: %s", e)
-        return server_error("Failed to mark block complete")
+        blocks = _session.complete_block(
+            db, user_id, language_id, _today_iso(db, user_id, language_id),
+            data.get('block_id'),
+        )
+    except _session.NoDailyLoad as e:
+        return not_found(str(e))
+    except _session.InvalidBlockId as e:
+        return bad_request(str(e))
+    return api_success({'completed_blocks': blocks})

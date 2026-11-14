@@ -35,7 +35,7 @@ class TestGetDueCards:
     def test_returns_empty_list(self, client, auth_headers, app):
         db_mock = MagicMock()
         db_mock.table.return_value = _make_chain([])
-        with patch('routes.flashcards.get_supabase_admin', return_value=db_mock):
+        with patch('routes.flashcards.get_db', return_value=db_mock):
             resp = client.get('/api/flashcards/due?language_id=1', headers=auth_headers)
         assert resp.status_code == 200
         data = resp_json(resp)
@@ -68,7 +68,7 @@ class TestGetDueCards:
                 },
             },
         }])
-        with patch('routes.flashcards.get_supabase_admin', return_value=db_mock):
+        with patch('routes.flashcards.get_db', return_value=db_mock):
             resp = client.get('/api/flashcards/due?language_id=1', headers=auth_headers)
         assert resp.status_code == 200
         data = resp_json(resp)
@@ -111,7 +111,7 @@ class TestSkipCard:
     def test_accepts_valid_skip(self, client, auth_headers, app):
         db_mock = MagicMock()
         db_mock.table.return_value = _make_chain([])
-        with patch('routes.flashcards.get_supabase_admin', return_value=db_mock):
+        with patch('routes.flashcards.get_db', return_value=db_mock):
             resp = client.post('/api/flashcards/skip',
                                json={'card_id': 99},
                                headers=auth_headers)

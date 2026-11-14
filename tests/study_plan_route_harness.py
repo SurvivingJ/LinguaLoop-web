@@ -126,13 +126,15 @@ def install(monkeypatch, db, *, service=None, study_plan_enabled=True):
     service = service or make_fake_service_module()
     monkeypatch.setitem(sys.modules, 'services.study_plan_service', service)
     monkeypatch.setattr(auth, '_authenticate', lambda token: ({'sub': 'user-1'}, None))
-    monkeypatch.setattr(sp, 'get_supabase_admin', lambda: db)
+    monkeypatch.setattr(sp, 'get_db', lambda: db)
     monkeypatch.setattr(sp, 'plan_today', lambda d, u, l: __import__('datetime').date(2026, 10, 14))
     monkeypatch.setattr(Config, 'STUDY_PLAN_ENABLED', study_plan_enabled, raising=False)
 
     app = Flask(__name__)
     app.config['TESTING'] = True
     app.register_blueprint(sp.study_plan_bp, url_prefix='/api/study-plan')
+    from web.errors import register_error_handlers
+    register_error_handlers(app)
     client = app.test_client()
     client.environ_base['HTTP_AUTHORIZATION'] = 'Bearer fake'
     return client, service

@@ -1,5 +1,10 @@
 import re
-from typing import Optional
+from functools import wraps
+
+from flask import request
+from werkzeug.exceptions import BadRequest
+
+from utils.responses import bad_request
 
 def validate_email(email: str) -> bool:
     """
@@ -23,18 +28,26 @@ def validate_email(email: str) -> bool:
     
     return re.match(email_regex, email) is not None
 
-def sanitize_input(input_str: str, max_length: int = 255) -> str:
+
+def json_body(silent: bool = False) -> dict:
+    """The request's JSON object; ``{}`` when the body is empty or null.
+
+    ``silent`` also turns an unparseable body or a non-JSON content type into
+    ``{}`` instead of a 400/415. A body that is JSON but not an object is a 400.
     """
-    Sanitize user input by trimming whitespace and limiting length.
-    
-    Args:
-        input_str (str): Input string to sanitize
-        max_length (int): Maximum allowed length
-        
-    Returns:
-        str: Sanitized string
-    """
-    if not input_str:
-        return ""
-    
-    return input_str.strip()[:max_length]
+    data = request.get_json(silent=silent) or {}
+    if not isinstance(data, dict):
+        raise BadRequest("Request body must be a JSON object")
+    return data
+
+
+def require_language_id(fn):
+    """Pass the ``language_id`` query parameter to the view as an int keyword
+    argument, or answer 400 when it is missing, zero or not a number."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        language_id = request.args.get('language_id', type=int)
+        if not language_id:
+            return bad_request("language_id required")
+        return fn(*args, language_id=language_id, **kwargs)
+    return wrapper

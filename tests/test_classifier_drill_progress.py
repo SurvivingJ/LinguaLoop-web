@@ -42,9 +42,9 @@ class TestClassifierDrillProgressHook:
     def test_successful_submit_invokes_progress_hook(self, client, auth_headers):
         """A successful drill submission calls _apply_timing_and_progress
         with the attempt_id returned by the submission RPC."""
-        with patch('routes.classifier_drill.submit_session',
+        with patch('services.drill_service.CLASSIFIER_DRILL.submit_session',
                    return_value=_success_rpc('attempt-xyz')), \
-             patch('routes.classifier_drill.DimensionService.get_test_type_id',
+             patch('routes.drills.DimensionService.get_test_type_id',
                    return_value=14), \
              patch('routes.tests._apply_timing_and_progress') as hook:
             resp = client.post('/api/classifier-drill/submit',
@@ -60,9 +60,9 @@ class TestClassifierDrillProgressHook:
 
     def test_failed_submit_does_not_invoke_progress_hook(self, client, auth_headers):
         """When the submission RPC reports failure, the hook must not run."""
-        with patch('routes.classifier_drill.submit_session',
+        with patch('services.drill_service.CLASSIFIER_DRILL.submit_session',
                    return_value={'success': False, 'error': 'boom'}), \
-             patch('routes.classifier_drill.DimensionService.get_test_type_id',
+             patch('routes.drills.DimensionService.get_test_type_id',
                    return_value=14), \
              patch('routes.tests._apply_timing_and_progress') as hook:
             resp = client.post('/api/classifier-drill/submit',
@@ -73,7 +73,7 @@ class TestClassifierDrillProgressHook:
 
     def test_validation_failure_does_not_invoke_progress_hook(self, client, auth_headers):
         """Bad input is rejected before the submission RPC, so no hook call."""
-        with patch('routes.classifier_drill.submit_session') as submit, \
+        with patch('services.drill_service.CLASSIFIER_DRILL.submit_session') as submit, \
              patch('routes.tests._apply_timing_and_progress') as hook:
             resp = client.post('/api/classifier-drill/submit',
                                json={'language_id': 1, 'correct_items': 9,

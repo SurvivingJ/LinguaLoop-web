@@ -1,18 +1,20 @@
 """Submitting a test attempt: comprehension, pinyin, pitch accent, dictation."""
 
-from flask import request, current_app, g
+from flask import current_app, g
 from functools import wraps
 from uuid import uuid4
-import traceback
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
+from routes.common import get_db
 from services import attempts
 from services.attempt_timing import AttemptTimingError, clamp_time_taken, validate_counts
 from services.concurrency import run_parallel
 from services.dictation.cap import MAX_STORED_DIFF_ENTRIES
 from services.test_service import DimensionService, find_active_test_by_slug
-from utils.responses import api_success, api_error, bad_request, not_found, server_error
+from utils.responses import api_errors, api_success, api_error, bad_request, not_found, server_error
+
+from utils.validation import json_body
 
 from .blueprint import tests_bp
 
@@ -164,21 +166,14 @@ def _call_pitch_accent_submission_rpc(client, user_id, test_id, language_id, tes
 # Shared skeleton of the four submit handlers
 # ---------------------------------------------------------------------------
 
-def _submit_handler(log_label, failure_message):
-    """Wrap a submit handler ``fn(slug, db, user_id, data)``: database check,
-    JSON body, and the handler's error envelope."""
+def _submit_handler(failure_message):
+    """Wrap a submit handler ``fn(slug, db, user_id, data)``: database client,
+    JSON body, and the handler's failure message."""
     def decorator(fn):
         @wraps(fn)
+        @api_errors(failure_message)
         def wrapper(slug):
-            try:
-                db = current_app.supabase_service
-                if not db:
-                    return server_error("Database service not configured")
-                return fn(slug, db, g.current_user_id, request.get_json() or {})
-            except Exception as e:
-                current_app.logger.error(f"{log_label} submission error: {e}")
-                current_app.logger.error(f"Traceback: {traceback.format_exc()}")
-                return server_error(failure_message)
+            return fn(slug, get_db(), g.current_user_id, json_body())
         return wrapper
     return decorator
 
@@ -213,7 +208,7 @@ def _record_submission(rpc_result, db, data, user_id, language_id, test_id,
 
 @tests_bp.route('/<slug>/submit', methods=['POST'])
 @supabase_jwt_required
-@_submit_handler('Test', 'Failed to submit test')
+@_submit_handler('Failed to submit test')
 def submit_test_attempt(slug, db, current_user_id, data):
     """Submit test answers and calculate ELO changes with idempotency support"""
     responses = data.get('responses', [])
@@ -357,7 +352,7 @@ def _submit_counted(slug, db, user_id, data, *, correct_key, total_key, mode,
 
 @tests_bp.route('/<slug>/submit-pinyin', methods=['POST'])
 @supabase_jwt_required
-@_submit_handler('Pinyin', 'Failed to submit pinyin test')
+@_submit_handler('Failed to submit pinyin test')
 def submit_pinyin_attempt(slug, db, current_user_id, data):
     """Submit pinyin tone trainer results.
 
@@ -379,7 +374,7 @@ def submit_pinyin_attempt(slug, db, current_user_id, data):
 
 @tests_bp.route('/<slug>/submit-pitch-accent', methods=['POST'])
 @supabase_jwt_required
-@_submit_handler('Pitch accent', 'Failed to submit pitch accent test')
+@_submit_handler('Failed to submit pitch accent test')
 def submit_pitch_accent_attempt(slug, db, current_user_id, data):
     """Submit pitch accent trainer results.
 
@@ -404,7 +399,7 @@ def submit_pitch_accent_attempt(slug, db, current_user_id, data):
 
 @tests_bp.route('/<slug>/submit-dictation', methods=['POST'])
 @supabase_jwt_required
-@_submit_handler('Dictation', 'Failed to submit dictation')
+@_submit_handler('Failed to submit dictation')
 def submit_dictation_attempt(slug, db, current_user_id, data):
     """Submit a dictation transcript for grading.
 

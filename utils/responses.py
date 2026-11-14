@@ -7,8 +7,9 @@ Success shape:  {"status": "success", ...extra_fields}
 Error shape:    {"status": "error", "error": "<message>"}
 """
 
-from flask import jsonify
-from typing import Any, Optional, Dict, Tuple
+from functools import wraps
+from flask import g, jsonify
+from typing import Any, Dict, Tuple
 from flask.wrappers import Response
 
 # Type alias for Flask route return values
@@ -73,3 +74,19 @@ def server_error(message: str = "Internal server error") -> Tuple[Response, int]
 def service_unavailable(message: str = "Service temporarily unavailable") -> Tuple[Response, int]:
     """503 Service Unavailable response"""
     return api_error(message, 503, 'SERVICE_UNAVAILABLE')
+
+
+def api_errors(message: str):
+    """Set the client message for an unhandled exception in this route.
+
+    The exception itself is logged and turned into the 500 response by the
+    app-level handler (web/errors.py); without this decorator the message is
+    "Internal server error".
+    """
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            g.api_error_message = message
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
