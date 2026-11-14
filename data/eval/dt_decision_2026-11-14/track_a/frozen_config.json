@@ -109,5 +109,93 @@
  "calls_per_unit": [
   "Sept A3 request (full-passage, L2 questions)",
   "arm D (diff-focused, EN questions) + D2 variant_ok"
- ]
+ ],
+ "configs": {
+  "A_fused": {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.7,
+   "sev": "graded",
+   "tau_m": 0.6
+  },
+  "A_fused_prior": {
+   "det": "meanDS",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "DS",
+   "tau_c": 0.7,
+   "sev": "prior"
+  },
+  "A_sept_refit": {
+   "det": "S",
+   "tau": 0.3,
+   "sub": "S",
+   "crit": "S",
+   "tau_c": 0.7,
+   "sev": "prior"
+  },
+  "A_D_only": {
+   "det": "D",
+   "tau": 0.3,
+   "sub": "D",
+   "crit": "D",
+   "tau_c": 0.6,
+   "sev": "prior"
+  }
+ },
+ "routing": {
+  "zh": {
+   "sept": {
+    "tau_r": 0.05,
+    "n_routed_silver": 0,
+    "n_silver": 34
+   },
+   "fused": {
+    "tau_r": 0.35,
+    "n_routed_silver": 6,
+    "n_silver": 34
+   },
+   "D": {
+    "tau_r": 0.35,
+    "n_routed_silver": 7,
+    "n_silver": 34
+   }
+  },
+  "ja": {
+   "sept": {
+    "tau_r": 0.2,
+    "n_routed_silver": 8,
+    "n_silver": 32
+   },
+   "fused": {
+    "tau_r": 0.6,
+    "n_routed_silver": 13,
+    "n_silver": 32
+   },
+   "D": {
+    "tau_r": 0.45,
+    "n_routed_silver": 11,
+    "n_silver": 32
+   }
+  },
+  "en": {
+   "sept": {
+    "tau_r": 0.45,
+    "n_routed_silver": 6,
+    "n_silver": 35
+   },
+   "fused": {
+    "tau_r": 0.5,
+    "n_routed_silver": 6,
+    "n_silver": 35
+   },
+   "D": {
+    "tau_r": 0.5,
+    "n_routed_silver": 7,
+    "n_silver": 35
+   }
+  }
+ }
 }

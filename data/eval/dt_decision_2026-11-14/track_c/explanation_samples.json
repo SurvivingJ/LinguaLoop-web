@@ -1,0 +1,2462 @@
+{
+ "en": [
+  {
+   "pipe": "c2_frozen",
+   "item": "en_clean_03",
+   "gold_forms": [],
+   "gold_sev": null,
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Basic\" implies fundamental or elementary, while \"simple\" means uncomplicated. \"Simple sticks\" is the more natural collocation here."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_01",
+   "gold_forms": [
+    [
+     "need Arduino board",
+     "need an Arduino board"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "article",
+    "minor"
+   ],
+   "why": "Missing the indefinite article 'an' before the singular countable noun 'board'."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_02",
+   "gold_forms": [
+    [
+     "learn on robotics",
+     "learn about robotics"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "preposition",
+    "minor"
+   ],
+   "why": "The verb 'learn' collocates with 'about', not 'on', when referring to the subject matter."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_03",
+   "gold_forms": [
+    [
+     "This was a small computer",
+     "This is a small computer"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "tense_aspect",
+    "major"
+   ],
+   "why": "The reference uses present tense 'is' to describe a general fact; 'was' incorrectly implies it is no longer true."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_04",
+   "gold_forms": [
+    [
+     "This are a basic example",
+     "This is a basic example"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "subject_verb_agreement",
+    "minor"
+   ],
+   "why": "\"This\" is singular and requires the verb \"is,\" not \"are.\""
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_05",
+   "gold_forms": [
+    [
+     "the Arduino to do",
+     "the Arduino what to do"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "critical"
+   ],
+   "why": "Missing 'what' makes the sentence grammatically incomplete and meaning unclear."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_06",
+   "gold_forms": [
+    [
+     "a nice DIY project",
+     "a fun DIY project"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Fun\" conveys enjoyment better than \"nice\" in the context of a hobby project."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_07",
+   "gold_forms": [
+    [
+     "a sick way to learn",
+     "a great way to learn"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Sick\" is slang and informal; \"great\" is the standard, neutral term used in the reference."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_08",
+   "gold_forms": [
+    [
+     "pick up things small",
+     "pick up small things"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "Adjectives must precede nouns in English; 'things small' is unnatural word order."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_09",
+   "gold_forms": [
+    [
+     "This motors make",
+     "These motors make"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"This\" is singular, but \"motors\" is plural. Use \"These\" for plural nouns."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_10",
+   "gold_forms": [
+    [
+     "move it to a new spot",
+     "move them to a new spot"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "pronoun_reference",
+    "major"
+   ],
+   "why": "\"It\" refers to a singular object, but the context implies moving multiple small things (plural). This changes the meaning slightly."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_11",
+   "gold_forms": [
+    [
+     "arm pick on small",
+     "arm pick up small"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Pick on\" means to bully; \"pick up\" means to lift. This changes the meaning entirely."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_12",
+   "gold_forms": [],
+   "gold_sev": null,
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"So\" implies causation, but the original offers an alternative option using \"Or\"."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_13",
+   "gold_forms": [
+    [
+     "You make instructions",
+     "You write instructions"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Write\" is the standard verb for creating code or instructions; \"make\" is unnatural here."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_14",
+   "gold_forms": [
+    [
+     "This is like a foot",
+     "This is like a hand"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "The gripper resembles a hand, not a foot. This changes the meaning significantly."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_seed_15",
+   "gold_forms": [
+    [
+     "many things without it",
+     "many things with it"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "\"Without\" inverts the meaning, implying you make things without using Arduino."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_01",
+   "gold_forms": [
+    [
+     "learn on robotics",
+     "learn about robotics"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "preposition",
+    "minor"
+   ],
+   "why": "The verb 'learn' collocates with 'about' when referring to a subject, not 'on'."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_01",
+   "gold_forms": [
+    [
+     "need Arduino board",
+     "need an Arduino board"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "article",
+    "minor"
+   ],
+   "why": "Singular countable nouns like 'board' require an article such as 'an'."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_02",
+   "gold_forms": [
+    [
+     "some servo motor",
+     "some servo motors"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "plural_number",
+    "minor"
+   ],
+   "why": "The reference uses the plural 'motors' to match the context of needing multiple components."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_02",
+   "gold_forms": [
+    [
+     "These motors makes",
+     "These motors make"
+    ],
+    [
+     "the arm.",
+     "the arm move."
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "subject_verb_agreement",
+    "minor"
+   ],
+   "why": "The subject 'motors' is plural, so the verb must be 'make', not 'makes'."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_03",
+   "gold_forms": [
+    [
+     "arm pick on small",
+     "arm pick up small"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Pick on\" means to bully; \"pick up\" is the correct phrasal verb for lifting objects."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_03",
+   "gold_forms": [
+    [
+     "move it to a new spot",
+     "move them to a new spot"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "pronoun_reference",
+    "major"
+   ],
+   "why": "The antecedent is \"small things\" (plural), so the pronoun should be \"them,\" not \"it.\""
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_04",
+   "gold_forms": [
+    [
+     "a sick way to learn",
+     "a great way to learn"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Sick\" is slang and does not match the neutral, positive tone of \"great\" in this context."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_04",
+   "gold_forms": [
+    [
+     "many things without it",
+     "many things with it"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "\"Without it\" reverses the meaning. The reference states you can make things using the Arduino."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_05",
+   "gold_forms": [
+    [
+     "was a fun DIY project",
+     "is a fun DIY project"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "tense_aspect",
+    "major"
+   ],
+   "why": "The reference uses present tense 'is' to state a general fact; 'was' implies it is no longer true."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "en_multi_05",
+   "gold_forms": [
+    [
+     "you an Arduino board need",
+     "you need an Arduino board"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "The word order is ungrammatical in English. The verb 'need' should precede its object."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_01",
+   "gold_forms": [
+    [
+     "need Arduino board",
+     "need an Arduino board"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "article",
+    "minor"
+   ],
+   "why": "Missing the indefinite article 'an' before the singular countable noun."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_02",
+   "gold_forms": [
+    [
+     "learn on robotics",
+     "learn about robotics"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "preposition",
+    "minor"
+   ],
+   "why": "\"Learn on\" is incorrect here; \"learn about\" is the standard collocation for acquiring knowledge of a subject."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_03",
+   "gold_forms": [
+    [
+     "This was a small computer",
+     "This is a small computer"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "tense_aspect",
+    "major"
+   ],
+   "why": "The reference uses present tense 'is', but the learner used past tense 'was', changing the temporal meaning."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_04",
+   "gold_forms": [
+    [
+     "This are a basic example",
+     "This is a basic example"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "subject_verb_agreement",
+    "minor"
+   ],
+   "why": "The singular subject 'This' requires the singular verb 'is', not 'are'."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_05",
+   "gold_forms": [
+    [
+     "the Arduino to do",
+     "the Arduino what to do"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "Missing 'what' changes the meaning; 'tells... to do' is grammatically incomplete and loses the object of instruction."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_06",
+   "gold_forms": [
+    [
+     "a nice DIY project",
+     "a fun DIY project"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Fun\" conveys enjoyment and entertainment, while \"nice\" is vague and less natural for describing a hobby project."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_07",
+   "gold_forms": [
+    [
+     "a sick way to learn",
+     "a great way to learn"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Sick\" is slang and informal, whereas \"great\" is standard. This changes the register significantly."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_08",
+   "gold_forms": [
+    [
+     "pick up things small",
+     "pick up small things"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "Adjectives must precede nouns in English; 'things small' is ungrammatical."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_09",
+   "gold_forms": [
+    [
+     "This motors make",
+     "These motors make"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "plural_number",
+    "major"
+   ],
+   "why": "\"This\" is singular, but \"motors\" is plural. Use \"These\" for plural nouns."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_10",
+   "gold_forms": [
+    [
+     "move it to a new spot",
+     "move them to a new spot"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "pronoun_reference",
+    "major"
+   ],
+   "why": "The reference uses the plural 'them', but the learner used the singular 'it', changing the number of the object."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_11",
+   "gold_forms": [
+    [
+     "arm pick on small",
+     "arm pick up small"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "major"
+   ],
+   "why": "\"Pick on\" means to bully or harass, which completely changes the meaning from lifting objects."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_12",
+   "gold_forms": [],
+   "gold_sev": null,
+   "pred": [
+    "word_choice",
+    "major"
+   ],
+   "why": "\"So\" changes the meaning from a choice to a consequence. \"Or\" is required for the alternative suggestion."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_13",
+   "gold_forms": [
+    [
+     "You make instructions",
+     "You write instructions"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Write\" is the standard verb for creating code or instructions. \"Make\" is unnatural in this technical context."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_14",
+   "gold_forms": [
+    [
+     "This is like a foot",
+     "This is like a hand"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "The meaning is completely changed from hand to foot, which are different body parts."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_seed_15",
+   "gold_forms": [
+    [
+     "many things without it",
+     "many things with it"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "\"Without\" reverses the meaning. The reference says you can make things using it, not excluding it."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_01",
+   "gold_forms": [
+    [
+     "learn on robotics",
+     "learn about robotics"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "preposition",
+    "minor"
+   ],
+   "why": "\"Learn on\" is incorrect here; \"learn about\" is the standard collocation for acquiring knowledge of a subject."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_01",
+   "gold_forms": [
+    [
+     "need Arduino board",
+     "need an Arduino board"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "article",
+    "minor"
+   ],
+   "why": "Missing the indefinite article 'an' before the singular countable noun."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_02",
+   "gold_forms": [
+    [
+     "some servo motor",
+     "some servo motors"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "plural_number",
+    "major"
+   ],
+   "why": "The quantifier 'some' requires a plural noun here, not the singular form."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_02",
+   "gold_forms": [
+    [
+     "These motors makes",
+     "These motors make"
+    ],
+    [
+     "the arm.",
+     "the arm move."
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "subject_verb_agreement",
+    "major"
+   ],
+   "why": "Subject 'motors' is plural, so the verb must be 'make', not 'makes'."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_02",
+   "gold_forms": [
+    [
+     "These motors makes",
+     "These motors make"
+    ],
+    [
+     "the arm.",
+     "the arm move."
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "The learner omitted the object complement 'move', changing the meaning from causing motion to simply possessing or creating the arm."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_03",
+   "gold_forms": [
+    [
+     "arm pick on small",
+     "arm pick up small"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "major"
+   ],
+   "why": "\"Pick on\" means to bully or harass, which completely changes the meaning from lifting objects."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_03",
+   "gold_forms": [
+    [
+     "move it to a new spot",
+     "move them to a new spot"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "pronoun_reference",
+    "major"
+   ],
+   "why": "The reference uses the plural 'them', but the learner used the singular 'it', changing the number of the object."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_04",
+   "gold_forms": [
+    [
+     "a sick way to learn",
+     "a great way to learn"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Sick\" is slang and informal, whereas \"great\" is standard. This changes the register significantly."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_04",
+   "gold_forms": [
+    [
+     "many things without it",
+     "many things with it"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "\"Without\" reverses the meaning. The reference says you can make things using it, not excluding it."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_05",
+   "gold_forms": [
+    [
+     "was a fun DIY project",
+     "is a fun DIY project"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "tense_aspect",
+    "major"
+   ],
+   "why": "The reference uses present tense 'is' to state a general fact. 'Was' implies the project is no longer fun or relevant, which changes the meaning."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "en_multi_05",
+   "gold_forms": [
+    [
+     "you an Arduino board need",
+     "you need an Arduino board"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "The word order is completely inverted, making the sentence ungrammatical and incomprehensible."
+  }
+ ],
+ "zh": [
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_01",
+   "gold_forms": [
+    [
+     "一个非常特别",
+     "一件非常特别"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "classifier",
+    "minor"
+   ],
+   "why": "Classifier '件' is standard for clothing; '个' is less natural here."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_02",
+   "gold_forms": [
+    [
+     "洗很多次",
+     "洗了很多次"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "aspect_marker",
+    "major"
+   ],
+   "why": "Missing '了' indicates completion. The reference implies the action is finished, which is standard for describing past wear."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_03",
+   "gold_forms": [
+    [
+     "承载过很多",
+     "承载了很多"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "aspect_marker",
+    "major"
+   ],
+   "why": "\"过\" implies past experience, but \"着\" is needed to indicate the ongoing state of carrying memories."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_04",
+   "gold_forms": [
+    [
+     "朋友们夸都",
+     "朋友们都夸"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "addition",
+    "minor"
+   ],
+   "why": "The character '都' is an unnecessary addition that disrupts the grammar and meaning of the sentence."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_05",
+   "gold_forms": [
+    [
+     "更是它承载",
+     "更是因为它承载"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "Missing the causal conjunction '因为' (because), which is required to parallel '不仅仅是因为' (not just because)."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_07",
+   "gold_forms": [
+    [
+     "贼开心",
+     "非常开心"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "register",
+    "major"
+   ],
+   "why": "'贼' is overly colloquial/slangy compared to the neutral '非常', creating a register mismatch."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_08",
+   "gold_forms": [
+    [
+     "我也会它好好",
+     "我也会把它好好"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "ba_construction",
+    "major"
+   ],
+   "why": "Missing '把' in the ba-construction. The object 'it' cannot directly precede the verb phrase without this marker."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_09",
+   "gold_forms": [
+    [
+     "心情变",
+     "心情变好"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "Missing the complement '好' (good), making the sentence incomplete and meaning unclear."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_10",
+   "gold_forms": [
+    [
+     "它有着非凡的意义，对我来说",
+     "对我来说，它有着非凡的意义"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "The phrase 'dui wo lai shuo' (to me) is awkwardly placed at the end. In Chinese, this adverbial phrase should precede the subject and verb."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_11",
+   "gold_forms": [
+    [
+     "画的很细致",
+     "画得很细致"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "de_particles",
+    "minor"
+   ],
+   "why": "Incorrect use of '的' instead of '得'. '得' is required after a verb to introduce a complement of degree."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_12",
+   "gold_forms": [
+    [
+     "颜色很浅",
+     "颜色很正"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "\"浅\" (light/pale) contradicts the reference's \"正\" (true/vivid), changing the meaning of the color description."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_13",
+   "gold_forms": [
+    [
+     "看起来非常伤心",
+     "看起来非常开心"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "The meaning is inverted. '伤心' (sad) contradicts the context of a smiling cat, whereas '开心' (happy) matches."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_seed_15",
+   "gold_forms": [
+    [
+     "穿夏天也不会",
+     "夏天穿也不会"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "adverbial_order",
+    "major"
+   ],
+   "why": "Time adverbials like 'summer' should precede the verb in Chinese, not follow it."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_multi_01",
+   "gold_forms": [
+    [
+     "一个非常特别",
+     "一件非常特别"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "classifier",
+    "minor"
+   ],
+   "why": "The classifier '个' is incorrect for clothing items; '件' should be used."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_multi_02",
+   "gold_forms": [
+    [
+     "画的很细致",
+     "画得很细致"
+    ],
+    [
+     "普通的图案",
+     "简单的图案"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "de_particles",
+    "minor"
+   ],
+   "why": "Adverbial modifier requires '地' instead of '的'."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_multi_02",
+   "gold_forms": [
+    [
+     "画的很细致",
+     "画得很细致"
+    ],
+    [
+     "普通的图案",
+     "简单的图案"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "'Ordinary' changes the nuance from 'simple/minimalist' to 'commonplace', altering the intended meaning slightly."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_multi_02",
+   "gold_forms": [
+    [
+     "心情变",
+     "心情变好"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "critical"
+   ],
+   "why": "Missing the complement '好' makes the sentence incomplete and meaningless in context."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_multi_03",
+   "gold_forms": [
+    [
+     "看起来非常伤心",
+     "看起来非常开心"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "The meaning is inverted. '伤心' (sad) contradicts the context of a smiling kitten, whereas '开心' (happy) matches the reference."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_multi_04",
+   "gold_forms": [
+    [
+     "朋友们夸都",
+     "朋友们都夸"
+    ],
+    [
+     "T恤贼可爱",
+     "T恤很可爱"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "'贼' is slang for 'very', which is too informal here. '都' is an unnecessary addition."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "zh_multi_05",
+   "gold_forms": [
+    [
+     "也会它",
+     "也会把它"
+    ],
+    [
+     "收藏下来",
+     "收藏起来"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "ba_construction",
+    "major"
+   ],
+   "why": "Missing '把' before the object 'it'. The learner's sentence lacks the necessary structure for handling the object with the verb 'collect', making it grammatically incorrect."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_clean_03",
+   "gold_forms": [],
+   "gold_sev": null,
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "“每当”通常后接时间/情境从句，这里用“每次”更自然。"
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_01",
+   "gold_forms": [
+    [
+     "一个非常特别",
+     "一件非常特别"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "classifier",
+    "minor"
+   ],
+   "why": "衣服 takes the classifier 件, not 个."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_02",
+   "gold_forms": [
+    [
+     "洗很多次",
+     "洗了很多次"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "aspect_marker",
+    "minor"
+   ],
+   "why": "Missing 了; completed/experienced action needs 了: 洗了很多次."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_03",
+   "gold_forms": [
+    [
+     "承载过很多",
+     "承载了很多"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "aspect_marker",
+    "minor"
+   ],
+   "why": "“过” marks past experience; here the shirt still holds memories, so use “了”."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_04",
+   "gold_forms": [
+    [
+     "朋友们夸都",
+     "朋友们都夸"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "minor"
+   ],
+   "why": "The adverb 都 must come before the verb 夸, not after it."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_05",
+   "gold_forms": [
+    [
+     "更是它承载",
+     "更是因为它承载"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "minor"
+   ],
+   "why": "Missing 因为 breaks the 不仅仅是因为…更是因为… parallel structure."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_07",
+   "gold_forms": [
+    [
+     "贼开心",
+     "非常开心"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "register",
+    "major"
+   ],
+   "why": "“贼”is slangy and too informal for this neutral descriptive sentence."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_08",
+   "gold_forms": [
+    [
+     "我也会它好好",
+     "我也会把它好好"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "ba_construction",
+    "major"
+   ],
+   "why": "Missing 把 before the object in a disposal construction; 收藏起来 needs 把."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_09",
+   "gold_forms": [
+    [
+     "心情变",
+     "心情变好"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "Missing 好 changes meaning: 'mood changes' instead of 'mood improves'."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_10",
+   "gold_forms": [
+    [
+     "它有着非凡的意义，对我来说",
+     "对我来说，它有着非凡的意义"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "adverbial_order",
+    "major"
+   ],
+   "why": "The phrase 对我来说 should precede the predicate, not be placed after it."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_11",
+   "gold_forms": [
+    [
+     "画的很细致",
+     "画得很细致"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "de_particles",
+    "minor"
+   ],
+   "why": "Use 得 after a verb to introduce a complement of degree/manner, not 的."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_12",
+   "gold_forms": [
+    [
+     "颜色很浅",
+     "颜色很正"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "“浅” means light/pale, opposite of the intended “正” (pure, true color)."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_13",
+   "gold_forms": [
+    [
+     "看起来非常伤心",
+     "看起来非常开心"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "伤心 means sad, the opposite of 开心 (happy); this reverses the meaning."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_14",
+   "gold_forms": [
+    [
+     "好好收藏下来",
+     "好好收藏起来"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "directional_complement",
+    "minor"
+   ],
+   "why": "Use 起来 for keeping/putting away; 下来 suggests preserving from the past, not fitting here."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_seed_15",
+   "gold_forms": [
+    [
+     "穿夏天也不会",
+     "夏天穿也不会"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "Time word 夏天 should precede the verb 穿, not follow it."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_01",
+   "gold_forms": [
+    [
+     "一个非常特别",
+     "一件非常特别"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "classifier",
+    "minor"
+   ],
+   "why": "衣服 takes the classifier 件, not 个."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_01",
+   "gold_forms": [
+    [
+     "洗很多次",
+     "洗了很多次"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "aspect_marker",
+    "major"
+   ],
+   "why": "Missing 了; completed/experienced action needs 了: 洗了很多次."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_02",
+   "gold_forms": [
+    [
+     "画的很细致",
+     "画得很细致"
+    ],
+    [
+     "普通的图案",
+     "简单的图案"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "de_particles",
+    "minor"
+   ],
+   "why": "Use 得, not 的, to introduce a complement of degree after a verb."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_02",
+   "gold_forms": [
+    [
+     "画的很细致",
+     "画得很细致"
+    ],
+    [
+     "普通的图案",
+     "简单的图案"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "普通的 means ordinary/common; the reference means simple/plain (简单的)."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_02",
+   "gold_forms": [
+    [
+     "心情变",
+     "心情变好"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "Missing 好 changes meaning: 'mood changes' instead of 'mood improves'."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_03",
+   "gold_forms": [
+    [
+     "一个正在微笑",
+     "一只正在微笑"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "classifier",
+    "minor"
+   ],
+   "why": "Use 只 for animals like cats, not the general classifier 个."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_03",
+   "gold_forms": [
+    [
+     "看起来非常伤心",
+     "看起来非常开心"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "伤心 means sad, the opposite of 开心 (happy); this reverses the meaning."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_04",
+   "gold_forms": [
+    [
+     "朋友们夸都",
+     "朋友们都夸"
+    ],
+    [
+     "T恤贼可爱",
+     "T恤很可爱"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "“都” should come before the verb 夸, not after it."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_04",
+   "gold_forms": [
+    [
+     "朋友们夸都",
+     "朋友们都夸"
+    ],
+    [
+     "T恤贼可爱",
+     "T恤很可爱"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "register",
+    "major"
+   ],
+   "why": "“贼” is slangy and too informal for this neutral narrative; use 很."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_05",
+   "gold_forms": [
+    [
+     "也会它",
+     "也会把它"
+    ],
+    [
+     "收藏下来",
+     "收藏起来"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "ba_construction",
+    "major"
+   ],
+   "why": "Missing 把 before the object; the disposal construction is required here."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "zh_multi_05",
+   "gold_forms": [
+    [
+     "也会它",
+     "也会把它"
+    ],
+    [
+     "收藏下来",
+     "收藏起来"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "directional_complement",
+    "minor"
+   ],
+   "why": "Use 起来 for keeping/collecting something, not 下来."
+  }
+ ],
+ "ja": [
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_clean_09",
+   "gold_forms": [],
+   "gold_sev": null,
+   "pred": [
+    "orthography",
+    "minor"
+   ],
+   "why": "The standard spelling for the humble verb 'kudasai' is hiragana. Using kanji is non-standard."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_clean_10",
+   "gold_forms": [],
+   "gold_sev": null,
+   "pred": [
+    "script_choice",
+    "minor"
+   ],
+   "why": "In this context, the hiragana 'もの' is more natural and standard for referring to an item or thing, whereas '物' often implies a physical object or matter."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_01",
+   "gold_forms": [
+    [
+     "部品はセット",
+     "部品がセット"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_wa_ga",
+    "major"
+   ],
+   "why": "The subject of the existence clause should be marked with 'ga', not 'wa'. 'Wa' implies a contrast or topic, which is unnatural here."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_02",
+   "gold_forms": [
+    [
+     "物に掴む",
+     "物を掴む"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_case",
+    "major"
+   ],
+   "why": "The object marker 'o' (を) is required for the transitive verb 'tsukamu' (to grasp). 'Ni' indicates direction or target, which is incorrect here."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_03",
+   "gold_forms": [
+    [
+     "電気と部品",
+     "電気や部品"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "collocation",
+    "minor"
+   ],
+   "why": "\"や\" is more natural for listing examples or indefinite items. \"と\" implies a specific, closed set of exactly two items."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_04",
+   "gold_forms": [
+    [
+     "部品が必要だ",
+     "部品が必要です"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "register",
+    "major"
+   ],
+   "why": "The reference uses polite form (desu/masu) consistent with the rest of the text. 'Da' is plain form and breaks the register."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_05",
+   "gold_forms": [
+    [
+     "作られたのか",
+     "作られているのか"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "tense_aspect_ja",
+    "major"
+   ],
+   "why": "The reference uses the progressive/state form 'being made' to describe current general processes. The learner's past tense 'was made' incorrectly implies a specific completed event, altering the meaning."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_06",
+   "gold_forms": [
+    [
+     "が養われ",
+     "力が養われ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "Missing the noun '力' (ability/power). Without it, the grammar is broken and the meaning 'logical thinking ability' is lost."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_07",
+   "gold_forms": [
+    [
+     "シンプルなとても",
+     "とてもシンプルな"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "Adverb order is unnatural. 'Very' should precede the i-adjective, not follow it."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_08",
+   "gold_forms": [
+    [
+     "物を持つための",
+     "物を掴むための"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"持つ\" is too general. \"掴む\" specifically means to grasp or grip, which fits the context of a gripper better."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_09",
+   "gold_forms": [
+    [
+     "ヤバさを感じ",
+     "面白さを感じ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "\"Yabasa\" is slang meaning \"cool\" or \"intense,\" not \"fun/interesting.\" It changes the intended meaning and register significantly."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_10",
+   "gold_forms": [
+    [
+     "見つけれる",
+     "見つけられる"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "verb_conjugation",
+    "major"
+   ],
+   "why": "ら抜き言葉は文法的に誤りです。標準的な可能形「見つけられる」を使用してください。"
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_11",
+   "gold_forms": [
+    [
+     "作ること、単に",
+     "作ることは、単に"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "particle_other",
+    "minor"
+   ],
+   "why": "Missing the topic marker 'は' after the nominalized clause, making the sentence grammatically incomplete and unnatural."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_12",
+   "gold_forms": [
+    [
+     "どこでモーター",
+     "どこにモーター"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_case",
+    "major"
+   ],
+   "why": "The particle 'de' (where) is incorrect for indicating the location of attachment. It should be 'ni' (to/at)."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_13",
+   "gold_forms": [
+    [
+     "さらに機能",
+     "さらに色々な機能"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "The learner omitted 'various' (色々), losing the nuance that multiple types of functions can be added."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_14",
+   "gold_forms": [
+    [
+     "一番難しいところ",
+     "一番面白いところ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "Changed meaning from 'interesting' to 'difficult', altering the intended positive nuance of the section."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_seed_15",
+   "gold_forms": [
+    [
+     "もっと簡単な",
+     "もっと複雑な"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "\"Simple\" contradicts the context of learning basics to understand advanced robotics. It reverses the intended meaning."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_01",
+   "gold_forms": [
+    [
+     "部品はセット",
+     "部品がセット"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_wa_ga",
+    "major"
+   ],
+   "why": "The subject of the existence clause should be marked with 'ga', not 'wa'. Using 'wa' implies a contrast or topic that is not present here."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_01",
+   "gold_forms": [
+    [
+     "面白さですね",
+     "醍醐味ですね"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "'醍醐味' (the best part/essence) is more precise and idiomatic for describing the peak enjoyment of a hobby than the generic '面白さ' (fun)."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_02",
+   "gold_forms": [
+    [
+     "アームに動かす役割",
+     "アームを動かす役割"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_case",
+    "major"
+   ],
+   "why": "The particle 'ni' indicates direction or target, but 'wo' is required for the direct object of the verb 'move'."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_02",
+   "gold_forms": [
+    [
+     "これは、掴む",
+     "これは、物を掴む"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "The learner omitted '物' (object/thing). While contextually clear, it changes the specific meaning from 'part to grasp things' to just 'part to grasp'."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_03",
+   "gold_forms": [
+    [
+     "一番難しいところ",
+     "一番面白いところ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "The meaning is changed from 'interesting' to 'difficult', altering the intended message."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_03",
+   "gold_forms": [
+    [
+     "教え込む",
+     "教え込みます"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "register",
+    "major"
+   ],
+   "why": "The plain form '教える' breaks the polite register established by surrounding sentences like 'test shite mimashou'."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_04",
+   "gold_forms": [
+    [
+     "もっと簡単な",
+     "もっと複雑な"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "\"Simple\" contradicts the reference's \"complex,\" inverting the intended meaning of progression."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_04",
+   "gold_forms": [
+    [
+     "部品の仕事を学び",
+     "部品の役割を学び"
+    ],
+    [
+     "手が動かすことの",
+     "手を動かすことの"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "\"Work\" is less precise than \"role/function\" for components. The original context implies understanding their specific functions."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_04",
+   "gold_forms": [
+    [
+     "部品の仕事を学び",
+     "部品の役割を学び"
+    ],
+    [
+     "手が動かすことの",
+     "手を動かすことの"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_wa_ga",
+    "major"
+   ],
+   "why": "\"Te ga ugokasu\" means 'the hand moves something' (transitive). It should be 'te o ugokasu' (to move one's hands)."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_05",
+   "gold_forms": [
+    [
+     "私たちは作るものは",
+     "私たちが作るものは"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_wa_ga",
+    "major"
+   ],
+   "why": "Subject of relative clause requires 'ga', not 'wa'. 'Wa' makes it ungrammatical."
+  },
+  {
+   "pipe": "c2_frozen",
+   "item": "ja_multi_05",
+   "gold_forms": [
+    [
+     "マジ格別ですよ",
+     "格別ですよ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "'Maji' is slang/informal. The reference uses standard polite register without slang."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_01",
+   "gold_forms": [
+    [
+     "部品はセット",
+     "部品がセット"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_wa_ga",
+    "major"
+   ],
+   "why": "The subject of the relative clause セットになったもの should take が, not は."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_02",
+   "gold_forms": [
+    [
+     "物に掴む",
+     "物を掴む"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_case",
+    "minor"
+   ],
+   "why": "掴む takes the object particle を, not に; 物に掴む means 'grab onto something'."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_03",
+   "gold_forms": [
+    [
+     "電気と部品",
+     "電気や部品"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "particle_other",
+    "minor"
+   ],
+   "why": "Use や to list representative items; と implies a complete, exhaustive list."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_05",
+   "gold_forms": [
+    [
+     "作られたのか",
+     "作られているのか"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "tense_aspect_ja",
+    "major"
+   ],
+   "why": "Past tense is wrong; the reference uses the progressive/passive 作られている for ongoing state."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_06",
+   "gold_forms": [
+    [
+     "が養われ",
+     "力が養われ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "Missing 力 (ability); 論理的に考えるが is ungrammatical and loses the meaning."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_07",
+   "gold_forms": [
+    [
+     "シンプルなとても",
+     "とてもシンプルな"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_order",
+    "major"
+   ],
+   "why": "とても must come before シンプルな, not after it; the current order is ungrammatical."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_08",
+   "gold_forms": [
+    [
+     "物を持つための",
+     "物を掴むための"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "「持つ」は単に所持する意味で、「掴む」の『つかみ取る』意味が弱い。"
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_09",
+   "gold_forms": [
+    [
+     "ヤバさを感じ",
+     "面白さを感じ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "ヤバさ is slang meaning 'awesomeness/craziness'; here it wrongly suggests danger instead of scientific fascination."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_10",
+   "gold_forms": [
+    [
+     "見つけれる",
+     "見つけられる"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "verb_conjugation",
+    "major"
+   ],
+   "why": "ら抜き言葉; the potential form of 見つける is 見つけられる, not 見つけれる."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_11",
+   "gold_forms": [
+    [
+     "作ること、単に",
+     "作ることは、単に"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "particle_other",
+    "major"
+   ],
+   "why": "Missing topic particle は; the clause needs は to mark it as the topic."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_12",
+   "gold_forms": [
+    [
+     "どこでモーター",
+     "どこにモーター"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_case",
+    "major"
+   ],
+   "why": "Use に for the location where something is attached; で marks where an action takes place."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_13",
+   "gold_forms": [
+    [
+     "さらに機能",
+     "さらに色々な機能"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "omission",
+    "minor"
+   ],
+   "why": "「色々な」が抜けており、多様な機能という意味が弱まっている。"
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_14",
+   "gold_forms": [
+    [
+     "一番難しいところ",
+     "一番面白いところ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "難しい means 'difficult', but the reference says 'interesting/fun' (面白い), changing the meaning."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_seed_15",
+   "gold_forms": [
+    [
+     "もっと簡単な",
+     "もっと複雑な"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "簡単な means simple, reversing the intended meaning of 複雑な (complex)."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_01",
+   "gold_forms": [
+    [
+     "部品はセット",
+     "部品がセット"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_wa_ga",
+    "major"
+   ],
+   "why": "The subject of the relative clause セットになったもの should take が, not は."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_02",
+   "gold_forms": [
+    [
+     "最初、アーム",
+     "まず、アーム"
+    ]
+   ],
+   "gold_sev": "minor",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "「最初」 means 'at first/initially'; the reference uses 「まず」 for 'first of all' in a list."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_02",
+   "gold_forms": [
+    [
+     "アームに動かす役割",
+     "アームを動かす役割"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_case",
+    "major"
+   ],
+   "why": "The object of 動かす takes を, not に; に marks the wrong role."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_02",
+   "gold_forms": [
+    [
+     "これは、掴む",
+     "これは、物を掴む"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "omission",
+    "major"
+   ],
+   "why": "The object '物を' is missing, so what is being grasped is unclear."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_03",
+   "gold_forms": [
+    [
+     "一番難しいところ",
+     "一番面白いところ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "難しい means 'difficult', but the reference says 'interesting/fun' (面白い), changing the meaning."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_03",
+   "gold_forms": [
+    [
+     "教え込む",
+     "教え込みます"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "register",
+    "major"
+   ],
+   "why": "The reference uses polite ます form; plain form is too casual here."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_04",
+   "gold_forms": [
+    [
+     "もっと簡単な",
+     "もっと複雑な"
+    ]
+   ],
+   "gold_sev": "critical",
+   "pred": [
+    "word_choice",
+    "critical"
+   ],
+   "why": "簡単な means simple, reversing the intended meaning of 複雑な (complex)."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_04",
+   "gold_forms": [
+    [
+     "部品の仕事を学び",
+     "部品の役割を学び"
+    ],
+    [
+     "手が動かすことの",
+     "手を動かすことの"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "word_choice",
+    "minor"
+   ],
+   "why": "「仕事」means job/work; 「役割」is the correct word for the role of parts."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_04",
+   "gold_forms": [
+    [
+     "部品の仕事を学び",
+     "部品の役割を学び"
+    ],
+    [
+     "手が動かすことの",
+     "手を動かすことの"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_case",
+    "minor"
+   ],
+   "why": "The fixed phrase is 「手を動かす」; 「が」marks the wrong subject and changes the meaning."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_05",
+   "gold_forms": [
+    [
+     "私たちは作るものは",
+     "私たちが作るものは"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "particle_wa_ga",
+    "major"
+   ],
+   "why": "The subject of the relative clause 作るもの should take が, not は."
+  },
+  {
+   "pipe": "c1_frozen",
+   "item": "ja_multi_05",
+   "gold_forms": [
+    [
+     "マジ格別ですよ",
+     "格別ですよ"
+    ]
+   ],
+   "gold_sev": "major",
+   "pred": [
+    "addition",
+    "minor"
+   ],
+   "why": "Adds casual slang not in the reference; slightly lowers the register."
+  }
+ ]
+}
