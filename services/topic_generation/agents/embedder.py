@@ -1,8 +1,9 @@
 """
 Embedding Service
 
-Generates text embeddings using OpenAI's embedding models.
-Supports batch embedding for efficiency.
+Generates text embeddings with OpenAI's embedding models, served through
+OpenRouter (same model, same vectors as calling OpenAI directly, so stored
+embeddings stay comparable). Supports batch embedding for efficiency.
 """
 
 import logging
@@ -14,31 +15,37 @@ from tenacity import (
     retry_if_exception_type
 )
 
-from services.llm_service import get_client
+from services.llm_service import get_client, OPENROUTER_BASE_URL
 from ..config import topic_gen_config
 
 logger = logging.getLogger(__name__)
 
 
 class EmbeddingService:
-    """OpenAI embedding generation with batch support."""
+    """OpenAI-model embedding generation via OpenRouter, with batch support."""
 
     def __init__(self, api_key: str = None, model: str = None):
         """
         Initialize the embedding service.
 
         Args:
-            api_key: OpenAI API key (defaults to config)
+            api_key: OpenRouter API key (defaults to config)
             model: Embedding model (defaults to config)
         """
-        self.api_key = api_key or topic_gen_config.openai_api_key
-        self.model = model or topic_gen_config.embedding_model
+        self.api_key = api_key or topic_gen_config.openrouter_api_key
+        model = model or topic_gen_config.embedding_model
+        # OpenRouter names OpenAI's models with an "openai/" prefix; accept a
+        # bare OpenAI name (e.g. an old TOPIC_EMBEDDING_MODEL value) too.
+        self.model = model if '/' in model else f'openai/{model}'
         self.dimensions = topic_gen_config.embedding_dimensions
 
         if not self.api_key:
-            raise ValueError("OpenAI API key is required for embeddings")
+            raise ValueError("OPENROUTER_API_KEY is required for embeddings")
 
-        self.client = get_client(base_url='https://api.openai.com/v1', api_key=self.api_key)
+        # Explicit base_url rather than get_client('openrouter'): the global
+        # provider can be switched to claude_cli/ollama, neither of which
+        # serves embeddings, and that switch must not move this client.
+        self.client = get_client(base_url=OPENROUTER_BASE_URL, api_key=self.api_key)
         self.api_call_count = 0
 
         logger.debug(f"EmbeddingService initialized: model={self.model}")

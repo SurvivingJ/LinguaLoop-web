@@ -87,7 +87,6 @@ def test_parsed_thresholds_are_a_copy_not_the_shared_default():
 def test_out_of_range_thresholds_fail_validation(monkeypatch):
     cfg = TopicGenConfig()
     cfg.openrouter_api_key = 'x'
-    cfg.openai_api_key = 'x'
     assert cfg.validate()
     cfg.similarity_threshold_by_tier[1] = 1.5
     assert not cfg.validate()

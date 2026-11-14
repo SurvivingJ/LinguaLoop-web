@@ -6457,3 +6457,10 @@ Pages updated: index. Branch `claude/lucid-volta-gu0g2l`, not merged. Tests: Pyt
 for moved code (routes/tests package, services/practice, services/study_session, web/) are now
 stale and need an ingest pass. Two tests read `prompt_templates` from the live database when real
 credentials are in the environment; CI deselects them.
+
+## [2026-11-14] update | Embeddings routed through OpenRouter
+`services/topic_generation/agents/embedder.py` now calls `openai/text-embedding-3-small` via
+OpenRouter (pinned base URL, independent of the global LLM provider switch) instead of
+api.openai.com. Verified identical vectors: cosine 0.9999995 against a stored topic embedding,
+1536 dims, so no re-embedding needed. Removed the `OPENAI_API_KEY` requirement from
+TestGenConfig and TopicGenConfig. Pages updated: overview/project.tech. Tests: 202 pass (-k subset).

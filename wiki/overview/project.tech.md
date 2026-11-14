@@ -190,7 +190,7 @@ Disable via `DISABLE_SCHEDULER=true` (tests, one-off CLI runs).
 Loaded from `.env` via `config.py`:
 
 - **Supabase** — `SUPABASE_URL`, `SUPABASE_KEY` (anon), `SUPABASE_SERVICE_ROLE_KEY`
-- **LLM** — `OPENROUTER_API_KEY`, `USE_OPENROUTER`, `OPENAI_API_KEY`
+- **LLM** — `OPENROUTER_API_KEY`, `USE_OPENROUTER`, `OPENAI_API_KEY` (legacy app-side fallback only; embeddings — `EmbeddingService`, model `openai/text-embedding-3-small` — go through OpenRouter and no longer need it)
 - **TTS** — `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`
 - **Storage** — `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_ENDPOINT_URL`
 - **Payments** — `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`

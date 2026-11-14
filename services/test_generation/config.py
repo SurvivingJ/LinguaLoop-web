@@ -182,16 +182,11 @@ class TestGenConfig:
     openrouter_api_key: Optional[str] = field(
         default_factory=lambda: os.getenv('OPENROUTER_API_KEY')
     )
-    openai_api_key: Optional[str] = field(
-        default_factory=lambda: os.getenv('OPENAI_API_KEY')
-    )
 
     def __post_init__(self):
         """Validate configuration after initialization."""
         if not self.openrouter_api_key:
             logger.warning("OPENROUTER_API_KEY not set - LLM calls will fail")
-        if not self.openai_api_key:
-            logger.warning("OPENAI_API_KEY not set - TTS and embedding calls will fail")
 
         # Parse target_difficulties from env if set
         env_difficulties = os.getenv('TEST_GEN_TARGET_DIFFICULTIES')
@@ -213,8 +208,6 @@ class TestGenConfig:
 
         if not self.openrouter_api_key:
             errors.append("OPENROUTER_API_KEY is required")
-        if not self.openai_api_key:
-            errors.append("OPENAI_API_KEY is required")
         if self.batch_size < 1:
             errors.append("TEST_GEN_BATCH_SIZE must be >= 1")
         if self.vocab_sense_workers < 1:

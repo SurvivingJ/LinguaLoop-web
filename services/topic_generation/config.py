@@ -129,9 +129,9 @@ class TopicGenConfig:
         default_factory=lambda: float(os.getenv('TOPIC_LLM_TEMPERATURE', '0.8'))
     )
 
-    # Embedding Configuration (via OpenAI)
+    # Embedding Configuration (OpenAI model, served via OpenRouter)
     embedding_model: str = field(
-        default_factory=lambda: os.getenv('TOPIC_EMBEDDING_MODEL', 'text-embedding-3-small')
+        default_factory=lambda: os.getenv('TOPIC_EMBEDDING_MODEL', 'openai/text-embedding-3-small')
     )
     embedding_dimensions: int = 1536  # Fixed for text-embedding-3-small
 
@@ -155,16 +155,11 @@ class TopicGenConfig:
     openrouter_api_key: Optional[str] = field(
         default_factory=lambda: os.getenv('OPENROUTER_API_KEY')
     )
-    openai_api_key: Optional[str] = field(
-        default_factory=lambda: os.getenv('OPENAI_API_KEY')
-    )
 
     def __post_init__(self):
         """Validate configuration after initialization."""
         if not self.openrouter_api_key:
             logger.warning("OPENROUTER_API_KEY not set - LLM calls will fail")
-        if not self.openai_api_key:
-            logger.warning("OPENAI_API_KEY not set - embedding calls will fail")
 
         # Configure logging level
         logging.getLogger('services.topic_generation').setLevel(
@@ -190,8 +185,6 @@ class TopicGenConfig:
 
         if not self.openrouter_api_key:
             errors.append("OPENROUTER_API_KEY is required")
-        if not self.openai_api_key:
-            errors.append("OPENAI_API_KEY is required")
         if self.daily_topic_quota < 1:
             errors.append("TOPIC_DAILY_QUOTA must be >= 1")
         if not 0.5 <= self.similarity_threshold <= 1.0:
