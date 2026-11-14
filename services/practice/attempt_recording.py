@@ -707,22 +707,3 @@ class AttemptRecordingMixin:
                 'BKT lapse penalty failed for sense %s: %s',
                 sense_id, lapse_err,
             )
-
-    # ------------------------------------------------------------------
-    # Back-compat: legacy session API
-    # ------------------------------------------------------------------
-    # routes/exercises.py still calls this.
-
-    def mark_exercise_complete(
-        self, user_id: str, language_id: int, exercise_id: str
-    ) -> Dict[str, Any]:
-        """Legacy entry point — no-op under the merged service.
-
-        The merged Practice Engine doesn't cache per-session-item completion
-        state (every session is recomputed live from current ladder/FSRS
-        state). Kept as a no-op so legacy callers don't 500.
-        """
-        return {
-            'ok': True,
-            'note': 'completion tracking is implicit in the merged Practice Engine',
-        }

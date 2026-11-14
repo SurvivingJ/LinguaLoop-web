@@ -4,10 +4,6 @@ Practice Session Service — unified vocabulary practice surface.
 Module-level factory:
   get_practice_session_service()  → returns a process-wide singleton.
 
-Back-compat method retained on PracticeSessionService:
-  mark_exercise_complete(...)        ← no-op under the merged engine
-
-
 Replaces the split between the legacy daily-mixed-session and vocab-dojo
 session RPCs with a single mode-dispatched RPC `get_practice_session`.
 See [[features/practice-engine.tech]] and ADR-007.

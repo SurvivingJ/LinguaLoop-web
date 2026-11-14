@@ -5,7 +5,7 @@ API paths get the utils.responses error envelope
 redirect to login for unknown URLs and templates/error.html for failures.
 """
 
-from flask import current_app, redirect, render_template, request, url_for
+from flask import current_app, g, redirect, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import RoutingException
 
@@ -70,9 +70,11 @@ def register_error_handlers(app):
         # Keep the interactive debugger when running with FLASK_DEBUG.
         if current_app.debug:
             raise exc
+        # Routes name their own failure with utils.responses.api_errors.
+        message = g.get('api_error_message') or 'Internal server error'
         current_app.logger.exception(
-            "Unhandled exception on %s %s", request.method, request.path
+            "Unhandled exception on %s %s (%s)", request.method, request.path, message
         )
         if _is_api_request():
-            return api_error('Internal server error', 500, 'SERVER_ERROR')
+            return api_error(message, 500, 'SERVER_ERROR')
         return _error_page(500)
