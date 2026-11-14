@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 
 from services.llm_service import call_llm
+from services.measure_curation import structured_call
 
 from .config import GEN_MODEL, GROUPS, PIPELINE, TARGET_NOUNS
 from .schemas import CounterMeta, NounList
@@ -57,16 +58,9 @@ def classify_counter(counter: str, hint: str = '') -> CounterMeta:
         "Answering false here is a correct and useful answer, not a failure. Do "
         "NOT invent a noun list for such a counter."
     )
-    return call_llm(
-        prompt,
-        model=GEN_MODEL,
-        temperature=0.0,
-        response_format='json_object',
-        schema=CounterMeta,
-        provider='openrouter',
-        system_prompt=_CLASSIFY_SYSTEM,
-        pipeline=PIPELINE,
-        task_name='classify_counter',
+    return structured_call(
+        call_llm, prompt, model=GEN_MODEL, temperature=0.0, schema=CounterMeta,
+        system_prompt=_CLASSIFY_SYSTEM, pipeline=PIPELINE, task_name='classify_counter',
     )
 
 
@@ -93,14 +87,7 @@ def generate_nouns(counter: str, semantic_label: str = '',
         f'名詞+数詞+助数詞 phrase such as ペンを三{counter})", '
         '"also_acceptable_counters": ["..."]}]}'
     )
-    return call_llm(
-        prompt,
-        model=GEN_MODEL,
-        temperature=0.3,
-        response_format='json_object',
-        schema=NounList,
-        provider='openrouter',
-        system_prompt=_GEN_SYSTEM,
-        pipeline=PIPELINE,
-        task_name='generate_nouns',
+    return structured_call(
+        call_llm, prompt, model=GEN_MODEL, temperature=0.3, schema=NounList,
+        system_prompt=_GEN_SYSTEM, pipeline=PIPELINE, task_name='generate_nouns',
     )

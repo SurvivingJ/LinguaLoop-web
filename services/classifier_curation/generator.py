@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 
 from services.llm_service import call_llm
+from services.measure_curation import structured_call
 
 from .config import GEN_MODEL, GROUPS, PIPELINE, TARGET_NOUNS
 from .schemas import ClassifierMeta, NounList
@@ -44,16 +45,9 @@ def classify_classifier(hanzi: str, hint: str = '') -> ClassifierMeta:
         "Choose the group that best matches the nouns it counts. Use 'general' "
         "ONLY if it is a true catch-all with no semantic coherence."
     )
-    return call_llm(
-        prompt,
-        model=GEN_MODEL,
-        temperature=0.0,
-        response_format='json_object',
-        schema=ClassifierMeta,
-        provider='openrouter',
-        system_prompt=_CLASSIFY_SYSTEM,
-        pipeline=PIPELINE,
-        task_name='classify_classifier',
+    return structured_call(
+        call_llm, prompt, model=GEN_MODEL, temperature=0.0, schema=ClassifierMeta,
+        system_prompt=_CLASSIFY_SYSTEM, pipeline=PIPELINE, task_name='classify_classifier',
     )
 
 
@@ -73,14 +67,7 @@ def generate_nouns(hanzi: str, semantic_label: str = '', n: int = TARGET_NOUNS) 
         f"数词+量词+名词 phrase such as 一{hanzi}…)\", "
         '"ge_also_acceptable": true/false (is 个 also natural for this noun?)}]}'
     )
-    return call_llm(
-        prompt,
-        model=GEN_MODEL,
-        temperature=0.3,
-        response_format='json_object',
-        schema=NounList,
-        provider='openrouter',
-        system_prompt=_GEN_SYSTEM,
-        pipeline=PIPELINE,
-        task_name='generate_nouns',
+    return structured_call(
+        call_llm, prompt, model=GEN_MODEL, temperature=0.3, schema=NounList,
+        system_prompt=_GEN_SYSTEM, pipeline=PIPELINE, task_name='generate_nouns',
     )

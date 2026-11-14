@@ -129,6 +129,7 @@ def _load_first_attempts(db, language_id: int) -> list[dict]:
             .select('user_id, exercise_id, is_correct')
             .eq('language_id', language_id)
             .eq('is_first_attempt', True)
+            .order('id')
             .range(offset, offset + DEFAULT_BATCH_SIZE - 1)
             .execute()
             .data or []
@@ -361,26 +362,3 @@ def calibrate_all_active_languages(min_attempts: int = DEFAULT_MIN_ATTEMPTS) -> 
     finally:
         _release_advisory_lock(db)
 
-
-def compute_user_theta_for_selection(db, user_id: str, language_id: int) -> float:
-    """Real-time theta used by the Practice Engine for IRT weighting.
-
-    Delegates to the SQL helper `irt_compute_user_theta` so calibration time
-    and selection time use the identical formula. Falls back to 0.0 on any
-    error so a calibration outage doesn't break session serving.
-    """
-    try:
-        resp = db.rpc('irt_compute_user_theta', {
-            'p_user_id':     user_id,
-            'p_language_id': language_id,
-        }).execute()
-        data = resp.data
-        if isinstance(data, list) and data:
-            return float(data[0]) if data[0] is not None else 0.0
-        if data is None:
-            return 0.0
-        return float(data)
-    except Exception as exc:
-        logger.warning("Theta lookup failed for user %s lang %s: %s",
-                       user_id, language_id, exc)
-        return 0.0

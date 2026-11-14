@@ -178,8 +178,3 @@ class GatekeeperAgent(BaseAgent):
                 consecutive_rejections += 1
 
         return approved
-
-    def reset_counts(self) -> None:
-        """Reset rejection counter."""
-        self.rejection_count = 0
-        self.reset_call_count()

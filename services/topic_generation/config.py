@@ -211,17 +211,5 @@ class TopicGenConfig:
         return True
 
 
-# Singleton instance - lazily evaluated
-_config_instance: Optional[TopicGenConfig] = None
-
-
-def get_topic_gen_config() -> TopicGenConfig:
-    """Get the topic generation configuration singleton."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = TopicGenConfig()
-    return _config_instance
-
-
 # Convenience alias
 topic_gen_config = TopicGenConfig()

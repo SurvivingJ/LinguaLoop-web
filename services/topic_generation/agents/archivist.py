@@ -42,10 +42,6 @@ class ArchivistAgent:
         lenses = self.db.get_active_lenses()
         self._lens_cache = {lens.id: lens for lens in lenses}
 
-    def get_lens_by_id(self, lens_id: int) -> Optional[Lens]:
-        """Get lens by ID from cache."""
-        return self._lens_cache.get(lens_id)
-
     def construct_semantic_signature(
         self,
         category_name: str,
@@ -83,12 +79,25 @@ class ArchivistAgent:
 
         return signature
 
+    def embed_signatures(self, signatures: List[str]) -> List[List[float]]:
+        """Embed many signatures in one API call, in input order."""
+        if not signatures:
+            return []
+        vectors = self.embedder.embed_batch(signatures)
+        if len(vectors) != len(signatures):
+            raise ValueError(
+                f"Embedding batch returned {len(vectors)} vectors "
+                f"for {len(signatures)} signatures"
+            )
+        return vectors
+
     def check_novelty(
         self,
         category_id: Optional[int],
         semantic_signature: str,
         threshold: float = None,
-        scope: str = 'category'
+        scope: str = 'category',
+        embedding: Optional[List[float]] = None,
     ) -> Tuple[bool, Optional[str], List[float]]:
         """
         Check if a topic is semantically novel.
@@ -101,6 +110,8 @@ class ArchivistAgent:
                 column, so there is no language-scoped variant to worry about).
             semantic_signature: Formatted topic signature
             threshold: Cosine similarity threshold (defaults to config)
+            embedding: Precomputed embedding of the signature (see
+                embed_signatures); generated here when omitted.
             scope: 'category' (default, unchanged behavior) or 'global' —
                 see TASK-740 finding #1: a near-duplicate topic can sail
                 through as "novel" under category scope if it was previously
@@ -131,8 +142,8 @@ class ArchivistAgent:
         if scope == 'category' and category_id is None:
             raise ValueError("category_id is required when scope='category'")
 
-        # Generate embedding for the signature
-        embedding = self.embedder.embed_single(semantic_signature)
+        if embedding is None:
+            embedding = self.embedder.embed_single(semantic_signature)
 
         if not embedding:
             logger.error("Failed to generate embedding for signature")
@@ -171,54 +182,3 @@ class ArchivistAgent:
 
         logger.debug(f"Topic is novel: {semantic_signature[:50]}...")
         return (True, None, embedding)
-
-    def batch_check_novelty(
-        self,
-        category_id: int,
-        category_name: str,
-        candidates: List[dict],
-        lenses: Dict[str, Lens]
-    ) -> List[Tuple[dict, bool, Optional[str], List[float]]]:
-        """
-        Check novelty for multiple candidates.
-
-        This is more efficient than individual checks when processing
-        multiple candidates, as it can batch embedding generation.
-
-        Args:
-            category_id: Category FK
-            category_name: Category name for signature
-            candidates: List of candidate dicts with concept, lens_code, keywords
-            lenses: Dict mapping lens_code to Lens objects
-
-        Returns:
-            List of tuples: (candidate, is_novel, rejection_reason, embedding)
-        """
-        results = []
-
-        for candidate in candidates:
-            lens = lenses.get(candidate.get('lens_code', '').lower())
-            if not lens:
-                results.append((
-                    candidate,
-                    False,
-                    f"Unknown lens: {candidate.get('lens_code')}",
-                    []
-                ))
-                continue
-
-            signature = self.construct_semantic_signature(
-                category_name=category_name,
-                concept=candidate.get('concept', ''),
-                lens=lens,
-                keywords=candidate.get('keywords', [])
-            )
-
-            is_novel, reason, embedding = self.check_novelty(
-                category_id=category_id,
-                semantic_signature=signature
-            )
-
-            results.append((candidate, is_novel, reason, embedding))
-
-        return results

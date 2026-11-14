@@ -11,10 +11,10 @@ the top teachable features for language learners.
 import json
 import logging
 from services.corpus.llm_client import call_llm
+from services.dimension_service import LANGUAGE_ID_TO_DISPLAY
 
 logger = logging.getLogger(__name__)
 
-_LANG_NAMES = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
 
 
 def _summarise_profile(profile: dict) -> str:
@@ -117,7 +117,7 @@ def generate_narrative(
             'feature' (name) and 'explanation' (1-2 sentences)
           - 'teaching_notes': 2-3 sentences on what learners can gain
     """
-    language = _LANG_NAMES.get(language_id, 'Unknown')
+    language = LANGUAGE_ID_TO_DISPLAY.get(language_id, 'Unknown')
     profile_text = _summarise_profile(profile)
 
     title_context = f' titled "{source_title}"' if source_title else ''

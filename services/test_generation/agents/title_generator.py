@@ -5,7 +5,6 @@ Generates concise, difficulty-appropriate titles for listening comprehension tes
 Routes through the unified llm_service so calls are logged to llm_calls.
 """
 
-import json
 import logging
 from typing import Optional
 
@@ -142,35 +141,6 @@ Requirements:
 
 Return ONLY the title text, nothing else.
 """
-
-    def _clean_response(self, content: str) -> str:
-        """Legacy helper retained for backwards compatibility.
-
-        Title cleanup now relies on services.llm_output_cleaner.clean_text;
-        external callers (if any) that still invoke this helper get the
-        same behaviour as before.
-        """
-        if content.startswith('```'):
-            content = content.replace('```', '', 2)
-
-        if content.startswith('{') and content.endswith('}'):
-            try:
-                data = json.loads(content)
-                if isinstance(data, dict):
-                    for key in ['title', 'Title', 'text', 'content']:
-                        if key in data:
-                            return data[key]
-            except json.JSONDecodeError:
-                pass
-
-        content = content.strip().strip('"\'')
-
-        prefixes_to_remove = ['Title: ', 'title: ', 'TITLE: ']
-        for prefix in prefixes_to_remove:
-            if content.startswith(prefix):
-                content = content[len(prefix):]
-
-        return content.strip()
 
     def reset_call_count(self) -> None:
         """Reset the API call counter."""

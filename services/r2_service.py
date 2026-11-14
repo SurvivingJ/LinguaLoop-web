@@ -2,9 +2,6 @@
 import boto3
 from botocore.config import Config as BotoConfig
 from botocore.exceptions import ClientError, BotoCoreError
-import os
-import mimetypes
-from typing import Optional, Dict, List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -125,75 +122,6 @@ class R2Service:
             logger.error(f"Unexpected error uploading {filename}: {e}")
             return False
     
-    def download_audio(self, filename: str) -> Optional[bytes]:
-        """
-        Download audio file from R2 bucket
-        
-        Args:
-            filename: Name of the file to download
-            
-        Returns:
-            bytes: Audio data if successful, None otherwise
-        """
-        if not self.r2_client:
-            logger.error("R2 client not initialized")
-            return None
-
-        try:
-            logger.debug(f"Downloading {filename} from R2")
-            
-            response = self.r2_client.get_object(
-                Bucket=self.bucket_name,
-                Key=filename
-            )
-            
-            audio_data = response['Body'].read()
-            logger.debug(f"Downloaded {filename} ({len(audio_data)} bytes)")
-            return audio_data
-
-        except ClientError as e:
-            error_code = e.response['Error']['Code']
-            if error_code == 'NoSuchKey':
-                logger.warning(f"File not found: {filename}")
-            else:
-                logger.error(f"Error downloading {filename}: {error_code} - {e}")
-            return None
-        except Exception as e:
-            logger.error(f"Unexpected error downloading {filename}: {e}")
-            return None
-    
-    def delete_audio(self, filename: str) -> bool:
-        """
-        Delete audio file from R2 bucket
-        
-        Args:
-            filename: Name of the file to delete
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        if not self.r2_client:
-            logger.error("R2 client not initialized")
-            return False
-
-        try:
-            logger.debug(f"Deleting {filename} from R2")
-
-            self.r2_client.delete_object(
-                Bucket=self.bucket_name,
-                Key=filename
-            )
-
-            logger.info(f"Successfully deleted {filename} from R2")
-            return True
-
-        except ClientError as e:
-            logger.error(f"Error deleting {filename}: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error deleting {filename}: {e}")
-            return False
-    
     def file_exists(self, filename: str) -> bool:
         """
         Check if audio file exists in R2 bucket
@@ -221,48 +149,6 @@ class R2Service:
             logger.error(f"Unexpected error checking file: {e}")
             return False
     
-    def list_audio_files(self, prefix: str = '', max_keys: int = 100) -> List[Dict]:
-        """
-        List audio files in R2 bucket
-        
-        Args:
-            prefix: Filter files by prefix
-            max_keys: Maximum number of files to return
-            
-        Returns:
-            List[Dict]: List of file information dictionaries
-        """
-        if not self.r2_client:
-            logger.error("R2 client not initialized")
-            return []
-        
-        try:
-            response = self.r2_client.list_objects_v2(
-                Bucket=self.bucket_name,
-                Prefix=prefix,
-                MaxKeys=max_keys
-            )
-            
-            files = []
-            if 'Contents' in response:
-                for obj in response['Contents']:
-                    files.append({
-                        'key': obj['Key'],
-                        'size': obj['Size'],
-                        'last_modified': obj['LastModified'].isoformat(),
-                        'etag': obj['ETag'].strip('"')
-                    })
-            
-            logger.debug(f"Found {len(files)} files with prefix '{prefix}'")
-            return files
-
-        except ClientError as e:
-            logger.error(f"Error listing files: {e}")
-            return []
-        except Exception as e:
-            logger.error(f"Unexpected error listing files: {e}")
-            return []
-
     def get_audio_url(self, slug: str) -> str:
         """
         Get public URL for audio file
@@ -281,108 +167,3 @@ class R2Service:
             # Fallback if public_url not configured
             logger.warning("R2_PUBLIC_URL not configured, using default")
             return f"https://audio.linguadojo.com/{filename}"
-
-    def get_file_info(self, filename: str) -> Optional[Dict]:
-        """
-        Get detailed information about a file
-        
-        Args:
-            filename: Name of the file
-            
-        Returns:
-            Dict: File information or None if not found
-        """
-        if not self.r2_client:
-            return None
-        
-        try:
-            response = self.r2_client.head_object(
-                Bucket=self.bucket_name,
-                Key=filename
-            )
-            
-            return {
-                'filename': filename,
-                'size': response['ContentLength'],
-                'last_modified': response['LastModified'].isoformat(),
-                'content_type': response.get('ContentType', 'unknown'),
-                'etag': response['ETag'].strip('"'),
-                'cache_control': response.get('CacheControl', ''),
-                'metadata': response.get('Metadata', {})
-            }
-            
-        except ClientError as e:
-            error_code = e.response['Error']['Code']
-            if error_code == 'NoSuchKey':
-                return None
-            else:
-                logger.error(f"Error getting file info: {e}")
-                return None
-        except Exception as e:
-            logger.error(f"Unexpected error getting file info: {e}")
-            return None
-    
-    def upload_from_url(self, filename: str, url: str) -> bool:
-        """
-        Upload audio from a URL to R2 (useful for external audio sources)
-        
-        Args:
-            filename: Name to save the file as
-            url: URL to download from
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        try:
-            import requests
-
-            logger.debug(f"Downloading from URL: {url}")
-            response = requests.get(url, stream=True)
-            response.raise_for_status()
-
-            audio_data = response.content
-            logger.debug(f"Downloaded {len(audio_data)} bytes from URL")
-
-            return self.upload_audio(filename, audio_data)
-
-        except ImportError:
-            logger.error("requests library not available for URL download")
-            return False
-        except requests.RequestException as e:
-            logger.error(f"Error downloading from URL: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error in upload_from_url: {e}")
-            return False
-    
-    def get_bucket_stats(self) -> Dict:
-        """
-        Get statistics about the R2 bucket
-        
-        Returns:
-            Dict: Bucket statistics
-        """
-        if not self.r2_client:
-            return {"error": "R2 client not initialized"}
-        
-        try:
-            # List all objects to calculate stats
-            response = self.r2_client.list_objects_v2(Bucket=self.bucket_name)
-            
-            total_files = 0
-            total_size = 0
-            
-            if 'Contents' in response:
-                total_files = len(response['Contents'])
-                total_size = sum(obj['Size'] for obj in response['Contents'])
-            
-            return {
-                'bucket_name': self.bucket_name,
-                'total_files': total_files,
-                'total_size_bytes': total_size,
-                'total_size_mb': round(total_size / (1024 * 1024), 2),
-                'public_url': self.public_url
-            }
-            
-        except Exception as e:
-            return {"error": f"Failed to get bucket stats: {e}"}

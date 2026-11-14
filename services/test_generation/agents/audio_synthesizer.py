@@ -7,7 +7,7 @@ Generates TTS audio and uploads to R2 storage.
 import logging
 import random
 import xml.sax.saxutils
-from typing import Optional, List, Dict, Tuple
+from typing import List
 import azure.cognitiveservices.speech as speechsdk
 import boto3
 from botocore.config import Config as BotoConfig
@@ -250,46 +250,6 @@ class AudioSynthesizer:
             f'</voice></speak>'
         )
 
-    def generate_speed_variants(
-        self,
-        text: str,
-        base_slug: str,
-        voice: str = None,
-        speeds: Tuple[float, ...] = (0.75, 0.90, 1.00, 1.15),
-    ) -> Dict[float, str]:
-        """
-        Generate N speed-variant MP3s for the same text + voice.
-
-        Args:
-            text: Text to synthesize
-            base_slug: File id stem; variants are uploaded as
-                '{base_slug}-s075.mp3', '-s090.mp3', '-s100.mp3', '-s115.mp3'
-            voice: Azure Neural Voice name. Locked across all variants so the
-                speaker stays consistent through the Listening Lab tier ladder.
-            speeds: Speed multipliers to render.
-
-        Returns:
-            Dict mapping each speed -> public R2 URL.
-
-        Raises:
-            Exception: if any variant fails to synthesize or upload. The caller
-                is responsible for transactional cleanup; partial R2 uploads
-                may remain.
-        """
-        selected_voice = voice or "en-US-AvaMultilingualNeural"
-        urls: Dict[float, str] = {}
-        for speed in speeds:
-            suffix = f"s{int(round(speed * 100)):03d}"  # 0.75 -> s075, 1.15 -> s115
-            file_id = f"{base_slug}-{suffix}"
-            url = self.generate_and_upload(
-                text=text,
-                file_id=file_id,
-                voice=selected_voice,
-                speed=speed,
-            )
-            urls[speed] = url
-        return urls
-
     def select_voice(
         self,
         voice_ids: List[str] = None,
@@ -317,52 +277,6 @@ class AudioSynthesizer:
             'en-US-EmmaMultilingualNeural'      # Professional female
         ]
         return random.choice(default_voices)
-
-    def check_audio_exists(self, slug: str) -> bool:
-        """
-        Check if audio file already exists in R2.
-
-        Args:
-            slug: File name (without extension)
-
-        Returns:
-            bool: True if file exists
-        """
-        if not self.r2_client:
-            return False
-
-        filename = f"{slug}.mp3"
-        bucket = self.r2_config['bucket_name']
-
-        try:
-            self.r2_client.head_object(Bucket=bucket, Key=filename)
-            return True
-        except Exception:
-            return False
-
-    def delete_audio(self, slug: str) -> bool:
-        """
-        Delete audio file from R2.
-
-        Args:
-            slug: File name (without extension)
-
-        Returns:
-            bool: True if successful
-        """
-        if not self.r2_client:
-            return False
-
-        filename = f"{slug}.mp3"
-        bucket = self.r2_config['bucket_name']
-
-        try:
-            self.r2_client.delete_object(Bucket=bucket, Key=filename)
-            logger.info(f"Deleted audio: {filename}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to delete {filename}: {e}")
-            return False
 
     def reset_call_count(self) -> None:
         """Reset the API call counter."""
