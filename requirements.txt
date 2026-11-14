@@ -1,6 +1,5 @@
 annotated-types==0.7.0
 anyio==4.5.2
-bcrypt==4.3.0
 blinker==1.8.2
 boto3==1.37.38
 botocore==1.37.38
@@ -13,11 +12,11 @@ deprecation==2.1.0
 distro==1.9.0
 exceptiongroup==1.3.0
 Flask==3.0.3
-Flask-Cors==5.0.0
+Flask-Cors==6.0.5
 Flask-Compress==1.26
-Flask-JWT-Extended==4.6.0
+Flask-Limiter==4.1.1
 gotrue==2.9.2
-gunicorn==21.2.0
+gunicorn==27.0.1
 h11==0.16.0
 h2==4.1.0
 hpack==4.0.0
@@ -30,6 +29,7 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 jiter==0.9.1
 jmespath==1.0.1
+limits==5.8.0
 MarkupSafe==2.1.5
 azure-cognitiveservices-speech==1.40.0
 openai==1.99.3
@@ -40,7 +40,6 @@ pydantic==2.10.6
 pydantic_core==2.27.2
 PyJWT==2.9.0
 python-dateutil==2.9.0.post0
-python-decouple==3.8
 python-dotenv==1.0.1
 realtime==1.0.6
 requests==2.32.4
@@ -55,28 +54,25 @@ supafunc==0.5.1
 tenacity==8.2.3
 typing_extensions==4.13.2
 urllib3==1.26.20
-uuid==1.30
-websocket-client==1.8.0
 websockets==12.0
 Werkzeug==3.0.6
-wordfreq
+wordfreq==3.1.1
 zipp==3.20.2
-pytest==8.3.4
-pytest-cov==6.0.0
-spacy
-lemminflect    # imported by services/vocabulary/processors/english.py (patches spaCy lemmas)
+spacy==3.8.14
+lemminflect==0.2.3    # imported by services/vocabulary/processors/english.py (patches spaCy lemmas)
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl  # spacy.load('en_core_web_sm') in english.py; matches spaCy 3.8
-bs4
-langdetect
-numpy
-pypinyin
-pyopenjtalk
-fugashi
-unidic-lite
-mecab-python3  # wordfreq Japanese tokenization (TASK-505)
-ipadic         # MeCab dictionary for wordfreq Japanese (TASK-505)
-jieba          # Chinese word segmentation: wordfreq zh lookups and corpus tokenisation
-jaconv
+beautifulsoup4==4.15.0
+bs4==0.0.2
+langdetect==1.0.9
+numpy==2.5.4
+pypinyin==0.55.0
+pyopenjtalk==0.4.1
+fugashi==1.5.2
+unidic-lite==1.0.8
+mecab-python3==1.0.12  # wordfreq Japanese tokenization (TASK-505)
+ipadic==1.0.0         # MeCab dictionary for wordfreq Japanese (TASK-505)
+jieba==0.42.1          # Chinese word segmentation: wordfreq zh lookups and corpus tokenisation
+jaconv==0.5.0
 opencc==1.3.1   # ZH Simplified→Traditional (s2twp) dual-store mirror (TASK-509)
-scipy>=1.10
-APScheduler>=3.10
+scipy==1.18.1
+APScheduler==3.11.3

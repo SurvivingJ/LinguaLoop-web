@@ -99,7 +99,6 @@ def app(mock_supabase):
          patch('app.DimensionService') as MockDimSvcApp, \
          patch('app.ServiceFactory'), \
          patch('app.R2Service'), \
-         patch('app.PromptService'), \
          patch('app.AuthService'):
 
         # SupabaseFactory stubs

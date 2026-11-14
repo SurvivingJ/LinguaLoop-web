@@ -48,6 +48,18 @@ class Config:
     DEVICE_IP_HASH_SALT = os.environ.get('DEVICE_IP_HASH_SALT', '')
 
     # ==========================================================================
+    # REQUEST LIMITS
+    # ==========================================================================
+    # Largest request body Flask will read; bigger requests get a 413.
+    MAX_CONTENT_LENGTH = int(os.environ.get('MAX_CONTENT_LENGTH', str(1024 * 1024)))
+
+    # Rate limiting (web/rate_limits.py). memory:// counts per worker process;
+    # use a redis:// URI for limits shared across workers.
+    RATELIMIT_ENABLED = os.environ.get('RATELIMIT_ENABLED', 'true').lower() == 'true'
+    RATELIMIT_STORAGE_URI = os.environ.get('RATELIMIT_STORAGE_URI', 'memory://')
+    RATELIMIT_API_DEFAULT = os.environ.get('RATELIMIT_API_DEFAULT', '300 per minute')
+
+    # ==========================================================================
     # CORS - Uses environment variable with fallback
     # ==========================================================================
     CORS_ORIGINS = [
@@ -95,6 +107,10 @@ class Config:
     SUPABASE_URL = os.environ.get('SUPABASE_URL')
     SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
     SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
+    # Seconds a database (PostgREST) call may take inside a web request, and
+    # inside a scheduled job, before it fails instead of holding a worker.
+    SUPABASE_POSTGREST_TIMEOUT = float(os.environ.get('SUPABASE_POSTGREST_TIMEOUT', '10'))
+    SUPABASE_JOB_TIMEOUT = float(os.environ.get('SUPABASE_JOB_TIMEOUT', '120'))
 
     # ==========================================================================
     # LANGUAGE CONFIGURATION - Single source of truth
@@ -188,7 +204,6 @@ class Config:
     MAX_DAILY_TESTS = 3
     POOR_PERFORMANCE_THRESHOLD = 70  # percentage
     DAILY_TEST_COOLDOWN_SECONDS = 86400
-    SUPABASE_BATCH_CHUNK_SIZE = 500
     MAX_INPUT_LENGTH = 2000
 
     # ==========================================================================
@@ -198,7 +213,6 @@ class Config:
     # paired per (task_name, language_id). Use services.prompt_service.
     # get_template_config() to fetch. No code-level default — missing rows
     # fail loudly so misconfiguration surfaces immediately.
-    VOCAB_DOJO_SESSION_SIZE = int(os.getenv('VOCAB_DOJO_SESSION_SIZE', '20'))
     VOCAB_SENTENCES_PER_WORD = 10
 
     # ==========================================================================
@@ -207,12 +221,6 @@ class Config:
     DEFAULT_EXERCISE_SESSION_SIZE = 20
     MIN_EXERCISE_SESSION_SIZE = 5
     MAX_EXERCISE_SESSION_SIZE = 50
-    EXERCISE_COOLDOWN_DAYS = 7              # Don't re-serve same exercise_id within N days
-    EXERCISE_SLOT_DISTRIBUTION = {
-        'due_review': 0.40,
-        'active_learning': 0.40,
-        'new_words': 0.20,
-    }
 
     # ==========================================================================
     # STUDY PLANS — Phase 13 orchestrator
@@ -231,14 +239,6 @@ class Config:
 
     # Default daily-minutes assigned at onboarding / backfill.
     STUDY_PLAN_DEFAULT_DAILY_MINUTES = 30
-
-    # Tier C objective coefficients. value(s) is in [0,1]; α applies
-    # per-minute, so 30 min of practice contributes up to 0.6 units —
-    # comparable to a high-value test slot. γ keeps the spacing penalty as
-    # a tiebreaker, not a dictator.
-    STUDY_PLAN_TIER_C_ALPHA_M = 0.02   # maintenance per-minute value
-    STUDY_PLAN_TIER_C_ALPHA_A = 0.02   # acquisition per-minute value
-    STUDY_PLAN_TIER_C_GAMMA   = 0.15   # spacing-penalty weight
 
     # ------------------------------------------------------------------
     # Session budget settings (wiki/features/session-budget-settings.tech.md,
@@ -349,15 +349,7 @@ class Config:
     R2_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY')
     R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID')
     R2_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME', 'linguadojoaudio')
-    R2_ENDPOINT_URL = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com" if R2_ACCOUNT_ID else None
     R2_PUBLIC_URL = os.environ.get('R2_PUBLIC_URL', 'https://audio.linguadojo.com')
-
-    # ==========================================================================
-    # LEGACY AWS (kept for backwards compatibility)
-    # ==========================================================================
-    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_S3_BUCKET = os.environ.get('AWS_S3_BUCKET')
 
     # ==========================================================================
     # HELPER METHODS
@@ -415,18 +407,6 @@ class Config:
             return mode
         digest = hashlib.sha256(str(user_id).encode('utf-8')).digest()
         return Config.DT_CORRECTION_ARMS[digest[0] & 1]
-
-    @staticmethod
-    def get_language_name(language_id: int) -> str:
-        """Map a numeric language ID to its canonical name.
-
-        Args:
-            language_id: Integer key from the LANGUAGES dict (1=ZH, 2=EN, 3=JA).
-
-        Returns:
-            Lowercase language name, or 'unknown' if the ID is not recognised.
-        """
-        return Config.LANGUAGE_ID_TO_NAME.get(language_id, 'unknown')
 
     @staticmethod
     def get_language_id(code: str) -> int:
