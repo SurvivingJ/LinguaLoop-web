@@ -605,3 +605,40 @@ def insert_intro_reviews(
     at = next((i for i, q in enumerate(queue) if q.get('kind') == 'practice'), len(queue))
     return queue[:at] + [block] + queue[at:]
 
+
+
+# ---------------------------------------------------------------------------
+# Guided-repair block (wiki/features/dt-guided-self-repair.tech.md 7.6): the
+# learner's own unresolved DT sentences, served as one conditional block like the
+# intro-review chunk. Remediation, not a planned slot: it credits no weekly
+# counter (surface_skill_for('dt_repair') is None).
+# ---------------------------------------------------------------------------
+
+DT_REPAIR_BLOCK_ID = 'dt_repair'
+DT_REPAIR_KIND = 'dt_repair'
+
+
+def dt_repair_status(
+    targets: Dict[str, Any], completed_blocks: List[str], enabled: bool = True,
+) -> str:
+    """``off``: guided repair disabled or Dual Translation excluded.
+    ``done``: the block was completed today (stays in the queue as done).
+    ``check``: add the block if any item is due (the caller counts them)."""
+    if not enabled or 'dual_translation' in (targets.get('excluded_modules') or []):
+        return 'off'
+    if DT_REPAIR_BLOCK_ID in (completed_blocks or []):
+        return 'done'
+    return 'check'
+
+
+def insert_dt_repair(
+    queue: List[Dict[str, Any]], n_items: int, done: bool,
+) -> List[Dict[str, Any]]:
+    """Place the block before the first Dual Translation item, else before the
+    first practice item, else at the end."""
+    block = {'kind': DT_REPAIR_KIND, 'id': DT_REPAIR_BLOCK_ID, 'items': n_items,
+             'is_completed': done}
+    at = next((i for i, q in enumerate(queue) if q.get('kind') == 'dual_translation'), None)
+    if at is None:
+        at = next((i for i, q in enumerate(queue) if q.get('kind') == 'practice'), len(queue))
+    return queue[:at] + [block] + queue[at:]

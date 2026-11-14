@@ -9,6 +9,7 @@
    See plan we-now-have-the-swirling-haven.md. #}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dt-repair.css') }}">
 {# Session modules: an import map gives every relative import its ?v= URL (one
    year cache, no revalidation) and the entry module's static imports are
    fetched in parallel. Both must come before any module is requested. #}
@@ -204,5 +205,6 @@
 <script defer src="{{ url_for('static', filename='js/prestudy/prestudy.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/exercise-renderers.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/dt-error-card.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/dt-repair-sheet.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='js/session/controller.js') }}"></script>
 {% endblock %}

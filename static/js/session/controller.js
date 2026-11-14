@@ -467,6 +467,7 @@ const KIND_LABELS = {
   // to the `|| 'listening'` default below and the block is announced as
   // "Listening", the exact TASK-714 defect this map was created to fix.
   speed_round: ['session.speed_round_heading', 'Speed Round'],
+  dt_repair: ['session.dt_repair_heading', 'Fix your sentences'],
 };
 
 function itemTypeLabel(item) {

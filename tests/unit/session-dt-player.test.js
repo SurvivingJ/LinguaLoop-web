@@ -121,3 +121,175 @@ describe('session DT player result', () => {
     expect(saved.contract.overall_band).toBe(4);
   });
 });
+
+describe('session DT player: guided self-repair branch (tech §8.7)', () => {
+  const REDACTED = {
+    status: 'success',
+    overall_band: 3,
+    scores: { accuracy: 3 },
+    errors: [],
+    diff: [],
+    redacted: true,
+    n_errors: 2,
+  };
+  const FULL = {
+    status: 'success',
+    overall_band: 2,
+    scores: { accuracy: 2 },
+    errors: [{ subtype: 'x' }],
+    diff: [],
+  };
+  const SESSION = {
+    session_id: 501,
+    submission_id: 42,
+    status: 'open',
+    clean: false,
+    steps: [{ item_id: 1 }],
+  };
+  let opened;
+  let resultResponses;
+  let finishCalls;
+
+  beforeEach(() => {
+    opened = [];
+    resultResponses = [];
+    finishCalls = 0;
+    window.DTRepairSheet = {
+      open: vi.fn((o) => {
+        opened.push(o);
+        return { close: vi.fn(), dispose: vi.fn() };
+      }),
+    };
+    const base = window.authFetch;
+    window.authFetch = vi.fn(async (url, opts) => {
+      if (String(url).includes('/repair/submissions/')) {
+        const r = resultResponses.shift() || { status: 200, body: FULL };
+        return { ok: r.status < 400, status: r.status, json: async () => r.body };
+      }
+      if (String(url).includes('/repair/sessions/')) {
+        finishCalls += 1;
+        return { ok: true, status: 200, json: async () => ({ status: 'success' }) };
+      }
+      return base(url, opts);
+    });
+  });
+
+  afterEach(() => {
+    delete window.DTRepairSheet;
+    vi.useRealTimers();
+  });
+
+  it('no repair key: today’s band screen, no sheet', async () => {
+    submitResponses.push({ status: 200, body: FULL });
+    await mountAndType('x');
+    expect(opened).toHaveLength(0);
+    expect(container.textContent).toContain('/4');
+    expect(container.querySelector('[data-dt-continue]')).not.toBeNull();
+  });
+
+  it('bypassed: today’s band screen with the full contract, no sheet', async () => {
+    submitResponses.push({
+      status: 200,
+      body: { ...FULL, repair: { status: 'bypassed', steps: [] } },
+    });
+    await mountAndType('x');
+    expect(opened).toHaveLength(0);
+    expect(container.textContent).toContain('2');
+    expect(container.querySelector('[data-dt-details]')).not.toBeNull();
+  });
+
+  it('open: the sheet opens and the redacted contract is never rendered or stashed', async () => {
+    submitResponses.push({ status: 200, body: { ...REDACTED, repair: SESSION } });
+    await mountAndType('x');
+    expect(opened).toHaveLength(1);
+    expect(opened[0].mode).toBe('pass');
+    expect(opened[0].session).toEqual(SESSION);
+    expect(container.querySelector('[data-dt-details]')).toBeNull();
+    expect(container.textContent).not.toContain('/4');
+    expect(window.localStorage.getItem('dt_feedback_view')).toBeNull();
+  });
+
+  it('open: after the sheet is done the full result is fetched and rendered by the band screen', async () => {
+    submitResponses.push({ status: 200, body: { ...REDACTED, repair: SESSION } });
+    await mountAndType('x');
+    opened[0].onDone({ summary: null, closedEarly: false });
+    await flush();
+    await flush();
+    expect(container.textContent).toContain('2');
+    container.querySelector('[data-dt-details]').onclick();
+    const saved = JSON.parse(window.localStorage.getItem('dt_feedback_view'));
+    expect(saved.contract.redacted).toBeUndefined();
+    expect(saved.contract.errors).toHaveLength(1);
+  });
+
+  it('open: a failing result fetch retries once, then offers retry and continue', async () => {
+    vi.useFakeTimers();
+    submitResponses.push({ status: 200, body: { ...REDACTED, repair: SESSION } });
+    mount(container, ctx);
+    await vi.advanceTimersByTimeAsync(10);
+    container.querySelector('#dtInput').value = 'x';
+    container.querySelector('[data-dt-submit]').click();
+    await vi.advanceTimersByTimeAsync(10);
+    resultResponses.push({ status: 500, body: {} }, { status: 500, body: {} });
+    opened[0].onDone({ closedEarly: true });
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(container.textContent).toContain('Couldn’t load your full feedback');
+    resultResponses.push({ status: 200, body: FULL });
+    container.querySelector('[data-dt-result-retry]').click();
+    await vi.advanceTimersByTimeAsync(50);
+    expect(container.querySelector('[data-dt-details]')).not.toBeNull();
+  });
+
+  it('open: a 409 (finish did not land) triggers one more finish', async () => {
+    vi.useFakeTimers();
+    submitResponses.push({ status: 200, body: { ...REDACTED, repair: SESSION } });
+    mount(container, ctx);
+    await vi.advanceTimersByTimeAsync(10);
+    container.querySelector('#dtInput').value = 'x';
+    container.querySelector('[data-dt-submit]').click();
+    await vi.advanceTimersByTimeAsync(10);
+    resultResponses.push(
+      { status: 409, body: { error_code: 'REPAIR_IN_PROGRESS' } },
+      { status: 200, body: FULL }
+    );
+    opened[0].onDone({ closedEarly: true, error: true });
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(finishCalls).toBe(1);
+    expect(container.querySelector('[data-dt-details]')).not.toBeNull();
+  });
+
+  it('clean: the sheet opens, then the band screen uses the full contract already in hand', async () => {
+    submitResponses.push({
+      status: 200,
+      body: { ...FULL, repair: { ...SESSION, status: 'finished', clean: true, steps: [] } },
+    });
+    await mountAndType('x');
+    expect(opened).toHaveLength(1);
+    opened[0].onDone({ clean: true });
+    await flush();
+    expect(window.authFetch.mock.calls.some((c) => String(c[0]).includes('/result'))).toBe(false);
+    expect(container.textContent).toContain('2');
+  });
+
+  it('sheet script missing: fetch the result and continue, no dead end', async () => {
+    delete window.DTRepairSheet;
+    submitResponses.push({ status: 200, body: { ...REDACTED, repair: SESSION } });
+    await mountAndType('x');
+    await flush();
+    await flush();
+    expect(container.querySelector('[data-dt-details]')).not.toBeNull();
+  });
+
+  it('destroy() disposes an open sheet', async () => {
+    submitResponses.push({ status: 200, body: { ...REDACTED, repair: SESSION } });
+    const handle = mount(container, ctx);
+    await flush();
+    container.querySelector('#dtInput').value = 'x';
+    container.querySelector('[data-dt-submit]').click();
+    await flush();
+    await flush();
+    const sheet = window.DTRepairSheet.open.mock.results[0].value;
+    handle.destroy();
+    expect(sheet.dispose).toHaveBeenCalled();
+  });
+});

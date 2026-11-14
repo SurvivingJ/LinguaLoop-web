@@ -50,6 +50,8 @@ from services.dimension_service import DimensionService
 from services.dual_translation import cards as dt_cards
 from services.dual_translation import primed_token
 from services.dual_translation.grader_cascade import grade_submission, get_active_rubric
+from services.dual_translation.repair import budget as repair_budget
+from services.dual_translation.repair import hooks as repair_hooks
 from services.dual_translation.passage_builder import (
     MAX_WINDOW, SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
 )
@@ -189,7 +191,9 @@ def submit(submission_id: int) -> ApiResponse:
 
         cached = _cached_grade(db, submission_id)
         if cached is not None:
-            return api_success(cached)
+            # Guided self-repair: the existing session (redacted while open), or
+            # one created now if grading succeeded but the session was not.
+            return api_success(repair_hooks.for_cached(db, g.current_user_id, submission_id, cached))
 
         passage = _get_passage(db, submission_row['passage_id'])
         if not passage:
@@ -245,6 +249,14 @@ def submit(submission_id: int) -> ApiResponse:
         _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
         _persist_grading_assets(db, submission_id, grading_assets)
 
+        # Guided self-repair (wiki/features/dt-guided-self-repair.tech.md 3.3): the
+        # response to send. Never raises; not eligible / any failure -> `contract`
+        # itself. The side effects below keep reading the unredacted `contract`.
+        response = repair_hooks.after_grade(
+            db, user_id=g.current_user_id, submission_row=submission_row, passage=passage,
+            contract=contract, reproduction=reproduction,
+        )
+
         # TASK-910: one production-evidence row per primed sense. Not part of
         # _persist_grade (whose ordering contract is about dt_grade caching);
         # best-effort, like the dictation BKT write.
@@ -275,7 +287,7 @@ def submit(submission_id: int) -> ApiResponse:
         # dt_error_instance rows directly and clusters/promotes them into
         # dt_error_profile_entry — there is no submit-time enqueue step.
 
-        return api_success(contract)
+        return api_success(response)
 
     except Exception as e:
         logger.error("Error submitting dual-translation reproduction %s: %s", submission_id, e)
@@ -772,34 +784,12 @@ def _rubric_descriptors_for(db, age_tier: int, l2_code: Optional[str]) -> dict:
 
 
 def _tokens_used_today(db, user_id: str) -> int:
-    """Sum of dt_grade.grader_trace token counts (in+out) across this user's
-    submissions created since UTC midnight — the per-user/day budget window
-    for the TASK-601 guardrail. Two-step (submissions then grades) rather
-    than a join: the Supabase query-builder chain used everywhere else in
-    this file has no join primitive."""
-    start_of_day = datetime.combine(datetime.now(timezone.utc).date(), dtime.min, tzinfo=timezone.utc)
-    submissions_resp = (
-        db.table('dt_submission')
-        .select('id')
-        .eq('user_id', user_id)
-        .gte('created_at', start_of_day.isoformat())
-        .execute()
-    )
-    submission_ids = [row['id'] for row in (submissions_resp.data or [])]
-    if not submission_ids:
-        return 0
-
-    grades_resp = (
-        db.table('dt_grade')
-        .select('grader_trace')
-        .in_('submission_id', submission_ids)
-        .execute()
-    )
-    total = 0
-    for row in (grades_resp.data or []):
-        tokens = (row.get('grader_trace') or {}).get('tokens') or {}
-        total += int(tokens.get('in', 0) or 0) + int(tokens.get('out', 0) or 0)
-    return total
+    """Today's (UTC) DT token spend for the TASK-601 guardrail: grades
+    (dt_grade.grader_trace tokens of today's submissions) plus guided-repair
+    re-checks (dt_repair_event), so first grades see re-check spend. The logic
+    lives in services.dual_translation.repair.budget; re-check tokens read as 0
+    when the repair tables are missing."""
+    return repair_budget.grade_tokens_today(db, user_id) + repair_budget.recheck_tokens_today(db, user_id)
 
 
 def _get_submission(db, submission_id: int) -> Optional[dict]:

@@ -7,6 +7,7 @@
 {% block main_class %}container py-4{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dt-repair.css') }}">
 <style>
     .dt-wrap { max-width: 760px; margin: 0 auto; }
 
@@ -332,5 +333,6 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/active-timer.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dt-error-card.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dt-repair-sheet.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dual_translation.js') }}"></script>
 {% endblock %}

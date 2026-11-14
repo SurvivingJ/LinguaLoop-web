@@ -140,6 +140,7 @@ def intro_review_minutes(n_intro: int, n_followups: int) -> int:
 def _session_reads(
     db, user_id: str, language_id: int, today: str, tests: List[Dict[str, Any]],
     *, speed_round: bool, intro_counts: bool, mpnw: Optional[Callable[[], float]],
+    dt_repair_counts: bool = False,
 ) -> Dict[str, Outcome]:
     """The reads the queue is decorated with, run concurrently.
 
@@ -169,6 +170,11 @@ def _session_reads(
         calls['followups_due'] = lambda: due_followup_count(db, user_id, language_id, today)
     if mpnw is not None:
         calls['mpnw'] = mpnw
+    if dt_repair_counts:
+        def dt_repair_due():
+            from services.dual_translation.repair import service as repair_service
+            return repair_service.count_due(db, user_id, language_id, today)
+        calls['dt_repair_due'] = dt_repair_due
 
     results = run_parallel(*[(lambda fn=fn: _attempt(fn)) for fn in calls.values()])
     return dict(zip(calls, results))
@@ -251,6 +257,38 @@ def with_intro_reviews(
     return _queue.insert_intro_reviews(queue, minutes, False) if minutes else queue
 
 
+def _dt_repair_status(targets: Dict[str, Any], completed_blocks: List[str]) -> str:
+    try:
+        from services.dual_translation.repair import settings as repair_settings
+        return _queue.dt_repair_status(
+            targets, completed_blocks, enabled=repair_settings.DT_GUIDED_REPAIR)
+    except Exception as exc:
+        logger.warning("dt_repair block failed (non-fatal): %s", exc)
+        return 'off'
+
+
+def with_dt_repair(
+    queue: List[Dict[str, Any]], status: str, reads: Dict[str, Outcome],
+) -> List[Dict[str, Any]]:
+    """Add the guided-repair block (wiki/features/dt-guided-self-repair.tech.md
+    7.6) when the learner has due items of their own DT sentences. ``done`` keeps
+    it in the queue as completed; any counting failure means no block, never a
+    failed session."""
+    if status == 'done':
+        return _queue.insert_dt_repair(queue, 0, True)
+    if status != 'check':
+        return queue
+    try:
+        n_due, error = reads['dt_repair_due']
+        if error is not None:
+            raise error
+        n_due = int(n_due or 0)
+    except Exception as exc:
+        logger.warning("dt_repair block failed (non-fatal): %s", exc)
+        return queue
+    return _queue.insert_dt_repair(queue, n_due, False) if n_due > 0 else queue
+
+
 def _governor_and_tail(
     state_outcome: Outcome, mpnw_outcome: Optional[Outcome],
     queue: List[Dict[str, Any]], completed_blocks: List[str],
@@ -303,6 +341,7 @@ def build_study_session(
 
     intro_status = _intro_reviews_status(
         _queue.build_practice_chunks(targets, completed_blocks), targets, completed_blocks)
+    dt_repair_status = _dt_repair_status(targets, completed_blocks)
     reads = _session_reads(
         db, user_id, language_id, today, tests,
         # A speed round is vocabulary review by another name (session-modules):
@@ -310,6 +349,7 @@ def build_study_session(
         speed_round='practice' not in (targets.get('excluded_modules') or []),
         intro_counts=intro_status == 'check',
         mpnw=mpnw if has_state else None,
+        dt_repair_counts=dt_repair_status == 'check',
     )
 
     # Tests round-robined by type, practice split into ≤10-min chunks
@@ -322,6 +362,7 @@ def build_study_session(
     queue = _with_prestudy(
         db, user_id, language_id, queue, reads['prestudy_plans'], completed_blocks, targets)
     queue = with_intro_reviews(queue, intro_status, reads)
+    queue = with_dt_repair(queue, dt_repair_status, reads)
 
     return {
         'load_date':          load_date,
@@ -377,7 +418,7 @@ def complete_block(
         row.get('daily_session_targets') or {},
         extra_ids=_queue.tail_window_ids(blocks)
         | _queue.today_prestudy_ids(row.get('test_ids'))
-        | {_queue.INTRO_REVIEWS_BLOCK_ID},
+        | {_queue.INTRO_REVIEWS_BLOCK_ID, _queue.DT_REPAIR_BLOCK_ID},
     )
     if block_id not in valid_ids:
         raise InvalidBlockId(valid_ids)

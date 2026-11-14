@@ -320,6 +320,10 @@
       return showErrorCard(data);
     }
     startPassage(data);
+    if (!state.resumeTried) {
+      state.resumeTried = true;
+      resumeRepair(data.submission_id);
+    }
   }
 
   function startPassage(data) {
@@ -460,10 +464,131 @@
       return failSubmit(resp && resp.status);
     }
     const contract = await resp.json();
-    state.lastContract = contract;
     state.reproduction = reproduction;
     state.submitting = false;
+    handleGrade(contract);
+  }
+
+  // ---------------------------------------------------- guided self-repair
+  // wiki/features/dt-guided-self-repair.tech.md §8.7. The page reacts to the response, not to a
+  // flag: no `repair` key (flag off, ineligible grade, hook error) or a bypassed pass renders
+  // today's result view; a clean or open session opens the pop-up first. A redacted contract
+  // (an open session) is never rendered or kept.
+  function handleGrade(contract) {
+    const repair = contract && contract.repair;
+    if (!repair || repair.status === 'bypassed') return showFull(contract);
+    if (repair.clean) {
+      return openRepair(repair, function () {
+        showFull(contract);
+      });
+    }
+    if (repair.status === 'open' || contract.redacted) {
+      return openRepair(repair, function () {
+        showServerResult(repair);
+      });
+    }
+    return showFull(contract);
+  }
+
+  function showFull(contract) {
+    state.lastContract = contract;
     renderResult(contract);
+  }
+
+  function openRepair(repair, after) {
+    if (!window.DTRepairSheet) {
+      console.error('dual_translation: DTRepairSheet global not loaded');
+      return after();
+    }
+    state.sheet = window.DTRepairSheet.open({
+      mode: 'pass',
+      session: repair,
+      fetch: window.authFetch,
+      returnFocus: el.submit,
+      onDone: function () {
+        state.sheet = null;
+        after();
+      },
+    });
+    return undefined;
+  }
+
+  function sleep(ms) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  // The full contract is only served once the session is finished: one retry after 1 s, and a 409
+  // (the finish call did not land) triggers one more finish.
+  async function fetchFullResult(repair) {
+    const base = '/api/dual-translation/repair/';
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await window.authFetch(
+          base + 'submissions/' + encodeURIComponent(repair.submission_id) + '/result'
+        );
+        const data = await res.json().catch(function () {
+          return {};
+        });
+        const contract = data.data && !('status' in data) ? data.data : data;
+        if (res.ok && contract && !contract.redacted) return contract;
+        if (res.status === 409 && repair.session_id != null) {
+          await window
+            .authFetch(base + 'sessions/' + encodeURIComponent(repair.session_id) + '/finish', {
+              method: 'POST',
+              body: JSON.stringify({ closed_early: true }),
+            })
+            .catch(function () {
+              return null;
+            });
+        }
+      } catch (e) {
+        console.warn('dual_translation: result fetch failed', e);
+      }
+      if (attempt === 0) await sleep(1000);
+    }
+    return null;
+  }
+
+  async function showServerResult(repair) {
+    showPhase('loading');
+    const full = await fetchFullResult(repair);
+    if (full) return showFull(full);
+    el.error.innerHTML =
+      '<p>' +
+      escapeHtml(label('dt_repair.result_load_failed', 'Couldn’t load your full feedback.')) +
+      '</p><button class="dt-secondary" type="button" data-dt-result-retry>' +
+      escapeHtml(label('dt_repair.retry', 'Try again')) +
+      '</button> <button class="dt-secondary" type="button" data-dt-result-other>' +
+      escapeHtml(label('dual_translation.try_another', 'Try another')) +
+      '</button>';
+    el.error.querySelector('[data-dt-result-retry]').onclick = function () {
+      showServerResult(repair);
+    };
+    el.error.querySelector('[data-dt-result-other]').onclick = loadNext;
+    showPhase('error');
+    return undefined;
+  }
+
+  // After a reload with an open session the pop-up reopens at the first open step. Best effort:
+  // no session (404) or any failure leaves the fresh passage as it is.
+  async function resumeRepair(submissionId) {
+    try {
+      const res = await window.authFetch(
+        '/api/dual-translation/repair/submissions/' + encodeURIComponent(submissionId) + '/session'
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      const session = (data.data && !('status' in data) ? data.data : data).session;
+      if (!session || session.status !== 'open' || !window.DTRepairSheet) return;
+      if (state.submissionId !== submissionId || state.sheet) return;
+      openRepair(session, function () {
+        showServerResult(session);
+      });
+    } catch {
+      /* resume is optional */
+    }
   }
 
   function failSubmit(status) {

@@ -50,6 +50,7 @@ from routes.practice import practice_bp
 from routes.study_plan import study_plan_bp
 from routes.study_session import study_session_bp
 from routes.dual_translation import dual_translation_bp
+from routes.dt_repair import dt_repair_bp
 from routes.test_intros import test_intros_bp
 from routes.word_list_import import word_list_import_bp
 
@@ -246,6 +247,7 @@ def _register_blueprints(app):
     app.register_blueprint(study_plan_bp, url_prefix='/api/study-plan')
     app.register_blueprint(study_session_bp, url_prefix='/api/study-session')
     app.register_blueprint(dual_translation_bp, url_prefix='/api/dual-translation')
+    app.register_blueprint(dt_repair_bp, url_prefix='/api/dual-translation/repair')
     app.register_blueprint(test_intros_bp)
     app.register_blueprint(word_list_import_bp)
 
