@@ -33,7 +33,7 @@ async function assertStep(page, tag) {
     const sheet = document.querySelector('#sheet'), open = !sheet.hidden;
     const root = open ? sheet : document.querySelector('#ex');
     const box = open ? sheet.getBoundingClientRect() : { left: 0, top: 0, right: W, bottom: H };
-    const vis = el => { const c = getComputedStyle(el); const b = el.getBoundingClientRect(); return c.display !== 'none' && c.visibility !== 'hidden' && b.width > 0 && b.height > 0 && !el.closest('.sr'); };
+    const vis = el => { const c = getComputedStyle(el); const b = el.getBoundingClientRect(); return c.display !== 'none' && c.visibility !== 'hidden' && b.width > 1 && b.height > 1 && !el.closest('.sr'); };
     const name = el => el.id ? '#' + el.id : el.tagName.toLowerCase() + '.' + el.className;
     for (const el of root.querySelectorAll('*')) {
       if (!vis(el) || el.closest('svg') && el.tagName !== 'svg') continue;
@@ -203,7 +203,7 @@ const stress = lang => async T => { // longest gold sentence in the language
     const img = f => `data:image/png;base64,${fs.readFileSync(f).toString('base64')}`;
     const sheet = async (files, cols, w, out, caps) => {
       const ctx = await browser.newContext({ viewport: { width: cols * (w + 24) + 24, height: 600 }, deviceScaleFactor: 1 }); const page = await ctx.newPage();
-      await page.setContent(`<body style="margin:0;padding:24px 12px;background:#cfd8d6;font:600 22px system-ui;color:#13282b;display:grid;grid-template-columns:repeat(${cols},${w}px);gap:28px 24px;justify-content:center;align-items:start">${files.map((f, i) => `<figure style="margin:0"><figcaption style="padding:0 0 10px">${caps[i]}</figcaption><img src="${img(f)}" style="width:${w}px;display:block;border-radius:12px;box-shadow:0 4px 14px #0003"></figure>`).join('')}</body>`);
+      await page.setContent(`<body style="margin:0;padding:24px 12px;background:#cfd8d6;font:600 ${w>1000?22:40}px system-ui;color:#13282b;display:grid;grid-template-columns:repeat(${cols},${w}px);gap:28px 24px;justify-content:center;align-items:start">${files.map((f, i) => `<figure style="margin:0"><figcaption style="padding:0 0 10px">${caps[i]}</figcaption><img src="${img(f)}" style="width:${w}px;display:block;border-radius:12px;box-shadow:0 4px 14px #0003"></figure>`).join('')}</body>`);
       await page.screenshot({ path: path.join(DIR, out), fullPage: true }); await ctx.close();
     };
     const S = n => path.join(steps, fs.readdirSync(steps).find(f => f.includes(n)));

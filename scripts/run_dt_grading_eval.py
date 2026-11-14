@@ -293,6 +293,25 @@ def _load_fixture(l2: str, fixture_set: str = "v5") -> list[dict]:
         return json.load(fh)
 
 
+def _load_items_file(path: str, l2: str, level: str | None, fixture_set: str) -> list[dict]:
+    """Items of a JSONL file in the gold-fixture schema (ADR-044 stress runs). An
+    item without `source_passage_id` takes it from the gold item named by its
+    `base_id` (it only selects the age tier of the rubric band descriptors)."""
+    passage_by_id = {it["id"]: it.get("source_passage_id") for it in _load_fixture(l2, fixture_set)}
+    items = []
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            if not line.strip():
+                continue
+            it = json.loads(line)
+            if it.get("lang") != l2 or (level is not None and it.get("level") != level):
+                continue
+            if it.get("source_passage_id") is None:
+                it["source_passage_id"] = passage_by_id.get(it.get("base_id"), -1)
+            items.append(it)
+    return items
+
+
 def _pred_errors(contract: dict) -> list[dict]:
     """Normalize the v1 grading contract's errors[] into the eval record shape.
     `explanation_variant` is None until the grader emits it (TASK-845)."""
@@ -676,11 +695,22 @@ def main() -> int:
     ap.add_argument("--fixture-set", default="v5", choices=sorted(FIXTURE_DIRS),
                     help="Gold set: v5 = tests/fixtures/dt_gold (default), v6 = dt_gold_v6, "
                          "v6_silver = dt_silver_v6 (TASK-847).")
+    ap.add_argument("--items-file", default=None,
+                    help="Grade the items of this JSONL file (gold-fixture schema plus `lang`, "
+                         "optional `level` / `base_id`) instead of the --fixture-set gold set, "
+                         "e.g. data/eval/dt_decision_2026-11-14/track_e/stress_set.jsonl. Only "
+                         "items whose `lang` is --l2 are graded. --fixture-set still says which "
+                         "taxonomy the labels are on.")
+    ap.add_argument("--level", default=None,
+                    help="--items-file only: keep items whose `level` equals this (e.g. heavy).")
     args = ap.parse_args()
 
     l2 = args.l2
     l1 = args.l1 or _DEFAULT_L1[l2]
-    items = _load_fixture(l2, args.fixture_set)
+    if args.items_file:
+        items = _load_items_file(args.items_file, l2, args.level, args.fixture_set)
+    else:
+        items = _load_fixture(l2, args.fixture_set)
     if args.limit:
         items = items[: args.limit]
 

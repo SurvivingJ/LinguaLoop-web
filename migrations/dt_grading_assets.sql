@@ -8,13 +8,20 @@
 -- comparisons, native review of explanations, guided self-repair, re-using a
 -- learner's own erroneous sentences in daily practice).
 --
--- Pure additive schema change. Safe to apply before any code change and before
--- the grader flag is turned on: every new column is NULLable with no default,
--- and nothing reads or writes the new objects until Config.DT_GRADING_ASSET_COLUMNS
--- is turned on (config.py) — which MUST happen only after this file is applied
--- (PostgREST rejects an insert/select naming a column that does not exist).
+-- Pure additive schema change: every new column is NULLable with no default.
+-- Config.DT_GRADING_ASSET_COLUMNS (config.py) defaults to TRUE since 2026-11-14,
+-- so APPLY THIS FILE BEFORE (or together with) deploying that code. If it is not
+-- applied the app still grades and saves every submission — routes/
+-- dual_translation.py retries any statement that names these columns without
+-- them and logs the problem once — but the fields below are then lost for those
+-- submissions.
 --
---   1. dt_error_instance — five columns the grader knows per error:
+-- Revised 2026-11-14 (prompt v2, before this file was ever applied): span_source
+-- and correction_source value sets changed, model_note now holds the L1
+-- explanation shown to the learner, and confidence_label / explanation_source
+-- were added.
+--
+--   1. dt_error_instance — seven columns the grader knows per error:
 --        sentence_index     0-based index of the aligned sentence pair
 --                           (services/dual_translation/sentence_pairs.py) whose
 --                           learner sentence contains span_reproduction. This is
@@ -24,16 +31,30 @@
 --        model_severity     the severity the model returned, before the
 --                           per-language severity rule; `severity` stays the
 --                           applied (scored) one.
---        model_note         the model's own short explanation (English, <= 240
---                           chars, guard-checked). Kept apart from `explanation`,
---                           which stays the template-rendered text (ADR-015).
---        span_source        model | repaired | sentence — whether
---                           span_reproduction is the model's fragment verbatim,
---                           a relocated one, or the whole learner sentence
---                           because the fragment could not be located.
---        correction_source  aligned_diff | reference_sentence — whether
---                           corrected_form/span_reference is a local fragment
---                           found by aligning the two sentences, or the whole
+--        model_note         the model's own one-sentence explanation in the
+--                           learner's L1 (<= 240 chars), stored only when it
+--                           passed the guards and is therefore SHOWN to the
+--                           learner under the template text. `explanation`
+--                           itself stays the template-rendered text (ADR-015).
+--        explanation_source model | template | explainer — which text the
+--                           learner was shown as the this-sentence explanation:
+--                           the grading model's (model_note), none beyond the
+--                           template (the model's text was rejected by a
+--                           guard), or the opt-in v2 Explainer call's.
+--        confidence_label   high | medium | low — the model's own confidence
+--                           that this is a real error; `confidence` holds the
+--                           mapped number (0.9 / 0.6 / 0.3).
+--        span_source        exact | normalised | fuzzy | diff_hunk | sentence —
+--                           how span_reproduction was resolved from the model's
+--                           verbatim quote: found exactly; found after
+--                           width/kana/case/punctuation folding; closest window
+--                           in the sentence; the changed region of the sentence
+--                           overlapping the quote; or (last resort) the error
+--                           is marked on the whole learner sentence.
+--        correction_source  model_quote | aligned_diff | reference_sentence —
+--                           whether corrected_form/span_reference is the
+--                           model's own reference quote, a local fragment found
+--                           by aligning the two sentences, or the whole
 --                           reference sentence (free rewrites; not cloze-safe).
 --
 --   2. dt_grading_call — one row per grading model call (attempt). A graded
@@ -49,21 +70,23 @@
 --     ~1,000 tokens (~4-6 KB) that would be identical for every row of a language.
 --   * No learner or reference text is copied: errors keep offsets + the short
 --     forms they already had; `response` holds only the model's own error list
---     (sentence no., fragment, type, severity, <=15-word note; each string capped
---     at 300 chars, at most 50 entries).
+--     (sentence no., learner quote, reference quote, type, severity, confidence,
+--     source, one-sentence explanation; each string capped at 300 chars, at most
+--     50 entries) and its two band judgments (band + evidence quote).
 --   * raw_response (the unparsed text) is stored ONLY when the response could not
 --     be parsed, and is cut to 4,000 chars (CHECK below).
 --   Estimate per graded submission, single-call flow, primary model succeeds:
---     dt_grading_call row    ~0.25 KB fixed + ~0.15 KB per model error
---     dt_error_instance      ~0.12 KB per error for the five new columns
---     dt_grade.grader_trace  ~0.7 KB + ~0.2 KB per error (existing jsonb column;
+--     dt_grading_call row    ~0.35 KB fixed + ~0.25 KB per model error
+--     dt_error_instance      ~0.15 KB per error for the seven new columns
+--     dt_grade.grader_trace  ~1.1 KB + ~0.3 KB per error (existing jsonb column;
 --                            carries slug, prompt version, usage, cost, latency,
---                            parse status, drop counts, per-error raw fields)
---     => ~1 KB for a clean submission, ~2 KB with two errors (the gold-set mean
+--                            parse status, drop / span-resolution counts, the
+--                            two judgments, per-error raw fields)
+--     => ~1.5 KB for a clean submission, ~3 KB with two errors (the gold-set mean
 --        is 0.9 errors per submission). Worst case (both models return unparsable
 --        text): two rows x 4 KB raw = ~9 KB, and that submission is then graded
 --        by the v2 flow.
---   At 10,000 graded submissions/month this is ~15-20 MB/month including indexes.
+--   At 10,000 graded submissions/month this is ~20-30 MB/month including indexes.
 --   In addition each call writes one llm_calls row (existing table, ~0.3 KB; its
 --   raw_response is likewise only filled on a parse failure).
 --
@@ -77,11 +100,14 @@
 -- holds model output about every learner's submissions and is never read by a
 -- client.
 --
--- Idempotent: ADD COLUMN IF NOT EXISTS, CREATE TABLE / INDEX IF NOT EXISTS,
--- drop-then-add CHECKs. Per migrations/CLAUDE.md the CHECKs on the existing
--- table are added NOT VALID inside the transaction (brief lock, no scan) and
--- VALIDATEd after COMMIT; the new columns are all NULL at that point, so
--- validation cannot fail.
+-- Additive and idempotent, with NO destructive statement (no DROP, no DELETE, no
+-- column or type change): ADD COLUMN IF NOT EXISTS, CREATE TABLE / INDEX IF NOT
+-- EXISTS, and each CHECK is added only if a constraint of that name is not
+-- already there. Per migrations/CLAUDE.md the CHECKs on the existing table are
+-- added NOT VALID inside the transaction (brief lock, no scan) and VALIDATEd
+-- after COMMIT; the new columns are all NULL at that point, so validation cannot
+-- fail. Re-running the file is a no-op. (Consequence of "no DROP": if a CHECK's
+-- allowed values ever change, that is a new migration, not an edit of this one.)
 --
 -- SEARCH-BEFORE-ARCHIVE (migrations/CLAUDE.md): this file only ADDS columns and
 -- constraints to dt_error_instance (dual_translation_groundwork.sql,
@@ -103,38 +129,82 @@ ALTER TABLE public.dt_error_instance
     ADD COLUMN IF NOT EXISTS model_severity    text,
     ADD COLUMN IF NOT EXISTS model_note        text,
     ADD COLUMN IF NOT EXISTS span_source       text,
-    ADD COLUMN IF NOT EXISTS correction_source text;
+    ADD COLUMN IF NOT EXISTS correction_source text,
+    ADD COLUMN IF NOT EXISTS confidence_label  text,
+    ADD COLUMN IF NOT EXISTS explanation_source text;
 
-ALTER TABLE public.dt_error_instance
-    DROP CONSTRAINT IF EXISTS dt_error_instance_sentence_index_check;
-ALTER TABLE public.dt_error_instance
-    ADD CONSTRAINT dt_error_instance_sentence_index_check
-    CHECK (sentence_index IS NULL OR sentence_index >= 0) NOT VALID;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint
+                 WHERE conname = 'dt_error_instance_sentence_index_check'
+                   AND conrelid = 'public.dt_error_instance'::regclass) THEN
+    ALTER TABLE public.dt_error_instance
+        ADD CONSTRAINT dt_error_instance_sentence_index_check
+        CHECK (sentence_index IS NULL OR sentence_index >= 0) NOT VALID;
+  END IF;
+END $$;
 
-ALTER TABLE public.dt_error_instance
-    DROP CONSTRAINT IF EXISTS dt_error_instance_model_severity_check;
-ALTER TABLE public.dt_error_instance
-    ADD CONSTRAINT dt_error_instance_model_severity_check
-    CHECK (model_severity IS NULL OR model_severity IN ('minor', 'major', 'critical')) NOT VALID;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint
+                 WHERE conname = 'dt_error_instance_model_severity_check'
+                   AND conrelid = 'public.dt_error_instance'::regclass) THEN
+    ALTER TABLE public.dt_error_instance
+        ADD CONSTRAINT dt_error_instance_model_severity_check
+        CHECK (model_severity IS NULL OR model_severity IN ('minor', 'major', 'critical')) NOT VALID;
+  END IF;
+END $$;
 
-ALTER TABLE public.dt_error_instance
-    DROP CONSTRAINT IF EXISTS dt_error_instance_model_note_check;
-ALTER TABLE public.dt_error_instance
-    ADD CONSTRAINT dt_error_instance_model_note_check
-    CHECK (model_note IS NULL OR char_length(model_note) <= 240) NOT VALID;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint
+                 WHERE conname = 'dt_error_instance_model_note_check'
+                   AND conrelid = 'public.dt_error_instance'::regclass) THEN
+    ALTER TABLE public.dt_error_instance
+        ADD CONSTRAINT dt_error_instance_model_note_check
+        CHECK (model_note IS NULL OR char_length(model_note) <= 240) NOT VALID;
+  END IF;
+END $$;
 
-ALTER TABLE public.dt_error_instance
-    DROP CONSTRAINT IF EXISTS dt_error_instance_span_source_check;
-ALTER TABLE public.dt_error_instance
-    ADD CONSTRAINT dt_error_instance_span_source_check
-    CHECK (span_source IS NULL OR span_source IN ('model', 'repaired', 'sentence')) NOT VALID;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint
+                 WHERE conname = 'dt_error_instance_span_source_check'
+                   AND conrelid = 'public.dt_error_instance'::regclass) THEN
+    ALTER TABLE public.dt_error_instance
+        ADD CONSTRAINT dt_error_instance_span_source_check
+        CHECK (span_source IS NULL
+               OR span_source IN ('exact', 'normalised', 'fuzzy', 'diff_hunk', 'sentence')) NOT VALID;
+  END IF;
+END $$;
 
-ALTER TABLE public.dt_error_instance
-    DROP CONSTRAINT IF EXISTS dt_error_instance_correction_source_check;
-ALTER TABLE public.dt_error_instance
-    ADD CONSTRAINT dt_error_instance_correction_source_check
-    CHECK (correction_source IS NULL
-           OR correction_source IN ('aligned_diff', 'reference_sentence')) NOT VALID;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint
+                 WHERE conname = 'dt_error_instance_correction_source_check'
+                   AND conrelid = 'public.dt_error_instance'::regclass) THEN
+    ALTER TABLE public.dt_error_instance
+        ADD CONSTRAINT dt_error_instance_correction_source_check
+        CHECK (correction_source IS NULL
+               OR correction_source IN ('model_quote', 'aligned_diff', 'reference_sentence')) NOT VALID;
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint
+                 WHERE conname = 'dt_error_instance_confidence_label_check'
+                   AND conrelid = 'public.dt_error_instance'::regclass) THEN
+    ALTER TABLE public.dt_error_instance
+        ADD CONSTRAINT dt_error_instance_confidence_label_check
+        CHECK (confidence_label IS NULL OR confidence_label IN ('high', 'medium', 'low')) NOT VALID;
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint
+                 WHERE conname = 'dt_error_instance_explanation_source_check'
+                   AND conrelid = 'public.dt_error_instance'::regclass) THEN
+    ALTER TABLE public.dt_error_instance
+        ADD CONSTRAINT dt_error_instance_explanation_source_check
+        CHECK (explanation_source IS NULL
+               OR explanation_source IN ('model', 'template', 'explainer')) NOT VALID;
+  END IF;
+END $$;
 
 COMMENT ON COLUMN public.dt_error_instance.sentence_index IS
     '0-based index of the aligned sentence pair whose learner sentence contains '
@@ -146,17 +216,31 @@ COMMENT ON COLUMN public.dt_error_instance.model_severity IS
     '(ADR-044). `severity` is the applied, scored value. NULL for v1/v2 grades.';
 
 COMMENT ON COLUMN public.dt_error_instance.model_note IS
-    'The single-call grader model''s own short explanation (English, guard-checked, '
-    '<= 240 chars). Never shown as the eager explanation — `explanation` stays the '
-    'template-rendered text (ADR-015). Unreviewed model prose.';
+    'The single-call grader model''s own one-sentence explanation, in the learner''s '
+    'L1, <= 240 chars, stored only when it passed the guards (then explanation_source '
+    '= model and the learner is shown it under the template text). `explanation` '
+    'stays the template-rendered text (ADR-015). Unreviewed model prose.';
+
+COMMENT ON COLUMN public.dt_error_instance.explanation_source IS
+    'Which this-sentence explanation the learner was shown: model = model_note; '
+    'template = only the template `explanation` (the model''s text was missing or '
+    'rejected by a guard); explainer = the opt-in v2 Explainer call (its text is '
+    'appended to `explanation`). NULL for v1/v2 grades (ADR-044).';
+
+COMMENT ON COLUMN public.dt_error_instance.confidence_label IS
+    'The grading model''s own confidence that this is a real error: high | medium | '
+    'low. `confidence` holds the mapped number (0.9 / 0.6 / 0.3). NULL for v1/v2 '
+    'grades, whose `confidence` is a model-reported number (ADR-044).';
 
 COMMENT ON COLUMN public.dt_error_instance.span_source IS
-    'model = span_reproduction is the model''s fragment found verbatim; repaired = '
-    'relocated/normalisation-matched; sentence = the fragment could not be located '
-    'and the whole learner sentence is used (ADR-044).';
+    'How span_reproduction was resolved from the model''s verbatim quote: exact; '
+    'normalised (width/kana/case/punctuation folding); fuzzy (closest window in the '
+    'sentence); diff_hunk (the changed region of the sentence overlapping the quote); '
+    'sentence (last resort: the error is marked on the whole learner sentence) (ADR-044).';
 
 COMMENT ON COLUMN public.dt_error_instance.correction_source IS
-    'aligned_diff = corrected_form/span_reference is a local fragment found by '
+    'model_quote = corrected_form/span_reference is the model''s own reference quote, '
+    'located in the reference sentence; aligned_diff = a local fragment found by '
     'aligning the learner sentence with its reference sentence; reference_sentence '
     '= the whole reference sentence (free rewrite or no local difference). Rows '
     'with reference_sentence are not suitable for cloze cards (ADR-044).';
@@ -212,8 +296,8 @@ COMMENT ON COLUMN public.dt_grading_call.flow IS
 COMMENT ON COLUMN public.dt_grading_call.prompt_version IS
     'services/dual_translation/single_call_prompts.PROMPT_VERSION at call time.';
 COMMENT ON COLUMN public.dt_grading_call.prompt_variant IS
-    'p1_expl (validated base prompt) | p1_expl_mit (with the Track E "free '
-    'translations are expected" paragraph).';
+    'v2 (base prompt) | v2_mit (with the Track E "free translations are expected" '
+    'paragraph). Prompt v1 used p1_expl | p1_expl_mit.';
 COMMENT ON COLUMN public.dt_grading_call.severity_rule IS
     'model = the model''s severity was scored; prior = the taxonomy default severity '
     'of the predicted type was scored unless the model said critical. NULL when the '
@@ -221,11 +305,12 @@ COMMENT ON COLUMN public.dt_grading_call.severity_rule IS
 COMMENT ON COLUMN public.dt_grading_call.cost_usd IS
     'USD cost as reported by OpenRouter on usage.cost; NULL when not reported.';
 COMMENT ON COLUMN public.dt_grading_call.response IS
-    'The model''s parsed answer {"errors": [{sentence, span, type, severity, '
-    'explanation}]}, each string capped at 300 chars, at most 50 entries. NULL when '
-    'the response could not be parsed (see raw_response).';
+    'The model''s parsed answer {"errors": [{sentence, learner_quote, reference_quote, '
+    'type, severity, confidence, source, explanation}], "naturalness": {band, '
+    'evidence}, "range": {band, evidence}}, each string capped at 300 chars, at most '
+    '50 entries. NULL when the response could not be parsed (see raw_response).';
 COMMENT ON COLUMN public.dt_grading_call.dropped IS
-    '{invalid_entry, span_unlocatable, decode_rejected}: model entries not turned '
+    '{invalid_entry, unknown_type, span_unlocatable, decode_rejected}: model entries not turned '
     'into dt_error_instance rows, by reason.';
 COMMENT ON COLUMN public.dt_grading_call.result IS
     'Reserved for role = ''shadow'': the decoded grade (scores, overall_band, '
@@ -252,3 +337,5 @@ ALTER TABLE public.dt_error_instance VALIDATE CONSTRAINT dt_error_instance_model
 ALTER TABLE public.dt_error_instance VALIDATE CONSTRAINT dt_error_instance_model_note_check;
 ALTER TABLE public.dt_error_instance VALIDATE CONSTRAINT dt_error_instance_span_source_check;
 ALTER TABLE public.dt_error_instance VALIDATE CONSTRAINT dt_error_instance_correction_source_check;
+ALTER TABLE public.dt_error_instance VALIDATE CONSTRAINT dt_error_instance_confidence_label_check;
+ALTER TABLE public.dt_error_instance VALIDATE CONSTRAINT dt_error_instance_explanation_source_check;

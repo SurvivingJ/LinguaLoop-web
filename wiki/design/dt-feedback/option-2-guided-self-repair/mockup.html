@@ -148,7 +148,9 @@ button{cursor:pointer;background:none;border:0;padding:0;-webkit-tap-highlight-c
 .kb .lab{font-size:1.0625rem;margin-bottom:6px}
 .kb .field{font-size:1.0625rem}.kb .field.f1,.kb .field.f2{font-size:1rem}.kb .field.f3{font-size:.9375rem}
 .kb .field>*{padding:10px 14px}
-.kb .slot{margin-top:8px;font-size:.9375rem}
+.kb .slot{margin-top:8px;font-size:.875rem}.kb .slot small{display:none}
+.kb.tight .stage.hinted .lab{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.kb .moment{padding-bottom:0}.kb .tally{margin-top:6px}.kb .tally li{padding:5px 4px}
 .kb .act{flex-direction:row-reverse;align-items:center;gap:8px;padding-bottom:8px}
 .kb .act .btn{flex:1 1 0;min-height:48px}
 .kb .quiet{flex:none}
@@ -367,7 +369,7 @@ function draw(dir=true){
     h = `<div class="moment"><h2 tabindex="-1">${S.daily?'Practice done':'All done'}</h2><ul class="tally"><li>Fixed yourself <b>${c.self}</b></li><li>Needed help <b>${c.help}</b></li><li>${S.daily?'Back in practice later':'Saved to practice'} <b>${c.saved}</b></li></ul></div>`;
     a = `<button class="btn primary" id="done">Done</button>`;
   }
-  st.innerHTML = h; act.innerHTML = a;
+  st.innerHTML = h; act.innerHTML = a; st.classList.remove('hinted');
   $('#sheet').dataset.view = S.view; $('#sheet').dataset.i = S.i;
   if(dir){ for(const el of [st,act]){ el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); } }
   wire();
@@ -408,7 +410,7 @@ function slot(anim){
     const n = `<small>Hint ${s.level} of 3</small>`;
     h = I.bulb + (s.level===1 ? `<p>${n}Look at the underlined part.</p>` : s.level===2 ? `<p>${n}${esc(s.kind)}</p>` : `<p>${n}${esc(s.clue)}</p>`);
   }
-  el.innerHTML = h; el.setAttribute('aria-live','polite');
+  el.innerHTML = h; el.setAttribute('aria-live','polite'); $('#stage').classList.toggle('hinted', !!h);
   if(anim){ el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); }
   if(hb) hb.textContent = s.level>=3 ? 'Show answer' : s.level>s.start ? 'Another hint' : 'Need a hint?';
   const pr = $('#prompt'); if(pr) pr.firstElementChild.innerHTML = promptHtml(s);
@@ -468,7 +470,7 @@ function next(){
 function vv(){
   const v = window.visualViewport, h = v ? v.height : innerHeight, r = document.documentElement;
   if(innerWidth < 600){ r.style.setProperty('--vvh', h+'px'); r.style.setProperty('--vvt', (v?v.offsetTop:0)+'px'); } else { r.style.removeProperty('--vvh'); r.style.removeProperty('--vvt'); }
-  $('#sheet').classList.toggle('kb', innerWidth < 600 && h < 560);
+  $('#sheet').classList.toggle('kb', innerWidth < 600 && h < 560); $('#sheet').classList.toggle('tight', h < 400);
   if(S && S.view==='fix') paint();
 }
 (window.visualViewport||window).addEventListener('resize', vv); window.visualViewport?.addEventListener('scroll', vv); addEventListener('resize', vv);
