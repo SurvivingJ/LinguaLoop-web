@@ -1,9 +1,21 @@
 // static/js/session/players/reading_listening.js
-// Reading + Listening comprehension player for the daily-session runner.
-// Ported from templates/test.html (the dictation branch is handled by a
-// dedicated player). Renders into a provided container, scopes all DOM lookups
-// to it, tracks listeners/timers for clean teardown, and calls
-// ctx.onComplete(result) when the learner finishes instead of redirecting.
+// Reading + Listening comprehension player. Used by the daily-session runner
+// and by the standalone test page (static/js/pages/test.js). Renders into a
+// provided container, scopes all DOM lookups to it, tracks listeners/timers
+// for clean teardown, and calls ctx.onComplete(result) when the learner
+// finishes.
+//
+// Page-level options on ctx (all optional; the session runner passes none):
+//   payload          test payload already in hand, used instead of a request
+//   ready            promise awaited (with the test data) before rendering
+//   sentences        false: plain transcript, no sentence rows are requested
+//   audioPreload     preload value for a listening test's <audio>
+//   popoverBackdrop  dim the page behind the word popover on phones
+//   resultActions    options for the post-test prestudy action, replacing the
+//                    session's "save completion, then return to the session"
+//   finishButton     (button, result, { testId }) => void: sets up the button that
+//                    replaces Submit, instead of "Next" -> ctx.onComplete
+// The returned handle also has rerender(), for a UI-language switch.
 
 import {
   fetchTestSentences,
@@ -129,7 +141,7 @@ export function mount(container, ctx) {
   async function init() {
     try {
       showLoading(true);
-      await loadTestData();
+      await Promise.all([loadTestData(), ctx.ready]);
       await loadSentences();
       initializeUI();
       state.startTime = Date.now();
@@ -144,11 +156,11 @@ export function mount(container, ctx) {
 
   async function loadTestData() {
     const pre = await takePrefetch(ctx.item);
-    let data = pre && pre.data;
+    let data = (pre && pre.data) || ctx.payload;
     if (pre) {
       state.warmAudio = pre.audio || null;
       if ('sentences' in pre) state.prefetchedSentences = { rows: pre.sentences };
-    } else {
+    } else if (!data) {
       const response = await window.authFetch(testUrl(state.slug));
       if (!response.ok) throw new Error(`Failed to load test (${response.status})`);
       data = await response.json();
@@ -179,6 +191,7 @@ export function mount(container, ctx) {
   // SENTENCES (TASK-911)
   // ====================================================================
   async function loadSentences() {
+    if (ctx.sentences === false) return;
     const transcript = (state.testData && state.testData.transcript) || '';
     let serverRows = null;
     try {
@@ -337,6 +350,7 @@ export function mount(container, ctx) {
 
   function initializeListeningTest() {
     q('audioPlayerCard').style.display = 'block';
+    if (ctx.audioPreload) q('audioElement').preload = ctx.audioPreload;
     state.audioElement = adoptAudio(
       q('audioElement'),
       state.warmAudio,
@@ -727,12 +741,14 @@ export function mount(container, ctx) {
         type: state.mode,
         wrong: Math.max(0, total - score),
         prestudied: !!(res && res.prestudied),
-        returnTo: 'session',
-        beforeLeave: () =>
-          window.authFetch('/api/tests/daily-load/complete', {
-            method: 'POST',
-            body: JSON.stringify({ test_id: ctx.item.id, language_id: ctx.languageId }),
-          }),
+        ...(ctx.resultActions || {
+          returnTo: 'session',
+          beforeLeave: () =>
+            window.authFetch('/api/tests/daily-load/complete', {
+              method: 'POST',
+              body: JSON.stringify({ test_id: ctx.item.id, language_id: ctx.languageId }),
+            }),
+        }),
       });
     }
 
@@ -742,13 +758,17 @@ export function mount(container, ctx) {
     const nextBtn = submitBtn.cloneNode(true);
     submitBtn.replaceWith(nextBtn);
     nextBtn.disabled = false;
-    nextBtn.classList.remove('btn-success');
-    nextBtn.classList.add('btn-primary');
-    nextBtn.innerHTML =
-      '<span>' +
-      T('session.next_item', null, 'Next') +
-      '</span><i class="fas fa-arrow-right ms-2"></i>';
-    nextBtn.onclick = () => ctx.onComplete(result);
+    if (typeof ctx.finishButton === 'function') {
+      ctx.finishButton(nextBtn, result, { testId: state.testId });
+    } else {
+      nextBtn.classList.remove('btn-success');
+      nextBtn.classList.add('btn-primary');
+      nextBtn.innerHTML =
+        '<span>' +
+        T('session.next_item', null, 'Next') +
+        '</span><i class="fas fa-arrow-right ms-2"></i>';
+      nextBtn.onclick = () => ctx.onComplete(result);
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -809,6 +829,7 @@ export function mount(container, ctx) {
   const wordPopover = {
     el: null,
     activeWord: null,
+    backdrop: null,
 
     init() {
       this.el = q('wordDefinitionPopover');
@@ -883,7 +904,19 @@ export function mount(container, ctx) {
       } else readingEl.style.display = 'none';
       q('popoverBody').style.display = 'block';
       this.el.style.display = 'block';
+      if (ctx.popoverBackdrop && window.innerWidth <= 768) this.showBackdrop();
       this.position(wordSpan);
+    },
+
+    showBackdrop() {
+      if (!this.backdrop) {
+        this.backdrop = document.createElement('div');
+        this.backdrop.className = 'word-popover-backdrop';
+        on(this.backdrop, 'click', () => this.hide());
+        document.body.appendChild(this.backdrop);
+        cleanup.push(() => this.backdrop.remove());
+      }
+      this.backdrop.style.display = 'block';
     },
 
     position(wordSpan) {
@@ -933,6 +966,7 @@ export function mount(container, ctx) {
         this.activeWord.classList.remove('word-active');
         this.activeWord = null;
       }
+      if (this.backdrop) this.backdrop.style.display = 'none';
     },
   };
 
@@ -1074,6 +1108,12 @@ export function mount(container, ctx) {
   }
 
   return {
+    rerender() {
+      if (!state.testData) return;
+      renderQuestions();
+      renderQuestionNavigation();
+      updateProgress();
+    },
     destroy() {
       if (state._timer) {
         clearInterval(state._timer);

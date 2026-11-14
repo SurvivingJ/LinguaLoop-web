@@ -1,8 +1,15 @@
 // static/js/session/players/dictation.js
-// Dictation player for the daily-session runner. Ported from
-// templates/test_dictation.html. Renders into a provided container, scopes DOM
-// lookups to it, and calls ctx.onComplete(result) on finish instead of linking
-// back to /tests.
+// Dictation player. Used by the daily-session runner and by the standalone
+// dictation page (static/js/pages/test-dictation.js). Renders into a provided
+// container, scopes DOM lookups to it, and calls ctx.onComplete(result) on
+// finish.
+//
+// Page-level options on ctx (all optional; the session runner passes none):
+//   ready          promise awaited before the test is requested
+//   audioPreload   preload value for the <audio>
+//   backHref       adds a "Back" link to the footer and the error state
+//   resultActions  (actionsEl, response, { slug, testData }) => void: fills the
+//                  results card's actions instead of "Next" -> ctx.onComplete
 
 const SPEED_OPTIONS = [1.0, 0.75, 0.5];
 
@@ -53,6 +60,7 @@ export function mount(container, ctx) {
   container.innerHTML = MARKUP;
   let refreshSubmit = () => {};
   setupSkip();
+  setupBack();
   init();
 
   return {
@@ -75,6 +83,7 @@ export function mount(container, ctx) {
     try {
       showLoading(true);
       if (!state.slug) throw new Error('No test slug');
+      await ctx.ready;
       state.idempotencyKey =
         window.crypto && crypto.randomUUID
           ? crypto.randomUUID()
@@ -118,6 +127,7 @@ export function mount(container, ctx) {
   }
 
   function setupAudio() {
+    if (ctx.audioPreload) q('audioElement').preload = ctx.audioPreload;
     const audio = adoptAudio(q('audioElement'), state.warmAudio, state.audioUrl);
     audio.playbackRate = state.playbackRate;
 
@@ -299,8 +309,14 @@ export function mount(container, ctx) {
     const overlay = q('resultsOverlay');
     overlay.innerHTML = html;
     overlay.style.display = 'block';
-    const nextBtn = overlay.querySelector('[data-session-next]');
-    if (nextBtn) nextBtn.onclick = () => ctx.onComplete(raw || result);
+    if (typeof ctx.resultActions === 'function') {
+      const actions = overlay.querySelector('.dict-results-actions');
+      actions.innerHTML = '';
+      ctx.resultActions(actions, raw || result, { slug: state.slug, testData: state.testData });
+    } else {
+      const nextBtn = overlay.querySelector('[data-session-next]');
+      if (nextBtn) nextBtn.onclick = () => ctx.onComplete(raw || result);
+    }
     window.scrollTo(0, 0);
   }
 
@@ -360,6 +376,19 @@ export function mount(container, ctx) {
         audio.load();
       });
     }
+  }
+
+  function setupBack() {
+    if (!ctx.backHref) return;
+    const link = (cls, gap) => {
+      const a = document.createElement('a');
+      a.href = ctx.backHref;
+      a.className = cls;
+      a.innerHTML = `<i class="fas fa-arrow-left ${gap}"></i><span data-i18n="test.back_to_tests">Back</span>`;
+      return a;
+    };
+    q('errorState').querySelector('.alert').appendChild(link('btn btn-danger', 'me-2'));
+    container.querySelector('.dict-actions-row').prepend(link('btn btn-outline-secondary', 'me-1'));
   }
 
   function showError(msg) {

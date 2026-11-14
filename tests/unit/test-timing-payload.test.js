@@ -12,8 +12,6 @@ const FILES = [
   'static/js/session/players/pinyin.js',
   'static/js/session/players/pitch_accent.js',
   'static/js/session/players/classifier_drill.js',
-  'templates/test.html',
-  'templates/test_dictation.html',
   'templates/test_pinyin.html',
   'templates/test_pitch_accent.html',
   'templates/classifier_drill.html',
