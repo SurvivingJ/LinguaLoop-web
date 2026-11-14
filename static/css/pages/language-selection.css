@@ -1,0 +1,59 @@
+/* Language Selection Card Styles */
+.language-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.language-card:hover {
+  border-color: var(--slate-400);
+  background: var(--bg-surface-hover);
+}
+
+.language-card.selected {
+  border-color: var(--primary);
+  border-width: 2px;
+  background: var(--selected-bg);
+  animation: scaleIn 0.15s ease;
+}
+
+.language-flag {
+  font-size: 32px;
+  margin-right: 16px;
+  user-select: none;
+}
+
+.language-native {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--slate-700);
+  transition: var(--transition-fast);
+  display: block;
+}
+
+.language-english {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.language-card.selected .language-native {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.check-icon {
+  color: var(--primary);
+  font-size: 24px;
+  margin-left: 12px;
+}
+
+/* Button states */
+#continue-btn:disabled {
+  background: var(--border-strong);
+  border-color: var(--border-strong);
+  cursor: not-allowed;
+  opacity: 0.6;
+}

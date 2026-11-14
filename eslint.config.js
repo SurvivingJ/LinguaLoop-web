@@ -1,9 +1,9 @@
 import js from '@eslint/js';
 import globals from 'globals';
 
-// Flat config (ESLint 9). Scope: static/js only — the inline <script> blocks in
-// Jinja templates are NOT linted here because they contain `{{ }}`/`{% %}` syntax
-// that is not valid JavaScript. Those are migrated to shared modules in Phase 3.
+// Flat config (ESLint 9). Scope: static/js only. Page scripts live in
+// static/js/pages (one per template) so they are linted too; the few templates
+// that still carry inline <script> blocks are not.
 export default [
   {
     ignores: ['node_modules/**', 'venv/**', 'Portal/**'],
@@ -33,6 +33,22 @@ export default [
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       eqeqeq: ['warn', 'smart'],
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    },
+  },
+  {
+    // Page scripts: classic scripts loaded after utils.js, i18n-manager.js and
+    // pages/base.js, whose top-level declarations they read as globals.
+    files: ['static/js/pages/**/*.js'],
+    languageOptions: {
+      globals: {
+        LinguaI18n: 'readonly',
+        LinguaFonts: 'readonly',
+        showToast: 'readonly',
+        debugLog: 'readonly',
+        escapeHtml: 'readonly',
+        getDifficultyInfo: 'readonly',
+        getDifficultyText: 'readonly',
+      },
     },
   },
   {
