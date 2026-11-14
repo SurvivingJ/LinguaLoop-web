@@ -8,6 +8,7 @@ import pytest
 
 from services import intro_drill, prestudy
 from services import practice_session_service as pss
+from services.practice import session_assembly
 from services.practice_session_service import PracticeSessionService
 
 
@@ -29,7 +30,7 @@ def _service(rpc_data=None):
 
 @pytest.fixture
 def session_svc(monkeypatch):
-    monkeypatch.setattr(pss, 'plan_today_iso', lambda db, u, lang: '2026-11-14')
+    monkeypatch.setattr(session_assembly, 'plan_today_iso', lambda db, u, lang: '2026-11-14')
     monkeypatch.setattr(intro_drill, 'ENABLED', True)
     monkeypatch.setattr(intro_drill, 'block_for_session', lambda *a: None)
     items = [{'exercise_id': f'e{i}', 'sense_id': i, 'mode': 'maintenance',

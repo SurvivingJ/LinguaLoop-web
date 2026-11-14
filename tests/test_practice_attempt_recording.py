@@ -9,6 +9,7 @@ import pytest
 from config import Config
 from services import intro_drill
 from services import practice_session_service as pss
+from services.practice import attempt_recording
 from services.practice_session_service import PracticeSessionService
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 
@@ -113,7 +114,7 @@ class _DB:
 @pytest.fixture(autouse=True)
 def _env(monkeypatch):
     monkeypatch.delenv(pss.ATTEMPT_RPC_ENV_FLAG, raising=False)
-    monkeypatch.setattr(pss, '_attempt_rpc_missing_until', 0.0)
+    monkeypatch.setattr(attempt_recording, '_attempt_rpc_missing_until', 0.0)
     monkeypatch.setattr(Config, 'STUDY_PLAN_ENABLED', True)
     monkeypatch.setattr(intro_drill, 'restart_if_demoted', lambda *a: False)
     monkeypatch.setattr(VocabularyKnowledgeService, '_trigger_frequency_inference',
