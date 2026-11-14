@@ -14,17 +14,43 @@ import {
   deriveTokenSpans,
   setReferencesVisible,
 } from '../sentences.js';
+import {
+  T,
+  nativeName,
+  escapeHtml as escapeHtmlForFurigana,
+  formatTime,
+  formatClock,
+  showLoading as setLoading,
+} from '../dom.js';
+import { prefetchJson, takePrefetch, warmAudio, adoptAudio } from '../prefetch.js';
 
 const LANGUAGE_LOCALE_MAP = { cn: 'zh', jp: 'ja', en: 'en', es: 'es' };
 
-const T = (key, params, fallback) =>
-  window.LinguaI18n && typeof window.LinguaI18n.t === 'function'
-    ? window.LinguaI18n.t(key, params)
-    : fallback || key;
+const testUrl = (slug) => `/api/tests/test/${slug}`;
+const sentenceMode = (item) => (item && item.prestudy_stage === 'produce' ? 'produce' : null);
 
-const nativeName = (code) =>
-  (window.LinguaMetadata && LinguaMetadata.getNativeName && LinguaMetadata.getNativeName(code)) ||
-  (code ? String(code).toUpperCase() : '');
+/**
+ * Session prefetch hook: the test payload, its sentence rows and, for a
+ * listening test, the audio — all static content, safe to load early.
+ */
+export async function prefetch(item) {
+  if (!item || !item.slug) return { ok: false };
+  const res = await prefetchJson(testUrl(item.slug));
+  if (!res.ok) return res;
+  const payload = res.data.data || res.data;
+  const test = payload.test_data;
+  if (!test) return res;
+  if (item.test_type === 'listening') res.audio = warmAudio(test.audio_url);
+  try {
+    res.sentences = await fetchTestSentences(item.slug, {
+      mode: sentenceMode(item),
+      transcript: test.transcript || '',
+    });
+  } catch {
+    /* the player falls back to its own request */
+  }
+  return res;
+}
 
 export function mount(container, ctx) {
   const mode = ctx.item.test_type === 'listening' ? 'listening' : 'reading';
@@ -52,7 +78,7 @@ export function mount(container, ctx) {
     // reference line. `produce` (the prestudy Produce stage) never shows it.
     sentences: null,
     sentenceSource: null,
-    sentenceMode: ctx.item && ctx.item.prestudy_stage === 'produce' ? 'produce' : null,
+    sentenceMode: sentenceMode(ctx.item),
     referencesShown: false,
   };
 
@@ -117,9 +143,16 @@ export function mount(container, ctx) {
   }
 
   async function loadTestData() {
-    const response = await window.authFetch(`/api/tests/test/${state.slug}`);
-    if (!response.ok) throw new Error(`Failed to load test (${response.status})`);
-    const data = await response.json();
+    const pre = await takePrefetch(ctx.item);
+    let data = pre && pre.data;
+    if (pre) {
+      state.warmAudio = pre.audio || null;
+      if ('sentences' in pre) state.prefetchedSentences = { rows: pre.sentences };
+    } else {
+      const response = await window.authFetch(testUrl(state.slug));
+      if (!response.ok) throw new Error(`Failed to load test (${response.status})`);
+      data = await response.json();
+    }
     const payload = data.data || data;
     if (!payload.test_data || !payload.questions_data) {
       throw new Error('Invalid test data received');
@@ -149,10 +182,12 @@ export function mount(container, ctx) {
     const transcript = (state.testData && state.testData.transcript) || '';
     let serverRows = null;
     try {
-      serverRows = await fetchTestSentences(state.slug, {
-        mode: state.sentenceMode,
-        transcript,
-      });
+      serverRows = state.prefetchedSentences
+        ? state.prefetchedSentences.rows
+        : await fetchTestSentences(state.slug, {
+            mode: state.sentenceMode,
+            transcript,
+          });
     } catch (e) {
       console.warn('sentences: unexpected failure, using client split', e);
     }
@@ -198,15 +233,6 @@ export function mount(container, ctx) {
   // ====================================================================
   // FURIGANA
   // ====================================================================
-  function escapeHtmlForFurigana(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
   function renderFuriganaTokens(tokens) {
     if (!Array.isArray(tokens)) return '';
     const parts = [];
@@ -311,8 +337,11 @@ export function mount(container, ctx) {
 
   function initializeListeningTest() {
     q('audioPlayerCard').style.display = 'block';
-    state.audioElement = q('audioElement');
-    state.audioElement.src = state.testData.audio_url;
+    state.audioElement = adoptAudio(
+      q('audioElement'),
+      state.warmAudio,
+      state.testData.audio_url
+    );
     setupAudioPlayer();
   }
 
@@ -444,6 +473,10 @@ export function mount(container, ctx) {
     on(audio, 'loadedmetadata', () => {
       durationEl.textContent = formatTime(audio.duration);
     });
+    // An audio element warmed ahead of the player has its metadata already.
+    if (audio.readyState >= 1 && Number.isFinite(audio.duration)) {
+      durationEl.textContent = formatTime(audio.duration);
+    }
     on(progressBar, 'click', (e) => {
       const rect = progressBar.getBoundingClientRect();
       audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
@@ -458,12 +491,6 @@ export function mount(container, ctx) {
     on(audio, 'ended', () => {
       playBtn.innerHTML = '<i class="fas fa-play"></i>';
     });
-  }
-
-  function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
   // ====================================================================
@@ -1014,8 +1041,7 @@ export function mount(container, ctx) {
   // UTILITIES
   // ====================================================================
   function showLoading(show) {
-    const el = q('loadingOverlay');
-    if (el) el.style.display = show ? 'flex' : 'none';
+    setLoading(container, show);
   }
 
   function showError(message) {
@@ -1041,11 +1067,8 @@ export function mount(container, ctx) {
     state._timer = setInterval(() => {
       if (!state.isSubmitted && state.startTime) {
         const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-        const m = Math.floor(elapsed / 60),
-          s = elapsed % 60;
         const el = q('elapsedTime');
-        if (el)
-          el.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (el) el.textContent = formatClock(elapsed);
       }
     }, 1000);
   }
@@ -1151,7 +1174,7 @@ const MARKUP = `
             </div>
             <button class="audio-speed-btn" id="audioSpeedBtn">1.0x</button>
         </div>
-        <audio id="audioElement" preload="metadata"></audio>
+        <audio id="audioElement" preload="auto"></audio>
     </div>
 
     <div class="card mb-4"><div class="card-body">

@@ -9,6 +9,38 @@
    See plan we-now-have-the-swirling-haven.md. #}
 
 {% block extra_css %}
+{# Session modules: an import map gives every relative import its ?v= URL (one
+   year cache, no revalidation) and the entry module's static imports are
+   fetched in parallel. Both must come before any module is requested. #}
+{% set session_js = module_assets('js/session', 'controller.js') %}
+<script type="importmap">{{ session_js.import_map|tojson }}</script>
+{% for href in session_js.preload %}<link rel="modulepreload" href="{{ href }}">
+{% endfor %}
+<script>
+    // Ask for today's session now, in parallel with the scripts and modules
+    // the page still has to load; controller.js takes the response from
+    // window.__ldSessionEarly. A token that is missing or being renewed is
+    // left to authFetch (see the script in extra_js); a 401 here is simply
+    // discarded and the controller asks again through authFetch.
+    (function () {
+        try {
+            var lang = parseInt(localStorage.getItem('selectedLanguageId') || '0', 10);
+            if (!lang) return;
+            var practice = new URLSearchParams(window.location.search).get('mode') === 'practice';
+            var early = {
+                url: '/api/study-session?language_id=' + lang + (practice ? '&scope=practice' : ''),
+                promise: null
+            };
+            window.__ldSessionEarly = early;
+            var token = sessionStorage.getItem('jwt_token') || localStorage.getItem('jwt_token');
+            if (!token || window.__ldAuthRenewal) return;
+            early.promise = fetch(early.url, {
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+            });
+            early.promise.catch(function () {});
+        } catch (e) { /* storage unavailable: the controller loads the session itself */ }
+    })();
+</script>
 <style>
     .session-progress {
         position: sticky; top: 0; z-index: 30;
@@ -92,6 +124,12 @@
     </div>
 </div>
 
+<!-- Shown by controller.js while a completed item could not be saved; never blocks the session -->
+<div id="sessionSaveStatus" class="alert alert-warning d-none align-items-center justify-content-between gap-3 mx-3 mt-3 mb-0" role="status" aria-live="polite">
+    <span><i class="fas fa-cloud-arrow-up me-2"></i><span data-i18n="session.save_failed">Couldn’t save your progress — check your connection.</span></span>
+    <button type="button" class="btn btn-sm btn-outline-dark flex-shrink-0" id="sessionSaveRetry" data-i18n="session.retry">Retry</button>
+</div>
+
 <!-- Player mount point -->
 <div id="sessionStage" class="session-stage"></div>
 
@@ -149,6 +187,17 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    // The head could not send the session request (token being renewed):
+    // send it through authFetch as soon as that exists.
+    (function () {
+        var early = window.__ldSessionEarly;
+        if (early && !early.promise && typeof window.authFetch === 'function') {
+            early.promise = window.authFetch(early.url);
+            early.promise.catch(function () {});
+        }
+    })();
+</script>
 <!-- Shared exercise renderers (global window.ExRenderers) used by the practice player -->
 <script defer src="{{ url_for('static', filename='js/active-timer.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/prestudy/prestudy-links.js') }}"></script>

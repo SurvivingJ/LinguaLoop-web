@@ -17,16 +17,7 @@
 // submit endpoint above — because FSRS state for error cards lives on dt_card.
 // One served card satisfies the queue item, exactly as one passage does.
 
-const T = (key, params, fallback) =>
-  window.LinguaI18n && typeof LinguaI18n.t === 'function'
-    ? LinguaI18n.t(key, params) || fallback || key
-    : fallback || key;
-
-function esc(s) {
-  const d = document.createElement('div');
-  d.textContent = s == null ? '' : s;
-  return d.innerHTML;
-}
+import { T, escapeHtml as esc } from '../dom.js';
 
 export function mount(container, ctx) {
   const timer =

@@ -3,6 +3,8 @@
 // mount(container, ctx) -> { destroy() } and call ctx.onComplete(result) when
 // the user finishes, or ctx.onSkip() to advance without marking complete.
 
+import { escapeHtml, applyI18n } from './dom.js';
+
 // Players are loaded on demand (dynamic import), not all up front: the page
 // used to fetch every player (~256 KB over a 4-level import chain) before it
 // could even ask for today's session. `preloadPlayers(queue)` warms the ones a
@@ -47,9 +49,7 @@ function lazyPlayer(name) {
         handle = mod.mount(container, ctx);
         // The controller translates the stage right after mount(); the real
         // markup arrives later, so translate it here as well.
-        if (window.LinguaI18n && typeof window.LinguaI18n.applyToDOM === 'function') {
-          window.LinguaI18n.applyToDOM(container);
-        }
+        applyI18n(container);
       })
       .catch((err) => {
         if (destroyed) return;
@@ -137,15 +137,43 @@ const KIND_MODULES = {
   prestudy: 'prestudy',
 };
 
+const moduleNameFor = (item) =>
+  (item && (KIND_MODULES[item.kind] || TEST_MODULES[item.test_type])) || null;
+
 // Start importing the players a queue will need, without blocking anything.
 export function preloadPlayers(items) {
   const names = new Set();
   (items || []).forEach((item) => {
-    if (!item) return;
-    const name = KIND_MODULES[item.kind] || TEST_MODULES[item.test_type];
+    const name = moduleNameFor(item);
     if (name) names.add(name);
   });
   names.forEach((name) => loadModule(name).catch(() => {}));
+}
+
+// Ask an upcoming item's player to start loading its data. A player opts in by
+// exporting `prefetch(item, ctx)`, with ctx = { languageId, current } where
+// `current` is the item in progress (null before the session starts); it
+// returns a promise the player's mount() later takes from `item.prefetch`, or
+// nothing when loading early would be wrong (e.g. the payload depends on
+// answers still being given). Called at most once per item. Resolves to the
+// player module (or null), never rejects.
+export function prefetchItem(item, ctx) {
+  const name = moduleNameFor(item);
+  if (!name || item.is_completed) return Promise.resolve(null);
+  return loadModule(name)
+    .then((mod) => {
+      if (typeof mod.prefetch === 'function' && !item._prefetched && !item.prefetch) {
+        item._prefetched = true;
+        try {
+          const pending = mod.prefetch(item, ctx || {});
+          if (pending) item.prefetch = pending;
+        } catch (err) {
+          console.warn('[session] prefetch failed:', name, err);
+        }
+      }
+      return mod;
+    })
+    .catch(() => null);
 }
 
 export function getPlayer(item) {
@@ -191,10 +219,4 @@ function placeholderPlayer({ title, message, href }) {
 function capitalize(s) {
   s = String(s || '');
   return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function escapeHtml(s) {
-  const d = document.createElement('div');
-  d.textContent = s == null ? '' : s;
-  return d.innerHTML;
 }

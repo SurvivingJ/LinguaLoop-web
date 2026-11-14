@@ -17,13 +17,21 @@
 
 import { extraRequestUrl } from '../tail.js';
 import { runIntroDrill, INTRO_STYLES } from './intro_drill.js';
-
-const fill = (s, params) =>
-  params ? String(s).replace(/\{(\w+)\}/g, (m, k) => (k in params ? params[k] : m)) : s;
-const T = (key, params, fallback) => {
-  const v = window.LinguaI18n && typeof LinguaI18n.t === 'function' ? LinguaI18n.t(key, params) : null;
-  return v && v !== key ? v : fill(fallback || key, params);
-};
+import { T, escapeHtml, nowMs, toastSaveFailed } from '../dom.js';
+import {
+  EXERCISE_BASE_STYLES,
+  sessionHeadHtml,
+  accuracyPct,
+  bindRenderers,
+  renderProgress,
+  renderFeedback,
+  exerciseIdBadge,
+  renderErrorHtml,
+  nextButtonHtml,
+  appendNextButton,
+  statHtml,
+  wireNext as wireNextButton,
+} from './_exercise_shell.js';
 
 /** /api/practice/session URL for a daily practice chunk (one queue item). */
 export function practiceSessionUrl(item, languageId) {
@@ -126,10 +134,24 @@ export function practiceCountText(summary, moreRounds, t) {
   return parts.join(' · ');
 }
 
-function localEsc(s) {
-  const d = document.createElement('div');
-  d.textContent = s == null ? '' : s;
-  return d.innerHTML;
+// Items that record practice attempts: the next round's content depends on
+// the answers still being given, so it must not be loaded while one runs.
+const ATTEMPT_KINDS = { practice: true, speed_round: true };
+
+/**
+ * Session prefetch hook: load a daily practice round ahead of its player.
+ * Skipped for extra rounds (built from the learner's choice at start time).
+ */
+export function prefetch(item, ctx) {
+  if (!item || item.is_extra) return null;
+  const current = ctx && ctx.current;
+  if (current && ATTEMPT_KINDS[current.kind]) return null;
+  return fetchPracticePayload(practiceSessionUrl(item, ctx && ctx.languageId));
+}
+
+/** Start-card line for a prefetched round ('' when it failed to load). */
+export function describePrefetch(res, { moreRounds, t }) {
+  return res && res.ok ? practiceCountText(summarizePracticePayload(res.data), moreRounds, t) : '';
 }
 
 export function mount(container, ctx) {
@@ -162,21 +184,11 @@ export function mount(container, ctx) {
   container.innerHTML = MARKUP + `<style>${INTRO_STYLES}</style>`;
 
   const ER = window.ExRenderers;
-  const escHtml = ER && ER.escHtml ? ER.escHtml : localEsc;
+  const escHtml = ER && ER.escHtml ? ER.escHtml : escapeHtml;
   const shuffleArr = ER && ER.shuffleArr ? ER.shuffleArr : (a) => a.slice();
 
   function initRenderers() {
-    if (!ER || !ER.init) return;
-    ER.init({
-      cardEl: q('exerciseCard'),
-      isAnswered: () => state.isAnswered,
-      setAnswered: (v) => {
-        state.isAnswered = v;
-      },
-      showFeedback: (ok, expl) => showFeedback(ok, expl),
-      submitAttempt: (ok, resp) => submitAttempt(ok, resp),
-      nextExercise: () => nextExercise(),
-    });
+    bindRenderers(ER, q('exerciseCard'), state, { showFeedback, submitAttempt, nextExercise });
   }
   initRenderers();
 
@@ -316,9 +328,7 @@ export function mount(container, ctx) {
 
     // Surfaced on every render (including the error fallback below) so a
     // broken exercise can be reported by ID instead of by vague description.
-    const idBadge = ex.exercise_id
-      ? `<div class="exercise-id-badge">${escHtml(ex.exercise_id)}</div>`
-      : '';
+    const idBadge = exerciseIdBadge(ex, escHtml);
     let ribbon = '';
     if (ex.lemma) {
       ribbon = `<div class="word-ribbon"><strong>${escHtml(ex.lemma)}</strong>`;
@@ -342,15 +352,13 @@ export function mount(container, ctx) {
     const w = idBadge + batteryBadge + ribbon + ladderBadge;
 
     // Start the per-item timer as the exercise becomes visible (TASK-701).
-    state.renderedAt = window.performance && performance.now ? performance.now() : Date.now();
+    state.renderedAt = nowMs();
 
     try {
       ER.dispatch(ex.exercise_type, ex, c, w);
     } catch (e) {
       console.error('Render error for', ex.exercise_type, ex.exercise_id, e);
-      q('exerciseCard').innerHTML =
-        w +
-        `<p style="color:var(--danger)">Error rendering exercise: ${escHtml(ex.exercise_type)}</p>`;
+      q('exerciseCard').innerHTML = renderErrorHtml(w, ex, escHtml);
     }
   }
 
@@ -360,7 +368,7 @@ export function mount(container, ctx) {
   // isolate_retranslate cards — there we fall back to the FSRS rating, matching
   // the server's own default.
   function renderErrorCard(ex) {
-    state.renderedAt = window.performance && performance.now ? performance.now() : Date.now();
+    state.renderedAt = nowMs();
     state.errorCard = window.DTErrorCard.mount(q('exerciseCard'), ex, {
       onDone: (result) => {
         state.totalAnswered++;
@@ -375,16 +383,7 @@ export function mount(container, ctx) {
   }
 
   function showFeedback(ok, expl) {
-    const fb = container.querySelector('#exerciseFeedback');
-    if (!fb) return;
-    fb.className = 'exercise-feedback show ' + (ok ? 'correct' : 'incorrect');
-    let html = ok
-      ? '<i class="fas fa-check-circle me-2"></i>' + T('session.correct', null, 'Correct!')
-      : '<i class="fas fa-times-circle me-2"></i>' + T('session.incorrect', null, 'Incorrect');
-    if (expl) html += `<div style="margin-top:8px">${escHtml(expl)}</div>`;
-    fb.innerHTML = html;
-    const btn = container.querySelector('#nextBtn');
-    if (btn) btn.classList.add('show');
+    renderFeedback(container, ok, expl, { correctIcon: 'fa-check-circle', escHtml });
   }
 
   // POST one attempt. authFetch resolves on 4xx/5xx, so check r.ok explicitly;
@@ -420,8 +419,7 @@ export function mount(container, ctx) {
     // Measure once, before the retry loop, so a retry doesn't inflate the
     // elapsed time. 0 when the timer never started — the server credits the
     // item's expected_seconds estimate rather than nothing.
-    const now = window.performance && performance.now ? performance.now() : Date.now();
-    const elapsedMs = state.renderedAt ? Math.max(0, Math.round(now - state.renderedAt)) : 0;
+    const elapsedMs = state.renderedAt ? Math.max(0, Math.round(nowMs() - state.renderedAt)) : 0;
 
     let data = null;
     for (let attempt = 0; attempt < 2 && data === null; attempt++) {
@@ -434,11 +432,7 @@ export function mount(container, ctx) {
     }
     if (data === null) {
       // Persisted nothing — surface it instead of silently dropping the attempt.
-      if (typeof window.showToast === 'function') {
-        window.showToast(
-          T('session.save_failed', null, 'Couldn’t save your progress — check your connection.')
-        );
-      }
+      toastSaveFailed();
     } else if (data.requeue && !ok && !ex.battery) {
       state.retryQueue.push({ ...ex, _retry: true });
     }
@@ -547,31 +541,28 @@ export function mount(container, ctx) {
   }
 
   function updateProgress() {
-    const total = state.exercises.length;
-    const done = state.currentIndex;
-    q('progressText').textContent = `${done} / ${total}`;
-    q('progressFill').style.width = total ? `${(done / total) * 100}%` : '0%';
-    const acc = state.totalAnswered
-      ? Math.round((state.correctCount / state.totalAnswered) * 100)
-      : 0;
-    q('scoreText').textContent = `${acc}%`;
+    renderProgress(
+      container,
+      state.currentIndex,
+      state.exercises.length,
+      state.correctCount,
+      state.totalAnswered
+    );
   }
 
   function showComplete() {
     q('progressArea').style.display = 'none';
-    const acc = state.totalAnswered
-      ? Math.round((state.correctCount / state.totalAnswered) * 100)
-      : 0;
+    const acc = accuracyPct(state.correctCount, state.totalAnswered);
     q('exerciseCard').innerHTML = `
             <div style="text-align:center;padding:24px">
                 <div style="font-size:2.5rem">✅</div>
                 <h2 class="h4 mb-3">${T('session.practice_done', null, 'Practice complete!')}</h2>
                 ${state.introWords ? `<p class="text-muted">${T('intro.done', { n: state.introWords }, 'New-word drill done: {n} words.')}</p>` : ''}
                 <div class="d-flex gap-4 justify-content-center mb-3"${state.introWords && !state.totalAnswered ? ' hidden' : ''}>
-                    <div><div style="font-size:1.6rem;font-weight:700;color:var(--primary)">${state.correctCount}/${state.totalAnswered}</div><div class="text-muted small">${T('session.correct_label', null, 'Correct')}</div></div>
-                    <div><div style="font-size:1.6rem;font-weight:700;color:var(--primary)">${acc}%</div><div class="text-muted small">${T('session.accuracy', null, 'Accuracy')}</div></div>
+                    ${statHtml(`${state.correctCount}/${state.totalAnswered}`, T('session.correct_label', null, 'Correct'))}
+                    ${statHtml(`${acc}%`, T('session.accuracy', null, 'Accuracy'))}
                 </div>
-                <button class="btn btn-primary" type="button" data-session-next><span>${T('session.next_item', null, 'Next')}</span><i class="fas fa-arrow-right ms-2"></i></button>
+                ${nextButtonHtml()}
             </div>`;
     wireNext();
   }
@@ -579,58 +570,26 @@ export function mount(container, ctx) {
   // Used when there are no items / renderer missing: just a Next button.
   function renderNextOnly() {
     q('progressArea').style.display = 'none';
-    const card = q('exerciseCard');
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-primary mt-2';
-    btn.type = 'button';
-    btn.setAttribute('data-session-next', '');
-    btn.innerHTML = `<span>${T('session.next_item', null, 'Next')}</span><i class="fas fa-arrow-right ms-2"></i>`;
-    card.appendChild(btn);
+    appendNextButton(q('exerciseCard'), 'btn btn-primary mt-2');
     wireNext();
   }
 
   function wireNext() {
-    const btn = container.querySelector('[data-session-next]');
-    if (btn)
-      btn.onclick = () =>
-        ctx.onComplete({ correct: state.correctCount, total: state.totalAnswered });
+    wireNextButton(container, ctx, () => ({
+      correct: state.correctCount,
+      total: state.totalAnswered,
+    }));
   }
 }
 
 // ========================================================================
-// MARKUP — inlines the vocab-dojo exercise styles so ExRenderers output looks
-// right inside /session.
+// MARKUP — the shared exercise styles plus the practice-only ones.
 // ========================================================================
 const MARKUP = `
-<style>
-    .vd-session-head { max-width: 680px; margin: 16px auto 0; display: flex; align-items: center; justify-content: space-between; }
-    .vd-progress { display: flex; align-items: center; gap: 12px; }
-    .vd-progress-text { font-size: 14px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
-    .vd-progress-bar { width: 140px; height: 6px; background: var(--border-default); border-radius: 3px; overflow: hidden; }
-    .vd-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #6366f1); border-radius: 3px; transition: width .4s ease; }
-    .vd-score { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-    .exercise-card-area { max-width: 680px; margin: 16px auto; background: var(--bg-surface); border-radius: 16px; box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08)); padding: 28px; min-height: 300px; }
-    .exercise-type-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
-    .exercise-instruction { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
-    .exercise-prompt { font-size: 18px; line-height: 1.6; color: var(--text-primary); margin-bottom: 20px; }
-    .exercise-prompt .blank { background: var(--bg-muted); border-bottom: 2px solid var(--primary); padding: 2px 20px; border-radius: 4px; }
-    .exercise-options { display: flex; flex-direction: column; gap: 10px; }
-    .exercise-option { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 12px; cursor: pointer; transition: all .2s; font-size: 15px; }
-    .exercise-option:hover:not(.disabled) { border-color: var(--primary); background: rgba(30,64,175,0.04); }
-    .exercise-option.correct { border-color: var(--success); background: rgba(5,150,105,0.08); }
-    .exercise-option.incorrect { border-color: var(--danger); background: rgba(220,38,38,0.08); }
-    .exercise-option.disabled { pointer-events: none; opacity: .85; }
-    .option-letter { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: var(--bg-muted); font-weight: 700; font-size: 13px; color: var(--text-secondary); flex-shrink: 0; }
-    .exercise-feedback { margin-top: 16px; padding: 14px 18px; border-radius: 12px; font-size: 14px; line-height: 1.6; display: none; }
-    .exercise-feedback.show { display: block; }
-    .exercise-feedback.correct { background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2); color: var(--text-primary); }
-    .exercise-feedback.incorrect { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2); color: var(--text-primary); }
-    .exercise-next-btn { display: none; margin-top: 16px; }
-    .exercise-next-btn.show { display: inline-flex; }
+<style>${EXERCISE_BASE_STYLES}
     .word-ribbon { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--bg-muted); border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
     .word-ribbon strong { font-size: 16px; color: var(--primary); }
     .word-ribbon .sep { color: var(--border-default); }
-    .exercise-id-badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--text-secondary); opacity: .55; margin-bottom: 6px; user-select: all; cursor: text; }
     .ladder-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-muted); border: 1px solid var(--border-default); border-radius: 8px; padding: 4px 12px; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
     .ladder-level { color: var(--primary); font-weight: 700; }
     .js-bank, .js-answer { min-height: 52px; padding: 12px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -649,23 +608,12 @@ const MARKUP = `
        created on every dragover and renders as nothing. */
     .js-drop-indicator { width: 3px; align-self: stretch; min-height: 28px; background: var(--primary); border-radius: 2px; }
     .js-bank.drag-over, .js-answer.drag-over { border-color: var(--primary); background: rgba(30,64,175,0.08); }
-    .phonetic-display { text-align: center; margin-bottom: 24px; }
-    .phonetic-display .ipa { font-size: 24px; color: var(--primary); font-weight: 600; }
-    .phonetic-display .pron { font-size: 16px; color: var(--text-secondary); margin-top: 4px; }
     .sentence-card { padding: 14px 18px; background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 12px; cursor: pointer; transition: all .2s; font-size: 15px; line-height: 1.6; }
     .sentence-card:hover:not(.disabled) { border-color: var(--primary); }
     .sentence-card.correct { border-color: var(--success); background: rgba(5,150,105,0.08); }
     .sentence-card.incorrect { border-color: var(--danger); background: rgba(220,38,38,0.08); }
 </style>
-
-<div class="vd-session-head">
-    <span style="font-weight:700;font-size:16px;color:var(--text-primary)"><i class="fas fa-dumbbell me-2"></i><span data-i18n="session.practice_heading">Practice</span></span>
-    <div class="vd-progress" id="progressArea" style="display:none">
-        <span class="vd-progress-text" id="progressText">0 / 0</span>
-        <div class="vd-progress-bar"><div class="vd-progress-fill" id="progressFill"></div></div>
-        <span class="vd-score" id="scoreText"></span>
-    </div>
-</div>
+${sessionHeadHtml('fa-dumbbell', 'session.practice_heading', 'Practice')}
 
 <div class="exercise-card-area" id="exerciseCard"></div>
 `;

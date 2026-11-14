@@ -12,6 +12,8 @@
 // A test with no rows yet (404, empty list, network error) falls back to the
 // client split on 。！？!? with a console.warn — never a blank preview.
 
+import { escapeHtml } from './dom.js';
+
 const TERMINATORS = '。！？!?';
 const CLIENT_SPLIT_RE = new RegExp(
   '[^' + TERMINATORS + ']+[' + TERMINATORS + ']+|[^' + TERMINATORS + ']+$',
@@ -194,14 +196,6 @@ export function deriveTokenSpans(sentences, tokenMap) {
   }));
 }
 
-function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
 
 /**
  * Render `sentences` into `containerEl` as per-sentence blocks.
