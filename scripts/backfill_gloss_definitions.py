@@ -21,17 +21,18 @@ Former usage (no longer supported):
     python scripts/backfill_gloss_definitions.py --source-language ja --gloss-languages en,zh --dry-run
 """
 
-import os
-import sys
 import argparse
 import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
@@ -41,7 +42,6 @@ from services.vocabulary.sense_generator import retry_transient_db_call
 if not SupabaseFactory.is_initialized():
     SupabaseFactory.initialize()
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 PAGE = 1000
@@ -59,23 +59,13 @@ def _load_source_senses(db, source_language_id: int, levels: list[str]) -> list[
     invariant.
     """
     rows: list[dict] = []
-    offset = 0
-    while True:
-        page = (
-            db.table('dim_word_senses')
+    rows.extend(paginate(lambda: db.table('dim_word_senses')
             .select(
                 'id, vocab_id, definition, example_sentence, sense_rank, '
                 'definition_level, dim_vocabulary(lemma, language_id)'
             )
             .eq('definition_language_id', source_language_id)
-            .in_('definition_level', levels)
-            .range(offset, offset + PAGE - 1)
-            .execute()
-        ).data or []
-        rows.extend(page)
-        if len(page) < PAGE:
-            break
-        offset += PAGE
+            .in_('definition_level', levels), PAGE))
 
     out = []
     for r in rows:
@@ -97,22 +87,12 @@ def _load_source_senses(db, source_language_id: int, levels: list[str]) -> list[
 def _load_existing_glosses(db, gloss_language_id: int) -> set[tuple[int, int, str]]:
     """(vocab_id, sense_rank, definition_level) already glossed in this language."""
     existing: set[tuple[int, int, str]] = set()
-    offset = 0
-    while True:
-        page = (
-            db.table('dim_word_senses')
+    existing.update(
+            (r['vocab_id'], r['sense_rank'], r['definition_level']) for r in paginate(lambda: db.table('dim_word_senses')
             .select('vocab_id, sense_rank, definition_level')
             .eq('definition_language_id', gloss_language_id)
-            .eq('source', 'llm_gloss')
-            .range(offset, offset + PAGE - 1)
-            .execute()
-        ).data or []
-        existing.update(
-            (r['vocab_id'], r['sense_rank'], r['definition_level']) for r in page
+            .eq('source', 'llm_gloss'), PAGE)
         )
-        if len(page) < PAGE:
-            break
-        offset += PAGE
     return existing
 
 

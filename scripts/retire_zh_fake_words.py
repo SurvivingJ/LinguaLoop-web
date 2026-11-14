@@ -40,17 +40,17 @@ import sys
 from collections import Counter, defaultdict
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import admin_db, base_parser, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, base_parser, bootstrap, paginate
 
-from dotenv import load_dotenv  # noqa: E402
+bootstrap(log_format='%(message)s')
 
-load_dotenv()
 
 from services.dual_translation import sentence_refs as sr  # noqa: E402
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 from services.vocabulary import zh_segmenter  # noqa: E402
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 log = logging.getLogger('retire_zh_fake_words')
 for noisy in ('httpx', 'jieba'):
     logging.getLogger(noisy).setLevel(logging.WARNING)
@@ -63,13 +63,7 @@ NAMES_KEPT_WHOLE = frozenset({'小明', '纳维'})
 
 
 def fetch_all(query_fn, page=1000):
-    rows, start = [], 0
-    while True:
-        chunk = query_fn().range(start, start + page - 1).execute().data or []
-        rows += chunk
-        if len(chunk) < page:
-            return rows
-        start += page
+    return list(paginate(query_fn, page))
 
 
 def plan(db) -> dict:
@@ -241,13 +235,10 @@ def restore(db, path: str) -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--apply', action='store_true')
+    ap = base_parser(__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--restore', metavar='BACKUP')
     args = ap.parse_args()
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     if args.restore:
         restore(db, args.restore)
         return 0

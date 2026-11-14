@@ -52,11 +52,14 @@ import logging
 from collections import Counter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap, paginate
+
+bootstrap()
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling scripts
 
-from dotenv import load_dotenv
-load_dotenv()
 
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
@@ -90,8 +93,6 @@ from services.vocabulary_ladder.config import (
     prompt3_levels_for_context, get_validation_profile, get_sentence_target,
 )
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
@@ -113,15 +114,8 @@ def all_senses_for_language(db, language_id: int) -> list[int]:
     (the same shape run_exercise_generation.run_vocabulary_batch uses).
     """
     vocab_ids: list[int] = []
-    offset = 0
-    while True:
-        page = (db.table('dim_vocabulary').select('id')
-                  .eq('language_id', language_id)
-                  .range(offset, offset + 999).execute().data or [])
-        vocab_ids.extend(r['id'] for r in page)
-        if len(page) < 1000:
-            break
-        offset += 1000
+    vocab_ids.extend(r['id'] for r in paginate(lambda: db.table('dim_vocabulary').select('id')
+                  .eq('language_id', language_id), 1000))
 
     sense_ids: list[int] = []
     for i in range(0, len(vocab_ids), 400):
@@ -239,26 +233,19 @@ def fetch_sense_test_rows(db, sense_ids: list[int], language_id: int,
     seen_tests: set = set()
     for i in range(0, len(sense_ids), chunk_size):
         chunk = sense_ids[i:i + chunk_size]
-        offset = 0
-        while True:
-            page = (db.table('tests')
+        for row in paginate(lambda: db.table('tests')
                       .select('id, transcript, difficulty, vocab_token_map, vocab_sense_ids')
                       .eq('language_id', language_id).eq('is_active', True)
-                      .overlaps('vocab_sense_ids', [str(s) for s in chunk])
-                      .range(offset, offset + 999).execute().data or [])
-            for row in page:
-                if row['id'] in seen_tests:
-                    continue  # already assigned by an earlier chunk
-                seen_tests.add(row['id'])
-                hit = {'id': row['id'], 'transcript': row.get('transcript'),
-                       'difficulty': row.get('difficulty'),
-                       'vocab_token_map': row.get('vocab_token_map')}
-                for sid in (row.get('vocab_sense_ids') or []):
-                    if sid in wanted:
-                        by_sense[sid].append(hit)
-            if len(page) < 1000:
-                break
-            offset += 1000
+                      .overlaps('vocab_sense_ids', [str(s) for s in chunk]), 1000):
+            if row['id'] in seen_tests:
+                continue  # already assigned by an earlier chunk
+            seen_tests.add(row['id'])
+            hit = {'id': row['id'], 'transcript': row.get('transcript'),
+                   'difficulty': row.get('difficulty'),
+                   'vocab_token_map': row.get('vocab_token_map')}
+            for sid in (row.get('vocab_sense_ids') or []):
+                if sid in wanted:
+                    by_sense[sid].append(hit)
     return by_sense
 
 

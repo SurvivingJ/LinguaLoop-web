@@ -1,14 +1,19 @@
 /**
  * One-shot auth state capture — run with `node tests/e2e/capture-auth-once.js`
- * Uses PLAYWRIGHT_OTP env var so it can be driven non-interactively.
+ * Uses the E2E_TEST_EMAIL and PLAYWRIGHT_OTP env vars so it can be driven non-interactively.
  * Delete this file after use (or keep for re-running when the token expires).
  */
 import { chromium } from '@playwright/test';
 
 const OTP = process.env.PLAYWRIGHT_OTP;
-const EMAIL = 'jamesccmcb@gmail.com';
+const EMAIL = process.env.E2E_TEST_EMAIL;
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 const AUTH_FILE = 'playwright/.auth/user.json';
+
+if (!EMAIL) {
+  console.error('Set E2E_TEST_EMAIL to the account to log in with before running.');
+  process.exit(1);
+}
 
 if (!OTP) {
   console.error('Set PLAYWRIGHT_OTP=<6-digit-code> before running.');

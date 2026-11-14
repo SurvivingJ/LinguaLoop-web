@@ -13,40 +13,42 @@ Optional --create-missing flag to create new dim_vocabulary + dim_word_senses
 entries for content tokens that don't match either strategy (requires LLM).
 
 Usage:
-    python scripts/backfill_token_maps.py --language cn [--limit 10] [--force] [--create-missing]
+    python scripts/backfill_token_maps.py --language zh [--limit 10] [--force] [--create-missing]   # dry run
+    python scripts/backfill_token_maps.py --language zh --apply
 
 Options:
-    --language CODE      Required. Language code: cn, en, jp
+    --language CODE      Required. Language code: zh, en, ja
+    --apply              Write the token maps (default: dry run, nothing is written)
     --limit N            Process at most N tests (default: all)
     --force              Rebuild token maps even for tests that already have one
-    --create-missing     Create new vocab+sense entries for unmatched words (LLM)
+    --create-missing     Create new vocab+sense entries for unmatched words (LLM);
+                         only with --apply
 """
 
 import sys
 import os
-import argparse
 import logging
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import base_parser, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import base_parser, bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.pipeline import VocabularyExtractionPipeline
 from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 
 class TokenMapBackfillRunner:
     def __init__(self, language_code: str, limit: int = 0, force: bool = False,
-                 create_missing: bool = False):
+                 create_missing: bool = False, apply: bool = False):
+        self.apply = apply
         self.language_code = language_code
         self.limit = limit
         self.force = force
@@ -138,19 +140,10 @@ class TokenMapBackfillRunner:
         # sense generation never even ran (observed: 52 skipped this way in one
         # run) even though a real definition may already exist.
         page_size = 1000
-        offset = 0
-        while True:
-            response = self.db.table('dim_vocabulary') \
+        for row in paginate(lambda: self.db.table('dim_vocabulary') \
                 .select('id, lemma') \
-                .eq('language_id', self.language_id) \
-                .range(offset, offset + page_size - 1) \
-                .execute()
-            rows = response.data or []
-            for row in rows:
-                self._vocab_cache[(row['lemma'], self.language_id)] = row['id']
-            if len(rows) < page_size:
-                break
-            offset += page_size
+                .eq('language_id', self.language_id), page_size):
+            self._vocab_cache[(row['lemma'], self.language_id)] = row['id']
 
         logger.info(f"Loaded {len(self._vocab_cache)} vocab entries")
 
@@ -328,6 +321,8 @@ class TokenMapBackfillRunner:
         logger.info("=" * 60)
         logger.info(f"Token Map Backfill: language={self.language_code} (id={self.language_id})")
         logger.info(f"  limit={self.limit or 'all'}, force={self.force}, create_missing={self.create_missing}")
+        if not self.apply:
+            logger.info("  DRY RUN: nothing is written and no words are created. Pass --apply to write.")
         logger.info("=" * 60)
 
         self._preload_caches()
@@ -353,21 +348,22 @@ class TokenMapBackfillRunner:
                 token_map, unmatched = self._build_token_map(transcript, vocab_sense_ids)
 
                 # Strategy 3: Create missing entries if requested
-                if self.create_missing and unmatched:
+                if self.create_missing and unmatched and self.apply:
                     for idx, lemma in unmatched:
                         sense_id = self._create_vocab_and_sense(lemma, transcript)
                         if sense_id:
                             token_map[idx][1] = sense_id
 
-                self.db.table('tests') \
-                    .update({'vocab_token_map': token_map}) \
-                    .eq('id', test['id']) \
-                    .execute()
+                if self.apply:
+                    self.db.table('tests') \
+                        .update({'vocab_token_map': token_map}) \
+                        .eq('id', test['id']) \
+                        .execute()
 
                 defined = sum(1 for _, s in token_map if s)
                 total = len(token_map)
                 logger.info(
-                    f"[{i+1}/{len(tests)}] {slug}: "
+                    f"{'' if self.apply else '[dry run] '}[{i+1}/{len(tests)}] {slug}: "
                     f"{total} tokens, {defined} with definitions, "
                     f"{len(unmatched)} unmatched"
                 )
@@ -398,7 +394,7 @@ class TokenMapBackfillRunner:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Backfill vocab_token_map for existing tests')
+    parser = base_parser('Backfill vocab_token_map for existing tests')
     parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
                         help='Language code to process')
     parser.add_argument('--limit', type=int, default=0,
@@ -417,6 +413,7 @@ def main():
         limit=args.limit,
         force=args.force,
         create_missing=args.create_missing,
+        apply=args.apply,
     )
 
     success = runner.run()

@@ -52,23 +52,24 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import time
 import uuid
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
+bootstrap(log_level=None)
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(ROOT, '.env'))
 
 from services.llm_service import call_llm  # noqa: E402
 from services.prompt_service import get_template_config  # noqa: E402
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 from services.test_generation.config import get_test_gen_config  # noqa: E402
 from services.test_generation.schemas import MCQuestion  # noqa: E402
 
@@ -256,8 +257,7 @@ def main() -> int:
     if exclude:
         print(f'excluding {len(exclude)} passages already sampled')
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     passages = load_passages(langs, args.passages, exclude)
     tpl = load_templates(db, langs, args.templates)

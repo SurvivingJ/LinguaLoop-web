@@ -19,23 +19,20 @@ Options:
     --dry-run         Preview changes without writing to DB
 """
 
-import sys
-import os
 import argparse
 import logging
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 

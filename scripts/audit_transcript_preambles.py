@@ -48,15 +48,16 @@ import logging
 from datetime import date, datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import admin_db, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin
+
 from services.transcript_preamble import detect_preamble, transcript_hash
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('audit_transcript_preambles')
 
 PAGE = 1000
@@ -86,14 +87,9 @@ def fetch_active_tests(db, language_id: int | None, columns: str) -> list[dict]:
 
 def fetch_dt_passages(db) -> list[dict]:
     out: list[dict] = []
-    offset = 0
-    while True:
-        page = db.table('dt_passage').select('id, source_ref_id, l2_language_id, l2_text, status') \
-            .neq('status', 'retired').order('id').range(offset, offset + PAGE - 1).execute().data or []
-        out.extend(page)
-        if len(page) < PAGE:
-            return out
-        offset += PAGE
+    out.extend(paginate(lambda: db.table('dt_passage').select('id, source_ref_id, l2_language_id, l2_text, status') \
+            .neq('status', 'retired').order('id'), PAGE))
+    return out
 
 
 # ------------------------------------------------------------------ pure logic
@@ -257,9 +253,7 @@ def main() -> int:
     ap.add_argument('--language', choices=['zh', 'en', 'ja'], help='restrict to one L2')
     args = ap.parse_args()
 
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     if db is None:
         logger.error("Service-role Supabase client unavailable (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)")
         return 2

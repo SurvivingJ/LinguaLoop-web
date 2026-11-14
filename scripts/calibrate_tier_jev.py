@@ -16,14 +16,16 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 from concurrent.futures import ThreadPoolExecutor
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, REPO)
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
 
-from dotenv import load_dotenv  # noqa: E402
-load_dotenv(os.path.join(REPO, '.env'))
+bootstrap(log_level=None)
+
 
 from services import jev_client, tier_classifier  # noqa: E402
 from services.supabase_factory import SupabaseFactory  # noqa: E402

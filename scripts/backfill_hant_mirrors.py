@@ -24,18 +24,17 @@ Usage:
 
 import argparse
 import logging
-import os
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin
+
 from services.vocabulary_ladder.script_converter import ScriptConverter
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 for _noisy in ('httpx', 'httpcore', 'hpack'):
@@ -48,20 +47,10 @@ PAGE_SIZE = 1000
 def backfill_lemmas(db, conv: ScriptConverter, dry_run: bool, limit: int, force: bool) -> dict:
     stats = {'updated': 0, 'skipped': 0, 'failed': 0}
     rows: list[dict] = []
-    start = 0
-    while True:
-        batch = (
-            db.table('dim_vocabulary')
+    rows.extend(paginate(lambda: db.table('dim_vocabulary')
             .select('id, lemma, lemma_traditional')
             .eq('language_id', ZH)
-            .order('id')
-            .range(start, start + PAGE_SIZE - 1)
-            .execute()
-        ).data or []
-        rows.extend(batch)
-        if len(batch) < PAGE_SIZE:
-            break
-        start += PAGE_SIZE
+            .order('id'), PAGE_SIZE))
     if limit:
         rows = rows[:limit]
 
@@ -99,20 +88,10 @@ def backfill_lemmas(db, conv: ScriptConverter, dry_run: bool, limit: int, force:
 def backfill_exercises(db, conv: ScriptConverter, dry_run: bool, limit: int, force: bool) -> dict:
     stats = {'updated': 0, 'skipped': 0, 'failed': 0}
     rows: list[dict] = []
-    start = 0
-    while True:
-        batch = (
-            db.table('exercises')
+    rows.extend(paginate(lambda: db.table('exercises')
             .select('id, content')
             .eq('language_id', ZH)
-            .order('id')
-            .range(start, start + PAGE_SIZE - 1)
-            .execute()
-        ).data or []
-        rows.extend(batch)
-        if len(batch) < PAGE_SIZE:
-            break
-        start += PAGE_SIZE
+            .order('id'), PAGE_SIZE))
     if limit:
         rows = rows[:limit]
 
@@ -159,9 +138,7 @@ def main():
                         help='Rewrite even rows whose mirror already matches.')
     args = parser.parse_args()
 
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     if db is None:
         raise RuntimeError("Service role client unavailable (set SUPABASE_SERVICE_ROLE_KEY).")
 

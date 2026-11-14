@@ -43,18 +43,19 @@ against a subscription rate limit), so batch size is the dial that actually buys
 throughput there.
 """
 
-import os
-import sys
 import time
 import argparse
 import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap, paginate
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
+
 
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
@@ -65,7 +66,6 @@ from scripts.provider_arg import add_provider_arg, apply_provider, clamp_concurr
 if not SupabaseFactory.is_initialized():
     SupabaseFactory.initialize()
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 PAGE = 1000
@@ -79,33 +79,17 @@ def _load_worklist(db, language_id: int):
     a deterministic, resumable worklist without a NOT EXISTS round-trip per word.
     """
     seeded: set[int] = set()
-    offset = 0
-    while True:
-        rows = (db.table('dim_word_senses')
+    seeded.update(r['vocab_id'] for r in paginate(lambda: db.table('dim_word_senses')
                 .select('vocab_id')
                 .eq('definition_language_id', language_id)
-                .eq('definition_level', 'simple')
-                .range(offset, offset + PAGE - 1)
-                .execute()).data or []
-        seeded.update(r['vocab_id'] for r in rows)
-        if len(rows) < PAGE:
-            break
-        offset += PAGE
+                .eq('definition_level', 'simple'), PAGE))
 
     worklist = []
-    offset = 0
-    while True:
-        rows = (db.table('dim_vocabulary')
+    for r in paginate(lambda: db.table('dim_vocabulary')
                 .select('id, lemma')
-                .eq('language_id', language_id)
-                .range(offset, offset + PAGE - 1)
-                .execute()).data or []
-        for r in rows:
-            if r['id'] not in seeded:
-                worklist.append((r['id'], r['lemma']))
-        if len(rows) < PAGE:
-            break
-        offset += PAGE
+                .eq('language_id', language_id), PAGE):
+        if r['id'] not in seeded:
+            worklist.append((r['id'], r['lemma']))
 
     return worklist, len(seeded)
 

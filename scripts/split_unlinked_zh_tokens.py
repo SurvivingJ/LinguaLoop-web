@@ -29,15 +29,16 @@ import sys
 from collections import Counter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+try:
+    from _common import admin_db, base_parser, bootstrap, paginate
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, base_parser, bootstrap, paginate
 
-from dotenv import load_dotenv  # noqa: E402
+bootstrap(log_format='%(message)s')
 
-load_dotenv(os.path.join(ROOT, '.env'))
 
 from scripts.sense_linking_common import VocabIndex, split_unlinked_zh  # noqa: E402
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
 log = logging.getLogger('split_unlinked_zh')
 for noisy in ('httpx', 'jieba', 'scripts.sense_linking_common'):
     logging.getLogger(noisy).setLevel(logging.WARNING)
@@ -46,22 +47,12 @@ ZH = 1
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--apply', action='store_true')
+    ap = base_parser(__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     args = ap.parse_args()
-    from services.supabase_factory import SupabaseFactory, get_supabase_admin
-    if not SupabaseFactory.is_initialized():
-        SupabaseFactory.initialize()
-    db = get_supabase_admin()
-    tests, start = [], 0
-    while True:
-        chunk = (db.table('tests').select('id, slug, transcript, vocab_token_map, vocab_sense_ids')
-                 .eq('language_id', ZH).eq('is_active', True).order('id')
-                 .range(start, start + 99).execute().data or [])
-        tests += chunk
-        if len(chunk) < 100:
-            break
-        start += 100
+    db = admin_db()
+    tests = []
+    tests.extend(paginate(lambda: db.table('tests').select('id, slug, transcript, vocab_token_map, vocab_sense_ids')
+                 .eq('language_id', ZH).eq('is_active', True).order('id'), 100))
     index = VocabIndex(db, ZH, 'zh')
     plans, pieces = [], Counter()
     for t in tests:

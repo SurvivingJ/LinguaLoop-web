@@ -25,20 +25,19 @@ Usage:
     python scripts/backfill_vocab_reading.py [--dry-run] [--limit N] [--batch-size 500]
 """
 
-import sys
-import os
 import argparse
 import logging
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-from dotenv import load_dotenv
-load_dotenv()
+bootstrap()
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin
+
 from services.vocabulary.processors.japanese import JapaneseProcessor
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 LANGUAGE_ID_JA = 3
@@ -51,8 +50,7 @@ def main():
     parser.add_argument('--batch-size', type=int, default=500)
     args = parser.parse_args()
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
     processor = JapaneseProcessor()
 
     # Paginate — PostgREST caps a single response at 1000 rows by default,

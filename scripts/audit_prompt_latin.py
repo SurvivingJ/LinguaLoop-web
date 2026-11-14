@@ -39,16 +39,15 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from dotenv import load_dotenv  # noqa: E402
+try:
+    from _common import admin_db, bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import admin_db, bootstrap
 
-load_dotenv()
+bootstrap(log_level=None)
 
-from services.supabase_factory import SupabaseFactory, get_supabase_admin  # noqa: E402
 
 LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
 ID_LANG = {v: k for k, v in LANG_ID.items()}
@@ -138,8 +137,7 @@ def main() -> int:
                         help='include inactive rows (default: active only)')
     args = parser.parse_args()
 
-    SupabaseFactory.initialize()
-    db = get_supabase_admin()
+    db = admin_db()
 
     lang_ids = [LANG_ID[args.lang]] if args.lang else [1, 3]
     query = (db.table('prompt_templates')

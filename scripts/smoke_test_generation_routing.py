@@ -62,17 +62,18 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
 import sys
 import time
 import traceback
 from datetime import datetime, timezone
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    from _common import bootstrap
+except ImportError:  # run or imported as scripts.<name>
+    from scripts._common import bootstrap
 
-from dotenv import load_dotenv
+bootstrap(log_level=None)
 
-load_dotenv()
 
 # Languages keyed by code -> (language_id, language_name). The ids are
 # dim_languages PKs and are relied on by prompt_templates.language_id.
