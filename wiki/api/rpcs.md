@@ -17,7 +17,7 @@ LinguaDojo's API is a Flask REST API organised into 15 blueprints (13 production
 
 ## Design Philosophy
 
-- **Blueprint organisation** — each domain (auth, tests, exercises, mystery, etc.) has its own Flask blueprint with a single responsibility.
+- **Blueprint organisation** — each domain (auth, tests, exercises, etc.) has its own Flask blueprint with a single responsibility.
 - **Supabase RPC for atomic operations** — multi-table transactional operations (test submission, ELO calculation, token grants, ladder progression) are implemented as plpgsql RPCs called via the Supabase client. Python wrappers stay thin.
 - **Simple reads via Python** — list/get operations use the Supabase Python client's query builder with foreign-key joins.
 - **Module-level JWT decorators** — all authenticated endpoints use `@jwt_required` (alias `@supabase_jwt_required`); admin tier checks use `@admin_required`; service-role tokens bypass JWT validation for batch jobs.
@@ -36,7 +36,6 @@ Registered by `app.py` and shipped to Railway.
 | `flashcards_bp` | `/api/flashcards` | FSRS review | 243 |
 | `vocabulary_bp` | `/api/vocabulary` | Post-test word quiz | 42 |
 | `corpus_bp` | `/api/corpus` | Corpus ingest, packs, style | 260 |
-| `mystery_bp` | `/api/mystery` | 5-scene murder mystery | 284 |
 | `conversations_bp` | `/api/conversations` | Read-only conversation browse | 98 |
 | `users_bp` | `/api/users` | Profile, ELO summary, tokens, prefs | 131 |
 | `reports_bp` | `/api/reports` | Bug reports | 59 |

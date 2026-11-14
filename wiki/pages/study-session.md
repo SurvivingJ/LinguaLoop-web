@@ -5,7 +5,7 @@ status: complete
 tech_page: study-session.tech.md
 last_updated: 2026-08-07
 open_questions:
-  - "OPEN — which surfaces are deliberately outside the planner (listening_lab, mystery, dual_translation, flashcards)? Tracked as TASK-711."
+  - "OPEN — which surfaces are deliberately outside the planner (dual_translation, flashcards)? Tracked as TASK-711."
   - "OPEN — day boundary is UTC midnight, which lands 07:00–09:00 local for the ZH/JA audience. Keep UTC or resolve through user_study_plans.timezone? Tracked as TASK-712."
 ---
 

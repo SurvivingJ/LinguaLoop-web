@@ -467,7 +467,7 @@ disagreed for most en/ja tests (overlap en 0.88, ja 0.83, zh 1.00).
 - **ja: real drift.** 198 map entries in 47 tests pointed at deleted senses
   (シャツ, デザイン, メンバー…). `task778_ja_loanword_lemma_cleanup.sql` deleted
   "unreferenced" senses, but its reference union covered `vocab_sense_ids`,
-  questions, mysteries and calibration, **not `vocab_token_map`** (jsonb). The
+  questions and calibration, **not `vocab_token_map`** (jsonb). The
   reader rendered those words clickable, with no definition behind them.
 - **en: by design, not drift.** 330 linked senses are multi-word lemmas that a
   per-token map cannot carry, and ~325 map tokens are fallback links to words the

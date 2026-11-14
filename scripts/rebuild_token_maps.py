@@ -4,8 +4,8 @@ Rebuild tests.vocab_token_map where it has drifted from the dictionary (TASK-779
 
 Why this exists
     task778_ja_loanword_lemma_cleanup.sql deleted every sense it judged
-    unreferenced. Its reference check unioned vocab_sense_ids, questions,
-    mysteries and the calibration tables — but not vocab_token_map, which is
+    unreferenced. Its reference check unioned vocab_sense_ids, questions
+    and the calibration tables — but not vocab_token_map, which is
     jsonb. Live on 2026-09-15 that left 198 token-map entries across 47 ja tests
     pointing at deleted senses (シャツ, デザイン, メンバー, …). The reader renders
     those tokens as clickable and then has no definition to show, and a

@@ -65,20 +65,19 @@ Until those migrations are applied, the grants and policies listed under individ
 
 28 tables across six groups were exported with their code and docs and were
 dropped by [migrations/archive_unused_modules_2026_09_21.sql](../../migrations/archive_unused_modules_2026_09_21.sql)
-(**applied 2026-09-22**; database 1,144 MB → 1,098 MB):
+(**applied 2026-09-22**; database 1,144 MB → 1,098 MB). Two of the groups (8 tables) belonged to
+features since removed entirely and are not listed here:
 
 | Group | Tables | Archive (local, gitignored) |
 |---|---|---|
 | Unused (stage 1) | flagged_content, question_type_distributions, vocabulary_review_queue, dim_classifier_example_sentences, dim_study_goals, organizations, organization_members | `archive/db_backups/stage1-unused-tables-2026-09-21.zip` |
 | Language packs | collocation_packs, pack_collocations, pack_key_words, pack_style_items, style_pack_items, user_pack_selections | `archive/modules/language-packs-2026-09-21.zip` |
-| Listening Lab | listening_lab_passages, listening_lab_sessions | `archive/modules/listening-lab-2026-09-21.zip` |
 | Grammar patterns | dim_grammar_patterns | `archive/modules/grammar-patterns-2026-09-21.zip` |
 | Conversations | conversation_domains, personas, persona_pairs, scenarios, conversations, conversation_generation_queue (+ 7,352 exercises rows) | `archive/modules/conversations-2026-09-21.zip` |
-| Mysteries | mysteries, mystery_scenes, mystery_questions, mystery_attempts, mystery_progress, mystery_skill_ratings | `archive/modules/mysteries-2026-09-21.zip` |
 
 The same migration drops `exercises.{grammar_pattern_id, conversation_id, style_pack_item_id}`,
 rebuilds `chk_source_fk`, drops the FKs (not the columns) `user_study_plans.goal_id` and
-`tests/users.organization_id`, deletes the 45 conversation/mystery `prompt_templates` rows, and
+`tests/users.organization_id`, deletes 45 `prompt_templates` rows of the archived modules, and
 truncates `llm_calls` after moving 43,605 rows to `archive/db_backups/llm-calls-log-2026-09-21.zip`.
 **Kept:** the corpus tables (the vocabulary ladder reads `corpus_collocations`) and
 `user_exercise_sessions` (daily practice-session cache, not attempt data).
@@ -121,7 +120,7 @@ Supported languages with TTS settings and grammar tooling. **As of the 2026-05-0
 - **Unique:** `dim_languages_language_code_key (language_code)`
 - **Indexes:** `idx_dim_languages_active (is_active)`, `idx_dim_languages_code (language_code)`
 - **RLS:** Enabled
-- **Referenced by:** tests, test_attempts, user_languages, user_skill_ratings, personas, production_queue, prompt_templates, scenarios, conversations, conversation_generation_queue, categories, dim_vocabulary, dim_word_senses, user_vocabulary_knowledge, user_flashcards, mysteries, dim_grammar_patterns, mystery_attempts, exercises, corpus_sources, corpus_collocations, collocation_packs, corpus_style_profiles, style_pack_items, word_assets
+- **Referenced by:** tests, test_attempts, user_languages, user_skill_ratings, personas, production_queue, prompt_templates, scenarios, conversations, conversation_generation_queue, categories, dim_vocabulary, dim_word_senses, user_vocabulary_knowledge, user_flashcards, dim_grammar_patterns, exercises, corpus_sources, corpus_collocations, collocation_packs, corpus_style_profiles, style_pack_items, word_assets
 
 ---
 
@@ -146,7 +145,7 @@ Test/skill types (reading, listening, dictation, pinyin, pitch_accent).
 - **Unique:** `dim_test_types_type_code_key (type_code)`
 - **Indexes:** `idx_dim_test_types_active (is_active)`, `idx_dim_test_types_code (type_code)`
 - **RLS:** Enabled
-- **Referenced by:** test_skill_ratings, user_skill_ratings, test_attempts, mystery_attempts
+- **Referenced by:** test_skill_ratings, user_skill_ratings, test_attempts
 
 ---
 
@@ -225,7 +224,7 @@ Taxonomy of question types based on cognitive complexity (Bloom's).
 - **Unique:** `dim_question_types_type_code_key (type_code)`
 - **Indexes:** `idx_question_types_active (is_active WHERE is_active=true)`, `idx_question_types_cognitive (cognitive_level)`
 - **RLS:** Enabled (Phase 6). Policies: authenticated read, service_role full access.
-- **Referenced by:** questions (via id), mystery_questions (via id), question_type_distributions (via type_code)
+- **Referenced by:** questions (via id), question_type_distributions (via type_code)
 
 ---
 
@@ -458,7 +457,7 @@ Public mirror of `auth.users`. Auto-created by trigger on auth signup.
 - **Foreign Keys:** `id` -> `auth.users.id`, `subscription_tier_id` -> `dim_subscription_tiers.id`, `organization_id` -> `organizations.id`, `native_language_id` -> `dim_languages.id`
 - **Triggers:** AFTER INSERT -> `create_user_dependencies()`, BEFORE UPDATE -> `update_updated_at_column()`
 - **RLS:** Enabled (Phase 6). Policies: users read own profile, users update own profile, service_role full access, admin read all users. **Security note (2026-10-14 audit):** the update policies and `users_admin_all` let a user raise their own `subscription_tier_id`; planned fix is a full client write revoke and dropping those policies (TASK-875, not yet applied; see Security posture above).
-- **Referenced by:** test_attempts, user_skill_ratings, tests (gen_user), user_languages, user_tokens, token_transactions, flagged_content, user_exercise_sessions, organization_members, vocabulary_review_queue (reviewed_by), user_vocabulary_knowledge, user_flashcards, word_quiz_results, mysteries (gen_user), mystery_progress, mystery_attempts, exercise_attempts, user_word_ladder, user_exercise_history, user_pack_selections
+- **Referenced by:** test_attempts, user_skill_ratings, tests (gen_user), user_languages, user_tokens, token_transactions, flagged_content, user_exercise_sessions, organization_members, vocabulary_review_queue (reviewed_by), user_vocabulary_knowledge, user_flashcards, word_quiz_results, exercise_attempts, user_word_ladder, user_exercise_history, user_pack_selections
 
 ---
 
@@ -1598,179 +1597,6 @@ Junction table: collocation pack <-> style item. Links style items into packs (p
 
 ---
 
-## 7. Mystery System
-
-Multi-scene narrative mysteries with comprehension questions and ELO matching.
-
----
-
-### `mysteries` — ARCHIVED & DROPPED 2026-09-22
-
-> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
-Master mystery records (multi-scene listening/reading puzzles).
-
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| `id` | uuid | NO | gen_random_uuid() | PK |
-| `slug` | text | NO | | UNIQUE |
-| `language_id` | integer | NO | | FK -> dim_languages |
-| `difficulty` | integer | NO | | CHECK: 1-9 |
-| `title` | text | NO | | |
-| `premise` | text | NO | | |
-| `suspects` | jsonb | NO | '[]' | |
-| `solution_suspect` | text | NO | | |
-| `solution_reasoning` | text | NO | | |
-| `archetype` | text | YES | | |
-| `target_vocab_ids` | integer[] | YES | '{}' | |
-| `vocab_sense_ids` | integer[] | YES | '{}' | |
-| `generation_model` | text | YES | 'gpt-4' | |
-| `gen_user` | uuid | NO | | FK -> users |
-| `is_active` | boolean | YES | true | |
-| `total_attempts` | integer | YES | 0 | |
-| `created_at` | timestamptz | YES | now() | |
-| `updated_at` | timestamptz | YES | now() | |
-
-- **Primary Key:** `mysteries_pkey (id)`
-- **Unique:** `mysteries_slug_key (slug)`
-- **Indexes:** `idx_mysteries_active (is_active WHERE is_active=true)`, `idx_mysteries_difficulty (difficulty)`, `idx_mysteries_language (language_id)`
-- **Foreign Keys:** `language_id` -> `dim_languages.id`, `gen_user` -> `users.id`
-- **RLS:** Enabled
-- **Referenced by:** mystery_scenes, mystery_attempts, mystery_progress, mystery_skill_ratings
-
----
-
-### `mystery_scenes` — ARCHIVED & DROPPED 2026-09-22
-
-> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
-Individual scenes within a mystery (1-5 per mystery).
-
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| `id` | uuid | NO | gen_random_uuid() | PK |
-| `mystery_id` | uuid | NO | | FK -> mysteries |
-| `scene_number` | integer | NO | | CHECK: 1-5 |
-| `title` | text | NO | | |
-| `transcript` | text | NO | | |
-| `audio_url` | text | YES | | |
-| `clue_text` | text | NO | | |
-| `clue_type` | text | YES | 'evidence' | |
-| `is_finale` | boolean | YES | false | |
-| `target_words` | jsonb | YES | | |
-| `created_at` | timestamptz | YES | now() | |
-
-- **Primary Key:** `mystery_scenes_pkey (id)`
-- **Unique:** `mystery_scenes_mystery_id_scene_number_key (mystery_id, scene_number)`
-- **Indexes:** `idx_mystery_scenes_mystery (mystery_id)`
-- **Foreign Keys:** `mystery_id` -> `mysteries.id`
-- **RLS:** Enabled
-- **Referenced by:** mystery_questions
-
----
-
-### `mystery_questions` — ARCHIVED & DROPPED 2026-09-22
-
-> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
-Questions attached to mystery scenes.
-
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| `id` | uuid | NO | gen_random_uuid() | PK |
-| `scene_id` | uuid | NO | | FK -> mystery_scenes |
-| `question_text` | text | NO | | |
-| `choices` | jsonb | NO | | |
-| `answer` | jsonb | NO | | |
-| `answer_explanation` | text | YES | | |
-| `question_type_id` | integer | YES | | FK -> dim_question_types |
-| `sense_ids` | integer[] | YES | | |
-| `is_deduction` | boolean | YES | false | Whether this is a deduction question |
-| `created_at` | timestamptz | YES | now() | |
-
-- **Primary Key:** `mystery_questions_pkey (id)`
-- **Indexes:** `idx_mystery_questions_scene (scene_id)`
-- **Foreign Keys:** `scene_id` -> `mystery_scenes.id`, `question_type_id` -> `dim_question_types.id`
-- **RLS:** Enabled
-
----
-
-### `mystery_progress` — ARCHIVED & DROPPED 2026-09-22
-
-> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
-User progress through a mystery (save state).
-
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| `id` | uuid | NO | gen_random_uuid() | PK |
-| `user_id` | uuid | NO | | FK -> users |
-| `mystery_id` | uuid | NO | | FK -> mysteries |
-| `current_scene` | integer | NO | 1 | |
-| `scene_responses` | jsonb | YES | '{}' | |
-| `notebook_state` | jsonb | YES | '{"clues":[],"suspects":[]}' | |
-| `mode` | text | NO | 'reading' | CHECK: reading/listening |
-| `started_at` | timestamptz | YES | now() | |
-| `updated_at` | timestamptz | YES | now() | |
-| `completed_at` | timestamptz | YES | | |
-
-- **Primary Key:** `mystery_progress_pkey (id)`
-- **Unique:** `mystery_progress_user_id_mystery_id_key (user_id, mystery_id)`
-- **Indexes:** `idx_mystery_progress_user (user_id)`
-- **Foreign Keys:** `user_id` -> `users.id`, `mystery_id` -> `mysteries.id`
-- **RLS:** Enabled
-
----
-
-### `mystery_skill_ratings` — ARCHIVED & DROPPED 2026-09-22
-
-> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
-Per-mystery ELO ratings (analogous to test_skill_ratings).
-
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| `id` | uuid | NO | gen_random_uuid() | PK |
-| `mystery_id` | uuid | NO | | UNIQUE. FK -> mysteries |
-| `elo_rating` | integer | YES | 1400 | CHECK: 400-3000 |
-| `volatility` | numeric | YES | 1.0 | |
-| `total_attempts` | integer | YES | 0 | |
-| `created_at` | timestamptz | YES | now() | |
-| `updated_at` | timestamptz | YES | now() | |
-
-- **Primary Key:** `mystery_skill_ratings_pkey (id)`
-- **Unique:** `mystery_skill_ratings_mystery_id_key (mystery_id)`
-- **Foreign Keys:** `mystery_id` -> `mysteries.id`
-- **RLS:** Enabled
-
----
-
-### `mystery_attempts` — ARCHIVED & DROPPED 2026-09-22
-
-> Exported to `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). No code reads it. Section kept for history.
-Records each user mystery completion with ELO snapshots.
-
-| Column | Type | Nullable | Default | Notes |
-|--------|------|----------|---------|-------|
-| `id` | uuid | NO | gen_random_uuid() | PK |
-| `user_id` | uuid | NO | | FK -> users |
-| `mystery_id` | uuid | NO | | FK -> mysteries |
-| `language_id` | integer | NO | | FK -> dim_languages |
-| `test_type_id` | integer | NO | | FK -> dim_test_types |
-| `score` | integer | NO | | CHECK >= 0 |
-| `total_questions` | integer | NO | | CHECK > 0 |
-| `percentage` | real | YES | GENERATED (score/total_questions * 100) | |
-| `user_elo_before` | integer | NO | | |
-| `user_elo_after` | integer | NO | | |
-| `mystery_elo_before` | integer | NO | | |
-| `mystery_elo_after` | integer | NO | | |
-| `attempt_number` | integer | YES | 1 | |
-| `is_first_attempt` | boolean | YES | true | |
-| `idempotency_key` | uuid | YES | | |
-| `created_at` | timestamptz | YES | now() | |
-
-- **Primary Key:** `mystery_attempts_pkey (id)`
-- **Indexes:** `idx_mystery_attempts_mystery (mystery_id)`, `idx_mystery_attempts_user (user_id)`
-- **Foreign Keys:** `user_id` -> `users.id`, `mystery_id` -> `mysteries.id`, `language_id` -> `dim_languages.id`, `test_type_id` -> `dim_test_types.id`
-- **RLS:** Enabled
-
----
-
 ## 8. Organization System
 
 Multi-tenant organization support for schools/businesses.
@@ -2275,7 +2101,7 @@ RLS policies now call `(select auth.uid())` / `(select auth.role())` (evaluated 
 
 | RLS Enabled | Tables |
 |-------------|--------|
-| **Enabled** | app_error_logs, dim_complexity_tiers, dim_grammar_patterns, dim_languages, dim_lens, dim_question_types, dim_status, dim_subscription_tiers, dim_test_types, dim_vocabulary, dim_word_senses, flagged_content, mysteries, mystery_attempts, mystery_progress, mystery_questions, mystery_scenes, mystery_skill_ratings, organization_members, organizations, questions, test_attempts, test_skill_ratings, tests, token_transactions, user_exercise_history, user_exercise_sessions, user_languages, user_pack_selections, user_reports, user_skill_ratings, user_tokens, users, vocabulary_review_queue |
+| **Enabled** | app_error_logs, dim_complexity_tiers, dim_grammar_patterns, dim_languages, dim_lens, dim_question_types, dim_status, dim_subscription_tiers, dim_test_types, dim_vocabulary, dim_word_senses, flagged_content, organization_members, organizations, questions, test_attempts, test_skill_ratings, tests, token_transactions, user_exercise_history, user_exercise_sessions, user_languages, user_pack_selections, user_reports, user_skill_ratings, user_tokens, users, vocabulary_review_queue |
 | **Disabled** | categories, collocation_packs, conversation_domains, conversation_generation_queue, conversations, corpus_collocations, corpus_sources, daily_test_load_items, daily_test_loads, exercise_attempts, exercises, language_model_config, pack_collocations, persona_pairs, personas, production_queue, prompt_templates, question_type_distributions, scenarios, test_generation_config, test_generation_runs, topic_generation_runs, topics, user_flashcards, user_vocabulary_knowledge, user_word_ladder, word_assets, word_quiz_results |
 
 **Note:** `users` table now has RLS enabled (Phase 6) with self-read, self-update, admin-read, and service_role policies. `user_reports` FK corrected to reference `public.users.id` (Phase 2, was `auth.users.id`).

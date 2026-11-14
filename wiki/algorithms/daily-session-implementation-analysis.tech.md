@@ -155,17 +155,14 @@ Feedback: submit handlers → apply_attempt_timing_and_progress →
 
 ### F11 (M) — Type-coverage boundary undocumented — ✅ RESOLVED (TASK-711 decision + TASK-714/715 implementation, 2026-08-07)
 - Plannable universe = get_recommended_tests target_types (listening, reading,
-  dictation, pinyin, pitch_accent) + classifier_drill sentinel. `dim_test_types`
-  also contains `listening_lab` and `mystery`; dual_translation (ADR-017
+  dictation, pinyin, pitch_accent) + classifier_drill sentinel. dual_translation (ADR-017
   standalone) and FSRS flashcards live outside the planner. No wiki page states
   which surfaces are deliberately un-planned; template `target_counts` are the
   only implicit registry. Dictation's 80-word transcript cap can starve
   dictation slots for long-transcript corpora.
 - **Resolved by product decision (user, 2026-08-07) →
   [[decisions/ADR-021-plannable-surface-boundary]]:** `flashcards` and
-  `dual_translation` **join** the planner (implementation TASK-714);
-  `listening_lab` and `mystery` are **deliberately outside** — their
-  `dim_test_types` rows are a modelling artefact, not scheduling intent.
+  `dual_translation` **join** the planner (implementation TASK-714).
   Dictation's 80-word cap **scales with tier** (TASK-715). The canonical
   surface × in-planner? × rationale table now lives in
   [[features/study-plans.tech]]. Surfaced while writing it:
@@ -176,8 +173,7 @@ Feedback: submit handlers → apply_attempt_timing_and_progress →
   the same greedy loop (so they *compete* for minutes rather than adding to
   them), hydrated from their own pools, reported through the TASK-702 shortfall
   maps, and completed via `record_session_progress(p_kind='surface')` with a
-  deterministic uuid5. `listening_lab`/`mystery` exclusion is now pinned four
-  ways by `tests/test_plannable_surfaces.py`, and the `ELSE 5.0` trap is pinned
+  deterministic uuid5. The `ELSE 5.0` trap is pinned
   by a test asserting both new surfaces resolve elsewhere *and* that the Python
   and SQL seeds agree. Dictation's cap is per-tier (80→400) with a matching
   tier-aware time estimate (6.0→22.0 min).

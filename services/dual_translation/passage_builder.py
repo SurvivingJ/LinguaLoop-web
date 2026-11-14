@@ -15,14 +15,13 @@ TASK-603 notes):
     column (verified against wiki/database/schema.tech.md); it carries
     `difficulty` (1-9, NOT NULL). age_tier is `DIFFICULTY_TO_TIER[difficulty]`
     folded to the int 1-6 that `dt_passage.age_tier` (CHECK 1-6) wants — the
-    same map test/mystery generation already use. `register` has no source and
+    same map test generation already uses. `register` has no source and
     is left NULL (matches the migration's nullable default).
 
   * **source_ref_id = str(tests.id)** (a uuid) so `routes/dual_translation.py::
     _select_next_passage` (which filters `dt_passage.source_ref_id IN
     test_attempts.test_id`) can serve the row. `source_kind` is locked to
-    'test_transcript'; mystery scenes are a separate table and simply not
-    sourced here.
+    'test_transcript'.
 
   * **Idempotency is in-app** (no content UNIQUE on dt_passage): a passage is a
     duplicate if a row already exists with the same
@@ -100,7 +99,7 @@ def difficulty_to_age_tier(difficulty: int) -> int:
 
     Reuses DIFFICULTY_TO_TIER (1-2->T1, 3-4->T2, 5->T3, 6->T4, 7->T5, 8-9->T6),
     the repo's single difficulty->tier map. Unknown/None difficulty falls back
-    to T3 (the same default mystery generation uses), keeping the result inside
+    to T3, keeping the result inside
     the CHECK (1-6) range.
     """
     tier_code = DIFFICULTY_TO_TIER.get(int(difficulty) if difficulty is not None else 0, 'T3')

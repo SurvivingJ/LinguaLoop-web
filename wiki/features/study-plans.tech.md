@@ -40,12 +40,6 @@ Canonical reference for **which surfaces the planner owns**. Decided in
 | Practice (acq + maint) | ✅ live | The Practice budget; chunked ≤10 min by the runner. |
 | `flashcards` | ✅ live (TASK-714, 2026-08-07) | FSRS reviews are due-driven and inherently daily — the largest source of under-counted study time. Queue `kind='flashcards'`; one slot = one block of 15 due cards @ 7.0 min. |
 | `dual_translation` | ✅ live (TASK-714, 2026-08-07) | Graded production work competing directly with test time; excluding it makes the Tests budget dishonest. Queue `kind='dual_translation'`; one slot = one passage @ 12.0 min. |
-| `listening_lab` | ❌ **deliberately outside** | Long-form, exploratory, self-directed; a daily minute budget fights its design. |
-| `mystery` | ❌ **deliberately outside** | 5-scene gated narrative; session length is set by the story, not the budget. |
-
-> ⚠️ `listening_lab` and `mystery` **do** exist as `dim_test_types.type_code` rows. That is a
-> modelling artefact, **not** an intent to schedule them — no template allocates to either. Do not
-> "fix" their absence from the planner.
 
 > ⚠️ **Adding a surface requires seeding its time estimate.** `test_time_estimate(p_skill text)`
 > COALESCEs `dim_test_types.expected_minutes_p50` (NULL for all 12 type codes as of 2026-08-07)

@@ -94,15 +94,6 @@ Stable reference data. Cached at startup by [DimensionService](../../services/di
 - **conversations** (⚠ RLS DISABLED) — 261 generated dialogues with `turns` jsonb, `corpus_features` jsonb, `quality_score`, `passed_qc`.
 - **conversation_generation_queue** (⚠ RLS DISABLED) — Pipeline state.
 
-### 9. Mystery System (6 tables) — ARCHIVED & DROPPED 2026-09-22
-
-- **mysteries** (RLS) — 1 mystery currently — proof of concept stage.
-- **mystery_scenes** (RLS) — 5 scenes for the one mystery.
-- **mystery_questions** (RLS) — 10 questions.
-- **mystery_progress** (RLS) — User position in a mystery (composite unique on (user_id, mystery_id)).
-- **mystery_attempts** (RLS) — Scored attempts.
-- **mystery_skill_ratings** (RLS) — Per-mystery ELO.
-
 ### 10. Token Economy (2 tables)
 
 - **user_tokens** (RLS) — See Users section above.
@@ -156,7 +147,6 @@ User ──→ User Flashcards (per word sense) ──→ FSRS schedule
 User ──→ User Word Ladder (per word sense) ──→ ring + family_confidence + gates
 User ──→ Test Attempts ──→ Test ──→ Questions
 User ──→ Exercise Attempts ──→ Exercise ──→ Grammar Pattern | Word Sense | Collocation | Conversation | Style Pack Item
-User ──→ Mystery Progress ──→ Mystery ──→ Scenes ──→ Questions
 User ──→ User Tokens ──→ Token Transactions
 Test ──→ Test Skill Ratings ──→ ELO (per test type)
 Topic ──→ Tests (multiple tests per topic, multi-language fan-out)
@@ -169,11 +159,11 @@ dim_languages ──→ (central FK hub: ~30 tables reference it)
 
 ## Row-Level Security — Audit Snapshot
 
-**RLS enabled (41 tables):** users, user_languages, user_skill_ratings, user_tokens, user_reports, user_exercise_sessions, user_exercise_history, user_pack_selections, **user_vocabulary_knowledge, user_flashcards, user_word_ladder, word_quiz_results, exercise_attempts, daily_test_loads, daily_test_load_items** (last 7 enabled 2026-05-12 — see [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)), tests, test_skill_ratings, test_attempts, questions, token_transactions, flagged_content, app_error_logs, vocabulary_review_queue, mysteries, mystery_attempts, mystery_progress, mystery_questions, mystery_scenes, mystery_skill_ratings, organization_members, organizations, dim_languages, dim_test_types, dim_subscription_tiers, dim_status, dim_lens, dim_question_types, dim_complexity_tiers, dim_vocabulary, dim_word_senses, dim_grammar_patterns.
+**RLS enabled (35 tables):** users, user_languages, user_skill_ratings, user_tokens, user_reports, user_exercise_sessions, user_exercise_history, user_pack_selections, **user_vocabulary_knowledge, user_flashcards, user_word_ladder, word_quiz_results, exercise_attempts, daily_test_loads, daily_test_load_items** (last 7 enabled 2026-05-12 — see [migrations/enable_rls_on_user_owned_tables.sql](../../migrations/enable_rls_on_user_owned_tables.sql)), tests, test_skill_ratings, test_attempts, questions, token_transactions, flagged_content, app_error_logs, vocabulary_review_queue, organization_members, organizations, dim_languages, dim_test_types, dim_subscription_tiers, dim_status, dim_lens, dim_question_types, dim_complexity_tiers, dim_vocabulary, dim_word_senses, dim_grammar_patterns.
 
 **⚠ RLS DISABLED (23 tables — content/infrastructure, no per-user state):** categories, topics, production_queue, topic_generation_runs, prompt_templates, question_type_distributions, test_generation_config, test_generation_runs, exercises, corpus_sources, corpus_collocations, collocation_packs, pack_collocations, conversation_domains, personas, persona_pairs, scenarios, conversations, conversation_generation_queue, word_assets, corpus_style_profiles, style_pack_items, pack_style_items.
 
-The remaining 21 are content/infrastructure tables — they don't hold per-user state. Decide whether to lock them down or treat them as deliberately public. None hold sensitive personal data; the anon key can already read all of `tests`, `questions`, and `mysteries` via existing RLS policies.
+The remaining 21 are content/infrastructure tables — they don't hold per-user state. Decide whether to lock them down or treat them as deliberately public. None hold sensitive personal data; the anon key can already read all of `tests` and `questions` via existing RLS policies.
 
 ## Related Pages
 

@@ -10,8 +10,7 @@ not the raw Supabase chain):
      against a minimal fake query-builder (``_FakeDB``), not a live DB.
   2. Route-level tests exercise ``get_next``/``submit`` through the Flask
      test client with every helper *and* ``grade_submission`` monkeypatched
-     directly on the ``routes.dual_translation`` module namespace — the same
-     pattern test_listening_lab_routes.py uses for its service singleton.
+     directly on the ``routes.dual_translation`` module namespace.
 
 This repo doesn't spin up a live DB for these tests; live verification
 against a real seeded passage is blocked on TASK-603/604 (see the tasklist

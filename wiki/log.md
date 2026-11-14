@@ -6457,3 +6457,9 @@ Pages updated: index. Branch `claude/lucid-volta-gu0g2l`, not merged. Tests: Pyt
 for moved code (routes/tests package, services/practice, services/study_session, web/) are now
 stale and need an ingest pass. Two tests read `prompt_templates` from the live database when real
 credentials are in the environment; CI deselects them.
+
+## [2026-11-14] cleanup | Mystery and Listening Lab removed
+Owner decision: both retired features removed completely. Pages deleted: 2 ([[features/mysteries]],
+[[features/mysteries.tech]]). Pages updated: 23 (schema, RPC, API, overview, pages, features,
+algorithms, one tasklist, index; one-line note on ADR-021). Migration
+`migrations/remove_mystery_and_listening_lab.sql` is written, not applied — awaits application by the developer.

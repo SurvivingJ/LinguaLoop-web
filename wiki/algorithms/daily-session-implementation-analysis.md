@@ -5,7 +5,7 @@ status: complete
 tech_page: daily-session-implementation-analysis.tech.md
 last_updated: 2026-07-05
 open_questions:
-  - "Should listening_lab / mystery / dual_translation / flashcards ever be plannable session items, or stay standalone surfaces? (Needs a product decision before TASK-711.)"
+  - "Should dual_translation / flashcards ever be plannable session items, or stay standalone surfaces? (Needs a product decision before TASK-711.)"
   - "Should the session day boundary follow user_study_plans.timezone instead of UTC?"
 ---
 
@@ -22,7 +22,7 @@ schedule properly, and will it interleave?
 | Question | Verdict |
 |---|---|
 | HTML ready to serve? | **Mostly yes.** Route, template, controller, 6 players, i18n in all 4 locales all ship. Gaps: no navbar entry, no error-retry, weak a11y, no timing capture. |
-| Covers all test types? | **Covers the 6 plannable types** (reading, listening, dictation, pinyin, pitch_accent, classifier_drill-via-sentinel). listening_lab, mystery, dual_translation, flashcards are outside the planner — partly by design, undocumented. |
+| Covers all test types? | **Covers the 6 plannable types** (reading, listening, dictation, pinyin, pitch_accent, classifier_drill-via-sentinel). dual_translation, flashcards are outside the planner — partly by design, undocumented. |
 | Will it schedule properly? | **No — three compounding faults.** The Sunday cron seeds the *outgoing* week, so plan-driven days silently fall back to legacy every Monday; practice minutes never advance (0 ms attempts), so practice is re-scheduled at full target daily; slot hydration shortfalls are silently dropped. |
 | Will it interleave? | **No.** Tests are emitted grouped by type (`ORDER BY skill, test_id`) and practice is always appended last. The resolver's γ-spacing term is cross-**day** variety, not within-session interleaving. |
 

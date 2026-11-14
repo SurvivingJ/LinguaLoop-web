@@ -56,7 +56,7 @@ describe('lazy player registry', () => {
   it('unknown test types still get the standalone placeholder', () => {
     const stage = document.createElement('div');
     const onSkip = vi.fn();
-    getPlayer({ kind: 'test', test_type: 'mystery', slug: 's' }).mount(stage, { onSkip });
+    getPlayer({ kind: 'test', test_type: 'not_a_real_type', slug: 's' }).mount(stage, { onSkip });
     stage.querySelector('[data-session-skip]').click();
     expect(onSkip).toHaveBeenCalled();
   });

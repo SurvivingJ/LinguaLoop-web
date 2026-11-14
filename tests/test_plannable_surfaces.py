@@ -1,13 +1,10 @@
 """TASK-714 / ADR-021 — the plannable-surface boundary.
 
-Three things this pins, each matching an acceptance criterion:
+Two things this pins, each matching an acceptance criterion:
 
   * flashcards / dual_translation are budgeted with EXPLICIT time estimates and
     never fall through ``test_time_estimate``'s catch-all ``ELSE 5.0``. ADR-021
     calls that catch-all a silent wrong answer of the same shape as F3.
-  * listening_lab / mystery stay OUTSIDE the planner. Both are dim_test_types
-    rows, so they look plannable to anything reading that table — this test
-    exists precisely so a later change cannot quietly pull them in.
   * the /api/study-session queue emits mountable items for the new kinds and
     accepts their completion, which is what makes the weekly counters move
     (the F2 / TASK-701 failure mode).
@@ -29,7 +26,6 @@ from routes.study_session import (
 )
 from services.study_plan_service import (
     PLANNABLE_SURFACE_SKILLS,
-    UNPLANNED_TEST_TYPES,
     UNSEEDED_SKILL_MINUTES,
     _test_time_estimate,
 )
@@ -119,34 +115,8 @@ def test_unknown_skill_still_falls_back_rather_than_raising():
     )
 
 
-# ---------------------------------------------------------------------------
-# AC: listening_lab and mystery remain unscheduled
-# ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize('skill', UNPLANNED_TEST_TYPES)
-def test_deliberately_unplanned_type_is_not_a_plannable_surface(skill):
-    assert skill not in PLANNABLE_SURFACE_SKILLS
-    assert skill not in _SURFACE_BLOCKS
 
 
-@pytest.mark.parametrize('skill', UNPLANNED_TEST_TYPES)
-def test_deliberately_unplanned_type_is_not_seeded_for_budgeting(skill):
-    """Seeding a time estimate would be the first step to scheduling it.
-    ADR-021 keeps both outside the planner on purpose: long-form exploratory
-    content does not belong in a minute budget."""
-    assert skill not in Config.TEST_TYPE_MINUTES
-
-
-@pytest.mark.parametrize('skill', UNPLANNED_TEST_TYPES)
-def test_deliberately_unplanned_type_is_not_in_the_resolver_surface_list(skill):
-    assert f"'{skill}'" not in RESOLVER_SQL
-
-
-@pytest.mark.parametrize('skill', UNPLANNED_TEST_TYPES)
-def test_deliberately_unplanned_type_is_not_seeded_into_templates(skill):
-    """A template key is what makes a skill reachable at all — Tier B walks
-    weekly_test_counts and nothing outside it can enter target_counts."""
-    assert skill not in TEMPLATE_SEED_SQL
 
 
 def test_template_seed_covers_both_new_surfaces():

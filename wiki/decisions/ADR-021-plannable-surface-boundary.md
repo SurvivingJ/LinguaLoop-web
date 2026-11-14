@@ -6,6 +6,8 @@ date: 2026-08-07
 
 # ADR-021: Plannable-surface boundary — which surfaces the daily planner owns
 
+> **Update 2026-11-14:** both excluded types (`listening_lab` and `mystery`) were removed from the product and database entirely (migration `remove_mystery_and_listening_lab.sql`), so the exclusion list this ADR describes no longer exists in code.
+
 ## Context
 
 The Study Plan orchestrator ([[decisions/ADR-008-study-plan-orchestration-layer]]) budgets a

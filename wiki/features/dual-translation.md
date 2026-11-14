@@ -61,7 +61,7 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
   gold once and an L1 reference *per supported L1*. Interlingual error rules are defined per
   **directed L1↔L2 pair** ([[decisions/ADR-016-per-pair-error-taxonomy]]).
 - **Source from existing corpus — `tests.transcript` only.** Passages are drawn from existing L2
-  test transcripts (not mystery scenes); the L1 reference(s) are generated and stored alongside.
+  test transcripts; the L1 reference(s) are generated and stored alongside.
   We never invent new L2 source content. Passages are served from tests the learner has **already
   completed** (reading/listening/dictation), so content is inherently at their level.
 - **Grading is level-neutral; only naturalness is level-dependent.** Because difficulty is

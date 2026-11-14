@@ -56,10 +56,6 @@ _TAIL_BLOCKS = {
 #   dual_translation -> one passage
 # so weekly target_counts stays homogeneous with the test skills (a count of
 # slots) and test_time_estimate stays homogeneous (minutes per slot).
-#
-# listening_lab and mystery are deliberately ABSENT and must stay that way —
-# ADR-021 puts them outside the planner on purpose. tests/test_plannable_
-# surfaces.py pins that so a later change cannot quietly pull them in.
 SURFACE_BLOCKS = {
     'flashcards': {
         'kind':        'flashcards',

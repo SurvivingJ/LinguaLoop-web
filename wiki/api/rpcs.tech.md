@@ -43,7 +43,7 @@ The Flask factory `create_app()` lives in [app.py:44](../../app.py#L44) and regi
 
 | Variant | Blueprints | Url-prefixes | Use |
 |---------|-----------|--------------|-----|
-| `app.py` (production) | auth, tests, reports, vocabulary, flashcards, exercises, corpus, users, payments, mystery, conversations, vocab_dojo, vocab_admin | `/api/*`, `/api/admin/vocab/*` | Railway production |
+| `app.py` (production) | auth, tests, reports, vocabulary, flashcards, exercises, corpus, users, payments, conversations, vocab_dojo, vocab_admin | `/api/*`, `/api/admin/vocab/*` | Railway production |
 | `admin_app.py` (local) | All of the above, plus `admin_local_bp` (`/admin`) and `model_arena_bp` (`/admin/arena`) | adds `/admin/*` | Operator/admin tooling |
 
 The Flask app boots an APScheduler `BackgroundScheduler` ([app.py:201](../../app.py#L201)) inside every worker. Right now a single cron job is registered: `irt_calibration_nightly @ 04:00 UTC` which calls [`services.irt.calibrator.calibrate_all_active_languages()`](../../services/irt/calibrator.py). Cross-worker safety comes from a Postgres advisory lock (`irt_try_lock`); duplicate fires across gunicorn workers exit cleanly. Disable for tests via `DISABLE_SCHEDULER=true`.
@@ -92,8 +92,6 @@ Defined inline in `_register_core_routes()` ([app.py:400](../../app.py#L400)) an
 | `/profile` | `profile.html` | ELO, tokens, history |
 | `/flashcards` | `flashcards.html` | FSRS review |
 | `/exercises` | `exercises.html` | Daily mixed-session UI |
-| `/mysteries` | `mystery_list.html` | |
-| `/mystery/<slug>` | `mystery.html` | 5-scene murder mystery flow |
 | `/conversations` | `conversation_list.html` | |
 | `/conversation/<id>` | `conversation_reader.html` | Render generated dialogue |
 | `/vocab-dojo` | `vocab_dojo.html` | Ladder + gates + stress test UI |
@@ -234,26 +232,6 @@ Mixed user + admin surface.
 
 ---
 
-## `/api/mystery` — [routes/mystery.py](../../routes/mystery.py)
-
-> **ARCHIVED 2026-09-21.** Blueprint removed from app.py. Code and DDL are in `archive/modules/mysteries-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
-
-
-Five-scene comprehension series. All `@jwt_required`.
-
-| Method | Path | Query / Body | Notes |
-|---|---|---|---|
-| GET | `/` | `language_id (req), difficulty?, limit?` | List active mysteries. |
-| GET | `/recommended` | `language_id (req)` | ELO-matched: `get_recommended_mysteries(p_user_id, p_language_id)` RPC. |
-| GET | `/<slug>` | `mode? ('reading'\|'listening')` | Returns `{mystery, progress}`. Auto-creates `mystery_progress` row on first access. |
-| GET | `/<slug>/scene/<n>` | — | 1-5 only. Returns `{scene, progress}`. Enforces progression: `scene_number ≤ progress.current_scene`. In listening mode, scene transcript is hidden (`transcript_locked: true`) until questions are answered correctly. |
-| POST | `/<slug>/scene/<n>/submit` | `{responses: [{question_id, selected_answer}]}` | `MysteryService.submit_scene()` — must answer all correctly to unlock the clue. Updates `mystery_progress.scene_responses` JSONB. |
-| POST | `/<slug>/submit` | `{responses}` | Finale: `MysteryService.submit_finale()` → `process_mystery_submission` RPC (ELO + scoring). Then `_update_mystery_vocabulary` runs BKT on target_vocab_ids using the score ratio. |
-
-*Calls RPCs:* `get_recommended_mysteries`, `process_mystery_submission`.
-
----
-
 ## `/api/conversations` — [routes/conversations.py](../../routes/conversations.py)
 
 > **ARCHIVED 2026-09-21.** Blueprint removed from app.py. Code and DDL are in `archive/modules/conversations-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
@@ -367,7 +345,6 @@ Local-only duplicates of the dashboard-relevant routes in [routes/vocab_admin.py
 | `/api/run/exercise-generation` | `_do_exercise_generation` | `{language_id, source: 'grammar'\|'vocabulary'\|'collocation', limit?, ids?}` | Calls `run_grammar_batch` / `run_vocabulary_batch` / `run_collocation_batch`. |
 | `/api/run/style-analysis` | `_do_style_analysis` | `{language_id, source: 'existing'\|'new', ...}` | `CorpusIngestionService._run_style_pipeline`. |
 | `/api/run/conversation-generation` | `_do_conversation_generation` | `{language_id, domain_id?, limit?}` | `ConversationBatchProcessor`. |
-| `/api/run/mystery-generation` | `_do_mystery_generation` | `{language_id, count?, difficulty?, archetype?}` | `MysteryGenerationOrchestrator`. |
 | `/api/run/pinyin-backfill` | `_do_pinyin_backfill` | `{test_ids?, all?, resolve_polyphones?}` | Recomputes `tests.pinyin_payload` via `pinyin_service.process_passage()`. |
 | `/api/run/full-pipeline` | `_do_full_pipeline` | `{language_id}` | Sequential idempotent backfill chain: vocab → token maps → question sense ids → test skill ratings → exercises → collocations. |
 | `/api/run/vocab-generate` | `_do_vocab_generate` | `{language_id, sense_ids[]}` | Asset pipeline + L1 audio synthesis + exercise rendering for selected senses. |
@@ -401,14 +378,12 @@ Every Supabase RPC currently invoked from Python, with its caller. See [database
 | RPC | Called from | Note |
 |---|---|---|
 | `process_test_submission` | `routes/tests.py: _call_submission_rpc` | DEFINER. Atomic test grading + ELO + token charge + idempotency. |
-| `process_mystery_submission` | `services/mystery_service.py` | DEFINER. Mystery finale grading. |
 | `process_stripe_payment` | (intended for webhook — handler missing) | DEFINER. Atomic token grant. |
 | `add_tokens_atomic` | `services/payment_service.py` | DEFINER. Generic token credit with idempotency. |
 | `can_use_free_test` | `services/test_service.py` | DEFINER. Per-user daily limit check. |
 | `get_token_balance` | `services/payment_service.py` | DEFINER. |
 | `get_recommended_test` | `routes/tests.py:get_random_test` | DEFINER. Single ELO-matched test. Excludes attempted tests (V3, 2026-05-08). |
 | `get_recommended_tests` | `routes/tests.py:get_recommended_tests` | DEFINER. Curated list of up to 9 ELO-matched tests (3 per type: listening/reading/dictation). Signature: `(p_user_id uuid, p_language_id smallint)`. |
-| `get_recommended_mysteries` | `routes/mystery.py:get_recommended` | DEFINER. |
 | `get_packs_with_user_selection` | `services/corpus/pack_service.py` | INVOKER. |
 | `get_vocab_recommendations` | `services/test_service.py` | DEFINER. Vocab-aware test matching. |
 | `get_ladder_session` | `routes/vocab_dojo.py:get_dojo_session` | INVOKER. Phase 8. |
@@ -468,5 +443,4 @@ Non-application RPCs (`vector_*`, `halfvec_*`, `sparsevec_*`, `_int*`, `g_int*`,
 - [[features/vocab-dojo.tech]] — `/api/vocab-dojo` deep dive
 - [[features/exercises.tech]] — `/api/exercises` (daily mixed session) deep dive
 - [[features/comprehension-tests.tech]] — `/api/tests` deep dive
-- [[features/mysteries.tech]] — `/api/mystery` deep dive
 - [[features/model-arena.tech]] — `/admin/arena/*` deep dive

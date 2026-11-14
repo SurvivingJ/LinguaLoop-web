@@ -5,7 +5,7 @@ status: in-progress
 prose_page: ./dual-translation.md
 last_updated: 2026-06-25
 dependencies:
-  - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
+  - "table: tests (transcript) — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
   - "table: users.native_language_id (added TASK-607, migrations/add_users_native_language.sql) — the learner's L1; user_languages only tracks L2 study languages, never recorded this"
   - "table: prompt_templates — holds OpenRouter model slugs per language/stage (model router)"
@@ -31,13 +31,13 @@ breaking_change_risk: low
 | Prompt/output language (business rule) | Grading prompts are **target-language (L2) only — no English**; the grader **outputs numerical indices** (score ints, subtype/severity/source enum indices, span offsets), never prose. Same rule as the exercise-gen pipeline. |
 | Difficulty banding (CEFR descriptors) | **Age tiers** ([[decisions/ADR-003-age-tiers]]). Rubric band descriptors are written per age tier (1–6), not CEFR. |
 | Lazy explanations (§4.4) | **Overridden** — explanations are eager/first-class ([[decisions/ADR-015-eager-error-explanations]]), but **rendered from versioned per-subtype × per-L1 templates keyed by the grader's numerical subtype index** (not LLM prose). This satisfies the eager-explanation priority *and* the L2-only/numerical-output rule, and is cheaper than prose. |
-| Passage source / authoring (§8 Q6) | **Existing corpus** — `tests.transcript` and mystery scenes are the L2 gold; L1 reference(s) are generated per supported L1 and stored. |
+| Passage source / authoring (§8 Q6) | **Existing corpus** — `tests.transcript` is the L2 gold; L1 reference(s) are generated per supported L1 and stored. |
 | FSRS build-vs-buy (§8 Q3) | **Reuse** `services/vocabulary/fsrs.py` (FSRS-4). No new scheduler library. |
 | L1↔L2 only vs bidirectional (§8 Q1) | **L1→L2 only** for MVP ([[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]]). |
 | Speech modality (§8 Q5) | Out of scope; `modality='text'` only. Tone/pitch subtypes gated behind a future `modality='speech'` flag. |
 | Privacy/retention (§8 Q2) | **RESOLVED** — no special posture required; learner reproduction text is **retained for analysis** (an asset). |
 | Budget thresholds (§4.6) | **Required tunable config** — a per-user/day token budget value lives in `Config` (not hardcoded); on breach degrade to Tier 0 + Tier 1 only, never hard-fail. |
-| Source surface (§8 Q6) | **`tests.transcript` only** (not mystery scenes); passages served from the learner's **already-completed** tests so content is at-level. |
+| Source surface (§8 Q6) | **`tests.transcript` only**; passages served from the learner's **already-completed** tests so content is at-level. |
 | Grading level | **Level-neutral** against the gold (difficulty controlled at selection); only `naturalness` is level-dependent. [[decisions/ADR-018-level-neutral-grading]]. |
 
 ## Architecture Overview
@@ -110,7 +110,7 @@ The L2 gold + L1 reference(s), sourced from existing corpus.
 |---|---|---|
 | `id` | bigint PK | |
 | `l2_language_id` | integer NOT NULL | FK → dim_languages (the studied language) |
-| `source_kind` | text NOT NULL | CHECK: `test_transcript` (mystery scenes excluded per 2026-06-23 notes) |
+| `source_kind` | text NOT NULL | CHECK: `test_transcript` |
 | `source_ref_id` | uuid NOT NULL | id of the originating `tests` row (the transcript source); no FK — polymorphic pointer, see reconciliation note above |
 | `l2_text` | text NOT NULL | the gold reference (2–4 sentences, extracted span of source) |
 | `age_tier` | smallint NOT NULL | CHECK: BETWEEN 1 AND 6 ([[decisions/ADR-003-age-tiers]]); **derived**, not inherited — `tests` has no `age_tier` column, so the builder (TASK-603) folds `tests.difficulty` (1–9) via `DIFFICULTY_TO_TIER` to the tier int 1–6 |

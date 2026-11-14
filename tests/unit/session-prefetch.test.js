@@ -80,7 +80,7 @@ describe('prefetchItem', () => {
   it('skips completed items, unknown kinds and players without a hook', async () => {
     expect(await prefetchItem({ kind: 'flashcards', is_completed: true }, {})).toBeNull();
     expect(flashPrefetch).not.toHaveBeenCalled();
-    expect(await prefetchItem({ kind: 'test', test_type: 'mystery' }, {})).toBeNull();
+    expect(await prefetchItem({ kind: 'test', test_type: 'not_a_real_type' }, {})).toBeNull();
     const item = { kind: 'prestudy', id: 'p' };
     await prefetchItem(item, {});
     expect('prefetch' in item).toBe(false);

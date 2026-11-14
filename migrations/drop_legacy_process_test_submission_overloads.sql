@@ -5,8 +5,8 @@
 -- signatures of process_test_submission are gone. Until now their only DROP
 -- lived in migrations/archive/process_test_submission_v2.sql, while active
 -- files still CREATE them (elo_functions.sql, which also grants EXECUTE to
--- authenticated; phase3_rpc_fixes.sql; wire_volatility_and_exclude_attempted.sql;
--- and listening_lab_rpcs.sql, archived together with this change). A function
+-- authenticated; phase3_rpc_fixes.sql; wire_volatility_and_exclude_attempted.sql).
+-- A function
 -- created on Supabase is executable by anon and authenticated unless revoked,
 -- so a surviving overload would be a client-callable SECURITY DEFINER function
 -- with the old NULL-permissive auth gate.

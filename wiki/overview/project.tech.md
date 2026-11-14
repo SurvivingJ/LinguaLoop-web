@@ -98,7 +98,6 @@ WebApp/
 │   ├── flashcards.py          # /api/flashcards — FSRS review
 │   ├── vocabulary.py          # /api/vocabulary — word quiz submission
 │   ├── corpus.py              # /api/corpus — ingest, packs, style packs
-│   ├── mystery.py             # /api/mystery — 5-scene murder mystery
 │   ├── conversations.py       # /api/conversations — read-only browse
 │   ├── users.py               # /api/users — ELO, tokens, prefs
 │   ├── payments.py            # /api/payments — token packages + Stripe PaymentIntent
@@ -114,7 +113,6 @@ WebApp/
 │   ├── exercise_session_service.py  # Daily session orchestrator (Phase 9, slim)
 │   ├── llm_output_cleaner.py  # JSON-extract / repair from LLM responses
 │   ├── llm_service.py         # OpenRouter LLM client
-│   ├── mystery_service.py     # Mystery progress + scene + finale submission
 │   ├── payment_service.py     # Stripe + token RPC wrappers
 │   ├── pinyin_service.py      # Pypinyin pipeline + sandhi engine
 │   ├── prompt_service.py      # prompt_templates loader (model/provider lookup)
@@ -129,7 +127,6 @@ WebApp/
 │   ├── exercise_generation/   # 21 exercise types — orchestrator, generators/, validators
 │   │   └── audio_voice.py     # Language-aware Azure voice picker (2026-05-12)
 │   ├── conversation_generation/  # Personas + pairs + scenarios + dialogues
-│   ├── mystery_generation/    # Mystery story + scene + question agents
 │   ├── vocabulary/            # NLP: pipeline, FSRS, knowledge_service (BKT), frequency
 │   ├── vocabulary_ladder/     # Phase 8/10 momentum bands + asset pipeline + renderer
 │   ├── corpus/                # Ingestion, collocation extraction, style analysis, packs
@@ -233,7 +230,6 @@ app.register_blueprint(model_arena_bp, url_prefix='/admin/arena')
 | Exercise Generation | `POST /admin/api/run/exercise-generation` | `run_grammar_batch` / `run_vocabulary_batch` / `run_collocation_batch` | Per-source-type batches |
 | Style Analysis | `POST /admin/api/run/style-analysis` | `CorpusIngestionService._run_style_pipeline` | Style profile extraction |
 | Conversations | `POST /admin/api/run/conversation-generation` | `ConversationBatchProcessor` | Per-domain dialogue batches |
-| Mysteries | `POST /admin/api/run/mystery-generation` | `MysteryGenerationOrchestrator` | Murder mystery batches |
 | Pinyin Backfill | `POST /admin/api/run/pinyin-backfill` | `pinyin_service.process_passage` | Recompute `tests.pinyin_payload` |
 | Full Pipeline | `POST /admin/api/run/full-pipeline` | 6-step orchestrator | End-to-end per-language idempotent chain |
 | Vocab Generate | `POST /admin/api/run/vocab-generate` | `VocabAssetPipeline` + `LadderExerciseRenderer` + AudioSynthesizer | Per-sense L1-L8 ladder build |

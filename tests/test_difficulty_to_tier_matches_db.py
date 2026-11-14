@@ -7,7 +7,7 @@ copies of those bands exist for code paths that must not pay for a DB round
 trip:
 
   * ``services.categorical_maps.DIFFICULTY_TO_TIER``
-    (dual translation age_tier, model arena, mystery generation, and the
+    (dual translation age_tier, model arena, and the
     ``ProseWriter`` fallback), and
   * ``services.dictation.cap.DIFFICULTY_TO_TIER`` (transcript length cap).
 

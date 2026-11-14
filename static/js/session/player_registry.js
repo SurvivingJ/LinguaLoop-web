@@ -96,10 +96,6 @@ const TEST_PLAYERS = {
 // are plannable SURFACES, not test types — no `tests` row, no ELO — so they
 // dispatch on item.kind rather than item.test_type. Widening this union is
 // what let the planner budget them without pretending they are tests.
-//
-// listening_lab and mystery are deliberately absent: ADR-021 puts them outside
-// the planner, so the resolver never emits them and nothing here should invite
-// a future contributor to add them.
 const KIND_PLAYERS = {
   practice: mountPractice,
   flashcards: mountFlashcards,

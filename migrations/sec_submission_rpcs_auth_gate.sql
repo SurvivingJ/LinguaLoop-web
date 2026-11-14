@@ -14,7 +14,7 @@
 --      submission RPCs; GRANT only to service_role. Every caller in the repo
 --      goes through the Flask backend's service-role client after
 --      @supabase_jwt_required has verified the user (routes/tests.py,
---      services/mystery_service.py, services/classifier_drill_service.py,
+--      services/classifier_drill_service.py,
 --      services/counter_drill_service.py). Nothing calls them from the browser.
 --   2. process_test_submission: replace the NULL-permissive gate with an
 --      explicit one — caller must BE p_user_id, or be service_role — and return
@@ -442,8 +442,6 @@ REVOKE ALL ON FUNCTION public.process_pinyin_submission(uuid,uuid,smallint,small
     FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.process_pitch_accent_submission(uuid,uuid,smallint,smallint,integer,integer,boolean,uuid,boolean)
     FROM PUBLIC, anon, authenticated;
-REVOKE ALL ON FUNCTION public.process_mystery_submission(uuid,uuid,smallint,smallint,jsonb,uuid)
-    FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.process_classifier_drill_submission(uuid,uuid,smallint,smallint,integer,integer,boolean,uuid)
     FROM PUBLIC, anon, authenticated;
 
@@ -451,7 +449,6 @@ GRANT EXECUTE ON FUNCTION public.process_test_submission(uuid,uuid,smallint,smal
 GRANT EXECUTE ON FUNCTION public.process_dictation_submission(uuid,uuid,smallint,smallint,integer,integer,smallint,jsonb,boolean,uuid) TO service_role;
 GRANT EXECUTE ON FUNCTION public.process_pinyin_submission(uuid,uuid,smallint,smallint,integer,integer,boolean,uuid) TO service_role;
 GRANT EXECUTE ON FUNCTION public.process_pitch_accent_submission(uuid,uuid,smallint,smallint,integer,integer,boolean,uuid,boolean) TO service_role;
-GRANT EXECUTE ON FUNCTION public.process_mystery_submission(uuid,uuid,smallint,smallint,jsonb,uuid) TO service_role;
 GRANT EXECUTE ON FUNCTION public.process_classifier_drill_submission(uuid,uuid,smallint,smallint,integer,integer,boolean,uuid) TO service_role;
 
 COMMIT;

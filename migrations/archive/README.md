@@ -146,17 +146,13 @@ requires every allowlisted file to exist.
 
 | Archived file | Object | New canonical file | Evidence (repo only) |
 |---|---|---|---|
-| `listening_lab_rpcs.sql` | `start_listening_lab_session(uuid,uuid)`, `submit_listening_lab_tier(uuid,uuid,smallint,jsonb,uuid)`, `get_listening_lab_recommendations(uuid,integer)`, `process_test_submission(uuid,uuid,smallint,smallint,jsonb,boolean,uuid)` | *(three lab RPCs dropped — no canonical)*; `process_test_submission` lives in `process_test_submission_set_based_grading.sql` (9-arg, on top of `prestudy_elo_factor.sql`) | the three lab RPCs are `DROP`ped by `archive_unused_modules_2026_09_21.sql`; the 7-arg `process_test_submission` overload is `DROP`ped by `drop_legacy_process_test_submission_overloads.sql`, and the file's own header already marked that body superseded |
-| `process_mystery_submission.sql` | `process_mystery_submission(uuid,uuid,smallint,smallint,jsonb,uuid)`, `get_recommended_mysteries(uuid,integer)` | *(dropped — no canonical)* | both `DROP`ped by `archive_unused_modules_2026_09_21.sql` (section "Mysteries"); no `rpc('process_mystery_submission')` / `rpc('get_recommended_mysteries')` call left in routes/ or services/ |
 | `phase11_irt_selection.sql` | `get_exercise_session(uuid,smallint,integer,numeric)` | *(dropped — no canonical)* | `DROP`ped by `phase17_drop_deprecation_wrappers.sql` (TASK-220); the practice engine serves through `get_practice_session` |
 | `task820_apply_jev_retier.sql` | `apply_jev_retier(jsonb)` | `task821_tier_calibration.sql` | task821 redefines the same signature ("apply_jev_retier now also writes age_tier_calibration") and repeats the REVOKE/GRANT |
 
-None of the four was probed against live: the rows above rest on later files in
+None of these was probed against live: the rows above rest on later files in
 this repo dropping or redefining every object. Before treating them as applied,
 check `to_regprocedure(...)` is NULL for the dropped signatures and that
-`apply_jev_retier` writes `age_tier_calibration`. `listening_lab_rpcs.sql` and
-`process_mystery_submission.sql` were removed from `HISTORICAL_DEFINER_FILES`
-in `tests/test_migration_security_lint.py`.
+`apply_jev_retier` writes `age_tier_calibration`.
 
 **Not archived, deliberately** (rule #4 — each still holds the only repo record
 of another object, even though its `process_test_submission` /

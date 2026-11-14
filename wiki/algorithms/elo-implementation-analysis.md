@@ -6,7 +6,6 @@ tech_page: ./elo-implementation-analysis.tech.md
 last_updated: 2026-05-15
 open_questions:
   - "Is Glicko-2 worth the complexity over standard ELO for this use case?"
-  - "Should mystery ELO and test ELO share a unified skill rating model?"
 ---
 
 # ELO System — Implementation Analysis & Improvements
@@ -84,10 +83,6 @@ The static K=32 is a reasonable starting point, but the system could benefit fro
 
 Standard ELO doesn't express uncertainty. A user with 2 tests and a user with 200 tests at the same rating have very different reliability. Glicko-2 adds a rating deviation (RD) that widens with inactivity and narrows with activity — this would naturally handle the volatility concern and provide better recommendation confidence.
 
-### Priority 4: Mystery ELO Unification
-
-Mysteries have their own `mystery_skill_ratings` table and `process_mystery_submission` RPC with a separate ELO calculation. The user's test ELO and mystery ELO are independent. Consider whether a unified skill model (with type-specific offsets) would provide better difficulty matching.
-
 ## Quantitative Impact Assessment
 
 | Improvement | Dev Effort | User Impact | Data Risk |
@@ -95,7 +90,6 @@ Mysteries have their own `mystery_skill_ratings` table and `process_mystery_subm
 | Vocab-ELO integration as primary | S (2–4h) | High — better pedagogical targeting | Low |
 | Adaptive K-factor | M (4–8h) | Medium — more accurate ratings | Low |
 | Glicko-2 migration | L (1–2d) | High — proper uncertainty modeling | Medium (schema change) |
-| Mystery ELO unification | M (4–8h) | Low — improves mystery matching | Medium |
 
 ## Related Pages
 

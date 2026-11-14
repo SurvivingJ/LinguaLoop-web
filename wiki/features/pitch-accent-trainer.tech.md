@@ -326,4 +326,4 @@ Expected: both equal to total JA test count (80 at time of writing).
 - **Admin override / LLM disambiguation** — mirror of `resolve_polyphones_llm` for ambiguous compounds and proper nouns where pyopenjtalk's accent is noisy. Backfill shows 0/80 tests flagged for review on current corpus, so the need is not urgent.
 - **Compound rule engine** — proper morphophonological reassignment for compound nouns. v1 accepts pyopenjtalk's output verbatim.
 - **Word-sense disambiguation** — same-spelling-different-accent (端/雨/橋/箸). Would require linking accent to `dim_word_senses`.
-- **Curated word-list standalone mode** — a non-test path (like Listening Lab) for learners with no Japanese tests. Test-mode primary surface is enough for v1.
+- **Curated word-list standalone mode** — a non-test path for learners with no Japanese tests. Test-mode primary surface is enough for v1.
