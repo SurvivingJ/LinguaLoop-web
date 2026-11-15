@@ -1,0 +1,33 @@
+-- =============================================================================
+-- drop_unused_exercise_gin_indexes.sql  (database size reduction, 2026-11-15)
+-- =============================================================================
+-- Purpose: the database was 526 MB, over the 500 MB plan limit. The two GIN
+-- indexes on public.exercises were 72 MB together (content 63 MB, tags 9 MB),
+-- 14% of the database, and nothing in the app uses them:
+--   idx_exercises_content_gin   8 scans ever, last 2026-10-13
+--   idx_exercises_tags_gin     40 scans ever, last 2026-10-13
+-- (pg_stat_user_indexes, stats never reset). Both last scans fall on the day of
+-- the one-off distractor rebuild. No route, service, script or SQL function
+-- filters exercises with @>, ?, ?| or ?& on content or tags; every hot path
+-- goes through the btree indexes on word_sense_id / ladder_level / type.
+-- The only containment-style reference in the repo is the phase-16 ad hoc
+-- report (migrations/phase16_ladder_judge_reject_rates.sql, `tags ? key`),
+-- which is not installed as a function and runs fine as a sequential scan
+-- over ~117k rows.
+--
+-- Not touched: uq_exercises_context_free_variant (a btree on
+-- md5(content->>'context_sentence'), enforces uniqueness; not GIN).
+--
+-- Side benefit: every exercise insert/update no longer maintains a GIN entry
+-- for each JSON key and value, which was the most expensive part of an insert.
+--
+-- NOT YET APPLIED. Written 2026-11-15 for the owner's request "We NEED to
+-- reduce the size of our database"; awaiting the owner's go-ahead to apply live.
+--
+-- Rollback (about a minute each on ~117k rows; takes a SHARE lock on writes):
+--   CREATE INDEX idx_exercises_content_gin ON public.exercises USING gin (content);
+--   CREATE INDEX idx_exercises_tags_gin    ON public.exercises USING gin (tags);
+-- =============================================================================
+
+DROP INDEX IF EXISTS public.idx_exercises_content_gin;
+DROP INDEX IF EXISTS public.idx_exercises_tags_gin;
