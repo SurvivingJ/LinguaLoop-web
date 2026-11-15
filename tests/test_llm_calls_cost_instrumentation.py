@@ -548,11 +548,44 @@ def test_malformed_json_repair_logs_call_role_json_repair():
         )
 
     assert result == {'ok': True}
-    assert len(rows) == 1  # only the repair call logs (the malformed
-    # first attempt never reaches _log_llm_call — json.JSONDecodeError is
-    # raised before any of call_llm's three _log_llm_call call sites).
-    assert rows[0]['task_name'] == 't__json_repair'
-    assert rows[0]['call_role'] == svc.CALL_ROLE_JSON_REPAIR
+    # Both calls were billed, so both are logged: the malformed first attempt
+    # (parsed_ok False, with its error) and then the repair turn.
+    assert len(rows) == 2
+    assert rows[0]['task_name'] == 't'
+    assert rows[0]['parsed_ok'] is False
+    assert rows[0]['error']
+    assert rows[1]['task_name'] == 't__json_repair'
+    assert rows[1]['call_role'] == svc.CALL_ROLE_JSON_REPAIR
+
+
+def test_empty_content_failure_is_logged_with_its_billed_usage():
+    """A reasoning model that spends max_tokens thinking returns empty
+    content but is still billed. Both the failed attempt and the failed repair
+    must reach llm_calls with their cost and tokens -- they used to be logged
+    as nothing / a zero-token row, hiding most of a run's spend."""
+    rows, fake_log = _capture_log_rows()
+    burnt = _Usage(cost=0.0003, prompt_tokens=600, completion_tokens=600,
+                   reasoning_tokens=600)
+    client = _SequencedClient([
+        _Response(content=None, usage=burnt),
+        _Response(content=None, usage=burnt),
+    ])
+
+    with patch.object(svc, 'get_client', lambda *a, **kw: client), \
+         patch.object(svc, '_log_llm_call', fake_log):
+        with pytest.raises(RuntimeError, match='empty content'):
+            svc.call_llm(
+                'prompt', model='m', response_format='json_object',
+                provider='openrouter', task_name='t', pipeline='p',
+            )
+
+    assert [r['task_name'] for r in rows] == ['t', 't__json_repair']
+    for r in rows:
+        assert r['parsed_ok'] is False
+        assert r['cost_usd'] == 0.0003
+        assert r['input_tokens'] == 600
+        assert r['output_tokens'] == 600
+        assert r['reasoning_tokens'] == 600
 
 
 def test_sense_id_and_batch_id_reach_the_repair_rows_too():

@@ -1061,6 +1061,22 @@ def call_llm(
         # retries transient API errors — so without this a single bad-JSON roll
         # silently loses the call. Route JSON callers through ONE deterministic
         # repair turn (text callers have no JSON to repair → re-raise).
+        #
+        # The failed attempt was still billed; log it with its usage so
+        # llm_calls accounts for it (it used to leave no row at all).
+        _log_llm_call(
+            pipeline=log_pipeline, task_name=log_task,
+            template_version=template_version,
+            model=(getattr(exc, 'usage', None) or {}).get('model') or resolved_model,
+            temperature=temperature, seed=seed, prompt_hash=prompt_hash,
+            raw_response=getattr(exc, 'raw_content', None), parsed_ok=False,
+            schema_ok=None, judge_verdict=None, judge_confidence=None,
+            artifact_id=artifact_id, language_code=language_code,
+            provider=provider, max_tokens=max_tokens, timeout_s=timeout,
+            input_text=prompt, call_role=call_role, sense_id=sense_id,
+            generation_batch_id=generation_batch_id, error=str(exc),
+            **{'latency_ms': None, **_failure_usage(exc)},
+        )
         if response_format == 'text' or not allow_internal_repair:
             raise
         return _repair_malformed_json(
@@ -1266,6 +1282,18 @@ def _strip_param_routing(extra_body: dict) -> dict:
     return stripped
 
 
+def _failure_usage(exc: BaseException) -> dict:
+    """``_log_llm_call`` kwargs for the usage a failed call still billed.
+
+    Empty when the exception carries none (it failed before a response came
+    back), so the row keeps its NULLs rather than claiming a zero cost.
+    """
+    usage = getattr(exc, 'usage', None) or {}
+    return {k: usage[k] for k in ('cost_usd', 'latency_ms', 'input_tokens',
+                                  'output_tokens', 'cached_tokens',
+                                  'reasoning_tokens') if usage.get(k) is not None}
+
+
 def _make_one_call(
     *,
     client: OpenAI,
@@ -1456,12 +1484,32 @@ def _make_one_call(
     # caller falls back to the requested slug itself.
     actual_model = getattr(response, 'model', None) or None
 
+    # A failed reply (no choices, empty content, unparseable JSON) is still a
+    # billed call -- a reasoning model that spends its whole max_tokens budget
+    # thinking returns empty content and is charged for every token. Carry the
+    # usage on the exception so the caller logs what it cost instead of a
+    # zero-token, zero-cost row (see _failure_usage).
+    failure_usage = {
+        'cost_usd': cost_usd, 'latency_ms': latency_ms,
+        'input_tokens': prompt_tokens, 'output_tokens': completion_tokens,
+        'cached_tokens': cached_tokens, 'reasoning_tokens': reasoning_tokens,
+        'model': actual_model,
+    }
+
     if not response.choices:
-        raise RuntimeError("LLM returned no choices")
+        exc = RuntimeError("LLM returned no choices")
+        exc.usage = failure_usage  # type: ignore[attr-defined]
+        raise exc
 
     content = response.choices[0].message.content
     if not content:
-        raise RuntimeError("LLM returned empty content")
+        finish = getattr(response.choices[0], 'finish_reason', None)
+        exc = RuntimeError(
+            "LLM returned empty content"
+            + (f" (finish_reason={finish})" if finish else "")
+        )
+        exc.usage = failure_usage  # type: ignore[attr-defined]
+        raise exc
 
     if response_format == 'text':
         return _CallResult(
@@ -1475,6 +1523,7 @@ def _make_one_call(
     except json.JSONDecodeError as exc:
         # Carry the raw content so the caller can echo it into a repair turn.
         exc.raw_content = content  # type: ignore[attr-defined]
+        exc.usage = failure_usage  # type: ignore[attr-defined]
         raise
     return _CallResult(
         parsed, content, True, latency_ms, cost_usd,
@@ -1716,13 +1765,14 @@ def _repair_malformed_json(
             pipeline=log_pipeline, task_name=f"{log_task}__json_repair",
             template_version=template_version, model=model,
             temperature=0.0, seed=seed, prompt_hash=prompt_hash,
-            raw_response=None, parsed_ok=False, schema_ok=None,
-            judge_verdict=None, judge_confidence=None,
-            latency_ms=None, artifact_id=artifact_id,
+            raw_response=getattr(exc, 'raw_content', None), parsed_ok=False,
+            schema_ok=None, judge_verdict=None, judge_confidence=None,
+            artifact_id=artifact_id,
             language_code=language_code, max_tokens=max_tokens, timeout_s=timeout,
             input_text=repair_prompt, error=str(exc),
             call_role=CALL_ROLE_JSON_REPAIR, sense_id=sense_id,
             generation_batch_id=generation_batch_id,
+            **{'latency_ms': None, **_failure_usage(exc)},
         )
         raise error
 

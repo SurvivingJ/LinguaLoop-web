@@ -142,6 +142,12 @@ def find_sentence(transcript: str, lemma: str) -> str:
     return transcript[:500]
 
 
+# The selection reply is one tiny JSON object ({"1": n}), but the sense models
+# reason before answering, and a 60-token cap left no room for that: the reply
+# came back empty and selection silently fell through to writing a new sense.
+SELECTION_MAX_TOKENS = 2000
+
+
 class SenseGenerator:
     """
     Generates target-language word senses at two levels via a single LLM call.
@@ -159,7 +165,7 @@ class SenseGenerator:
                  language_id: int, model: str | None = None,
                  fallback_model: str | None = None,
                  prefer_existing: bool = False, dry_run: bool = False,
-                 generation_max_tokens: int = 600):
+                 generation_max_tokens: int = 4000):
         """
         Args:
             openai_client: OpenAI client instance (unused by call_llm but kept for
@@ -183,8 +189,14 @@ class SenseGenerator:
                 returned empty content" on BOTH primary and fallback. Verified
                 qwen3.7-flash needs ~2200 reasoning tokens for a single word sense;
                 callers that pass a reasoning-model slug must raise this
-                accordingly (confirmed working at 4000). Selection calls
-                (_select_sense) are unaffected — they pass their own max_tokens.
+                accordingly (confirmed working at 4000). Both default models
+                (DeepSeek V4 Flash, Qwen3.6 Flash) reason by default, so 4000 is
+                now the default: at the old 600 DeepSeek averaged ~600 reasoning
+                tokens, ran out, and ~70% of definition calls came back empty
+                (2026-11-14, 150-test zh batch) -- each still billed, then repaired,
+                then retried on the fallback. Only tokens actually generated are
+                billed, so the higher cap does not raise the cost of a call that
+                finishes. Selection calls use SELECTION_MAX_TOKENS.
         """
         self._client = openai_client
         self._db = db
@@ -260,7 +272,7 @@ class SenseGenerator:
     # ------------------------------------------------------------- LLM helper
 
     def _call_llm(self, prompt: str, task_name: str,
-                  max_tokens: int = 600) -> dict | None:
+                  max_tokens: int = 4000) -> dict | None:
         """Call the sense model expecting numeric-key JSON, falling back to the
         secondary model when the primary fails.
 
@@ -642,7 +654,8 @@ class SenseGenerator:
             self._bump('senses_reused')
             return existing[0]['id']
 
-        data = self._call_llm(prompt, task_name='vocab_sense_selection', max_tokens=60)
+        data = self._call_llm(prompt, task_name='vocab_sense_selection',
+                              max_tokens=SELECTION_MAX_TOKENS)
         selected = 0
         if data:
             try:
