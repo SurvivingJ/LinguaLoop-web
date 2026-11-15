@@ -1185,6 +1185,7 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-919 | new-word-drill | Time estimate and review governor count intro load | Done | S | TASK-915 |
 | TASK-920 | new-word-drill | Feature flag and rollout (LIVE-DB, approval) | Done | S | TASK-912..919 |
 | TASK-921 | new-word-drill | Measurement script and baseline | Done | S | TASK-920 |
+| TASK-975 | new-word-drill | Never-taught words met in practice start the drill (ADR-046) | Done | S | TASK-915 |
 | TASK-922 | new-word-drill | Practice attempts move the ladder (ladder_apply_progress, ADR-041) | Done | M | — |
 | TASK-923 | new-word-drill | Practice player runs gate/stress-test batteries | Done | M | TASK-922 |
 | TASK-924 | new-word-drill | Drill cleanups: atomic commit, spacers, shared counting | Done | M | TASK-915 |

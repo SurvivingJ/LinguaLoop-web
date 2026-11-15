@@ -3,8 +3,8 @@ title: "New-Word Drill — Task Breakdown"
 feature: new-word-drill
 prose_page: ../features/new-word-drill.md
 tech_page: ../features/new-word-drill.tech.md
-total_tasks: 13
-done: 13
+total_tasks: 14
+done: 14
 ---
 
 # New-Word Drill — Task Breakdown
@@ -320,5 +320,31 @@ submitted to the existing endpoints. Test: `tests/unit/practice-player-battery.t
 **Feature:** new-word-drill · **Type:** refactor · **Complexity:** M · **Depends On:** TASK-915
 
 `intro_commit_word` (live), spacer items for small drills, `countWord` shared with prestudy.
+
+---
+
+## TASK-975: Never-taught words met in practice start the drill (ADR-046)
+
+**Status:** Done (repo; ships on deploy, no migration)
+**Feature:** new-word-drill · **Type:** bug · **Complexity:** S · **Depends On:** TASK-915
+
+**Description:** The practice engine served words the learner had met once in a test but never
+been taught as ordinary ladder exercises (seen 2026-11-15: 雰囲気, 開放, two hard exercises each).
+Such words now start intro session 1 instead.
+
+**Acceptance Criteria:**
+- [x] A served word with no ladder row, no correct exercise answer and `p_known < 0.5` is admitted
+  to intro stage 1 due today and removed from the ordinary items, in every mode.
+- [x] It is drilled in Practice (maintenance) mode, past the new-word quota (`overload` event).
+- [x] At most 5 per request; the rest are held back, not served plain.
+- [x] Words without a gloss, prestudy follow-ups and DT error cards are untouched; an insert failure
+  leaves the session as it was.
+
+**Files:** `services/intro_drill.py` (`untaught_sense_ids`, `drillable_sense_ids`,
+`route_untaught`), `services/practice/session_assembly.py`, `tests/test_intro_drill.py`.
+
+**Verification:** `python -m pytest tests/test_intro_drill.py -q` (18 passed). After deploy: a
+Practice session that would have served a never-taught word shows it under "new words to learn"
+and opens with its five-format drill.
 
 ---
