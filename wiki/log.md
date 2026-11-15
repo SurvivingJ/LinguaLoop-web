@@ -6617,3 +6617,13 @@ stripping `tags.provenance` (needs a renderer change + VACUUM FULL of `exercises
 verdicts onto the raw-call row (cuts new log volume ~75%).
 Pages: created [[decisions/ADR-046-llm-call-logs-in-storage]]; updated [[database/schema.tech]]
 (`llm_calls` retention + live index list), index.
+
+## [2026-11-15] update | Unused exercises GIN indexes dropped
+Owner: "Remove the indexes as well, save the migration for adding and removing them". The
+connector's apply prompt timed out a third time, so the owner ran
+`migrations/drop_unused_exercise_gin_indexes.sql` in the Supabase SQL editor. Verified:
+`idx_exercises_content_gin` and `idx_exercises_tags_gin` absent, `exercises` 251 → 179 MB
+(indexes 91 → 20 MB, 12 left), database 473 → 402 MB (526 at the start of the day).
+Saved `migrations/add_exercise_gin_indexes.sql` (exact live definitions + CONCURRENTLY variant)
+as the re-create path. Pages updated: [[database/schema.tech]] (`exercises` index list replaced
+with the live 12; the old list also still named three indexes dropped 2026-09-21), index.

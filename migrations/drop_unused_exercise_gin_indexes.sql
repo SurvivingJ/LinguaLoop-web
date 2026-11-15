@@ -21,8 +21,9 @@
 -- Side benefit: every exercise insert/update no longer maintains a GIN entry
 -- for each JSON key and value, which was the most expensive part of an insert.
 --
--- NOT YET APPLIED. Written 2026-11-15 for the owner's request "We NEED to
--- reduce the size of our database"; awaiting the owner's go-ahead to apply live.
+-- APPLIED LIVE 2026-11-15 by the owner in the Supabase SQL editor (the
+-- connector's apply prompt timed out three times). Verified after: both indexes
+-- absent, exercises 251 -> 179 MB, database 473 -> 402 MB.
 --
 -- Rollback: migrations/add_exercise_gin_indexes.sql (re-creates both, with
 -- the exact live definitions and a non-blocking CONCURRENTLY variant).
