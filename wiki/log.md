@@ -6595,3 +6595,25 @@ Correction: ADR-044, [[evaluations/dt-decision-grading-2026-11-14]] and the sing
 called an earlier "taxonomy v6 already active" read "unreconciled". It is not a conflict: v5 was
 active until the orchestrator's cutover on 2026-11-14, and the grader agent's read was made after that
 cutover the same day. All three now say so.
+
+## [2026-11-15] update | Database size reduction: llm_calls moved to Storage
+Owner: "We NEED to reduce the size of our database ... save down the llm logs somewhere else",
+then "Move LLM calls to a supabase storage bucket". Measured first: database 526 MB. Largest:
+`exercises` 251 MB (heap 160, indexes 91 — of which `idx_exercises_content_gin` 63 MB, 8 scans
+ever, last 2026-10-13; `idx_exercises_tags_gin` 9 MB, 40 scans, same day), `word_assets` 71 MB
+(generation intermediates, read by the pipeline), `llm_calls` 54 MB (20 MB rows, 33 MB indexes;
+57,604 of 76,828 rows were verdict-only second rows from `log_judge_verdict()`), `dim_word_senses`
+52 MB (23 MB 512-d embeddings). Inside `exercises`: `content.hant` (Traditional mirror, deliberate,
+kept) 37 MB, `tags.provenance` (written by the renderer, read by nothing) 24 MB.
+Done live: `scripts/archive_llm_calls.py` (new; tests `tests/test_archive_llm_calls.py`, 8 passed)
+exported all 75,163 rows with `created_at < 2026-11-15T00:00Z` to the new private bucket
+`llm-logs-archive` (6.3 MB gzipped + manifest, sha256 10689fec…), verified the stored object
+against the DB (sha256, count, id set) twice, deleted exactly those ids, then
+`VACUUM (FULL, ANALYZE) public.llm_calls`. `llm_calls` 54 MB → 1.5 MB (1,665 rows from today kept);
+database 526 → 473 MB. No generation batch was running (last write 01:46 UTC).
+NOT done: `migrations/drop_unused_exercise_gin_indexes.sql` (−72 MB) — the Supabase connector's
+confirmation prompt timed out unanswered twice; the indexes are still live. Not proposed for now:
+stripping `tags.provenance` (needs a renderer change + VACUUM FULL of `exercises`), folding judge
+verdicts onto the raw-call row (cuts new log volume ~75%).
+Pages: created [[decisions/ADR-046-llm-call-logs-in-storage]]; updated [[database/schema.tech]]
+(`llm_calls` retention + live index list), index.
