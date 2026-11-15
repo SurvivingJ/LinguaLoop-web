@@ -24,9 +24,8 @@
 -- NOT YET APPLIED. Written 2026-11-15 for the owner's request "We NEED to
 -- reduce the size of our database"; awaiting the owner's go-ahead to apply live.
 --
--- Rollback (about a minute each on ~117k rows; takes a SHARE lock on writes):
---   CREATE INDEX idx_exercises_content_gin ON public.exercises USING gin (content);
---   CREATE INDEX idx_exercises_tags_gin    ON public.exercises USING gin (tags);
+-- Rollback: migrations/add_exercise_gin_indexes.sql (re-creates both, with
+-- the exact live definitions and a non-blocking CONCURRENTLY variant).
 -- =============================================================================
 
 DROP INDEX IF EXISTS public.idx_exercises_content_gin;
