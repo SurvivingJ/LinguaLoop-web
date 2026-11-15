@@ -154,6 +154,18 @@ def call_model(args, system, prompt, tag, _retry=False):
     try:
         return json.loads(body)
     except json.JSONDecodeError as e:
+        # A complete JSON value followed by trailing text ("Extra data": a
+        # second object, a note) killed whole runs once the retry slipped the
+        # same way (zh, 2 of ~20 runs). Keep the first value: anything it lacks
+        # fails `check` and goes to a repair round like any other model slip.
+        if e.msg == 'Extra data':
+            try:
+                first, _ = json.JSONDecoder().raw_decode(body.lstrip())
+                print(f'  [{tag}] trailing text after the JSON reply; kept the first value',
+                      flush=True)
+                return first
+            except json.JSONDecodeError:
+                pass
         if _retry:
             raise RuntimeError(f'{tag}: reply is not JSON ({e}); stop={rec["stop"]}: {text[:300]}')
         # A malformed reply is a model slip, not a pipeline fault: ask once more.
