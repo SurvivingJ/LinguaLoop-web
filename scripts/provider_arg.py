@@ -28,6 +28,7 @@ _PROVIDER_ALIASES = {
     'claude-cli': 'claude_cli',
     'claude_cli': 'claude_cli',
     'ollama': 'ollama',
+    'anthropic': 'anthropic',
 }
 
 # Concurrency ceiling for the CLI transport. Each call is a process spawn against
@@ -41,11 +42,12 @@ def add_provider_arg(parser) -> None:
     parser.add_argument(
         '--provider',
         default='openrouter',
-        choices=['openrouter', 'claude-cli', 'ollama'],
+        choices=['openrouter', 'claude-cli', 'ollama', 'anthropic'],
         help=(
             'LLM transport. "openrouter" (default) bills per token; '
             '"claude-cli" runs through Claude Code headless mode under your '
-            'Claude subscription.'
+            'Claude subscription; "anthropic" calls the Anthropic Messages '
+            'API with the key in CLAUDE_API (model: ANTHROPIC_API_MODEL).'
         ),
     )
 

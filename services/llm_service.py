@@ -133,10 +133,15 @@ def _resolve_provider(provider: str | None) -> tuple[str, str]:
         # provider so the client pool, and every caller that resolves a client
         # by base_url, works unchanged.
         return (CLAUDE_CLI_BASE_URL, 'subscription')
+    elif provider == 'anthropic':
+        # Also a sentinel: get_client builds an AnthropicApiClient (official
+        # SDK, Messages API) for it. Key from CLAUDE_API / ANTHROPIC_API_KEY.
+        from services.anthropic_api_client import ANTHROPIC_API_BASE_URL, api_key
+        return (ANTHROPIC_API_BASE_URL, api_key())
     else:
         raise ValueError(
             f"Unknown LLM provider: {provider!r}. "
-            "Use 'openrouter', 'ollama' or 'claude_cli'."
+            "Use 'openrouter', 'ollama', 'claude_cli' or 'anthropic'."
         )
 
 
@@ -187,6 +192,10 @@ def get_client(
             from services.claude_cli_client import ClaudeCliClient
             _clients[key] = ClaudeCliClient()
             logger.info("Created Claude Code headless client (subscription auth)")
+        elif key[0].startswith('anthropic-api://'):
+            from services.anthropic_api_client import AnthropicApiClient
+            _clients[key] = AnthropicApiClient(key[1])
+            logger.info("Created Anthropic Messages API client")
         else:
             _clients[key] = OpenAI(api_key=key[1], base_url=key[0])
             logger.debug("Created LLM client for %s", key[0])
@@ -221,6 +230,12 @@ def _resolve_model(
                 model, CLAUDE_CLI_MODEL,
             )
         return f'claude-cli:{CLAUDE_CLI_MODEL}'
+
+    if (provider or LLM_DEFAULT_PROVIDER) == 'anthropic':
+        # Same reasoning as claude_cli: an OpenRouter slug cannot be served
+        # here, so record the Claude model that actually answers.
+        from services.anthropic_api_client import served_model
+        return served_model(model)
 
     if model:
         return model
