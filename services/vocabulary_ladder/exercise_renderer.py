@@ -1209,6 +1209,8 @@ class LadderExerciseRenderer:
             all_sentences.append({
                 'text': ws.get('text', ''),
                 'is_correct': False,
+                # Per-option note, shown beside that option after answering.
+                'explanation': ws.get('explanation', ''),
             })
 
         random.shuffle(all_sentences)
