@@ -122,9 +122,16 @@ def all_senses_for_language(db, language_id: int) -> list[int]:
         chunk = vocab_ids[i:i + 400]
         # Same-language senses only: a cross-language gloss shares the vocab_id
         # and would otherwise be exported (and exercised) as a second sense.
+        # Standard-level senses only. Each word also has a `simple` row (the
+        # learner-friendly definition shown alongside it); exercises belong to
+        # the standard sense, and without this the worklist roughly tripled
+        # with simple rows (zh, 2026-11-15: 5,892 standard + 11,208 simple
+        # unseeded), authoring duplicate exercises for definitions that never
+        # carry any.
         rows = (db.table('dim_word_senses').select('id')
                   .in_('vocab_id', chunk)
                   .eq('definition_language_id', language_id)
+                  .eq('definition_level', 'standard')
                   .execute().data or [])
         sense_ids.extend(r['id'] for r in rows)
     return sense_ids
