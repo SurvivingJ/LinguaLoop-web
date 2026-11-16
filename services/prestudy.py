@@ -574,13 +574,19 @@ def choose_produce_window(db, test: dict, l1_language_id: int, primed: list[int]
     rows = db.table('test_sentences').select('id, idx, l2_text, token_start, token_end, transcript_hash') \
         .eq('test_id', test['id']).order('idx').execute().data or []
     # Rows built from an older transcript cannot be opened (the passage route
-    # answers 409 SENTENCES_STALE), so they never make a window eligible.
+    # answers 409 SENTENCES_STALE), so they never make a window eligible. They
+    # stay in the list (as do placeholders for missing indices): the window
+    # chooser walks list positions, so dropping a row would let a window
+    # straddle it and name a range the passage route then refuses.
     stored_hash = test.get('transcript_hash')
-    if stored_hash:
-        rows = [r for r in rows if r.get('transcript_hash') == stored_hash]
-    if not rows:
+    fresh = [r for r in rows if not stored_hash or r.get('transcript_hash') == stored_hash]
+    if not fresh:
         return None
-    by_id = {r['id']: r for r in rows}
+    present = {int(r['idx']) for r in rows}
+    rows = sorted(rows + [{'id': None, 'idx': i, 'l2_text': ''}
+                          for i in range(min(present), max(present) + 1) if i not in present],
+                  key=lambda r: int(r['idx']))
+    by_id = {r['id']: r for r in fresh}
     refs = []
     for part in _chunks(list(by_id)):
         refs += db.table('test_sentence_references').select('sentence_id, tightness, review_verdict') \

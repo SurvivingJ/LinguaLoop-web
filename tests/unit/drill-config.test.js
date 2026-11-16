@@ -210,6 +210,53 @@ describe('drill configs', () => {
 });
 
 describe('classifier drill in the session', () => {
+  it('shows tone-marked pinyin only, whatever form the item carries', async () => {
+    stubApi({
+      batches: [
+        [
+          {
+            ...CD_ITEMS[0],
+            level: 3,
+            noun_lemma: '变得',
+            noun_pronunciation: 'biàn dé (bian4 de2)',
+            correct_classifier_pinyin: ['bi3'],
+            distractor_pinyin: ['di1', 'lu:3'],
+          },
+        ],
+      ],
+    });
+    vi.useRealTimers();
+    localStorage.setItem('cd_mode', 'mc');
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdPronunciation').textContent).toBe('biàn dé');
+    const pinyin = [...container.querySelectorAll('.cd-option-pinyin')].map((e) => e.textContent);
+    expect(pinyin.sort()).toEqual(['bǐ', 'dī', 'lǚ']);
+  });
+
+  it('names every Auto level in the badge', async () => {
+    const at = (level) => ({ ...CD_ITEMS[0], level, cloze_blanked: '一___书', reverse_noun_options: ['猫'] });
+    for (const [level, label] of [
+      [3, 'Reverse'],
+      [4, 'Fill in'],
+    ]) {
+      stubApi({ batches: [[at(level)]] });
+      vi.useRealTimers();
+      await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+      expect(q('cdLevelBadge').textContent).toBe(label);
+      handle.destroy();
+      handle = null;
+      container.remove();
+    }
+  });
+
+  it('a level-4 item with no cloze sentence is drawn and badged as Choose', async () => {
+    stubApi({ batches: [[{ ...CD_ITEMS[0], level: 4, cloze_blanked: null }]] });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Choose');
+    expect(container.querySelectorAll('.cd-option').length).toBeGreaterThan(0);
+  });
+
   it('plays a batch, submits it and completes the item once', async () => {
     stubApi({
       batches: [CD_ITEMS],
@@ -226,7 +273,8 @@ describe('classifier drill in the session', () => {
     expect(container.querySelector('.drill-player .ld-dock #cdFeedback')).not.toBeNull();
     expect(q('cdHeader')).toBeNull();
     expect(q('cdControls').style.display).toBe('flex');
-    expect(q('cdLevelBadge').textContent).toBe('· MC');
+    // Auto's level badge names the level like the mode toggle, no leading dot.
+    expect(q('cdLevelBadge').textContent).toBe('Choose');
     expect(container.querySelectorAll('.cd-option')).toHaveLength(3);
     expect(q('cdCheck').hidden).toBe(true);
     expect(q('cdHint').hidden).toBe(false);
@@ -236,6 +284,7 @@ describe('classifier drill in the session', () => {
     await settle(400);
     expect(q('cdProgressLabel').textContent).toBe('2');
     expect(q('cdTypedForm').style.display).toBe('block');
+    expect(q('cdLevelBadge').textContent).toBe('Type');
     // The dock's Check submits the typed form.
     expect(q('cdCheck').hidden).toBe(false);
     expect(q('cdCheck').getAttribute('form')).toBe('cdTypedForm');

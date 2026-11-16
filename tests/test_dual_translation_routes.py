@@ -530,6 +530,14 @@ class TestSubmit:
         )
         assert resp.status_code == 400
 
+    @pytest.mark.parametrize('body', ['{"reproduction": "unterminated', '["a list"]', '"just a string"'])
+    def test_400_not_500_when_body_is_malformed_or_not_an_object(self, client, auth_headers, body):
+        resp = client.post(
+            '/api/dual-translation/5/submit', headers=auth_headers,
+            data=body, content_type='application/json',
+        )
+        assert resp.status_code == 400
+
     def test_404_when_submission_not_found(self, client, auth_headers, monkeypatch):
         monkeypatch.setattr(dt_routes, '_get_submission', lambda db, sid: None)
 

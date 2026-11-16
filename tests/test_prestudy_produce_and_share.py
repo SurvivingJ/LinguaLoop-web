@@ -132,6 +132,26 @@ class TestProduceAvailable:
         # a test row without a stored hash cannot be checked: rows count as current
         assert prestudy.produce_available(db, {**self.test, 'transcript_hash': None}, 2) is True
 
+    def test_a_window_never_straddles_a_stale_row(self):
+        """Review finding: dropping stale rows from the list let the chooser
+        join idx 1 and 3 across a stale idx 2 and return (1, 3), a range the
+        passage route answers 409 SENTENCES_STALE for."""
+        rows = _sentences()
+        rows[2]['transcript_hash'] = 'old'
+        db = _DB({'test_sentences': rows, 'test_sentence_references': _refs([1, 2, 3])})
+        assert prestudy.choose_produce_window(db, self.test, 2, [], []) is None
+        assert prestudy.produce_available(db, self.test, 2) is False
+        db = _DB({'test_sentences': rows, 'test_sentence_references': _refs([0, 1, 2, 3])})
+        assert prestudy.choose_produce_window(db, self.test, 2, [], []) == (0, 1)
+
+    def test_a_window_never_straddles_a_missing_row(self):
+        rows = [r for r in _sentences(5) if r['idx'] != 2]
+        db = _DB({'test_sentences': rows, 'test_sentence_references': _refs([1, 3])})
+        assert prestudy.choose_produce_window(db, self.test, 2, [], []) is None
+        db = _DB({'test_sentences': rows, 'test_sentence_references': _refs([0, 1, 3, 4])})
+        win = prestudy.choose_produce_window(db, self.test, 2, [], [])
+        assert win in ((0, 1), (3, 4))
+
     def test_availability_matches_the_route_rule_for_any_primed_set(self):
         """Primed / wrong senses only rank eligible windows."""
         db = _DB({'test_sentences': _sentences(), 'test_sentence_references': _refs([1, 2])})

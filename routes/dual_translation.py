@@ -238,7 +238,10 @@ def submit(submission_id: int) -> ApiResponse:
         if not db:
             return server_error("Database service not configured")
 
-        data = request.get_json() or {}
+        # silent: a malformed body is a 400 below, not an exception -> 500.
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            data = {}
         reproduction = data.get('reproduction')
         idempotency_key = data.get('idempotency_key')
         primed = data.get('primed_token')
@@ -810,14 +813,28 @@ def _resolve_l1_language_id(db, user_id: str) -> int:
     return DEFAULT_L1_LANGUAGE_ID
 
 
+def _read_all_pages(make_query) -> list:
+    """Every row of a select, read page by page. PostgREST caps one response
+    at ``_POSTGREST_ROW_CAP`` rows, so an unpaged read of a table that grows
+    per learner (dt_submission gains a row on every GET /next) silently
+    truncates. ``make_query()`` must return a fresh, totally ordered select."""
+    rows: list = []
+    start = 0
+    while True:
+        page = make_query().range(start, start + _POSTGREST_ROW_CAP - 1).execute().data or []
+        rows += page
+        if len(page) < _POSTGREST_ROW_CAP:
+            return rows
+        start += _POSTGREST_ROW_CAP
+
+
 def _attempted_tests(db, user_id: str) -> list:
     """This user's test attempts as ``[{test_id, language_id, created_at}]``,
     most recent first (one row per attempt; a test can repeat)."""
-    resp = (
-        db.table('test_attempts').select('test_id, language_id, created_at')
-        .eq('user_id', user_id).order('created_at', desc=True).execute()
-    )
-    return resp.data or []
+    return _read_all_pages(lambda: (
+        db.table('test_attempts').select('id, test_id, language_id, created_at')
+        .eq('user_id', user_id).order('created_at', desc=True).order('id', desc=True)
+    ))
 
 
 def _latest_attempt_language(attempts: list) -> Optional[int]:
@@ -839,10 +856,10 @@ def _rotation_key(user_id: str, item, salt: int) -> str:
 def _served_history(db, user_id: str) -> dict:
     """``{passage_id: {'last_served': iso, 'graded': bool}}`` over all of this
     user's dt_submission rows (a passage served twice keeps its latest serve)."""
-    subs = (
+    subs = _read_all_pages(lambda: (
         db.table('dt_submission').select('id, passage_id, created_at')
-        .eq('user_id', user_id).execute()
-    ).data or []
+        .eq('user_id', user_id).order('id')
+    ))
     graded_ids: set = set()
     sub_ids = [row['id'] for row in subs]
     for i in range(0, len(sub_ids), 200):
@@ -927,10 +944,16 @@ def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
     served_passages = _passages_by_id(db, list(history))
     served_ranges = _served_ranges(served_passages)
     window_tests = _eligible_window_tests(db, user_id, test_ids, l2_language_id, salt)
-    materials = _window_materials(db, window_tests, l1_language_id)
-    window = _next_sentence_window(window_tests, materials, l2_language_id, served_ranges)
-    if window:
-        return {'kind': 'range', **window}
+    # Read a batch of tests' sentences + references at a time and stop at the
+    # first batch with a fresh window (most calls need one batch). Step 3 only
+    # runs after every batch was read, so ``materials`` is complete there.
+    materials: dict = {}
+    for i in range(0, len(window_tests), _WINDOW_TEST_BATCH):
+        batch = window_tests[i:i + _WINDOW_TEST_BATCH]
+        materials.update(_window_materials(db, batch, l1_language_id))
+        window = _next_sentence_window(batch, materials, l2_language_id, served_ranges)
+        if window:
+            return {'kind': 'range', **window}
 
     # 3. Served before, never graded: least recently served first.
     ungraded = {pid for pid, h in history.items() if not h['graded']}
@@ -955,8 +978,15 @@ def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
             if l1_text:
                 return {'kind': 'passage', 'passage': _served_passage(passage, l1_text)}
 
-    graded_any = any(h['graded'] for h in history.values())
-    return {'kind': 'none', 'all_done': graded_any}
+    # "All done" only when the learner has had a passage graded in THIS language
+    # (from a test they attempted); graded work in another language says nothing
+    # about this one, which then simply has nothing eligible (NO_PASSAGES).
+    graded_here = any(
+        history[p['id']]['graded'] for p in served_passages
+        if int(p.get('l2_language_id') or 0) == int(l2_language_id)
+        and str(p.get('source_ref_id')) in eligible_tests
+    )
+    return {'kind': 'none', 'all_done': graded_here}
 
 
 def _passages_by_id(db, passage_ids: list) -> list:
@@ -994,10 +1024,11 @@ _POSTGREST_ROW_CAP = 1000
 def _window_materials(db, tests: list, l1_language_id: int) -> dict:
     """``{test_id: (rows, refs_ok, tightness)}`` for the sentence-window
     selector, read in batches (a few queries for any number of tests): each
-    test's current sentence rows (rows stale for the stored transcript are
-    dropped, as open_range_passage would refuse them), the indices with an
-    active ``pass``/``rewritten`` reference in ``l1_language_id`` and their
-    tightness."""
+    test's sentence rows in index order (rows stale for the stored transcript,
+    and placeholders for missing indices, are kept as window breakers but never
+    count as referenced, as open_range_passage would refuse them), the indices
+    with an active ``pass``/``rewritten`` reference in ``l1_language_id`` and
+    their tightness."""
     out: dict = {}
     for i in range(0, len(tests), _WINDOW_TEST_BATCH):
         batch = tests[i:i + _WINDOW_TEST_BATCH]
@@ -1017,14 +1048,27 @@ def _window_materials(db, tests: list, l1_language_id: int) -> dict:
         by_test: dict = {}
         for r in rows:
             by_test.setdefault(str(r['test_id']), []).append(r)
+        by_id: dict = {}
         for t in batch:
             test_rows = by_test.get(str(t['id']), [])
             stored_hash = t.get('transcript_hash')
-            if stored_hash:
-                test_rows = [r for r in test_rows if r.get('transcript_hash') == stored_hash]
+            # Stale rows (and placeholders for missing indices) stay in the
+            # list but never get a usable reference: select_window_for_primed
+            # walks list positions, so dropping a row would let a window
+            # straddle it and name a range open_range_passage then refuses
+            # (409 SENTENCES_STALE / 422 SENTENCES_MISSING). Same rule as
+            # services.prestudy.choose_produce_window.
+            for r in test_rows:
+                if not stored_hash or r.get('transcript_hash') == stored_hash:
+                    by_id[r['id']] = r
+            present = {int(r['idx']) for r in test_rows}
+            if present:
+                test_rows = test_rows + [
+                    {'id': None, 'test_id': str(t['id']), 'idx': i, 'l2_text': ''}
+                    for i in range(min(present), max(present) + 1) if i not in present
+                ]
             test_rows.sort(key=lambda r: int(r['idx']))
             out[str(t['id'])] = (test_rows, set(), {})
-        by_id = {r['id']: r for t in batch for r in out[str(t['id'])][0]}
         ids = list(by_id)
         for j in range(0, len(ids), 200):
             refs = _get_usable_references(db, ids[j:j + 200], l1_language_id)

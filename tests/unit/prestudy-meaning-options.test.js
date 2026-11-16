@@ -121,3 +121,18 @@ describe('plausibleMeaning', () => {
     expect(L.plausibleMeaning(SENSES, '12', '13', EN)).toBe(false);
   });
 });
+
+describe('wordConfusable (cloze word choice)', () => {
+  it('rejects a word inside the target, another sense of it, or a word with an overlapping gloss', () => {
+    expect(L.wordConfusable(SENSES, '12', '17', [EN, ZH])).toBe(true); // 猫 / 猫
+    expect(L.wordConfusable(SENSES, '15', '16', [EN, ZH])).toBe(true); // happy; glad / happy
+    expect(L.wordConfusable(SENSES, '10', '11', [EN, ZH])).toBe(true); // 格外's gloss names 特别
+    const s = { 1: sense('坐在', { [EN]: 'to sit on' }), 2: sense('坐', {}) };
+    expect(L.wordConfusable(s, '1', '2', [EN, ZH])).toBe(true); // no gloss, but 坐 is inside 坐在
+  });
+
+  it('keeps unrelated words, and a missing gloss alone is no reason to reject', () => {
+    expect(L.wordConfusable(SENSES, '12', '13', [EN, ZH])).toBe(false); // cat / to run
+    expect(L.wordConfusable(SENSES, '10', '14', [EN, ZH])).toBe(false); // 格外 has no English gloss
+  });
+});

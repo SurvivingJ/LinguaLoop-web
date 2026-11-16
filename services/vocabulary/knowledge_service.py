@@ -15,6 +15,7 @@ SQL functions called:
 import logging
 import os
 
+from services.pinyin_format import format_pinyin
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary.lexicon import mask_headword
 
@@ -30,6 +31,20 @@ def _just_became_known(r: dict) -> bool:
     p_after = float(r.get('out_p_known_after') or r.get('p_known_after', 0))
     p_before = float(r.get('out_p_known_before') or r.get('p_known_before', 0))
     return p_after >= 0.90 and p_before < 0.90
+
+
+_ZH_LANGUAGE_ID = 1
+
+
+def _display_pronunciation(pronunciation, language_id: int) -> str:
+    """The vocab check shows Chinese in tone-marked pinyin only.
+
+    Stored Chinese pronunciations are often "biàn dé (bian4 de2)"; other
+    languages' readings are passed through as stored.
+    """
+    if language_id == _ZH_LANGUAGE_ID:
+        return format_pinyin(pronunciation)
+    return pronunciation or ''
 
 
 class VocabularyKnowledgeService:
@@ -416,7 +431,8 @@ class VocabularyKnowledgeService:
             quiz_items.append({
                 'sense_id': sid,
                 'lemma': lemma,
-                'pronunciation': c.get('out_pronunciation') or c.get('pronunciation', ''),
+                'pronunciation': _display_pronunciation(
+                    c.get('out_pronunciation') or c.get('pronunciation', ''), language_id),
                 'correct_definition': correct_def,
                 'definition_is_gloss': is_gloss,
                 'options': options,

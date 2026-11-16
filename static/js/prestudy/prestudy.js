@@ -1219,6 +1219,22 @@
     const mentions = (def, lemma) => !!lemma && lemma.length >= 2 && String(def).includes(lemma);
     return mentions(td, c.lemma) || mentions(cd, t.lemma);
   }
+  // For a word-choice item (the cloze): could the candidate word also fill the
+  // target's place? One word inside the other, or a plausible meaning in any
+  // gloss language both words have. Unlike plausibleMeaning, a missing gloss
+  // is not evidence of a clash here (the options are words, not glosses).
+  function wordConfusable(senses, target, cand, langs) {
+    const t = senses[target],
+      c = senses[cand];
+    if (!t || !c) return true;
+    if (t.lemma && c.lemma && (t.lemma.includes(c.lemma) || c.lemma.includes(t.lemma))) return true;
+    return (langs || []).some(
+      (l) =>
+        glossIn(senses, target, l) &&
+        glossIn(senses, cand, l) &&
+        plausibleMeaning(senses, target, cand, l)
+    );
+  }
   /**
    * Options for one meaning item, all in one gloss language.
    *   o.senses   {sid: {lemma, glosses: {lang: {def}}}}
@@ -1344,9 +1360,15 @@
     if (stage === 'cloze_mc') {
       const sent = passageSentenceFor(sid, true);
       if (!sent) return null;
-      const dis = pickDistractors(pool, sid, 3, (x) => D.senses[x].lemma, samePos).map(
-        (x) => D.senses[x].lemma
-      );
+      // a word that could also fill the blank (坐 for 坐在, a near-synonym) is no distractor
+      const langs = [String(S.glossLang), String(S.test.language_id)];
+      const dis = pickDistractors(
+        pool.filter((x) => x === sid || !wordConfusable(D.senses, sid, x, langs)),
+        sid,
+        3,
+        (x) => D.senses[x].lemma,
+        samePos
+      ).map((x) => D.senses[x].lemma);
       if (!dis.length) return null;
       return {
         stage,
@@ -2489,6 +2511,7 @@
     bktUpdateIdk,
     meaningOptions,
     plausibleMeaning,
+    wordConfusable,
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

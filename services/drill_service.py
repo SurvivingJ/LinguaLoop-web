@@ -13,6 +13,7 @@ import logging
 from typing import Callable, Optional
 from uuid import uuid4
 
+from services.pinyin_format import format_pinyin
 from services.supabase_factory import get_supabase_admin
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ def _attach_correct_pinyin(db, items: list[dict]) -> None:
         try:
             rows = db.table('dim_classifiers').select('id, pinyin_display') \
                 .in_('id', ids).execute().data or []
-            by_id = {r['id']: r.get('pinyin_display') or '' for r in rows}
+            by_id = {r['id']: format_pinyin(r.get('pinyin_display')) for r in rows}
         except Exception as e:
             logger.warning("classifier pinyin lookup failed: %s", e)
     for it in items:
@@ -52,17 +53,19 @@ def _attach_correct_pinyin(db, items: list[dict]) -> None:
 
 
 def _classifier_item(r: dict) -> dict:
+    # Pronunciations are stored tone-marked, numbered ("bi3") or both
+    # ("biàn dé (bian4 de2)"); the learner sees tone marks only.
     return {
         'pair_id':                 r.get('out_pair_id'),
         'noun_lemma':              r.get('out_noun_lemma'),
         'noun_sense_id':           r.get('out_noun_sense_id'),
         'noun_gloss':              r.get('out_noun_gloss'),
-        'noun_pronunciation':      r.get('out_noun_pronunciation'),
+        'noun_pronunciation':      format_pinyin(r.get('out_noun_pronunciation')),
         'correct_classifier_ids':  r.get('out_correct_classifier_ids') or [],
         'correct_classifier_hanzi': r.get('out_correct_classifier_hanzi') or [],
         'distractor_ids':          r.get('out_distractor_ids') or [],
         'distractor_hanzi':        r.get('out_distractor_hanzi') or [],
-        'distractor_pinyin':       r.get('out_distractor_pinyin') or [],
+        'distractor_pinyin':       [format_pinyin(p) for p in (r.get('out_distractor_pinyin') or [])],
         'semantic_label':          _clean_label(r.get('out_semantic_label')),
         'distractor_group_label':  r.get('out_distractor_group_label'),
         'difficulty_tier':         r.get('out_difficulty_tier'),

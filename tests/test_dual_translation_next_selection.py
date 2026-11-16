@@ -73,6 +73,12 @@ class _Query:
         self.limit_n = n
         return self
 
+    def range(self, start, end):
+        # PostgREST offset paging; the response is also capped at db.row_cap
+        # rows, as the real server's max-rows setting caps it.
+        self.range_ = (start, end)
+        return self
+
     def insert(self, payload):
         self.op, self.payload = 'insert', payload
         return self
@@ -103,6 +109,12 @@ class _Query:
             hits.sort(key=lambda r: (r.get(col) is None, r.get(col)), reverse=desc)
         if self.limit_n is not None:
             hits = hits[:self.limit_n]
+        if getattr(self, 'range_', None) is not None:
+            start, end = self.range_
+            hits = hits[start:end + 1]
+        if self.db.row_cap is not None:
+            hits = hits[:self.db.row_cap]
+        self.db.reads.append(self.table_name)
         return _Result([dict(r) for r in hits])
 
 
@@ -110,6 +122,8 @@ class _TableDB:
     def __init__(self, tables):
         self.tables = {k: [dict(r) for r in v] for k, v in tables.items()}
         self.inserts = []
+        self.reads = []
+        self.row_cap = None
         self._id = 1000
         self._clock = 0
 
@@ -349,6 +363,76 @@ class TestNoRepeats:
         assert again['kind'] == 'range'
         assert (again['start'], again['end']) == (submissions[0][0]['start'], submissions[0][0]['end'])
 
+    def test_history_past_the_row_cap_still_counts_as_graded(self, monkeypatch):
+        """dt_submission gains a row on every serve, so a long-time learner's
+        history outgrows one PostgREST response (max-rows). A graded passage
+        whose submission lies past the first page must still never come back."""
+        monkeypatch.setattr(dt_routes, '_POSTGREST_ROW_CAP', 3)
+        db = _TableDB(_tables())
+        db.row_cap = 3
+        for _ in range(7):  # passage 2 served (and skipped) seven times
+            _serve(db, {'kind': 'passage', 'passage': {'passage_id': 2}})
+        _grade(db, _serve(db, {'kind': 'passage', 'passage': {'passage_id': 1}}))  # 8th row
+        choice = _choose(db, ZH)
+        assert choice['kind'] == 'passage'
+        assert choice['passage']['passage_id'] == 2
+
+    def test_attempts_past_the_row_cap_are_all_read(self, monkeypatch):
+        monkeypatch.setattr(dt_routes, '_POSTGREST_ROW_CAP', 2)
+        db = _TableDB(_tables())
+        db.row_cap = 2
+        db.tables['test_attempts'] = [
+            {'id': f'z{i}', 'user_id': USER, 'test_id': ZH_TEST, 'language_id': ZH,
+             'created_at': f'2026-11-1{i}T00:00:00Z'}
+            for i in range(5)
+        ] + [{'id': 'old', 'user_id': USER, 'test_id': JA_TEST, 'language_id': JA,
+              'created_at': '2026-10-01T00:00:00Z'}]
+        attempts = dt_routes._attempted_tests(db, USER)
+        assert len(attempts) == 6
+        assert attempts[0]['created_at'] == '2026-11-14T00:00:00Z'
+        assert {a['test_id'] for a in attempts} == {ZH_TEST, JA_TEST}
+
+    def test_graded_work_in_another_language_is_not_all_done_here(self):
+        """Every Chinese passage graded, nothing eligible in Japanese: Japanese is
+        NO_PASSAGES (nothing to offer), not ALL_DONE (you finished everything)."""
+        db = _TableDB(_tables(test_sentence_references=[]))
+        while True:
+            choice = _choose(db, ZH)
+            if choice['kind'] == 'none':
+                break
+            _grade(db, _serve(db, choice))
+        assert _choose(db, ZH) == {'kind': 'none', 'all_done': True}
+        assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
+
+    def test_window_search_stops_at_the_first_batch_with_a_window(self, monkeypatch):
+        """Sentences and references are read a batch of tests at a time and the
+        search stops once a batch yields a window (latency of GET /next)."""
+        monkeypatch.setattr(dt_routes, '_WINDOW_TEST_BATCH', 1)
+        tables = _tables()
+        tables['test_attempts'].append(
+            {'id': 'a3', 'user_id': USER, 'test_id': UNTAKEN_JA_TEST, 'language_id': JA,
+             'created_at': '2026-11-13T00:00:00Z'})
+        tables['test_sentences'] += [
+            {'id': 602, 'test_id': UNTAKEN_JA_TEST, 'idx': 2, 'l2_text': '三文目です。',
+             'token_start': None, 'token_end': None, 'transcript_hash': 'hu'}]
+        tables['test_sentence_references'].append(
+            {'sentence_id': 602, 'l1_language_id': EN, 'l1_text': 'Third.', 'tightness': 0.9,
+             'review_verdict': 'pass', 'is_active': True})
+        db = _TableDB(tables)
+        choice = _choose(db, JA)
+        assert choice['kind'] == 'range'
+        assert db.reads.count('test_sentences') == 1
+        # Both tests still get used over successive calls.
+        used = {choice['test_id']}
+        _grade(db, _serve(db, choice))
+        for _ in range(6):
+            choice = _choose(db, JA)
+            if choice['kind'] == 'none':
+                break
+            used.add(choice['test_id'])
+            _grade(db, _serve(db, choice))
+        assert used == {JA_TEST, UNTAKEN_JA_TEST}
+
     def test_selection_is_deterministic_for_a_given_state(self):
         a = _choose(_TableDB(_tables()), ZH)
         b = _choose(_TableDB(_tables()), ZH)
@@ -392,6 +476,22 @@ class TestSentenceWindowQuality:
                 t['transcript_hash'] = 'changed'
         db = _TableDB(_tables(tests=tests))
         assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
+
+    def test_a_window_never_straddles_a_stale_row(self):
+        """One stale row in the middle breaks windows instead of being skipped
+        over: (0, 2) would be refused by open_range_passage (SENTENCES_STALE)."""
+        rows = _tables()['test_sentences']
+        for r in rows:
+            if r['id'] == 501:
+                r['transcript_hash'] = 'old'
+        db = _TableDB(_tables(test_sentences=rows))
+        assert _choose(db, JA) == {'kind': 'range', 'test_id': JA_TEST, 'start': 2, 'end': 3}
+
+    def test_a_window_never_straddles_a_missing_row(self):
+        """A gap in idx breaks windows too: (0, 2) would be SENTENCES_MISSING."""
+        rows = [r for r in _tables()['test_sentences'] if r['id'] != 501]
+        db = _TableDB(_tables(test_sentences=rows))
+        assert _choose(db, JA) == {'kind': 'range', 'test_id': JA_TEST, 'start': 2, 'end': 3}
 
     def test_inactive_test_is_skipped(self):
         tests = _tables()['tests']

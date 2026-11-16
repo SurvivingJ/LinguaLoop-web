@@ -28,6 +28,7 @@
 
 import { T, escapeHtml, shuffle, applyI18n } from '../dom.js';
 import { prefetchJson, takePrefetch } from '../prefetch.js';
+import { formatPinyin } from '../pinyin-format.js';
 
 const BATCH_SIZE = 20;
 
@@ -628,17 +629,24 @@ function classifierLevel(state, item) {
   return Math.max(1, Math.min(4, lvl));
 }
 
-// Shown in Auto mode only, to make promotions and demotions visible.
-function updateLevelBadge({ state, el }) {
+// Shown in Auto mode only, to make promotions and demotions visible: the
+// item's level, named like the mode toggle (Choose / Type) where it matches.
+function updateLevelBadge({ state, el, t }) {
   if (state.mode === 'auto') {
+    // A level-4 item with no cloze sentence is drawn as a choose item (see
+    // renderInput), so the badge names what is on screen.
+    const shown =
+      state.effectiveLevel === 4 && !(state.currentItem && state.currentItem.cloze_blanked)
+        ? 1
+        : state.effectiveLevel;
     const tag =
-      state.effectiveLevel === 1
-        ? '· MC'
-        : state.effectiveLevel === 2
-          ? '· Type'
-          : state.effectiveLevel === 3
-            ? '· Reverse'
-            : '· Cloze';
+      shown === 1
+        ? t('mode_mc', null, 'Choose')
+        : shown === 2
+          ? t('mode_type', null, 'Type')
+          : shown === 3
+            ? t('level_reverse', null, 'Reverse')
+            : t('level_cloze', null, 'Fill in');
     el.levelBadge.textContent = tag;
     el.levelBadge.style.display = 'inline';
   } else {
@@ -667,7 +675,7 @@ function renderClassifierOptions(d, withPinyin) {
       escapeHtml(opt.hanzi) +
       '</span>' +
       (withPinyin && opt.pinyin
-        ? '<span class="cd-option-pinyin">' + escapeHtml(opt.pinyin) + '</span>'
+        ? '<span class="cd-option-pinyin">' + escapeHtml(formatPinyin(opt.pinyin)) + '</span>'
         : '');
     btn.addEventListener('click', function () {
       d.choose(idx);
@@ -729,7 +737,8 @@ function renderClassifierForward({ state, el }) {
   el.reversePrompt.style.display = 'none';
   el.promptBlank.textContent = '_';
   el.noun.textContent = item.noun_lemma || '';
-  el.pronunciation.textContent = item.noun_pronunciation || '';
+  // Tone-marked pinyin only (stored values can be "bi3" or "biàn dé (bian4 de2)").
+  el.pronunciation.textContent = formatPinyin(item.noun_pronunciation);
   el.gloss.textContent = item.noun_gloss || '';
 }
 

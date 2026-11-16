@@ -43,6 +43,7 @@ import {
   showLoading as setLoading,
 } from '../dom.js';
 import { prefetchJson, takePrefetch, warmAudio, adoptAudio } from '../prefetch.js';
+import { formatPinyin } from '../pinyin-format.js';
 
 const LANGUAGE_LOCALE_MAP = { cn: 'zh', jp: 'ja', en: 'en', es: 'es' };
 
@@ -1204,8 +1205,13 @@ export function mount(container, ctx) {
       q('quizLemma').textContent = item.lemma;
       if (langCode()) q('quizLemma').setAttribute('lang', langCode());
       const pronEl = q('quizPronunciation');
-      if (item.pronunciation) {
-        pronEl.textContent = item.pronunciation;
+      // Chinese: tone-marked pinyin only, never "biàn dé (bian4 de2)".
+      const pron =
+        this.languageId === 1 || langCode() === 'zh'
+          ? formatPinyin(item.pronunciation)
+          : item.pronunciation;
+      if (pron) {
+        pronEl.textContent = pron;
         pronEl.style.display = 'block';
       } else pronEl.style.display = 'none';
       q('quizProgress').textContent = `${this.currentIndex + 1} / ${this.candidates.length}`;

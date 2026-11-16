@@ -16,6 +16,7 @@
 
 import { posClass, maskHeadword } from '../lexicon.js';
 import { T, escapeHtml as esc } from '../dom.js';
+import { formatPinyin } from '../pinyin-format.js';
 
 // ---------------------------------------------------------------------------
 // Engine (mirrors services/intro_drill.py recount)
@@ -281,11 +282,13 @@ function options(correct, candidates, preferred = []) {
   return pick([correct, ...wrong, ...pick(rest, 3 - wrong.length)], 4);
 }
 
-function readingText(word, lang) {
+/**
+ * The reading as the learner sees it: Chinese in tone-marked pinyin only (the
+ * numbered form is kept on `reading.numbered` for grading, never shown).
+ */
+export function readingText(word, lang) {
   if (!word.reading) return '';
-  return lang === 'zh' && word.reading.numbered
-    ? `${word.reading.shown} (${word.reading.numbered})`
-    : word.reading.shown;
+  return lang === 'zh' ? formatPinyin(word.reading.shown) : word.reading.shown || '';
 }
 
 /** Build the renderable item for an engine pick. */
