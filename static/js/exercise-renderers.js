@@ -8,21 +8,34 @@
  *   ExRenderers.init({ cardEl, isAnswered, setAnswered, showFeedback, submitAttempt, nextExercise });
  *   ExRenderers.dispatch(exerciseType, exercise, content, wordHTML);
  */
-/* eslint-disable no-unused-vars */
 /* global LinguaI18n */
 const ExRenderers = (function () {
   'use strict';
 
   // ── Injected by host page ──
   let _card = null;
+  // Optional pinned action area (the session's .ld-dock). When a host passes
+  // `dockEl`, each renderer puts its feedback, Check and Next controls there
+  // and only the question in the card; without one everything goes in the
+  // card, as before.
+  let _dock = null;
   let _isAnswered = () => false;
   let _setAnswered = () => {};
   let _showFeedback = () => {};
   let _submitAttempt = () => {};
   let _nextExercise = () => {};
 
-  function init({ cardEl, isAnswered, setAnswered, showFeedback, submitAttempt, nextExercise }) {
+  function init({
+    cardEl,
+    dockEl,
+    isAnswered,
+    setAnswered,
+    showFeedback,
+    submitAttempt,
+    nextExercise,
+  }) {
     _card = cardEl;
+    _dock = dockEl || null;
     _isAnswered = isAnswered;
     _setAnswered = setAnswered;
     _showFeedback = showFeedback;
@@ -103,12 +116,59 @@ const ExRenderers = (function () {
     return map[key] || key;
   }
 
+  /** i18n() with an English fallback for keys the bundle may not have yet. */
+  function tr(key, fallback, v) {
+    const s = i18n(key, v);
+    return s && s !== key ? s : fallback;
+  }
+
+  /** Put the question in the card and the controls in the dock (or both in the card). */
+  function paint(body, dock) {
+    if (_dock) {
+      _card.innerHTML = body;
+      _dock.innerHTML = dock;
+    } else {
+      _card.innerHTML = body + dock;
+    }
+  }
+
+  function typeBadge(icon, label, cefr) {
+    return `<div class="exercise-type-badge"><i class="fas ${icon}" aria-hidden="true"></i> ${label}${cefr ? `<span class="exercise-cefr-badge">${cefr}</span>` : ''}</div>`;
+  }
+
+  function checkBtnHTML(id, extra) {
+    return `<button type="button" class="ld-btn exercise-check-btn" id="${id}"${extra || ''}><i class="fas fa-check" aria-hidden="true"></i>${i18n('exercises.check')}</button>`;
+  }
+
+  /** "Tap an answer to check it." — shown in the dock until an answer is given. */
+  function tapHintHTML() {
+    return `<p class="ld-hint ex-dock-hint">${tr('exercises.tap_to_check', 'Tap an answer to check it.')}</p>`;
+  }
+
+  const FEEDBACK_HTML = '<div class="exercise-feedback" id="exerciseFeedback" role="status"></div>';
+
+  /** The answer is in: drop the "tap an answer" hint and show the verdict. */
+  function dropHint() {
+    const hint = (_dock || _card).querySelector('.ex-dock-hint');
+    if (hint) hint.remove();
+  }
+
+  function showFeedbackNow(ok, expl) {
+    dropHint();
+    _showFeedback(ok, expl);
+  }
+
   function nextBtnHTML() {
-    return `<button class="btn btn-primary exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+    return `<button type="button" class="ld-btn exercise-next-btn" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right" aria-hidden="true"></i></button>`;
   }
 
   function bindNext() {
     document.getElementById('nextBtn').addEventListener('click', _nextExercise);
+  }
+
+  /** One answer option: a real button (keyboard and screen-reader reachable). */
+  function optionHTML(value, i, inner) {
+    return `<button type="button" class="exercise-option ld-opt" data-value="${escHtml(value)}"><span class="option-letter ld-opt__key" aria-hidden="true">${String.fromCharCode(65 + i)}</span>${inner}</button>`;
   }
 
   // ── MCQ shared builder ──
@@ -124,6 +184,7 @@ const ExRenderers = (function () {
    *     are genuinely multi-answer (书 takes 本 *and* 册), and this path grades
    *     client-side, so equality against a single key would mark a right
    *     answer wrong.
+   *   - `plain`     true when the options are native-language text.
    */
   function mcq(badge, cefr, instr, prompt, opts, correct, expl, wordHTML, extra) {
     extra = extra || {};
@@ -132,23 +193,23 @@ const ExRenderers = (function () {
     const accepted =
       Array.isArray(extra.accepted) && extra.accepted.length ? extra.accepted : [correct];
     const shuffled = shuffleArr(opts);
+    // `plain`: the options are in the learner's own language (translations,
+    // definitions, tone labels), so they are not set in the target-language face.
+    const optCls = extra.plain ? 'option-text' : 'option-text ex-tl';
     let h =
       (wordHTML || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-pen-to-square"></i> ${badge}${cefr ? `<span class="exercise-cefr-badge">${cefr}</span>` : ''}</div>` +
+      typeBadge('fa-pen-to-square', badge, cefr) +
       `<div class="exercise-instruction">${instr}</div>` +
-      `<div class="exercise-prompt">${prompt}</div>` +
-      `<div class="exercise-options" id="optionsList">`;
+      (prompt ? `<div class="exercise-prompt ex-tl">${prompt}</div>` : '') +
+      `<div class="exercise-options ld-opts" id="optionsList">`;
     shuffled.forEach((o, i) => {
       const v = typeof o === 'object' ? o.text : o;
       const label = (labels && labels[v]) || v;
-      const sub =
-        sublabels && sublabels[v]
-          ? `<span style="display:block;font-size:13px;color:var(--text-secondary);margin-top:2px">${escHtml(sublabels[v])}</span>`
-          : '';
-      h += `<div class="exercise-option" data-value="${escHtml(v)}"><span class="option-letter">${String.fromCharCode(65 + i)}</span><span class="option-text">${escHtml(label)}${sub}</span></div>`;
+      const sub = sublabels && sublabels[v] ? `<small>${escHtml(sublabels[v])}</small>` : '';
+      h += optionHTML(v, i, `<span class="${optCls}">${escHtml(label)}${sub}</span>`);
     });
-    h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-    _card.innerHTML = h;
+    h += `</div>`;
+    paint(h, tapHintHTML() + FEEDBACK_HTML + nextBtnHTML());
 
     document.getElementById('optionsList').addEventListener('click', (e) => {
       if (_isAnswered()) return;
@@ -162,7 +223,7 @@ const ExRenderers = (function () {
         if (accepted.indexOf(o.dataset.value) !== -1) o.classList.add('correct');
       });
       if (!ok) opt.classList.add('incorrect');
-      _showFeedback(ok, expl);
+      showFeedbackNow(ok, expl);
       _submitAttempt(ok, { selected: sel });
     });
     bindNext();
@@ -173,10 +234,10 @@ const ExRenderers = (function () {
   function renderCloze(ex, c, w) {
     let p = escHtml(c.sentence_with_blank).replace(
       '___',
-      '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
+      '<span class="blank ld-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
     );
     if (c.word_definition)
-      p += `<div style="font-size:14px;color:var(--text-secondary);margin-top:10px;font-style:italic;">${escHtml(c.word_definition)}</div>`;
+      p += `<div class="ex-note ex-note--def">${escHtml(c.word_definition)}</div>`;
     mcq(
       fmtType('cloze_completion'),
       ex.cefr_level,
@@ -210,23 +271,22 @@ const ExRenderers = (function () {
   function renderClozeTyped(ex, c, w) {
     const prompt = escHtml(c.sentence_with_blank || '').replace(
       '___',
-      '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
+      '<span class="blank ld-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
     );
     const isIme = c.input_mode === 'ime';
+    const instruction = i18n('exercises.instruction.type_missing_word');
     const h =
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-keyboard"></i> ${fmtType('cloze_typed')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
-      `<div class="exercise-instruction">${i18n('exercises.instruction.type_missing_word')}</div>` +
-      `<div class="exercise-prompt">${prompt}</div>` +
-      `<input type="text" class="exercise-input-area" id="ctInput" autocomplete="off" ` +
+      typeBadge('fa-keyboard', fmtType('cloze_typed'), ex.cefr_level) +
+      `<div class="exercise-instruction">${instruction}</div>` +
+      `<div class="exercise-prompt ex-tl">${prompt}</div>` +
+      `<input type="text" class="exercise-input-area ex-tl" id="ctInput" autocomplete="off" ` +
       `autocorrect="off" autocapitalize="off" spellcheck="false" ` +
       `${isIme ? 'inputmode="text" ' : ''}` +
-      `style="width:100%;padding:10px;font-size:18px;" ` +
+      `aria-label="${escHtml(instruction)}" ` +
       `placeholder="${i18n('exercises.type_word_placeholder')}">` +
-      `<button class="btn btn-primary exercise-check-btn" id="ctCheckBtn"><i class="fas fa-check me-2"></i>${i18n('exercises.check')}</button>` +
-      `<div id="ctCorrection" class="sip-correction" style="display:none;"></div>` +
-      `<div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-    _card.innerHTML = h;
+      `<div id="ctCorrection" class="sip-correction" style="display:none;"></div>`;
+    paint(h, checkBtnHTML('ctCheckBtn') + FEEDBACK_HTML + nextBtnHTML());
 
     const inp = document.getElementById('ctInput');
     const btn = document.getElementById('ctCheckBtn');
@@ -253,10 +313,11 @@ const ExRenderers = (function () {
       const guess = accepted.some((a) => String(a).trim().toLowerCase() === typed.toLowerCase());
       if (!guess && c.target_word) {
         const corr = document.getElementById('ctCorrection');
-        corr.innerHTML = '<i class="fas fa-check me-1"></i>' + escHtml(c.target_word);
+        corr.innerHTML =
+          '<i class="fas fa-check me-1" aria-hidden="true"></i>' + escHtml(c.target_word);
         corr.style.display = '';
       }
-      _showFeedback(guess, c.explanation || '');
+      showFeedbackNow(guess, c.explanation || '');
       _submitAttempt(guess, { typed: typed });
     };
 
@@ -281,7 +342,8 @@ const ExRenderers = (function () {
       c.options,
       c.correct_nl,
       '',
-      w
+      w,
+      { plain: true }
     );
   }
 
@@ -303,17 +365,17 @@ const ExRenderers = (function () {
     const odd = c.items[c.odd_index];
     let h =
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-question-circle"></i> ${fmtType('odd_one_out')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
+      typeBadge('fa-question-circle', fmtType('odd_one_out'), ex.cefr_level) +
       `<div class="exercise-instruction">${i18n('exercises.instruction.odd_one_out')}</div>` +
       (c.shared_property
-        ? `<div class="exercise-prompt" style="font-size:15px;color:var(--text-secondary)">${i18n('exercises.hint', { hint: escHtml(c.shared_property) })}</div>`
+        ? `<div class="exercise-prompt exercise-prompt--note">${i18n('exercises.hint', { hint: escHtml(c.shared_property) })}</div>`
         : '') +
-      `<div class="exercise-options" id="optionsList">`;
+      `<div class="exercise-options ld-opts" id="optionsList">`;
     shuffleArr(c.items).forEach((it, i) => {
-      h += `<div class="exercise-option" data-value="${escHtml(it)}"><span class="option-letter">${String.fromCharCode(65 + i)}</span><span class="option-text">${escHtml(it)}</span></div>`;
+      h += optionHTML(it, i, `<span class="option-text ex-tl">${escHtml(it)}</span>`);
     });
-    h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-    _card.innerHTML = h;
+    h += `</div>`;
+    paint(h, tapHintHTML() + FEEDBACK_HTML + nextBtnHTML());
     document.getElementById('optionsList').addEventListener('click', (e) => {
       if (_isAnswered()) return;
       const o = e.target.closest('.exercise-option');
@@ -326,22 +388,21 @@ const ExRenderers = (function () {
         if (x.dataset.value === odd) x.classList.add('correct');
       });
       if (!ok) o.classList.add('incorrect');
-      _showFeedback(ok, c.explanation);
+      showFeedbackNow(ok, c.explanation);
       _submitAttempt(ok, { selected: sel });
     });
     bindNext();
   }
 
   function renderNlTl(ex, c, w) {
+    const instruction = i18n('exercises.instruction.translate_to_tl');
     const h =
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-language"></i> ${fmtType('nl_tl_translation')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
-      `<div class="exercise-instruction">${i18n('exercises.instruction.translate_to_tl')}</div>` +
+      typeBadge('fa-language', fmtType('nl_tl_translation'), ex.cefr_level) +
+      `<div class="exercise-instruction">${instruction}</div>` +
       `<div class="exercise-prompt">${escHtml(c.nl_sentence)}</div>` +
-      `<textarea class="exercise-input-area" id="translationInput" placeholder="${i18n('exercises.type_placeholder')}"></textarea>` +
-      `<button class="btn btn-primary exercise-check-btn" id="checkBtn"><i class="fas fa-check me-2"></i>${i18n('exercises.check')}</button>` +
-      `<div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-    _card.innerHTML = h;
+      `<textarea class="exercise-input-area ex-tl" id="translationInput" rows="3" aria-label="${escHtml(instruction)}" placeholder="${i18n('exercises.type_placeholder')}"></textarea>`;
+    paint(h, checkBtnHTML('checkBtn') + FEEDBACK_HTML + nextBtnHTML());
     document.getElementById('checkBtn').addEventListener('click', function () {
       if (_isAnswered()) return;
       _setAnswered(true);
@@ -356,7 +417,7 @@ const ExRenderers = (function () {
         expl += '\nAlso accepted: ' + c.acceptable_variants.join(', ');
       this.style.display = 'none';
       document.getElementById('translationInput').readOnly = true;
-      _showFeedback(ok, expl);
+      showFeedbackNow(ok, expl);
       _submitAttempt(ok, { typed: inp });
     });
     bindNext();
@@ -365,7 +426,7 @@ const ExRenderers = (function () {
   function renderColloGap(ex, c, w) {
     const p = escHtml(c.sentence).replace(
       '___',
-      '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
+      '<span class="blank ld-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
     );
     mcq(
       fmtType('collocation_gap_fill'),
@@ -389,24 +450,30 @@ const ExRenderers = (function () {
       });
     }
 
+    const phase2 = i18n('exercises.instruction.collocation_repair_phase2');
     let h =
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-wrench"></i> ${fmtType('collocation_repair')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
+      typeBadge('fa-wrench', fmtType('collocation_repair'), ex.cefr_level) +
       `<div class="exercise-instruction">${i18n('exercises.instruction.collocation_repair')}</div>` +
-      `<div class="sip-parts" id="crWords">`;
+      `<div class="sip-parts ex-tl" id="crWords">`;
     words.forEach((wd, i) => {
-      h += `<span class="sip-part" data-idx="${i}">${escHtml(wd.text)}</span>`;
+      h += `<button type="button" class="sip-part" data-idx="${i}">${escHtml(wd.text)}</button>`;
     });
     h +=
       `</div>` +
-      `<div id="crPhase2" style="display:none;margin-top:16px;">` +
-      `<div class="exercise-instruction" style="font-size:14px;">${i18n('exercises.instruction.collocation_repair_phase2')}</div>` +
-      `<input type="text" class="exercise-input-area" id="crInput" style="width:100%;padding:10px;font-size:16px;" autocomplete="off">` +
-      `<button class="btn btn-primary exercise-check-btn" id="crCheckBtn" style="margin-top:8px;"><i class="fas fa-check me-2"></i>${i18n('exercises.check')}</button>` +
+      `<div id="crPhase2" class="ex-phase2" style="display:none;">` +
+      `<div class="exercise-instruction exercise-instruction--sub">${phase2}</div>` +
+      `<input type="text" class="exercise-input-area ex-tl" id="crInput" autocomplete="off" aria-label="${escHtml(phase2)}">` +
       `</div>` +
-      `<div id="crCorrection" class="sip-correction" style="display:none;"></div>` +
-      `<div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-    _card.innerHTML = h;
+      `<div id="crCorrection" class="sip-correction" style="display:none;"></div>`;
+    // The phase-2 Check is shown together with #crPhase2.
+    paint(
+      h,
+      tapHintHTML() +
+        checkBtnHTML('crCheckBtn', ' style="display:none;"') +
+        FEEDBACK_HTML +
+        nextBtnHTML()
+    );
 
     document.getElementById('crWords').addEventListener('click', (e) => {
       if (_isAnswered()) return;
@@ -426,6 +493,8 @@ const ExRenderers = (function () {
       if (ok) {
         _setAnswered(true);
         document.getElementById('crPhase2').style.display = '';
+        document.getElementById('crCheckBtn').style.display = '';
+        dropHint();
         const inp = document.getElementById('crInput');
         inp.focus();
 
@@ -437,10 +506,11 @@ const ExRenderers = (function () {
           const phase2ok = typed.toLowerCase() === c.correct_word.toLowerCase();
           if (!phase2ok) {
             const corr = document.getElementById('crCorrection');
-            corr.innerHTML = '<i class="fas fa-check me-1"></i>' + escHtml(c.correct_word);
+            corr.innerHTML =
+              '<i class="fas fa-check me-1" aria-hidden="true"></i>' + escHtml(c.correct_word);
             corr.style.display = '';
           }
-          _showFeedback(phase2ok, c.explanation);
+          showFeedbackNow(phase2ok, c.explanation);
           _submitAttempt(phase2ok, {
             selected_word: selected.text,
             typed_correction: typed,
@@ -456,12 +526,12 @@ const ExRenderers = (function () {
         _setAnswered(true);
         const corr = document.getElementById('crCorrection');
         corr.innerHTML =
-          '<i class="fas fa-check me-1"></i>' +
+          '<i class="fas fa-check me-1" aria-hidden="true"></i>' +
           escHtml(c.error_word) +
           ' \u2192 ' +
           escHtml(c.correct_word);
         corr.style.display = '';
-        _showFeedback(false, c.explanation);
+        showFeedbackNow(false, c.explanation);
         _submitAttempt(false, { selected_word: selected.text, phase1_correct: false });
       }
     });
@@ -472,14 +542,14 @@ const ExRenderers = (function () {
     const odd = c.collocations[c.odd_index];
     let h =
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-question-circle"></i> ${fmtType('odd_collocation_out')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
+      typeBadge('fa-question-circle', fmtType('odd_collocation_out'), ex.cefr_level) +
       `<div class="exercise-instruction">${i18n('exercises.instruction.odd_collocation_out', { word: escHtml(c.head_word) })}</div>` +
-      `<div class="exercise-options" id="optionsList">`;
+      `<div class="exercise-options ld-opts" id="optionsList">`;
     shuffleArr(c.collocations).forEach((it, i) => {
-      h += `<div class="exercise-option" data-value="${escHtml(it)}"><span class="option-letter">${String.fromCharCode(65 + i)}</span><span class="option-text">${escHtml(it)}</span></div>`;
+      h += optionHTML(it, i, `<span class="option-text ex-tl">${escHtml(it)}</span>`);
     });
-    h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-    _card.innerHTML = h;
+    h += `</div>`;
+    paint(h, tapHintHTML() + FEEDBACK_HTML + nextBtnHTML());
     document.getElementById('optionsList').addEventListener('click', (e) => {
       if (_isAnswered()) return;
       const o = e.target.closest('.exercise-option');
@@ -492,7 +562,7 @@ const ExRenderers = (function () {
         if (x.dataset.value === odd) x.classList.add('correct');
       });
       if (!ok) o.classList.add('incorrect');
-      _showFeedback(ok, c.explanation);
+      showFeedbackNow(ok, c.explanation);
       _submitAttempt(ok, { selected: sel });
     });
     bindNext();
@@ -502,16 +572,14 @@ const ExRenderers = (function () {
     const errorPart = c.parts.find((p) => p.is_error);
     let h =
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-search"></i> ${fmtType('spot_incorrect_part')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
+      typeBadge('fa-search', fmtType('spot_incorrect_part'), ex.cefr_level) +
       `<div class="exercise-instruction">Tap the part of the sentence that contains an error:</div>` +
-      `<div class="sip-parts" id="sipParts">`;
+      `<div class="sip-parts ex-tl" id="sipParts">`;
     c.parts.forEach((p, i) => {
-      h += `<span class="sip-part" data-idx="${i}">${escHtml(p.text)}</span>`;
+      h += `<button type="button" class="sip-part" data-idx="${i}">${escHtml(p.text)}</button>`;
     });
-    h +=
-      `</div><div id="sipCorrection" class="sip-correction" style="display:none;"></div>` +
-      `<div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-    _card.innerHTML = h;
+    h += `</div><div id="sipCorrection" class="sip-correction" style="display:none;"></div>`;
+    paint(h, tapHintHTML() + FEEDBACK_HTML + nextBtnHTML());
 
     document.getElementById('sipParts').addEventListener('click', (e) => {
       if (_isAnswered()) return;
@@ -537,7 +605,7 @@ const ExRenderers = (function () {
       }
 
       const expl = errorPart ? errorPart.explanation : '';
-      _showFeedback(ok, expl);
+      showFeedbackNow(ok, expl);
       _submitAttempt(ok, { selected_index: idx, selected_text: selected.text });
     });
     bindNext();
@@ -548,14 +616,14 @@ const ExRenderers = (function () {
     const opts = c.sentences.map((s) => s.text);
     let h =
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-search"></i> ${fmtType('spot_incorrect_sentence')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
+      typeBadge('fa-search', fmtType('spot_incorrect_sentence'), ex.cefr_level) +
       `<div class="exercise-instruction">Which sentence contains an error?</div>` +
-      `<div class="exercise-options" id="optionsList">`;
+      `<div class="exercise-options ld-opts" id="optionsList">`;
     opts.forEach((t, i) => {
-      h += `<div class="exercise-option" data-value="${escHtml(t)}"><span class="option-letter">${String.fromCharCode(65 + i)}</span><span class="option-text">${escHtml(t)}</span></div>`;
+      h += optionHTML(t, i, `<span class="option-text ex-tl">${escHtml(t)}</span>`);
     });
-    h += `</div><div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-    _card.innerHTML = h;
+    h += `</div>`;
+    paint(h, tapHintHTML() + FEEDBACK_HTML + nextBtnHTML());
 
     const correctVal = incorrect ? incorrect.text : '';
     document.getElementById('optionsList').addEventListener('click', (e) => {
@@ -577,7 +645,7 @@ const ExRenderers = (function () {
         if (incorrect.error_description) expl += incorrect.error_description;
         if (incorrect.error_type) expl += (expl ? ' ' : '') + '(' + incorrect.error_type + ')';
       }
-      _showFeedback(ok, expl);
+      showFeedbackNow(ok, expl);
       _submitAttempt(ok, { selected: sel });
     });
     bindNext();
@@ -601,16 +669,16 @@ const ExRenderers = (function () {
       const complete = placed.length === chunks.length;
       let h =
         (w || '') +
-        `<div class="exercise-type-badge"><i class="fas fa-shuffle"></i> ${fmtType('jumbled_sentence')}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
+        typeBadge('fa-shuffle', fmtType('jumbled_sentence'), ex.cefr_level) +
         `<div class="exercise-instruction">Arrange the words in the correct order:</div>` +
-        `<div class="js-answer" id="jsAnswer">`;
+        `<div class="js-answer ex-tl" id="jsAnswer">`;
       placed.forEach((ci, i) => {
         // `js-chunk--placed` carries the removal affordance (a × via ::after).
         h += `<span class="js-chunk js-chunk--placed" draggable="true" data-placed="${i}" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
       });
       if (placed.length === 0)
-        h += `<span style="color:var(--text-secondary);font-size:14px;padding:8px;">Tap or drag words below to build the sentence</span>`;
-      h += `</div><div class="js-bank" id="jsBank">`;
+        h += `<span class="js-empty">Tap or drag words below to build the sentence</span>`;
+      h += `</div><div class="js-bank ex-tl" id="jsBank">`;
       const bankIndices = initialBankOrder.filter((i) => !placed.includes(i));
       bankIndices.forEach((ci) => {
         h += `<span class="js-chunk" draggable="true" data-chunk="${ci}">${escHtml(chunks[ci])}</span>`;
@@ -619,10 +687,10 @@ const ExRenderers = (function () {
       // Grading is explicit: the learner arranges, reviews, then submits.
       // Auto-grading on the final placement used to lock the card at exactly
       // the moment they'd want to fix a word.
-      if (!answered)
-        h += `<button class="btn btn-primary exercise-check-btn" id="jsCheckBtn"${complete ? '' : ' disabled'}><i class="fas fa-check me-2"></i>${i18n('exercises.check')}</button>`;
-      h += `<div class="exercise-feedback" id="exerciseFeedback"></div>${nextBtnHTML()}`;
-      _card.innerHTML = h;
+      let dock = '';
+      if (!answered) dock += checkBtnHTML('jsCheckBtn', complete ? '' : ' disabled');
+      dock += FEEDBACK_HTML + nextBtnHTML();
+      paint(h, dock);
 
       const answerDiv = document.getElementById('jsAnswer');
       const bankDiv = document.getElementById('jsBank');
@@ -787,7 +855,7 @@ const ExRenderers = (function () {
       });
       let expl = '';
       if (!ok) expl = 'Correct order: ' + correctOrder.map((i) => chunks[i]).join(' ');
-      _showFeedback(ok, expl);
+      showFeedbackNow(ok, expl);
       _submitAttempt(ok, { user_ordering: placed });
     }
 
@@ -801,21 +869,21 @@ const ExRenderers = (function () {
     const example = c.example_sentence || '';
     const h =
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-layer-group"></i> ${fmtType(ex.exercise_type)}</div>` +
-      `<div class="exercise-prompt">${escHtml(front)}</div>` +
-      (pron
-        ? `<div style="text-align:center;color:var(--text-secondary);font-size:16px;margin-bottom:16px;">${escHtml(pron)}</div>`
-        : '') +
-      `<div id="fcBack" style="display:none;text-align:center;margin-bottom:20px;">` +
-      `<div style="font-size:18px;color:var(--text-primary);font-weight:500;margin-bottom:8px;">${escHtml(back)}</div>` +
-      (example
-        ? `<div style="font-size:14px;color:var(--text-secondary);font-style:italic;">${escHtml(example)}</div>`
-        : '') +
-      `</div><button class="btn btn-outline-primary w-100 mb-2" id="revealBtn"><i class="fas fa-eye me-2"></i>Reveal</button>` +
-      `<div id="fcRate" style="display:none;"><p class="text-center text-muted mb-2">How well did you know this?</p>` +
-      `<div class="d-flex gap-2"><button class="btn btn-danger flex-fill fc-rate" data-ok="0">Didn't know</button><button class="btn btn-success flex-fill fc-rate" data-ok="1">Knew it</button></div></div>` +
-      `${nextBtnHTML()}`;
-    _card.innerHTML = h;
+      typeBadge('fa-layer-group', fmtType(ex.exercise_type)) +
+      `<div class="ex-fcard">` +
+      `<div class="exercise-prompt ex-tl ex-fcard__front">${escHtml(front)}</div>` +
+      (pron ? `<div class="ex-fcard__pron">${escHtml(pron)}</div>` : '') +
+      `<div id="fcBack" class="ex-fcard__back" style="display:none;">` +
+      `<div class="ex-fcard__meaning">${escHtml(back)}</div>` +
+      (example ? `<div class="ex-fcard__example ex-tl">${escHtml(example)}</div>` : '') +
+      `</div></div>`;
+    const dock =
+      `<button type="button" class="ld-btn" id="revealBtn"><i class="fas fa-eye" aria-hidden="true"></i>Reveal</button>` +
+      `<div id="fcRate" style="display:none;"><p class="ld-hint mb-2">How well did you know this?</p>` +
+      `<div class="ld-row"><button type="button" class="ld-btn fc-rate fc-rate--no" data-ok="0">Didn't know</button><button type="button" class="ld-btn ld-btn--ok fc-rate" data-ok="1">Knew it</button></div></div>` +
+      FEEDBACK_HTML +
+      nextBtnHTML();
+    paint(h, dock);
     document.getElementById('revealBtn').addEventListener('click', function () {
       document.getElementById('fcBack').style.display = 'block';
       document.getElementById('fcRate').style.display = 'block';
@@ -827,7 +895,7 @@ const ExRenderers = (function () {
         _setAnswered(true);
         const ok = this.dataset.ok === '1';
         document.getElementById('fcRate').style.display = 'none';
-        _showFeedback(ok, '');
+        showFeedbackNow(ok, '');
         _submitAttempt(ok, { self_rated: true });
       })
     );
@@ -835,11 +903,12 @@ const ExRenderers = (function () {
   }
 
   function renderGeneric(ex, c, w) {
-    _card.innerHTML =
+    paint(
       (w || '') +
-      `<div class="exercise-type-badge"><i class="fas fa-question"></i> ${fmtType(ex.exercise_type)}${ex.cefr_level ? `<span class="exercise-cefr-badge">${ex.cefr_level}</span>` : ''}</div>` +
-      `<div class="exercise-prompt" style="font-size:14px;text-align:left;white-space:pre-wrap;">${escHtml(JSON.stringify(c, null, 2))}</div>` +
-      `<button class="btn btn-primary exercise-next-btn show" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        typeBadge('fa-question', fmtType(ex.exercise_type), ex.cefr_level) +
+        `<div class="exercise-prompt exercise-prompt--raw">${escHtml(JSON.stringify(c, null, 2))}</div>`,
+      `<button type="button" class="ld-btn exercise-next-btn show" id="nextBtn">${i18n('exercises.next')} <i class="fas fa-arrow-right" aria-hidden="true"></i></button>`
+    );
     bindNext();
   }
 
@@ -854,13 +923,13 @@ const ExRenderers = (function () {
       `<div class="phonetic-display">` +
       (hasAudio
         ? `<button type="button" class="audio-play-btn" id="phoneticPlayBtn" aria-label="Play audio">
-                       <i class="fas fa-volume-up"></i>
+                       <i class="fas fa-volume-up" aria-hidden="true"></i>
                    </button>
-                   <div style="font-size:13px;color:var(--text-muted);margin-top:8px">Tap to replay</div>`
+                   <div class="phonetic-note">Tap to replay</div>`
         : (c.ipa ? `<div class="ipa">${escHtml(c.ipa)}</div>` : '') +
           (c.pronunciation ? `<div class="pron">${escHtml(c.pronunciation)}</div>` : '') +
           (c.syllable_count
-            ? `<div style="font-size:13px;color:var(--text-muted);margin-top:4px">${c.syllable_count} syllables</div>`
+            ? `<div class="phonetic-note">${c.syllable_count} syllables</div>`
             : '')) +
       `</div>`;
     mcq(
@@ -892,10 +961,8 @@ const ExRenderers = (function () {
 
   function renderDefinitionMatch(ex, c, w) {
     const prompt =
-      `<div style="text-align:center;font-size:28px;font-weight:700;color:var(--primary);margin-bottom:8px">${escHtml(c.word || ex.lemma)}</div>` +
-      (c.pronunciation
-        ? `<div style="text-align:center;color:var(--text-secondary);margin-bottom:16px">${escHtml(c.pronunciation)}</div>`
-        : '');
+      `<div class="ex-word ex-word--brand">${escHtml(c.word || ex.lemma)}</div>` +
+      (c.pronunciation ? `<div class="ex-sub">${escHtml(c.pronunciation)}</div>` : '');
     mcq(
       'Definition Match',
       null,
@@ -905,17 +972,18 @@ const ExRenderers = (function () {
       // v2 (flattenNl) carries `correct_answer`; v1 rows carry `correct_definition`.
       c.correct_answer || c.correct_definition || '',
       '',
-      w
+      w,
+      { plain: true }
     );
   }
 
   function renderMorphologySlot(ex, c, w) {
     let prompt = escHtml(c.sentence_with_blank || '').replace(
       '___',
-      '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
+      '<span class="blank ld-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'
     );
     if (c.base_form || c.form_label) {
-      prompt += `<div style="font-size:14px;color:var(--text-secondary);margin-top:10px">Base form: <strong>${escHtml(c.base_form)}</strong>`;
+      prompt += `<div class="ex-note">Base form: <strong>${escHtml(c.base_form)}</strong>`;
       if (c.form_label) prompt += ` &mdash; fill in the <em>${escHtml(c.form_label)}</em>`;
       prompt += '</div>';
     }
@@ -933,7 +1001,7 @@ const ExRenderers = (function () {
 
   // ── Ladder script/sound, measure-word and relation renderers ──
 
-  const BLANK_SPAN = '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+  const BLANK_SPAN = '<span class="blank ld-blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 
   function withBlank(text) {
     return escHtml(text || '').replace('___', BLANK_SPAN);
@@ -943,7 +1011,7 @@ const ExRenderers = (function () {
   function noteHTML(parts) {
     const kept = parts.filter(Boolean);
     if (!kept.length) return '';
-    return `<div style="font-size:14px;color:var(--text-secondary);margin-top:10px">${kept.join(' &mdash; ')}</div>`;
+    return `<div class="ex-note">${kept.join(' &mdash; ')}</div>`;
   }
 
   /**
@@ -974,8 +1042,8 @@ const ExRenderers = (function () {
       if (key) body = body.split(escHtml(key)).join(BLANK_SPAN);
     }
     return (
-      `<div style="font-size:15px;color:var(--text-secondary);margin-top:12px">` +
-      `<div style="font-size:13px;color:var(--text-muted);margin-bottom:4px">${i18n('exercises.in_context')}</div>` +
+      `<div class="ex-context">` +
+      `<div class="ex-context__label">${i18n('exercises.in_context')}</div>` +
       `${body}</div>`
     );
   }
@@ -994,7 +1062,7 @@ const ExRenderers = (function () {
   function renderScriptSound(ex, c, w) {
     const type = ex.exercise_type;
     const prompt =
-      `<div style="font-size:32px;font-weight:700;color:var(--text-primary)">${escHtml(c.prompt || c.word || '')}</div>` +
+      `<div class="ex-word">${escHtml(c.prompt || c.word || '')}</div>` +
       contextHTML(c.context_sentence, c.context_target, !!SCRIPT_TO_SOUND[type], c.correct_answer);
     mcq(
       fmtType(type),
@@ -1019,9 +1087,9 @@ const ExRenderers = (function () {
    */
   function renderToneId(ex, c, w) {
     const prompt =
-      `<div style="font-size:34px;font-weight:700;color:var(--text-primary)">${escHtml(c.word || ex.lemma || '')}</div>` +
+      `<div class="ex-word">${escHtml(c.word || ex.lemma || '')}</div>` +
       (c.toneless_pinyin
-        ? `<div style="font-size:18px;color:var(--text-secondary);margin-top:6px;letter-spacing:1px">${escHtml(c.toneless_pinyin)}</div>`
+        ? `<div class="ex-sub ex-sub--spaced">${escHtml(c.toneless_pinyin)}</div>`
         : '');
     mcq(
       fmtType('tone_id_word'),
@@ -1032,7 +1100,7 @@ const ExRenderers = (function () {
       c.correct_answer || '',
       c.full_pinyin ? i18n('exercises.tone_id_answer', { pinyin: escHtml(c.full_pinyin) }) : '',
       w,
-      { labels: c.option_labels || null }
+      { labels: c.option_labels || null, plain: !!c.option_labels }
     );
   }
 
@@ -1046,10 +1114,8 @@ const ExRenderers = (function () {
   function renderMeasureWord(ex, c, w) {
     const type = ex.exercise_type;
     const prompt =
-      `<div style="font-size:28px;font-weight:700;color:var(--text-primary)">${withBlank(c.stem)}</div>` +
-      (c.pronunciation
-        ? `<div style="font-size:15px;color:var(--text-secondary);margin-top:6px">${escHtml(c.pronunciation)}</div>`
-        : '');
+      `<div class="ex-word ex-word--md">${withBlank(c.stem)}</div>` +
+      (c.pronunciation ? `<div class="ex-sub">${escHtml(c.pronunciation)}</div>` : '');
     mcq(
       fmtType(type),
       ex.cefr_level,
@@ -1075,9 +1141,9 @@ const ExRenderers = (function () {
   function renderSynAnt(ex, c, w) {
     const relation = c.relation === 'antonym' ? 'antonym' : 'synonym';
     const prompt =
-      `<div style="font-size:28px;font-weight:700;color:var(--primary)">${escHtml(c.word || ex.lemma || '')}</div>` +
+      `<div class="ex-word ex-word--brand">${escHtml(c.word || ex.lemma || '')}</div>` +
       (c.word_definition
-        ? `<div style="font-size:14px;color:var(--text-secondary);margin-top:8px;font-style:italic">${escHtml(c.word_definition)}</div>`
+        ? `<div class="ex-note ex-note--def">${escHtml(c.word_definition)}</div>`
         : '');
     mcq(
       fmtType('synonym_antonym_match'),
@@ -1121,7 +1187,7 @@ const ExRenderers = (function () {
    * confusion-class enum the practice engine aggregates on, not learner text.
    */
   function renderParticleSelection(ex, c, w) {
-    const prompt = `<div style="font-size:24px;font-weight:600;line-height:1.7">${withBlank(c.sentence_with_blank)}</div>`;
+    const prompt = `<div class="ex-sentence">${withBlank(c.sentence_with_blank)}</div>`;
     mcq(
       fmtType('particle_selection'),
       ex.cefr_level,

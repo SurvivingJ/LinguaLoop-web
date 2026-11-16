@@ -1,151 +1,142 @@
 {% extends "base.html" %}
+{#- Redesign 2026-11: one card per screen. Header (Back pill, "Flashcards",
+    "Card n of N"), a stage with the progress bar, the Reading / Listening tabs
+    and the card, and a dock with Flip or the four ratings. Styles:
+    static/css/redesign/translation.css. Element ids are the contract with
+    static/js/pages/flashcards.js — keep them. -#}
 {% set defer_base_scripts = true %}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
 
 {% block title %}Flashcards | LinguaDojo{% endblock %}
 {% block body_class %}bg-slate-50 flashcards-page{% endblock %}
-{% block main_class %}{% endblock %}
 
-{% block extra_css %}
-{% endblock %}
+{% block task_back_href %}{{ url_for('study_session_page') }}?mode=practice{% endblock %}
+{% block task_title %}<span data-i18n="flashcards.title">Flashcards</span>{% endblock %}
+{% block task_subtitle %}<span class="flashcard-progress-text" id="fcProgressText"><span data-i18n="flashcards.card">Card</span> <span id="currentCardNum">1</span> <span data-i18n="flashcards.of">of</span> <span id="totalCards">0</span></span>{% endblock %}
 
 {% block content %}
-<!-- Header / Progress -->
-<div class="flashcard-header">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-            <h1 class="mb-0 h4">
-                <i class="fas fa-layer-group text-primary me-2"></i>
-                <span data-i18n="flashcards.title">Flashcards</span>
-            </h1>
-            <div class="flashcard-progress">
-                <span class="flashcard-progress-text">
-                    <span data-i18n="flashcards.card">Card</span>
-                    <span id="currentCardNum">1</span>
-                    <span data-i18n="flashcards.of">of</span>
-                    <span id="totalCards">0</span>
-                </span>
-                <div class="flashcard-progress-bar">
-                    <div class="flashcard-progress-fill" id="progressFill" style="width: 0%"></div>
-                </div>
+<div class="ld-screen fc-screen" id="fcScreen" data-fc-state="loading">
+    <div class="ld-stage fc-stage">
+        <!-- Progress -->
+        <div class="ld-bar flashcard-progress-bar" role="presentation"><i class="flashcard-progress-fill" id="progressFill" style="width: 0%"></i></div>
+
+        <!-- Type Tabs -->
+        <div class="ld-seg flashcard-type-tabs" role="group">
+            <button type="button" class="flashcard-type-tab active" data-type="reading" id="tabReading" aria-pressed="true">
+                <i class="fas fa-book-open" aria-hidden="true"></i>
+                <span data-i18n="flashcards.reading">Reading</span>
+            </button>
+            <button type="button" class="flashcard-type-tab" data-type="listening" id="tabListening" aria-pressed="false">
+                <i class="fas fa-headphones" aria-hidden="true"></i>
+                <span data-i18n="flashcards.listening">Listening</span>
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div class="flashcard-loading" id="flashcardLoading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Type Tabs -->
-<div class="container mt-3">
-    <div class="flashcard-type-tabs">
-        <button class="flashcard-type-tab active" data-type="reading" id="tabReading">
-            <i class="fas fa-book-open me-1"></i>
-            <span data-i18n="flashcards.reading">Reading</span>
-        </button>
-        <button class="flashcard-type-tab" data-type="listening" id="tabListening">
-            <i class="fas fa-headphones me-1"></i>
-            <span data-i18n="flashcards.listening">Listening</span>
-        </button>
-    </div>
-</div>
+        <!-- Empty State -->
+        <div class="flashcard-empty ld-fill" id="flashcardEmpty" style="display: none;">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <h2 class="ld-h1" data-i18n="flashcards.no_cards_due">No cards due</h2>
+            <p class="ld-muted" data-i18n-html="flashcards.no_cards_desc">Complete some tests to build your flashcard deck.<br>Cards are created automatically as you learn new words.</p>
+        </div>
 
-<!-- Loading State -->
-<div class="container mt-4 flashcard-loading" id="flashcardLoading">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-</div>
+        <!-- Flashcard -->
+        <div class="flashcard-area ld-fill" id="flashcardArea" style="display: none;">
+            <div class="flashcard-scene" id="flashcardScene">
+                <div class="flashcard" id="flashcard">
 
-<!-- Empty State -->
-<div class="container mt-4 flashcard-empty" id="flashcardEmpty" style="display: none;">
-    <i class="fas fa-check-circle d-block"></i>
-    <h2 class="h5" data-i18n="flashcards.no_cards_due">No cards due</h2>
-    <p data-i18n-html="flashcards.no_cards_desc">Complete some tests to build your flashcard deck.<br>Cards are created automatically as you learn new words.</p>
-    <a href="/tests" class="btn btn-primary mt-3">
-        <i class="fas fa-headphones me-2"></i><span data-i18n="flashcards.browse_tests">Browse Tests</span>
-    </a>
-</div>
+                    <!-- FRONT -->
+                    <div class="flashcard-face flashcard-front">
+                        <div class="flashcard-type-indicator ld-tag" id="cardTypeIndicator">
+                            <i class="fas fa-book-open" id="cardTypeIcon" aria-hidden="true"></i>
+                            <span id="cardTypeLabel" data-i18n="flashcards.reading">Reading</span>
+                        </div>
 
-<!-- Flashcard -->
-<div class="container mt-4 d-flex justify-content-center" id="flashcardArea" style="display: none;">
-    <div class="flashcard-scene" id="flashcardScene">
-        <div class="flashcard" id="flashcard">
+                        <div class="flashcard-content">
+                            <div class="flashcard-word ld-tl" id="frontWord"></div>
+                            <div class="flashcard-pronunciation" id="frontPronunciation"></div>
+                            <div class="flashcard-audio-prompt" id="frontAudio" style="display: none;">
+                                <button class="flashcard-audio-btn" id="playAudioBtn" type="button" data-i18n-aria="flashcards.tap_to_listen" aria-label="Tap to listen">
+                                    <i class="fas fa-volume-up" aria-hidden="true"></i>
+                                </button>
+                                <span class="flashcard-audio-label" data-i18n="flashcards.tap_to_listen">Tap to listen</span>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- FRONT -->
-            <div class="flashcard-face flashcard-front">
-                <div class="flashcard-type-indicator" id="cardTypeIndicator">
-                    <i class="fas fa-book-open" id="cardTypeIcon"></i>
-                    <span id="cardTypeLabel" data-i18n="flashcards.reading">Reading</span>
-                </div>
+                    <!-- BACK -->
+                    <div class="flashcard-face flashcard-back">
+                        <div class="flashcard-type-indicator flashcard-type-indicator--back ld-tag">
+                            <i class="fas fa-lightbulb" aria-hidden="true"></i>
+                            <span data-i18n="flashcards.answer">Answer</span>
+                        </div>
 
-                <div class="flashcard-content">
-                    <div class="flashcard-word" id="frontWord"></div>
-                    <div class="flashcard-pronunciation" id="frontPronunciation"></div>
-                    <div class="flashcard-audio-prompt" id="frontAudio" style="display: none;">
-                        <button class="flashcard-audio-btn" id="playAudioBtn" type="button">
-                            <i class="fas fa-volume-up"></i>
-                        </button>
-                        <span class="flashcard-audio-label" data-i18n="flashcards.tap_to_listen">Tap to listen</span>
+                        <div class="flashcard-content">
+                            <div class="flashcard-answer" id="backAnswer"></div>
+                            <div class="flashcard-context ld-tl" id="backContext"></div>
+                        </div>
                     </div>
                 </div>
-
-                <button class="btn btn-primary flashcard-flip-btn" id="flipBtn" type="button">
-                    <i class="fas fa-sync-alt me-2"></i>
-                    <span data-i18n="flashcards.flip">Flip</span>
-                </button>
             </div>
+        </div>
 
-            <!-- BACK -->
-            <div class="flashcard-face flashcard-back">
-                <div class="flashcard-type-indicator flashcard-type-indicator--back">
-                    <i class="fas fa-lightbulb"></i>
-                    <span data-i18n="flashcards.answer">Answer</span>
-                </div>
-
-                <div class="flashcard-content">
-                    <div class="flashcard-answer" id="backAnswer"></div>
-                    <div class="flashcard-context" id="backContext"></div>
-                </div>
-
-                <div class="flashcard-rating-buttons">
-                    <button class="btn flashcard-rating-btn flashcard-rating-fail" data-rating="1" type="button">
-                        <span class="flashcard-rating-label" data-i18n="flashcards.again">Again</span>
-                        <span class="flashcard-rating-hint" data-i18n="flashcards.fail_hint">&lt; 1 min</span>
-                    </button>
-                    <button class="btn flashcard-rating-btn flashcard-rating-hard" data-rating="2" type="button">
-                        <span class="flashcard-rating-label" data-i18n="flashcards.hard">Hard</span>
-                        <span class="flashcard-rating-hint" data-i18n="flashcards.hard_hint">~10 min</span>
-                    </button>
-                    <button class="btn flashcard-rating-btn flashcard-rating-good" data-rating="3" type="button">
-                        <span class="flashcard-rating-label" data-i18n="flashcards.good">Good</span>
-                        <span class="flashcard-rating-hint" data-i18n="flashcards.good_hint">~1 day</span>
-                    </button>
-                    <button class="btn flashcard-rating-btn flashcard-rating-easy" data-rating="4" type="button">
-                        <span class="flashcard-rating-label" data-i18n="flashcards.easy">Easy</span>
-                        <span class="flashcard-rating-hint" data-i18n="flashcards.easy_hint">~4 days</span>
-                    </button>
-                </div>
+        <!-- Session Complete -->
+        <div class="flashcard-complete ld-fill" id="sessionComplete" style="display: none;">
+            <div class="flashcard-complete-card">
+                <div class="fc-done-wm" id="fcDoneMark" aria-hidden="true"></div>
+                <h2 class="ld-h1" data-i18n="flashcards.session_complete">Session Complete!</h2>
+                <p class="ld-muted" data-i18n="flashcards.session_summary">
+                    You reviewed all cards in this session.
+                </p>
+                <div class="flashcard-stats ld-stats ld-stats--four" id="sessionStats"></div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Keyboard Hints -->
-<div class="flashcard-keyboard-hint" id="keyboardHint" style="display: none;" data-i18n-html="flashcards.keyboard_hint">
-    <kbd>Space</kbd> to flip &middot; <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> to rate
-</div>
+    <!-- Dock: Flip, or the four ratings once flipped; Continue / Browse when done or empty -->
+    <div class="ld-dock fc-dock" id="fcDock">
+        <button class="ld-btn flashcard-flip-btn" id="flipBtn" type="button">
+            <i class="fas fa-sync-alt" aria-hidden="true"></i>
+            <span data-i18n="flashcards.flip">Flip</span>
+        </button>
 
-<!-- Session Complete -->
-<div class="container mt-4" id="sessionComplete" style="display: none;">
-    <div class="flashcard-complete-card text-center">
-        <i class="fas fa-check-circle flashcard-complete-icon"></i>
-        <h2 class="h3" data-i18n="flashcards.session_complete">Session Complete!</h2>
-        <p class="text-slate-500" data-i18n="flashcards.session_summary">
-            You reviewed all cards in this session.
-        </p>
-        <div class="flashcard-stats" id="sessionStats"></div>
-        <div class="mt-4">
-            <a href="/tests" class="btn btn-primary">
-                <i class="fas fa-headphones me-2"></i>
-                <span data-i18n="flashcards.continue_practicing">Continue Practicing</span>
-            </a>
+        <div class="flashcard-rating-buttons" role="group" data-i18n-aria="flashcards.answer" aria-label="Answer">
+            <button class="flashcard-rating-btn flashcard-rating-fail" data-rating="1" type="button">
+                <span class="flashcard-rating-label" data-i18n="flashcards.again">Again</span>
+                <span class="flashcard-rating-hint" data-i18n="flashcards.fail_hint">&lt; 1 min</span>
+            </button>
+            <button class="flashcard-rating-btn flashcard-rating-hard" data-rating="2" type="button">
+                <span class="flashcard-rating-label" data-i18n="flashcards.hard">Hard</span>
+                <span class="flashcard-rating-hint" data-i18n="flashcards.hard_hint">~10 min</span>
+            </button>
+            <button class="flashcard-rating-btn flashcard-rating-good" data-rating="3" type="button">
+                <span class="flashcard-rating-label" data-i18n="flashcards.good">Good</span>
+                <span class="flashcard-rating-hint" data-i18n="flashcards.good_hint">~1 day</span>
+            </button>
+            <button class="flashcard-rating-btn flashcard-rating-easy" data-rating="4" type="button">
+                <span class="flashcard-rating-label" data-i18n="flashcards.easy">Easy</span>
+                <span class="flashcard-rating-hint" data-i18n="flashcards.easy_hint">~4 days</span>
+            </button>
+        </div>
+
+        <a href="/tests" class="ld-btn fc-dock-empty">
+            <i class="fas fa-headphones" aria-hidden="true"></i><span data-i18n="flashcards.browse_tests">Browse Tests</span>
+        </a>
+
+        <a href="/tests" class="ld-btn fc-dock-done">
+            <span data-i18n="flashcards.continue_practicing">Continue Practicing</span>
+        </a>
+
+        <!-- Keyboard Hints (wide screens with a keyboard) -->
+        <div class="flashcard-keyboard-hint ld-hint" id="keyboardHint" style="display: none;" data-i18n-html="flashcards.keyboard_hint">
+            <kbd>Space</kbd> to flip &middot; <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> to rate
         </div>
     </div>
 </div>

@@ -40,10 +40,34 @@ function newTimer() {
 }
 
 const RATINGS = [
-  { value: 1, key: 'session.fc_again', fallback: 'Again', cls: 'btn-outline-danger' },
-  { value: 2, key: 'session.fc_hard', fallback: 'Hard', cls: 'btn-outline-warning' },
-  { value: 3, key: 'session.fc_good', fallback: 'Good', cls: 'btn-outline-success' },
-  { value: 4, key: 'session.fc_easy', fallback: 'Easy', cls: 'btn-outline-primary' },
+  {
+    value: 1,
+    key: 'session.fc_again',
+    fallback: 'Again',
+    cls: 'fc-r1',
+    hint: ['flashcards.fail_hint', '< 1 min'],
+  },
+  {
+    value: 2,
+    key: 'session.fc_hard',
+    fallback: 'Hard',
+    cls: 'fc-r2',
+    hint: ['flashcards.hard_hint', '~10 min'],
+  },
+  {
+    value: 3,
+    key: 'session.fc_good',
+    fallback: 'Good',
+    cls: 'fc-r3',
+    hint: ['flashcards.good_hint', '~1 day'],
+  },
+  {
+    value: 4,
+    key: 'session.fc_easy',
+    fallback: 'Easy',
+    cls: 'fc-r4',
+    hint: ['flashcards.easy_hint', '~4 days'],
+  },
 ];
 
 export function mount(container, ctx) {
@@ -63,14 +87,25 @@ export function mount(container, ctx) {
     },
   });
 
+  // Redesign 2026-11 (session-frame.md): progress + card in a scrolling stage,
+  // Show answer / the four ratings pinned in the dock.
   container.innerHTML = `
-    <div class="session-card"><div class="card"><div class="card-body p-4">
-      <div id="fcBody" class="text-center">
-        <div class="spinner-border" role="status" aria-hidden="true"></div>
+    <div class="ld-screen fc-player">
+      <div class="ld-stage fc-player__stage">
+        <div id="fcBody" class="fc-player__body">
+          <div class="fc-player__spin"><div class="spinner-border" role="status" aria-hidden="true"></div></div>
+        </div>
       </div>
-    </div></div></div>`;
+      <div class="ld-dock fc-player__dock" id="fcActions" hidden></div>
+    </div>`;
 
   const body = () => container.querySelector('#fcBody');
+  const actionsEl = () => container.querySelector('#fcActions');
+  const setDock = (html) => {
+    const a = actionsEl();
+    a.innerHTML = html || '';
+    a.hidden = !html;
+  };
 
   load();
 
@@ -115,17 +150,19 @@ export function mount(container, ctx) {
   function renderUnavailable() {
     if (state.destroyed) return;
     body().innerHTML = `
-      <h2 class="h5 mb-2">${esc(T('session.flashcards_heading', null, 'Flashcards'))}</h2>
-      <p class="text-muted">${esc(
-        T('session.flashcards_unavailable', null, 'Couldn’t load your review cards right now.')
-      )}</p>
-      <a class="btn btn-outline-primary me-2" href="/flashcards/page">${esc(
-        T('session.open_page', null, 'Open page')
-      )}</a>
-      <button class="btn btn-secondary" type="button" data-fc-skip>${esc(
+      <div class="fc-player__msg">
+        <h2 class="ld-h2">${esc(T('session.flashcards_heading', null, 'Flashcards'))}</h2>
+        <p class="ld-muted">${esc(
+          T('session.flashcards_unavailable', null, 'Couldn’t load your review cards right now.')
+        )}</p>
+      </div>`;
+    setDock(`<a class="ld-btn ld-btn--ghost" href="/flashcards/page">${esc(
+      T('session.open_page', null, 'Open page')
+    )}</a>
+      <button class="ld-link ld-link--quiet" type="button" data-fc-skip>${esc(
         T('session.skip_for_now', null, 'Skip for now')
-      )}</button>`;
-    const skip = body().querySelector('[data-fc-skip]');
+      )}</button>`);
+    const skip = container.querySelector('[data-fc-skip]');
     if (skip) skip.onclick = () => ctx.onSkip && ctx.onSkip();
   }
 
@@ -136,40 +173,55 @@ export function mount(container, ctx) {
     eventId = window.ActiveTimer ? window.ActiveTimer.newEventId() : null;
     if (timer) timer.start();
 
+    const progress = T(
+      'session.flashcards_progress',
+      { current: state.index + 1, total: state.cards.length },
+      `Card ${state.index + 1} of ${state.cards.length}`
+    );
+    // The runner header carries "Card n of N" when there is a frame; the
+    // in-stage line is only for hosts without one (no duplicate on /session).
+    const framed = !!(ctx.frame && typeof ctx.frame.setHeader === 'function');
+    if (framed) ctx.frame.setHeader({ subtitle: progress });
+    const pct = Math.round((state.index / state.cards.length) * 100);
     body().innerHTML = `
-      <p class="text-muted small mb-2">${esc(
-        T(
-          'session.flashcards_progress',
-          { current: state.index + 1, total: state.cards.length },
-          `Card ${state.index + 1} of ${state.cards.length}`
-        )
-      )}</p>
-      <h2 class="display-6 mb-3">${esc(card.lemma)}</h2>
-      <div id="fcBack" class="d-none">
-        <p class="text-muted mb-1">${esc(card.pronunciation || '')}</p>
-        <p class="lead mb-2">${esc(card.definition || '')}</p>
-        <p class="fst-italic text-muted">${esc(card.example_sentence || '')}</p>
-      </div>
-      <div id="fcActions" class="mt-3">
-        <button class="btn btn-primary" type="button" data-fc-reveal>${esc(
-          T('session.flashcards_reveal', null, 'Show answer')
-        )}</button>
+      <p class="ld-eyebrow fc-player__prog"${framed ? ' hidden' : ''}>${esc(progress)}</p>
+      <div class="ld-bar" role="presentation"><i style="width:${pct}%"></i></div>
+      <div class="fc-player__card ld-fill" data-fc-card>
+        <h2 class="fc-player__word ld-tl">${esc(card.lemma)}</h2>
+        <p class="fc-player__pron ld-muted">${esc(card.pronunciation || '')}</p>
+        <div id="fcBack" class="fc-player__back d-none">
+          <p class="fc-player__def">${esc(card.definition || '')}</p>
+          <p class="fc-player__ex ld-tl ld-muted">${esc(card.example_sentence || '')}</p>
+        </div>
       </div>`;
+    setDock(
+      `<button class="ld-btn" type="button" data-fc-reveal>${esc(
+        T('session.flashcards_reveal', null, 'Show answer')
+      )}</button>`
+    );
 
-    body().querySelector('[data-fc-reveal]').onclick = reveal;
+    container.querySelector('[data-fc-reveal]').onclick = reveal;
+    // Tapping the card also reveals it (the mockup's flip).
+    const cardEl = body().querySelector('[data-fc-card]');
+    if (cardEl) cardEl.onclick = reveal;
+    const st = container.querySelector('.fc-player__stage');
+    if (st) st.scrollTop = 0;
   }
 
   function reveal() {
     if (state.destroyed || state.revealed) return;
     state.revealed = true;
     body().querySelector('#fcBack').classList.remove('d-none');
-    const actions = body().querySelector('#fcActions');
-    actions.innerHTML = RATINGS.map(
+    const cardEl = body().querySelector('[data-fc-card]');
+    if (cardEl) cardEl.classList.add('is-revealed');
+    const actions = actionsEl();
+    actions.innerHTML = `<div class="fc-rate">${RATINGS.map(
       (r) =>
-        `<button class="btn ${r.cls} me-1 mb-1" type="button" data-fc-rating="${r.value}">${esc(
+        `<button class="fc-rate__btn ${r.cls}" type="button" data-fc-rating="${r.value}">${esc(
           T(r.key, null, r.fallback)
-        )}</button>`
-    ).join('');
+        )}<small>${esc(T(r.hint[0], null, r.hint[1]))}</small></button>`
+    ).join('')}</div>`;
+    actions.hidden = false;
     actions.querySelectorAll('[data-fc-rating]').forEach((btn) => {
       btn.onclick = () => rate(parseInt(btn.dataset.fcRating, 10), actions);
     });
@@ -211,7 +263,9 @@ export function mount(container, ctx) {
   async function finish() {
     if (state.destroyed) return;
     if (reviews.pending) {
-      body().innerHTML = '<div class="spinner-border" role="status" aria-hidden="true"></div>';
+      body().innerHTML =
+        '<div class="fc-player__spin"><div class="spinner-border" role="status" aria-hidden="true"></div></div>';
+      setDock('');
     }
     await reviews.settle();
     if (state.destroyed) return;

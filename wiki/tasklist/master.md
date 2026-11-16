@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-14
+last_updated: 2026-11-16
 ---
 
 # Master Task List
@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 31 |
+| Not Started | 42 |
 | In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 29 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 250 |
+| Done (cumulative, not listed here) | 251 |
+
+*2026-11-16 (mobile redesign built — app shell and design system, ADR-046):* new breakdown [[tasklist/mobile-redesign.tasks]] (TASK-975–988) for every open issue and unverified item the redesign engineers reported. TASK-987 Done (i18n merge, Me page links, hard-coded colours — closed during integration, verified in the tree). TASK-982 (Playwright E2E, needs credentials) and TASK-988 (commit, review, deploy — owner) Blocked. The other 11 Not Started. Counts: Not Started 31→42, Blocked 27→29, Done 250→251.
 
 *2026-11-14 (DT guided self-repair built + integrated, WP-INT):* TASK-952–965 Done (WP-BE + WP-FE), TASK-968 and TASK-969 Done (WP-INT: contract test against the real routes, nine frontend/backend mismatches fixed, real-app browser run over an in-memory DB). TASK-966 (apply `dt_guided_self_repair.sql`, owner decision) and TASK-967 (authenticated E2E on a staging DB) Blocked. New: TASK-971 Not Started (real devices / Safari / screen reader / IME), TASK-972 / TASK-973 / TASK-974 Blocked (native review, re-check evaluation, deploy). TASK-939 and TASK-940 superseded by that breakdown. No task id is duplicated (TASK-970 is dt-taxonomy-v6 only). Counts: Not Started 30→31, Blocked 24→27 (+966, 967, 972, 973, 974; −939, 940), Done 234→250. See [[tasklist/dt-guided-self-repair.tasks]].
 
@@ -1244,6 +1246,26 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-972 | dt-guided-self-repair | Native-speaker review of hint templates and zh/ja UI strings | [?] no reviewer | M | — |
 | TASK-973 | dt-guided-self-repair | Evaluate the one-sentence re-check on real submissions | [?] needs real sessions | M | TASK-966, TASK-974 |
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
+
+### Mobile Redesign — App Shell and Design System (ADR-046) — NEW 2026-11-16
+Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[decisions/ADR-046-mobile-app-shell]]. Built in the working tree; not committed, not deployed.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-975 | mobile-redesign | Real-device check — iOS Safari and Android Chrome (dvh, safe areas, keyboard) | [ ] | M | — |
+| TASK-976 | mobile-redesign | Check rendering with the real web fonts | [ ] | S | — |
+| TASK-977 | mobile-redesign | Render the Forest, Inkstone and Still Water themes | [ ] | S | — |
+| TASK-978 | mobile-redesign | Open the bottom sheets, theme dropdown and toast | [ ] | S | — |
+| TASK-979 | mobile-redesign | Check pages with real data against the global restyle | [ ] | M | — |
+| TASK-980 | mobile-redesign | Run the full Python test suite | [ ] | S | — |
+| TASK-981 | mobile-redesign | Measure colour contrast of every theme | [ ] | S | — |
+| TASK-982 | mobile-redesign | Run the Playwright E2E specs | [?] needs credentials | S | — |
+| TASK-983 | mobile-redesign | Clear the remaining lint and format failures | [ ] | S | TASK-988 |
+| TASK-984 | mobile-redesign | Make the preview harness reproducible | [ ] | S | — |
+| TASK-985 | mobile-redesign | Fill the remaining i18n gaps (es `session.dt_repair_heading`; 10 fallback-only keys) | [ ] | XS | — |
+| TASK-986 | mobile-redesign | Regression tests for logout delegation and the study-language chip | [ ] | S | — |
+| TASK-987 | mobile-redesign | Integration requests — i18n merge, Me page links, hard-coded colours | Done | M | — |
+| TASK-988 | mobile-redesign | Commit, review and deploy the redesign | [?] owner | M | TASK-975, TASK-980 |
 
 ### Language Packs (existing — unchanged)
 

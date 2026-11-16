@@ -10,6 +10,14 @@
 //   backHref       adds a "Back" link to the footer and the error state
 //   resultActions  (actionsEl, response, { slug, testData }) => void: fills the
 //                  results card's actions instead of "Next" -> ctx.onComplete
+//   pageHeader     true: the player also fills the task header's title,
+//                  subtitle and seal (the session runner fills those itself)
+// ctx.frame (optional, see session-frame): the task header.
+//
+// Layout (2026-11 redesign): one .ld-screen — the task (.ld-stage: audio card,
+// text box) with Submit pinned in the .ld-dock; then the results in place of
+// it (score, stats, diff) with their actions in the dock. Styles:
+// static/css/redesign/tests.css (.dict-player).
 
 const SPEED_OPTIONS = [1.0, 0.75, 0.5];
 
@@ -24,6 +32,22 @@ import {
 import { prefetchJson, takePrefetch, warmAudio, adoptAudio } from '../prefetch.js';
 
 const t = (key, fallback) => T(key, null, fallback);
+
+// Header seal per study language (the session runner's GLYPHS, for the page).
+const SEALS = { zh: '写', ja: '書' };
+
+/** Text for [data-t] nodes: the translation when the bundle has one, else the English in place. */
+function localize(root) {
+  root.querySelectorAll('[data-t]').forEach((el) => {
+    if (!el.dataset.tEn) el.dataset.tEn = el.textContent;
+    el.textContent = T(el.getAttribute('data-t'), null, el.dataset.tEn);
+  });
+  root.querySelectorAll('[data-t-aria]').forEach((el) => {
+    const en = el.dataset.tAriaEn || el.getAttribute('aria-label') || '';
+    if (!el.dataset.tAriaEn) el.dataset.tAriaEn = en;
+    el.setAttribute('aria-label', T(el.getAttribute('data-t-aria'), null, en));
+  });
+}
 
 const testUrl = (slug) => `/api/tests/test/${slug}?mode=dictation`;
 
@@ -58,6 +82,9 @@ export function mount(container, ctx) {
   const q = (id) => container.querySelector('#' + id);
 
   container.innerHTML = MARKUP;
+  const frame = ctx.frame || null;
+  if (frame) container.querySelector('.dict-player').classList.add('dict-player--framed');
+  localize(container);
   let refreshSubmit = () => {};
   setupSkip();
   setupBack();
@@ -84,6 +111,7 @@ export function mount(container, ctx) {
       showLoading(true);
       if (!state.slug) throw new Error('No test slug');
       await ctx.ready;
+      localize(container);
       state.idempotencyKey =
         window.crypto && crypto.randomUUID
           ? crypto.randomUUID()
@@ -93,9 +121,10 @@ export function mount(container, ctx) {
       setupAudio();
       setupInputHandlers();
 
-      q('dictationHeader').style.display = 'block';
+      q('dictationHeader').style.display = '';
       q('mainUi').style.display = 'block';
-      q('dictActions').style.display = 'block';
+      q('dictActions').style.display = '';
+      fillHeader();
       showLoading(false);
     } catch (err) {
       console.error('Dictation init error:', err);
@@ -124,6 +153,26 @@ export function mount(container, ctx) {
     if (langEl)
       langEl.textContent =
         nativeName(state.testData.language) || state.testData.language_name || '';
+    const code = langCode();
+    if (code) q('dictationInput').setAttribute('lang', code);
+  }
+
+  function langCode() {
+    const code = String((state.testData && state.testData.language) || '').toLowerCase();
+    return { cn: 'zh', jp: 'ja' }[code] || code;
+  }
+
+  // Task header: the session runner fills title / subtitle / seal itself; a
+  // standalone page asks for them (ctx.pageHeader).
+  function fillHeader() {
+    if (!frame || typeof frame.setHeader !== 'function' || !ctx.pageHeader) return;
+    const type = t('dictation.badge', 'Dictation');
+    frame.setHeader({
+      title: (state.testData && state.testData.title) || type,
+      subtitle: [q('testLanguage').textContent, type].filter(Boolean).join(' · '),
+      glyph: SEALS[langCode()] || type.charAt(0),
+      end: '',
+    });
   }
 
   function setupAudio() {
@@ -212,8 +261,8 @@ export function mount(container, ctx) {
     const submitBtn = q('submitBtn');
     submitBtn.disabled = true;
     submitBtn.innerHTML =
-      '<span class="spinner-icon" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin:0 8px 0 0;"></span><span>' +
-      t('dictation.submitting', 'Grading...') +
+      '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span><span>' +
+      escapeHtml(t('dictation.submitting', 'Grading...')) +
       '</span>';
 
     const audio = q('audioElement');
@@ -246,7 +295,7 @@ export function mount(container, ctx) {
       state.isSubmitting = false;
       input.disabled = false;
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>' + t('dictation.submit', 'Submit') + '</span>';
+      submitBtn.innerHTML = '<span>' + escapeHtml(t('dictation.submit', 'Submit')) + '</span>';
     }
   }
 
@@ -274,41 +323,47 @@ export function mount(container, ctx) {
     const replayFactor = result.replay_factor;
     const factorBadge =
       replayFactor !== null && replayFactor !== undefined && replayFactor < 1.0
-        ? `<span class="badge bg-warning text-dark ms-2" title="Replay penalty applied">${replayFactor.toFixed(2)}× ELO</span>`
+        ? `<span class="ld-tag ld-tag--warn" title="${escapeHtml(t('dictation.replay_penalty', 'Replay penalty applied'))}">${replayFactor.toFixed(2)}× ELO</span>`
         : '';
 
     const diffHtml = renderDiff(Array.isArray(result.diff) ? result.diff : []);
 
+    const lang = langCode();
     const html = `
-            <div class="dict-results-card">
-                <div class="dict-results-headline">
-                    <div class="dict-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
-                    <h2 class="h4">${label}</h2>
-                    <p class="text-muted mb-0">${t('dictation.result.accuracy', 'Word Accuracy')}</p>
+            <div class="ld-stage dict-results-card">
+                <div class="dict-score dict-results-headline">
+                    <span class="dict-accuracy ld-num ${grade}">${accuracy.toFixed(1)}%</span>
+                    <div><h2 class="dict-grade mb-0">${escapeHtml(label)}</h2>
+                    <p class="ld-small ld-muted mb-0">${escapeHtml(t('dictation.result.accuracy', 'Word Accuracy'))}</p></div>
                 </div>
-                <div class="dict-stats-grid">
-                    <div class="dict-stat-box"><div class="dict-stat-value">${result.word_correct}/${result.word_total}</div><div class="dict-stat-label">${t('dictation.stat.words', 'Words')}</div></div>
-                    <div class="dict-stat-box"><div class="dict-stat-value">${result.replay_count}</div><div class="dict-stat-label">${t('dictation.replays', 'Plays')}</div></div>
-                    <div class="dict-stat-box"><div class="dict-stat-value">${timeStr}</div><div class="dict-stat-label">${t('dictation.result.time', 'Time')}</div></div>
-                    <div class="dict-stat-box"><div class="dict-stat-value ${eloCls}">${eloSign}${eloChange}${factorBadge}</div><div class="dict-stat-label">ELO</div></div>
+                <div class="ld-stats ld-stats--four dict-stats-grid">
+                    <div class="ld-stat dict-stat-box"><div class="ld-stat__n ld-num dict-stat-value">${result.word_correct}/${result.word_total}</div><small class="dict-stat-label">${escapeHtml(t('dictation.stat.words', 'Words'))}</small></div>
+                    <div class="ld-stat dict-stat-box"><div class="ld-stat__n ld-num dict-stat-value">${result.replay_count}</div><small class="dict-stat-label">${escapeHtml(t('dictation.replays', 'Plays'))}</small></div>
+                    <div class="ld-stat dict-stat-box"><div class="ld-stat__n ld-num dict-stat-value">${timeStr}</div><small class="dict-stat-label">${escapeHtml(t('dictation.result.time', 'Time'))}</small></div>
+                    <div class="ld-stat dict-stat-box"><div class="ld-stat__n ld-num dict-stat-value ${eloCls}">${eloSign}${eloChange}</div><small class="dict-stat-label">ELO${factorBadge}</small></div>
                 </div>
                 <div class="dict-legend">
-                    <span><span class="dict-word dict-word-equal">${t('dictation.result.legend.correct', 'Correct')}</span></span>
-                    <span><span class="dict-word dict-word-replace">${t('dictation.result.legend.wrong', 'Wrong')}</span></span>
-                    <span><span class="dict-word dict-word-delete">${t('dictation.result.legend.missing', 'Missing')}</span></span>
-                    <span><span class="dict-word dict-word-insert">${t('dictation.result.legend.extra', 'Extra')}</span></span>
+                    <span class="dict-word dict-word-equal">${escapeHtml(t('dictation.result.legend.correct', 'Correct'))}</span>
+                    <span class="dict-word dict-word-replace">${escapeHtml(t('dictation.result.legend.wrong', 'Wrong'))}</span>
+                    <span class="dict-word dict-word-delete">${escapeHtml(t('dictation.result.legend.missing', 'Missing'))}</span>
+                    <span class="dict-word dict-word-insert">${escapeHtml(t('dictation.result.legend.extra', 'Extra'))}</span>
                 </div>
-                <div class="dict-diff">${diffHtml}</div>
+                <div class="ld-card"><div class="dict-diff"${lang ? ` lang="${escapeHtml(lang)}"` : ''}>${diffHtml}</div></div>
+            </div>
+            <div class="ld-dock dict-results-dock">
                 <div class="dict-results-actions">
-                    <button class="btn btn-primary" type="button" data-session-next>
-                        <span>${t('session.next_item', 'Next')}</span><i class="fas fa-arrow-right ms-1"></i>
+                    <button class="ld-btn" type="button" data-session-next>
+                        <span>${escapeHtml(t('session.next_item', 'Next'))}</span><i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>`;
 
+    // The results take the task's place (stage + dock), under the same header.
     const overlay = q('resultsOverlay');
     overlay.innerHTML = html;
-    overlay.style.display = 'block';
+    q('mainUi').style.display = 'none';
+    q('dictActions').style.display = 'none';
+    overlay.style.display = '';
     if (typeof ctx.resultActions === 'function') {
       const actions = overlay.querySelector('.dict-results-actions');
       actions.innerHTML = '';
@@ -317,7 +372,8 @@ export function mount(container, ctx) {
       const nextBtn = overlay.querySelector('[data-session-next]');
       if (nextBtn) nextBtn.onclick = () => ctx.onComplete(raw || result);
     }
-    window.scrollTo(0, 0);
+    const stage = overlay.querySelector('.ld-stage');
+    if (stage) stage.scrollTop = 0;
   }
 
   function renderDiff(diff) {
@@ -384,11 +440,15 @@ export function mount(container, ctx) {
       const a = document.createElement('a');
       a.href = ctx.backHref;
       a.className = cls;
-      a.innerHTML = `<i class="fas fa-arrow-left ${gap}"></i><span data-i18n="test.back_to_tests">Back</span>`;
+      a.innerHTML = `<i class="fas fa-arrow-left ${gap}" aria-hidden="true"></i><span data-i18n="test.back_to_tests">Back</span>`;
       return a;
     };
-    q('errorState').querySelector('.alert').appendChild(link('btn btn-danger', 'me-2'));
-    container.querySelector('.dict-actions-row').prepend(link('btn btn-outline-secondary', 'me-1'));
+    q('errorState')
+      .querySelector('.alert')
+      .appendChild(link('ld-btn ld-btn--sm btn-danger', 'me-2'));
+    container
+      .querySelector('.dict-actions-row')
+      .prepend(link('ld-btn ld-btn--ghost dict-back', 'me-1'));
   }
 
   function showError(msg) {
@@ -397,109 +457,59 @@ export function mount(container, ctx) {
 }
 
 // ========================================================================
-// MARKUP — includes scoped styles so the player is self-contained in /session
+// MARKUP — one .ld-screen: the task (#mainUi stage + #dictActions dock), and
+// the results (#resultsOverlay: stage + dock) that replace it. Styles live in
+// static/css/redesign/tests.css (.dict-player), loaded on every page.
 // ========================================================================
 const MARKUP = `
-<style>
-    .dictation-header { background: var(--bg-surface); border-bottom: 2px solid var(--border-default); position: sticky; top: 0; z-index: 40; box-shadow: var(--shadow-sm); }
-    .dictation-container { max-width: 720px; margin: 0 auto; padding: 24px 20px 120px; }
-    .dict-audio-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; }
-    .dict-audio-row { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
-    .dict-play-btn { width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 22px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease, transform .1s ease; }
-    .dict-play-btn:hover { background: var(--primary-hover); }
-    .dict-play-btn:active { transform: scale(.95); }
-    .dict-play-btn:disabled { background: var(--slate-400); cursor: not-allowed; }
-    .dict-speed-btn { padding: 8px 14px; border: 2px solid var(--border-strong); border-radius: 8px; background: var(--bg-surface); font-weight: 600; cursor: pointer; transition: border-color .15s ease; }
-    .dict-speed-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .dict-replay-counter { font-size: 14px; color: var(--text-muted); margin-top: 12px; }
-    .dict-replay-counter.warn { color: var(--warning); font-weight: 600; }
-    .dict-audio-error { margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--danger-bg, #fdecec); color: var(--text-primary); font-size: 14px; }
-    .dict-input-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 20px; }
-    .dict-input { width: 100%; min-height: 200px; padding: 14px; border: 2px solid var(--border-strong); border-radius: 8px; font-size: 16px; line-height: 1.6; font-family: inherit; resize: vertical; background: var(--bg-body); color: var(--text-primary); }
-    .dict-input:focus { outline: none; border-color: var(--primary); }
-    .dict-input:disabled { background: var(--slate-100); color: var(--text-muted); }
-    .dict-char-count { margin-top: 6px; font-size: 12px; color: var(--text-muted); text-align: right; }
-    .dict-actions { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-surface); border-top: 1px solid var(--border-default); padding: 14px 20px; z-index: 50; box-shadow: 0 -2px 8px rgba(0,0,0,.04); }
-    .dict-actions-row { max-width: 720px; margin: 0 auto; display: flex; gap: 12px; align-items: center; }
-    .dict-submit-btn { flex: 1; height: 52px; font-size: 16px; font-weight: 600; background: var(--primary); color: #fff; border: none; border-radius: 10px; cursor: pointer; transition: background .15s ease; }
-    .dict-submit-btn:hover:not(:disabled) { background: var(--primary-hover); }
-    .dict-submit-btn:disabled { background: var(--slate-400); cursor: not-allowed; }
-    .dict-results-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-body); z-index: 60; overflow-y: auto; padding: 20px; }
-    .dict-results-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 28px; max-width: 720px; margin: 0 auto; }
-    .dict-results-headline { text-align: center; margin-bottom: 16px; }
-    .dict-accuracy { font-size: 3.5rem; font-weight: 800; margin: 8px 0; }
-    .dict-accuracy.excellent { color: var(--success); }
-    .dict-accuracy.good { color: #F57C00; }
-    .dict-accuracy.fair { color: var(--warning); }
-    .dict-accuracy.poor { color: var(--danger); }
-    .dict-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin: 20px 0; }
-    .dict-stat-box { background: var(--bg-muted); padding: 12px; border-radius: 8px; text-align: center; }
-    .dict-stat-value { font-size: 1.3rem; font-weight: 700; }
-    .dict-stat-label { font-size: .78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
-    .dict-diff { background: var(--bg-body); border: 1px solid var(--border-default); border-radius: 8px; padding: 16px; line-height: 2; font-size: 16px; margin: 12px 0 20px; }
-    .dict-word { display: inline-block; padding: 2px 4px; margin: 2px 1px; border-radius: 4px; }
-    .dict-word-equal { color: var(--text-primary); }
-    .dict-word-replace { color: var(--danger); text-decoration: line-through; background: rgba(229,57,53,.08); }
-    .dict-word-delete { background: rgba(245,124,0,.10); color: #F57C00; text-decoration: underline dotted; }
-    .dict-word-insert { color: var(--text-muted); font-style: italic; opacity: .7; }
-    .dict-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; margin-bottom: 12px; color: var(--text-muted); }
-    .dict-legend .dict-word { font-size: 13px; padding: 1px 6px; margin: 0; }
-    .dict-results-actions { display: flex; gap: 12px; margin-top: 16px; }
-    .dict-results-actions .btn { flex: 1; }
-    .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.4); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-    .loading-spinner { background: var(--bg-surface); padding: 24px 36px; border-radius: 12px; box-shadow: var(--shadow-lg); text-align: center; }
-    .spinner-icon { border: 3px solid var(--border-default); border-top-color: var(--primary); border-radius: 50%; width: 36px; height: 36px; animation: spin .8s linear infinite; margin: 0 auto 10px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-</style>
-
+<div class="ld-screen dict-player">
 <div id="loadingOverlay" class="loading-overlay" style="display:none;">
-    <div class="loading-spinner"><div class="spinner-icon"></div><p class="mb-0" data-i18n="dictation.loading">Loading...</p></div>
+    <div class="loading-spinner" role="status"><div class="spinner-icon"></div><p class="mb-0" data-i18n="dictation.loading">Loading...</p></div>
 </div>
 
-<div id="errorState" class="container py-5" style="display:none;">
-    <div class="alert alert-danger">
-        <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="dictation.error.title">Error</span></h2>
-        <p id="errorMessage" class="mb-2"></p>
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button>
+<div id="errorState" class="ld-stage" style="display:none;">
+    <div class="alert alert-danger ld-col" role="alert">
+        <h2 class="ld-h2 mb-0"><i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i><span data-i18n="dictation.error.title">Error</span></h2>
+        <p id="errorMessage" class="mb-0"></p>
+        <button class="ld-btn ld-btn--sm ld-btn--ghost" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button>
     </div>
 </div>
 
-<div class="dictation-header" id="dictationHeader" style="display:none;">
-    <div class="container py-3">
-        <div class="row align-items-center">
-            <div class="col"><h1 class="mb-0 h5"><i class="bi bi-keyboard text-primary me-2"></i><span id="testTitle">Dictation</span></h1></div>
-            <div class="col-auto"><span class="badge bg-primary me-2" id="testLanguage"></span><span class="badge bg-info" data-i18n="dictation.badge">Dictation</span></div>
-        </div>
+<div class="dict-main" id="mainUi" style="display:none;">
+<div class="ld-stage dict-stage">
+    <div class="dict-head" id="dictationHeader" style="display:none;">
+        <h1 class="ld-h2 mb-0"><span id="testTitle">Dictation</span></h1>
+        <div class="ld-wrap"><span class="ld-tag" id="testLanguage"></span><span class="ld-tag ld-tag--brand" data-i18n="dictation.badge">Dictation</span></div>
     </div>
-</div>
-
-<div class="dictation-container" id="mainUi" style="display:none;">
-    <div class="dict-audio-card">
+    <div class="dict-audio dict-audio-card">
         <div class="dict-audio-row">
-            <button id="playBtn" class="dict-play-btn" type="button" aria-label="Play"><i class="fas fa-play"></i></button>
-            <button id="speedBtn" class="dict-speed-btn" type="button"><i class="bi bi-speedometer2 me-1"></i><span id="speedLabel">1.0x</span></button>
+            <button id="playBtn" class="dict-play-btn" type="button" aria-label="Play" data-t-aria="test.play_pause"><i class="fas fa-play" aria-hidden="true"></i></button>
+            <div class="dict-replay-counter ld-num" id="replayCounter"><span data-i18n="dictation.replays">Plays</span>: <span id="replayCount">0</span></div>
+            <button id="speedBtn" class="ld-chip ld-num dict-speed-btn" type="button" aria-label="Playback speed" data-t-aria="test.playback_speed"><i class="bi bi-speedometer2" aria-hidden="true"></i><span id="speedLabel">1.0x</span></button>
         </div>
-        <div class="dict-replay-counter" id="replayCounter"><span data-i18n="dictation.replays">Plays</span>: <span id="replayCount">0</span></div>
-        <div id="audioError" class="dict-audio-error" role="alert" style="display:none;">
-            <p class="mb-2" data-i18n="dictation.audio_error">The audio couldn’t load. Check your connection and try again, or skip this one for now.</p>
-            <button id="audioRetry" class="btn btn-sm btn-outline-secondary" type="button" data-i18n="dictation.retry">Retry</button>
-            <button class="btn btn-sm btn-link" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button>
+        <div id="audioError" class="ld-note ld-note--bad dict-audio-error" role="alert" style="display:none;">
+            <p class="mb-0" data-i18n="dictation.audio_error">The audio couldn’t load. Check your connection and try again, or skip this one for now.</p>
+            <button id="audioRetry" class="ld-btn ld-btn--sm ld-btn--ghost" type="button" data-i18n="dictation.retry">Retry</button>
+            <button class="ld-link ld-link--quiet" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button>
         </div>
         <audio id="audioElement" preload="auto"></audio>
     </div>
-    <div class="dict-input-card">
-        <h2 class="mb-2 h6"><i class="bi bi-pencil-square text-primary me-2"></i><span data-i18n="test.type_what_you_hear">Type what you hear</span></h2>
-        <textarea id="dictationInput" class="dict-input" data-i18n-placeholder="test.dictation_placeholder" placeholder="Start typing the text you hear from the audio..." maxlength="5000" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
-        <div class="dict-char-count"><span id="charCount">0</span> / 5000</div>
+    <div class="dict-input-card ld-col">
+        <label class="ld-eyebrow" for="dictationInput" data-i18n="test.type_what_you_hear">Type what you hear</label>
+        <textarea id="dictationInput" class="dict-input" rows="5" data-i18n-placeholder="test.dictation_placeholder" placeholder="Start typing the text you hear from the audio..." maxlength="5000" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+        <div class="dict-char-count ld-num"><span id="charCount">0</span> / 5000</div>
     </div>
+    <p class="ld-hint mb-0" data-t="dictation.submit_hint">Submit unlocks once the audio has played and you have typed something.</p>
+</div>
 </div>
 
-<div class="dict-actions" id="dictActions" style="display:none;">
+<div class="ld-dock dict-actions" id="dictActions" style="display:none;">
     <div class="dict-actions-row">
-        <button id="submitBtn" class="dict-submit-btn" type="button" disabled><span data-i18n="dictation.submit">Submit</span></button>
+        <button id="submitBtn" class="ld-btn dict-submit-btn" type="button" disabled><span data-i18n="dictation.submit">Submit</span></button>
     </div>
-    <div class="text-center mt-2"><button class="btn btn-sm btn-link text-muted" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button></div>
+    <div class="dict-skip-row"><button class="ld-link ld-link--quiet" type="button" data-dict-skip data-i18n="session.skip_for_now">Skip for now</button></div>
 </div>
 
-<div id="resultsOverlay" class="dict-results-overlay" style="display:none;"></div>
+<div id="resultsOverlay" class="ld-screen dict-results" style="display:none;"></div>
+</div>
 `;

@@ -153,6 +153,8 @@ describe('pinyin player', () => {
     expect(posts[0].body.started_at).toBeTruthy();
     expect(posts[0].body.finished_at).toBeTruthy();
 
+    // The results are a screen of their own: stats in the stage, the way on in the dock.
+    expect(container.querySelector('.results-card .ld-dock [data-session-next]')).not.toBeNull();
     expect(container.querySelector('.results-accuracy').textContent).toBe('50.0%');
     expect(container.querySelector('.results-accuracy').classList.contains('poor')).toBe(true);
     const stats = [...container.querySelectorAll('.stat-value')].map((el) => el.textContent);
@@ -192,6 +194,61 @@ describe('pinyin player', () => {
     key('ArrowUp');
     expect(container.querySelector('.char-token.completed')).toBeNull();
   });
+
+  it('the dock tone buttons answer like the keys', async () => {
+    stubFetch(PINYIN);
+    await start(mountPinyin, { slug: 'p1' });
+    const pad = container.querySelector('#tonePad');
+    expect([...pad.querySelectorAll('button')].map((b) => b.dataset.tone)).toEqual([
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+    ]);
+    pad.querySelector('[data-tone="1"]').click(); // wrong (expected 2)
+    expect(container.querySelector('.error-modal')).not.toBeNull();
+    pad.querySelector('[data-tone="2"]').click(); // ignored while paused
+    expect(container.querySelector('.char-token.completed')).toBeNull();
+    key('Enter');
+    pad.querySelector('[data-tone="2"]').click();
+    expect(
+      container.querySelector('.char-token[data-index="0"]').classList.contains('tone-2')
+    ).toBe(true);
+  });
+
+  it('Space on a focused tone button presses that button, not "neutral"', async () => {
+    stubFetch(PINYIN);
+    await start(mountPinyin, { slug: 'p1' });
+    const btn = container.querySelector('#tonePad [data-tone="2"]');
+    btn.focus();
+    btn.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+    expect(container.querySelector('.error-modal')).toBeNull();
+  });
+
+  it('reports the test title and clock to the task header (ctx.frame)', async () => {
+    stubFetch(PINYIN);
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    const frame = { setHeader: vi.fn(), onBack: vi.fn(() => () => {}) };
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    handle = mountPinyin(container, { item: { slug: 'p1' }, onComplete: vi.fn(), frame });
+    await flush();
+    await flush();
+    expect(frame.setHeader).toHaveBeenCalledWith({ subtitle: 'Tones' });
+    expect(container.querySelector('.syl-trainer').classList.contains('is-framed')).toBe(true);
+    vi.advanceTimersByTime(1000);
+    expect(frame.setHeader).toHaveBeenLastCalledWith({ end: expect.stringMatching(/^\d\d:\d\d$/) });
+
+    // Back while the mistake sheet is open closes the sheet and stays.
+    const onBack = frame.onBack.mock.calls[0][0];
+    expect(onBack()).toBe(false);
+    key('ArrowRight'); // wrong
+    expect(container.querySelector('.error-modal')).not.toBeNull();
+    expect(onBack()).toBe(true);
+    expect(container.querySelector('.error-modal')).toBeNull();
+    vi.useRealTimers();
+  });
 });
 
 describe('pitch-accent player', () => {
@@ -199,7 +256,9 @@ describe('pitch-accent player', () => {
     stubFetch(PITCH, { user_elo_change: { change: -3 } });
     const ctx = await start(mountPitch, { slug: 'j1' });
     const q = (id) => container.querySelector('#' + id);
-    expect(document.body.classList.contains('pitch-accent-page')).toBe(true);
+    // Styled by its own root (trainers.css), not a body class.
+    expect(container.querySelector('.syl-trainer--pitch')).not.toBeNull();
+    expect(document.body.classList.contains('pitch-accent-page')).toBe(false);
     expect(container.querySelectorAll('.word-token')).toHaveLength(3);
 
     key('ArrowLeft'); // heiban, wrong (atamadaka)
@@ -236,8 +295,34 @@ describe('pitch-accent player', () => {
 
     container.querySelector('[data-session-next]').click();
     expect(ctx.onComplete).toHaveBeenCalledWith({ accuracy: 50 });
-    handle.destroy();
-    expect(document.body.classList.contains('pitch-accent-page')).toBe(false);
+  });
+
+  it('quick mode: the dock pad answers like the arrow keys and hides in contour mode', async () => {
+    stubFetch(PITCH);
+    await start(mountPitch, { slug: 'j1' });
+    const pad = container.querySelector('#paQuickPad');
+    expect([...pad.querySelectorAll('button')].map((b) => b.dataset.paClass)).toEqual([
+      'heiban',
+      'atamadaka',
+      'nakadaka',
+      'odaka',
+    ]);
+    pad.querySelector('[data-pa-class="atamadaka"]').click(); // right
+    expect(
+      container.querySelector('.word-token[data-index="0"]').classList.contains('cls-atamadaka')
+    ).toBe(true);
+    pad.querySelector('[data-pa-class="odaka"]').click(); // wrong (heiban)
+    expect(container.querySelector('.error-modal')).not.toBeNull();
+    key('Enter');
+
+    container.querySelector('#modeToggle button[data-mode="contour"]').click();
+    expect(pad.hidden).toBe(true);
+    expect(
+      container
+        .querySelector('#modeToggle button[data-mode="contour"]')
+        .getAttribute('aria-pressed')
+    ).toBe('true');
+    expect(container.querySelector('#scratchpad')).not.toBeNull();
   });
 
   it('contour mode: the scratchpad resets after a rejected contour', async () => {
@@ -306,7 +391,7 @@ describe('standalone pages (ctx.standalone)', () => {
     const ctx = standaloneCtx('p9', true);
     await startStandalone(mountPinyin, ctx);
 
-    // The page links its own stylesheet; the session copy is not injected.
+    // Styles come from trainers.css; no copy is injected.
     expect(container.querySelector('style')).toBeNull();
     expect(container.querySelector('#errorState a.btn-danger').getAttribute('href')).toBe('/tests');
     expect(ctx.standalone.prepare).toHaveBeenCalledTimes(1);
@@ -356,11 +441,11 @@ describe('standalone pages (ctx.standalone)', () => {
     expect(window.authFetch).not.toHaveBeenCalled();
   });
 
-  it('the session keeps its own styles, compact markup, Next button and no page extras', async () => {
+  it('the session has compact markup, a Next button and no page extras', async () => {
     stubFetch(PINYIN_TEST, { user_elo_change: { change: 2 } });
     localStorage.setItem('selectedLanguageId', '1');
     await start(mountPinyin, { slug: 'p1' });
-    expect(container.querySelector('style')).not.toBeNull();
+    expect(container.querySelector('style')).toBeNull();
     expect(container.querySelector('#errorState a')).toBeNull();
     expect(container.querySelector('#testLanguage').nextSibling.nodeType).toBe(1);
     key('ArrowRight');

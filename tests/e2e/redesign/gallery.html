@@ -1,0 +1,96 @@
+{# Component gallery for the redesign foundation, served by serve.py at
+   /__preview/components (normal page with tabs) and /__preview/task (the same
+   markup in task mode, with a pinned dock). Not part of the app. #}
+{% extends "base.html" %}
+{% if task %}{% set task_mode = true %}{% endif %}
+{% set defer_base_scripts = true %}
+
+{% block title %}Components | LinguaDojo{% endblock %}
+{% block task_title %}Component gallery{% endblock %}
+{% block task_subtitle %}Task mode · stage scrolls, dock stays{% endblock %}
+{% block task_glyph %}读{% endblock %}
+{% block task_header_end %}2/5{% endblock %}
+{% block task_back_href %}/__preview/components{% endblock %}
+
+{% block content %}
+<div class="{% if task %}ld-stage{% else %}ld-col{% endif %}" lang="en" style="gap: 12px">
+  <div class="ld-strip" style="padding-inline: 0">
+    <span>Daily Session</span>
+    <div class="ld-dots"><i class="is-done"></i><i class="is-done"></i><i class="is-current"></i><i class="is-skipped"></i><i></i></div>
+    <span class="ld-num">2/5</span>
+  </div>
+
+  <section class="ld-hero">
+    <span class="ld-hero__wm" lang="zh">今天</span>
+    <div>
+      <p class="ld-eyebrow">Today’s Study Session</p>
+      <h1 class="ld-h1">3 tests · 2 practice</h1>
+      <p class="ld-hero__sub">5 left today · about 34 min</p>
+    </div>
+    <div class="ld-wrap" lang="zh"><span class="ld-seal">听</span><span class="ld-seal">读</span><span class="ld-seal">写</span></div>
+    <button class="ld-btn" type="button">▶ Start session</button>
+    <button class="ld-link" type="button">Browse tests instead</button>
+  </section>
+
+  <div class="ld-sech"><h2 class="ld-h2">Buttons</h2><span class="ld-small ld-muted">.ld-btn</span></div>
+  <div class="ld-row"><button class="ld-btn" type="button">Primary</button><button class="ld-btn ld-btn--ghost" type="button">Ghost</button></div>
+  <div class="ld-row"><button class="ld-btn ld-btn--ok" type="button">Correct</button><button class="ld-btn" type="button" disabled>Disabled</button></div>
+  <div class="ld-row"><button class="ld-btn ld-btn--sm" type="button">Small</button><button class="ld-btn ld-btn--sm ld-btn--ghost" type="button">Small ghost</button><button class="ld-btn ld-btn--icon ld-btn--ghost" type="button" aria-label="Play">▶</button></div>
+  <div class="ld-row"><button class="btn btn-primary" type="button">Bootstrap primary</button><button class="btn btn-outline-secondary" type="button">Outline</button></div>
+
+  <div class="ld-sech"><h2 class="ld-h2">Chips, tags, seals</h2></div>
+  <div class="ld-chips"><button class="ld-chip is-on" type="button">🎧 Listening</button><button class="ld-chip" type="button">📖 Reading</button><button class="ld-chip" type="button">✍️ Dictation</button><button class="ld-chip" type="button">🀄 Pinyin</button></div>
+  <div class="ld-wrap"><span class="ld-tag">Tag</span><span class="ld-tag ld-tag--brand">New</span><span class="ld-tag ld-tag--warn">Stretch</span><span class="ld-tag ld-tag--ok">✓ Done</span><span class="ld-tag ld-tag--bad">Missed</span><span class="ld-tag ld-tag--info">Retry</span><span class="badge bg-success">badge</span></div>
+
+  <div class="ld-sech"><h2 class="ld-h2">Question</h2></div>
+  <p class="ld-qtext" lang="zh">他们怎么去山脚下？</p>
+  <p class="ld-prompt" lang="zh">虽然很累，<span class="ld-blank">　　</span>风景特别美。</p>
+  <div class="ld-opts" role="radiogroup">
+    <button class="ld-opt" type="button"><span class="ld-opt__key">A</span><span class="ld-tl" lang="zh">坐地铁</span></button>
+    <button class="ld-opt is-selected" type="button" aria-checked="true"><span class="ld-opt__key">B</span><span class="ld-tl" lang="zh">坐公交车<small>by bus</small></span></button>
+    <button class="ld-opt is-correct" type="button"><span class="ld-opt__key">C</span><span class="ld-tl" lang="zh">骑自行车</span></button>
+    <button class="ld-opt is-wrong" type="button"><span class="ld-opt__key">D</span><span class="ld-tl" lang="zh">开车</span></button>
+  </div>
+  <div class="ld-feedback ld-feedback--ok"><b>Correct!</b><span>They meet at the subway station, then take the bus.</span></div>
+  <div class="ld-feedback ld-feedback--bad"><b>Not quite</b><span>The answer is B.</span></div>
+  <div class="ld-feedback ld-feedback--idk"><b>Shown</b><span>Marked as don’t know.</span></div>
+
+  <div class="ld-sech"><h2 class="ld-h2">Progress</h2></div>
+  <div class="ld-bar"><i style="width: 41%"></i></div>
+  <div class="progress"><div class="progress-bar" style="width: 60%"></div></div>
+  <div class="ld-pips"><i class="is-correct"></i><i class="is-correct"></i><i class="is-wrong"></i><i class="is-current"></i><i></i></div>
+
+  <div class="ld-sech"><h2 class="ld-h2">Controls</h2></div>
+  <div class="ld-seg" role="group"><button type="button" aria-pressed="true">Time</button><button type="button" aria-pressed="false">Daily session</button><button type="button" aria-pressed="false">This week</button></div>
+  <div class="ld-card ld-card--list">
+    <div class="ld-set"><span><b>Reviews</b><small>Due first, then ahead of schedule</small></span><button class="ld-switch" type="button" role="switch" aria-checked="true" aria-label="Reviews"></button></div>
+    <a class="ld-set" href="#"><span><b>Study Plan</b><small>Daily minutes, modules</small></span><span class="ld-set__chev" aria-hidden="true">›</span></a>
+    <div class="ld-set"><span><b>Appearance</b></span><div data-ld-mode-picker></div></div>
+  </div>
+  <div data-ld-theme-picker></div>
+  <div data-ld-ui-lang-picker></div>
+  <label class="form-label" for="g-in">Input</label>
+  <input class="form-control" id="g-in" placeholder="Type the missing word">
+  <select class="form-select" aria-label="Select"><option>All levels</option></select>
+
+  <div class="ld-sech"><h2 class="ld-h2">Cards, notes, stats, lists</h2></div>
+  <div class="ld-card ld-col"><b>What LinguaDojo does</b><span class="ld-muted ld-small">Short active exercises.</span></div>
+  <p class="ld-note">An info note.</p>
+  <p class="ld-note ld-note--warn">A warning note.</p>
+  <p class="ld-note ld-note--ok">🎉 Great job!</p>
+  <p class="ld-note ld-note--bad">Something failed.</p>
+  <div class="alert alert-warning">Bootstrap .alert-warning</div>
+  <div class="ld-stats"><div class="ld-stat"><div class="ld-stat__n">1184</div><small>ELO Rating</small></div><div class="ld-stat"><div class="ld-stat__n">12</div><small>Tests Taken</small></div><div class="ld-stat"><div class="ld-stat__n">86</div><small>Minutes</small></div></div>
+  <div class="ld-rowlist">
+    <a class="ld-trow" href="#"><span class="ld-trow__glyph" lang="zh">周</span><span class="ld-trow__mid"><span class="ld-tl" lang="zh" style="font-size: 17px">周末去爬山</span><small>Outdoors · Primary school</small></span><span class="ld-tag ld-tag--brand">New</span></a>
+    <div class="ld-trow is-faded"><span class="ld-seal">卡</span><span class="ld-trow__mid"><b>Flashcards</b><small>− Skipped</small></span><span class="ld-trow__end">ELO 1180</span></div>
+  </div>
+  <div class="ld-row"><button class="ld-btn ld-btn--ghost" type="button" data-bs-toggle="modal" data-bs-target="#reportModal">Open a modal (sheet)</button><button class="ld-btn ld-btn--ghost" type="button" onclick="showToast('Saved', 'success')">Toast</button></div>
+</div>
+{% if task %}
+<div class="ld-dock">
+  <button class="ld-btn" type="button">Check</button>
+  <button class="ld-link ld-link--quiet" type="button">I don’t know</button>
+</div>
+{% endif %}
+{% endblock %}

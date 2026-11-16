@@ -208,6 +208,8 @@
           : DEFAULT_AUTO_MS;
     const l2 = (session && session.l2) || opts.l2 || '';
     const l1 = (session && session.l1) || opts.l1 || '';
+    // The header seal (redesign mockup): 改 / 直 in the study language, none otherwise.
+    const seal = { zh: '改', ja: '直' }[String(l2).toLowerCase().split(/[-_]/)[0]] || '';
 
     const S = {
       mode,
@@ -266,7 +268,8 @@
     scrim.innerHTML = `
       <section class="dtr-sheet" id="dtr-sheet" role="dialog" aria-modal="true" aria-labelledby="dtr-h" data-mode="${mode}">
         <header class="dtr-hd">
-          <button class="dtr-x" id="dtr-close" type="button" data-act="close" aria-label="${esc(tr('dt_repair.close', null, 'Close'))}">${ICON.close}</button>
+          <button class="dtr-x ld-back" id="dtr-close" type="button" data-act="close"><span class="ld-back__chev" aria-hidden="true">‹</span><span>${esc(tr('common.back', null, 'Back'))}</span></button>
+          <div class="dtr-title">${seal ? `<span class="ld-seal dtr-seal" lang="${esc(l2)}" aria-hidden="true">${seal}</span>` : ''}<div class="dtr-title__text"><b>${esc(tr('session.dt_repair_heading', null, 'Fix your sentences'))}</b><small>${esc(mode === 'daily' ? tr('dt_repair.subtitle_daily', null, 'Daily practice') : tr('dt_repair.subtitle_pass', null, 'Before your full feedback'))}</small></div></div>
           <div class="dtr-dots" id="dtr-dots"></div>
         </header>
         <div class="dtr-stage" id="dtr-stage"></div>

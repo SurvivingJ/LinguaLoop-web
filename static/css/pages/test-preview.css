@@ -1,11 +1,67 @@
-/* Test Preview Specific Styles */
+/* Test preview (/test/<slug>/preview) — 2026-11 redesign.
+   One screen in task mode: details and type tiles in the stage, Start pinned
+   in the dock (templates/test_preview.html). Tokens only. */
 
-/* Test Type Selector - Custom Radio Buttons */
+.tp-stage {
+  gap: 14px;
+}
+
+.tp-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 0;
+}
+
+.tp-main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tp-main.d-none {
+  display: none !important;
+}
+
+.tp-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tp-title {
+  font-family: var(--f-cjk);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.tp-tags .ld-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Type tiles: radios styled as the mockup's .mode buttons. */
+.tp-types {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.tp-types legend {
+  float: none;
+  width: auto;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
 .test-type-selector {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .test-type-option {
@@ -21,156 +77,140 @@
 .test-type-label {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px 12px;
-  background: var(--bg-surface);
-  border: 2px solid var(--border-strong);
-  border-radius: 8px;
+  gap: 10px;
+  min-height: 52px;
+  margin: 0;
+  padding: 9px;
+  border-radius: 15px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
   cursor: pointer;
-  transition: var(--transition-fast);
-  font-weight: 500;
-  color: var(--text-secondary);
+  transition:
+    border-color var(--duration-fast),
+    background-color var(--duration-fast);
 }
 
 .test-type-label:hover {
-  border-color: var(--slate-400);
-  background: var(--bg-surface-hover);
+  border-color: var(--line-strong);
 }
 
 .test-type-option input[type='radio']:checked + .test-type-label {
-  border-color: var(--primary);
-  border-width: 3px;
-  background: var(--selected-bg);
-  color: var(--primary);
-  animation: scaleIn 0.15s ease;
+  border-color: var(--brand);
+  background: var(--brand-wash);
 }
 
-.test-type-label i {
-  font-size: 20px;
+.test-type-option input[type='radio']:checked + .test-type-label .tp-seal {
+  background: var(--brand);
+  color: var(--brand-ink);
 }
 
-/* Difficulty Badge */
-.difficulty-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 14px;
+.test-type-option input[type='radio']:focus-visible + .test-type-label {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
 }
 
-.difficulty-badge.t1 {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 2px solid var(--success);
+.tp-seal i {
+  font-size: 1rem;
 }
 
-.difficulty-badge.t2 {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 2px solid var(--info);
-}
-
-.difficulty-badge.t3 {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 2px solid var(--primary);
-}
-
-.difficulty-badge.t4 {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 2px solid var(--warning);
-}
-
-.difficulty-badge.t5 {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 2px solid var(--accent);
-}
-
-.difficulty-badge.t6 {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 2px solid var(--danger);
-}
-
-/* Metadata Icons */
-.metadata-row {
+/* Rating card for the selected type. */
+.tp-rating {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  color: var(--slate-600);
-  font-size: 15px;
-}
-
-.metadata-item {
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 6px;
 }
 
-.metadata-item i {
-  color: var(--slate-500);
-  font-size: 16px;
-}
-
-/* Custom Badge */
-.custom-badge {
-  padding: 4px 10px;
-  background: var(--focus-ring);
-  border: 1px solid var(--primary);
-  border-radius: 4px;
-  color: var(--primary);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Start Button Enhancements */
-.start-test-btn {
-  height: 56px;
-  font-size: 18px;
+.tp-rating__main {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  position: relative;
-  overflow: hidden;
+  justify-content: space-between;
+  gap: 6px 12px;
 }
 
-.start-test-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+/* Difficulty badge: the band's colour, from tokens (mockup: good, good,
+   info, warn, glow, bad). */
+.difficulty-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.difficulty-badge.t1,
+.difficulty-badge.t2 {
+  background: var(--good-wash);
+  color: var(--good);
+}
+
+.difficulty-badge.t3 {
+  background: var(--info-wash);
+  color: var(--info);
+}
+
+.difficulty-badge.t4 {
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+
+.difficulty-badge.t5 {
+  background: var(--glow-wash);
+  color: var(--glow-text);
+}
+
+.difficulty-badge.t6 {
+  background: var(--bad-wash);
+  color: var(--bad);
+}
+
+.tp-study {
+  gap: 4px;
+}
+
+.tp-study[hidden] {
+  display: none;
+}
+
+/* Start (in the dock). */
+.start-test-btn {
+  width: 100%;
 }
 
 .start-test-btn i {
-  font-size: 24px;
+  font-size: 1.25rem;
 }
 
-/* Loading Spinner */
 .spinner-btn {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgb(255 255 255 / 30%);
-  border-top-color: white;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentcolor;
+  border-top-color: transparent;
   border-radius: 50%;
+  vertical-align: -3px;
   animation: spin 0.6s linear infinite;
 }
 
-/* Responsive */
-@media (width <= 768px) {
+@media (width >= 576px) {
   .test-type-selector {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .test-type-label {
+    transition: none;
   }
 
-  .metadata-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+  .spinner-btn {
+    animation-duration: 2s;
   }
 }

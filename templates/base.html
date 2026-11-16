@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# viewport-fit=cover: the shell pads itself with env(safe-area-inset-*). #}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="LinguaDojo — language as discipline. Active practice, honest difficulty, ELO-matched comprehension.">
-    <meta name="theme-color" content="#0E7569">
+    {# Updated to the theme's --bg by theme-manager.js. #}
+    <meta name="theme-color" content="#edf3f1">
+    <meta name="color-scheme" content="light dark">
     <title>{% block title %}LinguaDojo{% endblock %}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,17 +15,16 @@
     <!-- Web fonts never block first paint (latency 2026-11, TASK-933): text
          paints in the fallback stack and swaps when the font arrives
          (display=swap, as before).
-         Inter/Sora/JetBrains Mono cover UI chrome. Noto Sans SC/JP are the
-         guaranteed-render fallback for CJK exercise text (see styles.css
-         :lang(zh)/:lang(ja)) — Microsoft YaHei/PingFang SC/Hiragino Sans etc.
-         only exist if the OS shipped them (Windows/macOS/iOS do; Android and
-         most Linux don't). Their stylesheets are ~90 KB compressed EACH (one
-         @font-face per character-range slice), so only the family for the
-         learner's study language and UI language is requested
-         (window.LinguaFonts.ensure, also called on a UI-language switch). -->
+         Bricolage Grotesque (display) + Instrument Sans (body) are the
+         redesign's UI faces; JetBrains Mono covers tabular figures.
+         CJK families (Noto Sans SC/JP for UI text, Noto Serif SC/JP for
+         target-language text) are ~90 KB of CSS EACH, so only the families
+         for the learner's study language and UI language are requested
+         (window.LinguaFonts in js/pages/base-head.js, also called on a
+         UI-language switch). -->
     <link rel="stylesheet" media="print" onload="this.media='all'"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"></noscript>
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@500;700&family=Noto+Serif+JP:wght@500;700&display=swap"></noscript>
     {# Server data for the scripts below; read by js/pages/base-head.js. #}
     <script type="application/json" id="lingua-boot">{{ {'metadata': lingua_metadata, 'i18nVersions': i18n_versions, 'apiBase': url_for('index')}|tojson }}</script>
     {% if i18n_versions.get('en') %}<link rel="preload" as="fetch" crossorigin href="/static/i18n/en.json?v={{ i18n_versions['en'] }}">{% endif %}
@@ -36,215 +38,139 @@
          every page has them, not only the language picker. -->
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons-1.11.2/bootstrap-icons.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {# Redesign (2026-11): one stylesheet per area, loaded on every page because
+       session players render inside the session page as well as their own. #}
+    {% for area in ('auth', 'session', 'tests', 'prestudy', 'translation', 'trainers', 'settings') %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/redesign/' ~ area ~ '.css') }}">
+    {% endfor %}
 
     {% block extra_css %}{% endblock %}
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>🎓</text></svg>">
 </head>
-<body class="{% block body_class %}bg-slate-50{% endblock %}">
+{#- ---------------------------------------------------------------------
+    App shell switches (set at the top of a child template):
+      hide_navbar        no app bar, no tabs (login, onboarding)
+      hide_footer        no footer (it never shows on phones or in task mode)
+      task_mode          one-task screen: Back-pill header, scrolling stage,
+                         pinned dock, no tabs. Blocks: task_title,
+                         task_subtitle, task_glyph, task_header_end,
+                         task_back_href, dock. See FOUNDATION.md.
+      task_back          'history' = the Back pill goes back in history when
+                         the previous page is ours (else to task_back_href)
+      defer_base_scripts base scripts load with defer
+      load_test_intro    also load js/test-intro.js
+    --------------------------------------------------------------------- -#}
+{%- set _ep = request.endpoint or '' -%}
+{%- set _practice = request.args.get('mode') == 'practice' -%}
+{%- set _tab = 'today' if (_ep == 'study_session_page' and not _practice)
+      else 'practice' if (_ep == 'study_session_page' or _ep in ('flashcards', 'dual_translation_page', 'classifier_drill_page', 'counter_drill_page'))
+      else 'tests' if _ep in ('tests', 'test_preview', 'test_prestudy_page', 'test_page', 'pinyin_test_page', 'pitch_accent_test_page', 'dictation_test_page')
+      else 'me' if _ep in ('profile', 'study_plan_page', 'word_list_page', 'calibration_page', 'language_selection', 'dual_translation_profile_page')
+      else '' -%}
+{%- set _shell = 'ld-task' if task_mode else ('ld-bare' if hide_navbar else 'ld-has-tabs') -%}
+<body class="{% block body_class %}bg-slate-50{% endblock %} ld-body {{ _shell }}"{% if task_back == 'history' %} data-ld-back="history"{% endif %}>
 
-    <a href="#main-content" class="visually-hidden-focusable">Skip to main content</a>
+    <a href="#main-content" class="visually-hidden-focusable ld-skip">Skip to main content</a>
 
     {% if not hide_navbar %}
-    <header class="sticky-top">
-    <nav class="navbar">
-        <div class="container-fluid px-3 px-md-4">
-            <div class="d-flex align-items-center justify-content-between w-100">
+    {# ---- App bar: phones show the study language, Report and the light/dark
+         toggle; wide screens add the primary tabs, the secondary links and the
+         language / theme / account menus. Hidden in task mode. ---- #}
+    <header class="ld-appbar" id="ldAppbar">
+        <div class="ld-appbar__inner">
+            <a href="{{ url_for('study_session_page') }}" class="logo ld-appbar__logo text-decoration-none">LinguaDojo</a>
+            <a href="{{ url_for('language_selection') }}" class="navbar-language-indicator ld-langchip" id="navLanguageIndicator" style="display: none;">
+                <span class="language-flag" id="navLanguageFlag"></span>
+                <span class="language-name" id="navLanguageName"></span>
+                <span class="ld-langchip__caret" aria-hidden="true">▾</span>
+            </a>
 
-                <a href="{{ url_for('index') if current_user else '/' }}" class="logo text-decoration-none">
-                    LinguaDojo
-                </a>
-                <div class="navbar-language-indicator" id="navLanguageIndicator" style="display: none;">
-                    <span class="language-flag" id="navLanguageFlag"></span>
-                    <span class="language-name" id="navLanguageName"></span>
-                </div>
+            <nav class="ld-appbar__nav" aria-label="Main" data-i18n-aria="common.nav.main">
+                <a href="{{ url_for('study_session_page') }}" class="nav-link {% if _tab == 'today' %}active{% endif %}" {% if _tab == 'today' %}aria-current="page"{% endif %} data-i18n="common.nav.daily_session">Daily Session</a>
+                <a href="{{ url_for('study_session_page', mode='practice') }}" class="nav-link {% if _tab == 'practice' %}active{% endif %}" {% if _tab == 'practice' %}aria-current="page"{% endif %} data-i18n="common.nav.practice">Practice</a>
+                <a href="{{ url_for('tests') }}" class="nav-link {% if _tab == 'tests' %}active{% endif %}" {% if _tab == 'tests' %}aria-current="page"{% endif %} data-i18n="common.nav.browse_tests">Browse Tests</a>
+                <a href="{{ url_for('calibration_page') }}" class="nav-link {% if _ep == 'calibration_page' %}active{% endif %}" data-i18n="common.nav.calibration">Calibration</a>
+                <a href="{{ url_for('classifier_drill_page') }}" class="nav-link lang-gate d-none {% if _ep == 'classifier_drill_page' %}active{% endif %}" data-lang-gate="zh" data-i18n="common.nav.classifier_drill">Measure Words</a>
+                <a href="{{ url_for('counter_drill_page') }}" class="nav-link lang-gate d-none {% if _ep == 'counter_drill_page' %}active{% endif %}" data-lang-gate="ja" data-i18n="common.nav.counter_drill">Counters</a>
+            </nav>
 
-                <ul class="nav d-none d-md-flex align-items-center gap-2 mb-0">
-                    <li class="nav-item">
-                        <a href="{{ url_for('study_session_page') }}"
-                           class="nav-link {% if request.endpoint == 'study_session_page' and request.args.get('mode') != 'practice' %}active{% endif %}"
-                           data-i18n="common.nav.daily_session">
-                            Daily Session
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url_for('study_session_page', mode='practice') }}"
-                           class="nav-link {% if request.endpoint == 'study_session_page' and request.args.get('mode') == 'practice' %}active{% endif %}"
-                           data-i18n="common.nav.practice">
-                            Practice
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url_for('language_selection') }}"
-                           class="nav-link {% if request.endpoint == 'language_selection' %}active{% endif %}"
-                           data-i18n="common.nav.language_selection">
-                            Language Selection
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url_for('tests') }}"
-                           class="nav-link {% if request.endpoint == 'test_list' %}active{% endif %}"
-                           data-i18n="common.nav.browse_tests">
-                            Browse Tests
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url_for('calibration_page') }}"
-                           class="nav-link {% if request.endpoint == 'calibration_page' %}active{% endif %}"
-                           data-i18n="common.nav.calibration">
-                            Calibration
-                        </a>
-                    </li>
-                    <li class="nav-item lang-gate d-none" data-lang-gate="zh">
-                        <a href="{{ url_for('classifier_drill_page') }}"
-                           class="nav-link {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
-                           data-i18n="common.nav.classifier_drill">
-                            Measure Words
-                        </a>
-                    </li>
-                    <li class="nav-item lang-gate d-none" data-lang-gate="ja">
-                        <a href="{{ url_for('counter_drill_page') }}"
-                           class="nav-link {% if request.endpoint == 'counter_drill_page' %}active{% endif %}"
-                           data-i18n="common.nav.counter_drill">
-                            Counters
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#reportModal">
-                            <i class="fas fa-flag"></i><span class="d-none d-lg-inline ms-1" data-i18n="common.nav.report">Report</span>
-                        </a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center gap-1">
-                <div class="dropdown d-md-none">
-                    <button class="btn btn-icon" type="button" id="mobileNavBtn"
-                            data-bs-toggle="dropdown" aria-expanded="false"
-                            data-i18n-aria="common.nav.open_menu" aria-label="Open menu">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-md" aria-labelledby="mobileNavBtn">
-                        <li>
-                            <a class="dropdown-item {% if request.endpoint == 'study_session_page' and request.args.get('mode') != 'practice' %}active{% endif %}"
-                               href="{{ url_for('study_session_page') }}" data-i18n="common.nav.daily_session">
-                                Daily Session
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item {% if request.endpoint == 'study_session_page' and request.args.get('mode') == 'practice' %}active{% endif %}"
-                               href="{{ url_for('study_session_page', mode='practice') }}" data-i18n="common.nav.practice">
-                                Practice
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item {% if request.endpoint == 'language_selection' %}active{% endif %}"
-                               href="{{ url_for('language_selection') }}" data-i18n="common.nav.language_selection">
-                                Language Selection
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item {% if request.endpoint == 'test_list' %}active{% endif %}"
-                               href="{{ url_for('tests') }}" data-i18n="common.nav.browse_tests">
-                                Browse Tests
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item {% if request.endpoint == 'calibration_page' %}active{% endif %}"
-                               href="{{ url_for('calibration_page') }}" data-i18n="common.nav.calibration">
-                                Calibration
-                            </a>
-                        </li>
-                        <li class="lang-gate d-none" data-lang-gate="zh">
-                            <a class="dropdown-item {% if request.endpoint == 'classifier_drill_page' %}active{% endif %}"
-                               href="{{ url_for('classifier_drill_page') }}" data-i18n="common.nav.classifier_drill">
-                                Measure Words
-                            </a>
-                        </li>
-                        <li class="lang-gate d-none" data-lang-gate="ja">
-                            <a class="dropdown-item {% if request.endpoint == 'counter_drill_page' %}active{% endif %}"
-                               href="{{ url_for('counter_drill_page') }}" data-i18n="common.nav.counter_drill">
-                                Counters
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#reportModal">
-                                <i class="fas fa-flag me-2"></i><span data-i18n="common.nav.report">Report</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="dropdown">
+            <div class="ld-appbar__actions">
+                <button type="button" class="btn btn-icon" data-bs-toggle="modal" data-bs-target="#reportModal"
+                        data-i18n-aria="common.nav.report" aria-label="Report">
+                    <i class="fas fa-flag" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-icon ld-phone-only" data-ld-mode-toggle
+                        data-i18n-aria="theme.toggle_dark" aria-label="Switch between light and dark">
+                    <i class="fas fa-moon" aria-hidden="true"></i>
+                </button>
+                <div class="dropdown ld-wide-only">
                     <button class="btn btn-icon" type="button" id="langSwitcherBtn"
-                            data-bs-toggle="dropdown" aria-expanded="false" data-i18n-aria="common.nav.switch_language">
-                        <span class="lang-flag">\uD83C\uDDFA\uD83C\uDDF8</span>
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            data-i18n-aria="common.nav.switch_language" aria-label="Switch language">
+                        <span class="lang-flag">🇺🇸</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-md" id="langSwitcherMenu"
                         aria-labelledby="langSwitcherBtn">
                     </ul>
                 </div>
-                <div class="dropdown">
+                <div class="dropdown ld-wide-only">
                     <button class="btn btn-icon" type="button" id="themeSwitcherBtn"
-                            data-bs-toggle="dropdown" aria-expanded="false" data-i18n-aria="common.nav.switch_theme">
-                        <i class="fas fa-sun"></i>
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            data-i18n-aria="common.nav.switch_theme" aria-label="Switch theme">
+                        <i class="fas fa-palette"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-md" id="themeSwitcherMenu"
-                        aria-labelledby="themeSwitcherBtn">
-                    </ul>
+                    <div class="dropdown-menu dropdown-menu-end shadow-md ld-theme-menu" aria-labelledby="themeSwitcherBtn">
+                        <div class="ld-theme-menu__mode" data-ld-mode-picker></div>
+                        <ul class="list-unstyled mb-0" id="themeSwitcherMenu"></ul>
+                    </div>
                 </div>
-                <div class="dropdown">
-                    <button class="btn btn-icon"
-                            type="button"
-                            id="userMenuButton"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                            aria-label="User menu">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <div class="dropdown ld-wide-only">
+                    <button class="btn btn-icon" type="button" id="userMenuButton"
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            data-i18n-aria="common.nav.user_menu" aria-label="User menu">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
                             <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
                         </svg>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-md" style="border-color: var(--border-default);" aria-labelledby="userMenuButton">
-                        <li>
-                            <a class="dropdown-item" href="/profile">
-                                <svg width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                                </svg>
-                                <span data-i18n="common.nav.profile">Profile</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="/study-plan">
-                                <i class="fas fa-calendar-week me-2"></i>
-                                <span data-i18n="common.nav.study_plan">Study Plan</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="/word-list">
-                                <i class="fas fa-list-check me-2"></i>
-                                <span data-i18n="common.nav.word_list">Word List</span>
-                            </a>
-                        </li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-md" aria-labelledby="userMenuButton">
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fas fa-user me-2" aria-hidden="true"></i><span data-i18n="common.nav.profile">Profile</span></a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('study_plan_page') }}"><i class="fas fa-calendar-week me-2" aria-hidden="true"></i><span data-i18n="common.nav.study_plan">Study Plan</span></a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('word_list_page') }}"><i class="fas fa-list-check me-2" aria-hidden="true"></i><span data-i18n="common.nav.word_list">Word List</span></a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('language_selection') }}"><i class="fas fa-language me-2" aria-hidden="true"></i><span data-i18n="common.nav.language_selection">Language Selection</span></a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
-                            <button class="dropdown-item text-danger" id="logout-btn">
-                                <svg width="16" height="16" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-                                    <path d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
-                                    <path d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
-                                </svg>
-                                <span data-i18n="common.nav.logout">Logout</span>
+                            <button type="button" class="dropdown-item text-danger" id="logout-btn" data-ld-logout>
+                                <i class="fas fa-right-from-bracket me-2" aria-hidden="true"></i><span data-i18n="common.nav.logout">Logout</span>
                             </button>
                         </li>
                     </ul>
                 </div>
-                </div>
             </div>
         </div>
-    </nav>
     </header>
     {% endif %}
 
+    {# ---- Task header: labelled Back pill, title, optional seal glyph and a
+         right-hand slot. Shown only in task mode (body.ld-task); always in the
+         DOM so a page can switch task mode on at runtime (LinguaShell). ---- #}
+    <header class="ld-taskbar" id="ldTaskbar">
+        <a class="ld-back" id="ldBack" href="{% block task_back_href %}{{ url_for('study_session_page') }}{% endblock %}">
+            <span class="ld-back__chev" aria-hidden="true">‹</span><span data-i18n="common.back">Back</span>
+        </a>
+        <div class="ld-taskbar__title">
+            <span class="ld-seal" id="ldTaskGlyph" aria-hidden="true">{% block task_glyph %}{% endblock %}</span>
+            <div class="ld-taskbar__text">
+                <b id="ldTaskTitle">{% block task_title %}{% endblock %}</b>
+                <small id="ldTaskSubtitle">{% block task_subtitle %}{% endblock %}</small>
+            </div>
+        </div>
+        <div class="ld-taskbar__end" id="ldTaskEnd">{% block task_header_end %}{% endblock %}</div>
+    </header>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="container mt-3" role="alert" aria-live="polite">
+            <div class="container ld-flash mt-3" role="alert" aria-live="polite">
                 {% for category, message in messages %}
                     <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                         {{ message }}
@@ -255,12 +181,17 @@
         {% endif %}
     {% endwith %}
 
-    <main id="main-content" class="{% block main_class %}container py-4{% endblock %}">
+    <main id="main-content" class="ld-main {% if task_mode %}ld-main--task{% else %}{% block main_class %}container py-4{% endblock %}{% endif %}">
         {% block content %}{% endblock %}
     </main>
 
+    {# A pinned action dock for task pages: {% block dock %}...{% endblock %}. #}
+    {%- set _dock = self.dock() -%}
+    {% if _dock|trim %}<div class="ld-dock ld-dock--page" id="ldDock">{{ _dock }}</div>{% endif %}
+    {% if false %}{% block dock %}{% endblock %}{% endif %}
+
     {% if not hide_footer %}
-    <footer class="mt-auto py-4 border-top" style="border-color: var(--border-default); background: var(--bg-surface);">
+    <footer class="ld-footer">
         <div class="container">
             <div class="row">
                 <div class="col-md-6 mb-3 mb-md-0">
@@ -275,6 +206,28 @@
             </div>
         </div>
     </footer>
+    {% endif %}
+
+    {% if not hide_navbar %}
+    {# ---- Bottom tab bar (phones; the app bar carries these on wide screens). ---- #}
+    <nav class="ld-tabbar" id="ldTabbar" aria-label="Main" data-i18n-aria="common.nav.main">
+        <a class="ld-tab {% if _tab == 'today' %}is-active{% endif %}" href="{{ url_for('study_session_page') }}" {% if _tab == 'today' %}aria-current="page"{% endif %}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>
+            <span data-i18n="common.nav.tab_today">Today</span>
+        </a>
+        <a class="ld-tab {% if _tab == 'practice' %}is-active{% endif %}" href="{{ url_for('study_session_page', mode='practice') }}" {% if _tab == 'practice' %}aria-current="page"{% endif %}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3m12 0h3M6 7v10M18 7v10M9 12h6"/></svg>
+            <span data-i18n="common.nav.practice">Practice</span>
+        </a>
+        <a class="ld-tab {% if _tab == 'tests' %}is-active{% endif %}" href="{{ url_for('tests') }}" {% if _tab == 'tests' %}aria-current="page"{% endif %}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
+            <span data-i18n="common.nav.tab_tests">Tests</span>
+        </a>
+        <a class="ld-tab {% if _tab == 'me' %}is-active{% endif %}" href="{{ url_for('profile') }}" {% if _tab == 'me' %}aria-current="page"{% endif %}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-5 8-5s6.5 1 8 5"/></svg>
+            <span data-i18n="common.nav.tab_me">Me</span>
+        </a>
+    </nav>
     {% endif %}
 
     {# Pages whose own scripts are all external + deferred set defer_base_scripts;
@@ -321,7 +274,7 @@
             <div class="modal-content">
                 <div class="modal-header border-0">
                     <h5 class="modal-title"><i class="fas fa-flag text-primary me-2"></i><span data-i18n="report.title">Report Issue</span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" data-i18n-aria="common.close" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="reportForm">

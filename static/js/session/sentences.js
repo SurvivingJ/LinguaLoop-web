@@ -196,7 +196,6 @@ export function deriveTokenSpans(sentences, tokenMap) {
   }));
 }
 
-
 /**
  * Render `sentences` into `containerEl` as per-sentence blocks.
  *

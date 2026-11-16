@@ -1,0 +1,1263 @@
+/* Redesign 2026-11 — translation area.
+   Loaded on every page by templates/base.html, after styles.css.
+   Use the design tokens (--bg, --surface, --ink, --brand, ...) and the shared
+   .ld-* components documented in FOUNDATION.md; scope rules to this area's
+   page or player root so they cannot leak into other pages.
+
+   Covers: Dual Translation (page .dt-page, session player .dt-player, the
+   shared error card .dtec), the daily "Fix your sentences" block (.dtr-block;
+   the sheet itself is static/css/dt-repair.css), the error profile
+   (.dtp-page) and flashcards (page .flashcards-page, session player
+   .fc-player). Source of truth: wiki/demos/mobile-redesign-mockup.html. */
+
+/* ================================================================
+   Shared bits
+   ================================================================ */
+
+/* Each scrolling stage is the containing block for absolutely positioned
+   descendants (e.g. the .visually-hidden textarea labels). Without this they
+   resolve against an ancestor outside the stage and, once the stage content
+   is taller than the stage (short viewport, keyboard open), extend the
+   DOCUMENT and make it scroll. */
+.dt-page .dt-stage,
+.dtp-page .dtp-stage,
+.flashcards-page .fc-stage,
+.dt-player .dt-player__stage,
+.fc-player .fc-player__stage,
+.dtr-block .dtr-block__stage {
+  position: relative;
+}
+
+/* Score band colours (the mockup's .b1-.b4). */
+.dt-page .b1 .dt-dim-band,
+.dt-player .b1 .dt-player__n {
+  --dt-band: var(--bad);
+}
+
+.dt-page .b2 .dt-dim-band,
+.dt-player .b2 .dt-player__n {
+  --dt-band: var(--warn);
+}
+
+.dt-page .b3 .dt-dim-band,
+.dt-player .b3 .dt-player__n {
+  --dt-band: var(--info);
+}
+
+.dt-page .b4 .dt-dim-band,
+.dt-player .b4 .dt-player__n {
+  --dt-band: var(--good);
+}
+
+/* Target-language text: the CJK serif under :lang(zh|ja). */
+.dt-page :is(.dt-textarea, .dt-diff, .dt-error-forms, .dt-hl-text, .dt-target-table td):lang(zh),
+.dt-page :is(.dt-textarea, .dt-diff, .dt-error-forms, .dt-hl-text, .dt-target-table td):lang(ja),
+.dt-player :is(.dt-player__input, .ld-tl):lang(zh),
+.dt-player :is(.dt-player__input, .ld-tl):lang(ja),
+.flashcards-page :is(.flashcard-word, .flashcard-context, .flashcard-answer):lang(zh),
+.flashcards-page :is(.flashcard-word, .flashcard-context, .flashcard-answer):lang(ja),
+.fc-player :is(.ld-tl):lang(zh),
+.fc-player :is(.ld-tl):lang(ja) {
+  font-family: var(--f-cjk);
+}
+
+/* ================================================================
+   Dual Translation — standalone page (templates/dual_translation.html)
+   ================================================================ */
+.dt-page .dt-stage {
+  gap: 14px;
+}
+
+.dt-page .dt-loading {
+  padding: 48px 0;
+  text-align: center;
+}
+
+.dt-page .dt-error-box {
+  text-align: center;
+  color: var(--ink-2);
+}
+
+.dt-page .dt-error-box p {
+  margin: 0 0 12px;
+}
+
+.dt-page .dt-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.dt-page .dt-error-actions .ld-btn {
+  flex: 1 1 140px;
+}
+
+/* --- write phase --- */
+.dt-page .dt-reproduce,
+.dt-page .dt-result {
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dt-page .dt-card-label {
+  margin-bottom: 4px;
+}
+
+.dt-page .dt-reference {
+  margin: 0;
+  font-size: 1.03rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+.dt-page details.dt-rubric > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--ink);
+  list-style: none;
+  cursor: pointer;
+}
+
+.dt-page details.dt-rubric > summary::-webkit-details-marker {
+  display: none;
+}
+
+.dt-page details.dt-rubric[open] .dt-rubric-chev {
+  transform: rotate(180deg);
+}
+
+.dt-page .dt-rubric-chev {
+  color: var(--ink-2);
+  transition: transform var(--duration-fast, 0.15s);
+}
+
+.dt-page .dt-rubric-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+
+.dt-page .dt-rubric-row {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.dt-page .dt-rubric-row strong {
+  color: var(--ink);
+}
+
+.dt-page .dt-selfrate-q {
+  margin: 0 0 6px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dt-page .dt-selfrate {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.dt-page .dt-selfrate button {
+  min-height: 48px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: 700 1rem/1 var(--f-body);
+  cursor: pointer;
+}
+
+.dt-page .dt-selfrate button:hover {
+  border-color: var(--line-strong);
+}
+
+.dt-page .dt-selfrate button.selected,
+.dt-page .dt-selfrate button[aria-pressed='true'] {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+  color: var(--brand);
+}
+
+.dt-page .dt-hint {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+
+.dt-page .dt-textarea {
+  display: block;
+  width: 100%;
+  min-height: 112px;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font: 400 1rem/1.6 var(--f-body);
+  outline: none;
+}
+
+.dt-page .dt-textarea:lang(zh),
+.dt-page .dt-textarea:lang(ja) {
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.dt-page .dt-textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.dt-page .dt-textarea::placeholder {
+  color: var(--ink-3);
+}
+
+/* --- result: tabs --- */
+.dt-page .dt-tabs {
+  position: sticky;
+  top: -6px;
+  z-index: 2;
+}
+
+.dt-page .dt-tabs > button {
+  min-height: 44px;
+  white-space: normal;
+  line-height: 1.15;
+}
+
+.dt-page .dt-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dt-page .dt-panel[hidden] {
+  display: none;
+}
+
+/* Scores */
+.dt-page .dt-overall {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dt-page .dt-overall p {
+  margin: 0;
+}
+
+.dt-page .dt-overall-band {
+  font: 800 3.375rem/1 var(--f-display);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.dt-page .dt-dim {
+  align-items: center;
+}
+
+.dt-page .dt-dim.optional {
+  border-style: dashed;
+}
+
+.dt-page .dt-dim-band {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--dt-band, var(--surface-2));
+  color: var(--surface);
+  font: 800 1.125rem/1 var(--f-display);
+}
+
+.dt-page .dt-dim-name {
+  font-size: 0.9375rem;
+}
+
+.dt-page .dt-reveal-btn {
+  align-self: flex-start;
+  padding-inline: 0;
+}
+
+/* Compare */
+.dt-page .dt-diff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  align-items: stretch;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.dt-page .dt-cell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dt-page .dt-cell .dt-top,
+.dt-page .dt-cell .dt-bot {
+  padding: 0 3px;
+  border-radius: 6px;
+}
+
+.dt-page .dt-cell.eq .dt-top {
+  color: var(--ink);
+}
+
+.dt-page .dt-cell.rep .dt-top,
+.dt-page .dt-cell.del .dt-top {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.dt-page .dt-cell.rep .dt-bot,
+.dt-page .dt-cell.ins .dt-bot {
+  color: var(--bad);
+  text-decoration: line-through;
+  font-size: 0.9em;
+}
+
+.dt-page .dt-cell.del .dt-bot,
+.dt-page .dt-cell.ins .dt-top {
+  color: var(--ink-3);
+  font-size: 0.85em;
+}
+
+.dt-page .dt-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.dt-page .dt-legend-ref {
+  color: var(--good);
+}
+
+.dt-page .dt-legend-you {
+  color: var(--bad);
+}
+
+.dt-page .dt-highlights {
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.dt-page .dt-highlights-label {
+  flex-basis: 100%;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.dt-page .dt-highlight {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--good-wash);
+  color: var(--good);
+}
+
+.dt-page .dt-hl-text {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.dt-page .dt-hl-reason {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dt-page .dt-target-words {
+  overflow-x: auto;
+}
+
+.dt-page .dt-target-words-label {
+  margin-bottom: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.dt-page .dt-target-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.dt-page .dt-target-table th {
+  padding: 6px 6px 6px 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ink-2);
+}
+
+.dt-page .dt-target-table td {
+  padding: 8px 6px 8px 0;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+  color: var(--ink);
+}
+
+.dt-page .dt-target-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dt-page .dt-target-status.produced {
+  background: var(--good-wash);
+  color: var(--good);
+}
+
+.dt-page .dt-target-status.variant {
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+
+.dt-page .dt-target-status.omitted {
+  background: var(--bad-wash);
+  color: var(--bad);
+}
+
+.dt-page .dt-target-sub {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--ink-2);
+}
+
+/* Points to notice */
+.dt-page .dt-next-focus .dt-nf-title {
+  font-weight: 700;
+}
+
+.dt-page .dt-next-focus .dt-nf-hint {
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+
+.dt-page .dt-errors {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dt-page .dt-no-errors {
+  margin: 0;
+}
+
+.dt-page .dt-error {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--warn);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.84rem;
+}
+
+.dt-page .dt-error.sev-card-major {
+  border-left-color: var(--glow);
+}
+
+.dt-page .dt-error.sev-card-critical {
+  border-left-color: var(--bad);
+}
+
+.dt-page .dt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dt-page .dt-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.dt-page .dt-chip.sev-minor {
+  background: var(--warn-wash);
+  color: var(--warn);
+}
+
+.dt-page .dt-chip.sev-major {
+  background: var(--glow-wash);
+  color: var(--glow-text);
+}
+
+.dt-page .dt-chip.sev-critical {
+  background: var(--bad-wash);
+  color: var(--bad);
+}
+
+.dt-page .dt-error-forms {
+  font-size: 1.0625rem;
+}
+
+.dt-page .dt-error-forms .dt-learner {
+  color: var(--bad);
+  text-decoration: line-through;
+}
+
+.dt-page .dt-error-forms .dt-arrow {
+  margin: 0 6px;
+  color: var(--ink-3);
+}
+
+.dt-page .dt-error-forms .dt-corrected {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.dt-page .dt-error-expl,
+.dt-page .dt-expl-rule {
+  color: var(--ink);
+}
+
+.dt-page .dt-expl-application {
+  margin-top: 6px;
+  padding-left: 8px;
+  border-left: 3px solid var(--brand);
+  color: var(--ink-2);
+}
+
+.dt-page .dt-reveal-btn.ld-link {
+  min-height: 44px;
+}
+
+.dt-page .dt-drill-btn,
+.dt-page .dt-drill-btn:disabled {
+  align-self: flex-start;
+  border: 1.5px dashed var(--line-strong);
+  background: transparent;
+  color: var(--ink-2);
+}
+
+/* --- dock --- */
+.dt-page .dt-dock[hidden],
+.dt-page .dt-dock [hidden] {
+  display: none;
+}
+
+.dt-page .dt-dock .ld-btn {
+  width: 100%;
+}
+
+/* ================================================================
+   DT error card (static/js/dt-error-card.js) — page, DT player, practice
+   ================================================================ */
+.dtec .dtec-prompt,
+.dtec .dtec-target {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border-left: 3px solid var(--brand);
+  color: var(--ink);
+}
+
+.dtec textarea {
+  font-size: 1rem;
+}
+
+.dtec-actions,
+.dtec-actions > .btn {
+  width: 100%;
+}
+
+.dtec-rate .d-flex {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.dtec-rate .btn {
+  min-height: 48px;
+  padding-inline: 4px;
+}
+
+.dt-errorcard-dock .dtec-rate .dtec-label {
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+/* ================================================================
+   Dual Translation — session player (static/js/session/players/dual_translation.js)
+   ================================================================ */
+.dt-player .dt-player__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dt-player .dt-player__spin {
+  padding: 40px 0;
+  text-align: center;
+}
+
+.dt-player .dt-player__instr,
+.dt-player .dt-player__ref p,
+.dt-player .dt-player__msg p {
+  margin: 0;
+}
+
+.dt-player .dt-player__l1 {
+  margin-top: 4px;
+  font-size: 1.03rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.dt-player .dt-player__input {
+  display: block;
+  width: 100%;
+  min-height: 112px;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font: 400 1rem/1.6 var(--f-body);
+  outline: none;
+}
+
+.dt-player .dt-player__input:lang(zh),
+.dt-player .dt-player__input:lang(ja) {
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.dt-player .dt-player__input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.dt-player .dt-player__msg,
+.dt-player .dt-player__graded {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-top: 24px;
+  text-align: center;
+}
+
+.dt-player .dt-player__score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.dt-player .dt-player__n {
+  font: 800 3.375rem/1 var(--f-display);
+  letter-spacing: -0.03em;
+  color: var(--dt-band, var(--ink));
+}
+
+.dt-player .dt-player__of {
+  font-size: 1.25rem;
+  color: var(--ink-2);
+}
+
+.dt-player .dt-player__words {
+  width: 100%;
+  text-align: left;
+}
+
+.dt-player .dt-player__wordlist {
+  margin: 4px 0 0;
+  padding: 2px 14px;
+  list-style: none;
+}
+
+.dt-player .dt-player__wordlist li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.dt-player .dt-player__wordlist li:first-child {
+  border-top: 0;
+}
+
+.dt-player .dt-player__dock[hidden] {
+  display: none;
+}
+
+/* ================================================================
+   Daily "Fix your sentences" block (static/js/session/players/dt_repair.js)
+   ================================================================ */
+.dtr-block .dtr-block__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: auto 0;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.dtr-block .dtr-block__center p {
+  margin: 0;
+}
+
+.dtr-block .dtr-block__dock[hidden] {
+  display: none;
+}
+
+/* ================================================================
+   Error profile (templates/dual_translation_profile.html)
+   ================================================================ */
+.dtp-page .dtp-intro {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.dtp-page .dtp-loading,
+.dtp-page .dtp-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--ink-2);
+}
+
+.dtp-page .dtp-error {
+  text-align: center;
+}
+
+.dtp-page .dtp-resolved-banner {
+  margin: 0;
+  font-weight: 700;
+}
+
+.dtp-page .dtp-section-label {
+  margin-top: 4px;
+}
+
+.dtp-page .dtp-resolved-section {
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dtp-page .dtp-resolved-section[style*='block'] {
+  display: flex !important;
+}
+
+.dtp-page .dtp-subtype {
+  font-size: 0.9375rem;
+}
+
+.dtp-page .dtp-trend.down {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.dtp-page .dtp-trend.up,
+.dtp-page .dtp-trend.flat {
+  color: var(--ink-2);
+}
+
+.dtp-page .dtp-status {
+  flex: none;
+}
+
+/* ================================================================
+   Flashcards — standalone page (templates/flashcards.html)
+   Overrides the older ".flashcards-page" block in styles.css.
+   ================================================================ */
+.flashcards-page .fc-stage {
+  gap: 12px;
+}
+
+.flashcards-page .flashcard-progress-bar {
+  width: auto;
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: 9px;
+}
+
+.flashcards-page .flashcard-progress-fill {
+  background: var(--brand);
+  border-radius: 9px;
+}
+
+.flashcards-page .flashcard-type-tabs {
+  gap: 0;
+}
+
+.flashcards-page .flashcard-type-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+}
+
+.flashcards-page .flashcard-type-tab:hover {
+  color: var(--ink);
+}
+
+.flashcards-page .flashcard-type-tab.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.flashcards-page .flashcard-loading {
+  padding: 48px 0;
+}
+
+.flashcards-page .flashcard-empty,
+.flashcards-page .flashcard-complete {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 0;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.flashcards-page .flashcard-empty[style*='block'] {
+  display: flex !important;
+}
+
+.flashcards-page .flashcard-empty i {
+  font-size: 2.5rem;
+  color: var(--good);
+  margin: 0;
+}
+
+.flashcards-page .flashcard-empty p,
+.flashcards-page .flashcard-complete-card p {
+  margin: 0;
+}
+
+/* The card fills what the stage has left; never a fixed 420px. */
+.flashcards-page .flashcard-area {
+  flex-direction: column;
+  min-height: 220px;
+}
+
+.flashcards-page .flashcard-scene {
+  flex: 1 1 auto;
+  display: flex;
+  max-width: 520px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.flashcards-page .flashcard {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 220px;
+}
+
+.flashcards-page .flashcard-face {
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-hero);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.flashcards-page .flashcard-type-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 0.6875rem;
+}
+
+.flashcards-page .flashcard-type-indicator--back {
+  background: var(--glow-wash);
+  color: var(--glow-text);
+}
+
+.flashcards-page .flashcard-content {
+  gap: 6px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.flashcards-page .flashcard-word {
+  font: 600 3.125rem/1.1 var(--f-display);
+  color: var(--ink);
+}
+
+.flashcards-page .flashcard-word:lang(zh),
+.flashcards-page .flashcard-word:lang(ja) {
+  font-family: var(--f-cjk);
+  font-weight: 600;
+}
+
+.flashcards-page .flashcard-pronunciation,
+.flashcards-page .flashcard-context,
+.flashcards-page .flashcard-audio-label {
+  color: var(--ink-2);
+}
+
+.flashcards-page .flashcard-answer {
+  margin: 0;
+  font: 700 1.375rem/1.3 var(--f-display);
+  color: var(--ink);
+}
+
+.flashcards-page .flashcard-context {
+  font-size: 1rem;
+}
+
+.flashcards-page .flashcard-audio-btn {
+  width: 72px;
+  height: 72px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 1.75rem;
+}
+
+.flashcards-page .flashcard-audio-btn:hover {
+  box-shadow: 0 0 0 6px var(--brand-wash);
+}
+
+/* Completion */
+.flashcards-page .flashcard-complete-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.flashcards-page .fc-done-wm {
+  margin-bottom: -48px;
+  font: 700 6rem/1 var(--f-cjk);
+  color: var(--brand);
+  opacity: 0.16;
+}
+
+.flashcards-page .fc-done-wm:empty {
+  display: none;
+}
+
+.flashcards-page .flashcard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.flashcards-page .flashcard-stat {
+  text-align: center;
+}
+
+.flashcards-page .flashcard-stat-value {
+  font: 700 1.375rem/1.1 var(--f-display);
+}
+
+.flashcards-page .fc-stat-again .flashcard-stat-value {
+  color: var(--bad);
+}
+
+.flashcards-page .fc-stat-hard .flashcard-stat-value {
+  color: var(--warn);
+}
+
+.flashcards-page .fc-stat-good .flashcard-stat-value {
+  color: var(--good);
+}
+
+.flashcards-page .fc-stat-easy .flashcard-stat-value {
+  color: var(--info);
+}
+
+/* Dock: only the controls for the current state */
+.flashcards-page .fc-dock > * {
+  display: none;
+}
+
+.flashcards-page .fc-screen[data-fc-state='loading'] .fc-dock,
+.flashcards-page .fc-screen[data-fc-state='error'] .fc-dock {
+  display: none;
+}
+
+.flashcards-page .fc-screen[data-fc-state='card'] .flashcard-flip-btn,
+.flashcards-page .fc-screen[data-fc-state='empty'] .fc-dock-empty,
+.flashcards-page .fc-screen[data-fc-state='done'] .fc-dock-done {
+  display: flex;
+}
+
+.flashcards-page .fc-screen[data-fc-state='flipped'] .flashcard-rating-buttons {
+  display: grid;
+}
+
+.flashcards-page .flashcard-flip-btn {
+  align-self: stretch;
+  min-width: 0;
+  margin: 0;
+}
+
+.flashcards-page .flashcard-rating-buttons,
+.fc-player .fc-rate {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 0;
+}
+
+.fc-player .fc-rate {
+  display: grid;
+}
+
+.flashcards-page .flashcard-rating-btn,
+.fc-player .fc-rate__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 4px 2px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font: 700 0.875rem/1.2 var(--f-body);
+  cursor: pointer;
+  transform: none;
+}
+
+.flashcards-page .flashcard-rating-btn:hover,
+.fc-player .fc-rate__btn:hover {
+  border-color: currentcolor;
+  background: var(--surface);
+  transform: none;
+}
+
+.flashcards-page .flashcard-rating-label {
+  font-size: 0.875rem;
+}
+
+.flashcards-page .flashcard-rating-hint,
+.fc-player .fc-rate__btn small {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  opacity: 1;
+}
+
+.flashcards-page .flashcard-rating-fail,
+.flashcards-page .flashcard-rating-fail:hover,
+.fc-player .fc-r1 {
+  color: var(--bad);
+}
+
+.flashcards-page .flashcard-rating-hard,
+.flashcards-page .flashcard-rating-hard:hover,
+.fc-player .fc-r2 {
+  color: var(--warn);
+}
+
+.flashcards-page .flashcard-rating-good,
+.flashcards-page .flashcard-rating-good:hover,
+.fc-player .fc-r3 {
+  color: var(--good);
+}
+
+.flashcards-page .flashcard-rating-easy,
+.flashcards-page .flashcard-rating-easy:hover,
+.fc-player .fc-r4 {
+  color: var(--info);
+}
+
+.flashcards-page .flashcard-rating-btn:disabled,
+.fc-player .fc-rate__btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* Keyboard shortcuts only where there is a keyboard. */
+.flashcards-page .flashcard-keyboard-hint {
+  margin: 0;
+  padding: 0;
+  font-size: 0.75rem;
+}
+
+.flashcards-page
+  .fc-screen:is([data-fc-state='card'], [data-fc-state='flipped'])
+  .flashcard-keyboard-hint:not([style*='none']) {
+  display: block;
+}
+
+@media (pointer: coarse) {
+  .flashcards-page .fc-screen .flashcard-keyboard-hint {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flashcards-page .flashcard,
+  .flashcards-page .flashcard-exit,
+  .flashcards-page .flashcard-enter {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ================================================================
+   Flashcards — session player (static/js/session/players/flashcards.js)
+   ================================================================ */
+.fc-player .fc-player__body {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fc-player .fc-player__spin,
+.fc-player .fc-player__msg {
+  margin: auto 0;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.fc-player .fc-player__msg p,
+.fc-player .fc-player__prog {
+  margin: 0;
+}
+
+.fc-player .fc-player__prog[hidden] {
+  display: none;
+}
+
+.fc-player .fc-player__card {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 180px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-hero);
+  background: var(--surface);
+  color: var(--ink);
+  text-align: center;
+  cursor: pointer;
+}
+
+.fc-player .fc-player__card.is-revealed {
+  cursor: default;
+}
+
+.fc-player .fc-player__card p {
+  margin: 0;
+}
+
+.fc-player .fc-player__word {
+  margin: 0;
+  font: 600 3.125rem/1.1 var(--f-display);
+  overflow-wrap: anywhere;
+}
+
+.fc-player .fc-player__word:lang(zh),
+.fc-player .fc-player__word:lang(ja) {
+  font-family: var(--f-cjk);
+}
+
+.fc-player .fc-player__back {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: ld-rise 0.25s ease-out;
+}
+
+.fc-player .fc-player__back.d-none {
+  display: none;
+}
+
+.fc-player .fc-player__def {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.fc-player .fc-player__dock[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc-player .fc-player__back {
+    animation: none;
+  }
+}
+
+/* ================================================================
+   Desktop: the task column is already capped at 720px by the shell;
+   give the larger type a little more room.
+   ================================================================ */
+@media (width >= 768px) {
+  .dt-page .dt-reference {
+    font-size: 1.125rem;
+  }
+
+  .dt-page .dt-diff {
+    font-size: 1.25rem;
+  }
+}

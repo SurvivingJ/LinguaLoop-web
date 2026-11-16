@@ -1,7 +1,7 @@
 // Standalone test page (/test/<slug>?type=reading|listening): mounts the
 // reading/listening player the daily session uses, with this page's options.
 import { mount } from '../session/players/reading_listening.js';
-import { T, applyI18n } from '../session/dom.js';
+import { T, applyI18n, escapeHtml } from '../session/dom.js';
 
 const params = new URLSearchParams(window.location.search);
 const slug = params.get('slug') || window.location.pathname.split('/').pop();
@@ -37,13 +37,17 @@ function markDailyLoadComplete(testId) {
 }
 
 function finishButton(btn, _result, info) {
+  // The finish action is the primary (brand) button, not Submit's green.
+  btn.classList.remove('ld-btn--ok', 'btn-success');
   if (daily) {
     markDailyLoadComplete(info.testId);
-    btn.innerHTML = '<i class="fas fa-arrow-right me-2"></i>Continue Daily Load';
+    btn.innerHTML =
+      '<i class="fas fa-arrow-right me-2" aria-hidden="true"></i>' +
+      escapeHtml(T('test.continue_daily_load', null, 'Continue Daily Load'));
   } else {
     btn.innerHTML =
-      '<i class="fas fa-arrow-left me-2"></i>' +
-      T('test.back_to_test_list', null, 'Back to Test List');
+      '<i class="fas fa-arrow-left me-2" aria-hidden="true"></i>' +
+      escapeHtml(T('test.back_to_test_list', null, 'Back to Test List'));
   }
   btn.onclick = () => {
     window.location.href = '/tests';
@@ -57,14 +61,14 @@ function addPageMarkup(stage) {
   score.className = 'mb-1';
   score.insertAdjacentHTML(
     'afterend',
-    '<p class="mb-0" data-i18n="test.success_hint">Great job! Use the "Back to Test List" button below to continue practicing.</p>'
+    '<p class="mb-0 ld-small" data-i18n="test.success_hint">Great job! Use the "Back to Test List" button below to continue practicing.</p>'
   );
   stage
     .querySelector('#errorState')
     .insertAdjacentHTML(
       'beforeend',
-      '<button class="btn btn-danger" type="button" data-test-retry><i class="fas fa-redo me-2"></i><span data-i18n="test.retry">Retry</span></button>' +
-        '<a href="/tests" class="btn btn-secondary ms-2"><i class="fas fa-arrow-left me-2"></i><span data-i18n="test.back_to_tests">Back to Tests</span></a>'
+      '<div class="ld-row"><button class="ld-btn ld-btn--sm" type="button" data-test-retry><i class="fas fa-redo me-2" aria-hidden="true"></i><span data-i18n="test.retry">Retry</span></button>' +
+        '<a href="/tests" class="ld-btn ld-btn--sm ld-btn--ghost"><i class="fas fa-arrow-left me-2" aria-hidden="true"></i><span data-i18n="test.back_to_tests">Back to Tests</span></a></div>'
     );
   stage.querySelector('[data-test-retry]').addEventListener('click', () => location.reload());
 }
@@ -81,6 +85,16 @@ function start() {
 
   const stage = document.getElementById('testStage');
   const ready = window.LinguaMetadata.load();
+  // The task header (templates/base.html): the player fills title, subtitle,
+  // seal and the clock through the same frame the session runner passes.
+  const shell = window.LinguaShell;
+  const frame = shell
+    ? {
+        stage,
+        setHeader: (opts) => shell.setTaskHeader(opts || {}),
+        onBack: (fn) => shell.onBack(fn),
+      }
+    : null;
   const player = mount(stage, {
     item: { slug, test_type: type },
     languageId: parseInt(localStorage.getItem('selectedLanguageId')) || 0,
@@ -91,6 +105,8 @@ function start() {
     popoverBackdrop: true,
     resultActions: {},
     finishButton,
+    frame,
+    pageHeader: true,
     onComplete() {},
   });
   addPageMarkup(stage);

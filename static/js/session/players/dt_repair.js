@@ -13,12 +13,21 @@ import { T, escapeHtml as esc } from '../dom.js';
 export function mount(container, ctx) {
   const state = { destroyed: false, sheet: null };
 
+  // Redesign 2026-11 (session-frame.md): stage + dock. The work itself happens
+  // in the full-screen repair sheet; this screen only shows while it loads, or
+  // the "could not load" state with Skip pinned in the dock.
   container.innerHTML = `
-    <div class="session-card"><div class="card"><div class="card-body p-4 text-center">
-      <h2 class="h5 mb-3">${esc(T('session.dt_repair_heading', null, 'Fix your sentences'))}</h2>
-      <div data-dtr-body><div class="spinner-border" role="status" aria-hidden="true"></div></div>
-    </div></div></div>`;
+    <div class="ld-screen dtr-block">
+      <div class="ld-stage dtr-block__stage">
+        <div class="dtr-block__center">
+          <h2 class="ld-h2">${esc(T('session.dt_repair_heading', null, 'Fix your sentences'))}</h2>
+          <div data-dtr-body><div class="spinner-border" role="status" aria-hidden="true"></div></div>
+        </div>
+      </div>
+      <div class="ld-dock dtr-block__dock" data-dtr-dock hidden></div>
+    </div>`;
   const body = () => container.querySelector('[data-dtr-body]');
+  const dock = () => container.querySelector('[data-dtr-dock]');
 
   load();
 
@@ -76,11 +85,12 @@ export function mount(container, ctx) {
   function renderUnavailable() {
     if (state.destroyed) return;
     body().innerHTML = `
-      <p class="text-muted">${esc(T('session.dt_unavailable', null, 'Couldn’t load a translation passage right now.'))}</p>
-      <button class="btn btn-secondary" type="button" data-dtr-skip>${esc(
-        T('session.skip_for_now', null, 'Skip for now')
-      )}</button>`;
-    const skip = body().querySelector('[data-dtr-skip]');
+      <p class="ld-muted">${esc(T('session.dt_unavailable', null, 'Couldn’t load a translation passage right now.'))}</p>`;
+    dock().innerHTML = `<button class="ld-btn" type="button" data-dtr-skip>${esc(
+      T('session.skip_for_now', null, 'Skip for now')
+    )}</button>`;
+    dock().hidden = false;
+    const skip = container.querySelector('[data-dtr-skip]');
     if (skip) skip.onclick = () => ctx.onSkip && ctx.onSkip();
   }
 }

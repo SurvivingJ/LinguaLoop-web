@@ -28,7 +28,17 @@ export const SPACER_MIN_GAP = 2;
 export const TARGETS = { 1: 5, 2: 3, 3: 2, 4: 2 };
 export const CAPS = { 1: 12, 2: 8, 3: 6, 4: 6 };
 export const COLD_MISS_BUMP = 1;
-const KNOWN_FORMATS = new Set(['read_typed', 'read_typed2', 'def_mc', 'rev_mc', 'cloze_mc', 'cloze_typed', 'recall_typed', 'ex_use', 'ex_judge']);
+const KNOWN_FORMATS = new Set([
+  'read_typed',
+  'read_typed2',
+  'def_mc',
+  'rev_mc',
+  'cloze_mc',
+  'cloze_typed',
+  'recall_typed',
+  'ex_use',
+  'ex_judge',
+]);
 
 export function effGap(nWords) {
   return Math.min(MIN_GAP_ITEMS, Math.max(0, nWords - 1));
@@ -50,10 +60,14 @@ export function countWord(stage, attempts, nWords, formats) {
   let lastFmt = null;
   let coldCorrect = null;
   let items = 0;
-  for (const a of attempts.slice().sort((x, y) => x.pos - y.pos).slice(0, cap)) {
+  for (const a of attempts
+    .slice()
+    .sort((x, y) => x.pos - y.pos)
+    .slice(0, cap)) {
     const ok = !!a.correct && !a.idk;
     const g = Number(a.gap);
-    const gap = a.gap == null || !Number.isFinite(g) ? maxGap : Math.min(Math.max(Math.trunc(g), 0), maxGap);
+    const gap =
+      a.gap == null || !Number.isFinite(g) ? maxGap : Math.min(Math.max(Math.trunc(g), 0), maxGap);
     if (items === 0 && stage >= 2) {
       coldCorrect = ok;
       if (!ok) target += COLD_MISS_BUMP;
@@ -86,9 +100,20 @@ export function createDrill(words, opts = {}) {
   order.forEach((idx, k) => {
     const w = words[idx];
     W.set(w.sense_id, {
-      w, target: w.target, cap: w.cap, counted: 0, served: 0, fi: 0,
-      lastFmt: null, lastPos: null, coldPending: !!w.cold, retryFmt: null,
-      nextAt: k, done: false, passed: false, attempts: [],
+      w,
+      target: w.target,
+      cap: w.cap,
+      counted: 0,
+      served: 0,
+      fi: 0,
+      lastFmt: null,
+      lastPos: null,
+      coldPending: !!w.cold,
+      retryFmt: null,
+      nextAt: k,
+      done: false,
+      passed: false,
+      attempts: [],
       distinct: new Set(w.formats).size >= 2,
     });
   });
@@ -114,7 +139,14 @@ export function createDrill(words, opts = {}) {
     const format = x.retryFmt || f[x.fi % f.length];
     // The spacing rule follows the words still being drilled, so the last
     // few words of a block are not held to a gap they cannot reach.
-    return { sid: x.w.sense_id, format, pos, gap: effGap(a.length), word: x.w, retry: !!x.retryFmt };
+    return {
+      sid: x.w.sense_id,
+      format,
+      pos,
+      gap: effGap(a.length),
+      word: x.w,
+      retry: !!x.retryFmt,
+    };
   }
 
   function answer(item, res) {
@@ -133,8 +165,13 @@ export function createDrill(words, opts = {}) {
       counted = true;
     }
     x.attempts.push({
-      pos: item.pos, gap, format: item.format, correct: !!res.correct, idk: !!res.idk,
-      ms: res.ms || null, given: res.given == null ? '' : String(res.given).slice(0, 200),
+      pos: item.pos,
+      gap,
+      format: item.format,
+      correct: !!res.correct,
+      idk: !!res.idk,
+      ms: res.ms || null,
+      given: res.given == null ? '' : String(res.given).slice(0, 200),
       exercise_id: res.exercise_id || null,
     });
     x.lastPos = item.pos;
@@ -160,7 +197,13 @@ export function createDrill(words, opts = {}) {
       done: x.done,
       passed: x.passed,
       result: x.done
-        ? { sense_id: x.w.sense_id, stage: x.w.stage, n_words: words.length, formats: x.w.formats, attempts: x.attempts }
+        ? {
+            sense_id: x.w.sense_id,
+            stage: x.w.stage,
+            n_words: words.length,
+            formats: x.w.formats,
+            attempts: x.attempts,
+          }
         : null,
     };
   }
@@ -189,7 +232,11 @@ export function createDrill(words, opts = {}) {
 // ---------------------------------------------------------------------------
 
 function norm(s) {
-  return String(s || '').normalize('NFKC').trim().toLowerCase().replace(/\s+/g, ' ');
+  return String(s || '')
+    .normalize('NFKC')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
 }
 
 export function gradeReading(input, word, lang) {
@@ -236,7 +283,9 @@ function options(correct, candidates, preferred = []) {
 
 function readingText(word, lang) {
   if (!word.reading) return '';
-  return lang === 'zh' && word.reading.numbered ? `${word.reading.shown} (${word.reading.numbered})` : word.reading.shown;
+  return lang === 'zh' && word.reading.numbered
+    ? `${word.reading.shown} (${word.reading.numbered})`
+    : word.reading.shown;
 }
 
 /** Build the renderable item for an engine pick. */
@@ -261,17 +310,60 @@ export function buildItem(pickd, block, exUsed) {
   switch (pickd.format) {
     case 'read_typed':
     case 'read_typed2':
-      return { kind: 'typed', grade: 'reading', prompt: w.lemma, ask: T('intro.ask_reading', null, 'Type the reading'), hint: lang === 'zh' ? T('intro.pinyin_hint', null, 'pinyin with tone numbers, e.g. mu4 tou5') : T('intro.kana_hint', null, 'kana or romaji') };
+      return {
+        kind: 'typed',
+        grade: 'reading',
+        prompt: w.lemma,
+        ask: T('intro.ask_reading', null, 'Type the reading'),
+        hint:
+          lang === 'zh'
+            ? T('intro.pinyin_hint', null, 'pinyin with tone numbers, e.g. mu4 tou5')
+            : T('intro.kana_hint', null, 'kana or romaji'),
+      };
     case 'recall_typed':
-      return { kind: 'typed', grade: 'recall', prompt: gloss, ask: T('intro.ask_recall', null, 'Type the word for this meaning'), hint: '' };
+      return {
+        kind: 'typed',
+        grade: 'recall',
+        prompt: gloss,
+        ask: T('intro.ask_recall', null, 'Type the word for this meaning'),
+        hint: '',
+      };
     case 'cloze_typed':
-      return { kind: 'typed', grade: 'recall', prompt: w.sentence, sub: gloss, ask: T('intro.ask_cloze_typed', null, 'Type the missing word'), hint: '' };
+      return {
+        kind: 'typed',
+        grade: 'recall',
+        prompt: w.sentence,
+        sub: gloss,
+        ask: T('intro.ask_cloze_typed', null, 'Type the missing word'),
+        hint: '',
+      };
     case 'def_mc':
-      return { kind: 'mc', prompt: w.lemma, sub: readingText(w, lang), ask: T('intro.ask_meaning', null, 'What does it mean?'), opts: options(gloss, defs, sameDefs), correct: gloss };
+      return {
+        kind: 'mc',
+        prompt: w.lemma,
+        sub: readingText(w, lang),
+        ask: T('intro.ask_meaning', null, 'What does it mean?'),
+        opts: options(gloss, defs, sameDefs),
+        correct: gloss,
+      };
     case 'rev_mc':
-      return { kind: 'mc', prompt: gloss, ask: T('intro.ask_word', null, 'Which word means this?'), opts: options(w.lemma, lemmas, sameLemmas), correct: w.lemma, big: true };
+      return {
+        kind: 'mc',
+        prompt: gloss,
+        ask: T('intro.ask_word', null, 'Which word means this?'),
+        opts: options(w.lemma, lemmas, sameLemmas),
+        correct: w.lemma,
+        big: true,
+      };
     case 'cloze_mc':
-      return { kind: 'mc', prompt: w.sentence, ask: T('intro.ask_cloze', null, 'Which word fills the gap?'), opts: options(w.lemma, lemmas, sameLemmas), correct: w.lemma, big: true };
+      return {
+        kind: 'mc',
+        prompt: w.sentence,
+        ask: T('intro.ask_cloze', null, 'Which word fills the gap?'),
+        opts: options(w.lemma, lemmas, sameLemmas),
+        correct: w.lemma,
+        big: true,
+      };
     case 'ex_use':
     case 'ex_judge': {
       const list = (w.exercises || {})[pickd.format === 'ex_use' ? 'use' : 'judge'] || [];
@@ -342,13 +434,30 @@ async function sendResult(result) {
 
 /**
  * Run the drill inside `cardEl`. Resolves with {words, passed} when every word
- * has finished. `setHeader(text)` updates the practice header.
+ * has finished. `setHeader(text)` updates the practice header. With
+ * `opts.dockEl` (the session's pinned dock) the answer controls, feedback and
+ * Next go there and only the question stays in the card; `opts.stageEl` is
+ * scrolled back to the top for each new item.
  */
 export function runIntroDrill(cardEl, block, opts = {}) {
   return new Promise((resolve) => {
     flushStashed();
     const ER = window.ExRenderers;
     const lang = block.lang;
+    const dockEl = opts.dockEl || null;
+    // Controls live in the dock when there is one, else after the question.
+    const paint = (body, controls) => {
+      if (dockEl) {
+        cardEl.innerHTML = body;
+        dockEl.innerHTML = controls;
+      } else {
+        cardEl.innerHTML = body + controls;
+      }
+    };
+    const find = (sel) => cardEl.querySelector(sel) || (dockEl && dockEl.querySelector(sel));
+    const toTop = () => {
+      if (opts.stageEl) opts.stageEl.scrollTop = 0;
+    };
     const words = (block.words || []).filter((w) => w.formats && w.formats.length);
     if (!words.length) {
       resolve({ words: 0, passed: 0 });
@@ -366,7 +475,13 @@ export function runIntroDrill(cardEl, block, opts = {}) {
 
     function header() {
       if (opts.setHeader) {
-        opts.setHeader(T('intro.progress', { n: drill.remaining(), total: words.length }, 'New words — {n} of {total} to go'));
+        opts.setHeader(
+          T(
+            'intro.progress',
+            { n: drill.remaining(), total: words.length },
+            'New words — {n} of {total} to go'
+          )
+        );
       }
     }
 
@@ -374,12 +489,19 @@ export function runIntroDrill(cardEl, block, opts = {}) {
       const p = drill.progress(sid);
       if (!p) return '';
       let h = '';
-      for (let i = 0; i < p.target; i++) h += `<span class="intro-pip${i < p.counted ? ' on' : ''}"></span>`;
-      return `<div class="intro-pips" title="${esc(T('intro.pips_title', null, 'Right answers needed'))}">${h}</div>`;
+      for (let i = 0; i < p.target; i++)
+        h += `<i class="intro-pip${i < p.counted ? ' on is-correct' : ''}"></i>`;
+      const title = esc(T('intro.pips_title', null, 'Right answers needed'));
+      return `<span class="intro-pips ld-pips" role="img" title="${title}" aria-label="${title}: ${p.counted} / ${p.target}">${h}</span>`;
     }
 
     function stageBadge(w) {
-      return `<div class="exercise-type-badge"><i class="fas fa-seedling"></i> ${esc(T('intro.stage', { n: w.stage }, 'New word · session {n} of 4'))}</div>`;
+      return `<span class="intro-stage-tag ld-tag ld-tag--ok"><i class="fas fa-seedling" aria-hidden="true"></i> ${esc(T('intro.stage', { n: w.stage }, 'New word · session {n} of 4'))}</span>`;
+    }
+
+    // Stage tag and the word's "right answers needed" pips on one row.
+    function headRow(w, sid) {
+      return `<div class="intro-head">${stageBadge(w)}${pips(sid)}</div>`;
     }
 
     function step() {
@@ -394,14 +516,21 @@ export function runIntroDrill(cardEl, block, opts = {}) {
       for (let guard = 0; p && guard < 6; guard++) {
         item = buildItem(p, block, exUsed);
         if (item) break;
-        p = { ...p, format: p.word.formats[(p.word.formats.indexOf(p.format) + 1) % p.word.formats.length] };
+        p = {
+          ...p,
+          format: p.word.formats[(p.word.formats.indexOf(p.format) + 1) % p.word.formats.length],
+        };
       }
       if (!p) {
-        cardEl.innerHTML = `<p style="text-align:center;color:var(--text-secondary);padding:32px">${esc(T('intro.saving', null, 'Saving your new words…'))}</p>`;
+        paint(
+          `<p class="ex-message" role="status">${esc(T('intro.saving', null, 'Saving your new words…'))}</p>`,
+          ''
+        );
         Promise.allSettled(sends).then(() => resolve({ words: words.length, passed, usedSpacers }));
         return;
       }
       current = { pick: p, item };
+      toTop();
       shownAt = performance.now();
       if (item.kind === 'ex') renderEx(p, item);
       else renderOwn(p, item);
@@ -421,35 +550,70 @@ export function runIntroDrill(cardEl, block, opts = {}) {
       const rd = readingText(w, lang);
       const line = `<strong>${esc(w.lemma)}</strong>${rd ? ' · ' + esc(rd) : ''} — ${esc(w.gloss)}`;
       const head = ok
-        ? `<i class="fas fa-check-circle" style="color:var(--success)"></i> ${esc(T('intro.right', null, 'Right!'))}`
+        ? `<i class="fas fa-check-circle" aria-hidden="true"></i> ${esc(T('intro.right', null, 'Right!'))}`
         : idk
-          ? `<i class="fas fa-lightbulb" style="color:var(--warning, #d97706)"></i> ${esc(T('intro.idk_shown', null, 'Here it is — it will come back soon.'))}`
-          : `<i class="fas fa-times-circle" style="color:var(--danger)"></i> ${esc(T('intro.wrong', null, 'Not quite.'))}`;
-      const ex = w.example && extra !== 'noex' ? `<div style="margin-top:6px;color:var(--text-secondary)">${esc(w.example)}</div>` : '';
-      return `<div class="exercise-feedback show ${ok ? 'correct' : 'incorrect'}">${head}<div style="margin-top:6px">${line}</div>${ex}</div>`;
+          ? `<i class="fas fa-lightbulb" aria-hidden="true"></i> ${esc(T('intro.idk_shown', null, 'Here it is — it will come back soon.'))}`
+          : `<i class="fas fa-times-circle" aria-hidden="true"></i> ${esc(T('intro.wrong', null, 'Not quite.'))}`;
+      const ex =
+        w.example && extra !== 'noex'
+          ? `<span class="intro-fb-ex ex-tl">${esc(w.example)}</span>`
+          : '';
+      const tone = ok
+        ? 'correct ld-feedback--ok'
+        : idk
+          ? 'incorrect ld-feedback--idk'
+          : 'incorrect ld-feedback--bad';
+      return `<div class="exercise-feedback show ld-feedback ${tone}" role="status"><b>${head}</b><span class="intro-fb-line">${line}</span>${ex}</div>`;
+    }
+
+    // Replace a renderer's #exerciseFeedback slot (card or dock) with `fb`.
+    function placeFeedback(fb) {
+      const slot = find('#exerciseFeedback');
+      if (slot) slot.replaceWith(fb);
+      else (dockEl || cardEl).appendChild(fb);
+      const hint = find('.ex-dock-hint');
+      if (hint) hint.remove();
+      const nb = find('#nextBtn');
+      if (nb) nb.classList.add('show');
     }
 
     function renderOwn(p, item) {
       const w = byId.get(p.sid);
-      const prompt = item.big || item.kind === 'typed' && item.grade === 'recall'
-        ? `<div class="exercise-prompt">${esc(item.prompt)}</div>`
-        : `<div class="exercise-prompt" style="font-size:28px;font-weight:700">${esc(item.prompt)}</div>`;
-      const sub = item.sub ? `<div style="color:var(--text-secondary);margin:-12px 0 16px">${esc(item.sub)}</div>` : '';
+      // The word itself (reading / meaning items) is shown large; sentences and
+      // glosses at reading size. Target-language text (the word, its
+      // sentence) is set in the CJK face; glosses and readings are not.
+      const isWord = !(item.big || (item.kind === 'typed' && item.grade === 'recall'));
+      const glossPrompt = p.format === 'recall_typed' || p.format === 'rev_mc';
+      const prompt = `<div class="exercise-prompt${glossPrompt ? '' : ' ex-tl'}${isWord ? ' intro-word' : ''}">${esc(item.prompt)}</div>`;
+      const sub = item.sub ? `<div class="intro-sub">${esc(item.sub)}</div>` : '';
+      const optTl = item.kind === 'mc' && item.correct === w.lemma ? ' ex-tl' : '';
+      const checkLabel = esc(T('intro.check', null, 'Check'));
       let body;
+      let check = '';
       if (item.kind === 'typed') {
-        body = `<form id="introTypedForm" autocomplete="off" style="display:flex;gap:8px">
-            <input id="introTyped" class="form-control" lang="${esc(lang)}" placeholder="${esc(item.hint || '')}" autocapitalize="off" spellcheck="false" style="flex:1;font-size:18px">
-            <button class="btn btn-primary" type="submit">${esc(T('intro.check', null, 'Check'))}</button></form>`;
+        // The Check button sits in the dock but still submits this form
+        // (form="…"), so Enter in the field keeps working.
+        body = `<form id="introTypedForm" class="intro-typed" autocomplete="off">
+            <input id="introTyped" class="form-control ex-tl" lang="${esc(lang)}" placeholder="${esc(item.hint || '')}" aria-label="${esc(item.ask)}" autocapitalize="off" spellcheck="false">
+            ${dockEl ? '' : `<button class="ld-btn" type="submit">${checkLabel}</button>`}</form>`;
+        if (dockEl)
+          check = `<button class="ld-btn" type="submit" form="introTypedForm" id="introCheck">${checkLabel}</button>`;
       } else {
-        body = `<div class="exercise-options">${item.opts
-          .map((o, i) => `<div class="exercise-option" data-i="${i}"><span class="option-letter">${'ABCD'[i]}</span><span>${esc(o)}</span></div>`)
+        body = `<div class="exercise-options ld-opts">${item.opts
+          .map(
+            (o, i) =>
+              `<button type="button" class="exercise-option ld-opt" data-i="${i}"><span class="option-letter ld-opt__key" aria-hidden="true">${'ABCD'[i]}</span><span class="option-text${optTl}">${esc(o)}</span></button>`
+          )
           .join('')}</div>`;
       }
-      cardEl.innerHTML = `${stageBadge(w)}${pips(p.sid)}
-        <div class="exercise-instruction">${esc(item.ask)}</div>${prompt}${sub}${body}
-        <button class="btn btn-link intro-idk" id="introIdk" type="button">${esc(T('intro.idk', null, "I don't know"))}</button>
+      const idk = `<button class="ld-btn ld-btn--ghost intro-idk" id="introIdk" type="button">${esc(T('intro.idk', null, "I don't know"))}</button>`;
+      paint(
+        `${headRow(w, p.sid)}
+        <div class="exercise-instruction">${esc(item.ask)}</div>${prompt}${sub}${body}`,
+        `<div class="ld-row intro-actions">${idk}${check}</div>
         <div id="introFb"></div>
-        <button class="btn btn-primary exercise-next-btn" id="introNext">${esc(T('exercises.next', null, 'Next'))} <i class="fas fa-arrow-right ms-1"></i></button>`;
+        <button class="ld-btn exercise-next-btn" id="introNext" type="button">${esc(T('exercises.next', null, 'Next'))} <i class="fas fa-arrow-right" aria-hidden="true"></i></button>`
+      );
       let answered = false;
       const done = (ok, idk, given) => {
         if (answered) return;
@@ -461,20 +625,27 @@ export function runIntroDrill(cardEl, block, opts = {}) {
           if (v === item.correct) el.classList.add('correct');
           else if (v === given) el.classList.add('incorrect');
         });
-        const inp = cardEl.querySelector('#introTyped');
+        const inp = find('#introTyped');
         if (inp) inp.disabled = true;
-        cardEl.querySelector('#introIdk').disabled = true;
-        cardEl.querySelector('#introFb').innerHTML = feedback(ok, idk, w);
-        const nx = cardEl.querySelector('#introNext');
+        find('#introIdk').disabled = true;
+        // Answered: the dock holds only the verdict and Next.
+        const actions = find('.intro-actions');
+        if (actions && dockEl) actions.hidden = true;
+        find('#introFb').innerHTML = feedback(ok, idk, w);
+        const nx = find('#introNext');
         nx.classList.add('show');
-        nx.focus();
+        try {
+          nx.focus({ preventScroll: true });
+        } catch {
+          nx.focus();
+        }
       };
-      cardEl.querySelector('#introNext').addEventListener('click', step);
-      cardEl.querySelector('#introIdk').addEventListener('click', () => done(false, true, ''));
+      find('#introNext').addEventListener('click', step);
+      find('#introIdk').addEventListener('click', () => done(false, true, ''));
       if (item.kind === 'typed') {
-        const inp = cardEl.querySelector('#introTyped');
+        const inp = find('#introTyped');
         inp.focus();
-        cardEl.querySelector('#introTypedForm').addEventListener('submit', (e) => {
+        find('#introTypedForm').addEventListener('submit', (e) => {
           e.preventDefault();
           if (answered) {
             step();
@@ -501,21 +672,20 @@ export function runIntroDrill(cardEl, block, opts = {}) {
       usedSpacers += 1;
       let answered = false;
       const started = performance.now();
+      toTop();
       ER.init({
         cardEl,
+        dockEl,
         isAnswered: () => answered,
         setAnswered: (v) => {
           answered = v;
         },
         showFeedback: (ok, expl) => {
           const fb = document.createElement('div');
-          fb.className = `exercise-feedback show ${ok ? 'correct' : 'incorrect'}`;
-          fb.innerHTML = `${esc(T(ok ? 'intro.right' : 'intro.wrong', null, ok ? 'Right!' : 'Not quite.'))}${expl ? `<div style="margin-top:8px">${esc(expl)}</div>` : ''}`;
-          const slot = cardEl.querySelector('#exerciseFeedback');
-          if (slot) slot.replaceWith(fb);
-          else cardEl.appendChild(fb);
-          const nb = cardEl.querySelector('#nextBtn');
-          if (nb) nb.classList.add('show');
+          fb.className = `exercise-feedback show ld-feedback ${ok ? 'correct ld-feedback--ok' : 'incorrect ld-feedback--bad'}`;
+          fb.setAttribute('role', 'status');
+          fb.innerHTML = `<b>${esc(T(ok ? 'intro.right' : 'intro.wrong', null, ok ? 'Right!' : 'Not quite.'))}</b>${expl ? `<div class="ex-expl">${esc(expl)}</div>` : ''}`;
+          placeFeedback(fb);
         },
         submitAttempt: (ok, resp) => {
           if (opts.onSpacer) opts.onSpacer(ex, ok, resp, Math.round(performance.now() - started));
@@ -539,25 +709,29 @@ export function runIntroDrill(cardEl, block, opts = {}) {
       let answered = false;
       ER.init({
         cardEl,
+        dockEl,
         isAnswered: () => answered,
         setAnswered: (v) => {
           answered = v;
         },
         showFeedback: (ok, expl) => {
-          const fb = document.createElement('div');
-          fb.innerHTML = feedback(ok, false, w, 'noex') + (expl ? `<div style="margin-top:8px;font-size:14px">${esc(expl)}</div>` : '');
-          const slot = cardEl.querySelector('#exerciseFeedback');
-          if (slot) slot.replaceWith(fb);
-          else cardEl.appendChild(fb);
-          const nb = cardEl.querySelector('#nextBtn');
-          if (nb) nb.classList.add('show');
+          const tmp = document.createElement('div');
+          tmp.innerHTML = feedback(ok, false, w, 'noex');
+          const fb = tmp.firstElementChild;
+          if (expl) fb.insertAdjacentHTML('beforeend', `<span class="ex-expl">${esc(expl)}</span>`);
+          placeFeedback(fb);
         },
         submitAttempt: (ok, resp) => {
-          finish({ correct: ok, idk: false, given: resp ? JSON.stringify(resp) : '', exercise_id: item.ex.exercise_id });
+          finish({
+            correct: ok,
+            idk: false,
+            given: resp ? JSON.stringify(resp) : '',
+            exercise_id: item.ex.exercise_id,
+          });
         },
         nextExercise: () => step(),
       });
-      const head = stageBadge(w) + pips(p.sid);
+      const head = headRow(w, p.sid);
       try {
         ER.dispatch(item.ex.exercise_type, item.ex, item.ex.content || {}, head);
       } catch (e) {
@@ -571,9 +745,6 @@ export function runIntroDrill(cardEl, block, opts = {}) {
   });
 }
 
-export const INTRO_STYLES = `
-  .intro-pips { display:flex; gap:6px; margin: 0 0 14px; }
-  .intro-pip { width:12px; height:12px; border-radius:50%; background: var(--border-default); }
-  .intro-pip.on { background: var(--success); }
-  .intro-idk { margin-top: 10px; padding-left: 0; color: var(--text-secondary); }
-`;
+// The drill's styles live in static/css/redesign/session.css (.ex-screen
+// .intro-*); kept as an export for hosts that still inject it.
+export const INTRO_STYLES = '';

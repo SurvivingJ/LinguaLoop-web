@@ -220,17 +220,26 @@ describe('classifier drill in the session', () => {
     await startSession(ctx);
 
     expect(calls[0].url).toBe('/api/classifier-drill/session?language_id=1&count=20');
-    expect(container.querySelector('style')).not.toBeNull();
+    // One task screen; styles come from trainers.css.
+    expect(container.querySelector('style')).toBeNull();
+    expect(container.querySelector('.drill-player .ld-stage #cdStage')).not.toBeNull();
+    expect(container.querySelector('.drill-player .ld-dock #cdFeedback')).not.toBeNull();
     expect(q('cdHeader')).toBeNull();
     expect(q('cdControls').style.display).toBe('flex');
     expect(q('cdLevelBadge').textContent).toBe('· MC');
     expect(container.querySelectorAll('.cd-option')).toHaveLength(3);
+    expect(q('cdCheck').hidden).toBe(true);
+    expect(q('cdHint').hidden).toBe(false);
 
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     option('.cd-option', '本').click();
     await settle(400);
     expect(q('cdProgressLabel').textContent).toBe('2');
     expect(q('cdTypedForm').style.display).toBe('block');
+    // The dock's Check submits the typed form.
+    expect(q('cdCheck').hidden).toBe(false);
+    expect(q('cdCheck').getAttribute('form')).toBe('cdTypedForm');
+    expect(q('cdHint').hidden).toBe(true);
 
     q('cdTypedInput').value = '错';
     q('cdTypedForm').dispatchEvent(new Event('submit', { cancelable: true }));
@@ -264,6 +273,7 @@ describe('classifier drill in the session', () => {
     });
     expect(post.headers).toBeUndefined();
     expect(q('cdResults').style.display).toBe('block');
+    expect(container.querySelector('.drill-player').classList.contains('is-results')).toBe(true);
     expect(q('cdControls').style.display).toBe('none');
     expect(q('cdResultsGrade').textContent).toBe('💪');
     expect(q('cdResultsElo').textContent).toContain('+12');
@@ -329,7 +339,8 @@ describe('classifier drill page', () => {
     expect(container.querySelector('style')).toBeNull();
     expect(q('cdControls')).toBeNull();
     expect(q('cdHeader').style.display).toBe('flex');
-    expect(q('cdHeader').querySelector('a').getAttribute('href')).toBe('/tests');
+    // The way back is the page's task header (Back pill), not a link in the strip.
+    expect(q('cdHeader').querySelector('a')).toBeNull();
 
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     option('.cd-option', '本').click();
@@ -350,6 +361,7 @@ describe('classifier drill page', () => {
     await flush();
     expect(calls.filter((c) => c.url.includes('/session?'))).toHaveLength(2);
     expect(q('cdResults').style.display).toBe('none');
+    expect(container.querySelector('.drill-player').classList.contains('is-results')).toBe(false);
     expect(q('cdStage').style.display).toBe('block');
     expect(q('cdProgressLabel').textContent).toBe('1');
 
@@ -396,12 +408,14 @@ describe('counter drill page', () => {
     option('.ct-option', '本').click();
     expect(q('ctFeedback').classList.contains('show')).toBe(true);
     expect(q('ctFeedbackCanonical').textContent).toBe('✓ 鉛筆を一本');
+    expect(q('ctFeedback').classList.contains('is-ok')).toBe(true);
     expect(q('ctFeedbackNumerals').textContent).toMatch(/1本.*いっぽん.*3本.*さんぼん/);
     key('Enter');
 
     // Any counter the dictionary accepts is right, typed or chosen.
     container.querySelector('#ctModeToggle button[data-mode="type"]').click();
     expect(localStorage.getItem('ct_mode')).toBe('type');
+    expect(q('ctCheck').hidden).toBe(false);
     q('ctTypedInput').value = '羽';
     q('ctTypedInput').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     expect(q('ctPromptBlank').classList.contains('correct')).toBe(true);

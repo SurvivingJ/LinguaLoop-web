@@ -1,0 +1,6 @@
+{
+  "GET /api/auth/profile": {"status": 401, "body": {"error": "unauthorized"}},
+  "POST /api/auth/refresh-token": {"status": 401, "body": {"error": "unauthorized"}},
+  "POST /api/auth/device-restore": {"status": 401, "body": {"success": false}},
+  "POST /api/auth/send-otp": {"status": 200, "body": {"success": true}, "delay": 300}
+}

@@ -1,0 +1,218 @@
+{
+  "_comment": "Me hub / profile / study plan / word list fixtures (redesign settings area). Shapes follow routes/users, routes/study_plan and routes/word_list_import.",
+  "GET /api/users/elo": {
+    "ratings": {
+      "zh": {
+        "language_id": 1,
+        "language_name": "Chinese",
+        "native_name": "中文",
+        "skills": {
+          "listening": {
+            "skill_name": "Listening",
+            "test_type_id": 1,
+            "elo_rating": 1184,
+            "tests_taken": 12,
+            "last_test_date": "2026-11-15T10:00:00Z"
+          },
+          "reading": {
+            "skill_name": "Reading",
+            "test_type_id": 2,
+            "elo_rating": 1236,
+            "tests_taken": 9,
+            "last_test_date": "2026-11-14T10:00:00Z"
+          },
+          "dictation": {
+            "skill_name": "Dictation",
+            "test_type_id": 3,
+            "elo_rating": 1102,
+            "tests_taken": 6,
+            "last_test_date": "2026-11-12T10:00:00Z"
+          },
+          "pinyin": {
+            "skill_name": "Pinyin",
+            "test_type_id": 4,
+            "elo_rating": 1160,
+            "tests_taken": 4,
+            "last_test_date": "2026-11-08T10:00:00Z"
+          },
+          "classifier_drill": {
+            "skill_name": "Classifier Drill",
+            "test_type_id": 6,
+            "elo_rating": 1215,
+            "tests_taken": 5,
+            "last_test_date": "2026-11-13T10:00:00Z"
+          }
+        }
+      },
+      "ja": {
+        "language_id": 3,
+        "language_name": "Japanese",
+        "native_name": "日本語",
+        "skills": {
+          "listening": {
+            "skill_name": "Listening",
+            "test_type_id": 1,
+            "elo_rating": 1050,
+            "tests_taken": 3,
+            "last_test_date": "2026-11-10T10:00:00Z"
+          }
+        }
+      }
+    }
+  },
+  "GET /api/tests/history*": {
+    "tests": [
+      {
+        "test_title": "周末去爬山",
+        "created_at": "2026-11-15T10:00:00Z",
+        "test_type_id": 1,
+        "percentage": 80,
+        "score": 4,
+        "total_questions": 5,
+        "user_elo_after": 1184,
+        "elo_reduction_factor": null
+      },
+      {
+        "test_title": "一家新开的咖啡馆",
+        "created_at": "2026-11-13T10:00:00Z",
+        "test_type_id": 1,
+        "percentage": 40,
+        "score": 2,
+        "total_questions": 5,
+        "user_elo_after": 1176,
+        "elo_reduction_factor": 0.5
+      },
+      {
+        "test_title": "地铁里的一天",
+        "created_at": "2026-11-11T10:00:00Z",
+        "test_type_id": 1,
+        "percentage": 60,
+        "score": 3,
+        "total_questions": 5,
+        "user_elo_after": 1170,
+        "elo_reduction_factor": null
+      }
+    ]
+  },
+  "GET /api/users/preferences": {
+    "status": "success",
+    "exercise_preferences": { "script_variant": "simplified" }
+  },
+  "GET /api/study-plan/templates*": {
+    "templates": [
+      {
+        "template_id": 1,
+        "daily_minutes": 30,
+        "is_default": true,
+        "weekly_test_counts": { "reading": 6, "listening": 5, "dictation": 2 }
+      },
+      {
+        "template_id": 2,
+        "daily_minutes": 45,
+        "is_default": false,
+        "weekly_test_counts": { "reading": 8, "listening": 7, "dictation": 3 }
+      },
+      {
+        "template_id": 3,
+        "daily_minutes": 60,
+        "is_default": false,
+        "weekly_test_counts": { "reading": 10, "listening": 9, "dictation": 4 }
+      }
+    ]
+  },
+  "GET /api/study-plan*": {
+    "status": "success",
+    "study_plan_enabled": true,
+    "plan": {
+      "template_id": 1,
+      "daily_minutes": 30,
+      "weekday_shape": [1, 1, 1, 1, 1, 1, 1],
+      "skill_weight_overrides": { "reading": 1.2 },
+      "excluded_modules": ["dual_translation"],
+      "budget_scope": "tests_and_review",
+      "new_words_per_day": 8,
+      "prestudy_mode": "auto"
+    },
+    "available_modules": [
+      "reading",
+      "listening",
+      "dictation",
+      "pinyin",
+      "classifier_drill",
+      "flashcards",
+      "dual_translation",
+      "practice"
+    ],
+    "minutes_per_new_word": 0.6,
+    "typical_day": { "practice_room_min_per_day": 9, "review_min_per_day": 8 },
+    "governor": { "level": "normal", "overdue_items": 0 },
+    "forecast": { "reviews_per_new_word_30d": 6, "item_seconds": 12 },
+    "today_new_words_shortfall": 0,
+    "current_week": {
+      "week_start_date": "2026-11-09",
+      "total_weekly_minutes": 210,
+      "practice_target_minutes": 90,
+      "maintenance_share": 0.4,
+      "acquisition_share": 0.6,
+      "new_words_target": 56,
+      "new_words_completed": 12,
+      "tail_completed_min": 4,
+      "target_counts": { "reading": 6, "listening": 5, "dictation": 2, "pinyin": 1 },
+      "completed_counts": { "reading": 3, "listening": 4, "dictation": 1 }
+    },
+    "weekly_study": {
+      "week_start_date": "2026-11-09",
+      "studied_seconds": 5160,
+      "studied_minutes": 86,
+      "target_minutes": 210,
+      "by_kind": {
+        "test": { "seconds": 2280, "minutes": 38 },
+        "practice": { "seconds": 1620, "minutes": 27 },
+        "flashcard": { "seconds": 480, "minutes": 8 },
+        "dual_translation": { "seconds": 420, "minutes": 7 },
+        "prestudy": { "seconds": 360, "minutes": 6 }
+      }
+    }
+  },
+  "GET /api/word-list/watchlist": {
+    "status": "success",
+    "watchlist": [
+      {
+        "id": 1,
+        "sense_id": 11,
+        "lemma": "几乎",
+        "language_id": 1,
+        "upload_batch_id": "b1",
+        "created_at": "2026-11-12T10:00:00Z",
+        "ladder_exercises_generated": true,
+        "last_matched_test_id": null,
+        "last_matched_at": null,
+        "active": true
+      },
+      {
+        "id": 2,
+        "sense_id": 12,
+        "lemma": "地元",
+        "language_id": 3,
+        "upload_batch_id": "b1",
+        "created_at": "2026-11-10T10:00:00Z",
+        "ladder_exercises_generated": false,
+        "last_matched_test_id": null,
+        "last_matched_at": null,
+        "active": true
+      },
+      {
+        "id": 3,
+        "sense_id": 13,
+        "lemma": null,
+        "language_id": 1,
+        "upload_batch_id": "b0",
+        "created_at": "2026-11-02T10:00:00Z",
+        "ladder_exercises_generated": true,
+        "last_matched_test_id": null,
+        "last_matched_at": null,
+        "active": false
+      }
+    ]
+  }
+}

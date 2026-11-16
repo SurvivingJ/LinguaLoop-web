@@ -1,178 +1,190 @@
-.plan-header {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-  color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-}
+/* /study-plan. Screen layout (stage, tabs, dock) lives in
+   static/css/redesign/settings.css (.sp-page); this file styles the editor's
+   own controls. Tokens only. */
 
-.language-card {
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 2px solid var(--border-default);
-}
-
-.language-card:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
-}
-
-.language-card.active {
-  border-color: var(--primary);
-  background: var(--selected-bg);
-}
-
-.weekday-grid {
+.sp-page .weekday-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
 }
 
-.weekday-cell {
+.sp-page .weekday-cell {
+  min-width: 0;
   text-align: center;
 }
 
-.weekday-cell label {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+.sp-page .weekday-cell label {
   display: block;
-  margin-bottom: 0.25rem;
-}
-
-.weekday-cell input[type='number'] {
-  width: 100%;
-}
-
-.total-tally {
-  font-size: 1.1rem;
+  margin-bottom: 2px;
+  font-size: 0.75rem;
   font-weight: 600;
+  color: var(--ink-2);
 }
 
-.total-tally.warn {
-  color: var(--warning, #d97706);
-}
-
-.week-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-}
-
-.week-stats .stat-tile {
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  padding: 0.75rem;
+.sp-page .weekday-cell input[type='number'] {
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 2px;
   text-align: center;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
 }
 
-.week-stats .stat-tile h4 {
+.sp-page .weekday-cell input[type='number']::-webkit-inner-spin-button,
+.sp-page .weekday-cell input[type='number']::-webkit-outer-spin-button {
   margin: 0;
-  font-size: 1.25rem;
+  appearance: none;
 }
 
-.week-stats .stat-tile small {
-  color: var(--text-secondary);
+.sp-page .total-tally {
+  font-weight: 600;
+  color: var(--ink-2);
 }
 
-.advanced-section {
-  border-top: 1px solid var(--border-default);
-  padding-top: 1rem;
-  margin-top: 1rem;
+.sp-page .total-tally.warn {
+  color: var(--warn);
 }
 
-.skill-override-row {
+.sp-page .week-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 8px;
+}
+
+.sp-page .advanced-section {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.sp-page .skill-override-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 8px;
+  min-height: 44px;
 }
 
-.skill-override-row label {
-  width: 8rem;
+.sp-page .skill-override-row label {
+  width: 6.5rem;
+  flex: none;
+  font-size: 0.875rem;
+  text-transform: capitalize;
 }
 
-.skill-override-row input[type='range'] {
+.sp-page .skill-override-row input[type='range'] {
   flex: 1;
+  min-width: 0;
 }
 
-.skill-override-row .value {
-  width: 3rem;
+.sp-page .skill-override-row .value {
+  width: 2.75rem;
+  flex: none;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-/* Daily session card (Option A: one card, stacked sections) */
-.ds-section h6 {
+/* Daily session sections */
+.sp-page .ds-section h3 {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: 8px;
 }
 
-.ds-num {
+.sp-page .ds-num {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
   border-radius: 50%;
-  background: var(--selected-bg);
-  color: var(--primary);
+  background: var(--brand-wash);
+  color: var(--brand);
   font-size: 0.75rem;
   font-weight: 700;
-  flex-shrink: 0;
 }
 
-.ds-scope-opt {
-  margin-bottom: 0.5rem;
+.sp-page .ds-scope-opt {
+  display: flex;
+  gap: 10px;
+  min-height: 44px;
+  margin-bottom: 8px;
+  padding-left: 0;
 }
 
-.ds-scope-opt .form-check-label {
+.sp-page .ds-scope-opt .form-check-input {
+  flex: none;
+  margin: 3px 0 0;
+}
+
+.sp-page .ds-scope-opt .form-check-label {
   cursor: pointer;
 }
 
-.module-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
-  gap: 0.5rem 1rem;
+/* Mockup: one module per row, name left, switch right, hairline between. */
+.sp-page .module-grid {
+  display: flex;
+  flex-direction: column;
 }
 
-.module-grid .form-check.locked label {
+.sp-page .module-grid .form-check {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  margin: 0;
+  padding-left: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sp-page .module-grid .form-check:last-child {
+  border-bottom: 0;
+}
+
+.sp-page .module-grid .form-check-input {
+  flex: none;
+  float: none;
+  margin: 0;
+}
+
+.sp-page .module-grid .form-check-label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.sp-page .module-grid .form-check.locked label {
   opacity: 0.8;
 }
 
-.nw-row {
+.sp-page .nw-row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
+  gap: 6px 12px;
 }
 
-.nw-row .input-group {
+.sp-page .nw-row .input-group {
   width: 10.5rem;
 }
 
-.nw-row input[type='number'] {
+.sp-page .nw-row input[type='number'] {
   text-align: center;
 }
 
-.ds-note {
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-}
-
 /* stylelint-disable-next-line selector-id-pattern -- id is referenced from markup and scripts */
-#typicalDaySummary {
-  font-weight: 500;
+.sp-page #typicalDaySummary {
   margin-bottom: 0;
+  font-weight: 500;
 }
 
-.flag-disabled-banner {
-  background: var(--warning-bg, #fff7ed);
-  border: 1px solid var(--warning, #d97706);
-  color: var(--warning-text, #92400e);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
+.sp-page .sp-loading {
+  padding: 32px 0;
+  text-align: center;
+}
+
+/* Hide the dock while it has nothing to show (loading, error). */
+.sp-page .sp-dock:has(.sp-actions[hidden]):has(.sp-banner.d-none) {
+  display: none;
 }

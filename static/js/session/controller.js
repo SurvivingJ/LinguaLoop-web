@@ -35,8 +35,66 @@ function resolveLanguageCode(languageId) {
   return (lang && lang.language_code) || '';
 }
 
+// The app shell (templates/base.html). Absent in unit tests and on any page
+// without the redesign shell, so every use is guarded.
+const shell = () => window.LinguaShell || null;
+
+// One-character seals for each item type, in the study language (the mockup's
+// glyph set). Other languages show the type label's initial.
+const GLYPHS = {
+  zh: {
+    listening: '听',
+    reading: '读',
+    dictation: '写',
+    practice: '练',
+    dual_translation: '译',
+    classifier_drill: '量',
+    pinyin: '调',
+    pitch_accent: '调',
+    flashcards: '卡',
+    prestudy: '学',
+    dt_repair: '改',
+    speed_round: '速',
+    today: '今天',
+    done: '完成',
+  },
+  ja: {
+    listening: '聴',
+    reading: '読',
+    dictation: '書',
+    practice: '練',
+    dual_translation: '訳',
+    classifier_drill: '数',
+    pinyin: '音',
+    pitch_accent: '音',
+    flashcards: '札',
+    prestudy: '学',
+    dt_repair: '直',
+    speed_round: '速',
+    today: '今日',
+    done: '完了',
+  },
+};
+
+function studyCode() {
+  return resolveLanguageCode(session.languageId) || '';
+}
+
+function glyphFor(key, fallback) {
+  const set = GLYPHS[studyCode()];
+  return (set && set[key]) || fallback || '';
+}
+
+// Seal for a queue item: by kind, else by test type.
+function itemGlyph(item) {
+  const key = GLYPHS.zh[item.kind] ? item.kind : item.test_type || 'listening';
+  return glyphFor(key, itemTypeLabel(item).charAt(0).toUpperCase());
+}
+
 const session = {
   languageId: null,
+  // True while an item's player is on stage (task mode, Back pill live).
+  running: false,
   queue: [], // [{ kind:'test'|'practice', id, slug?, test_type?, mode?, is_completed }]
   index: 0,
   player: null, // { destroy() } handle for the currently-mounted player
@@ -66,6 +124,21 @@ const session = {
 
 document.addEventListener('DOMContentLoaded', init);
 
+// Strings added by the 2026-11 redesign may not be in the locale bundles yet,
+// and LinguaI18n.applyToDOM would print a missing [data-i18n] key verbatim.
+// Those elements carry data-ld-i18n instead: translated when the bundle has
+// the key, else they keep their English text.
+function localizeNew(root = document) {
+  root.querySelectorAll('[data-ld-i18n]').forEach((el) => {
+    if (el.dataset.ldFallback === undefined) el.dataset.ldFallback = el.textContent;
+    el.textContent = T(el.dataset.ldI18n, null, el.dataset.ldFallback);
+  });
+}
+document.addEventListener('languageChanged', () => {
+  localizeNew();
+  paintDecor();
+});
+
 async function init() {
   const params = new URLSearchParams(window.location.search);
   session.practiceOnly = params.get('mode') === 'practice';
@@ -82,10 +155,14 @@ async function init() {
     // failure only leaves the stage's [lang] attribute empty.
     const metadata =
       window.LinguaMetadata && typeof LinguaMetadata.load === 'function'
-        ? Promise.resolve(LinguaMetadata.load()).catch((e) => console.warn('[session] metadata:', e))
+        ? Promise.resolve(LinguaMetadata.load()).catch((e) =>
+            console.warn('[session] metadata:', e)
+          )
         : Promise.resolve();
     await loadSession();
     await metadata;
+    // Seals and watermarks need the language code, which metadata supplies.
+    paintDecor();
   } catch (e) {
     console.error(e);
     showError(e.message || 'Failed to load session.');
@@ -116,6 +193,13 @@ function applyModeLabels() {
   if (title) {
     title.setAttribute('data-i18n', 'session.start_title_practice');
     title.textContent = T('session.start_title_practice', null, "Today's Practice");
+  }
+
+  const quickTitle = $('sessionQuickTitle');
+  if (quickTitle) {
+    quickTitle.setAttribute('data-ld-i18n', 'session.more_practice');
+    quickTitle.textContent = 'More practice';
+    delete quickTitle.dataset.ldFallback;
   }
 
   const browseLink = $('sessionBrowseInsteadLink');
@@ -179,6 +263,7 @@ async function loadSession() {
   if (window.LinguaMetadata && typeof LinguaMetadata.i18nReady === 'function') {
     await LinguaMetadata.i18nReady();
   }
+  localizeNew();
 
   let queue = data.queue || [];
   if (session.practiceOnly) {
@@ -244,11 +329,180 @@ function renderStart() {
 
   const start = $('sessionStart');
   start.classList.remove('d-none');
+  paintDecor();
   $('sessionStartBtn').onclick = () => {
     start.classList.add('d-none');
     runCurrent();
   };
 }
+
+// ---- Today card decoration (hero seals, watermark, "Up next") --------------
+// Purely visual; every element is optional.
+
+function firstPendingIndex() {
+  let i = session.index;
+  while (i < session.queue.length && session.queue[i].is_completed) i++;
+  return i;
+}
+
+function paintDecor() {
+  const code = studyCode();
+  const wm = $('sessionStartWm');
+  if (wm) {
+    wm.textContent = glyphFor(session.practiceOnly ? 'practice' : 'today');
+    wm.lang = code;
+  }
+  const doneWm = $('sessionDoneWm');
+  if (doneWm) {
+    doneWm.textContent = glyphFor('done');
+    doneWm.lang = code;
+  }
+  const seals = $('sessionStartItems');
+  const empty = !session.queue.length;
+  const next = firstPendingIndex();
+  if (seals) {
+    seals.lang = code;
+    // One seal per item: done, the one up next, the rest.
+    seals.innerHTML = empty
+      ? ''
+      : session.queue
+          .map((q, i) => {
+            const cls = q.is_completed ? ' is-done' : i === next ? ' is-current' : '';
+            return `<span class="ld-seal${cls}" title="${escapeHtml(itemTypeLabel(q))}">${escapeHtml(itemGlyph(q))}</span>`;
+          })
+          .join('');
+    seals.classList.toggle('d-none', empty);
+  }
+  const up = $('sessionUpNext');
+  if (up) {
+    const item = session.queue[next];
+    const startShown = $('sessionStart') && !$('sessionStart').classList.contains('d-none');
+    up.classList.toggle('d-none', !item || !startShown || session.running);
+    if (item) {
+      const glyph = $('sessionUpNextGlyph');
+      if (glyph) {
+        glyph.textContent = itemGlyph(item);
+        glyph.lang = code;
+      }
+      const title = itemTitle(item);
+      const type = itemTypeLabel(item);
+      const t = $('sessionUpNextTitle');
+      if (t) t.textContent = title;
+      const ty = $('sessionUpNextType');
+      if (ty) ty.textContent = title === type ? '' : type;
+    }
+  }
+}
+
+// ---- Run frame (task mode + header + Back) ---------------------------------
+// While an item runs the page is one task screen: the shell's Back-pill
+// header, the progress strip, and #sessionStage filling the rest. Players get
+// ctx.frame to set the header and hook Back (see session-frame in the
+// redesign hand-off).
+
+let backOffs = []; // Back handlers the current player registered
+
+function releasePlayerBack() {
+  backOffs.forEach((off) => {
+    try {
+      off();
+    } catch {
+      /* already gone */
+    }
+  });
+  backOffs = [];
+}
+
+function teardownPlayer() {
+  if (session.player && typeof session.player.destroy === 'function') {
+    try {
+      session.player.destroy();
+    } catch {
+      /* non-fatal */
+    }
+  }
+  session.player = null;
+  releasePlayerBack();
+}
+
+function sessionHref() {
+  return session.practiceOnly ? '/session?mode=practice' : '/session';
+}
+
+function enterRun() {
+  session.running = true;
+  document.body.classList.add('session-running');
+  const sh = shell();
+  if (!sh) return;
+  if (typeof sh.isTaskMode !== 'function' || !sh.isTaskMode()) sh.setTaskMode(true);
+}
+
+function leaveRun() {
+  if (!session.running && !document.body.classList.contains('session-running')) return;
+  session.running = false;
+  document.body.classList.remove('session-running');
+  const sh = shell();
+  if (sh && typeof sh.setTaskMode === 'function') sh.setTaskMode(false);
+}
+
+// The header for an item: its type, its title (tests), its seal.
+function headerFor(item) {
+  const type = itemTypeLabel(item);
+  const title = itemTitle(item);
+  return {
+    title: type,
+    subtitle: title === type ? '' : title,
+    glyph: itemGlyph(item),
+    end: '',
+    backHref: sessionHref(),
+  };
+}
+
+function makeFrame(item, stage) {
+  const live = () => session.running && session.queue[session.index] === item;
+  return {
+    stage,
+    setHeader(opts) {
+      const sh = shell();
+      if (sh && live()) sh.setTaskHeader(opts || {});
+    },
+    onBack(fn) {
+      const sh = shell();
+      if (!sh || typeof sh.onBack !== 'function' || typeof fn !== 'function') return () => {};
+      const off = sh.onBack((e) => (live() ? fn(e) : false));
+      backOffs.push(off);
+      return off;
+    },
+  };
+}
+
+// Back pill during a run: back to the Today card in-page (a reload would drop
+// saves still retrying). Unfinished and skipped items come back on Resume.
+// During an optional round (tail / extra) it returns to the summary instead.
+function onShellBack() {
+  if (!session.running) return false;
+  const item = session.queue[session.index];
+  teardownPlayer();
+  $('sessionStage').innerHTML = '';
+  // The player took the item's prefetch; let the start card load (and count)
+  // it again, as it would on a fresh visit.
+  if (item && !item.prefetch) delete item._prefetched;
+  if (item && item.is_tail) {
+    showSummary();
+    return true;
+  }
+  $('sessionProgress').classList.add('d-none');
+  leaveRun();
+  const first = session.queue.findIndex((q) => !q.is_completed);
+  session.index = first === -1 ? session.queue.length : first;
+  renderStart();
+  return true;
+}
+
+(function hookBack() {
+  const sh = shell();
+  if (sh && typeof sh.onBack === 'function') sh.onBack(onShellBack);
+})();
 
 // Start card: load the first item's data now, so it is ready when the learner
 // presses Start. When that item is a practice round, also say how many
@@ -305,17 +559,14 @@ function runCurrent() {
   }
 
   const item = session.queue[session.index];
+  enterRun();
   $('sessionProgress').classList.remove('d-none');
   updateProgressHeader();
 
   // Tear down the previous player before mounting the next.
-  if (session.player && typeof session.player.destroy === 'function') {
-    try {
-      session.player.destroy();
-    } catch (_) {
-      /* non-fatal */
-    }
-  }
+  teardownPlayer();
+  const sh = shell();
+  if (sh && typeof sh.setTaskHeader === 'function') sh.setTaskHeader(headerFor(item));
   const stage = $('sessionStage');
   stage.innerHTML = '';
   // Tag the stage with the item's study-language code so styles.css can
@@ -324,6 +575,7 @@ function runCurrent() {
   // one font stack and one of them always renders in the other's glyphs.
   stage.lang = resolveLanguageCode(item.language_id || session.languageId) || '';
   window.scrollTo({ top: 0, behavior: 'auto' });
+  stage.scrollTop = 0;
 
   const player = getPlayer(item);
   session.player = player.mount(stage, {
@@ -331,6 +583,7 @@ function runCurrent() {
     languageId: session.languageId,
     onComplete: (result) => onItemComplete(item, result),
     onSkip: () => onItemSkip(item), // advance WITHOUT marking complete (stays in resume)
+    frame: makeFrame(item, stage),
   });
 
   // Translate the data-i18n markup the player just injected into the stage
@@ -441,13 +694,13 @@ function updateProgressHeader() {
   $('sessionDots').innerHTML = session.queue
     .map((q, i) => {
       let cls = '';
-      if (q.is_completed) cls = 'done';
-      else if (i === session.index) cls = 'current';
-      else if (q.skipped) cls = 'skipped';
+      if (q.is_completed) cls = 'is-done';
+      else if (i === session.index) cls = 'is-current';
+      else if (q.skipped) cls = 'is-skipped';
       const type = itemTypeLabel(q);
       const state = dotStateLabel(q, i);
       const label = T('session.dot_label', { type, state }, `${type} — ${state}`);
-      return `<span class="session-dot ${cls}" role="listitem" aria-label="${escapeHtml(label)}"></span>`;
+      return `<i class="session-dot ${cls}" role="listitem" aria-label="${escapeHtml(label)}"></i>`;
     })
     .join('');
 }
@@ -493,6 +746,8 @@ function dotStateLabel(item, i) {
 }
 
 function showSummary() {
+  teardownPlayer();
+  leaveRun();
   $('sessionProgress').classList.add('d-none');
   $('sessionStart').classList.add('d-none');
   $('sessionStage').innerHTML = '';
@@ -506,25 +761,39 @@ function showSummary() {
         ? T('session.item_done', null, 'Done')
         : T('session.item_skipped', null, 'Skipped');
       const icon = isDone ? 'fa-circle-check' : 'fa-circle-minus';
+      const title = itemTitle(q);
+      const type = itemTypeLabel(q);
       return (
-        `<li class="${isDone ? 'is-done' : 'is-skipped'}">` +
-        `<span class="ico"><i class="fas ${icon}"></i></span>` +
-        `<span class="meta">` +
-        `<span class="r-title d-block">${escapeHtml(itemTitle(q))}</span>` +
-        `<span class="r-type d-block">${escapeHtml(itemTypeLabel(q))}</span>` +
+        `<li class="ld-trow ${isDone ? 'is-done' : 'is-skipped is-faded'}">` +
+        `<span class="ld-seal" aria-hidden="true">${escapeHtml(itemGlyph(q))}</span>` +
+        `<span class="ld-trow__mid">` +
+        `<b class="r-title">${escapeHtml(title)}</b>` +
+        (title === type ? '' : `<small class="r-type">${escapeHtml(type)}</small>`) +
+        `<small class="r-state"><i class="fas ${icon}" aria-hidden="true"></i> ${escapeHtml(state)}</small>` +
         `</span>` +
-        `<span class="r-state">${escapeHtml(state)}</span>` +
         `</li>`
       );
     })
     .join('');
 
   const resultsLabel = T('session.results_title', null, 'Your results');
-  $('sessionSummaryBody').innerHTML =
-    `<p class="lead mb-1">${done} / ${total}</p>` +
-    `<p class="text-muted">${escapeHtml(doneLine())}</p>` +
-    `<ul class="session-results" aria-label="${escapeHtml(resultsLabel)}">${rows}</ul>`;
-  $('sessionSummary').classList.remove('d-none');
+  const head =
+    `<p class="session-score ld-num">${done} / ${total}</p>` +
+    `<p class="ld-muted mb-0">${escapeHtml(doneLine())}</p>`;
+  const list = $('sessionResults');
+  if (list) {
+    // The list sits below the prompts, so the next action stays in view.
+    $('sessionSummaryBody').innerHTML = head;
+    list.setAttribute('aria-label', resultsLabel);
+    list.innerHTML = rows;
+    const wrap = $('sessionResultsWrap');
+    if (wrap) wrap.classList.toggle('d-none', !rows);
+  } else {
+    $('sessionSummaryBody').innerHTML =
+      head + `<ul class="session-results" aria-label="${escapeHtml(resultsLabel)}">${rows}</ul>`;
+  }
+  $('sessionSummary').classList.remove('d-none', 'is-empty');
+  paintDecor();
   hideTailPrompt();
   hideExtraPanel();
   renderNewWordsPrompt();
@@ -761,6 +1030,7 @@ function emptyMessage() {
 }
 
 function showEmpty() {
+  leaveRun();
   if (session.practiceOnly) {
     // Practice mode always has something to offer: open-ended extra rounds.
     $('sessionLoading').classList.add('d-none');
@@ -771,8 +1041,10 @@ function showEmpty() {
     return;
   }
   $('sessionStart').classList.remove('d-none');
+  $('sessionStart').classList.add('is-empty');
   $('sessionStartSummary').textContent = emptyMessage();
   $('sessionStartBtn').classList.add('d-none');
+  paintDecor();
   // An empty required queue (e.g. a weekday-weight-0 day with reviews due) still
   // has optional work: offer the tail here too, not only from showSummary.
   offerTail({ fromEmpty: true });
@@ -782,11 +1054,16 @@ function showEmpty() {
 // card (which hosts the tail prompt) showing the same empty message.
 function showEmptyWithTail() {
   $('sessionStart').classList.add('d-none');
-  $('sessionSummaryBody').innerHTML = `<p class="text-muted">${escapeHtml(emptyMessage())}</p>`;
+  $('sessionSummaryBody').innerHTML = `<p class="ld-muted mb-0">${escapeHtml(emptyMessage())}</p>`;
+  const wrap = $('sessionResultsWrap');
+  if (wrap) wrap.classList.add('d-none');
   $('sessionSummary').classList.remove('d-none');
+  $('sessionSummary').classList.add('is-empty');
 }
 
 function showError(msg) {
+  teardownPlayer();
+  leaveRun();
   $('sessionLoading').classList.add('d-none');
   $('sessionErrorMsg').textContent = msg;
   const retry = $('sessionErrorRetry');

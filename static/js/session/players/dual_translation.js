@@ -37,14 +37,34 @@ export function mount(container, ctx) {
     eventId: null,
   };
 
+  // Redesign 2026-11 (session-frame.md): a scrolling stage and a pinned dock.
+  // Every action (Submit, Try again, Continue, Skip) lives in the dock.
   container.innerHTML = `
-    <div class="session-card"><div class="card"><div class="card-body p-4">
-      <div id="dtBody">
-        <div class="text-center"><div class="spinner-border" role="status" aria-hidden="true"></div></div>
+    <div class="ld-screen dt-player">
+      <div class="ld-stage dt-player__stage" data-dt-stage>
+        <div id="dtBody" class="dt-player__body">
+          <div class="dt-player__spin"><div class="spinner-border" role="status" aria-hidden="true"></div></div>
+        </div>
       </div>
-    </div></div></div>`;
+      <div class="ld-dock dt-player__dock" data-dt-dock hidden></div>
+    </div>`;
 
   const body = () => container.querySelector('#dtBody');
+  const dock = () => container.querySelector('[data-dt-dock]');
+  const stage = () => container.querySelector('[data-dt-stage]');
+  const $ = (sel) => container.querySelector(sel);
+
+  // Fill the stage and the dock in one go; an empty dock is hidden.
+  function paint(stageHtml, dockHtml) {
+    body().innerHTML = stageHtml;
+    const d = dock();
+    if (d) {
+      d.innerHTML = dockHtml || '';
+      d.hidden = !dockHtml;
+    }
+    const st = stage();
+    if (st) st.scrollTop = 0;
+  }
 
   load();
 
@@ -127,7 +147,9 @@ export function mount(container, ctx) {
       );
       return;
     }
+    if (dock()) dock().hidden = false;
     state.card = window.DTErrorCard.mount(body(), card, {
+      dock: dock() || undefined,
       onDone: () => {
         if (state.destroyed) return;
         if (ctx.onComplete) ctx.onComplete({ card_id: card.card_id });
@@ -137,18 +159,19 @@ export function mount(container, ctx) {
 
   function renderUnavailable(message) {
     if (state.destroyed) return;
-    body().innerHTML = `
-      <div class="text-center">
-        <h2 class="h5 mb-2">${esc(T('session.dt_heading', null, 'Dual Translation'))}</h2>
-        <p class="text-muted">${esc(message)}</p>
-        <a class="btn btn-outline-primary me-2" href="/dual-translation">${esc(
-          T('session.open_page', null, 'Open page')
-        )}</a>
-        <button class="btn btn-secondary" type="button" data-dt-skip>${esc(
-          T('session.skip_for_now', null, 'Skip for now')
-        )}</button>
-      </div>`;
-    const skip = body().querySelector('[data-dt-skip]');
+    paint(
+      `<div class="dt-player__msg">
+        <h2 class="ld-h2">${esc(T('session.dt_heading', null, 'Dual Translation'))}</h2>
+        <p class="ld-muted">${esc(message)}</p>
+      </div>`,
+      `<a class="ld-btn ld-btn--ghost" href="/dual-translation">${esc(
+        T('session.open_page', null, 'Open page')
+      )}</a>
+      <button class="ld-link ld-link--quiet" type="button" data-dt-skip>${esc(
+        T('session.skip_for_now', null, 'Skip for now')
+      )}</button>`
+    );
+    const skip = $('[data-dt-skip]');
     if (skip) skip.onclick = () => ctx.onSkip && ctx.onSkip();
   }
 
@@ -156,30 +179,39 @@ export function mount(container, ctx) {
     if (state.destroyed) return;
     state.l1Text = data.l1_text || '';
     state.ageTier = data.age_tier != null ? data.age_tier : null;
-    body().innerHTML = `
-      <h2 class="h5 mb-2">${esc(T('session.dt_heading', null, 'Dual Translation'))}</h2>
-      <p class="text-muted small mb-3">${esc(
+    // The runner sets the study language on its stage (#sessionStage[lang]).
+    const l2 = (container.getAttribute && container.getAttribute('lang')) || '';
+    paint(
+      `<p class="ld-muted ld-small dt-player__instr">${esc(
         T(
           'session.dt_instructions',
           null,
           'Reproduce this passage in the language you’re studying.'
         )
       )}</p>
-      <blockquote class="border-start border-3 ps-3 mb-3">${esc(data.l1_text || '')}</blockquote>
-      <label class="form-label" for="dtInput">${esc(
+      <div class="ld-card dt-player__ref">
+        <p class="ld-eyebrow">${esc(
+          T('dual_translation.reference_label', null, 'Reference (in your language)')
+        )}</p>
+        <p class="dt-player__l1">${esc(data.l1_text || '')}</p>
+      </div>
+      <label class="visually-hidden" for="dtInput">${esc(
         T('session.dt_input_label', null, 'Your translation')
       )}</label>
-      <textarea id="dtInput" class="form-control mb-3" rows="8"></textarea>
-      <div class="alert alert-warning small" data-dt-submit-error hidden></div>
-      <button class="btn btn-primary" type="button" data-dt-submit>${esc(
+      <textarea id="dtInput" class="dt-player__input" rows="4"${l2 ? ` lang="${esc(l2)}"` : ''} placeholder="${esc(
+        T('dual_translation.reproduction_placeholder', null, 'Type your translation here…')
+      )}"></textarea>
+      <div class="ld-note ld-note--warn" data-dt-submit-error role="alert" hidden></div>`,
+      `<button class="ld-btn" type="button" data-dt-submit>${esc(
         T('session.dt_submit', null, 'Submit translation')
       )}</button>
-      <button class="btn btn-link" type="button" data-dt-skip hidden>${esc(
+      <button class="ld-link ld-link--quiet" type="button" data-dt-skip hidden>${esc(
         T('session.skip_for_now', null, 'Skip for now')
-      )}</button>`;
+      )}</button>`
+    );
 
     if (timer) timer.start();
-    body().querySelector('[data-dt-submit]').onclick = submit;
+    $('[data-dt-submit]').onclick = submit;
   }
 
   async function submit() {
@@ -188,7 +220,7 @@ export function mount(container, ctx) {
     // avoids the round trip and keeps the UI honest.)
     if (state.submitting || state.destroyed) return;
 
-    const input = body().querySelector('#dtInput');
+    const input = $('#dtInput');
     const reproduction = ((input && input.value) || '').trim();
     if (!reproduction) {
       if (input) input.focus();
@@ -204,7 +236,7 @@ export function mount(container, ctx) {
     if (state.submitting || state.destroyed) return;
     state.submitting = true;
     state.reproduction = reproduction;
-    const button = body().querySelector('[data-dt-submit], [data-dt-retry]');
+    const button = $('[data-dt-submit], [data-dt-retry]');
     if (button) {
       button.disabled = true;
       button.textContent = T('dual_translation.submitting', null, 'Grading…');
@@ -269,7 +301,7 @@ export function mount(container, ctx) {
       mode: 'pass',
       session: repair,
       fetch: window.authFetch,
-      returnFocus: body(),
+      returnFocus: dock() || body(),
       onDone: () => {
         state.sheet = null;
         if (!state.destroyed) after();
@@ -307,32 +339,35 @@ export function mount(container, ctx) {
 
   async function showServerResult(repair) {
     if (state.destroyed) return;
-    body().innerHTML =
-      '<div class="text-center"><div class="spinner-border" role="status" aria-hidden="true"></div></div>';
+    paint(
+      '<div class="dt-player__spin"><div class="spinner-border" role="status" aria-hidden="true"></div></div>',
+      ''
+    );
     const full = await fetchFullResult(repair);
     if (state.destroyed) return;
     if (full) return renderResult(full);
-    body().innerHTML = `
-      <div class="text-center">
-        <div class="alert alert-warning small" role="alert">${esc(
+    paint(
+      `<div class="dt-player__msg">
+        <div class="ld-note ld-note--warn" role="alert">${esc(
           T('dt_repair.result_load_failed', null, 'Couldn’t load your full feedback.')
         )}</div>
-        <button class="btn btn-primary me-2" type="button" data-dt-result-retry>${esc(
-          T('dt_repair.retry', null, 'Try again')
-        )}</button>
-        <button class="btn btn-link" type="button" data-dt-continue>${esc(
-          T('session.continue', null, 'Continue')
-        )}</button>
-      </div>`;
-    body().querySelector('[data-dt-result-retry]').onclick = () => showServerResult(repair);
-    body().querySelector('[data-dt-continue]').onclick = finish;
+      </div>`,
+      `<button class="ld-btn" type="button" data-dt-result-retry>${esc(
+        T('dt_repair.retry', null, 'Try again')
+      )}</button>
+      <button class="ld-link ld-link--quiet" type="button" data-dt-continue>${esc(
+        T('session.continue', null, 'Continue')
+      )}</button>`
+    );
+    $('[data-dt-result-retry]').onclick = () => showServerResult(repair);
+    $('[data-dt-continue]').onclick = finish;
     return undefined;
   }
 
   function showSubmitError(status, message) {
-    const box = body().querySelector('[data-dt-submit-error]');
-    const button = body().querySelector('[data-dt-submit], [data-dt-retry]');
-    const skip = body().querySelector('[data-dt-skip]');
+    const box = $('[data-dt-submit-error]');
+    const button = $('[data-dt-submit], [data-dt-retry]');
+    const skip = $('[data-dt-skip]');
     const base = T('dual_translation.error_submit', null, "Couldn't grade your translation.");
     if (box) {
       box.textContent = base + (status ? ` (${status}${message ? `: ${message}` : ''})` : '');
@@ -357,34 +392,36 @@ export function mount(container, ctx) {
     // Both grading passes failed: the server returned a provisional contract
     // with no band and persisted nothing. Offer a re-grade of the same text.
     if (band == null) {
-      body().innerHTML = `
-        <div class="text-center">
-          <h2 class="h5 mb-2">${esc(T('session.dt_heading', null, 'Dual Translation'))}</h2>
-          <div class="alert alert-warning small" data-dt-submit-error>${esc(
+      paint(
+        `<div class="dt-player__msg">
+          <h2 class="ld-h2">${esc(T('session.dt_heading', null, 'Dual Translation'))}</h2>
+          <div class="ld-note ld-note--warn" data-dt-submit-error role="alert">${esc(
             T(
               'session.dt_grading_incomplete',
               null,
               'Grading didn’t finish, so nothing was saved. Try again to get your grade.'
             )
           )}</div>
-          <button class="btn btn-primary me-2" type="button" data-dt-retry>${esc(
-            T('session.dt_retry', null, 'Try again')
-          )}</button>
-          <button class="btn btn-link" type="button" data-dt-skip>${esc(
-            T('session.skip_for_now', null, 'Skip for now')
-          )}</button>
-        </div>`;
-      body().querySelector('[data-dt-retry]').onclick = () => gradeReproduction(state.reproduction);
-      body().querySelector('[data-dt-skip]').onclick = finish;
+        </div>`,
+        `<button class="ld-btn" type="button" data-dt-retry>${esc(
+          T('session.dt_retry', null, 'Try again')
+        )}</button>
+        <button class="ld-link ld-link--quiet" type="button" data-dt-skip>${esc(
+          T('session.skip_for_now', null, 'Skip for now')
+        )}</button>`
+      );
+      $('[data-dt-retry]').onclick = () => gradeReproduction(state.reproduction);
+      $('[data-dt-skip]').onclick = finish;
       return;
     }
 
-    body().innerHTML = `
-      <div class="text-center">
-        <h2 class="h5 mb-2">${esc(T('session.dt_graded', null, 'Translation graded'))}</h2>
+    const bandClass = band >= 1 && band <= 4 ? ` b${Math.round(band)}` : '';
+    paint(
+      `<div class="dt-player__graded">
+        <h2 class="ld-h2">${esc(T('session.dt_graded', null, 'Translation graded'))}</h2>
         ${
           grade.provisional
-            ? `<div class="alert alert-warning small">${esc(
+            ? `<div class="ld-note ld-note--warn">${esc(
                 T(
                   'dual_translation.grading_incomplete',
                   null,
@@ -393,21 +430,22 @@ export function mount(container, ctx) {
               )}</div>`
             : ''
         }
-        <p class="display-6 mb-0">${esc(String(band))}<span class="fs-5 text-muted">/4</span></p>
-        <p class="small text-muted mb-3">${esc(T('dual_translation.overall_band', null, 'Overall band'))}</p>
+        <div class="dt-player__score${bandClass}"><span class="dt-player__n">${esc(String(band))}</span><span class="dt-player__of">/4</span></div>
+        <p class="ld-eyebrow">${esc(T('dual_translation.overall_band', null, 'Overall band'))}</p>
         ${renderTargetWords(grade.target_words)}
-        <a class="btn btn-outline-secondary me-2" href="/dual-translation" target="_blank" rel="opener" data-dt-details>${esc(
-          T('session.dt_see_details', null, 'See full feedback')
-        )}</a>
-        <button class="btn btn-primary" type="button" data-dt-continue>${esc(
-          T('session.continue', null, 'Continue')
-        )}</button>
-      </div>`;
+      </div>`,
+      `<button class="ld-btn" type="button" data-dt-continue>${esc(
+        T('session.continue', null, 'Continue')
+      )}</button>
+      <a class="ld-btn ld-btn--ghost" href="/dual-translation" target="_blank" rel="opener" data-dt-details>${esc(
+        T('session.dt_see_details', null, 'See full feedback')
+      )}</a>`
+    );
     // The standalone page renders this exact grade (diff, errors, dimensions)
     // instead of pulling a new passage. localStorage, not sessionStorage: the
     // link opens a new tab so the session keeps its place.
-    body().querySelector('[data-dt-details]').onclick = () => stashFeedback(grade);
-    body().querySelector('[data-dt-continue]').onclick = finish;
+    $('[data-dt-details]').onclick = () => stashFeedback(grade);
+    $('[data-dt-continue]').onclick = finish;
   }
 
   function stashFeedback(grade) {
@@ -438,17 +476,13 @@ export function mount(container, ctx) {
           ? T('prestudy.produce_variant', null, 'Different form')
           : T('prestudy.produce_omitted', null, 'Missing: back tomorrow');
     const cls = (st) =>
-      st === 'produced'
-        ? 'text-bg-success'
-        : st === 'variant'
-          ? 'text-bg-warning'
-          : 'text-bg-danger';
-    return `<div class="text-start mb-3"><div class="small text-muted mb-1">${esc(
+      st === 'produced' ? 'ld-tag--ok' : st === 'variant' ? 'ld-tag--warn' : 'ld-tag--bad';
+    return `<div class="dt-player__words"><p class="ld-eyebrow">${esc(
       T('prestudy.produce_words', null, 'Your primed words')
-    )}</div><ul class="list-unstyled mb-0">${rows
+    )}</p><ul class="ld-card dt-player__wordlist">${rows
       .map(
         (r) =>
-          `<li class="d-flex justify-content-between gap-2 py-1 border-bottom"><span>${esc(r.lemma || '')}</span><span class="badge ${cls(r.status)}">${esc(label(r.status))}</span></li>`
+          `<li><span class="ld-tl">${esc(r.lemma || '')}</span><span class="ld-tag ${cls(r.status)}">${esc(label(r.status))}</span></li>`
       )
       .join('')}</ul></div>`;
   }

@@ -2,21 +2,31 @@
 {% set defer_base_scripts = true %}
 {% set load_test_intro = true %}
 {% set page_js = module_assets('js/pages', 'test-pitch-accent.js') %}
+{# One task per screen (FOUNDATION.md): Back pill header, the passage in a
+   scrolling stage, the Quick pad / Contour scratchpad in a pinned dock. The
+   player fills the header's subtitle (test title) and right-hand slot (clock). #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
 
 {% block title %}Pitch Accent Trainer | LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50 pitch-accent-page{% endblock %}
+{% block body_class %}bg-slate-50 trainer-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('tests') }}{% endblock %}
+{% block task_title %}<span data-i18n="pitch.title">Pitch Accent Trainer</span>{% endblock %}
+{% block task_glyph %}音{% endblock %}
 
 {% block extra_css %}
 {# The page is the session player mounted on its own (page_js.entry); the import
-   map gives the player's relative imports their ?v= URLs. #}
+   map gives the player's relative imports their ?v= URLs. Styles:
+   static/css/redesign/trainers.css (loaded by base.html). #}
 <script type="importmap">{{ module_assets('js/session').import_map|tojson }}</script>
 {% for href in page_js.preload %}<link rel="modulepreload" href="{{ href }}">
 {% endfor %}
 {% endblock %}
 
 {% block content %}
-<div id="pitchAccentRoot"></div>
+<div id="pitchAccentRoot" class="trainer-host" lang="ja"></div>
 {% endblock %}
 
 {% block extra_js %}

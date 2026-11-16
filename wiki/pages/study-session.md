@@ -3,7 +3,7 @@ title: Daily Session Runner (`/session`)
 type: page
 status: complete
 tech_page: study-session.tech.md
-last_updated: 2026-08-07
+last_updated: 2026-11-16
 open_questions:
   - "OPEN — which surfaces are deliberately outside the planner (listening_lab, mystery, dual_translation, flashcards)? Tracked as TASK-711."
   - "OPEN — day boundary is UTC midnight, which lands 07:00–09:00 local for the ZH/JA audience. Keep UTC or resolve through user_study_plans.timezone? Tracked as TASK-712."
@@ -26,9 +26,10 @@ row, and remember where I got to if I close the tab halfway through.
 
 ## How It Works
 
-1. **Entry.** The learner arrives from the "Daily Session" navbar item (added by
-   TASK-708, present on every authenticated page) or the primary CTA after picking a
-   language. The runner reads the selected language from browser storage; with none
+1. **Entry.** The learner arrives from the **Today** tab (bottom tab bar on phones; "Daily
+   Session" in the top bar on wide screens — see [[pages/app-shell]]) or the primary CTA after
+   picking a language. The **Practice** tab opens the same runner in practice-only mode
+   (`/session?mode=practice`). The runner reads the selected language from browser storage; with none
    set it redirects to language selection.
 
 2. **Load.** The page asks the server for today's session. The server assembles one
@@ -50,14 +51,20 @@ row, and remember where I got to if I close the tab halfway through.
 
 5. **One item at a time.** Each item mounts its own player (listening, reading,
    dictation, pinyin, pitch accent, classifier drill, or practice) into the same stage
-   area. A sticky progress header shows a row of dots — one per item — plus a
-   done/total count and a progress bar.
+   area. While an item runs the page becomes a one-task screen (since 2026-11-16,
+   [[decisions/ADR-046-mobile-app-shell]]): the tab bar and top bar disappear, a header shows
+   a **Back** button, the item's type as title, the test title as subtitle and sometimes a
+   counter or clock on the right; under it a slim progress strip shows a row of dots — one
+   per item — and a done/total count. Only the middle of the screen scrolls; each player's
+   Check / Next / Submit sits in a pinned action area at the bottom. **Back** returns to the
+   start card, which then offers "Resume session".
 
 6. **Finishing an item.** Completion is recorded on the server so it survives a reload.
    If saving fails the runner retries once, and if that also fails it tells the learner
    their progress may not have saved — but still lets them move on, because they did the
-   work. A learner can also skip an item: skipping advances without marking it done, so
-   it comes back on the next visit.
+   work. A learner can also skip an item where the player offers it ("Skip for now" in the
+   action area — there is no runner-wide Skip button since 2026-11-16): skipping advances
+   without marking it done, so it comes back on the next visit.
 
 7. **Summary.** At the end the learner sees a done/total figure and a per-item list —
    each item's title, its type, and whether it was completed or skipped. Skipped items
@@ -107,6 +114,7 @@ row, and remember where I got to if I close the tab halfway through.
 
 - [[pages/study-session.tech]] — technical counterpart
 - [[pages/pages-overview]] — full route map
+- [[pages/app-shell]] — the shell and task-screen layout the runner uses
 - [[features/study-plans]] — what decides *what* is in today's queue
 - [[features/practice-engine]] — what the practice chunks serve
 - [[algorithms/daily-session-implementation-analysis]] — the audit (F1–F16) this runner was hardened against

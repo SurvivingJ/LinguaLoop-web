@@ -4,6 +4,7 @@
   let profileData = null;
   let selectedLang = null;
   let selectedSkill = null;
+  let selectedLangCode = null;
   const testHistory = {};
   const historyOffset = {};
   const HISTORY_PAGE_SIZE = 25;
@@ -20,10 +21,78 @@
     return SKILL_ICONS[skillCode] || '📖';
   }
 
+  // i18n helper with an English fallback: a key that is not in the locale
+  // files yet (static/i18n/_redesign/settings.json) keeps the given text.
+  function tf(key, fallback, params) {
+    if (!window.LinguaI18n || typeof window.LinguaI18n.t !== 'function') return fallback;
+    const v = window.LinguaI18n.t(key, params);
+    return v && v !== key ? v : fallback;
+  }
+
+  // [data-me-t] / [data-me-t-aria]: new Me-hub strings. The English in the
+  // markup is remembered and kept until the key exists.
+  function localizeNewStrings() {
+    document.querySelectorAll('[data-me-t]').forEach(function (el) {
+      if (el.dataset.meEn === undefined) el.dataset.meEn = el.textContent;
+      el.textContent = tf(el.dataset.meT, el.dataset.meEn);
+    });
+    document.querySelectorAll('[data-me-t-aria]').forEach(function (el) {
+      if (el.dataset.meEnAria === undefined) {
+        el.dataset.meEnAria = el.getAttribute('aria-label') || '';
+      }
+      el.setAttribute('aria-label', tf(el.dataset.meTAria, el.dataset.meEnAria));
+    });
+    syncThemeRows();
+  }
+
+  // Colour theme row: name of the current theme. Appearance row: says when a
+  // named theme decides the scheme (the segmented control then shows no choice).
+  function syncThemeRows() {
+    const LT = window.LinguaTheme;
+    const nameEl = document.getElementById('meThemeCurrent');
+    const noteEl = document.getElementById('meModeNote');
+    const modeRow = document.getElementById('meModeRow');
+    if (!LT || typeof LT.current !== 'function') return;
+    const id = LT.current();
+    const theme = (LT.list() || []).find(function (th) {
+      return th.id === id;
+    });
+    if (nameEl) {
+      nameEl.textContent = theme ? tf(theme.nameKey, theme.name) : '';
+    }
+    const named = id !== 'default';
+    if (modeRow) modeRow.classList.toggle('is-locked', named);
+    if (noteEl) {
+      if (noteEl.dataset.meEn === undefined) noteEl.dataset.meEn = noteEl.textContent;
+      noteEl.textContent = named
+        ? tf('theme.mode_locked', 'Set by the colour theme')
+        : tf('me.appearance_sub', noteEl.dataset.meEn);
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     loadProfile();
     loadNativeLanguage();
     loadScriptVariant();
+
+    localizeNewStrings();
+    if (window.LinguaI18n && typeof window.LinguaI18n.init === 'function') {
+      window.LinguaI18n.init().then(localizeNewStrings, function () {});
+    }
+    document.addEventListener('languageChanged', function () {
+      localizeNewStrings();
+      if (profileData && selectedLang) {
+        renderLanguages();
+        markActiveLanguage();
+        renderSkillTabs();
+        if (selectedSkill) {
+          renderStats();
+          const cacheKey = selectedLang.language_id + '_' + selectedSkill.test_type_id;
+          if (testHistory[cacheKey]) renderHistory(cacheKey);
+        }
+      }
+    });
+    document.addEventListener('lingua:themechange', syncThemeRows);
 
     // Wire up load more button
     const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -64,7 +133,7 @@
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
       document.getElementById('loadingState').innerHTML =
-        '<div class="alert alert-danger">Failed to load profile. Please refresh.</div>';
+        '<div class="ld-note ld-note--bad">Failed to load profile. Please refresh.</div>';
     }
   }
 
@@ -76,24 +145,31 @@
     const html = langs
       .map(([code, data]) => {
         return `
-            <div class="col-md-4">
-                <div class="card language-card h-100 p-3" onclick="selectLanguage('${code}')">
-                    <div class="d-flex align-items-center">
-                        <span class="fs-1 me-3">${getFlag(code)}</span>
-                        <div>
-                            <h6 class="mb-1">${data.native_name || data.language_name}</h6>
-                            <small class="text-muted">
-                                ${LinguaI18n.t('profile.skills_count', { count: Object.keys(data.skills).length })}
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <button type="button" class="ld-chip language-card" data-lang="${escapeHtml(code)}" aria-pressed="false">
+                <span aria-hidden="true">${getFlag(code)}</span>
+                <span>${escapeHtml(data.native_name || data.language_name)}</span>
+                <span class="ld-muted">· ${LinguaI18n.t('profile.skills_count', { count: Object.keys(data.skills).length })}</span>
+            </button>
         `;
       })
       .join('');
 
     container.innerHTML = html;
+    container.querySelectorAll('.language-card').forEach((chip) => {
+      chip.addEventListener('click', () => window.selectLanguage(chip.dataset.lang));
+    });
+  }
+
+  // Highlight the selected study language. Scoped to the study-language list:
+  // the native-language buttons share the class.
+  function markActiveLanguage() {
+    const code = selectedLang ? selectedLangCode : null;
+    document.querySelectorAll('#languageList .language-card').forEach((el) => {
+      const on = el.dataset.lang === code;
+      el.classList.toggle('active', on);
+      el.classList.toggle('is-on', on);
+      el.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
   }
 
   function renderSkillTabs() {
@@ -101,54 +177,69 @@
 
     const skills = Object.entries(selectedLang.skills);
 
+    const current = selectedSkill && selectedSkill.code;
     const html = skills
       .map(([skillCode, skill], index) => {
+        const on = current ? skillCode === current : index === 0;
         return `
-            <li class="nav-item" role="presentation">
                 <button
-                    class="nav-link ${index === 0 ? 'active' : ''}"
+                    class="ld-chip nav-link ${on ? 'active' : ''}"
                     id="${skillCode}-tab"
                     data-skill="${skillCode}"
                     data-test-type-id="${skill.test_type_id}"
                     type="button"
-                    role="tab">
-                    ${skillIcon(skillCode)} ${window.LinguaI18n ? window.LinguaI18n.t('test_list.' + skillCode) : skill.skill_name}
+                    role="tab"
+                    aria-controls="statsGrid"
+                    aria-selected="${on ? 'true' : 'false'}"
+                    tabindex="${on ? '0' : '-1'}">
+                    <span aria-hidden="true">${skillIcon(skillCode)}</span> ${skillLabel(skillCode, skill)}
                 </button>
-            </li>
         `;
       })
       .join('');
 
     container.innerHTML = html;
 
-    // Add click handlers
-    const tabs = container.querySelectorAll('.nav-link');
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', function () {
-        // Remove active from all tabs
-        container.querySelectorAll('.nav-link').forEach((t) => t.classList.remove('active'));
-        this.classList.add('active');
-
-        // Select skill
-        const skillCode = this.dataset.skill;
-        selectSkill(skillCode);
+    const tabs = Array.from(container.querySelectorAll('[role="tab"]'));
+    function activate(tab) {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      });
+      selectSkill(tab.dataset.skill);
+    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => activate(tab));
+      // Arrow keys move between skills (WAI-ARIA tabs pattern).
+      tab.addEventListener('keydown', (e) => {
+        let next = null;
+        if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+        else if (e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+        else if (e.key === 'Home') next = tabs[0];
+        else if (e.key === 'End') next = tabs[tabs.length - 1];
+        if (!next) return;
+        e.preventDefault();
+        next.focus();
+        activate(next);
       });
     });
   }
 
+  function skillLabel(skillCode, skill) {
+    const fallback = (skill && skill.skill_name) || skillCode;
+    if (!window.LinguaI18n) return escapeHtml(fallback);
+    const v = window.LinguaI18n.t('test_list.' + skillCode);
+    return escapeHtml(v && v !== 'test_list.' + skillCode ? v : fallback);
+  }
+
   window.selectLanguage = function (langCode) {
     selectedLang = profileData[langCode];
+    selectedLangCode = langCode;
+    selectedSkill = null;
 
-    // Update active state. Scoped to the study-language list: the native-
-    // language cards below share the class, and an unscoped, index-matched
-    // query highlighted 中文 there depending on which section loaded first.
-    const cards = document.querySelectorAll('#languageList .language-card');
-    cards.forEach((el, i) => {
-      el.classList.remove('active');
-      if (Object.keys(profileData)[i] === langCode) {
-        el.classList.add('active');
-      }
-    });
+    markActiveLanguage();
 
     const statsSection = document.getElementById('statsSection');
     statsSection.classList.remove('d-none');
@@ -179,31 +270,24 @@
     const skillCode = skill.code;
 
     const html = `
-            <div class="col-12">
-                <div class="card stat-card p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <small class="text-muted text-uppercase fw-semibold">${window.LinguaI18n ? window.LinguaI18n.t('test_list.' + skillCode) : skill.skill_name}</small>
-                            <div class="h1 mb-0 mt-2">${skill.elo_rating}</div>
-                            <small class="text-muted">${LinguaI18n.t('profile.elo_rating')}</small>
-                        </div>
-                        <span style="font-size: 3rem;">${skillIcon(skillCode)}</span>
-                    </div>
-                    <div class="row mt-3 pt-3 border-top">
-                        <div class="col-md-6 text-center">
-                            <h3 class="mb-0">${skill.tests_taken}</h3>
-                            <small class="text-muted">${LinguaI18n.t('profile.tests_taken')}</small>
-                        </div>
-                        <div class="col-md-6 text-center">
-                            <h3 class="mb-0">${formatDate(skill.last_test_date)}</h3>
-                            <small class="text-muted">${LinguaI18n.t('profile.last_test')}</small>
-                        </div>
-                    </div>
+            <div class="ld-stats stat-card" aria-label="${skillLabel(skillCode, skill)}">
+                <div class="ld-stat">
+                    <div class="ld-stat__n">${escapeHtml(skill.elo_rating)}</div>
+                    <small>${LinguaI18n.t('profile.elo_rating')}</small>
+                </div>
+                <div class="ld-stat">
+                    <div class="ld-stat__n">${escapeHtml(skill.tests_taken)}</div>
+                    <small>${LinguaI18n.t('profile.tests_taken')}</small>
+                </div>
+                <div class="ld-stat">
+                    <div class="ld-stat__n me-stat__date">${escapeHtml(formatDate(skill.last_test_date))}</div>
+                    <small>${LinguaI18n.t('profile.last_test')}</small>
                 </div>
             </div>
         `;
 
     container.innerHTML = html;
+    container.setAttribute('aria-labelledby', skillCode + '-tab');
   }
 
   async function loadTestHistory() {
@@ -266,10 +350,11 @@
     const history = testHistory[cacheKey] || [];
 
     if (history.length === 0) {
-      container.innerHTML = `<div class="alert alert-info">${LinguaI18n.t('profile.no_skill_tests', { skill: selectedSkill.skill_name.toLowerCase() })}</div>`;
+      container.innerHTML = `<div class="ld-note">${LinguaI18n.t('profile.no_skill_tests', { skill: escapeHtml(selectedSkill.skill_name.toLowerCase()) })}</div>`;
       return;
     }
 
+    const histLang = selectedLangCode || '';
     const html = history
       .map((test) => {
         const scoreClass =
@@ -314,25 +399,19 @@
         const factor = test.elo_reduction_factor;
         const reviewBadge =
           factor != null
-            ? `<span class="badge bg-info text-dark ms-1" title="${LinguaI18n.t('profile.review_badge_tooltip', { factor: factor.toFixed(2) })}">${LinguaI18n.t('profile.review_badge', { factor: factor.toFixed(2) })}</span>`
+            ? ` · <span class="ld-tag ld-tag--warn" title="${LinguaI18n.t('profile.review_badge_tooltip', { factor: factor.toFixed(2) })}">${LinguaI18n.t('profile.review_badge', { factor: factor.toFixed(2) })}</span>`
             : '';
 
         return `
-                <div class="card mb-2">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">${escapeHtml(test.test_title || 'Unknown Test')}${reviewBadge}</h6>
-                                <small class="text-muted">
-                                    <i class="far fa-calendar me-1"></i>${formatDate(test.created_at)}
-                                </small>
-                            </div>
-                            <div class="text-end ms-3">
-                                <h5 class="mb-0 text-${scoreClass}">${scoreLabel}</h5>
-                                <small class="text-muted">ELO: ${test.user_elo_after || 'N/A'}</small>
-                            </div>
-                        </div>
-                    </div>
+                <div class="ld-trow me-hist">
+                    <span class="ld-trow__mid">
+                        <b class="me-hist__title" lang="${escapeHtml(histLang)}">${escapeHtml(test.test_title || 'Unknown Test')}</b>
+                        <small>${formatDate(test.created_at)}${reviewBadge}</small>
+                    </span>
+                    <span class="ld-trow__end">
+                        <span class="me-hist__score text-${scoreClass}">${scoreLabel}</span>
+                        <small class="d-block">ELO: ${escapeHtml(test.user_elo_after || 'N/A')}</small>
+                    </span>
                 </div>
             `;
       })
@@ -375,7 +454,9 @@
     }
     // Reflect the active card.
     document.querySelectorAll('#nativeLanguageCards .language-card').forEach((card) => {
-      card.classList.toggle('active', parseInt(card.dataset.id, 10) === currentNativeLanguageId);
+      const on = parseInt(card.dataset.id, 10) === currentNativeLanguageId;
+      card.classList.toggle('active', on);
+      card.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   }
 
@@ -384,25 +465,15 @@
     if (!container) return;
     container.innerHTML = NATIVE_LANGUAGES.map(
       (lang) => `
-            <div class="col-md-4">
-                <div class="card language-card h-100 p-3" data-id="${lang.id}" role="button" tabindex="0">
-                    <div class="d-flex align-items-center">
-                        <span class="fs-2 me-3">${lang.flag}</span>
-                        <h6 class="mb-0">${lang.name}</h6>
-                    </div>
-                </div>
-            </div>
+            <button type="button" class="ld-stat language-card me-native" data-id="${lang.id}" aria-pressed="false">
+                <span class="me-native__flag" aria-hidden="true">${lang.flag}</span>
+                <span class="me-native__name">${lang.name}</span>
+            </button>
         `
     ).join('');
+    // Native <button>s: Enter and Space activate them without a key handler.
     container.querySelectorAll('.language-card').forEach((card) => {
-      const handler = () => saveNativeLanguage(parseInt(card.dataset.id, 10));
-      card.addEventListener('click', handler);
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handler();
-        }
-      });
+      card.addEventListener('click', () => saveNativeLanguage(parseInt(card.dataset.id, 10)));
     });
   }
 
@@ -512,6 +583,16 @@
     };
     const flag = flags[langCode?.toLowerCase()] || '🌐';
     return flag;
+  }
+
+  function escapeHtml(value) {
+    const s = String(value == null ? '' : value);
+    if (window.LinguaUtils && window.LinguaUtils.escapeHtml)
+      return window.LinguaUtils.escapeHtml(s);
+    return s.replace(
+      /[&<>"']/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+    );
   }
 
   function formatDate(dateStr) {

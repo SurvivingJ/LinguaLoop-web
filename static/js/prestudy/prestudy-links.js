@@ -29,26 +29,41 @@
 
   function markerKey(slug) {
     let s = String(slug || '');
-    try { s = decodeURIComponent(s); } catch { /* keep raw */ }
+    try {
+      s = decodeURIComponent(s);
+    } catch {
+      /* keep raw */
+    }
     return MARKER_PREFIX + s;
   }
 
   function readJson(key) {
-    try { return JSON.parse(root.sessionStorage.getItem(key) || 'null'); } catch { return null; }
+    try {
+      return JSON.parse(root.sessionStorage.getItem(key) || 'null');
+    } catch {
+      return null;
+    }
   }
 
   function isPrestudied(slug, now) {
     const m = readJson(markerKey(slug));
-    return !!(m && m.at && ((now || Date.now()) - m.at) < WINDOW_MS);
+    return !!(m && m.at && (now || Date.now()) - m.at < WINDOW_MS);
   }
 
   function clearMarker(slug) {
-    try { root.sessionStorage.removeItem(markerKey(slug)); } catch { /* storage blocked */ }
+    try {
+      root.sessionStorage.removeItem(markerKey(slug));
+    } catch {
+      /* storage blocked */
+    }
   }
 
   function followupUrl(slug, opts) {
     const o = opts || {};
-    const p = new URLSearchParams({ mode: 'followup', type: o.type === 'listening' ? 'listening' : 'reading' });
+    const p = new URLSearchParams({
+      mode: 'followup',
+      type: o.type === 'listening' ? 'listening' : 'reading',
+    });
     if (o.returnTo) p.set('return', o.returnTo);
     return '/test/' + encodeURIComponent(slug) + '/prestudy?' + p.toString();
   }
@@ -56,14 +71,23 @@
   // A Produce request the next daily-session translation slot should honour.
   function setProduceRequest(slug, testId) {
     try {
-      root.sessionStorage.setItem(PRODUCE_KEY, JSON.stringify({ slug: String(slug), test_id: testId || null, at: Date.now() }));
-    } catch { /* storage blocked */ }
+      root.sessionStorage.setItem(
+        PRODUCE_KEY,
+        JSON.stringify({ slug: String(slug), test_id: testId || null, at: Date.now() })
+      );
+    } catch {
+      /* storage blocked */
+    }
   }
 
   function takeProduceRequest(now) {
     const r = readJson(PRODUCE_KEY);
-    try { root.sessionStorage.removeItem(PRODUCE_KEY); } catch { /* storage blocked */ }
-    return r && r.slug && r.at && ((now || Date.now()) - r.at) < WINDOW_MS ? r : null;
+    try {
+      root.sessionStorage.removeItem(PRODUCE_KEY);
+    } catch {
+      /* storage blocked */
+    }
+    return r && r.slug && r.at && (now || Date.now()) - r.at < WINDOW_MS ? r : null;
   }
 
   /**
@@ -95,14 +119,22 @@
       btn.classList.add('disabled');
       Promise.resolve()
         .then(o.beforeLeave)
-        .catch(function (e) { console.warn('[prestudy] before-leave failed:', e); })
-        .then(function () { root.location.href = btn.href; });
+        .catch(function (e) {
+          console.warn('[prestudy] before-leave failed:', e);
+        })
+        .then(function () {
+          root.location.href = btn.href;
+        });
     });
     box.appendChild(btn);
     if (o.prestudied) {
       const note = doc.createElement('span');
       note.className = 'small text-muted';
-      note.textContent = t('prestudy.result_prestudied', null, 'Prestudied: this attempt counted at half weight.');
+      note.textContent = t(
+        'prestudy.result_prestudied',
+        null,
+        'Prestudied: this attempt counted at half weight.'
+      );
       box.appendChild(note);
     }
     container.appendChild(box);

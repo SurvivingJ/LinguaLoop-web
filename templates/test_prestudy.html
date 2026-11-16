@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 {% set defer_base_scripts = true %}
+{# One task per screen (FOUNDATION.md): Back pill header, one scrolling stage,
+   the actions pinned in the dock. static/js/prestudy/prestudy.js fills the
+   header (test title, "Study first · Reading") and drives every region. #}
+{% set task_mode = true %}
 
 {% block title %}Study First | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 prestudy-page{% endblock %}
+
+{# prestudy.js points the Back pill at this test's preview (or /session). #}
+{% block task_back_href %}{{ url_for('tests') }}{% endblock %}
+{% block task_glyph %}学{% endblock %}
+{% block task_title %}<span data-i18n="prestudy.page_title">Study first</span>{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/test-prestudy.css') }}">
@@ -14,101 +25,119 @@
 {% endblock %}
 
 {% block content %}
-<div class="ps-wrap">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-2">
-            <li class="breadcrumb-item"><a href="/tests" data-i18n="test_preview.breadcrumb_tests">Tests</a></li>
-            <li class="breadcrumb-item"><a href="#" id="psBackToPreview" data-i18n="test_preview.breadcrumb_preview">Test Preview</a></li>
-            <li class="breadcrumb-item active" data-i18n="prestudy.page_title">Study first</li>
-        </ol>
-    </nav>
-
-    <div id="psLoading" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-3 ps-note" data-i18n="prestudy.loading">Preparing your study session...</p>
-    </div>
-
-    <div id="psError" class="ps-card" hidden>
-        <p id="psErrorMsg" class="mb-3"></p>
-        <a class="btn btn-primary" id="psErrorSkip" href="#" data-i18n="prestudy.take_cold">Skip and take the test</a>
-    </div>
-
-    <div id="psNotice" class="alert alert-warning ps-notice" role="status" hidden></div>
-
-    <div id="psMain" hidden>
-        <div class="ps-steps" role="tablist">
-            <div class="ps-step active" data-step="1" tabindex="0" role="tab" data-i18n="prestudy.step_preview">Preview</div>
-            <div class="ps-step" data-step="2" tabindex="0" role="tab" data-i18n="prestudy.step_prime">Word prime</div>
-            <div class="ps-step" data-step="3" tabindex="0" role="tab" data-i18n="prestudy.step_ready">Ready</div>
+<div class="ld-screen ps-wrap" id="psScreen">
+    <div class="ld-stage ps-stage" id="psStage">
+        <div id="psLoading" class="ps-loading" role="status">
+            <div class="spinner-border text-primary" aria-hidden="true"></div>
+            <p class="ps-note" data-i18n="prestudy.loading">Preparing your study session...</p>
         </div>
 
-        <!-- Step 1: preview -->
-        <section id="psS1">
-            <div class="ps-card">
-                <h1 class="h4 ps-cjk mb-2" id="psTitle"></h1>
-                <div class="ps-row" id="psChips"></div>
-                <audio id="psAudio" class="ps-audio" controls preload="none" hidden></audio>
+        <div id="psError" class="ld-card ps-card ld-col" hidden>
+            <p id="psErrorMsg" class="mb-0"></p>
+            <a class="ld-btn" id="psErrorSkip" href="#" data-i18n="prestudy.take_cold">Skip and take the test</a>
+        </div>
+
+        <div id="psNotice" class="ld-note ld-note--warn ps-notice" role="status" hidden></div>
+
+        <div id="psMain" class="ps-main" hidden>
+            <div class="ld-seg ps-steps" role="tablist" data-ps-aria="prestudy.steps_label" aria-label="Study steps">
+                <button type="button" class="ps-step active" data-step="1" role="tab" aria-selected="true" data-i18n="prestudy.step_preview">Preview</button>
+                <button type="button" class="ps-step" data-step="2" role="tab" aria-selected="false" data-i18n="prestudy.step_prime">Word prime</button>
+                <button type="button" class="ps-step" data-step="3" role="tab" aria-selected="false" data-i18n="prestudy.step_ready">Ready</button>
+            </div>
+
+            <!-- Step 1: preview -->
+            <section id="psS1" class="ps-section" aria-labelledby="psTitle">
+                <h1 class="visually-hidden" id="psTitle"></h1>
+                <div class="ld-wrap ps-chips" id="psChips"></div>
+                <div class="ps-audio" id="psAudioWrap" hidden>
+                    <button type="button" class="ps-play" id="psPlay" aria-pressed="false" data-ps-aria="prestudy.audio_play" aria-label="Play audio"><i class="bi bi-play-fill" aria-hidden="true"></i></button>
+                    <div class="ps-track">
+                        <div class="ps-wave" id="psWave" aria-hidden="true"></div>
+                        <input type="range" class="ps-seek" id="psSeek" min="0" max="1000" value="0" step="1" data-ps-aria="prestudy.audio_seek" aria-label="Audio position">
+                    </div>
+                    <span class="ps-time ld-num" id="psTime">0:00</span>
+                    <audio id="psAudio" class="ps-audio-el" preload="none" hidden></audio>
+                </div>
                 <div class="ps-note" id="psAudioNote" hidden data-i18n="prestudy.audio_unavailable">Audio could not be loaded.</div>
-                <div class="ps-row ps-gap">
-                    <label class="form-check-label ps-note"><input type="checkbox" class="form-check-input me-1" id="psHl" checked> <span data-i18n="prestudy.highlight">Highlight new words</span></label>
-                    <label class="ps-note ms-2" id="psAidsWrap"><span data-i18n="prestudy.aids_label">Reading aids</span>
-                        <select id="psAids" class="form-select form-select-sm d-inline-block w-auto ms-1">
-                            <option value="unknown" data-i18n="prestudy.aids_unknown">On new words</option>
-                            <option value="all" data-i18n="prestudy.aids_all">On every word</option>
-                            <option value="off" data-i18n="prestudy.aids_off">Off</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="ps-passage" id="psPassage"></div>
-                <div class="ps-note ps-gap" id="psStats"></div>
-            </div>
-            <div class="ps-card">
-                <div class="ps-row ps-between">
-                    <h2 class="h5 mb-0" data-i18n="prestudy.key_words">Key words</h2>
-                    <span class="ps-note" id="psKwCount"></span>
-                </div>
-                <div class="ps-wordlist" id="psWordlist"></div>
-            </div>
-            <div class="text-center mb-3"><a href="#" id="psSkip" class="ps-note" data-i18n="prestudy.take_cold">Skip and take the test</a></div>
-        </section>
 
-        <!-- Step 2: word prime and readiness check -->
-        <section id="psS2" class="ps-card" hidden>
-            <div class="ps-row ps-between">
-                <h2 class="h5 mb-0" data-i18n="prestudy.step_prime">Word prime</h2>
-                <span class="ps-chip primary" id="psQuizMode"></span>
-            </div>
-            <div class="ps-progress" id="psQProg"></div>
-            <div id="psQBody"></div>
-        </section>
+                <div class="ld-seg ps-tabs" role="tablist" id="psTabs">
+                    <button type="button" class="ps-tab is-on" id="psTabPassage" data-tab="passage" role="tab" aria-selected="true" aria-controls="psPanePassage" data-ps-t="prestudy.tab_passage">Passage</button>
+                    <button type="button" class="ps-tab" id="psTabWords" data-tab="words" role="tab" aria-selected="false" aria-controls="psPaneWords"><span data-i18n="prestudy.key_words">Key words</span> · <span id="psKwN" class="ld-num">0</span></button>
+                </div>
 
-        <!-- Step 3: ready -->
-        <section id="psS3" class="ps-card" hidden>
-            <h2 class="h5" id="psReadyTitle" data-i18n="prestudy.ready_title">Ready for the test</h2>
-            <div class="ps-statrow" id="psReadyStats"></div>
-            <p class="ps-note" id="psSaveState"></p>
-            <p class="ps-note" id="psEloNote" data-i18n="prestudy.elo_note">Your first attempt after studying counts at half weight for your rating.</p>
-            <button type="button" class="btn btn-primary w-100" id="psTakeTest"><i class="bi bi-play-circle-fill"></i> <span data-i18n="prestudy.take_test">Take the test</span></button>
-            <!-- After the attempt: Produce = dual translation of the window with the most primed words -->
-            <div id="psProduceBox" hidden>
-                <p class="ps-note" data-i18n="prestudy.produce_intro">Now produce them: translate two to four sentences of this passage back into the language you are learning, from a reference in your language. Each primed word you use is marked.</p>
-                <button type="button" class="btn btn-primary w-100" id="psProduce"><i class="bi bi-pencil-square"></i> <span data-i18n="prestudy.produce_start">Translate a passage (about 5 min)</span></button>
-                <p class="ps-note mt-2" id="psProduceMsg" role="status"></p>
-            </div>
-            <button type="button" class="btn btn-outline-secondary w-100 mt-2" id="psBackToSession" hidden data-i18n="prestudy.back_to_session">Back to today's session</button>
-        </section>
+                <div id="psPanePassage" class="ps-pane" role="tabpanel" aria-labelledby="psTabPassage">
+                    <div class="ps-controls">
+                        <label class="form-check form-switch ps-hl">
+                            <input type="checkbox" class="form-check-input" role="switch" id="psHl" checked>
+                            <span class="form-check-label" data-i18n="prestudy.highlight">Highlight new words</span>
+                        </label>
+                        <div class="ps-aids" id="psAidsWrap">
+                            <span class="ps-aids-label" id="psAidsLabel" data-i18n="prestudy.aids_label">Reading aids</span>
+                            <div class="ld-seg" id="psAids" role="radiogroup" aria-labelledby="psAidsLabel">
+                                <button type="button" role="radio" aria-checked="true" data-v="unknown" data-i18n="prestudy.aids_unknown">On new words</button>
+                                <button type="button" role="radio" aria-checked="false" data-v="all" data-i18n="prestudy.aids_all">On every word</button>
+                                <button type="button" role="radio" aria-checked="false" data-v="off" data-i18n="prestudy.aids_off">Off</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ps-passage" id="psPassage"></div>
+                    <div class="ps-note" id="psStats"></div>
+                </div>
+
+                <div id="psPaneWords" class="ps-pane" role="tabpanel" aria-labelledby="psTabWords" hidden>
+                    <div class="ld-sech">
+                        <h2 class="ld-h2" data-i18n="prestudy.key_words">Key words</h2>
+                        <span class="ps-note" id="psKwCount"></span>
+                    </div>
+                    <p class="ps-note" data-ps-t="prestudy.words_hint">Tap a word in the passage to add one you don't know.</p>
+                    <div class="ld-rowlist ps-wordlist" id="psWordlist"></div>
+                </div>
+            </section>
+
+            <!-- Step 2: word prime and readiness check -->
+            <section id="psS2" class="ps-section" hidden>
+                <div class="ld-sech ps-s2head">
+                    <h2 class="ld-h2" id="psS2Title" data-i18n="prestudy.step_prime">Word prime</h2>
+                    <span class="ld-tag ld-tag--brand" id="psQuizMode"></span>
+                </div>
+                <div class="ps-progress" id="psQProg" aria-hidden="true"></div>
+                <div id="psQBody" class="ps-qbody"></div>
+            </section>
+
+            <!-- Step 3: ready -->
+            <section id="psS3" class="ps-section" hidden>
+                <div class="ps-wm ld-tl" aria-hidden="true">学</div>
+                <h2 class="ld-h1" id="psReadyTitle" data-i18n="prestudy.ready_title">Ready for the test</h2>
+                <div class="ld-stats ps-statrow" id="psReadyStats"></div>
+                <p class="ps-note" id="psSaveState" role="status"></p>
+                <p class="ps-note" id="psEloNote" data-i18n="prestudy.elo_note">Your first attempt after studying counts at half weight for your rating.</p>
+                <!-- After the attempt: Produce = dual translation of the window with the most primed words -->
+                <div id="psProduceBox" class="ld-note" hidden>
+                    <span data-i18n="prestudy.produce_intro">Now produce them: translate two to four sentences of this passage back into the language you are learning, from a reference in your language. Each primed word you use is marked.</span>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- The dock: every action of the current screen, pinned in the thumb zone. -->
+    <div class="ld-dock ps-dock" id="psActionBar" hidden>
+        <div class="ld-row ps-dockrow">
+            <button type="button" class="ld-btn ld-btn--ghost" id="psIdk" hidden data-i18n="prestudy.idk">I don't know</button>
+            <button type="button" class="ld-btn" id="psCheck" hidden data-i18n="prestudy.check">Check</button>
+            <button type="button" class="ld-btn" id="psNextStep">Start the word prime</button>
+            <button type="button" class="ld-btn" id="psTakeTest" hidden><i class="bi bi-play-circle-fill" aria-hidden="true"></i> <span data-i18n="prestudy.take_test">Take the test</span></button>
+            <button type="button" class="ld-btn" id="psProduce" hidden><i class="bi bi-pencil-square" aria-hidden="true"></i> <span data-i18n="prestudy.produce_start">Translate a passage (about 5 min)</span></button>
+        </div>
+        <p class="ps-dockmsg" id="psProduceMsg" role="status"></p>
+        <button type="button" class="ld-btn ld-btn--ghost" id="psBackToSession" hidden data-i18n="prestudy.back_to_session">Back to today's session</button>
+        <a href="#" id="psSkip" class="ld-link ld-link--quiet ps-skip" data-i18n="prestudy.take_cold">Skip and take the test</a>
+        <p class="ld-hint ps-dockhint" id="psBarNote"></p>
     </div>
 </div>
 
 <div id="psScrim" class="ps-scrim" hidden></div>
-<div id="psPop" class="ps-pop" role="dialog" hidden></div>
-
-<div class="ps-actionbar" id="psActionBar">
-    <div class="ps-actionbar-inner">
-        <span class="ps-note" id="psBarNote"></span>
-        <button type="button" class="btn btn-primary" id="psNextStep" data-i18n="prestudy.start_prime">Start the word prime</button>
-    </div>
-</div>
+<div id="psPop" class="ps-pop" role="dialog" aria-modal="false" aria-labelledby="psPopWord" tabindex="-1" hidden></div>
 {% endblock %}
 
 {% block extra_js %}

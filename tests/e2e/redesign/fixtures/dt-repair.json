@@ -1,0 +1,11 @@
+{
+  "GET /api/dual-translation/next": {"status":"success","type":"passage","submission_id":42,"l1_text":"A new café opened near my house. I went there with my friend.","age_tier":3,"rubric_descriptors":{}},
+  "POST /api/dual-translation/42/submit": {"status":"success","scores":{"accuracy":3},"overall_band":3,"provisional":false,"errors":[],"diff":[],"highlights":[],"redacted":true,"n_errors":2,
+    "repair":{"session_id":501,"submission_id":42,"status":"open","clean":false,"surface":"repair_pass","l1":"en","l2":"zh","n_sentences":3,"n_clean":1,"auto_advance_ms":1600,
+      "prompt_l1_passage":"A new café opened near my house. I went there with my friend.",
+      "steps":[{"item_id":7001,"position":0,"sentence_index":0,"step_kind":"repair","ladder":"full","prompt_l1":"A new café opened near my house.","learner_sentence":"我家旁边开了一个新咖啡馆。","hint_rungs":[1,2,3],"hint_level":0,"where":null,"last_text":null,"checks_used":0,"check_cap":4,"state":"open","outcome":null,"from_date":null},
+               {"item_id":7002,"position":1,"sentence_index":1,"step_kind":"repair","ladder":"short","prompt_l1":"I went there with my friend.","learner_sentence":"我跟朋友去那里了。","hint_rungs":[1],"hint_level":0,"where":null,"last_text":null,"checks_used":0,"check_cap":4,"state":"open","outcome":null,"from_date":null}]}},
+  "POST /api/dual-translation/repair/items/7001/hint": {"status":"success","hint":{"type":"where"},"hint_level":1,"hint_number":1,"hint_total":3,"where":{"start":2,"end":4,"text":"旁边","point":false},"next":"hint"},
+  "POST /api/dual-translation/repair/items/7001/open": {"status":"success","step":{"hint_level":0}},
+  "POST /api/dual-translation/repair/*": {"status":"success"}
+}

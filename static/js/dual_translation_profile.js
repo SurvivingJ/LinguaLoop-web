@@ -55,6 +55,11 @@
     } catch (e) {
       /* i18n is best-effort; fall back to embedded defaults */
     }
+    // Header subtitle key not yet merged into the locale files
+    // (static/i18n/_redesign/translation.json): English fallback until then.
+    document.querySelectorAll('[data-dt-t]').forEach(function (node) {
+      node.textContent = label(node.dataset.dtT, node.textContent);
+    });
     await load();
   }
 
@@ -147,28 +152,41 @@
     return '<span class="dtp-trend ' + cls + '">' + escapeHtml(text) + '</span>';
   }
 
+  // Status -> tag colour (the mockup's ErrorProfile rows).
+  const STATUS_TAG = {
+    resolved: 'ld-tag--ok',
+    drilling: 'ld-tag--brand',
+    queued: '',
+    watching: 'ld-tag--warn',
+  };
+
+  // One row: subtype, then "pair · trend" underneath, the status tag at the end.
   function buildCard(entry) {
     const status = entry.remediation_status || 'watching';
     const pair =
       (entry.l1_language || '?').toUpperCase() + ' → ' + (entry.l2_language || '?').toUpperCase();
+    const trend = trendMarkup(entry.trend);
+    const tag = STATUS_TAG[status] === undefined ? 'ld-tag--warn' : STATUS_TAG[status];
     return (
-      '<div class="dtp-card status-' +
+      '<div class="dtp-card ld-trow status-' +
       escapeHtml(status) +
       '">' +
-      '<div class="dtp-card-main">' +
-      '<div class="dtp-subtype">' +
+      '<div class="dtp-card-main ld-trow__mid">' +
+      '<b class="dtp-subtype">' +
       escapeHtml(humanize(entry.subtype)) +
-      '</div>' +
-      '<div class="dtp-pair">' +
+      '</b>' +
+      '<small class="dtp-pair">' +
       escapeHtml(pair) +
+      (trend ? ' · ' + trend : '') +
+      '</small>' +
       '</div>' +
-      '</div>' +
-      '<span class="dtp-status status-' +
+      '<span class="dtp-status ld-tag ' +
+      tag +
+      ' status-' +
       escapeHtml(status) +
       '">' +
       escapeHtml(statusLabel(status)) +
       '</span>' +
-      trendMarkup(entry.trend) +
       '</div>'
     );
   }

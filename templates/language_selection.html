@@ -1,83 +1,76 @@
 {% extends "base.html" %}
 {% set defer_base_scripts = true %}
 
+{# One task per screen: Back pill header, the three languages in the stage and
+   both actions pinned in the dock. Back returns to the previous page when it
+   is ours (else the Me tab); language-selection.js hides it on first run. #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
+
 {% block title %}Select Language - LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50{% endblock %}
+{% block body_class %}bg-slate-50 lang-select-body{% endblock %}
+
+{% block task_back_href %}{{ url_for('profile') }}{% endblock %}
+{% block task_title %}<span data-i18n="common.nav.language_selection">Language Selection</span>{% endblock %}
 
 {% block content %}
-<div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 80px);">
-    <div class="row w-100 justify-content-center">
-        <div class="col-12" style="max-width: 500px;">
-            <div class="px-3 py-4">
-                
-                <!-- Header Section -->
-                <div class="text-center mb-4">
-                    <h1 class="mb-3 h2" style="color: var(--slate-900); font-weight: 600;" data-i18n="lang_select.title">
-                        Choose your language to practice
-                    </h1>
-                    <p class="mb-0" style="color: var(--slate-500); font-size: 16px;" data-i18n="lang_select.subtitle">
-                        This will be used for all tests and content
-                    </p>
-                </div>
+<div class="ld-stage lang-select-page">
 
-                <!-- Language Selection Cards -->
-                <div class="language-options mt-5">
-                    
-                    <!-- Chinese (id=1) -->
-                    <div class="language-card mb-3" data-id="1">
-                        <div class="d-flex align-items-center">
-                            <span class="language-flag">🇨🇳</span>
-                            <div class="flex-grow-1">
-                                <span class="language-native">中文</span>
-                            </div>
-                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
-                        </div>
-                    </div>
+    <!-- Header Section -->
+    <div class="lang-select-header">
+        <h1 class="ld-h1" id="langSelectTitle" data-i18n="lang_select.title">Choose your language to practice</h1>
+        <p class="ld-muted mb-0" data-i18n="lang_select.subtitle">This will be used for all tests and content</p>
+    </div>
 
-                    <!-- English (id=2) -->
-                    <div class="language-card mb-3" data-id="2">
-                        <div class="d-flex align-items-center">
-                            <span class="language-flag">🇺🇸</span>
-                            <div class="flex-grow-1">
-                                <span class="language-native">English</span>
-                            </div>
-                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
-                        </div>
-                    </div>
+    <!-- Language Selection Cards -->
+    <div class="language-options ld-rowlist" role="group" aria-labelledby="langSelectTitle">
 
-                    <!-- Japanese (id=3) -->
-                    <div class="language-card mb-3" data-id="3">
-                        <div class="d-flex align-items-center">
-                            <span class="language-flag">🇯🇵</span>
-                            <div class="flex-grow-1">
-                                <span class="language-native">日本語</span>
-                            </div>
-                            <i class="check-icon bi bi-check-circle-fill" style="display: none;"></i>
-                        </div>
-                    </div>
+        <!-- Chinese (id=1) -->
+        <button type="button" class="language-card ld-trow" data-id="1" aria-pressed="false">
+            <span class="ld-trow__glyph language-glyph" lang="zh" aria-hidden="true">中</span>
+            <span class="ld-trow__mid">
+                <b><span class="language-flag" aria-hidden="true">🇨🇳</span> <span class="language-native" lang="zh">中文</span></b>
+                <small class="language-english" data-ld-i18n="lang_select.name_zh">Chinese</small>
+            </span>
+            <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
+        </button>
 
-                </div>
+        <!-- English (id=2) -->
+        <button type="button" class="language-card ld-trow" data-id="2" aria-pressed="false">
+            <span class="ld-trow__glyph language-glyph" lang="en" aria-hidden="true">E</span>
+            <span class="ld-trow__mid">
+                <b><span class="language-flag" aria-hidden="true">🇺🇸</span> <span class="language-native" lang="en">English</span></b>
+                <small class="language-english" data-ld-i18n="lang_select.name_en">English</small>
+            </span>
+            <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
+        </button>
 
-                <!-- Primary CTA: Daily Session (with Browse Tests as secondary) -->
-                <div class="mt-4">
-                    <button id="continue-btn" class="btn btn-primary w-100" disabled data-i18n="lang_select.start_session"
-                            data-session-url="{{ url_for('study_session_page') }}">
-                        Start Daily Session
-                    </button>
-                    <div class="text-center mt-3">
-                        <a id="browse-tests-link" href="{{ url_for('tests') }}"
-                           class="text-decoration-none" data-i18n="lang_select.browse_tests"
-                           style="color: var(--slate-500); font-size: 14px; pointer-events: none; opacity: 0.5;">
-                            Browse tests
-                        </a>
-                    </div>
-                </div>
+        <!-- Japanese (id=3) -->
+        <button type="button" class="language-card ld-trow" data-id="3" aria-pressed="false">
+            <span class="ld-trow__glyph language-glyph" lang="ja" aria-hidden="true">日</span>
+            <span class="ld-trow__mid">
+                <b><span class="language-flag" aria-hidden="true">🇯🇵</span> <span class="language-native" lang="ja">日本語</span></b>
+                <small class="language-english" data-ld-i18n="lang_select.name_ja">Japanese</small>
+            </span>
+            <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
+        </button>
 
-            </div>
-        </div>
     </div>
 </div>
+{% endblock %}
+
+{# Primary CTA: Daily Session (with Browse Tests as secondary) #}
+{% block dock %}
+<button id="continue-btn" class="ld-btn" disabled data-i18n="lang_select.start_session"
+        data-session-url="{{ url_for('study_session_page') }}">
+    Start Daily Session
+</button>
+<a id="browse-tests-link" href="{{ url_for('tests') }}"
+   class="ld-link lang-select-browse" data-i18n="lang_select.browse_tests"
+   aria-disabled="true" style="pointer-events: none; opacity: 0.5;">
+    Browse tests
+</a>
 {% endblock %}
 
 {% block extra_css %}

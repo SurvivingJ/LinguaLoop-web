@@ -6595,3 +6595,33 @@ Correction: ADR-044, [[evaluations/dt-decision-grading-2026-11-14]] and the sing
 called an earlier "taxonomy v6 already active" read "unreconciled". It is not a conflict: v5 was
 active until the orchestrator's cutover on 2026-11-14, and the grader agent's read was made after that
 cutover the same day. All three now say so.
+
+## [2026-11-16] ingest | Mobile redesign built — app shell and design system (ADR-046)
+Source: the engineers' reports for the mobile redesign build (foundation + integration; the
+integration report reached the wiki truncated after its i18n paragraph), the foundation hand-off
+notes, and the approved mockup `wiki/demos/mobile-redesign-mockup.html`. Claims were checked
+against the working tree before writing: `templates/base.html` (viewport-fit, three body modes,
+`#ldTabbar` with Today/Practice/Tests/Me, task-mode blocks, active tab by endpoint),
+`static/css/styles.css` (`100dvh`/`--ld-vvh`, `width >= 768px`, `width < 576px` sheets, five named
+`data-theme` blocks, `.ld-stage { position: relative }`, no `.test-list-page` / `.pitch-accent-page`),
+`theme-manager.js` (six themes, storage keys, `setMode` behaviour), `base.js` (`LinguaShell`,
+visual-viewport keyboard rule), `controller.js` (`ctx.frame`, runtime task mode), `profile.html`
+(Me links and pickers), `practice.js` (`#exerciseDock` passed to `DTErrorCard.mount`),
+`web/pages.py` (route table), the deleted `_redesign` i18n folder and page-CSS stubs, and no hex
+in page CSS. Why the earlier scroll fix did not hold was established from git: the only earlier
+no-scroll work (2026-11-14, `14d554a`) pinned the body around the DT repair sheet only, while the
+pages kept a sticky header + footer frame and `vh` heights (`.session-stage { min-height: 50vh }`,
+`.login-container { min-height: 100vh }`) with actions at the end of the content.
+Nothing outside `wiki/` was changed. The redesign is in the working tree only: not committed, not deployed.
+Pages created (4): [[decisions/ADR-046-mobile-app-shell]], [[pages/app-shell]],
+[[pages/app-shell.tech]], [[tasklist/mobile-redesign.tasks]] (TASK-975–988).
+Pages updated (5): [[pages/pages-overview]] (navigation and layout section; shell mode per route;
+route registration now `web/pages.py`; added the missing `/test/<slug>/prestudy`, `/word-list`,
+`/calibration`, `/counter-drill` rows; base.html, themes, static assets), [[pages/study-session]]
+(entry via the Today / Practice tabs; task-screen header, strip and dock; no runner Skip button),
+[[pages/study-session.tech]] (task-mode frame, `ctx.frame`, Back), [[tasklist/master]], index.
+Tasks: TASK-987 Done (integration requests: i18n merge of 65 keys, Me page links, hard-coded
+colours — verified); TASK-982 (Playwright E2E, credentials) and TASK-988 (commit, review, deploy —
+owner) Blocked; TASK-975–981, 983–986 Not Started. A re-run of the integrator's i18n key check
+still lists `session.dt_repair_heading` missing in `es` and ten fallback-only keys that pre-date the
+redesign (TASK-985). Open questions: 3 (real iOS Safari, measured contrast, ship decision).
