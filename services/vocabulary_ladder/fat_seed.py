@@ -306,6 +306,10 @@ GENERIC_EXPLANATIONS = frozenset({
     '形は合うが意味が合わない', '形は合うがこの文脈では意味が合わない', '形は合うが文脈に合わない',
     '形は合うが意味や文脈が合わない', '形は合うが意味が異なる', '意味や形が合わず', '意味が合わない',
     '反対の関係ではない', '反対の意味ではない', '反対の意味ではありません',
+    # English (explanations are written in English for every language).
+    'doesnotfitthecontext', 'thisdoesntfitthecontext', 'thisdoesnotfitthecontext', 'doesntfitthecontext', 'doesnotfitthiscontext',
+    'wrongmeaning', 'wrongusage', 'unnatural', 'incorrectusage', 'notappropriatehere',
+    'theformfitsbutthemeaningdoesnot', 'theformfitsbutthemeaningdoesnt',
 })
 _KANJI_RUN = re.compile(r'^[一-鿿]+')
 _SURU = 'すしさせで'  # 採用す/採用し/採用さ(れる)/採用せ(ず)/採用で(きる): a noun used as a verb
@@ -315,7 +319,7 @@ def _norm_expl(text, option_text: str = '') -> str:
     t = str(text or '')
     if option_text:
         t = t.replace(option_text, '')
-    return _EXPL_LEAD.sub('', _EXPL_NOISE.sub('', t))
+    return _EXPL_LEAD.sub('', _EXPL_NOISE.sub('', t)).lower()
 
 
 def _option_rows(block) -> list[dict]:
