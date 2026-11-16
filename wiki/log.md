@@ -6639,3 +6639,6 @@ have identical key sets (1175). Only `static/i18n/*.json` changed; no JS, templa
 Not done: loading the speed round in zh in a browser. Not committed.
 Pages updated (2): [[tasklist/mobile-redesign.tasks]] (TASK-985 Done), [[tasklist/master]]
 (Not Started 42→41, Done 251→252).
+
+## [2026-11-16] update | Fixes from end-to-end runs on the real app
+Source: two phone-sized end-to-end runs (zh, ja) against the real server with the test account. Fixed: dictation grading no longer strips kana voicing marks (が≠か) in `services/dictation/tokenizer.py`; `/api/tests/<slug>` returns the real test title; follow-up prestudy says so when there is nothing to review; text flashcards render `**emphasis**` as bold and their buttons are translated; feedback after a miss drops the leading "Correct." of the answer explanation; the test results hint no longer praises every score; practice rounds show a loading state; keyboard no longer covers typed inputs; prestudy progress strip capped at three rows; secondary nav links hidden at 768–1100px. Not verified on iOS Safari; dual translation grading, sentence repair and speed round were not reachable with the test account.

@@ -1344,7 +1344,7 @@
     drawProgress(q.queue, q.i);
     stageTop();
     if (!q.queue.length) {
-      B.innerHTML = `<div class="ld-note">${esc(T('prestudy.no_prime_needed'))}</div>`;
+      B.innerHTML = `<div class="ld-note">${esc(T(S.mode === 'followup' ? 'prestudy.followup_none' : 'prestudy.no_prime_needed'))}</div>`;
       updateActionBar();
       return;
     }

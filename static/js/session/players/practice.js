@@ -236,6 +236,10 @@ export function mount(container, ctx) {
       renderNextOnly();
       return;
     }
+    // Building a round can take a few seconds: say so instead of a blank stage.
+    q('exerciseCard').innerHTML =
+      '<div class="session-loading" role="status"><div class="spinner-border text-primary" aria-hidden="true"></div>' +
+      `<p class="ld-muted mb-0">${escHtml(T('session.practice_loading', null, 'Getting your exercises ready…'))}</p></div>`;
     try {
       // The start card may already have loaded this round to show its size;
       // use that payload once instead of asking the server again.

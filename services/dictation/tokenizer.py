@@ -4,6 +4,7 @@ Normalization rules (configurable per-language later if needed):
 - Lowercase
 - Strip Unicode combining marks (NFKD decompose + drop Mn category)
   → café == cafe, naïve == naive, üben == uben
+  (kana voicing marks are kept: が stays distinct from か)
 - Strip punctuation (keep word-internal apostrophes and hyphens)
 - Collapse whitespace
 
@@ -33,6 +34,10 @@ _PUNCT_RE = re.compile(r"[^\w\s'\-]", flags=re.UNICODE)
 _EDGE_TRIM_RE = re.compile(r"^['\-]+|['\-]+$")
 
 
+# Combining dakuten / handakuten (が = か + U+3099, ぱ = は + U+309A).
+_KANA_VOICING = {"\u3099", "\u309a"}
+
+
 def normalize(text: str) -> str:
     """Apply lowercase + diacritic-strip + punctuation-strip + whitespace collapse."""
     if not text:
@@ -45,7 +50,13 @@ def normalize(text: str) -> str:
     # This preserves base characters (e.g. 'a' from 'á', and any CJK
     # ideograph base form) but removes accents.
     decomposed = unicodedata.normalize("NFKD", out)
-    out = "".join(ch for ch in decomposed if unicodedata.category(ch) != "Mn")
+    # Kana voicing marks are combining marks too, but they are not accents:
+    # か and が are different sounds. Keep them and recompose.
+    out = "".join(
+        ch for ch in decomposed
+        if unicodedata.category(ch) != "Mn" or ch in _KANA_VOICING
+    )
+    out = unicodedata.normalize("NFC", out)
 
     # 3. Strip punctuation (but keep apostrophes and hyphens in-word)
     out = _PUNCT_RE.sub(" ", out)

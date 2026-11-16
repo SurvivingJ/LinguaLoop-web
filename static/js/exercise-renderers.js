@@ -153,9 +153,18 @@ const ExRenderers = (function () {
     if (hint) hint.remove();
   }
 
+  // Explanations are written for the right answer and often open with
+  // "Correct." in the study language; that reads wrong after a miss.
+  const AFFIRM_RE = /^\s*(?:正解です|正解|正确|正確|correct|¡?correcto)[。．.!！]\s*/i;
+
   function showFeedbackNow(ok, expl) {
     dropHint();
-    _showFeedback(ok, expl);
+    _showFeedback(ok, !ok && typeof expl === 'string' ? expl.replace(AFFIRM_RE, '') : expl);
+  }
+
+  /** Escape, then show authored **emphasis** as bold instead of raw asterisks. */
+  function emHtml(s) {
+    return escHtml(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   }
 
   function nextBtnHTML() {
@@ -871,16 +880,16 @@ const ExRenderers = (function () {
       (w || '') +
       typeBadge('fa-layer-group', fmtType(ex.exercise_type)) +
       `<div class="ex-fcard">` +
-      `<div class="exercise-prompt ex-tl ex-fcard__front">${escHtml(front)}</div>` +
+      `<div class="exercise-prompt ex-tl ex-fcard__front">${emHtml(front)}</div>` +
       (pron ? `<div class="ex-fcard__pron">${escHtml(pron)}</div>` : '') +
       `<div id="fcBack" class="ex-fcard__back" style="display:none;">` +
-      `<div class="ex-fcard__meaning">${escHtml(back)}</div>` +
-      (example ? `<div class="ex-fcard__example ex-tl">${escHtml(example)}</div>` : '') +
+      `<div class="ex-fcard__meaning">${emHtml(back)}</div>` +
+      (example ? `<div class="ex-fcard__example ex-tl">${emHtml(example)}</div>` : '') +
       `</div></div>`;
     const dock =
-      `<button type="button" class="ld-btn" id="revealBtn"><i class="fas fa-eye" aria-hidden="true"></i>Reveal</button>` +
-      `<div id="fcRate" style="display:none;"><p class="ld-hint mb-2">How well did you know this?</p>` +
-      `<div class="ld-row"><button type="button" class="ld-btn fc-rate fc-rate--no" data-ok="0">Didn't know</button><button type="button" class="ld-btn ld-btn--ok fc-rate" data-ok="1">Knew it</button></div></div>` +
+      `<button type="button" class="ld-btn" id="revealBtn"><i class="fas fa-eye" aria-hidden="true"></i>${escHtml(tr('exercises.fc_reveal', 'Reveal'))}</button>` +
+      `<div id="fcRate" style="display:none;"><p class="ld-hint mb-2">${escHtml(tr('exercises.fc_how_well', 'How well did you know this?'))}</p>` +
+      `<div class="ld-row"><button type="button" class="ld-btn fc-rate fc-rate--no" data-ok="0">${escHtml(tr('exercises.fc_no', "Didn't know"))}</button><button type="button" class="ld-btn ld-btn--ok fc-rate" data-ok="1">${escHtml(tr('exercises.fc_yes', 'Knew it'))}</button></div></div>` +
       FEEDBACK_HTML +
       nextBtnHTML();
     paint(h, dock);

@@ -61,7 +61,7 @@ function addPageMarkup(stage) {
   score.className = 'mb-1';
   score.insertAdjacentHTML(
     'afterend',
-    '<p class="mb-0 ld-small" data-i18n="test.success_hint">Great job! Use the "Back to Test List" button below to continue practicing.</p>'
+    '<p class="mb-0 ld-small" data-i18n="test.success_hint">Use the "Back to Test List" button below to continue practicing.</p>'
   );
   stage
     .querySelector('#errorState')
