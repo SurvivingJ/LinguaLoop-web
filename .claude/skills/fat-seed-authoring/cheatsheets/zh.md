@@ -50,8 +50,8 @@ listening exercise. Find neighbours; declining is the last resort.
   of each other: use only one per variant), a synonym, a non-word, a rare or
   literary word (墨刑, 魔星), or sounds changed in two syllables (放松 fàngsōng →
   防守 fángshǒu).
-- Explanation states the contrast: 「mǎ（第三声）与 mā（第一声）声调不同，意思是马」;
-  「lán 与 nán 声母不同，意思是蓝色」.
+- Explanation (in English) states the contrast: "mǎ (3rd tone) vs mā (1st
+  tone): different tone; 马 means horse"; "lán vs nán: different initial; 蓝 means blue".
 - B uses different words from A. Another character with the same contrasting
   sound is fine: A 马 mǎ, B 码 mǎ. Decline (`{"declined": "no_minimal_pairs"}`)
   only after trying tone AND one-sound neighbours on EVERY syllable; write 5–6
@@ -78,7 +78,8 @@ Each wrong sentence reads as grammatical Chinese. A native speaker says
   correctly (「我在超市睡觉」「这位投资者每月给孤儿院捐钱」「缩聚时不会产生水」),
   an inanimate subject for a feeling (「椅子分外害羞」), an error on another
   word, or two problems at once.
-- Explanation names the confusion: 「这里应该用〈增加〉。提高用于水平、质量，体重、人数等数量要用增加」.
+- Explanation (in English) names the confusion: "This needs 增加 (increase an
+  amount). 提高 raises a level or quality, not weight or headcount".
   The three sentences use different moves or partners, and B uses none of A's.
 
 ## 4. level_7: one span, on the target
@@ -111,10 +112,12 @@ Each wrong sentence reads as grammatical Chinese. A native speaker says
 ## 6. Explanations and distractors everywhere
 - Every explanation is specific and true: what the option means and why it
   clashes here.
-- level_3: start each distractor's explanation with its failure tag (语义 /
-  搭配 / 体貌 / 语域 / 配价), then the reason: 「搭配：“增加”说数量，不能说水平」.
+- Write every explanation IN ENGLISH, quoting Chinese words as needed.
+- level_3: start each distractor's explanation with its failure tag (semantic /
+  collocation / aspect / register / valency), then the reason: "collocation:
+  增加 is for amounts; a level is raised with 提高".
   The three distractors cover at least two tags.
-- Never a generic line such as 「意思不对」. Never English. Never contradict
+- Never a generic line such as "wrong meaning" or 「意思不对」. Never contradict
   the definition.
 - level_3 distractors have the same part of speech and are grammatical in the
   slot, but must not fit when the sentence is read as plain Chinese. Read each

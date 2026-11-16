@@ -129,6 +129,8 @@ const ExRenderers = (function () {
     extra = extra || {};
     const labels = extra.labels || null;
     const sublabels = extra.sublabels || null;
+    // `notes` {value: text} — revealed under each option once answered.
+    const notes = extra.notes || null;
     const accepted =
       Array.isArray(extra.accepted) && extra.accepted.length ? extra.accepted : [correct];
     const shuffled = shuffleArr(opts);
@@ -162,6 +164,17 @@ const ExRenderers = (function () {
         if (accepted.indexOf(o.dataset.value) !== -1) o.classList.add('correct');
       });
       if (!ok) opt.classList.add('incorrect');
+      if (notes) {
+        document.querySelectorAll('#optionsList .exercise-option').forEach((o) => {
+          const n = notes[o.dataset.value];
+          if (!n) return;
+          const d = document.createElement('span');
+          d.className = 'exercise-option-note';
+          d.style.cssText = 'display:block;font-size:13px;color:var(--text-secondary);margin-top:6px';
+          d.textContent = n;
+          o.querySelector('.option-text').appendChild(d);
+        });
+      }
       _showFeedback(ok, expl);
       _submitAttempt(ok, { selected: sel });
     });
@@ -287,6 +300,11 @@ const ExRenderers = (function () {
 
   function renderSemDiscrim(ex, c, w) {
     const cor = c.sentences.find((s) => s.is_correct);
+    const notes = {};
+    c.sentences.forEach((s) => {
+      if (s.explanation) notes[s.text] = s.explanation;
+    });
+    const hasNotes = Object.keys(notes).length > 0;
     mcq(
       fmtType('semantic_discrimination'),
       ex.cefr_level,
@@ -294,9 +312,18 @@ const ExRenderers = (function () {
       '',
       c.sentences.map((s) => s.text),
       cor ? cor.text : '',
-      c.explanation,
-      w
+      hasNotes ? '' : dedupeExpl(c.explanation),
+      w,
+      hasNotes ? { notes } : undefined
     );
+  }
+
+  // Older rows joined every wrong sentence's note into one string, often the
+  // same sentence repeated; show each distinct sentence once.
+  function dedupeExpl(s) {
+    if (!s) return '';
+    const parts = String(s).split(/(?<=[。．.!?！？])\s*/).map((x) => x.trim()).filter(Boolean);
+    return [...new Set(parts)].join(' ');
   }
 
   function renderOddOneOut(ex, c, w) {
