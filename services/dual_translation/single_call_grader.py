@@ -155,6 +155,10 @@ DEFAULT_SEVERITY_RULE = "model"
 REQUEST_EXTRAS: dict[str, dict] = {
     "openai/gpt-6-luna": {"reasoning": {"effort": "none"}},
     "deepseek/deepseek-v4.1-flash": {"reasoning": {"enabled": False}},
+    # Free-tier stand-ins (unvalidated): they reason by default and spend the
+    # whole completion budget on it, returning an empty answer.
+    "particle-ai/particle-1:free": {"reasoning": {"enabled": False}},
+    "nvidia/nemotron-3.5-super-vl:free": {"reasoning": {"enabled": False}},
 }
 
 CALL_TIMEOUT_S = 30

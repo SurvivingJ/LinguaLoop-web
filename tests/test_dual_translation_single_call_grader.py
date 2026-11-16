@@ -1587,7 +1587,10 @@ class TestDefaultsOnAndMissingMigration:
             'DT_SINGLE_CALL_GRADER': True, 'DT_GRADING_ASSET_COLUMNS': True,
             'DT_SINGLE_CALL_FREE_TRANSLATION': False, 'DT_SINGLE_CALL_EXPLAINER': False,
             'DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE': False,
-            'DT_SINGLE_CALL_MODEL': PRIMARY, 'DT_SINGLE_CALL_FALLBACK_MODEL': FALLBACK,
+            # Temporary free-tier defaults while the OpenRouter key is over its
+            # limit (see config.py); the validated pair is PRIMARY / FALLBACK.
+            'DT_SINGLE_CALL_MODEL': 'particle-ai/particle-1:free',
+            'DT_SINGLE_CALL_FALLBACK_MODEL': 'nvidia/nemotron-3.5-super-vl:free',
         }
 
     def test_env_vars_still_override_the_defaults(self):
