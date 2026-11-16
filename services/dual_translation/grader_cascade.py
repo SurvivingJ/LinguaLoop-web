@@ -38,6 +38,7 @@ monkeypatch them as boundaries, mirroring services.dual_translation.router's exi
 
 from __future__ import annotations
 
+import contextvars
 import json
 import logging
 import os
@@ -49,7 +50,7 @@ from services.dictation.tokenizer import normalize as _dictation_normalize
 from services.dimension_service import DimensionService
 from services.llm_output_cleaner import clean_json_response
 from services.model_arena.llm_runner import call_model_with_usage
-from services.dual_translation import prompts, scoring, explainer, word_choice_variant
+from services.dual_translation import prompts, provider_errors, scoring, explainer, word_choice_variant
 from services.dual_translation.router import resolve_tier, TIER_ORDER
 from services.dual_translation.tier0 import MAX_BAND, RUBRIC_DIMENSIONS, grade_tier0, _normalize_l2
 
@@ -487,7 +488,10 @@ def _grade_cascade(
             tier2_route = resolve_tier(db, "tier2", l2_language_id)
             if tier2_route.slug is not None:
                 executor = ThreadPoolExecutor(max_workers=1)
+                # copy_context: the worker records into this request's
+                # provider_errors recorder (a ContextVar) like the main thread.
                 tier2_future = executor.submit(
+                    contextvars.copy_context().run,
                     _call_tier,
                     tier2_route.slug, "tier2", l2_code, rubric_cfg, age_tier, subtypes,
                     subtype_labels, gold_l2, reproduction, extra_dims=tier1_dims, regions=regions,
@@ -913,7 +917,9 @@ def _call_tier(
         )
     except Exception as exc:
         logger.warning("dual_translation.grader_cascade: %s call to %r failed: %s", tier, slug, exc)
+        provider_errors.note_failure(exc, slug=slug, role=tier)
         return None, 0, 0, "call failed"
+    provider_errors.note_answer(slug=slug, role=tier)
 
     try:
         payload = json.loads(clean_json_response(content))
@@ -1724,7 +1730,9 @@ def _invoke_model(
         )
     except Exception as exc:  # noqa: BLE001 — network/API errors fail the role open
         logger.warning("dual_translation.grader_cascade: %s call to %r failed: %s", role, slug, exc)
+        provider_errors.note_failure(exc, slug=slug, role=role)
         return None, 0, 0, "call failed"
+    provider_errors.note_answer(slug=slug, role=role)
 
     try:
         payload = json.loads(clean_json_response(content))

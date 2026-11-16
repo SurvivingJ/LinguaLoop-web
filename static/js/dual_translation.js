@@ -221,6 +221,7 @@
       'dtSelfRateCard',
       'dtSelfRate',
       'dtReproduction',
+      'dtUnavailableNotice',
       'dtSubmit',
       'dtResult',
       'dtProvisionalNotice',
@@ -409,11 +410,22 @@
     state.primedToken = null;
     let resp;
     try {
-      resp = await window.authFetch('/api/dual-translation/next');
+      resp = await window.authFetch(nextUrl());
     } catch (e) {
       return showError(tr('dual_translation.error_load'));
     }
     if (resp.status === 404) {
+      // ALL_DONE: every passage of the learner's tests in this language is graded.
+      // NO_PASSAGES (or an older backend): nothing eligible yet.
+      const body = await resp.json().catch(() => ({}));
+      if (body && body.error_code === 'ALL_DONE') {
+        return showError(
+          label(
+            'dual_translation.error_all_done',
+            "You've translated every passage from the tests you've taken in this language. Take another test to unlock more."
+          )
+        );
+      }
       return showError(tr('dual_translation.error_none'));
     }
     if (!resp.ok) {
@@ -436,6 +448,21 @@
       const open = takeOpenRepair();
       if (open) resumeRepair(open);
     }
+  }
+
+  // GET /next for the selected study language (localStorage selectedLanguageId,
+  // the same value the rest of the app reads). Without one the server falls back
+  // to the language of the learner's most recent test.
+  function nextUrl() {
+    let id = NaN;
+    try {
+      id = parseInt(window.localStorage.getItem('selectedLanguageId'), 10);
+    } catch {
+      /* storage blocked: let the server choose */
+    }
+    return id > 0
+      ? '/api/dual-translation/next?language_id=' + encodeURIComponent(id)
+      : '/api/dual-translation/next';
   }
 
   function startPassage(data) {
@@ -483,6 +510,7 @@
   }
 
   function resetReproduceUI() {
+    showUnavailable(false);
     if (el.reproduction) el.reproduction.value = '';
     if (el.submit) {
       el.submit.disabled = false;
@@ -582,8 +610,11 @@
       return failSubmit();
     }
     if (!resp || !resp.ok) {
+      const body = resp ? await resp.json().catch(() => ({})) : {};
+      if (body && body.error_code === 'GRADING_UNAVAILABLE') return gradingUnavailable();
       return failSubmit(resp && resp.status);
     }
+    showUnavailable(false);
     const contract = await resp.json();
     state.reproduction = reproduction;
     state.submitting = false;
@@ -774,6 +805,31 @@
       );
     } catch {
       /* resume is optional */
+    }
+  }
+
+  // The grading provider refused the call (quota / key limit): nothing was graded
+  // or saved and an immediate retry would fail the same way. Say so plainly and
+  // keep the learner's text; the submit button stays usable for later.
+  function gradingUnavailable() {
+    state.submitting = false;
+    el.submit.disabled = false;
+    el.submit.textContent = tr('dual_translation.submit');
+    showUnavailable(true);
+  }
+
+  function showUnavailable(on) {
+    if (!el.unavailableNotice) return;
+    if (on) {
+      el.unavailableNotice.textContent = label(
+        'dual_translation.grading_unavailable',
+        'Grading is temporarily unavailable. Your translation was not graded — please try again later.'
+      );
+    }
+    el.unavailableNotice.hidden = !on;
+    // On a phone the notice sits below the textarea, out of view: bring it in.
+    if (on && typeof el.unavailableNotice.scrollIntoView === 'function') {
+      el.unavailableNotice.scrollIntoView({ block: 'nearest' });
     }
   }
 

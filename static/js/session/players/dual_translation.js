@@ -19,6 +19,15 @@
 
 import { T, escapeHtml as esc } from '../dom.js';
 
+// GET /next for the session's study language (the server falls back to the
+// language of the learner's latest test when none is given).
+export function nextUrl(languageId) {
+  const id = parseInt(languageId, 10);
+  return id > 0
+    ? `/api/dual-translation/next?language_id=${encodeURIComponent(id)}`
+    : '/api/dual-translation/next';
+}
+
 export function mount(container, ctx) {
   const timer =
     window.ActiveTimer && typeof window.ActiveTimer.create === 'function'
@@ -114,9 +123,19 @@ export function mount(container, ctx) {
     }
     let data;
     try {
-      const res = await window.authFetch('/api/dual-translation/next');
+      const res = await window.authFetch(nextUrl(ctx.languageId));
       const payload = await res.json();
       data = payload.data || payload;
+      if (res.status === 404 && data && data.error_code === 'ALL_DONE') {
+        renderUnavailable(
+          T(
+            'dual_translation.error_all_done',
+            null,
+            'You’ve translated every passage from the tests you’ve taken in this language. Take another test to unlock more.'
+          )
+        );
+        return;
+      }
       if (!res.ok) throw new Error(`next failed (${res.status})`);
     } catch (e) {
       console.error('dual_translation: failed to fetch next passage', e);
@@ -272,6 +291,10 @@ export function mount(container, ctx) {
       if (state.destroyed) return;
       // Keep the learner's text on screen: nothing was saved, so advancing
       // here would silently throw their translation away.
+      if (grade && grade.error_code === 'GRADING_UNAVAILABLE') {
+        showGradingUnavailable();
+        return;
+      }
       showSubmitError(status, grade && grade.error);
       return;
     }
@@ -362,6 +385,32 @@ export function mount(container, ctx) {
     $('[data-dt-result-retry]').onclick = () => showServerResult(repair);
     $('[data-dt-continue]').onclick = finish;
     return undefined;
+  }
+
+  // The grading provider refused the call (quota / key limit). Nothing was
+  // graded or saved and an immediate retry would be refused again, so there is
+  // no "Try again" here: the learner can skip and come back later.
+  function showGradingUnavailable() {
+    const box = $('[data-dt-submit-error]');
+    const button = $('[data-dt-submit], [data-dt-retry]');
+    const skip = $('[data-dt-skip]');
+    const message = T(
+      'dual_translation.grading_unavailable',
+      null,
+      'Grading is temporarily unavailable. Your translation was not graded — please try again later.'
+    );
+    if (box) {
+      box.textContent = message;
+      box.hidden = false;
+      box.dataset.dtUnavailable = '';
+    } else if (typeof window.showToast === 'function') {
+      window.showToast(message, 'error');
+    }
+    if (button) button.hidden = true;
+    if (skip) {
+      skip.hidden = false;
+      skip.onclick = () => ctx.onSkip && ctx.onSkip();
+    }
   }
 
   function showSubmitError(status, message) {

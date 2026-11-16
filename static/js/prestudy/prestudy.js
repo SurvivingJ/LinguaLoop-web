@@ -72,6 +72,7 @@
     sessionId: null,
     timer: null,
     followSenses: [],
+    canProduce: true, // payload produce_available (false: the follow-up ends without Produce)
     added: new Set(), // senses the learner marked "I don't know this" in the preview
   };
   const FOLLOWUP_STAGES = ['read_typed', 'def_mc', 'cloze_mc'];
@@ -1142,8 +1143,8 @@
   }
   // One answer option in the shared .ld-opt look; the text sits in its own span
   // so the A-D key never leaks into the value read back on a click.
-  function optButton(text, i, tl) {
-    const lang = tl ? LANGCODE[S.test.language_id] || '' : '';
+  function optButton(text, i, tl, langCode) {
+    const lang = tl ? LANGCODE[S.test.language_id] || '' : langCode || '';
     return `<button type="button" class="ld-opt ps-opt${tl ? ' ps-cjk' : ''}" data-i="${i}"><span class="ld-opt__key" aria-hidden="true">${'ABCDEFGH'[i] || i + 1}</span><span class="ps-opt-t${tl ? ' ld-tl' : ''}"${lang ? ` lang="${lang}"` : ''}>${esc(text)}</span></button>`;
   }
 
@@ -1166,6 +1167,107 @@
     }
     return out;
   }
+  // ---------- meaning items: one gloss language per item ----------
+  // "Choose the meaning" and "choose the word" draw every option from one gloss
+  // language: the learner's when the target word has a gloss in it, otherwise
+  // the study language's own definitions (every linked sense has one; 49% of
+  // test-linked Chinese senses had no English gloss on 2026-11-16). Skipping the
+  // item instead would drop the meaning round for exactly those words. A
+  // distractor never carries a plausible meaning of the target: not another
+  // sense of the same word, not the same or an overlapping gloss, and not a
+  // word the target's gloss names (or whose gloss names the target). Items with
+  // fewer than two such distractors are skipped.
+  const MIN_MEANING_DISTRACTORS = 2;
+  function normGloss(t) {
+    return String(t == null ? '' : t)
+      .normalize('NFKC')
+      .toLowerCase()
+      .replace(/[\s\p{P}\p{S}～]+/gu, '');
+  }
+  function glossParts(t) {
+    return String(t == null ? '' : t)
+      .split(/[;；,，、/／|。.()（）:：]+/)
+      .map(normGloss)
+      .filter(Boolean);
+  }
+  function glossIn(senses, sid, lang) {
+    const s = senses[sid],
+      g = s && s.glosses && s.glosses[String(lang)];
+    return (g && g.def) || '';
+  }
+  // Could the candidate's gloss (in `lang`) also be a right answer for the target?
+  // Conservative: a rejected candidate only shrinks the pool.
+  function plausibleMeaning(senses, target, cand, lang) {
+    const t = senses[target],
+      c = senses[cand];
+    if (!t || !c) return true;
+    // the same word, or one word inside the other (坐 / 坐在, 时 / 时间)
+    if (t.lemma && c.lemma && (t.lemma.includes(c.lemma) || c.lemma.includes(t.lemma))) return true;
+    const td = glossIn(senses, target, lang),
+      cd = glossIn(senses, cand, lang);
+    if (!normGloss(td) || !normGloss(cd)) return true;
+    // the same gloss, or a shared / contained part ("to sit" in "to sit on; ...")
+    const tp = [normGloss(td), ...glossParts(td)],
+      cp = [normGloss(cd), ...glossParts(cd)];
+    const overlap = (a, b) => {
+      if (a === b) return true;
+      const short = a.length < b.length ? a : b;
+      return short.length >= 4 && (a.includes(b) || b.includes(a));
+    };
+    if (tp.some((a) => cp.some((b) => overlap(a, b)))) return true;
+    // a gloss that names the other word (格外: "…；特别，分外。" names 特别)
+    const mentions = (def, lemma) => !!lemma && lemma.length >= 2 && String(def).includes(lemma);
+    return mentions(td, c.lemma) || mentions(cd, t.lemma);
+  }
+  /**
+   * Options for one meaning item, all in one gloss language.
+   *   o.senses   {sid: {lemma, glosses: {lang: {def}}}}
+   *   o.langs    gloss languages to try, in order (learner's, then study language)
+   *   o.mask     (def, lemma) => text shown (headword hidden)
+   *   o.prefer   sid => bool (same part of speech first)
+   *   o.n, o.min distractors wanted / needed (default 3 / 2)
+   *   o.shuffle  array => shuffled copy
+   * Returns {lang, target: text, distractors: [{sid, text}]} or null.
+   */
+  function meaningOptions(sid, pool, o) {
+    const senses = o.senses,
+      n = o.n || 3,
+      min = o.min || MIN_MEANING_DISTRACTORS,
+      mix = o.shuffle || ((a) => a.slice()),
+      mask = o.mask || ((d) => d),
+      prefer = o.prefer || (() => true);
+    const langs = (o.langs || []).filter((l, i, a) => l != null && a.indexOf(l) === i);
+    for (const lang of langs) {
+      const def = glossIn(senses, sid, lang);
+      // the target has no gloss here: try the next language (the learner's
+      // language comes first, so it is used whenever the target has one)
+      if (!def) continue;
+      const target = mask(def, senses[sid].lemma);
+      const seen = new Set([normGloss(target)]);
+      const cands = pool.filter(
+        (x) => x !== sid && glossIn(senses, x, lang) && !plausibleMeaning(senses, sid, x, lang)
+      );
+      const ordered = mix(cands.filter((x) => prefer(x))).concat(
+        mix(cands.filter((x) => !prefer(x)))
+      );
+      const distractors = [];
+      const lemmas = new Set([senses[sid].lemma]);
+      for (const x of ordered) {
+        const text = mask(glossIn(senses, x, lang), senses[x].lemma);
+        const key = normGloss(text);
+        if (!key || seen.has(key) || lemmas.has(senses[x].lemma)) continue;
+        seen.add(key);
+        lemmas.add(senses[x].lemma);
+        distractors.push({ sid: x, text });
+        if (distractors.length >= n) break;
+      }
+      if (distractors.length >= min) return { lang, target, distractors };
+      // the target has a gloss in this language but too few distractors share
+      // it: a study-language set is still consistent, so try that next
+    }
+    return null;
+  }
+
   // Shared helpers from static/js/session/lexicon.js (exposed by test_prestudy.html);
   // identity / raw-tag fallbacks keep the page working if the module is late.
   function lex() {
@@ -1175,12 +1277,21 @@
     const f = lex().posClass;
     return f ? f(D.senses[x].pos) : String(D.senses[x].pos || '');
   }
-  // A definition with its own headword hidden ("宗教改革是…" -> "～是…"), so the
-  // options and the reverse prompt do not contain the answer.
-  function maskedDef(x) {
-    const f = lex().maskHeadword,
-      d = gloss(x).def;
-    return f ? f(d, D.senses[x].lemma) : d;
+  // Definitions are shown with their own headword hidden ("宗教改革是…" -> "～是…"),
+  // so the options and the reverse prompt do not contain the answer.
+  function meaningFor(sid, pool, samePos) {
+    const f = lex().maskHeadword;
+    return meaningOptions(sid, pool, {
+      senses: D.senses,
+      langs: [String(S.glossLang), String(S.test.language_id)],
+      mask: (d, lemma) => (f ? f(d, lemma) : d),
+      prefer: samePos,
+      shuffle,
+    });
+  }
+  // lang="" for a gloss in the study language, so CJK definitions get their font
+  function glossLangCode(lang) {
+    return Number(lang) === S.test.language_id ? LANGCODE[S.test.language_id] || '' : '';
   }
   function buildItem(stage, sid, a) {
     const s = D.senses[sid],
@@ -1188,7 +1299,6 @@
       rp = readingParts(s),
       cls = posClassOf(sid),
       samePos = (x) => posClassOf(x) === cls;
-    const def = gloss(sid).def;
     if (stage === 'read_typed' || stage === 'read_typed2') {
       if (!hasTypedReading(sid)) return null;
       return {
@@ -1201,32 +1311,31 @@
       };
     }
     if (stage === 'def_mc') {
-      if (!def) return null;
-      const dis = pickDistractors(pool, sid, 3, maskedDef, samePos).map(maskedDef);
-      if (!dis.length) return null;
-      const shown = maskedDef(sid);
+      const m = meaningFor(sid, pool, samePos);
+      if (!m) return null;
       return {
         stage,
         sid,
         kind: 'mc',
         prompt: s.lemma,
         sub: rp ? rp.shown : '',
-        opts: shuffle([shown, ...dis]),
-        correct: shown,
+        opts: shuffle([m.target, ...m.distractors.map((d) => d.text)]),
+        correct: m.target,
+        optLang: glossLangCode(m.lang),
       };
     }
     if (stage === 'rev_mc') {
-      if (!def) return null;
-      const dis = pickDistractors(pool, sid, 3, (x) => D.senses[x].lemma, samePos).map(
-        (x) => D.senses[x].lemma
-      );
-      if (!dis.length) return null;
+      // the prompt is the target's gloss: a word whose gloss would fit it as
+      // well is not a distractor (same rule as def_mc, in the prompt's language)
+      const m = meaningFor(sid, pool, samePos);
+      if (!m) return null;
       return {
         stage,
         sid,
         kind: 'mc',
-        prompt: maskedDef(sid),
-        opts: shuffle([s.lemma, ...dis]),
+        prompt: m.target,
+        promptLang: glossLangCode(m.lang),
+        opts: shuffle([s.lemma, ...m.distractors.map((d) => D.senses[d.sid].lemma)]),
         correct: s.lemma,
         cjkOpts: true,
         glossPrompt: true,
@@ -1357,7 +1466,7 @@
           ${rd.length ? stat(`${rd.filter((i) => i.ok).length} / ${rd.length}`, T('prestudy.done_reading')) : ''}
           ${stat(`${mn.filter((i) => i.ok).length} / ${mn.length}`, T('prestudy.done_meaning'))}
           ${stat(q.queue.filter((it) => it.idk).length, T('prestudy.done_idk'))}</div>
-        <div class="ld-note ps-callout">${esc(S.mode === 'followup' ? T('prestudy.next_produce') : readinessWords().length && currentPlanMode() !== 'light' ? T(S.phase === 'boost' ? 'prestudy.next_readiness2' : 'prestudy.next_readiness') : T('prestudy.next_ready'))}</div>`;
+        <div class="ld-note ps-callout">${esc(S.mode === 'followup' ? T(S.canProduce ? 'prestudy.next_produce' : 'prestudy.next_finish') : readinessWords().length && currentPlanMode() !== 'light' ? T(S.phase === 'boost' ? 'prestudy.next_readiness2' : 'prestudy.next_readiness') : T('prestudy.next_ready'))}</div>`;
       updateActionBar();
       return;
     }
@@ -1388,10 +1497,10 @@
     const prompt = it.cloze
       ? `<div class="ps-ctx ld-prompt ld-tl" lang="${lang}">${it.prompt}</div>`
       : it.glossPrompt
-        ? `<div class="ps-qword ps-gloss-prompt ld-h1">${esc(it.prompt)}</div>`
+        ? `<div class="ps-qword ps-gloss-prompt ld-h1"${it.promptLang ? ` lang="${it.promptLang}"` : ''}>${esc(it.prompt)}</div>`
         : `<div class="ps-qword ld-prompt ld-prompt--big" lang="${lang}">${esc(it.prompt)}</div>`;
     B.innerHTML = `${head}${prompt}${it.sub ? `<div class="ps-qread">${esc(it.sub)}${s.pos ? ' · ' + esc(s.pos) : ''}</div>` : ''}
-      <div class="ld-opts ps-opts${it.cjkOpts ? ' ps-opts--tl' : ''}">${it.opts.map((o, i) => optButton(o, i, !!it.cjkOpts)).join('')}</div><div id="psReveal" class="ps-revealwrap"></div>`;
+      <div class="ld-opts ps-opts${it.cjkOpts ? ' ps-opts--tl' : ''}">${it.opts.map((o, i) => optButton(o, i, !!it.cjkOpts, it.optLang)).join('')}</div><div id="psReveal" class="ps-revealwrap"></div>`;
     B.querySelectorAll('.ps-opt').forEach((b) => {
       b.onclick = () => {
         const v = it.opts[parseInt(b.dataset.i, 10)];
@@ -1829,7 +1938,7 @@
       S.mode === 'followup' ? 'prestudy.followup_done_title' : 'prestudy.ready_title'
     );
     $('psEloNote').hidden = S.mode === 'followup';
-    $('psProduceBox').hidden = S.mode !== 'followup';
+    $('psProduceBox').hidden = !(S.mode === 'followup' && S.canProduce);
     // the step's buttons (Take the test / Produce / Back to session) are in the dock
     updateActionBar();
     if (!S.answers.length && !S.exAnswers.length) {
@@ -1912,6 +2021,9 @@
       } catch {
         /* storage blocked: the attempt counts at full weight */
       }
+      // the result screen offers Produce from this, without asking again
+      if (window.LinguaPrestudyLinks && window.LinguaPrestudyLinks.setProduceAvailable)
+        window.LinguaPrestudyLinks.setProduceAvailable(S.slug, S.canProduce);
     }
     await completeBlock();
     // from the daily session: go back, where the session resumes on this test
@@ -1955,7 +2067,7 @@
   async function backToSession() {
     await postEvidence();
     // today's translation slot in the session will use this test's window
-    if (S.mode === 'followup' && window.LinguaPrestudyLinks)
+    if (S.mode === 'followup' && S.canProduce && window.LinguaPrestudyLinks)
       window.LinguaPrestudyLinks.setProduceRequest(S.slug, S.test.id);
     window.location.href = '/session';
   }
@@ -2035,8 +2147,12 @@
     const s3 = S.step === 3,
       follow = S.mode === 'followup';
     $('psTakeTest').hidden = !s3 || follow;
-    $('psProduce').hidden = !s3 || !follow;
+    $('psProduce').hidden = !s3 || !follow || !S.canProduce;
     $('psBackToSession').hidden = !(s3 && follow && S.returnTo === 'session');
+    // without Produce it is the step's only action, so it takes the primary style
+    $('psBackToSession').classList.toggle('ld-btn--ghost', S.canProduce);
+    // no Produce and not from the session: a plain way back to the test
+    $('psDone').hidden = !(s3 && follow && !S.canProduce && S.returnTo !== 'session');
     $('psSkip').hidden = S.step !== 1;
     note.textContent = hint;
     // the rating note is a desktop extra; phones keep the dock to the buttons
@@ -2225,6 +2341,8 @@
         : `/test/${encodeURIComponent(S.slug)}/preview?type=${encodeURIComponent(S.testType)}`;
     setHeader({ backHref });
     $('psErrorSkip').href = testUrl();
+    $('psDone').href =
+      `/test/${encodeURIComponent(S.slug)}/preview?type=${encodeURIComponent(S.testType)}`;
     const dataP = window
       .authFetch(
         `/api/tests/${encodeURIComponent(S.slug)}/prestudy${S.mode === 'followup' ? '?mode=followup' : ''}`
@@ -2266,7 +2384,13 @@
     Object.keys(D.exercises || {}).forEach((sid) => {
       D.exercises[sid] = D.exercises[sid].filter(exerciseUsable);
     });
-    S.snapshot = analyse().share;
+    // The server's share (services/prestudy.share_plan) is the one the daily
+    // session's card shows; the page's own count is only a fallback.
+    S.snapshot =
+      D.plan && D.plan.unknown_share != null ? Number(D.plan.unknown_share) : analyse().share;
+    // Produce only where POST .../prestudy/produce can find a window (false only
+    // when the server says so; an older payload without the flag keeps it on).
+    S.canProduce = D.produce_available !== false;
     if (window.ActiveTimer && window.ActiveTimer.create) {
       S.timer = window.ActiveTimer.create();
       S.timer.start();
@@ -2304,6 +2428,11 @@
     $('psTakeTest').onclick = () => takeTest(true);
     $('psProduce').onclick = startProduce;
     $('psBackToSession').onclick = backToSession;
+    $('psDone').onclick = async (e) => {
+      e.preventDefault();
+      await postEvidence();
+      window.location.href = $('psDone').getAttribute('href');
+    };
     $('psScrim').onclick = () => hidePop(true);
     document.addEventListener('click', (e) => {
       const POP = $('psPop');
@@ -2340,7 +2469,7 @@
       if (s2) s2.textContent = T('prestudy.step_followup');
       if ($('psS2Title')) $('psS2Title').textContent = T('prestudy.step_followup');
       const s3 = document.querySelector('.ps-step[data-step="3"]');
-      if (s3) s3.textContent = T('prestudy.step_produce');
+      if (s3) s3.textContent = S.canProduce ? T('prestudy.step_produce') : T('prestudy.step_done');
       go(2);
     } else {
       go(1);
@@ -2358,6 +2487,8 @@
     readingParts,
     bktUpdate,
     bktUpdateIdk,
+    meaningOptions,
+    plausibleMeaning,
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

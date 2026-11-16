@@ -64,6 +64,11 @@
                           data-i18n-placeholder="dual_translation.reproduction_placeholder"
                           placeholder="Type your translation here…"></textarea>
             </div>
+
+            <!-- The grading provider refused the call (quota / key limit):
+                 POST /submit answered 503 GRADING_UNAVAILABLE and saved nothing. -->
+            <div id="dtUnavailableNotice" class="ld-note ld-note--warn" role="alert" hidden
+                 data-i18n="dual_translation.grading_unavailable">Grading is temporarily unavailable. Your translation was not graded — please try again later.</div>
         </div>
 
         <!-- ===== PHASE 2: Result (feed-back / feed-forward) =====

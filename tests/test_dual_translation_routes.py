@@ -5,7 +5,7 @@ test_dual_translation_grader_cascade.py (mock every DB/OpenRouter boundary,
 not the raw Supabase chain):
 
   1. Helper-level tests exercise the small DB-touching functions
-     (``_resolve_l1_language_id``, ``_select_next_passage``,
+     (``_resolve_l1_language_id``,
      ``_rubric_descriptors_for``, ``_cached_grade``, ``_persist_grade``)
      against a minimal fake query-builder (``_FakeDB``), not a live DB.
   2. Route-level tests exercise ``get_next``/``submit`` through the Flask
@@ -142,33 +142,9 @@ class TestResolveL1LanguageId:
 
 
 # ---------------------------------------------------------------------------
-# _select_next_passage
+# GET /next selection: tests/test_dual_translation_next_selection.py (a
+# filtering fake DB; the three former _select_next_passage cases live there).
 # ---------------------------------------------------------------------------
-
-class TestSelectNextPassage:
-
-    def test_none_when_no_completed_tests(self):
-        db = _FakeDB({'test_attempts': []})
-        assert dt_routes._select_next_passage(db, 'u1', 2) is None
-
-    def test_none_when_candidate_has_no_l1_reference(self):
-        db = _FakeDB({
-            'test_attempts': [{'test_id': 't1'}],
-            'dt_passage': [{'id': 7, 'l2_text': 'gold', 'age_tier': 3, 'l2_language_id': 1}],
-            'dt_passage_reference': [],
-        })
-        assert dt_routes._select_next_passage(db, 'u1', 2) is None
-
-    def test_returns_passage_with_l1_reference(self):
-        db = _FakeDB({
-            'test_attempts': [{'test_id': 't1'}],
-            'dt_passage': [{'id': 7, 'l2_text': 'gold', 'age_tier': 3, 'l2_language_id': 1}],
-            'dt_passage_reference': [{'l1_text': 'hello world'}],
-        })
-        result = dt_routes._select_next_passage(db, 'u1', 2)
-        assert result == {
-            'passage_id': 7, 'l1_text': 'hello world', 'age_tier': 3, 'l2_language_id': 1,
-        }
 
 
 # ---------------------------------------------------------------------------
@@ -468,12 +444,19 @@ class TestTokensUsedToday:
 class TestGetNext:
 
     def test_404_when_no_passage_available(self, client, auth_headers, monkeypatch):
+        monkeypatch.setattr(dt_routes, '_should_serve_error_card', lambda: False)
         monkeypatch.setattr(dt_routes, '_resolve_l1_language_id', lambda db, uid: 2)
-        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1: None)
+        monkeypatch.setattr(dt_routes, '_attempted_tests', lambda db, uid: [
+            {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
+        ])
+        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts: {
+            'kind': 'none', 'all_done': False,
+        })
 
         resp = client.get('/api/dual-translation/next', headers=auth_headers)
 
         assert resp.status_code == 404
+        assert resp_json(resp)['error_code'] == dt_routes.NO_PASSAGES
 
     def test_200_creates_submission_and_returns_payload(self, client, app, auth_headers, monkeypatch):
         from unittest.mock import MagicMock
@@ -481,8 +464,12 @@ class TestGetNext:
         # Force one arm (TASK-617) so the stamped value is deterministic here.
         monkeypatch.setattr(Config, 'DT_CORRECTION_STYLE', 'flag_only')
         monkeypatch.setattr(dt_routes, '_resolve_l1_language_id', lambda db, uid: 2)
-        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1: {
-            'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3,
+        monkeypatch.setattr(dt_routes, '_attempted_tests', lambda db, uid: [
+            {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
+        ])
+        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts: {
+            'kind': 'passage',
+            'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
         })
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))
 
@@ -982,7 +969,7 @@ class TestNextInterleavesErrorCards:
 
     def test_serves_error_card_when_selected_and_due(self, client, auth_headers, monkeypatch):
         monkeypatch.setattr(dt_routes, '_should_serve_error_card', lambda: True)
-        monkeypatch.setattr(dt_routes, '_next_due_error_card', lambda db, uid: {
+        monkeypatch.setattr(dt_routes, '_next_due_error_card', lambda db, uid, l2=None: {
             'card_id': 11, 'card_type': 'cloze', 'subtype': 'article',
             'prompt_payload': {'prompt': '____ cat', 'answer': 'the'},
             'state': 'new', 'due_date': None,
@@ -1001,10 +988,14 @@ class TestNextInterleavesErrorCards:
         from unittest.mock import MagicMock
 
         monkeypatch.setattr(dt_routes, '_should_serve_error_card', lambda: True)
-        monkeypatch.setattr(dt_routes, '_next_due_error_card', lambda db, uid: None)
+        monkeypatch.setattr(dt_routes, '_next_due_error_card', lambda db, uid, l2=None: None)
         monkeypatch.setattr(dt_routes, '_resolve_l1_language_id', lambda db, uid: 2)
-        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1: {
-            'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3,
+        monkeypatch.setattr(dt_routes, '_attempted_tests', lambda db, uid: [
+            {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
+        ])
+        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts: {
+            'kind': 'passage',
+            'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
         })
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))
 
@@ -1028,13 +1019,17 @@ class TestNextInterleavesErrorCards:
 
         monkeypatch.setattr(dt_routes, '_should_serve_error_card', lambda: False)
 
-        def _boom(db, uid):
+        def _boom(db, uid, l2=None):
             raise AssertionError("should not check for due cards when not interleaving this call")
         monkeypatch.setattr(dt_routes, '_next_due_error_card', _boom)
 
         monkeypatch.setattr(dt_routes, '_resolve_l1_language_id', lambda db, uid: 2)
-        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1: {
-            'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3,
+        monkeypatch.setattr(dt_routes, '_attempted_tests', lambda db, uid: [
+            {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
+        ])
+        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts: {
+            'kind': 'passage',
+            'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
         })
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))
 

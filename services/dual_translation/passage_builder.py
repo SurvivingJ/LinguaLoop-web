@@ -19,7 +19,7 @@ TASK-603 notes):
     is left NULL (matches the migration's nullable default).
 
   * **source_ref_id = str(tests.id)** (a uuid) so `routes/dual_translation.py::
-    _select_next_passage` (which filters `dt_passage.source_ref_id IN
+    _choose_next` (which filters `dt_passage.source_ref_id IN
     test_attempts.test_id`) can serve the row. `source_kind` is locked to
     'test_transcript'; mystery scenes are a separate table and simply not
     sourced here.

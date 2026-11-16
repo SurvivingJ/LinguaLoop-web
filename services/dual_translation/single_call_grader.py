@@ -131,7 +131,7 @@ from typing import Optional
 
 from config import Config
 from services.llm_output_cleaner import clean_json_response
-from services.dual_translation import explainer, prompts, scoring, word_choice_variant
+from services.dual_translation import explainer, prompts, provider_errors, scoring, word_choice_variant
 from services.dual_translation import single_call_prompts as sc_prompts
 from services.dual_translation.sentence_pairs import SentencePair, build_sentence_pairs
 
@@ -633,7 +633,9 @@ def _attempt(role: str, slug: str, system_prompt: str, user_prompt: str, schema:
     except Exception as exc:  # noqa: BLE001 — network/API errors fail this attempt
         logger.warning("dual_translation.single_call_grader: call to %r failed: %s", slug, exc)
         attempt["error"] = f"{type(exc).__name__}: {exc}"[:ERROR_TEXT_CAP]
+        provider_errors.note_failure(exc, slug=slug, role=role)
         return attempt, None, None
+    provider_errors.note_answer(slug=slug, role=role)
 
     latency = result.get("latency_s")
     attempt.update({
