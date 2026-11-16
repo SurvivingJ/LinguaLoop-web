@@ -6625,3 +6625,17 @@ colours — verified); TASK-982 (Playwright E2E, credentials) and TASK-988 (comm
 owner) Blocked; TASK-975–981, 983–986 Not Started. A re-run of the integrator's i18n key check
 still lists `session.dt_repair_heading` missing in `es` and ten fallback-only keys that pre-date the
 redesign (TASK-985). Open questions: 3 (real iOS Safari, measured contrast, ship decision).
+
+## [2026-11-16] update | i18n gaps filled — es dt_repair, speed round, DT target words (TASK-985)
+Re-ran the locale key check: `es.json` lacked 57 keys (the 55-key `dt_repair.*` family and
+`session.dt_repair_heading` / `session.dt_repair_none`), so Spanish users saw the English repair
+sheet. A scan of `templates/` and `static/js` for `data-i18n*` and `t()/T()/tr()/label()` literal keys
+found 17 keys used in code but present in no locale (English fallback only): nine `session.speed_*`
+in `static/js/session/players/speed_round.js` (including `session.speed_heading`) and eight
+`dual_translation.target_*` in `static/js/dual_translation.js` (including the runtime-built
+`target_produced|variant|omitted`). All added: en/zh/ja +17 keys each, es +74; the four files now
+have identical key sets (1175). Only `static/i18n/*.json` changed; no JS, template or backend edits.
+`npm run check` clean, `npm run test:unit` 505 passed, `tests/test_i18n_locale_files.py` 5 passed.
+Not done: loading the speed round in zh in a browser. Not committed.
+Pages updated (2): [[tasklist/mobile-redesign.tasks]] (TASK-985 Done), [[tasklist/master]]
+(Not Started 42→41, Done 251→252).

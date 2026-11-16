@@ -4,7 +4,7 @@ feature: mobile-redesign
 prose_page: ../pages/app-shell.md
 tech_page: ../pages/app-shell.tech.md
 total_tasks: 14
-done: 1
+done: 2
 ---
 
 # Mobile Redesign (App Shell and Design System) — Task Breakdown
@@ -307,7 +307,7 @@ directory that will not survive. Document and script the setup so the next perso
 
 ## TASK-985: Fill the remaining i18n gaps
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-16)
 **Feature:** mobile-redesign
 **Type:** bug
 **Complexity:** XS (<1h)
@@ -320,8 +320,17 @@ Re-running the integrator's key check (2026-11-16) lists `session.dt_repair_head
 `dual_translation.target_word`, `dual_translation.target_words_heading` (all pre-date the redesign).
 
 **Acceptance Criteria:**
-- [ ] All eleven keys present in en/zh/ja/es with native text
-- [ ] The key check reports nothing; `tests/test_i18n_locale_files.py` passes
+- [x] All eleven keys present in en/zh/ja/es with native text — done 2026-11-16; the full gap was
+      larger than the check showed: `es` lacked 57 keys (55 `dt_repair.*` plus
+      `session.dt_repair_heading` / `_none`), and the code-only keys were 17, not 10
+      (`session.speed_heading`, `dual_translation.target_in_gold|in_yours|status` and the dynamic
+      `dual_translation.target_produced|variant|omitted` as well). All added; en 1158→1175 keys,
+      the four files have identical key sets
+- [x] The key check reports nothing; `tests/test_i18n_locale_files.py` passes — a scan of
+      `templates/` and `static/js` for `data-i18n*` and `t()/T()/tr()/label()` literal keys finds no
+      key missing from any locale (only runtime-concatenated prefixes, whose families are complete);
+      pytest 5 passed, `npm run check` clean, `npm run test:unit` 505 passed. Not done: loading the
+      speed round in zh in a browser
 
 **Files to Create / Modify:**
 - `static/i18n/{en,zh,ja,es}.json`

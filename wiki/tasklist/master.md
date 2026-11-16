@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 42 |
+| Not Started | 41 |
 | In Progress (`[~]`) | 13 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 29 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 251 |
+| Done (cumulative, not listed here) | 252 |
+
+*2026-11-16 (i18n gaps filled):* TASK-985 Done. `es.json` gained the 57 keys it lacked (the `dt_repair.*` family plus `session.dt_repair_heading` / `_none`); 17 keys used in code but present in no locale (`session.speed_*`, `dual_translation.target_*`) added to all four. The four locale files now have identical key sets (1175). Counts: Not Started 42→41, Done 251→252.
 
 *2026-11-16 (mobile redesign built — app shell and design system, ADR-046):* new breakdown [[tasklist/mobile-redesign.tasks]] (TASK-975–988) for every open issue and unverified item the redesign engineers reported. TASK-987 Done (i18n merge, Me page links, hard-coded colours — closed during integration, verified in the tree). TASK-982 (Playwright E2E, needs credentials) and TASK-988 (commit, review, deploy — owner) Blocked. The other 11 Not Started. Counts: Not Started 31→42, Blocked 27→29, Done 250→251.
 
@@ -1262,7 +1264,7 @@ Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[d
 | TASK-982 | mobile-redesign | Run the Playwright E2E specs | [?] needs credentials | S | — |
 | TASK-983 | mobile-redesign | Clear the remaining lint and format failures | [ ] | S | TASK-988 |
 | TASK-984 | mobile-redesign | Make the preview harness reproducible | [ ] | S | — |
-| TASK-985 | mobile-redesign | Fill the remaining i18n gaps (es `session.dt_repair_heading`; 10 fallback-only keys) | [ ] | XS | — |
+| TASK-985 | mobile-redesign | Fill the remaining i18n gaps (es `session.dt_repair_heading`; 10 fallback-only keys) | Done | XS | — |
 | TASK-986 | mobile-redesign | Regression tests for logout delegation and the study-language chip | [ ] | S | — |
 | TASK-987 | mobile-redesign | Integration requests — i18n merge, Me page links, hard-coded colours | Done | M | — |
 | TASK-988 | mobile-redesign | Commit, review and deploy the redesign | [?] owner | M | TASK-975, TASK-980 |
