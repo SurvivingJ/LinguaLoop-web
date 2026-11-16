@@ -90,9 +90,9 @@
                 <a href="{{ url_for('study_session_page') }}" class="nav-link {% if _tab == 'today' %}active{% endif %}" {% if _tab == 'today' %}aria-current="page"{% endif %} data-i18n="common.nav.daily_session">Daily Session</a>
                 <a href="{{ url_for('study_session_page', mode='practice') }}" class="nav-link {% if _tab == 'practice' %}active{% endif %}" {% if _tab == 'practice' %}aria-current="page"{% endif %} data-i18n="common.nav.practice">Practice</a>
                 <a href="{{ url_for('tests') }}" class="nav-link {% if _tab == 'tests' %}active{% endif %}" {% if _tab == 'tests' %}aria-current="page"{% endif %} data-i18n="common.nav.browse_tests">Browse Tests</a>
-                <a href="{{ url_for('calibration_page') }}" class="nav-link {% if _ep == 'calibration_page' %}active{% endif %}" data-i18n="common.nav.calibration">Calibration</a>
-                <a href="{{ url_for('classifier_drill_page') }}" class="nav-link lang-gate d-none {% if _ep == 'classifier_drill_page' %}active{% endif %}" data-lang-gate="zh" data-i18n="common.nav.classifier_drill">Measure Words</a>
-                <a href="{{ url_for('counter_drill_page') }}" class="nav-link lang-gate d-none {% if _ep == 'counter_drill_page' %}active{% endif %}" data-lang-gate="ja" data-i18n="common.nav.counter_drill">Counters</a>
+                <a href="{{ url_for('calibration_page') }}" class="nav-link ld-nav-extra {% if _ep == 'calibration_page' %}active{% endif %}" data-i18n="common.nav.calibration">Calibration</a>
+                <a href="{{ url_for('classifier_drill_page') }}" class="nav-link ld-nav-extra lang-gate d-none {% if _ep == 'classifier_drill_page' %}active{% endif %}" data-lang-gate="zh" data-i18n="common.nav.classifier_drill">Measure Words</a>
+                <a href="{{ url_for('counter_drill_page') }}" class="nav-link ld-nav-extra lang-gate d-none {% if _ep == 'counter_drill_page' %}active{% endif %}" data-lang-gate="ja" data-i18n="common.nav.counter_drill">Counters</a>
             </nav>
 
             <div class="ld-appbar__actions">

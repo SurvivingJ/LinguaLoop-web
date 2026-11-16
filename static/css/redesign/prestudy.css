@@ -423,6 +423,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
+
+  /* three rows at most: a long round must not push the answers under the dock */
+  max-height: 21px;
+  overflow: hidden;
 }
 
 .prestudy-page .ps-progress:empty {

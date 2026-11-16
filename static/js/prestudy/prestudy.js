@@ -1320,6 +1320,13 @@
           `<i class="${it.answered == null ? (i === cur ? 'cur' : '') : it.ok ? 'c' : it.idk ? 'k' : 'w'}"></i>`
       )
       .join('');
+    // the strip is capped at three rows; keep the current pip's row in view
+    const box = $('psQProg'),
+      pip = box.children[cur];
+    if (pip) {
+      const top = pip.getBoundingClientRect().top - box.getBoundingClientRect().top;
+      box.scrollTop = Math.max(0, box.scrollTop + top - 8);
+    }
   }
   function stat(n, label) {
     return `<div class="ld-stat ps-stat"><div class="ld-stat__n">${n}</div><small>${esc(label)}</small></div>`;
@@ -1890,7 +1897,11 @@
       console.warn('[prestudy] block not completed:', e);
     }
   }
+  let leaving = false;
   async function takeTest(prestudied) {
+    // one tap only: saving takes a moment and a second tap would post twice
+    if (leaving) return;
+    leaving = true;
     if (prestudied) {
       await postEvidence();
       try {

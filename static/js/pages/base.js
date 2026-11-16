@@ -355,12 +355,26 @@ window.showToast = function (message, type = 'error') {
   // iOS Safari keeps 100dvh when the on-screen keyboard opens, which would
   // push a task page's dock under the keyboard. While the keyboard is up,
   // size the task shell to the visual viewport instead (--ld-vvh).
+  // Once the task shell has shrunk (keyboard up, or any resize), a text box
+  // that has focus inside the scrolling stage can end up under the pinned
+  // dock: scroll the stage so it shows again.
+  const revealFocusedField = function () {
+    const el = document.activeElement;
+    if (!el || typeof el.matches !== 'function') return;
+    if (!el.matches('input, textarea, [contenteditable="true"]')) return;
+    if (!el.closest('.ld-stage')) return;
+    window.requestAnimationFrame(function () {
+      if (document.activeElement === el) el.scrollIntoView({ block: 'nearest' });
+    });
+  };
+  window.addEventListener('resize', revealFocusedField);
   const vv = window.visualViewport;
   if (vv && typeof vv.addEventListener === 'function') {
     const sync = function () {
       const keyboard = window.innerHeight - vv.height > 120;
       if (keyboard) document.documentElement.style.setProperty('--ld-vvh', vv.height + 'px');
       else document.documentElement.style.removeProperty('--ld-vvh');
+      revealFocusedField();
     };
     vv.addEventListener('resize', sync);
   }

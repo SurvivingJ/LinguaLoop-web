@@ -971,7 +971,8 @@ export function mount(container, ctx) {
     showQuestion(0);
 
     if (res && res.word_quiz) {
-      setTimeout(() => wordQuiz.show(res.word_quiz), 600);
+      const quizTimer = setTimeout(() => wordQuiz.show(res.word_quiz), 600);
+      cleanup.push(() => clearTimeout(quizTimer));
     }
   }
 

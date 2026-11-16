@@ -2994,6 +2994,13 @@ body.ld-body > .ld-main {
   }
 }
 
+/* Tablet widths have no room for the secondary links; they stay on the Me page. */
+@media (width >= 768px) and (width < 1100px) {
+  .ld-appbar__nav .ld-nav-extra {
+    display: none !important;
+  }
+}
+
 /* ---------- Bottom tab bar (phones) ---------- */
 .ld-tabbar {
   position: fixed;
