@@ -3,7 +3,7 @@ title: New-Word Drill — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./new-word-drill.md
-last_updated: 2026-11-10
+last_updated: 2026-11-15
 dependencies:
   - "table: user_word_ladder (new intro_* columns)"
   - "table: exercise_attempts (source column from migrations/prestudy_workflow.sql; new source value 'intro')"
@@ -75,6 +75,22 @@ account). Where the build differs from the plan above, **this section wins**:
     session 1. Prestudy keeps its own staged UI (readiness check, boosters).
 15. **Ladder handoff:** the ring-2 restart now fires from Practice attempts — see
     [[decisions/ADR-041-practice-moves-the-ladder]].
+16. **Never-taught words met in practice (2026-11-15, [[decisions/ADR-046-untaught-words-start-the-drill]]):**
+    `intro_drill.route_untaught(db, user_id, language_id, payload)` runs in `get_session` (every
+    mode, tail included) after prestudy follow-ups and before the intro block, and on the review
+    half of `get_extra_round`. For each served `sense_id` (skipping prestudy follow-ups, gate /
+    stress-test markers and DT error cards) it calls `untaught_sense_ids`: no `user_word_ladder` row,
+    `user_vocabulary_knowledge.word_test_correct = 0` and `p_known < UNTAUGHT_MAX_P_KNOWN` (0.5), or no
+    knowledge row. Of those, `drillable_sense_ids` (lemma + gloss, as `build_block` needs) are
+    admitted, at most `UNTAUGHT_MAX_PER_SESSION` (5), as intro stage-1 rows due today with
+    `intro_history = [{event:'overload', source:'practice', date, at}]` — `bypasses_quota` and the
+    governor SQL already treat `overload` as a review served in every mode, so no migration. Their
+    items, and those of over-cap never-taught words, are removed from `payload['items']`;
+    `block_for_session` then picks the new rows up from `due_rows`. The payload carries
+    `untaught_routed: {admitted, deferred}` when anything moved. An insert failure (e.g. a
+    concurrent admission) leaves the payload untouched. Extra rounds subtract routed items from
+    `extra.reviews_served` (they are counted again as drill words). Tests:
+    `tests/test_intro_drill.py::test_untaught_sense_ids`, `test_route_untaught_*`.
 
 ## Architecture Overview
 

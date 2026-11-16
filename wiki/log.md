@@ -6595,3 +6595,19 @@ Correction: ADR-044, [[evaluations/dt-decision-grading-2026-11-14]] and the sing
 called an earlier "taxonomy v6 already active" read "unreconciled". It is not a conflict: v5 was
 active until the orchestrator's cutover on 2026-11-14, and the grader agent's read was made after that
 cutover the same day. All three now say so.
+
+## [2026-11-15] update | Never-taught words met in practice start the drill (ADR-046)
+Developer report: new words in the daily session got two hard exercises each instead of the drill.
+Live data (developer's account, ja): the nine drill words that day were on intro session 2 (session 1
+done 2026-11-13; session 2 = cold typed reading + two ladder exercises, as designed). Two words,
+雰囲気 and 開放, were not drill words: met in a reading test on 2026-09-08, never taught, no ladder
+row, served by the practice engine as ordinary exercises (spot the incorrect sentence, semantic
+discrimination, definition match, typed cloze). Also: 18 words admitted that morning were waiting at
+session 1 because only the Practice (maintenance) block was done. Developer decision: "if we see
+them, we should drill them from the beginning." Built `intro_drill.route_untaught` (never taught =
+no ladder row, no correct exercise answer, p_known < 0.5; max 5 per request; reuses the `overload`
+event so no migration), wired into `get_session` and extra-round reviews; 4 new tests (18/18 pass).
+Not deployed. Pages: created [[decisions/ADR-046-untaught-words-start-the-drill]]; updated
+[[features/new-word-drill]], [[features/new-word-drill.tech]] (note 16), [[tasklist/new-word-drill.tasks]]
+(TASK-975), [[tasklist/master]], index.
+

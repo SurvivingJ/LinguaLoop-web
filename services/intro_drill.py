@@ -617,3 +617,100 @@ def _fresh_ladder_columns() -> dict:
             'semantic_discrimination', 'contextual_use')},
         'gates_passed': {'gate_a': False, 'gate_b': False},
     }
+
+
+# ---------------------------------------------------------------------------
+# Never-taught words met in practice (ADR-046)
+# ---------------------------------------------------------------------------
+
+# A word the learner has never been taught: no ladder row in any state, no
+# correct exercise answer ever, and knowledge below this (or no knowledge row).
+# Words known from tests or placement (p_known >= 0.5) are not pulled back.
+UNTAUGHT_MAX_P_KNOWN = 0.5
+# Never-taught words drilled per practice request. More than this are dropped
+# from the request instead of being served plain; they are drilled when the
+# engine picks them again.
+UNTAUGHT_MAX_PER_SESSION = 5
+UNTAUGHT_SOURCE = 'practice'
+
+
+def untaught_sense_ids(db, user_id: str, sense_ids: List[int]) -> List[int]:
+    """The senses in ``sense_ids`` (order kept) the learner was never taught."""
+    sids = list(dict.fromkeys(int(s) for s in sense_ids if s is not None))
+    if not sids:
+        return []
+    on_ladder = {int(r['sense_id']) for r in db.table('user_word_ladder').select('sense_id')
+                 .eq('user_id', user_id).in_('sense_id', sids).execute().data or []}
+    rest = [s for s in sids if s not in on_ladder]
+    if not rest:
+        return []
+    know = {int(k['sense_id']): k for k in db.table('user_vocabulary_knowledge')
+            .select('sense_id, p_known, word_test_correct')
+            .eq('user_id', user_id).in_('sense_id', rest).execute().data or []}
+    out = []
+    for s in rest:
+        k = know.get(s)
+        if k is not None and (int(k.get('word_test_correct') or 0) > 0
+                              or float(k.get('p_known') or 0) >= UNTAUGHT_MAX_P_KNOWN):
+            continue
+        out.append(s)
+    return out
+
+
+def drillable_sense_ids(db, user_id: str, sense_ids: List[int]) -> set:
+    """Senses ``build_block`` can drill: a lemma and a gloss."""
+    if not sense_ids:
+        return set()
+    from services import prestudy
+    from services.vocabulary.gloss_lookup import get_user_definition_language_id
+    gloss_lang = get_user_definition_language_id(db, user_id)
+    senses = prestudy._load_senses(db, [int(s) for s in sense_ids], gloss_lang)
+    return {int(sid) for sid, s in senses.items() if s.get('lemma') and _gloss(s, gloss_lang)[0]}
+
+
+def route_untaught(db, user_id: str, language_id: int, payload: dict) -> dict:
+    """Take never-taught words out of a practice payload and start their drill.
+
+    The practice engine can pick a word the learner met once (in a test) but
+    was never taught, and serve it as an ordinary ladder exercise. Such a word
+    is admitted to intro session 1 instead, due today, with an ``overload``
+    history entry (source ``practice``) so every mode serves it now, past the
+    new-word quota, and the review governor counts it. Its items are removed
+    from ``payload['items']``; the caller builds the intro block afterwards.
+
+    Words with no gloss stay as ordinary items (the drill cannot build them).
+    Never-taught words over UNTAUGHT_MAX_PER_SESSION are removed from the
+    payload and not admitted. Returns {'admitted': [...], 'deferred': [...]}.
+    """
+    out: Dict[str, List[int]] = {'admitted': [], 'deferred': []}
+    items = payload.get('items') or []
+    cand = [int(i['sense_id']) for i in items
+            if i.get('sense_id') is not None and not i.get('prestudy_followup')
+            and not i.get('is_gate_marker') and not i.get('is_stress_test_marker')
+            and not i.get('is_error_exercise')]
+    untaught = untaught_sense_ids(db, user_id, cand)
+    if not untaught:
+        return out
+    ok = drillable_sense_ids(db, user_id, untaught)
+    drill = [s for s in untaught if s in ok]
+    admit, deferred = drill[:UNTAUGHT_MAX_PER_SESSION], drill[UNTAUGHT_MAX_PER_SESSION:]
+    if admit:
+        today = _today(db, user_id, language_id).isoformat()
+        now = datetime.now(timezone.utc).isoformat()
+        rows = [{'user_id': user_id, 'sense_id': sid, **_fresh_ladder_columns(),
+                 **new_intro_fields(today, [{'event': 'overload', 'source': UNTAUGHT_SOURCE,
+                                             'date': today, 'at': now}])}
+                for sid in admit]
+        try:
+            db.table('user_word_ladder').insert(rows).execute()
+        except Exception as e:
+            # e.g. a concurrent request admitted one of them: serve as before.
+            logger.warning('untaught words: ladder insert failed for user=%s: %s', user_id, e)
+            return out
+        finally:
+            _invalidate_new_word_state(user_id)
+    out['admitted'], out['deferred'] = admit, deferred
+    drop = set(admit) | set(deferred)
+    payload['items'] = [i for i in items if i.get('sense_id') is None or int(i['sense_id']) not in drop
+                        or i.get('prestudy_followup') or i.get('is_error_exercise')]
+    return out
