@@ -1,0 +1,151 @@
+{
+  "test_id": "baa11e11-38c3-4e8c-a886-02bebacbe025",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "城市里有很多高楼。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9091,
+      "back_translation": "有些高楼的墙上种了植物。"
+    },
+    {
+      "idx": 2,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Gold 长出蔬菜 = the plants themselves yield vegetables; 'grow vegetables' reads as the plants cultivating vegetables (back-translated as 种蔬菜). Tightened.",
+      "tightness": 0.8421,
+      "back_translation": "这些植物可以种蔬菜。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "'so' makes explicit a consequence the gold leaves implicit by juxtaposition; same meaning.",
+      "tightness": 0.9143,
+      "back_translation": "人们在楼里种菜，所以不用去很远的地方买菜。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.963,
+      "back_translation": "这样，大家就有更多新鲜的蔬菜吃。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "这可以帮助解决粮食安全问题。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.6667,
+      "back_translation": "种菜的地方看起来也很漂亮。"
+    },
+    {
+      "idx": 7,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "有绿色植物的地方，空气更干净。"
+    },
+    {
+      "idx": 8,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9091,
+      "back_translation": "住在附近的人觉得更舒服。"
+    },
+    {
+      "idx": 9,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9474,
+      "back_translation": "在舒服的地方，房子更贵。"
+    },
+    {
+      "idx": 10,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "有植物的楼房地产价值更高。"
+    },
+    {
+      "idx": 11,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8889,
+      "back_translation": "政府和公司愿意投资这样的地方。"
+    },
+    {
+      "idx": 12,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8421,
+      "back_translation": "种菜的楼需要设计好。"
+    },
+    {
+      "idx": 13,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "这是城市规划的一部分。"
+    },
+    {
+      "idx": 14,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Low tightness from paraphrase (做好这件事对未来有好处 vs 这样做好，对将来好); reference faithful, several renderings.",
+      "tightness": 0.5263,
+      "back_translation": "做好这件事对未来有好处。"
+    },
+    {
+      "idx": 15,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7143,
+      "back_translation": "这就是可持续发展。"
+    }
+  ]
+}
