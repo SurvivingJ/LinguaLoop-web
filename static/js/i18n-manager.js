@@ -122,7 +122,9 @@
    */
   function t(key, params) {
     const hit = translations[key] || fallbackTranslations[key];
-    if (hit === undefined) {
+    // Only once the bundles are in: pages localise early and again on load,
+    // so a lookup before then is not a missing key.
+    if (hit === undefined && isLoaded && key) {
       // Warn once per missing key so locale drift surfaces in the
       // console instead of silently rendering the key string itself.
       if (!t._warned) t._warned = {};
