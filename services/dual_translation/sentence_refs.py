@@ -43,6 +43,10 @@ def segment_sentences(text: Optional[str], language_code: str) -> list[str]:
 PROMPT_VERSION = 'sr-1.0'
 ARMS = ('sentencewise', 'aligned')
 VERDICTS = ('pending', 'pass', 'rewritten', 'fail')
+USABLE_VERDICTS = ('pass', 'rewritten')
+#: Independent reviews of the exact same text (distinct runs) at which a
+#: reference skips the tightness floor in window selection (ADR-047).
+FLOOR_OVERRIDE_REVIEWS = 2
 LANG_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
 LANG_ID = {v: k for k, v in LANG_CODE.items()}
 
@@ -315,6 +319,23 @@ def strip_author_notes(doc: dict) -> dict:
 
 def verdict_ok(v: dict) -> bool:
     return v.get('verdict') in ('pass', 'rewritten')
+
+
+def faithful_reviews(new_row: dict, run_id: str, existing: Iterable[dict]) -> int:
+    """How many independent reviews (distinct run_id) passed or wrote this
+    exact text for this (sentence, L1), counting the new row's own review.
+    ``existing`` rows carry sentence_id, l1_language_id, l1_text, run_id,
+    review_verdict. A row whose verdict is not usable counts 0 (ADR-047)."""
+    if new_row.get('review_verdict') not in USABLE_VERDICTS:
+        return 0
+    runs = {run_id}
+    for e in existing:
+        if (e.get('sentence_id') == new_row['sentence_id']
+                and e.get('l1_language_id') == new_row['l1_language_id']
+                and e.get('l1_text') == new_row['l1_text']
+                and e.get('review_verdict') in USABLE_VERDICTS):
+            runs.add(e.get('run_id'))
+    return len(runs)
 
 
 def activation_plan(new_rows: Iterable[dict], existing_active: dict[tuple[int, int], int]) -> dict:

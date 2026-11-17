@@ -224,3 +224,70 @@ class TestEmbeddedReads:
         ]})
         got = dt_routes._practised_sentences(db, 'u1')
         assert got == {'t1': {0: '2026-11-17T10:00', 1: '2026-11-17T10:00', 2: '2026-11-16T10:00'}}
+
+
+# ---------------------------------------------------------------------------
+# ADR-047: two independent reviews of the same text override the floor
+# ---------------------------------------------------------------------------
+
+from services.dual_translation import sentence_refs as sr  # noqa: E402
+from services.dual_translation.passage_builder import (  # noqa: E402
+    select_window_for_primed, window_meets_floor,
+)
+
+
+class TestFloorOverride:
+
+    def test_agreed_sentences_leave_the_mean(self):
+        tight = {0: 0.9, 1: 0.3}
+        assert window_meets_floor([0, 1], tight, 0.7) is False
+        assert window_meets_floor([0, 1], tight, 0.7, agreed=frozenset({1})) is True
+
+    def test_an_all_agreed_window_passes_whatever_the_scores(self):
+        tight = {0: 0.2, 1: 0.3}
+        assert window_meets_floor([0, 1], tight, 0.7, agreed=frozenset({0, 1})) is True
+
+    def test_unagreed_low_sentences_still_block(self):
+        tight = {0: 0.3, 1: 0.3, 2: 0.9}
+        assert window_meets_floor([0, 1, 2], tight, 0.7, agreed=frozenset({2})) is False
+
+    def test_plan_sentence_windows_uses_agreement(self):
+        idxs = [0, 1, 2, 3]
+        tight = {0: 0.9, 1: 0.9, 2: 0.3, 3: 0.4}
+        assert plan_sentence_windows(idxs, set(idxs), tight, 0.7) == []
+        assert plan_sentence_windows(idxs, set(idxs), tight, 0.7, agreed=frozenset({2, 3})) == [(0, 3)]
+
+    def test_primed_selector_uses_agreement(self):
+        rows = [{'idx': i, 'l2_text': '句。', 'sense_ids': [1] if i == 1 else []} for i in range(2)]
+        tight = {0: 0.3, 1: 0.3}
+        assert select_window_for_primed(rows, [1], [], {0, 1}, tight, 0.7) is None
+        assert select_window_for_primed(rows, [1], [], {0, 1}, tight, 0.7, agreed=frozenset({0, 1})) == (0, 1)
+
+    def test_faithful_reviews_counts_distinct_runs_with_the_same_text(self):
+        new = {'sentence_id': 1, 'l1_language_id': 2, 'l1_text': 'A.', 'review_verdict': 'pass'}
+        existing = [
+            {'sentence_id': 1, 'l1_language_id': 2, 'l1_text': 'A.', 'review_verdict': 'pass', 'run_id': 'r1'},
+            {'sentence_id': 1, 'l1_language_id': 2, 'l1_text': 'A.', 'review_verdict': 'fail', 'run_id': 'r2'},
+            {'sentence_id': 1, 'l1_language_id': 2, 'l1_text': 'A!', 'review_verdict': 'pass', 'run_id': 'r3'},
+            {'sentence_id': 1, 'l1_language_id': 1, 'l1_text': 'A.', 'review_verdict': 'pass', 'run_id': 'r4'},
+            {'sentence_id': 1, 'l1_language_id': 2, 'l1_text': 'A.', 'review_verdict': 'pass', 'run_id': 'new'},
+        ]
+        assert sr.faithful_reviews(new, 'new', existing) == 2
+        assert sr.faithful_reviews(dict(new, review_verdict='fail'), 'new', existing) == 0
+        assert sr.FLOOR_OVERRIDE_REVIEWS == 2
+
+    def test_next_serves_a_below_floor_window_two_reviewers_agreed_on(self, monkeypatch):
+        rows = [dict(r, agreed=True) for r in _rows(2, tight=0.3)]
+        monkeypatch.setattr(dt_routes, '_window_material', lambda db, ids, l1: {'t-new': rows})
+        monkeypatch.setattr(dt_routes, '_practised_sentences', lambda db, uid: {})
+        assert dt_routes._select_next_sentence_window(_db([ZH_NEW]), 'u1', 2)['l1_text'] == 'Sentence 0. Sentence 1.'
+
+    def test_window_material_flags_agreement(self):
+        db = _DB({'test_sentence_references': [
+            {'l1_text': 'A.', 'tightness': 0.3, 'review_verdict': 'pass', 'faithful_reviews': 2,
+             'test_sentences': {'test_id': 't1', 'idx': 0, 'l2_text': '甲。', 'transcript_hash': 'h'}},
+            {'l1_text': 'B.', 'tightness': 0.3, 'review_verdict': 'pass', 'faithful_reviews': 1,
+             'test_sentences': {'test_id': 't1', 'idx': 1, 'l2_text': '乙。', 'transcript_hash': 'h'}},
+        ]})
+        got = {r['idx']: r['agreed'] for r in dt_routes._window_material(db, ['t1'], 2)['t1']}
+        assert got == {0: True, 1: False}

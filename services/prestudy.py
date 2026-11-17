@@ -557,6 +557,7 @@ def choose_produce_window(db, test: dict, l1_language_id: int, primed: list[int]
     senses, then shorter) whose references all exist in ``l1_language_id`` and
     clear the language's tightness floor."""
     from services.dual_translation.passage_builder import select_window_for_primed
+    from services.dual_translation.sentence_refs import FLOOR_OVERRIDE_REVIEWS
     rows = db.table('test_sentences').select('id, idx, l2_text, token_start, token_end, transcript_hash') \
         .eq('test_id', test['id']).order('idx').execute().data or []
     if not rows:
@@ -564,10 +565,10 @@ def choose_produce_window(db, test: dict, l1_language_id: int, primed: list[int]
     by_id = {r['id']: r for r in rows}
     refs = []
     for part in _chunks(list(by_id)):
-        refs += db.table('test_sentence_references').select('sentence_id, tightness, review_verdict') \
+        refs += db.table('test_sentence_references').select('sentence_id, tightness, review_verdict, faithful_reviews') \
             .in_('sentence_id', part).eq('l1_language_id', int(l1_language_id)).eq('is_active', True) \
             .in_('review_verdict', list(_USABLE_VERDICTS)).execute().data or []
-    refs_ok, tight = set(), {}
+    refs_ok, tight, agreed = set(), {}, set()
     for r in refs:
         row = by_id.get(r['sentence_id'])
         if not row:
@@ -575,9 +576,11 @@ def choose_produce_window(db, test: dict, l1_language_id: int, primed: list[int]
         refs_ok.add(int(row['idx']))
         if r.get('tightness') is not None:
             tight[int(row['idx'])] = float(r['tightness'])
+        if (r.get('faithful_reviews') or 0) >= FLOOR_OVERRIDE_REVIEWS:
+            agreed.add(int(row['idx']))
     floor = PRODUCE_TIGHTNESS_FLOOR.get(int(test['language_id']), 0.6)
     return select_window_for_primed(rows, primed, wrong, refs_ok, tight, floor,
-                                    token_map=test.get('vocab_token_map'))
+                                    token_map=test.get('vocab_token_map'), agreed=frozenset(agreed))
 
 
 def record_produce(db, user_id: str, test_id: str, language_id: int, submission_id,

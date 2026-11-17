@@ -56,7 +56,7 @@ from services.dual_translation.passage_builder import (
     MAX_WINDOW, SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
     pick_next_window, plan_sentence_windows,
 )
-from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE
+from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE, FLOOR_OVERRIDE_REVIEWS
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.vocabulary.fsrs import AGAIN, CardState, schedule_review
@@ -805,6 +805,7 @@ def _select_next_sentence_window(db, user_id: str, l1_language_id: int,
             list(fresh), set(fresh),
             {i: r.get('tightness') for i, r in fresh.items()},
             PRODUCE_TIGHTNESS_FLOOR.get(int(test['language_id']), 0.6),
+            agreed=frozenset(i for i, r in fresh.items() if r.get('agreed')),
         )
         if windows:
             candidates.append({'test_id': tid, 'windows': windows, 'rows': fresh})
@@ -841,7 +842,7 @@ def _window_material(db, test_ids: list, l1_language_id: int) -> dict:
     the L1 (one embedded read; sentences without one are simply absent)."""
     resp = (
         db.table('test_sentence_references')
-        .select('l1_text, tightness, review_verdict, '
+        .select('l1_text, tightness, review_verdict, faithful_reviews, '
                 'test_sentences!inner(test_id, idx, l2_text, transcript_hash)')
         .in_('test_sentences.test_id', test_ids)
         .eq('l1_language_id', l1_language_id)
@@ -859,6 +860,7 @@ def _window_material(db, test_ids: list, l1_language_id: int) -> dict:
             'idx': int(sent['idx']), 'l2_text': sent['l2_text'],
             'transcript_hash': sent.get('transcript_hash'),
             'l1_text': row['l1_text'], 'tightness': row.get('tightness'),
+            'agreed': (row.get('faithful_reviews') or 0) >= FLOOR_OVERRIDE_REVIEWS,
         })
     return out
 

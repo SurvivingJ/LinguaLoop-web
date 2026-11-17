@@ -97,9 +97,20 @@ def cmd_export(a) -> int:
     for i in range(0, len(tids), 100):
         for t in db.table('tests').select('id, language_id, is_active').in_('id', tids[i:i + 100]).execute().data or []:
             tests[t['id']] = t
+    # A sentence that already had a second review (a row from a `recheck-*` run)
+    # is not exported again unless --include-rechecked.
+    rechecked: set = set()
+    if not a.include_rechecked:
+        sids = sorted({r['sentence_id'] for r in rows})
+        for i in range(0, len(sids), 200):
+            for x in db.table('test_sentence_references').select('sentence_id, l1_language_id, run_id') \
+                    .in_('sentence_id', sids[i:i + 200]).like('run_id', 'recheck%').execute().data or []:
+                rechecked.add((x['sentence_id'], x['l1_language_id']))
     items = []
     context_cache: dict = {}
     for r in rows:
+        if (r['sentence_id'], r['l1_language_id']) in rechecked:
+            continue
         s = r['test_sentences']
         t = tests.get(s['test_id'])
         if not t or not t.get('is_active'):
@@ -230,6 +241,8 @@ def main() -> int:
     p = sub.add_parser('export')
     p.add_argument('--out-dir', required=True)
     p.add_argument('--per-pack', type=int, default=25)
+    p.add_argument('--include-rechecked', action='store_true',
+                   help='also export sentences that already have a row from a recheck-* run')
     p.set_defaults(fn=cmd_export)
     p = sub.add_parser('score')
     p.add_argument('run')
