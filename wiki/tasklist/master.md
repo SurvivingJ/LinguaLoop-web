@@ -19,9 +19,9 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 37 |
-| In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
+| Not Started | 36 |
+| In Progress (`[~]`) | 14 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 25 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 268 |
@@ -1251,7 +1251,7 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
 
 ### Exercise Content in Storage (ADR-047) — NEW 2026-11-17
-Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-047-exercise-content-in-storage]]. Phase 0 done (inventory, design, contracts). Phase 1 built and integrated 2026-11-17 (TASK-976–993, repo only; migrations written, not applied; flags `db`). TASK-994–998 are operator tasks, not for agents.
+Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-047-exercise-content-in-storage]]. Phase 0 done (inventory, design, contracts). Phase 1 built and integrated 2026-11-17 (TASK-976–993). The two Phase-1 migrations are live since 2026-11-17 (TASK-994, deploy of the Phase-1 code still pending; flags `db`). TASK-994–998 are operator tasks, not for agents.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
@@ -1263,8 +1263,8 @@ Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-047-ex
 | TASK-981 | exercise-content-storage | Regeneration writers (queue drain, generation batch) through the store | Done | S | TASK-976 |
 | TASK-982 | exercise-content-storage | Content fix scripts (audio URLs, Traditional mirrors) through the store | Done | S | TASK-976 |
 | TASK-983 | exercise-content-storage | Static guard: no content write outside the store | Done | XS | TASK-980, TASK-981, TASK-982 |
-| TASK-984 | exercise-content-storage | Migration: columns, sequence, write-side RPCs, bucket (written, not applied) | Done (repo) | M | — |
-| TASK-985 | exercise-content-storage | Migration: session RPCs `p_include_content`; drop dead content RPCs (written, not applied) | Done (repo) | M | — |
+| TASK-984 | exercise-content-storage | Migration: columns, sequence, write-side RPCs, bucket | Done (live 2026-11-17) | M | — |
+| TASK-985 | exercise-content-storage | Migration: session RPCs `p_include_content`; drop dead content RPCs | Done (live 2026-11-17) | M | — |
 | TASK-986 | exercise-content-storage | Cut-over migration file (drop column, dedupe_key index, VACUUM FULL runbook) | Done (repo) | M | TASK-984, TASK-985 |
 | TASK-987 | exercise-content-storage | Practice session and intro-drill readers hydrate content | Done | M | TASK-976 |
 | TASK-988 | exercise-content-storage | Battery readers (speed round, gate/stress) hydrate content | Done | S | TASK-976 |
@@ -1273,7 +1273,7 @@ Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-047-ex
 | TASK-991 | exercise-content-storage | Backfill, verify and archive script | Done | M | TASK-976 |
 | TASK-992 | exercise-content-storage | Orphan-file sweep script | Done | S | TASK-976 |
 | TASK-993 | exercise-content-storage | Phase-1 integration run (offline) and wiki update | Done | M | TASK-977..992 |
-| TASK-994 | exercise-content-storage | OPERATOR: apply Phase-1 migrations, deploy with flags `db` (LIVE-DB, approval) | [ ] | S | TASK-984, TASK-985, TASK-993 |
+| TASK-994 | exercise-content-storage | OPERATOR: apply Phase-1 migrations, deploy with flags `db` (LIVE-DB, approval) — both migrations live 2026-11-17; deploy pending | [~] | S | TASK-984, TASK-985, TASK-993 |
 | TASK-995 | exercise-content-storage | OPERATOR: dual writes on, backfill and verify | [ ] | M | TASK-994 |
 | TASK-996 | exercise-content-storage | OPERATOR: shadow reads ≥ 7 days | [ ] | S | TASK-995 |
 | TASK-997 | exercise-content-storage | OPERATOR: serve from Storage, latency within +10% warm | [ ] | S | TASK-996 |

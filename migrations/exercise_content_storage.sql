@@ -5,7 +5,8 @@
 -- Spec: wiki/decisions/ADR-047-exercise-content-in-storage.md
 --       (§3 versions, §4 concurrency rule, §7 schema changes, §8 RPC contract — normative)
 --
--- STATUS: NOT applied. Written ahead of time; the operator applies it in TASK-994.
+-- STATUS: applied live 2026-11-17 (TASK-994, Supabase migration `exercise_content_storage`);
+-- function bodies and comments md5-checked against this file after the apply.
 --
 -- Apply order (staging first if one exists):
 --   1. migrations/exercise_content_storage.sql        (this file)

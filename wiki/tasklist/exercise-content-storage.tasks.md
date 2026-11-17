@@ -732,7 +732,7 @@ Run the real store, writers, readers, backfill and sweep together over `FakeCont
 
 ## TASK-994: Apply the Phase-1 migrations and deploy with both flags at `db` (OPERATOR)
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress (both migrations live 2026-11-17; deploy of the Phase-1 code and the app walkthrough pending)
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -745,10 +745,28 @@ code works before the migrations). Then apply `migrations/exercise_content_stora
 `migrations/exercise_content_session_rpcs.sql`, on staging first if one exists.
 
 **Acceptance Criteria:**
-- [ ] `tests/sql/test_exercise_content_storage.sql` passes on staging (or on production inside its own `ROLLBACK`).
-- [ ] `tests/sql/check_function_acls.sql`: every result set empty.
-- [ ] `SELECT pg_get_function_identity_arguments('public.get_practice_session'::regproc)` shows the 6-arg signature; the three dead functions are gone; bucket `exercise-content` exists with `public = false`.
-- [ ] A practice session in production still serves content (items carry `content` and `content_version`); database size within ±1 MB of before.
+- [x] Both migrations applied, 2026-11-17:
+  - `exercise_content_storage` went in through the Supabase migration tool. Every function body and comment is md5-identical to the repo file.
+  - `exercise_content_session_rpcs` was run by the owner in the SQL editor. The editor paste turned line endings into CRLF; with `\r` removed, the bodies are md5-identical to the file, and comments match exactly.
+  - No staging project exists.
+  - Before applying, the live 5-argument bodies were md5-checked: identical to `get_practice_session_language_scope.sql` and `practice_review_ahead.sql`.
+- [ ] `tests/sql/test_exercise_content_storage.sql` inside its own `ROLLBACK` on production: not run yet. It writes, then rolls back, and needs owner approval.
+- [x] `tests/sql/check_function_acls.sql` passes for the ADR-047 objects: none of the five functions is executable by `anon` or `authenticated`. Pre-existing violations elsewhere, untouched by these migrations:
+  - `anon` holds SELECT on 28 public tables, including `users`, `user_tokens`, `token_transactions` and `trusted_devices`. RLS is on for all of them.
+  - RLS is off on `backup_semdisc_content_20261115` and `semdisc_rewrite_work`, which are dropped at the cut-over.
+- [x] Live functions:
+  - `get_practice_session(uuid,smallint,text,smallint,numeric,boolean)` and `get_review_ahead_items(uuid,smallint,integer,integer,integer[],boolean)` are the only overloads; the three dead functions are gone.
+  - Both have `search_path = public, pg_temp` and are callable by `service_role` only.
+  - Bucket `exercise-content` exists: `public = false`, 1 MB limit, `application/json`.
+- [x] Session RPCs called on production in SQL, the way PostgREST calls them (5 named arguments), for the learner with the largest ladder (zh, maintenance mode):
+  - 24 exercise items, all with `content` and `content_version` 0;
+  - with `p_include_content => false`: 24 items, no `content` key;
+  - review-ahead: 10 of 10 items with `content` and `content_version`.
+- [ ] Practice session checked in the app after the deploy.
+- [~] Database size: 494,431,379 → 495,873,171 bytes (+1.4 MB).
+  - The storage migration accounts for 16 KB.
+  - No app table gained rows in the window (`exercises`, `llm_calls`, `app_error_logs`, `exercise_attempts`, `storage.objects`: 0 new rows in 90 minutes) and no other client was connected.
+  - The rest is catalog/TOAST overhead from replacing large function bodies; not traced further.
 
 **Verification:**
 The catalog queries above, a practice session in the app, `SELECT pg_size_pretty(pg_database_size(current_database()))`.

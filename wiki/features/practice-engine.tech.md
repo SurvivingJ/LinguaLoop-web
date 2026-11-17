@@ -16,7 +16,7 @@ dependencies:
   - "exercises table (sense_id, irt_difficulty, irt_discrimination, irt_n_attempts)"
   - "dim_practice_modes, dim_exercise_types (new dim tables)"
   - "services/exercise_content/store.py (ADR-047: rpc_content_args, select_columns, hydrate)"
-  - "migrations/exercise_content_session_rpcs.sql (ADR-047, TASK-985: p_include_content; written, not applied)"
+  - "migrations/exercise_content_session_rpcs.sql (ADR-047, TASK-985: p_include_content; applied live 2026-11-17)"
 breaking_change_risk: medium
 ---
 
@@ -68,7 +68,7 @@ CREATE OR REPLACE FUNCTION public.get_practice_session(
 ) RETURNS jsonb
 ```
 
-> **ADR-047 (repo 2026-11-17, not applied; TASK-985 / TASK-994).**
+> **ADR-047 (applied live 2026-11-17; TASK-985 / TASK-994).**
 > `migrations/exercise_content_session_rpcs.sql` drops the 5-argument function and creates
 > `get_practice_session(p_user_id uuid, p_language_id smallint, p_mode text DEFAULT 'auto',
 > p_target_minutes smallint DEFAULT 15, p_user_theta numeric DEFAULT NULL, p_include_content
@@ -401,8 +401,8 @@ Service-layer `expected_seconds(exercise_type)` returns `det.expected_seconds_p5
 >
 > **Drift found 2026-11-17 (ADR-047 Context finding 6):** the drop never took effect live.
 > `get_exercise_session(uuid,smallint,integer)`, `get_exercise_session(uuid,smallint,integer,numeric)`
-> and `get_ladder_session(uuid,smallint,integer)` still exist (service_role only, no Python
-> caller). `migrations/exercise_content_session_rpcs.sql` (TASK-985, not applied) drops all three.
+> and `get_ladder_session(uuid,smallint,integer)` existed live (service_role only, no Python
+> caller) until `migrations/exercise_content_session_rpcs.sql` (TASK-985) dropped all three on 2026-11-17.
 
 ```sql
 -- get_exercise_session — wraps get_practice_session('auto', ...)

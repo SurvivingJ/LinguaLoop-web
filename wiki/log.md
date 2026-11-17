@@ -6704,3 +6704,33 @@ Tests, all offline:
 Pages updated: 3 ([[decisions/ADR-047-exercise-content-in-storage]] §9 and "Review fixes", ops notes and risks; [[tasklist/exercise-content-storage.tasks]] TASK-993 and TASK-998; this log).
 
 Nothing was applied live, and the flags stay `db`.
+
+## [2026-11-17] update | Exercise content to Storage — both Phase-1 migrations applied live (TASK-994, in progress)
+Production is the only Supabase project; there is no staging.
+
+**Before applying:**
+- The live 5-argument `get_practice_session` and `get_review_ahead_items` bodies were md5-identical to `get_practice_session_language_scope.sql` and `practice_review_ahead.sql`. So the repo test that "only the content lines change" holds for the live state.
+- The three dropped functions had no caller: no Python/JS on this branch or on `main`, no views, no other function.
+- Every column used by `exercise_content_commit` exists live, `pattern_code` included.
+
+**What was applied:**
+- `exercise_content_storage`, through the Supabase migration tool. Bodies and comments are md5-identical to the repo.
+- `exercise_content_session_rpcs`, run by the owner in the SQL editor after the migration tool's confirmation prompt timed out. The bodies have CRLF line endings from the paste; with `\r` removed they are md5-identical.
+
+**Checks after applying:**
+- Only the 6-argument session RPCs exist, and the dead `get_exercise_session` ×2 and `get_ladder_session` are gone.
+- `search_path` is pinned, and all five ADR-047 functions are callable by `service_role` only.
+- Bucket `exercise-content` is private, 1 MB, JSON only.
+- Real calls with 5 named arguments for the largest-ladder learner (zh): 24/24 items with content and `content_version` 0. With `p_include_content => false`, no content. Review-ahead: 10/10 items.
+- Database size: 494,431,379 → 495,873,171 bytes. Migration 1 added 16 KB. The remaining ~1.4 MB is not table data (0 new app rows, no other clients); not traced further.
+
+**ACL check:** clean for the new objects. It also shows pre-existing violations unrelated to this work: `anon` SELECT on 28 public tables (including `users`, `user_tokens`, `token_transactions` and `trusted_devices`; RLS is on for these), and RLS off on the two semdisc leftover tables.
+
+**Not done yet:**
+- `tests/sql/test_exercise_content_storage.sql` inside a ROLLBACK on production (it writes, then rolls back; needs owner approval);
+- deploy of the Phase-1 code;
+- the app walkthrough.
+
+**Note:** other sessions applied migrations `task994_vocab_frequency_fill` and `task998_classifier_drill_levels` today, which may clash with ADR-047's TASK-994/998 ids.
+
+Pages updated: 8 ([[tasklist/exercise-content-storage.tasks]] TASK-994; [[tasklist/master]]; [[decisions/ADR-047-exercise-content-in-storage]] "Live status"; [[database/schema.tech]]; [[api/rpcs.tech]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; index). The status headers of both migration files were updated too.

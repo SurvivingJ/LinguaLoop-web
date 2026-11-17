@@ -519,6 +519,16 @@ prestudy payload differs only by the owner's drill-only change).
 - Config: `.config unknown …`, `.config … needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY; using
   db`, storage-with-db-writes (ERROR, once per process).
 
+### Live status (2026-11-17, TASK-994)
+
+Both Phase-1 migrations are live on the only Supabase project; there is no staging project.
+
+- `exercise_content_storage` was applied through the Supabase migration tool. The live bodies and comments are md5-identical to the repo file.
+- `exercise_content_session_rpcs` was run by the owner in the SQL editor. The live bodies have CRLF line endings; with `\r` removed they are md5-identical. Any future md5 check against these two bodies must strip `\r` first.
+- The deployed app (`main`, pre-ADR-047 code) keeps working: it calls the session RPCs with 5 named arguments, which resolve to the 6-argument functions with `p_include_content` defaulting to true. Checked on production.
+
+The Phase-1 code is not deployed yet, and the flags stay `db`. Next comes the deploy, then TASK-995.
+
 ### Review fixes (independent review of the integrated branch, 2026-11-17)
 
 The reviewer's verdict was *needs fixes*: one major and three minor findings. All four are fixed

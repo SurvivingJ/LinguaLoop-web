@@ -253,7 +253,8 @@ ADR_FUNCTIONS = {
 def test_header_documents_status_order_and_rollback_rule():
     raw = read(STORAGE)
     header = raw[:raw.index('BEGIN;')]
-    assert 'NOT applied' in header
+    assert re.search(r'STATUS: (NOT applied|applied live \d{4}-\d{2}-\d{2})', header), \
+        'the header must say whether the file is applied live'
     assert 'ADR-047' in header and 'TASK-994' in header
     assert header.index('exercise_content_storage.sql') < header.index('exercise_content_session_rpcs.sql'), \
         'the header must give the apply order: this file, then exercise_content_session_rpcs.sql'

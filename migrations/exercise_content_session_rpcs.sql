@@ -4,8 +4,9 @@
 -- Date: 2026-11-17   Task: TASK-985
 -- Spec: wiki/decisions/ADR-047-exercise-content-in-storage.md (§5 read path, §7 schema changes)
 --
--- STATUS: NOT applied. The operator applies it in TASK-994, AFTER
--- migrations/exercise_content_storage.sql (these bodies read exercises.content_version).
+-- STATUS: applied live 2026-11-17 (TASK-994, run by the owner in the SQL editor, after
+-- migrations/exercise_content_storage.sql). The live bodies carry CRLF line endings from the
+-- editor paste; with \r removed they are md5-identical to this file.
 --
 -- get_practice_session and get_review_ahead_items gain p_include_content boolean DEFAULT true.
 -- The 5-argument signatures are dropped in the same transaction, so today's 5-argument calls
