@@ -3,7 +3,7 @@ title: Dual Translation
 type: feature
 status: planned
 tech_page: ./dual-translation.tech.md
-last_updated: 2026-06-22
+last_updated: 2026-11-17
 open_questions:
   - "RESOLVED 2026-06-23: privacy — no special posture required; learner reproduction text is retained for analysis (an asset, not a risk)."
   - "RESOLVED 2026-06-23: embeddings not needed — cluster errors deterministically by taxonomy subtype; pgvector optional for later intra-subtype refinement."
@@ -33,6 +33,11 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
    they have **already completed** (via reading, listening, or dictation) so the content is
    already at their level — and asked to translate it into the L2 ("the reproduction"). *(MVP is
    L1→L2 only — see [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]].)*
+   *(Since 2026-11-17 the passage is a 2–4 sentence window cut from the test's own sentences,
+   each with a reviewed native-language translation ([[features/test-sentence-references]]).
+   The learner gets a window they have not translated before, from their most recently taken
+   tests first, in the language they are studying; once every window has been done, the one
+   done longest ago comes back.)*
 2. On submit, the system compares the reproduction against the **original L2 passage** (the
    gold reference). A free deterministic pass aligns the two texts and finds the differences
    before any AI model is involved.
@@ -94,5 +99,6 @@ error-vs-mistake gate, and promotion threshold.
 - [[algorithms/translation-grading-cascade]] — Tier 0 deterministic + OpenRouter cascade
 - [[business-rules/translation-error-taxonomy]] — error taxonomy and promotion rules
 - [[features/dictation]] — reuses the same Levenshtein diff grader for Tier 0
+- [[features/test-sentence-references]] — where the passages and their native-language references come from (since 2026-11-17)
 - [[features/flashcards]] — reuses FSRS-4 for remediation card scheduling
 - [[decisions/ADR-014-reference-first-grading]], [[decisions/ADR-015-eager-error-explanations]], [[decisions/ADR-016-per-pair-error-taxonomy]], [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]]

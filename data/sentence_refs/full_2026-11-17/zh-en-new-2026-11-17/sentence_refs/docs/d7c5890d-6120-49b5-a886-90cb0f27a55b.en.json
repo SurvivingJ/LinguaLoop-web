@@ -1,0 +1,41 @@
+{
+ "test_id": "d7c5890d-6120-49b5-a886-90cb0f27a55b",
+ "l2": "zh",
+ "l1": "en",
+ "arm": "sentencewise",
+ "prompt_version": "sr-1.0",
+ "author_model": "claude-sonnet-5-5",
+ "sentences": [
+  {
+   "idx": 0,
+   "l2": "在机器学习中，模型的优劣不取决于它对已知数据记得多牢，而在于面对陌生数据时能否做出可靠判断，这种本领被称为泛化能力。",
+   "l1": "In machine learning, the quality of a model depends not on how firmly it remembers known data, but on whether it can make reliable judgments when facing unfamiliar data, and this ability is called generalization ability."
+  },
+  {
+   "idx": 1,
+   "l2": "倘若模型过于“聪明”，便容易陷入过拟合：它不仅学会了训练集中的普遍规律，还把偶然的噪声和个别细节当作真理，结果在训练集上成绩近乎完美，一到测试集便漏洞百出。",
+   "l1": "If a model is too \"clever\", it easily falls into overfitting: it not only learns the general patterns in the training set, but also takes accidental noise and individual details as truth, with the result that its performance on the training set is nearly perfect, but the moment it reaches the test set it is full of flaws."
+  },
+  {
+   "idx": 2,
+   "l2": "这好比学生死记硬背往年试题，遇到新题就束手无策。",
+   "l1": "This is like a student who memorizes past exam questions by rote and is helpless when meeting a new question."
+  },
+  {
+   "idx": 3,
+   "l2": "相反，欠拟合则源于模型“不够聪明”，它结构过于简单，或训练不充分，连数据中的基本规律都没有把握，因此无论在训练集还是测试集上，表现都不尽如人意。",
+   "l1": "By contrast, underfitting stems from a model being \"not clever enough\": its structure is too simple, or its training is insufficient, and it has not grasped even the basic patterns in the data, so whether on the training set or the test set, its performance is unsatisfactory."
+  },
+  {
+   "idx": 4,
+   "l2": "就像只读了几页书便匆忙应考的人，哪里都答不好。",
+   "l1": "It is like a person who hurriedly takes an exam after reading only a few pages of the book and can answer nothing well anywhere."
+  },
+  {
+   "idx": 5,
+   "l2": "要避免这两种极端，研究者通常会适当调整模型的复杂度、增加数据量，并借助测试集检验结果，从而在“记得太多”与“学得太少”之间寻找平衡。",
+   "l1": "To avoid these two extremes, researchers usually appropriately adjust the complexity of the model, increase the amount of data, and check the results with the help of a test set, so as to seek a balance between \"remembering too much\" and \"learning too little\"."
+  }
+ ],
+ "author_notes": ""
+}

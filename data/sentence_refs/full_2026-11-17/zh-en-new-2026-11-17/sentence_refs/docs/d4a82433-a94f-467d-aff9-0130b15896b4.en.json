@@ -1,0 +1,46 @@
+{
+ "test_id": "d4a82433-a94f-467d-aff9-0130b15896b4",
+ "l2": "zh",
+ "l1": "en",
+ "arm": "sentencewise",
+ "prompt_version": "sr-1.0",
+ "author_model": "claude-sonnet-5-5",
+ "sentences": [
+  {
+   "idx": 0,
+   "l2": "数据仓库与数据湖虽然同属企业数据管理的基础设施，设计理念却大相径庭。",
+   "l1": "Although data warehouses and data lakes both belong to the infrastructure of enterprise data management, their design philosophies are quite different."
+  },
+  {
+   "idx": 1,
+   "l2": "数据仓库主要存放经过清洗和整理的结构化数据，例如销售报表、财务记录等。",
+   "l1": "A data warehouse mainly stores structured data that has been cleaned and organized, such as sales reports and financial records."
+  },
+  {
+   "idx": 2,
+   "l2": "这些数据在入库之前，必须先经过ETL流程，即抽取、转换、加载，按照预先设定的模式整理妥当，因此查询速度快，结果可靠，非常适合管理层进行固定的统计分析。",
+   "l1": "Before entering the warehouse, this data must first go through the ETL process, that is, extraction, transformation and loading, and be arranged properly according to a preset schema, so queries are fast and results are reliable, which is very suitable for management to carry out fixed statistical analyses."
+  },
+  {
+   "idx": 3,
+   "l2": "相比之下，数据湖奉行“先存储、后处理”的原则，能够原样保留各种格式的数据，既包括结构化数据，也包括日志、图片、音频等非结构化内容。",
+   "l1": "By comparison, a data lake follows the principle of \"store first, process later\" and can retain data of all formats as it is, including not only structured data but also unstructured content such as logs, images and audio."
+  },
+  {
+   "idx": 4,
+   "l2": "它的存储成本较低，灵活性极高，数据科学家可以随时按需挖掘，探索新的价值。",
+   "l1": "Its storage cost is low and its flexibility is extremely high, so data scientists can mine it at any time as needed and explore new value."
+  },
+  {
+   "idx": 5,
+   "l2": "然而，缺乏有效治理的数据湖，容易沦为杂乱无章的“数据沼泽”。",
+   "l1": "However, a data lake lacking effective governance easily degenerates into a chaotic \"data swamp\"."
+  },
+  {
+   "idx": 6,
+   "l2": "因此，许多企业索性将二者结合使用，各取所长。",
+   "l1": "Therefore, many companies simply use the two in combination, each taking its own strengths."
+  }
+ ],
+ "author_notes": ""
+}

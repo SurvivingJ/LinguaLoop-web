@@ -1,9 +1,9 @@
 ---
 title: Test Sentence References — Technical Specification
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: ./test-sentence-references.md
-last_updated: 2026-10-30
+last_updated: 2026-11-17
 dependencies:
   - "tests.transcript, tests.vocab_token_map"
   - "services/dual_translation/passage_builder.segment_sentences"
@@ -157,6 +157,21 @@ per arm and language, in `wiki/evaluations/sentence-refs-pilot-YYYY-MM-DD.md`. D
 the arm with higher median tightness wins unless its entailment pass rate is more than 3 points
 lower. Sets the tightness floor from the distribution.
 
+### Second review of below-floor references — `scripts/sentence_ref_recheck.py` (TASK-908)
+
+`export --out-dir RUN` reads every active `pass`/`rewritten` reference whose tightness is below
+the Produce floor for its test language (`services.prestudy.PRODUCE_TIGHTNESS_FLOOR`: zh 0.70,
+en 0.60, ja 0.65) and writes packs of 25: a blind file (the L1 target sentence with its L1
+neighbours) and a gold file (the L2 sentence, its L2 neighbours, the current reference). An Opus
+reviewer in a fresh context back-translates every target blind (`back/NN.json`), then judges
+against the gold and rewrites loose references (`verdicts/NN.json`; `fail` only for a broken
+gold). `score RUN` reruns the deterministic checks on each final reference, computes tightness
+from the new back-translation and writes `upload.json` for the normal upload script, which
+replaces only the rechecked sentences. A `fail` row is stored inactive, so the previous reference
+stays served. Assemble/upload provenance: `author_model`, `arm` and `prompt_version` are taken
+from the authored document in `docs/` when the reviewed copy lacks them (reviewers never open
+`docs/`).
+
 ## API / RPC Surface
 
 ### `GET /api/tests/<slug>/sentences?l1=<code>`
@@ -181,6 +196,40 @@ lower. Sets the tightness floor from the distribution.
 range by primed senses covered ×10 + wrong-question senses ×3 − chars/100, require full reference
 coverage and mean tightness ≥ floor, return the best. Pure function over `test_sentences` rows;
 unit-tested against the demo's five tests.
+
+### Changed: `GET /api/dual-translation/next` serves sentence windows (TASK-976, 2026-11-17)
+
+Before: `/next` served only `dt_passage` rows that had a stored `dt_passage_reference`. That
+table is empty in production (0 rows on 2026-11-17; every remaining `dt_passage` is a range
+passage made by Produce), so `/next` returned 404 to every learner.
+
+Now `_select_next_passage(db, user_id, l1_language_id, l2_language_id=None)`:
+
+1. Candidates: the user's most recently attempted tests (`test_attempts.created_at` desc,
+   distinct, at most `NEXT_WINDOW_MAX_TESTS = 30`), active, not in the L1, and in
+   `l2_language_id` when the client sends `?language_id=` (the session player sends
+   `ctx.languageId`; the standalone page sends `localStorage.selectedLanguageId`).
+2. Material: one embedded read, `test_sentence_references` (active, verdict `pass`/`rewritten`,
+   the L1) `!inner` `test_sentences` filtered by `test_id IN candidates`. Rows whose
+   `transcript_hash` differs from `tests.transcript_hash` are dropped.
+3. Windows: `passage_builder.plan_sentence_windows(idxs, refs_ok, tightness, floor)`: runs of
+   consecutive covered sentences, each packed into fixed 2–4 sentence windows by
+   `window_sentences`; a window is kept only when its mean tightness ≥ the Produce floor for the
+   test language (same rule as `select_window_for_primed`).
+4. Choice: `passage_builder.pick_next_window(candidates, practised)`: the first window, in
+   candidate then transcript order, none of whose sentences the user has practised; else the
+   window whose latest practice is oldest. "Practised" = any `dt_submission` (last 500) with a
+   non-empty reproduction or a `skipped_at`, on a range passage, sentence-level (so a Produce
+   window 2–3 also marks window 0–3 as practised). An opened but unanswered submission does not
+   count, so a reload gets the same window.
+5. The `dt_passage` for the range is found or created exactly as `passage-from-sentences` does
+   (`_find_or_create_range_passage`); a non-active range passage is not served. `l1_text` is the
+   joined references. Response shape unchanged.
+6. Nothing found → the legacy `dt_passage_reference` path (kept; currently finds nothing).
+
+Tests: `tests/test_dt_next_sentence_windows.py` (21), `tests/unit/session-dt-player.test.js`
+(+2). Live read-only check for the main learner on 2026-11-17: 30 candidate tests, 26 with
+references, 57 windows, 18 never practised.
 
 ### Changed: grader target words (TASK-910)
 `grade(submission, target_sense_ids)`: after the cascade, for each target sense locate its

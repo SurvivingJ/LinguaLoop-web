@@ -3,7 +3,7 @@ title: Dual Translation — Technical Specification (Feature 1: Grading)
 type: feature-tech
 status: in-progress
 prose_page: ./dual-translation.md
-last_updated: 2026-11-14
+last_updated: 2026-11-17
 dependencies:
   - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
@@ -236,7 +236,12 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 
 ### `GET /api/dual-translation/next`
 - **Purpose:** serve the next passage for the user (L1 reference chosen via `users.native_language_id`).
-- **Selection rule:** draw only from `dt_passage` whose `source_ref_id` is a test the **user has
+- **Selection rule (2026-11-17, TASK-976):** a 2–4 sentence window of reviewed sentence
+  references from a test the user has attempted, optionally restricted by `?language_id=`; see
+  [[features/test-sentence-references.tech]] "`GET /api/dual-translation/next` serves sentence
+  windows". The rule below is now only the fallback (`_select_next_legacy_passage`), and finds
+  nothing in production because `dt_passage_reference` is empty.
+- **Legacy selection rule:** draw only from `dt_passage` whose `source_ref_id` is a test the **user has
   already completed** (any of reading/listening/dictation — check `test_attempts` for the user),
   so content is inherently at-level. L1 reference chosen for the user's L1.
   **Correction (TASK-607):** the original draft said this came from `user_languages` — it doesn't;
