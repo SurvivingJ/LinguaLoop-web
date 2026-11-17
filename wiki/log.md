@@ -6631,3 +6631,25 @@ rollback copy of the 2026-11-15 semantic-discrimination rewrite, so it was not d
 Proposed (not filed): move exercise `content` out of Postgres into per-sense JSON files in Storage
 ("warehouse/shelf"), ~23 KB → ~6 KB of database per sense.
 Pages: index, log.
+
+## [2026-11-17] ingest | Exercise content to Storage — Phase 0 (architect): inventory, ADR-047, task breakdown
+Source: owner brief (move exercise `content` out of Postgres; Free cap 500 MB, DB 470 MB, target 10k zh + 10k ja
+words) + read-only catalog queries on the live project. Pages created: 2 ([[decisions/ADR-047-exercise-content-in-storage]]
+(proposed), [[tasklist/exercise-content-storage.tasks]]). Pages updated: 3 ([[database/schema.tech]] planned note +
+stale-index note, [[tasklist/master]] (TASK-976–999, Not Started 31→55), index). No code, no migration applied, no
+Storage call. Measured live: `exercises` 200 MB, `content` 119 MB (avg 864 B, inline), 144,374 rows / 11,021 senses,
+10 sense-less zh collocation rows; `storage.objects` row ≈ 595 B. Inventory (ADR Appendix A): only
+`get_practice_session` and `get_review_ahead_items` return content among deployed RPCs (repo bodies match live);
+grading, IRT, admission, views (incl. `v_ladder_judge_reject_rates`, which reads tags + `word_assets.content`) do not
+read it; serve-path Python readers: session assembly + follow-ups, intro block, speed round, gate/stress, prestudy page
+(largest fan-out, zh p90 126 senses), typed re-grade, admin preview; writers funnel through `render_all`, plus
+queue-drain/batch regen, stage-runner render and two content fix scripts. Found: the unique index
+`uq_exercises_context_free_variant` is an expression on `content` (replaced by a `dedupe_key` column); drift —
+`phase17_drop_deprecation_wrappers.sql` not in effect live (`get_exercise_session` ×2 and `get_ladder_session` still
+exist, one returns `e.content`), live-only `apply_semdisc_notes(jsonb)`, `semdisc_rewrite_work`,
+`backup_semdisc_content_20261115`; schema.tech index list stale. Design changes vs the brief: version 0 = backfill
+export so no row is rewritten (stamping 144k rows ≈ 190 MB of row versions); versions from a sequence + no-overwrite
+uploads; compare-and-swap commit on (version, row-id set) under a per-sense advisory lock; two flags (read
+db/shadow/storage, write db/dual) with `db` byte-identical to today; byte LRU (callers mutate content in place) and the
+store's own fetch pool (prestudy runs inside `run_parallel`); per-call cap 160 senses / 3 s. Open (owner, not
+blocking): prestudy fan-out; archive/drop of the semdisc leftovers.

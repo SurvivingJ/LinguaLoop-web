@@ -1132,6 +1132,23 @@ Tables for vocabulary knowledge tracking, flashcards, exercises, and the word la
 
 Generated exercises sourced from grammar patterns, vocabulary senses, collocations, conversations, or style pack items.
 
+> **Planned: content moves to Storage (ADR-047, proposed 2026-11-17; nothing applied).** `content`
+> (119 MB of the 200 MB table) moves to one immutable JSON file per sense in the private Storage
+> bucket `exercise-content` (`{lang}/{word_sense_id}.v{content_version}.json`). The table keeps
+> selection metadata, `tags` and the IRT/attempt columns, and gains `content_version integer NOT
+> NULL DEFAULT 0` (0 = backfill export) and `dedupe_key text`, which replaces the content-expression
+> unique index `uq_exercises_context_free_variant`. `get_practice_session` / `get_review_ahead_items`
+> gain `p_include_content boolean DEFAULT true`. See [[decisions/ADR-047-exercise-content-in-storage]],
+> [[tasklist/exercise-content-storage.tasks]] (TASK-976–999).
+>
+> **Index list below is stale (live check 2026-11-17).** Live: `exercises_pkey`, `idx_exercises_ladder`,
+> `uq_exercises_context_free_variant` (UNIQUE `(word_sense_id, exercise_type, md5(coalesce(content->>'context_sentence','')))`
+> for 8 context-free types, partial on `is_active`), `idx_exercises_sense`, `idx_exercises_word_asset_id`,
+> `idx_exercises_type`, `idx_exercises_tier`, `idx_exercises_source`, `idx_exercises_language`,
+> `idx_exercises_active`, `idx_exercises_collocation`, `idx_exercises_irt_calibrated`. Not live:
+> `idx_exercises_content_gin`, `idx_exercises_tags_gin`, `idx_exercises_conversation`, `idx_exercises_grammar`,
+> `idx_exercises_style_item`. TASK-993 rewrites this section.
+
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
 | `id` | uuid | NO | gen_random_uuid() | PK |
