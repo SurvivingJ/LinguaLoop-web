@@ -1,0 +1,52 @@
+{
+  "test_id": "5235a958-5cd3-4ea2-8f5b-086872739e16",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "gold_seen_early: gold pack was opened alongside the skill before back-translations were written; tightness not blind",
+      "tightness": 0.875,
+      "back_translation": "今天我去看牙医了。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "牙医叔叔 child-register kinship term rendered as 'the dentist'; no natural English equivalent, male gender carried by 'He' in idx 2; gold_seen_early: gold pack was opened alongside the skill before back-translations were written; tightness not blind",
+      "tightness": 0.9167,
+      "back_translation": "牙医说我的牙齿需要清洁。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "gold_seen_early: gold pack was opened alongside the skill before back-translations were written; tightness not blind",
+      "tightness": 0.8485,
+      "back_translation": "他用一面小镜子检查了我的每一颗牙齿。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "'my' supplied; gold 牙齿 clearly the speaker's teeth from idx 2; gold_seen_early: gold pack was opened alongside the skill before back-translations were written; tightness not blind",
+      "tightness": 0.9286,
+      "back_translation": "他还用一个小工具清洁了我的牙齿。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "gold_seen_early: gold pack was opened alongside the skill before back-translations were written; tightness not blind",
+      "tightness": 1.0,
+      "back_translation": "我很高兴我的牙齿现在很干净。"
+    }
+  ]
+}

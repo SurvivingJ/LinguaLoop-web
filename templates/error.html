@@ -3,9 +3,10 @@
 {% block title %}Something went wrong — LinguaDojo{% endblock %}
 
 {% block content %}
-<div class="text-center py-5">
-    <h1 class="h3 mb-3">Something went wrong</h1>
-    <p class="text-muted mb-4">We could not load this page. Please try again in a moment.</p>
-    <a class="btn btn-primary" href="{{ url_for('tests') }}">Back to tests</a>
+<div class="ld-error-page">
+    <div class="auth__wm" aria-hidden="true">迷</div>
+    <h1 class="ld-h1">Something went wrong</h1>
+    <p class="ld-muted mb-0">We could not load this page. Please try again in a moment.</p>
+    <a class="ld-btn ld-error-page__action" href="{{ url_for('tests') }}">Back to tests</a>
 </div>
 {% endblock %}

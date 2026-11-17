@@ -210,6 +210,141 @@ describe('drill configs', () => {
 });
 
 describe('classifier drill in the session', () => {
+  it('shows tone-marked pinyin only, whatever form the item carries', async () => {
+    stubApi({
+      batches: [
+        [
+          {
+            ...CD_ITEMS[0],
+            level: 3,
+            noun_lemma: '变得',
+            noun_pronunciation: 'biàn dé (bian4 de2)',
+            correct_classifier_pinyin: ['bi3'],
+            distractor_pinyin: ['di1', 'lu:3'],
+          },
+        ],
+      ],
+    });
+    vi.useRealTimers();
+    localStorage.setItem('cd_mode', 'mc');
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdPronunciation').textContent).toBe('biàn dé');
+    const pinyin = [...container.querySelectorAll('.cd-option-pinyin')].map((e) => e.textContent);
+    expect(pinyin.sort()).toEqual(['bǐ', 'dī', 'lǚ']);
+  });
+
+  it('names every Auto level in the badge', async () => {
+    const at = (level) => ({
+      ...CD_ITEMS[0],
+      level,
+      cloze_blanked: '一___书',
+      reverse_noun_options: ['猫'],
+    });
+    for (const [level, label] of [
+      [3, 'Reverse'],
+      [4, 'Fill in'],
+    ]) {
+      stubApi({ batches: [[at(level)]] });
+      vi.useRealTimers();
+      await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+      expect(q('cdLevelBadge').textContent).toBe(label);
+      handle.destroy();
+      handle = null;
+      container.remove();
+    }
+  });
+
+  // TASK-998: an item falls back to the highest level its content supports
+  // (Fill in needs a cloze sentence, Reverse needs wrong nouns; Type needs
+  // nothing), and the badge names what is drawn.
+  it('a level-4 item with no cloze sentence and no reverse nouns is drawn and badged as Type', async () => {
+    stubApi({ batches: [[{ ...CD_ITEMS[0], level: 4, cloze_blanked: null }]] });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Type');
+    expect(q('cdTypedForm').style.display).toBe('block');
+    expect(q('cdOptions').style.display).toBe('none');
+  });
+
+  it('a level-4 item with no cloze sentence but reverse nouns is drawn as Reverse', async () => {
+    stubApi({
+      batches: [
+        [
+          {
+            ...CD_ITEMS[0],
+            level: 4,
+            cloze_blanked: null,
+            reverse_noun_options: ['猫', '车', '鱼'],
+          },
+        ],
+      ],
+    });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Reverse');
+    expect(q('cdReversePrompt').textContent).toBe('Which noun takes 本?');
+    const texts = [...container.querySelectorAll('.cd-option-text')].map((e) => e.textContent);
+    expect(texts.sort()).toEqual(['书', '猫', '车', '鱼'].sort());
+  });
+
+  it('a level-3 item with no reverse nouns is drawn as Type', async () => {
+    stubApi({ batches: [[{ ...CD_ITEMS[0], level: 3, reverse_noun_options: [] }]] });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Type');
+  });
+
+  it('Fill in shows the sentence alone, judges the classifier and records the level', async () => {
+    stubApi({
+      batches: [
+        [
+          {
+            ...CD_ITEMS[0],
+            level: 4,
+            cloze_blanked: '这___书很好看。',
+            reverse_noun_options: ['猫', '车', '鱼'],
+          },
+        ],
+      ],
+    });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Fill in');
+    // No "一 _ noun" line above the sentence.
+    expect(q('cdPromptWrap').style.display).toBe('none');
+    expect(q('cdReversePrompt').querySelector('.cd-cloze').textContent).toContain('这');
+    expect(q('cdReversePrompt').querySelector('.cd-cloze-blank')).not.toBeNull();
+
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    option('.cd-option', '本').click();
+    await settle(400);
+    vi.useRealTimers();
+    await flush();
+    const post = calls.find((c) => c.method === 'POST');
+    expect(post.body.item_results).toEqual([{ classifier_id: 10, is_correct: true, level: 4 }]);
+  });
+
+  it('Reverse records an answer against the classifier and the next item restores the prompt', async () => {
+    stubApi({
+      batches: [
+        [
+          { ...CD_ITEMS[0], level: 3, reverse_noun_options: ['猫', '车', '鱼'] },
+          { ...CD_ITEMS[0], level: 1, noun_lemma: '杂志' },
+        ],
+      ],
+    });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdNoun').textContent).toBe('?');
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    option('.cd-option', '书').click();
+    await settle(400);
+    expect(q('cdLevelBadge').textContent).toBe('Choose');
+    expect(q('cdNoun').textContent).toBe('杂志');
+    expect(q('cdPromptBlank').textContent).toBe('_');
+    expect(q('cdReversePrompt').style.display).toBe('none');
+  });
+
   it('plays a batch, submits it and completes the item once', async () => {
     stubApi({
       batches: [CD_ITEMS],
@@ -220,17 +355,28 @@ describe('classifier drill in the session', () => {
     await startSession(ctx);
 
     expect(calls[0].url).toBe('/api/classifier-drill/session?language_id=1&count=20');
-    expect(container.querySelector('style')).not.toBeNull();
+    // One task screen; styles come from trainers.css.
+    expect(container.querySelector('style')).toBeNull();
+    expect(container.querySelector('.drill-player .ld-stage #cdStage')).not.toBeNull();
+    expect(container.querySelector('.drill-player .ld-dock #cdFeedback')).not.toBeNull();
     expect(q('cdHeader')).toBeNull();
     expect(q('cdControls').style.display).toBe('flex');
-    expect(q('cdLevelBadge').textContent).toBe('· MC');
+    // Auto's level badge names the level like the mode toggle, no leading dot.
+    expect(q('cdLevelBadge').textContent).toBe('Choose');
     expect(container.querySelectorAll('.cd-option')).toHaveLength(3);
+    expect(q('cdCheck').hidden).toBe(true);
+    expect(q('cdHint').hidden).toBe(false);
 
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     option('.cd-option', '本').click();
     await settle(400);
     expect(q('cdProgressLabel').textContent).toBe('2');
     expect(q('cdTypedForm').style.display).toBe('block');
+    expect(q('cdLevelBadge').textContent).toBe('Type');
+    // The dock's Check submits the typed form.
+    expect(q('cdCheck').hidden).toBe(false);
+    expect(q('cdCheck').getAttribute('form')).toBe('cdTypedForm');
+    expect(q('cdHint').hidden).toBe(true);
 
     q('cdTypedInput').value = '错';
     q('cdTypedForm').dispatchEvent(new Event('submit', { cancelable: true }));
@@ -264,6 +410,7 @@ describe('classifier drill in the session', () => {
     });
     expect(post.headers).toBeUndefined();
     expect(q('cdResults').style.display).toBe('block');
+    expect(container.querySelector('.drill-player').classList.contains('is-results')).toBe(true);
     expect(q('cdControls').style.display).toBe('none');
     expect(q('cdResultsGrade').textContent).toBe('💪');
     expect(q('cdResultsElo').textContent).toContain('+12');
@@ -312,7 +459,7 @@ describe('classifier drill in the session', () => {
 describe('classifier drill page', () => {
   it('shows the page layout, the mastery banner, another round and the way out', async () => {
     stubApi({
-      batches: [[CD_ITEMS[0]], [CD_ITEMS[0]]],
+      batches: [[CD_ITEMS[0]], [CD_ITEMS[0]], [CD_ITEMS[0]]],
       submit: {
         data: {
           user_elo_change: { change: 0 },
@@ -329,7 +476,8 @@ describe('classifier drill page', () => {
     expect(container.querySelector('style')).toBeNull();
     expect(q('cdControls')).toBeNull();
     expect(q('cdHeader').style.display).toBe('flex');
-    expect(q('cdHeader').querySelector('a').getAttribute('href')).toBe('/tests');
+    // The way back is the page's task header (Back pill), not a link in the strip.
+    expect(q('cdHeader').querySelector('a')).toBeNull();
 
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     option('.cd-option', '本').click();
@@ -349,7 +497,18 @@ describe('classifier drill page', () => {
     await flush();
     await flush();
     expect(calls.filter((c) => c.url.includes('/session?'))).toHaveLength(2);
+    // Finishing the second round shows only that round's banner.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    option('.cd-option', '本').click();
+    await settle(400);
+    vi.useRealTimers();
+    await flush();
+    expect(container.querySelectorAll('.drill-mastery')).toHaveLength(1);
+    q('cdResultsNext').click();
+    await flush();
+    await flush();
     expect(q('cdResults').style.display).toBe('none');
+    expect(container.querySelector('.drill-player').classList.contains('is-results')).toBe(false);
     expect(q('cdStage').style.display).toBe('block');
     expect(q('cdProgressLabel').textContent).toBe('1');
 
@@ -396,12 +555,14 @@ describe('counter drill page', () => {
     option('.ct-option', '本').click();
     expect(q('ctFeedback').classList.contains('show')).toBe(true);
     expect(q('ctFeedbackCanonical').textContent).toBe('✓ 鉛筆を一本');
+    expect(q('ctFeedback').classList.contains('is-ok')).toBe(true);
     expect(q('ctFeedbackNumerals').textContent).toMatch(/1本.*いっぽん.*3本.*さんぼん/);
     key('Enter');
 
     // Any counter the dictionary accepts is right, typed or chosen.
     container.querySelector('#ctModeToggle button[data-mode="type"]').click();
     expect(localStorage.getItem('ct_mode')).toBe('type');
+    expect(q('ctCheck').hidden).toBe(false);
     q('ctTypedInput').value = '羽';
     q('ctTypedInput').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     expect(q('ctPromptBlank').classList.contains('correct')).toBe(true);

@@ -7,36 +7,27 @@
  */
 
 .dtr-scrim {
-  /* light values (Still Water) */
-  --dtr-bg: var(--bg-body, #f6f9f8);
-  --dtr-surface: var(--bg-surface, #fff);
-  --dtr-muted: var(--bg-muted, #eaf1ef);
-  --dtr-text: var(--text-primary, #13282b);
-  --dtr-text-2: var(--text-secondary, #51686a);
-  --dtr-hair: var(--border-default, #dde7e5);
-  --dtr-primary: var(--primary, #0e7569);
-  --dtr-primary-hover: var(--primary-hover, #0a574e);
-  --dtr-on-primary: #fff;
-  --dtr-wash: var(--selected-bg, #ddeeea);
-  --dtr-mark: #c9661f;
-  --dtr-mark-wash: #fbe9da;
-  --dtr-success: var(--success, #2e7d4f);
-  --dtr-success-bg: var(--success-bg, #ddefe4);
-  --dtr-field-border: #5e7375;
-  --dtr-focus: rgb(14 117 105 / 25%);
-  --dtr-shade: rgb(19 40 43 / 55%);
-  --dtr-sans: var(
-    --font-sans,
-    'Inter',
-    'Hiragino Sans',
-    'Yu Gothic UI',
-    meiryo,
-    'PingFang SC',
-    'Microsoft YaHei',
-    system-ui,
-    sans-serif
-  );
-  --dtr-display: var(--font-display, 'Sora', var(--dtr-sans));
+  /* Redesign 2026-11: every value is a design token from styles.css, so the
+     sheet follows the default palette (light + dark) and every named theme. */
+  --dtr-bg: var(--bg);
+  --dtr-surface: var(--surface);
+  --dtr-muted: var(--surface-2);
+  --dtr-text: var(--ink);
+  --dtr-text-2: var(--ink-2);
+  --dtr-hair: var(--line);
+  --dtr-primary: var(--brand);
+  --dtr-primary-hover: var(--brand-hover);
+  --dtr-on-primary: var(--brand-ink);
+  --dtr-wash: var(--brand-wash);
+  --dtr-mark: var(--glow);
+  --dtr-mark-wash: var(--glow-wash);
+  --dtr-success: var(--good);
+  --dtr-success-bg: var(--good-wash);
+  --dtr-field-border: var(--line-strong);
+  --dtr-focus: var(--focus-ring);
+  --dtr-shade: var(--scrim);
+  --dtr-sans: var(--f-body);
+  --dtr-display: var(--f-display);
 
   position: fixed;
   inset: 0;
@@ -44,17 +35,6 @@
   background: transparent;
   transition: background-color 0.25s;
   overscroll-behavior: contain;
-}
-
-[data-theme='midnight'] .dtr-scrim {
-  --dtr-on-primary: #06201c;
-  --dtr-mark: #f0975a;
-  --dtr-mark-wash: rgb(240 151 90 / 22%);
-  --dtr-field-border: #93a6a4;
-  --dtr-focus: rgb(61 179 160 / 35%);
-  --dtr-shade: rgb(0 0 0 / 65%);
-
-  color-scheme: dark;
 }
 
 .dtr-scrim.dtr-on {
@@ -97,11 +77,12 @@
   .dtr-sheet {
     top: 50%;
     left: 50%;
-    width: 420px;
+    width: 440px;
     height: min(760px, calc(100dvh - 48px));
     max-height: min(760px, calc(100dvh - 48px));
-    border-radius: 24px;
-    box-shadow: 0 24px 60px rgb(0 0 0 / 30%);
+    border-radius: var(--r-hero);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
     opacity: 0;
     transform: translate(-50%, -46%);
     transition:
@@ -115,17 +96,9 @@
   }
 }
 
-.dtr-sheet :lang(zh) {
-  font-family:
-    'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC', Inter, system-ui,
-    sans-serif;
-  line-height: 1.7;
-}
-
+.dtr-sheet :lang(zh),
 .dtr-sheet :lang(ja) {
-  font-family:
-    'Hiragino Sans', 'Yu Gothic UI', meiryo, 'Noto Sans JP', 'Noto Sans CJK JP', Inter, system-ui,
-    sans-serif;
+  font-family: var(--f-cjk);
   line-height: 1.7;
 }
 
@@ -167,45 +140,73 @@
 
 /* ---------- zones ---------- */
 .dtr-hd {
-  height: 52px;
-  display: grid;
-  grid-template-columns: 52px 1fr 52px;
+  display: flex;
   align-items: center;
-  padding-top: env(safe-area-inset-top);
+  gap: 10px;
+  min-height: 50px;
+  padding: calc(env(safe-area-inset-top) + 8px) 16px 4px;
 }
 
-.dtr-x {
-  width: 44px;
-  height: 44px;
-  margin-inline-start: 8px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
+.dtr-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dtr-title__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dtr-title__text b,
+.dtr-title__text small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dtr-title__text b {
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.dtr-title__text small {
+  font-size: 0.72rem;
   color: var(--dtr-text-2);
 }
 
+.dtr-seal:lang(zh),
+.dtr-seal:lang(ja) {
+  font-family: var(--f-cjk);
+  line-height: 1;
+}
+
 .dtr-dots {
+  flex: none;
+  max-width: 40%;
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
   align-items: center;
 }
 
 .dtr-dots i {
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  border: 2px solid var(--dtr-field-border);
+  width: 18px;
+  height: 6px;
+  border-radius: 9px;
+  background: var(--dtr-muted);
 }
 
 .dtr-dots i.dtr-done {
-  background: var(--dtr-field-border);
+  background: var(--good);
 }
 
 .dtr-dots i.dtr-cur {
-  width: 26px;
   background: var(--dtr-primary);
-  border-color: var(--dtr-primary);
 }
 
 .dtr-stage {
@@ -259,10 +260,10 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  min-height: 52px;
+  min-height: 50px;
   padding: 0 20px;
-  border-radius: 14px;
-  font-weight: 650;
+  border-radius: var(--r-btn);
+  font-weight: 700;
   font-size: 1.0625rem;
   border: 2px solid transparent;
 }
@@ -772,7 +773,17 @@
 }
 
 .dtr-kb .dtr-hd {
-  height: 44px;
+  min-height: 44px;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: 0;
+}
+
+.dtr-kb.dtr-tight .dtr-title {
+  visibility: hidden;
+}
+
+.dtr-kb .dtr-title__text small {
+  display: none;
 }
 
 .dtr-kb .dtr-lab {
@@ -849,12 +860,21 @@
 }
 
 .dtr-kb .dtr-act .dtr-btn {
+  /* Check keeps its one-line label; the quiet links share the rest (long ja/zh labels) */
   flex: 1 1 0;
+  min-width: max-content;
   min-height: 48px;
+  white-space: nowrap;
 }
 
 .dtr-kb .dtr-quiet {
-  flex: none;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dtr-kb .dtr-quiet .dtr-txt {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .dtr-kb .dtr-pair {
@@ -929,4 +949,21 @@
 .dtr-noanim * {
   animation-duration: 0s !important;
   transition-duration: 0s !important;
+}
+
+/* focus targets that only exist for screen readers (the view heading, the field label) */
+.dtr-sheet [tabindex='-1']:focus-visible {
+  outline: none;
+}
+
+/* the Back pill's chevron glyph must stay inside the pill on the shortest screens */
+.dtr-hd .ld-back__chev {
+  margin-top: 0;
+  line-height: 0.8;
+}
+
+.dtr-kb .dtr-act .dtr-txt {
+  padding: 0 6px;
+  font-size: 0.8125rem;
+  line-height: 1.15;
 }

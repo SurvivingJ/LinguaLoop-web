@@ -83,6 +83,17 @@
     );
   }
 
+  // [data-wl-t]: strings whose keys are not in the locale files yet
+  // (static/i18n/_redesign/settings.json); the English stays until then.
+  function localizeNewStrings() {
+    document.querySelectorAll('[data-wl-t]').forEach(function (node) {
+      if (node.dataset.wlEn === undefined) node.dataset.wlEn = node.textContent;
+      const key = node.dataset.wlT;
+      const v = tr(key);
+      node.textContent = v && v !== key ? v : node.dataset.wlEn;
+    });
+  }
+
   async function init() {
     cacheEls();
     try {
@@ -90,6 +101,8 @@
     } catch (e) {
       /* i18n is best-effort; fall back to embedded defaults */
     }
+    localizeNewStrings();
+    document.addEventListener('languageChanged', localizeNewStrings);
     try {
       if (window.LinguaMetadata && window.LinguaMetadata.load) await window.LinguaMetadata.load();
     } catch (e) {
@@ -135,12 +148,17 @@
 
   function wireLanguagePicker() {
     const chips = el.wlLangOptions.querySelectorAll('.wl-lang-chip');
+    function mark(chip) {
+      chips.forEach(function (c) {
+        const on = c === chip;
+        c.classList.toggle('selected', on);
+        c.classList.toggle('is-on', on);
+        c.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
     chips.forEach(function (chip) {
       chip.addEventListener('click', function () {
-        chips.forEach(function (c) {
-          c.classList.remove('selected');
-        });
-        chip.classList.add('selected');
+        mark(chip);
       });
     });
 
@@ -157,7 +175,7 @@
         const match = el.wlLangOptions.querySelector(
           '.wl-lang-chip[data-lang="' + lang.language_code + '"]'
         );
-        if (match) match.classList.add('selected');
+        if (match) mark(match);
       }
     }
   }
@@ -351,7 +369,7 @@
         escapeHtml(tr('word_list.match_found')) +
         '</span>' +
         (slug
-          ? ' <a href="/test/' +
+          ? ' <a class="wl-link" href="/test/' +
             encodeURIComponent(slug) +
             '">' +
             escapeHtml(tr('word_list.view_test')) +
@@ -375,7 +393,10 @@
       '<tr class="' +
       (isNew ? 'wl-row-new' : '') +
       '">' +
-      '<td>' +
+      // lang only on a real lemma: the "Sense #id" fallback is UI text.
+      '<td class="wl-word"' +
+      (row.lemma ? ' lang="' + escapeHtml(codeForLanguageId(row.language_id)) + '"' : '') +
+      '>' +
       wordLabel +
       '</td>' +
       '<td>' +

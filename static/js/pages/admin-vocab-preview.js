@@ -55,6 +55,7 @@
                 <span class="meta-badge">POS: ${esc(w.pos)}</span>
                 <span class="meta-badge">Class: ${esc(w.semantic_class)}</span>
                 <span class="meta-badge">Tier: ${esc(w.complexity_tier)}</span>
+                ${w.pronunciation ? `<span class="meta-badge">Reading: ${esc(w.pronunciation)}</span>` : ''}
                 ${w.ipa ? `<span class="meta-badge">IPA: ${esc(w.ipa)}</span>` : ''}
             </div>
             <p style="margin-top:12px;color:var(--text-secondary)">${esc(w.definition)}</p>

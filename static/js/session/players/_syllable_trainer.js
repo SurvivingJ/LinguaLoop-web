@@ -46,6 +46,7 @@ export function mountTestPage(mount, { root, testType }) {
     item: { slug },
     languageId: null,
     onComplete() {},
+    frame: shellFrame(),
     standalone: {
       daily,
       // Runs inside the player's own load step, so a failure here shows the
@@ -61,6 +62,34 @@ export function mountTestPage(mount, { root, testType }) {
 }
 
 /**
+ * The page's task header (templates/base.html, task mode) as a session-style
+ * ctx.frame, so a player talks to one interface on either host. Null when the
+ * shell is absent (unit tests, older pages).
+ */
+export function shellFrame() {
+  const shell = window.LinguaShell;
+  if (!shell || typeof shell.setTaskHeader !== 'function') return null;
+  return {
+    setHeader: (opts) => shell.setTaskHeader(opts || {}),
+    onBack: (fn) => (typeof shell.onBack === 'function' ? shell.onBack(fn) : null),
+  };
+}
+
+/**
+ * Translate `[data-trk]` elements under `root`: text from the key, or the
+ * element's own (English) text while the key is missing from the locale
+ * files. Used for strings added by the 2026-11 redesign
+ * (static/i18n/_redesign/trainers.json), which a plain data-i18n would show as
+ * the raw key until they are merged.
+ */
+export function applyLocalKeys(root) {
+  root.querySelectorAll('[data-trk]').forEach((el) => {
+    if (!el.dataset.trkFallback) el.dataset.trkFallback = el.textContent;
+    el.textContent = T(el.dataset.trk, null, el.dataset.trkFallback);
+  });
+}
+
+/**
  * createTrainer(container, ctx, { tokenClass, errorHideIds })
  *   tokenClass    class of a passage token element ('char-token', 'word-token')
  *   errorHideIds  sections hidden when the player fails to load
@@ -68,6 +97,7 @@ export function mountTestPage(mount, { root, testType }) {
  */
 export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
   const standalone = ctx.standalone || null;
+  const frame = ctx.frame || null;
   const state = {
     slug: ctx.item.slug,
     testData: null,
@@ -92,6 +122,22 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
   const q = (id) => container.querySelector('#' + id);
   const qs = (sel) => container.querySelector(sel);
   const qsa = (sel) => container.querySelectorAll(sel);
+
+  /** The task header (session runner or page shell): text only. */
+  function setHeader(opts) {
+    if (frame && typeof frame.setHeader === 'function') frame.setHeader(opts);
+  }
+
+  // Back while the mistake sheet is open closes the sheet (the attempt goes
+  // on) instead of leaving the trainer.
+  if (frame && typeof frame.onBack === 'function') {
+    const off = frame.onBack(() => {
+      if (!state.isPaused || state.isComplete) return false;
+      dismissErrorModal();
+      return true;
+    });
+    if (typeof off === 'function') cleanup.push(off);
+  }
 
   function destroy() {
     if (state.timerInterval) {
@@ -136,7 +182,9 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
     if (el) {
       el.classList.remove('upcoming');
       el.classList.add('current');
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const reduce =
+        window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
     }
   }
 
@@ -161,6 +209,7 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
 
   // ---- error modal ------------------------------------------------------
   let afterDismiss = null;
+  let returnFocus = null;
 
   /** Pause on `html`; elements carrying `dismissAttr` close it. */
   function showErrorModal(html, dismissAttr, onDismiss) {
@@ -171,12 +220,37 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
     cont
       .querySelectorAll(`[${dismissAttr}]`)
       .forEach((el) => el.addEventListener('click', dismissErrorModal));
+    // The sheet is a modal dialog: focus its Continue button (so a screen
+    // reader announces it and a focused dock button cannot be re-pressed),
+    // and hand focus back to where it was when the sheet closes.
+    // Only a keyboard user's focus (:focus-visible) is handed back: a dock
+    // button that kept focus after a tap would otherwise take the next Space.
+    const active = document.activeElement;
+    returnFocus =
+      active && active !== document.body && container.contains(active) && focusVisible(active)
+        ? active
+        : null;
+    const cta = cont.querySelector(`button[${dismissAttr}]`);
+    if (cta) cta.focus({ preventScroll: true });
+  }
+
+  function focusVisible(el) {
+    try {
+      return el.matches(':focus-visible');
+    } catch {
+      return false;
+    }
   }
 
   function dismissErrorModal() {
     q('errorModalContainer').innerHTML = '';
     state.isPaused = false;
+    const back = returnFocus;
+    returnFocus = null;
     if (afterDismiss) afterDismiss();
+    if (back && back.isConnected && !state.isComplete && container.contains(back)) {
+      back.focus({ preventScroll: true });
+    }
   }
 
   // ---- swipe input ------------------------------------------------------
@@ -202,6 +276,10 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
       'touchend',
       (e) => {
         if (startX === undefined) return;
+        // No compatibility click after the touch: a tap that opens the
+        // mistake sheet would otherwise land on the sheet's backdrop at once
+        // and close it again.
+        if (e.cancelable) e.preventDefault();
         const dx = e.changedTouches[0].clientX - startX;
         const dy = e.changedTouches[0].clientY - startY;
         const absDx = Math.abs(dx);
@@ -214,7 +292,7 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
         } else if (absDx > absDy) onSwipe(dx > 0 ? 'right' : 'left');
         else onSwipe(dy < 0 ? 'up' : 'down');
       },
-      { passive: true }
+      { passive: false }
     );
     on(
       touchArea,
@@ -234,6 +312,8 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
     state.timerInterval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
       if (el) el.textContent = formatClock(elapsed);
+      // The clock also sits in the header's right-hand slot.
+      setHeader({ end: formatClock(elapsed) });
     }, 1000);
   }
 
@@ -300,34 +380,43 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
       `<div class="stat-box"><div class="stat-value"${id ? ` id="${id}"` : ''}>${value}</div><div class="stat-label">${label}</div></div>`;
     const actions = standalone
       ? `
-                        <a href="/test/${state.slug}/preview" class="btn btn-outline-primary flex-fill">
-                            <i class="bi bi-arrow-repeat me-1"></i>${text.retryLabel}
+                        <a href="/test/${state.slug}/preview" class="ld-btn ld-btn--ghost">
+                            <i class="bi bi-arrow-repeat" aria-hidden="true"></i>${text.retryLabel}
                         </a>
-                        <a href="/tests" class="btn btn-primary flex-fill">
-                            <i class="bi bi-list-ul me-1"></i>${text.allTestsLabel}
+                        <a href="/tests" class="ld-btn">
+                            <i class="bi bi-list-ul" aria-hidden="true"></i>${text.allTestsLabel}
                         </a>
                     `
       : `
-                        <button class="btn btn-primary flex-fill" type="button" data-session-next>
-                            <span>${T('session.next_item', null, 'Next')}</span><i class="bi bi-arrow-right ms-1"></i>
+                        <button class="ld-btn" type="button" data-session-next>
+                            <span>${T('session.next_item', null, 'Next')}</span><i class="bi bi-arrow-right" aria-hidden="true"></i>
                         </button>
                     `;
+    // A screen of its own over the trainer: score and stats in a scrolling
+    // stage, the way on pinned in the dock.
     const html = `
             <div class="results-overlay">
-                <div class="results-card">
-                    <h2 class="h3">${text.labelHtml(grade)}</h2>
-                    <div class="results-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px;">${text.accuracyLabel}</p>
-                    <div class="results-stats">
-                        ${stat(`${state.correctCount}/${state.playableTokens.length}`, text.unitsLabel)}
-                        ${stat(formatTime(timeSec), text.timeLabel)}
-                        ${stat(state.errorCount, text.mistakesLabel)}
-                        ${stat('--', text.eloLabel, 'eloChangeDisplay')}
+                <div class="results-card ld-screen">
+                    <div class="ld-stage results-body">
+                        <div class="results-score">
+                            <div class="results-accuracy ${grade}">${accuracy.toFixed(1)}%</div>
+                            <div>
+                                <h2 class="results-grade">${text.labelHtml(grade)}</h2>
+                                <p class="results-label">${text.accuracyLabel}</p>
+                            </div>
+                        </div>
+                        <div class="results-stats">
+                            ${stat(`${state.correctCount}/${state.playableTokens.length}`, text.unitsLabel)}
+                            ${stat(formatTime(timeSec), text.timeLabel)}
+                            ${stat(state.errorCount, text.mistakesLabel)}
+                            ${stat('--', text.eloLabel, 'eloChangeDisplay')}
+                        </div>
                     </div>
-                    <div class="d-flex gap-2 mt-3">${actions}</div>
+                    <div class="ld-dock"><div class="ld-row">${actions}</div></div>
                 </div>
             </div>`;
     q('resultsContainer').innerHTML = html;
+    setHeader({ end: '' });
     const nextBtn = q('resultsContainer').querySelector('[data-session-next]');
     if (nextBtn) nextBtn.onclick = () => ctx.onComplete({ accuracy });
   }
@@ -356,7 +445,7 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
     link.href = '/tests';
     link.className = 'btn btn-danger';
     link.innerHTML =
-      '<i class="fas fa-arrow-left me-2"></i><span data-i18n="test.back_to_tests">Back to Tests</span>';
+      '<i class="fas fa-arrow-left me-2" aria-hidden="true"></i><span data-i18n="test.back_to_tests">Back to Tests</span>';
     alert.appendChild(link);
   }
 
@@ -368,6 +457,8 @@ export function createTrainer(container, ctx, { tokenClass, errorHideIds }) {
   return {
     state,
     standalone,
+    frame,
+    setHeader,
     addBackLink,
     prepare,
     compact,

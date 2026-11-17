@@ -1,0 +1,9 @@
+{
+  "GET /api/dual-translation/next": {"status":"success","type":"passage","submission_id":42,"l1_text":"A new café opened near my house. I went there with my friend on Saturday and we talked for two hours.","age_tier":3,
+    "rubric_descriptors":{"accuracy":{"4":"Grammar and word forms are correct."},"understandability":{"4":"A reader understands it at once."},"fidelity":{"4":"Keeps every idea of the original."},"range":{"4":"Uses varied, level-appropriate structures."}}},
+  "POST /api/dual-translation/42/submit": {"status":"success","scores":{"accuracy":3,"understandability":4,"fidelity":4,"range":3,"naturalness":3},"overall_band":3,
+    "diff":[{"op":"equal","correct":"我家","user":"我家"},{"op":"replace","correct":"附近","user":"旁边"},{"op":"equal","correct":"开了一家新咖啡馆。","user":"开了一家新咖啡馆。"},{"op":"delete","correct":"星期六","user":""},{"op":"equal","correct":"我和朋友去了那里，","user":"我和朋友去了那里，"},{"op":"insert","correct":"","user":"很"},{"op":"equal","correct":"我们聊了两个小时。","user":"我们聊了两个小时。"}],
+    "errors":[{"category":"lexical","subtype":"word_choice","source":"l1_transfer","severity":"minor","learner_form":"旁边","corrected_form":"附近","explanation":"附近 means nearby.","explanation_parts":{"rule":"附近 is a general 'nearby'; 旁边 is right beside.","application":"The café is in the neighbourhood, not next door, so 附近."}},
+              {"category":"grammatical","subtype":"omission","source":"overgeneralization","severity":"major","learner_form":"","corrected_form":"星期六","explanation":"The day is missing."}],
+    "highlights":[{"span_reproduction":[0,2],"reason":"idiomatic"}],"provisional":false}
+}

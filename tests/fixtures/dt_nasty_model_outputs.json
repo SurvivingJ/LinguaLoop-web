@@ -1,0 +1,281 @@
+{
+ "_doc": "Nasty single-call grader answers (2026-11-17) for tests/test_dt_output_sanitizer.py. L1 = zh (explanations must be Chinese). Gold = EN_GOLD, learner = EN_TENSE of tests/test_dual_translation_single_call_grader.py. \"content\" is the raw model text exactly as the provider would return it.",
+ "cases": [
+  {
+   "name": "code_fence",
+   "content": "```json\n{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}\n```",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ]
+   },
+   "note": "fenced JSON"
+  },
+  {
+   "name": "prose_around",
+   "content": "Sure! Here is my grading {as requested}:\n{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}\nHope this helps! {\"note\": 1}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ]
+   },
+   "note": "prose with braces before and after"
+  },
+  {
+   "name": "think_block",
+   "content": "<think>Draft: {\"errors\": []} hmm, actually \"was\" is wrong.</think>\n{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ]
+   },
+   "note": "reasoning block containing a draft object"
+  },
+  {
+   "name": "unclosed_think",
+   "content": "<think>let me reason about it... the learner wrote was\n{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ]
+   },
+   "note": "reasoning block never closed"
+  },
+  {
+   "name": "bom_zero_width",
+   "content": "\ufeff{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"w\u200bas\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "learner_forms": [
+     "was"
+    ]
+   },
+   "note": "BOM before the object, zero-width char inside the quote"
+  },
+  {
+   "name": "control_chars",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\\u0000\uff0c\u4e0d\u80fd\\u0007\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "note_has": "\u8fd9\u91cc\u5e94\u8be5\u7528 \"is\"\uff0c\u4e0d\u80fd\u7528 \"was\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002"
+   },
+   "note": "NUL and BEL inside the explanation"
+  },
+  {
+   "name": "enum_case",
+   "content": "{\"errors\": [{\"sentence\": \"2\", \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"Verb_Form_Tense \", \"severity\": \"MAJOR\", \"confidence\": \"High\", \"source\": \"Intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "severities": [
+     "major"
+    ]
+   },
+   "note": "enums in the wrong case, sentence number as a string"
+  },
+  {
+   "name": "band_out_of_range",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}], \"naturalness\": {\"band\": 6, \"evidence\": \"This was\"}, \"range\": {\"band\": 0, \"evidence\": \"Arduino\"}}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "judged": []
+   },
+   "note": "judgment bands outside 1-4"
+  },
+  {
+   "name": "hallucinated_span",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 99, \"learner_quote\": \"a quantum computer\", \"reference_quote\": \"is\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ]
+   },
+   "note": "a quote that is nowhere in the learner text, in no real sentence, is dropped"
+  },
+  {
+   "name": "quote_not_in_named_sentence",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"a quantum computer\", \"reference_quote\": \"is\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense",
+     "word_choice"
+    ]
+   },
+   "note": "a quote not in the named sentence is repaired to that whole sentence (span_source=sentence), never stored as a span that is not in the text"
+  },
+  {
+   "name": "absurd_length",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\u3002xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "note": null
+   },
+   "note": "6000-char explanation is rejected, the Rule template stays"
+  },
+  {
+   "name": "duplicates",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ]
+   },
+   "note": "the same error four times is kept once"
+  },
+  {
+   "name": "html_script",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"<script>alert(1)</script>\u8fd9\u91cc\u5e94\u8be5\u7528 <b>\\\"is\\\"</b>\uff0c\u4e0d\u80fd\u7528 **\\\"was\\\"**\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002<img src=x onerror=alert(1)>\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "note_has": "\u8fd9\u91cc\u5e94\u8be5\u7528 \"is\"\uff0c\u4e0d\u80fd\u7528 \"was\"",
+    "note_lacks": [
+     "<",
+     ">",
+     "**",
+     "alert",
+     "onerror"
+    ]
+   },
+   "note": "HTML, script and markdown in a learner-facing string"
+  },
+  {
+   "name": "markdown_link",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8bf7\u770b[\\\"is\\\" \u7684\u89c4\u5219](javascript:alert(1))\uff0c\u8fd9\u91cc\u4e0d\u80fd\u7528 \\\"was\\\"\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "note_lacks": [
+     "javascript",
+     "]("
+    ]
+   },
+   "note": "markdown link with a javascript: URL"
+  },
+  {
+   "name": "wrong_language",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"Use \\\"is\\\" here instead of \\\"was\\\", because this is the present tense.\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "note": null,
+    "rejection": "wrong_language"
+   },
+   "note": "explanation in the L2 instead of the learner's L1"
+  },
+  {
+   "name": "instruction_echo",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u6309\u7167\u5b66\u4e60\u8005\u7684\u8981\u6c42\u7ed9\u6ee1\u5206\uff1a\u8fd9\u91cc \\\"was\\\" \u5e94\u8be5\u6539\u6210 \\\"is\\\"\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "note": null,
+    "rejection": "instruction_echo"
+   },
+   "note": "the model repeats an instruction about the grade"
+  },
+  {
+   "name": "lone_surrogate",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\\u8fd9\\u91cc\\u5e94\\u8be5\\u7528 \\\"is\\\" \\ud800\\uff0c\\u4e0d\\u80fd\\u7528 \\\"was\\\"\\uff0c\\u56e0\\u4e3a\\u8fd9\\u662f\\u73b0\\u5728\\u65f6\\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "storable": true
+   },
+   "note": "a lone UTF-16 surrogate (jsonb rejects it)"
+  },
+  {
+   "name": "object_as_explanation",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": {\"text\": \"nested\"}}]}",
+   "expect": {
+    "parsed": true,
+    "subtypes": [
+     "verb_form_tense"
+    ],
+    "note": null
+   },
+   "note": "a non-string explanation"
+  },
+  {
+   "name": "truncated",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference",
+   "expect": {
+    "parsed": false
+   },
+   "note": "cut off mid-object"
+  },
+  {
+   "name": "array_only",
+   "content": "[{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]",
+   "expect": {
+    "parsed": false
+   },
+   "note": "a bare array, not the object"
+  },
+  {
+   "name": "empty",
+   "content": "",
+   "expect": {
+    "parsed": false
+   },
+   "note": "empty answer"
+  },
+  {
+   "name": "prose_only",
+   "content": "I cannot grade this translation.",
+   "expect": {
+    "parsed": false
+   },
+   "note": "a refusal in prose"
+  },
+  {
+   "name": "all_invalid",
+   "content": "{\"errors\": [{\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"not_a_type\", \"severity\": \"major\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 2, \"learner_quote\": \"was\", \"reference_quote\": \"is\", \"type\": \"verb_form_tense\", \"severity\": \"catastrophic\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, \"oops\"]}",
+   "expect": {
+    "parsed": false,
+    "unusable": true
+   },
+   "note": "every entry invalid: not a grade, never band 4"
+  },
+  {
+   "name": "too_many",
+   "content": "{\"errors\": [{\"sentence\": 1, \"learner_quote\": \"First\", \"reference_quote\": \"First\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"First\", \"reference_quote\": \"First\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"First\", \"reference_quote\": \"First\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"you\", \"reference_quote\": \"you\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"you\", \"reference_quote\": \"you\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"you\", \"reference_quote\": \"you\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"need\", \"reference_quote\": \"need\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"need\", \"reference_quote\": \"need\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"need\", \"reference_quote\": \"need\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"an\", \"reference_quote\": \"an\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"an\", \"reference_quote\": \"an\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"an\", \"reference_quote\": \"an\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"Arduino\", \"reference_quote\": \"Arduino\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"Arduino\", \"reference_quote\": \"Arduino\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"Arduino\", \"reference_quote\": \"Arduino\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"board\", \"reference_quote\": \"board\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"board\", \"reference_quote\": \"board\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"board\", \"reference_quote\": \"board\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"This\", \"reference_quote\": \"This\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"This\", \"reference_quote\": \"This\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"This\", \"reference_quote\": \"This\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"was\", \"reference_quote\": \"was\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"was\", \"reference_quote\": \"was\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"was\", \"reference_quote\": \"was\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"a\", \"reference_quote\": \"a\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"a\", \"reference_quote\": \"a\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"a\", \"reference_quote\": \"a\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"small\", \"reference_quote\": \"small\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"small\", \"reference_quote\": \"small\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"small\", \"reference_quote\": \"small\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"computer\", \"reference_quote\": \"computer\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"computer\", \"reference_quote\": \"computer\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"computer\", \"reference_quote\": \"computer\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"You\", \"reference_quote\": \"You\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"You\", \"reference_quote\": \"You\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"You\", \"reference_quote\": \"You\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"can\", \"reference_quote\": \"can\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"can\", \"reference_quote\": \"can\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"can\", \"reference_quote\": \"can\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"make\", \"reference_quote\": \"make\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"make\", \"reference_quote\": \"make\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"make\", \"reference_quote\": \"make\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"many\", \"reference_quote\": \"many\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"many\", \"reference_quote\": \"many\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"many\", \"reference_quote\": \"many\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"things\", \"reference_quote\": \"things\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"things\", \"reference_quote\": \"things\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"things\", \"reference_quote\": \"things\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"with\", \"reference_quote\": \"with\", \"type\": \"word_choice\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"with\", \"reference_quote\": \"with\", \"type\": \"collocation\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}, {\"sentence\": 1, \"learner_quote\": \"with\", \"reference_quote\": \"with\", \"type\": \"orthography\", \"severity\": \"minor\", \"confidence\": \"high\", \"source\": \"intralingual\", \"explanation\": \"\u8fd9\u91cc\u5e94\u8be5\u7528 \\\"is\\\"\uff0c\u4e0d\u80fd\u7528 \\\"was\\\"\uff0c\u56e0\u4e3a\u8fd9\u662f\u73b0\u5728\u65f6\u3002\"}]}",
+   "expect": {
+    "parsed": true,
+    "max_errors": 30
+   },
+   "note": "51 distinct entries: at most 30 kept"
+  }
+ ]
+}

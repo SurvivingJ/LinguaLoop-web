@@ -6,7 +6,8 @@ per supported L1 (!= the passage's L2). Nothing here touches the DB directly:
 the only network-touching function (`generate_l1_reference`) takes its router
 resolver and model caller as injectable arguments so the whole module is
 unit-testable with everything mocked. The batch runner that wires this to a
-live Supabase + OpenRouter is `scripts/build_dt_passages.py`.
+live Supabase + OpenRouter was `scripts/build_dt_passages.py`, removed 2026-11-17
+with the whole-passage pool it built; passages are now sentence windows (ADR-037).
 
 Design decisions (confirmed 2026-06-29, see wiki/tasklist/dual-translation.tasks.md
 TASK-603 notes):
@@ -19,7 +20,7 @@ TASK-603 notes):
     is left NULL (matches the migration's nullable default).
 
   * **source_ref_id = str(tests.id)** (a uuid) so `routes/dual_translation.py::
-    _select_next_passage` (which filters `dt_passage.source_ref_id IN
+    _choose_next` (which filters `dt_passage.source_ref_id IN
     test_attempts.test_id`) can serve the row. `source_kind` is locked to
     'test_transcript'; mystery scenes are a separate table and simply not
     sourced here.

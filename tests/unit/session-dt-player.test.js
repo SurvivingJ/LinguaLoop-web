@@ -293,3 +293,144 @@ describe('session DT player: guided self-repair branch (tech §8.7)', () => {
     expect(sheet.dispose).toHaveBeenCalled();
   });
 });
+
+describe('session DT player: study language, all done, grading unavailable', () => {
+  it('asks /next for the session study language', async () => {
+    const urls = [];
+    window.authFetch = vi.fn(async (url) => {
+      urls.push(url);
+      return { ok: true, status: 200, json: async () => PASSAGE };
+    });
+    mount(container, { ...ctx, languageId: 3 });
+    await flush();
+    expect(urls).toEqual(['/api/dual-translation/next?language_id=3']);
+  });
+
+  it('builds the /next URL only from a positive language id', async () => {
+    const { nextUrl } = await import('../../static/js/session/players/dual_translation.js');
+    expect(nextUrl(1)).toBe('/api/dual-translation/next?language_id=1');
+    expect(nextUrl('3')).toBe('/api/dual-translation/next?language_id=3');
+    expect(nextUrl(null)).toBe('/api/dual-translation/next');
+    expect(nextUrl(0)).toBe('/api/dual-translation/next');
+    expect(nextUrl('abc')).toBe('/api/dual-translation/next');
+  });
+
+  it('says everything is done on ALL_DONE, with a skip', async () => {
+    window.authFetch = vi.fn(async () => ({
+      ok: false,
+      status: 404,
+      json: async () => ({ status: 'error', error_code: 'ALL_DONE', error: 'done' }),
+    }));
+    mount(container, ctx);
+    await flush();
+    await flush();
+    expect(container.textContent).toContain('translated every passage');
+    container.querySelector('[data-dt-skip]').click();
+    expect(ctx.onSkip).toHaveBeenCalled();
+  });
+
+  it('ALL_DONE offers to translate an earlier passage again (reserve)', async () => {
+    const urls = [];
+    let n = 0;
+    window.authFetch = vi.fn(async (url) => {
+      urls.push(url);
+      n += 1;
+      if (n === 1) {
+        return { ok: false, status: 404, json: async () => ({ status: 'error', error_code: 'ALL_DONE' }) };
+      }
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ ...PASSAGE, repeat_of: { graded_at: '2026-11-10T09:00:00Z', band: 2 } }),
+      };
+    });
+    mount(container, { ...ctx, languageId: 1 });
+    await flush();
+    await flush();
+    container.querySelector('[data-dt-reserve]').click();
+    await flush();
+    await flush();
+    expect(urls).toEqual([
+      '/api/dual-translation/next?language_id=1',
+      '/api/dual-translation/next?language_id=1&reserve=1',
+    ]);
+    const note = container.querySelector('[data-dt-note]');
+    expect(note.textContent).toContain('band 2');
+    expect(container.querySelector('#dtInput')).not.toBeNull();
+  });
+
+  it('a re-serve that finds nothing does not offer it again', async () => {
+    window.authFetch = vi.fn(async () => ({
+      ok: false,
+      status: 404,
+      json: async () => ({ status: 'error', error_code: 'ALL_DONE' }),
+    }));
+    mount(container, ctx);
+    await flush();
+    await flush();
+    container.querySelector('[data-dt-reserve]').click();
+    await flush();
+    await flush();
+    expect(container.querySelector('[data-dt-reserve]')).toBeNull();
+    expect(container.querySelector('[data-dt-skip]')).not.toBeNull();
+  });
+
+  it('NO_PASSAGES says why there is nothing, with a skip and no reserve', async () => {
+    window.authFetch = vi.fn(async () => ({
+      ok: false,
+      status: 404,
+      json: async () => ({ status: 'error', error_code: 'NO_PASSAGES' }),
+    }));
+    mount(container, ctx);
+    await flush();
+    await flush();
+    expect(container.textContent).toContain('reviewed translation');
+    expect(container.querySelector('[data-dt-reserve]')).toBeNull();
+    expect(container.querySelector('[data-dt-skip]')).not.toBeNull();
+  });
+
+  it('notes a passage from a test not taken yet', async () => {
+    window.authFetch = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ ...PASSAGE, from_untaken_test: true }),
+    }));
+    mount(container, ctx);
+    await flush();
+    await flush();
+    expect(container.querySelector('[data-dt-note]').textContent).toContain('haven’t taken');
+  });
+
+  it('nextUrl adds reserve=1 only when asked', async () => {
+    const { nextUrl } = await import('../../static/js/session/players/dual_translation.js');
+    expect(nextUrl(3, true)).toBe('/api/dual-translation/next?language_id=3&reserve=1');
+    expect(nextUrl(null, true)).toBe('/api/dual-translation/next?reserve=1');
+    expect(nextUrl(3, false)).toBe('/api/dual-translation/next?language_id=3');
+  });
+
+  it('shows "grading unavailable" without a retry when the provider refused', async () => {
+    submitResponses.push({
+      status: 503,
+      body: {
+        status: 'error',
+        error_code: 'GRADING_UNAVAILABLE',
+        error: 'Grading is temporarily unavailable.',
+      },
+    });
+    await mountAndType('猫がマットに座った。');
+    const box = container.querySelector('[data-dt-submit-error]');
+    expect(box.hidden).toBe(false);
+    expect(box.textContent).toContain('temporarily unavailable');
+    expect(box.textContent).toContain('not graded');
+    expect(box.textContent).not.toContain('503');
+    expect(container.querySelector('[data-dt-submit]').hidden).toBe(true);
+    expect(container.querySelector('[data-dt-retry]')).toBeNull();
+    expect(container.textContent).not.toContain('Grading didn’t finish');
+    expect(container.querySelector('#dtInput').value).toBe('猫がマットに座った。');
+    const skip = container.querySelector('[data-dt-skip]');
+    expect(skip.hidden).toBe(false);
+    skip.click();
+    expect(ctx.onSkip).toHaveBeenCalled();
+    expect(ctx.onComplete).not.toHaveBeenCalled();
+  });
+});

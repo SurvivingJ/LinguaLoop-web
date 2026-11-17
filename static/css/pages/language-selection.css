@@ -1,59 +1,58 @@
-/* Language Selection Card Styles */
+/* Language selection (task screen: Back pill, stage, dock). Shared shell in
+   styles.css; area-wide rules in css/redesign/auth.css. */
+
+.lang-select-page .lang-select-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+}
+
 .language-card {
-  background: var(--bg-surface);
-  border: 2px solid var(--border-strong);
-  border-radius: 12px;
-  padding: 24px;
+  min-height: 68px;
   cursor: pointer;
-  transition: var(--transition-fast);
+  font: inherit;
+  transition:
+    border-color var(--duration-fast),
+    background-color var(--duration-fast);
 }
 
-.language-card:hover {
-  border-color: var(--slate-400);
-  background: var(--bg-surface-hover);
+.language-card.selected,
+.language-card.selected:hover {
+  border-color: var(--brand);
+  background: var(--brand-wash);
 }
 
-.language-card.selected {
-  border-color: var(--primary);
-  border-width: 2px;
-  background: var(--selected-bg);
-  animation: scaleIn 0.15s ease;
+.language-card .ld-trow__mid b {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--ink);
 }
 
-.language-flag {
-  font-size: 32px;
-  margin-right: 16px;
-  user-select: none;
+.language-card .language-glyph {
+  font-family: var(--f-cjk);
 }
 
-.language-native {
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--slate-700);
-  transition: var(--transition-fast);
-  display: block;
-}
-
-.language-english {
-  font-size: 13px;
-  line-height: 1.3;
+.language-card .language-glyph:lang(en) {
+  font-family: var(--f-display);
 }
 
 .language-card.selected .language-native {
-  font-weight: 600;
-  color: var(--primary);
+  color: var(--brand);
 }
 
-.check-icon {
-  color: var(--primary);
-  font-size: 24px;
-  margin-left: 12px;
+.language-card .check-icon {
+  flex: none;
+  color: var(--brand);
+  font-size: 1.375rem;
 }
 
-/* Button states */
-#continue-btn:disabled {
-  background: var(--border-strong);
-  border-color: var(--border-strong);
-  cursor: not-allowed;
-  opacity: 0.6;
+#browse-tests-link {
+  align-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .language-card {
+    transition: none;
+  }
 }

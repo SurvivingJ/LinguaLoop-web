@@ -14,6 +14,7 @@ from datetime import date, datetime, timedelta, timezone
 import pytest
 
 from services.dual_translation.repair import budget, hooks, recheck, service, settings, store
+from services.dual_translation.repair import sentences as repair_sentences
 from services.dual_translation.sentence_refs import LANG_CODE
 
 USER = "test-user-id-123"
@@ -22,7 +23,9 @@ GOLD = ("It's a great way to learn by doing. Arduino is a powerful tool. "
         "You can make many things with it. This arm is one idea.")
 REPRO = ("It's a sick way to learn by doing. Arduino is a powerful tool. "
          "You can make many things without it. This arm is one idea.")
-L1_TEXT = "这是一个在实践中学习的好方法。Arduino 是强大的工具。你可以用它做很多东西。这个机械臂只是一个想法。"
+L1_SENTENCES = ["这是一个在实践中学习的好方法。", "Arduino 是强大的工具。", "你可以用它做很多东西。", "这个机械臂只是一个想法。"]
+L1_TEXT = "".join(L1_SENTENCES)
+SOURCE_TEST = "00000000-0000-0000-0000-0000000000a9"
 NOTE = "“sick” 是俚语，这里应该用 “great”。"
 EXPLANATION_2 = "Meaning reversed: “without it” → “with it”."
 
@@ -68,22 +71,24 @@ class FakeStore:
         self.submissions = {9001: {"id": 9001, "user_id": USER, "passage_id": 9, "l1_language_id": 1,
                                    "reproduction": REPRO, "created_at": "2026-11-10T09:00:00+00:00"}}
         self.passages = {9: {"id": 9, "l2_text": GOLD, "l2_language_id": 2, "age_tier": 4,
-                             "status": "active", "source_ref_id": None, "sentence_start": None,
-                             "sentence_end": None}}
+                             "status": "active", "source_ref_id": SOURCE_TEST, "sentence_start": 0,
+                             "sentence_end": 3}}
         self.errors = {9001: error_rows()}
-        self.l1 = {(9, 1): L1_TEXT}
+        # the sentence references of the window (test, start, end, l1) -> L1 sentences
+        self.l1 = {(SOURCE_TEST, 0, 3, 1): list(L1_SENTENCES)}
         self.sessions, self.items, self.events = {}, {}, []
         self.ids = itertools.count(1)
         self.lock_held = set()
         self.fail_insert_session = False
 
     def install(self, mp):
-        for name in ("get_submission", "get_passage", "get_error_rows", "get_l1_passage_text",
+        for name in ("get_submission", "get_passage", "get_error_rows",
                      "insert_session", "get_session", "get_session_by_submission", "update_session",
                      "open_sessions", "insert_items", "get_item", "get_items", "update_item",
                      "due_candidates", "expire_items", "acquire_check_lock", "release_check_lock",
                      "insert_event", "get_check_event", "last_episode_event"):
             mp.setattr(store, name, getattr(self, name))
+        mp.setattr(repair_sentences, "_range_l1_texts", self.range_l1_texts)
 
     # existing tables
     def get_submission(self, db, sid):
@@ -95,8 +100,10 @@ class FakeStore:
     def get_error_rows(self, db, sid):
         return copy.deepcopy(self.errors.get(sid, []))
 
-    def get_l1_passage_text(self, db, pid, l1):
-        return self.l1.get((pid, l1))
+    def range_l1_texts(self, db, test_id, start, end, l1):
+        """Stands in for repair.sentences._range_l1_texts (the sentence references)."""
+        texts = self.l1.get((test_id, start, end, l1))
+        return list(texts) if texts else None
 
     # sessions
     def insert_session(self, db, row):

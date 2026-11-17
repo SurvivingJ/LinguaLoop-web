@@ -252,12 +252,31 @@ const DTErrorCard = (function () {
    *                   submit the learner chose to move past). `result` is
    *                   {card_id, rating, was_correct, saved, next_due}.
    *   authFetch       injectable fetch (defaults to window.authFetch)
+   *   dock            optional element for the action buttons (Show answer,
+   *                   the four ratings). Hosts with a pinned action area (the
+   *                   redesign's .ld-dock) pass it so the buttons sit in the
+   *                   thumb zone; without it they render inline, as before.
    * @returns {{destroy: function}}
    */
   function mount(el, card, opts) {
     const options = opts || {};
     const doFetch = options.authFetch || (typeof window !== 'undefined' && window.authFetch);
     const state = { destroyed: false, submitting: false, typed: '' };
+    const dock = options.dock && options.dock.nodeType === 1 ? options.dock : null;
+    // Buttons live in the dock when there is one, else inline in `el`.
+    const all = (sel) =>
+      Array.from(el.querySelectorAll(sel)).concat(
+        dock ? Array.from(dock.querySelectorAll(sel)) : []
+      );
+    const one = (sel) => all(sel)[0] || null;
+    function paint(stageHTML, actionsHTML) {
+      if (dock) {
+        el.innerHTML = '<div class="dtec">' + stageHTML + '</div>';
+        dock.innerHTML = '<div class="dtec-actions">' + actionsHTML + '</div>';
+      } else {
+        el.innerHTML = '<div class="dtec">' + stageHTML + actionsHTML + '</div>';
+      }
+    }
     // Weekly-minutes: active time on this card (shown -> rated). The event id
     // is minted once per card so a retried rating dedupes server-side.
     const AT = typeof window !== 'undefined' ? window.ActiveTimer : null;
@@ -272,25 +291,25 @@ const DTErrorCard = (function () {
       destroy() {
         state.destroyed = true;
         if (timer) timer.reset();
+        if (dock) dock.innerHTML = '';
       },
     };
 
     function renderPrompt() {
-      el.innerHTML =
-        '<div class="dtec">' +
+      paint(
         '<h2 class="h5 mb-2">' +
-        esc(t('dt_card.heading', 'Review card')) +
-        '</h2>' +
-        promptHTML(card) +
-        '<label class="form-label" for="dtecInput">' +
-        esc(t('dt_card.your_answer_label', 'Your answer')) +
-        '</label>' +
-        '<textarea id="dtecInput" class="form-control mb-3" rows="3"></textarea>' +
+          esc(t('dt_card.heading', 'Review card')) +
+          '</h2>' +
+          promptHTML(card) +
+          '<label class="form-label" for="dtecInput">' +
+          esc(t('dt_card.your_answer_label', 'Your answer')) +
+          '</label>' +
+          '<textarea id="dtecInput" class="form-control mb-3" rows="3"></textarea>',
         '<button class="btn btn-primary" type="button" data-dtec-check>' +
-        esc(t('dt_card.check', 'Show answer')) +
-        '</button>' +
-        '</div>';
-      el.querySelector('[data-dtec-check]').onclick = reveal;
+          esc(t('dt_card.check', 'Show answer')) +
+          '</button>'
+      );
+      one('[data-dtec-check]').onclick = reveal;
     }
 
     function reveal() {
@@ -299,17 +318,16 @@ const DTErrorCard = (function () {
       state.typed = (input && input.value) || '';
       const verdict = wasCorrectFor(card, state.typed);
 
-      el.innerHTML =
-        '<div class="dtec">' +
+      paint(
         '<h2 class="h5 mb-2">' +
-        esc(t('dt_card.heading', 'Review card')) +
-        '</h2>' +
-        promptHTML(card) +
-        revealHTML(card, verdict) +
-        ratingHTML() +
-        '</div>';
+          esc(t('dt_card.heading', 'Review card')) +
+          '</h2>' +
+          promptHTML(card) +
+          revealHTML(card, verdict),
+        ratingHTML()
+      );
 
-      el.querySelectorAll('[data-dtec-rating]').forEach(function (btn) {
+      all('[data-dtec-rating]').forEach(function (btn) {
         btn.onclick = function () {
           grade(parseInt(btn.getAttribute('data-dtec-rating'), 10));
         };
@@ -319,7 +337,7 @@ const DTErrorCard = (function () {
     async function grade(rating) {
       if (state.destroyed || state.submitting) return;
       state.submitting = true;
-      el.querySelectorAll('[data-dtec-rating]').forEach(function (b) {
+      all('[data-dtec-rating]').forEach(function (b) {
         b.disabled = true;
       });
 

@@ -9,6 +9,21 @@
   const PRESTUDY_TYPES = ['listening', 'reading'];
   let testSlug = null;
 
+  // Type tiles carry the study language's seal (as the session runner's
+  // GLYPHS); other languages keep the icon.
+  const SEALS = {
+    zh: { listening: '听', reading: '读', dictation: '写', pinyin: '调', pitch_accent: '调' },
+    ja: { listening: '聴', reading: '読', dictation: '書', pinyin: '音', pitch_accent: '音' },
+  };
+
+  function studyCode(test) {
+    const code = String(test.language || '').toLowerCase();
+    if (code === 'zh' || code === 'ja') return code;
+    if (test.language_id === 1) return 'zh';
+    if (test.language_id === 3) return 'ja';
+    return code;
+  }
+
   /**
    * Parse URL parameters
    */
@@ -34,6 +49,9 @@
     const errorDiv = document.getElementById('pageError');
     errorDiv.classList.remove('d-none');
     document.getElementById('errorMessage').textContent = message;
+    // Nothing to start: the pinned Start dock goes (the error has its own way back).
+    const dock = document.getElementById('ldDock');
+    if (dock) dock.hidden = true;
   }
 
   /**
@@ -115,11 +133,29 @@
    * Populate page with test data
    */
   function populateTestInfo(test) {
-    // Title and breadcrumb
-    document.getElementById('testTitle').textContent = test.title || test.topic || 'Untitled Test';
-    document.getElementById('breadcrumbTitle').textContent =
-      test.title || test.topic || 'Test Preview';
+    // Title, and the task header's "Tests › <title>" (was the breadcrumb)
+    const title = test.title || test.topic || 'Untitled Test';
+    const code = studyCode(test);
+    const titleEl = document.getElementById('testTitle');
+    titleEl.textContent = title;
+    if (code) titleEl.setAttribute('lang', code);
     document.title = `${test.title || 'Test Preview'} | LinguaDojo`;
+    if (window.LinguaShell) {
+      window.LinguaShell.setTaskHeader({
+        subtitle:
+          LinguaI18n.t('test_preview.breadcrumb_tests') + ' › ' + (test.title || test.topic || ''),
+        glyph: Array.from(title)[0] || '',
+      });
+    }
+    const seals = SEALS[code];
+    if (seals) {
+      document.querySelectorAll('[data-tp-seal]').forEach((el) => {
+        const glyph = seals[el.dataset.tpSeal];
+        if (!glyph) return;
+        el.textContent = glyph;
+        el.setAttribute('lang', code);
+      });
+    }
 
     // Custom badge
     if (test.is_custom) {
@@ -133,12 +169,12 @@
 
     // Show pinyin option for Chinese tests only
     if (test.language === 'zh' || test.language_id === 1) {
-      document.getElementById('pinyinOptionWrapper').style.display = 'block';
+      document.getElementById('pinyinOptionWrapper').style.display = '';
     }
 
     // Show pitch accent option for Japanese tests only
     if (test.language === 'ja' || test.language_id === 3) {
-      document.getElementById('pitchAccentOptionWrapper').style.display = 'block';
+      document.getElementById('pitchAccentOptionWrapper').style.display = '';
     }
 
     // Audio availability
@@ -227,11 +263,14 @@
     document.getElementById('testDifficulty').textContent = difficultyInfo.label;
 
     // Update ELO text
-    document.getElementById('eloRating').innerHTML = `ELO Rating: <strong>${eloRating}</strong>`;
+    const eloLabel = LinguaI18n.t('test_preview.elo_rating');
+    document.getElementById('eloRating').innerHTML =
+      `${escapeHtml(eloLabel !== 'test_preview.elo_rating' ? eloLabel : 'ELO Rating:')} <strong class="ld-num">${escapeHtml(String(eloRating))}</strong>`;
 
-    // Update icon color
+    // The old bar-chart icon took the band colour; the badge carries it now
+    // (css/pages/test-preview.css .difficulty-badge.t1 … .t6).
     const icon = document.getElementById('difficultyIcon');
-    icon.style.color = difficultyInfo.color;
+    if (icon) icon.style.color = difficultyInfo.color;
 
     // Update stats if available
     if (rating.total_attempts > 0) {
@@ -270,7 +309,9 @@
 
     // Disable button and show loading
     btn.disabled = true;
-    buttonText.innerHTML = '<span class="spinner-btn"></span> Loading...';
+    buttonText.innerHTML =
+      '<span class="spinner-btn" aria-hidden="true"></span> ' +
+      escapeHtml(LinguaI18n.t('common.loading'));
 
     try {
       // Store test data and type in sessionStorage for test screen

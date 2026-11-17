@@ -1,0 +1,241 @@
+{
+  "test_id": "eb41dd33-c783-453f-b330-7c12ae43db6d",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7463,
+      "back_translation": "制作一个能抓小东西的简单机械臂，是一个很有意思的机器人和电子项目。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8421,
+      "back_translation": "要完成这个制作，你需要懂一些基础编程。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "首先，我们需要一个“身体”来支撑整个机械臂。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9268,
+      "back_translation": "这通常可以用一些塑料板、木板或者金属片来做。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "然后，我们需要让机械臂动起来。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "这就需要用到电机。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8571,
+      "back_translation": "电机就像机械臂的“肌肉”，它们能让机械臂的每个部分转动。"
+    },
+    {
+      "idx": 7,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Gold's parenthetical (servo motor) correctly not reproduced as a parenthesis.",
+      "tightness": 0.6494,
+      "back_translation": "通常我们用舵机，因为它们能精确控制转动的角度，这对抓小东西很有用。"
+    },
+    {
+      "idx": 8,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "接下来是“手”。"
+    },
+    {
+      "idx": 9,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.6486,
+      "back_translation": "这个“手”需要能张开和合上，这样才能抓住东西。"
+    },
+    {
+      "idx": 10,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9091,
+      "back_translation": "我们可以设计一个简单的夹子，用两个小臂夹住东西。"
+    },
+    {
+      "idx": 11,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "同样，这个夹子也需要用电机来驱动。"
+    },
+    {
+      "idx": 12,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "然后，我们需要一个“大脑”来控制这些电机。"
+    },
+    {
+      "idx": 13,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "这个“大脑”就是我们的编程部分。"
+    },
+    {
+      "idx": 14,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Low tightness: back-translation used 树莓派/单片机 where gold keeps Raspberry Pi/微控制器; reference faithful.",
+      "tightness": 0.5714,
+      "back_translation": "我们可以用单片机，比如Arduino或者树莓派。"
+    },
+    {
+      "idx": 15,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9851,
+      "back_translation": "你需要学习一些基础的编程语言，比如C++或者Python，来写控制代码。"
+    },
+    {
+      "idx": 16,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8403,
+      "back_translation": "在代码里，你可以告诉单片机什么时候让电机转动、转多少度，以及怎样协调各部分的动作，让机械臂能准确地伸出去、抓住东西，然后拿回来。"
+    },
+    {
+      "idx": 17,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8889,
+      "back_translation": "电子部分也很重要。"
+    },
+    {
+      "idx": 18,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Parenthetical in gold had been flattened into a comma chain that made the sensor clause ambiguous; regrouped so 'if needed' and the example attach only to sensors. Same three components, same optionality.",
+      "tightness": 0.6479,
+      "back_translation": "你需要把电机、传感器（如果需要的话，比如用来检测东西有没有被抓住）和单片机连接起来。"
+    },
+    {
+      "idx": 19,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8519,
+      "back_translation": "这需要一些电线、电池或者电源适配器，可能还需要一些电路板。"
+    },
+    {
+      "idx": 20,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9091,
+      "back_translation": "学会怎样正确连接这些电子元件，是制作成功的关键。"
+    },
+    {
+      "idx": 21,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "最后，整个过程就是一个“制作”的过程。"
+    },
+    {
+      "idx": 22,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8475,
+      "back_translation": "从设计图纸开始，到购买材料，再到一步一步组装，最后编程和测试。"
+    },
+    {
+      "idx": 23,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9375,
+      "back_translation": "每一次尝试和调整都是学习和进步。"
+    },
+    {
+      "idx": 24,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7436,
+      "back_translation": "通过学习机器人、电子和编程，你可以亲手做出一个属于自己的、能抓小东西的简单机械臂。"
+    },
+    {
+      "idx": 25,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "这个过程不仅能让你学到很多知识，还能培养你的动手能力和解决问题的能力。"
+    }
+  ]
+}

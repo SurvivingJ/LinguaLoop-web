@@ -236,3 +236,12 @@ def test_grader_accuracy_field_matches_counts():
     assert r.word_correct == 3
     assert r.word_total == 5
     assert r.accuracy == pytest.approx(0.6)
+
+
+def test_normalize_keeps_kana_voicing_marks():
+    # が/か, び/ひ, で/て, ぱ/は are different sounds, not accented variants.
+    assert normalize("がびでぱ") == "がびでぱ"
+    assert normalize("がっこう") != normalize("かっこう")
+    assert normalize("ガギグ") == "ガギグ"
+    # Latin accents are still folded.
+    assert normalize("café") == "cafe"

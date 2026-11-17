@@ -221,67 +221,216 @@ window.authFetch = async function (url, options = {}) {
  * Minimal non-blocking toast (no Bootstrap JS dependency).
  * window.showToast(message, type) — type: 'error' (default) | 'success' | 'info'.
  * Auto-dismisses after ~4s. Used to surface silent save failures (M2).
+ * Styled by .ld-toasts / .ld-toast in styles.css (theme tokens): bottom
+ * centre, above the tab bar or the task dock.
  */
 window.showToast = function (message, type = 'error') {
   let container = document.getElementById('lingua-toast-container');
   if (!container) {
     container = document.createElement('div');
     container.id = 'lingua-toast-container';
-    container.style.cssText =
-      'position:fixed;top:1rem;right:1rem;z-index:2000;display:flex;' +
-      'flex-direction:column;gap:.5rem;max-width:min(90vw,360px);';
+    container.className = 'ld-toasts';
     document.body.appendChild(container);
   }
-  const bg = type === 'success' ? '#198754' : type === 'info' ? '#0d6efd' : '#dc3545';
+  const kind = type === 'success' || type === 'info' ? type : 'error';
   const toast = document.createElement('div');
-  toast.setAttribute('role', 'alert');
-  toast.style.cssText =
-    'background:' +
-    bg +
-    ';color:#fff;padding:.6rem .9rem;border-radius:.4rem;' +
-    'box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:.9rem;opacity:0;' +
-    'transition:opacity .2s ease;';
+  toast.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+  toast.className = 'ld-toast ld-toast--' + kind;
   toast.textContent = message;
   container.appendChild(toast);
   requestAnimationFrame(function () {
-    toast.style.opacity = '1';
+    toast.classList.add('is-shown');
   });
   setTimeout(function () {
-    toast.style.opacity = '0';
+    toast.classList.remove('is-shown');
     setTimeout(function () {
       toast.remove();
     }, 250);
   }, 4000);
 };
 
-function updateLanguageIndicator() {
-  const savedLanguage = localStorage.getItem('selectedLanguage');
-  if (savedLanguage) {
-    const lang = JSON.parse(savedLanguage);
+/**
+ * App shell controls (templates/base.html). Documented in the redesign
+ * hand-off (FOUNDATION.md).
+ *
+ *   LinguaShell.setTaskMode(on)        switch the one-task layout on/off at
+ *                                      runtime (no tab bar, Back-pill header,
+ *                                      body exactly one viewport tall)
+ *   LinguaShell.isTaskMode()
+ *   LinguaShell.setTaskHeader({ title, subtitle, glyph, end, backHref, backLabel })
+ *                                      fill the task header; omitted keys
+ *                                      keep their value, '' clears. Text only.
+ *   LinguaShell.onBack(fn)             fn(event) runs when the Back pill is
+ *                                      pressed; return true to say "handled"
+ *                                      (navigation is then cancelled). Returns
+ *                                      an unsubscribe function.
+ */
+(function setupShell() {
+  const backHandlers = [];
 
-    const flagMap = {
-      en: '🇺🇸',
-      zh: '🇨🇳',
-      ja: '🇯🇵',
-      ko: '🇰🇷',
-      fr: '🇫🇷',
-      English: '🇺🇸',
-      Chinese: '🇨🇳',
-      Japanese: '🇯🇵',
-      Korean: '🇰🇷',
-      French: '🇫🇷',
-    };
-
-    const indicator = document.getElementById('navLanguageIndicator');
-    const flag = document.getElementById('navLanguageFlag');
-    const name = document.getElementById('navLanguageName');
-
-    if (indicator && flag && name) {
-      flag.textContent = flagMap[lang.code] || flagMap[lang.name] || '🌐';
-      name.textContent = lang.name;
-      indicator.style.display = 'flex';
-    }
+  function el(id) {
+    return document.getElementById(id);
   }
+
+  function setText(id, value) {
+    const node = el(id);
+    if (node && value !== undefined && value !== null) node.textContent = String(value);
+  }
+
+  window.LinguaShell = {
+    setTaskMode: function (on) {
+      on = !!on;
+      document.body.classList.toggle('ld-task', on);
+      document.body.classList.toggle('ld-has-tabs', !on && !!el('ldTabbar'));
+      // <main> swaps its page classes (e.g. "container py-4") for the task
+      // layout's, and gets them back when task mode ends.
+      const main = el('main-content');
+      if (!main) return;
+      if (on && !main.classList.contains('ld-main--task')) {
+        main.dataset.ldPageClass = main.className;
+        main.className = 'ld-main ld-main--task';
+      } else if (!on && main.dataset.ldPageClass !== undefined) {
+        main.className = main.dataset.ldPageClass;
+        delete main.dataset.ldPageClass;
+      }
+    },
+    isTaskMode: function () {
+      return document.body.classList.contains('ld-task');
+    },
+    setTaskHeader: function (opts) {
+      const o = opts || {};
+      setText('ldTaskTitle', o.title);
+      setText('ldTaskSubtitle', o.subtitle);
+      setText('ldTaskGlyph', o.glyph);
+      setText('ldTaskEnd', o.end);
+      const back = el('ldBack');
+      if (back && o.backHref) back.setAttribute('href', o.backHref);
+      if (back && o.backLabel) {
+        const label = back.querySelector('[data-i18n]') || back.lastElementChild;
+        if (label) {
+          label.removeAttribute('data-i18n');
+          label.textContent = o.backLabel;
+        }
+      }
+    },
+    onBack: function (fn) {
+      backHandlers.push(fn);
+      return function () {
+        const i = backHandlers.indexOf(fn);
+        if (i !== -1) backHandlers.splice(i, 1);
+      };
+    },
+  };
+
+  document.addEventListener('click', function (e) {
+    const back = e.target.closest && e.target.closest('#ldBack');
+    if (!back) return;
+    for (let i = backHandlers.length - 1; i >= 0; i--) {
+      let handled = false;
+      try {
+        handled = backHandlers[i](e) === true;
+      } catch (err) {
+        console.error('[shell] back handler failed', err);
+      }
+      if (handled) {
+        e.preventDefault();
+        return;
+      }
+    }
+    // data-ld-back="history": go back when the previous page is ours.
+    if (document.body.dataset.ldBack === 'history' && window.history.length > 1) {
+      let sameOrigin = false;
+      try {
+        sameOrigin = !!document.referrer && new URL(document.referrer).origin === location.origin;
+      } catch {
+        sameOrigin = false;
+      }
+      if (sameOrigin) {
+        e.preventDefault();
+        window.history.back();
+      }
+    }
+  });
+
+  // iOS Safari keeps 100dvh when the on-screen keyboard opens, which would
+  // push a task page's dock under the keyboard. While the keyboard is up,
+  // size the task shell to the visual viewport instead (--ld-vvh).
+  // Once the task shell has shrunk (keyboard up, or any resize), a text box
+  // that has focus inside the scrolling stage can end up under the pinned
+  // dock: scroll the stage so it shows again.
+  const revealFocusedField = function () {
+    const el = document.activeElement;
+    if (!el || typeof el.matches !== 'function') return;
+    if (!el.matches('input, textarea, [contenteditable="true"]')) return;
+    if (!el.closest('.ld-stage')) return;
+    window.requestAnimationFrame(function () {
+      if (document.activeElement === el) el.scrollIntoView({ block: 'nearest' });
+    });
+  };
+  window.addEventListener('resize', revealFocusedField);
+  const vv = window.visualViewport;
+  if (vv && typeof vv.addEventListener === 'function') {
+    const sync = function () {
+      const keyboard = window.innerHeight - vv.height > 120;
+      if (keyboard) document.documentElement.style.setProperty('--ld-vvh', vv.height + 'px');
+      else document.documentElement.style.removeProperty('--ld-vvh');
+      revealFocusedField();
+    };
+    vv.addEventListener('resize', sync);
+  }
+})();
+
+const _FLAGS = {
+  en: '🇺🇸',
+  zh: '🇨🇳',
+  cn: '🇨🇳',
+  ja: '🇯🇵',
+  jp: '🇯🇵',
+  ko: '🇰🇷',
+  fr: '🇫🇷',
+  es: '🇪🇸',
+  English: '🇺🇸',
+  Chinese: '🇨🇳',
+  Japanese: '🇯🇵',
+  Korean: '🇰🇷',
+  French: '🇫🇷',
+};
+
+function _showLanguageIndicator(lang) {
+  const indicator = document.getElementById('navLanguageIndicator');
+  const flag = document.getElementById('navLanguageFlag');
+  const name = document.getElementById('navLanguageName');
+  if (!lang || !lang.name || !indicator || !flag || !name) return;
+  flag.textContent = _FLAGS[lang.code] || _FLAGS[lang.name] || '🌐';
+  name.textContent = lang.name;
+  indicator.style.display = 'flex';
+  document.body.classList.add('ld-has-lang');
+}
+
+/**
+ * The study language in the app bar (a link to language selection). Reads the
+ * legacy `selectedLanguage` JSON when present, else resolves
+ * `selectedLanguageId` through the language metadata.
+ */
+function updateLanguageIndicator() {
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem('selectedLanguage') || 'null');
+  } catch {
+    saved = null;
+  }
+  if (saved && saved.name) {
+    _showLanguageIndicator(saved);
+    return;
+  }
+  const languageId = parseInt(localStorage.getItem('selectedLanguageId'), 10);
+  if (!languageId || !window.LinguaMetadata) return;
+  window.LinguaMetadata.load().then(function (meta) {
+    const row = ((meta && meta.languages) || []).find(function (l) {
+      return l.id === languageId;
+    });
+    if (row) _showLanguageIndicator({ code: row.language_code, name: row.language_name });
+  });
 }
 
 /**
@@ -315,29 +464,31 @@ document.addEventListener('DOMContentLoaded', function () {
   updateLanguageIndicator();
   applyLanguageGating();
 
-  const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async function (e) {
-      e.preventDefault();
-      // Best-effort server logout so the trusted-device row is
-      // revoked and the cookie cleared. We don't block redirect
-      // on failure — local state still gets wiped either way.
-      const token = _getStored('jwt_token');
-      if (token) {
-        try {
-          await fetch('/api/auth/logout', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { Authorization: `Bearer ${token}` },
-          });
-        } catch (err) {
-          /* ignore */
-        }
+  // Logout: the app bar's #logout-btn and any [data-ld-logout] (the Me page).
+  async function logout(e) {
+    e.preventDefault();
+    // Best-effort server logout so the trusted-device row is
+    // revoked and the cookie cleared. We don't block redirect
+    // on failure — local state still gets wiped either way.
+    const token = _getStored('jwt_token');
+    if (token) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch {
+        /* ignore */
       }
-      _clearAllTokens();
-      window.location.href = '/login';
-    });
+    }
+    _clearAllTokens();
+    window.location.href = '/login';
   }
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest && e.target.closest('#logout-btn, [data-ld-logout]');
+    if (btn) logout(e);
+  });
 
   // Report submission
   const submitReportBtn = document.getElementById('submitReportBtn');

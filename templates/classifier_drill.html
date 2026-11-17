@@ -2,22 +2,31 @@
 {% set defer_base_scripts = true %}
 {% set load_test_intro = true %}
 {% set page_js = module_assets('js/pages', 'classifier-drill.js') %}
+{# One task per screen (FOUNDATION.md): Back pill header, prompt and answers in
+   a scrolling stage, feedback / Check / results actions in a pinned dock. #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
 
 {% block title %}Measure Word Drill | LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50{% endblock %}
+{% block body_class %}bg-slate-50 trainer-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('tests') }}{% endblock %}
+{% block task_title %}<span data-i18n="classifier_drill.title">Measure Words</span>{% endblock %}
+{% block task_glyph %}量{% endblock %}
 
 {% block extra_css %}
 {# The page is the session player mounted on its own (page_js.entry); the import
-   map gives the player's relative imports their ?v= URLs. #}
+   map gives the player's relative imports their ?v= URLs. Styles:
+   static/css/redesign/trainers.css (loaded by base.html). #}
 <script type="importmap">{{ module_assets('js/session').import_map|tojson }}</script>
 {% for href in page_js.preload %}<link rel="modulepreload" href="{{ href }}">
-{% endfor %}<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/drill.css') }}">
+{% endfor %}
 {% endblock %}
 
 {% block content %}
-<div id="drillRoot" data-drill="classifier">
-    <div class="text-center py-20 text-slate-500" data-i18n="classifier_drill.loading">Loading…</div>
+<div id="drillRoot" class="trainer-host" data-drill="classifier" lang="zh">
+    <div class="drill-msg" data-i18n="classifier_drill.loading">Loading…</div>
 </div>
 {% endblock %}
 
