@@ -6841,3 +6841,18 @@ assertions in `tests/test_sentence_refs.py`. Authoring rules (runner), `sentence
 `sentence-reference-review` skills now say numbers are written the L1's way. Not changed: the two live
 references bent by the old check (61f4125b idx 1–2, 3574dd04 idx 2). Pages: [[features/test-sentence-references.tech]],
 [[tasklist/test-sentence-references.tasks]].
+
+## [2026-11-17] fix + apply | Number words accepted; the three bent references reworded
+Developer: "Fix the odd translations. Can we also allow written word version of numbers eg three." (1)
+`sentence_refs.missing_numbers` now also reads numbers written as words in the reference (never in the gold):
+English cardinals, ordinals, twice/thrice, dozen, half, runs (twenty-five, one hundred and five, three million,
+twelve hundred, one and a half) and CJK numerals (三, 十二, 两百, 三百万, positional 二〇二六); the value must
+still match. Authoring rules (runner), `sentence-reference-authoring` and `sentence-reference-review` now say
+"digits or words". No live (3,880) or on-disk (9,936) reference changes result; tests updated (the old
+"three apples fails" assertions now expect a pass). (2) `scripts/sentence_ref_recheck.py export` gained
+`--sentences test_id:idx,...` and `--reason` (the reason replaces the tightness intro in the pack). One Opus
+reviewer, blind-first, rewrote 61f4125b idx 1–2 ("980000 / 1020000 / 970000 yuan" → "980,000 / 1,020,000 /
+970,000 yuan"; "does not let the vertical axis start from zero" → "does not start the vertical axis at zero")
+and 3574dd04 idx 2 ("the 1970s of the 20th century" → "the 1970s"); uploaded live (`recheck-numbers-2026-11-17`,
+3 inserted/activated, 3 deactivated; tightness 0.88 / 0.83 / 1.00). Pages: [[features/test-sentence-references.tech]],
+[[tasklist/test-sentence-references.tasks]].

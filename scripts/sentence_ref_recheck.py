@@ -42,11 +42,17 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 SUBDIR = 'sentence_refs'
 NAMES = {'zh': 'Chinese', 'en': 'English', 'ja': 'Japanese'}
 
-RULES = """\
-You are the second reviewer of references that scored low on tightness: a first
+WHY_FLOOR = """references that scored low on tightness: a first
 reviewer's blind back-translation landed far from the gold. Decide whether the
 reference is loose (rewrite it) or the gold simply has several faithful
-renderings (pass, with a note). Follow `.claude/skills/sentence-reference-review/SKILL.md`
+renderings (pass, with a note)."""
+
+WHY_GIVEN = """references flagged for this reason: {reason}
+Rewrite the reference when the reason holds and a more natural, equally faithful
+rendering exists; otherwise pass it with a note."""
+
+RULES = """\
+You are the second reviewer of {why} Follow `.claude/skills/sentence-reference-review/SKILL.md`
 for what to check (meaning, numbers and names, sentence identity, register,
 leakage, tightness). The neighbours are context only; judge the TARGET.
 
@@ -85,13 +91,29 @@ def _floors() -> dict:
 def cmd_export(a) -> int:
     db = _db()
     floors = _floors()
-    rows = (
-        db.table('test_sentence_references')
-        .select('id, sentence_id, l1_language_id, l1_text, tightness, review_verdict, author_model, '
-                'prompt_version, arm, test_sentences!inner(test_id, idx, l2_text)')
-        .eq('is_active', True).in_('review_verdict', ['pass', 'rewritten'])
-        .lt('tightness', max(floors.values())).limit(5000).execute().data or []
-    )
+    select = ('id, sentence_id, l1_language_id, l1_text, tightness, review_verdict, author_model, '
+              'prompt_version, arm, test_sentences!inner(test_id, idx, l2_text)')
+    picked = None
+    if a.sentences:
+        # Named sentences (test_id:idx), whatever their tightness or review history.
+        picked = set()
+        for part in a.sentences.split(','):
+            tid, idx = part.strip().rsplit(':', 1)
+            picked.add((tid, int(idx)))
+        sids = []
+        for tid, idx in sorted(picked):
+            sids += [x['id'] for x in db.table('test_sentences').select('id').eq('test_id', tid)
+                     .eq('idx', idx).execute().data or []]
+        rows = (
+            db.table('test_sentence_references').select(select).in_('sentence_id', sids or [-1])
+            .eq('is_active', True).in_('review_verdict', ['pass', 'rewritten']).execute().data or []
+        )
+    else:
+        rows = (
+            db.table('test_sentence_references').select(select)
+            .eq('is_active', True).in_('review_verdict', ['pass', 'rewritten'])
+            .lt('tightness', max(floors.values())).limit(5000).execute().data or []
+        )
     tests = {}
     tids = sorted({r['test_sentences']['test_id'] for r in rows})
     for i in range(0, len(tids), 100):
@@ -100,7 +122,7 @@ def cmd_export(a) -> int:
     # A sentence that already had a second review (a row from a `recheck-*` run)
     # is not exported again unless --include-rechecked.
     rechecked: set = set()
-    if not a.include_rechecked:
+    if not a.include_rechecked and picked is None:
         sids = sorted({r['sentence_id'] for r in rows})
         for i in range(0, len(sids), 200):
             for x in db.table('test_sentence_references').select('sentence_id, l1_language_id, run_id') \
@@ -116,7 +138,7 @@ def cmd_export(a) -> int:
         if not t or not t.get('is_active'):
             continue
         l2_id = int(t['language_id'])
-        if r['tightness'] is None or r['tightness'] >= floors.get(l2_id, 0.6):
+        if picked is None and (r['tightness'] is None or r['tightness'] >= floors.get(l2_id, 0.6)):
             continue
         key_ctx = (s['test_id'], r['l1_language_id'])
         if key_ctx not in context_cache:
@@ -142,13 +164,14 @@ def cmd_export(a) -> int:
     base = os.path.join(a.out_dir, SUBDIR)
     os.makedirs(os.path.join(base, 'packs'), exist_ok=True)
     sr.dump_json(os.path.join(base, 'recheck_items.json'), {'items': items})
+    why = WHY_GIVEN.format(reason=a.reason) if a.reason else WHY_FLOOR
     per = max(1, a.per_pack)
     n = 0
     for start in range(0, len(items), per):
         n += 1
         nn = f'{n:02d}'
         chunk = items[start:start + per]
-        blind = [f'# Recheck pack {nn} — BLIND HALF\n', RULES.format(run=a.out_dir, nn=nn),
+        blind = [f'# Recheck pack {nn} — BLIND HALF\n', RULES.format(run=a.out_dir, nn=nn, why=why),
                  f'\nThe gold half is `{a.out_dir}/{SUBDIR}/packs/recheck_{nn}.gold.md`. Do not open it yet.\n']
         gold = [f'# Recheck pack {nn} — GOLD HALF\n',
                 'Open this only after `back/' + nn + '.json` holds a back-translation for every key.\n']
@@ -160,7 +183,8 @@ def cmd_export(a) -> int:
             blind.append(f"- **TARGET:** {it['l1_text']}")
             if it['next']:
                 blind.append(f"- context after: {it['next']['l1']}")
-            gold.append(f"\n## {it['key']}  (first-review tightness {it['old_tightness']:.2f}, floor {it['floor']:.2f})\n")
+            score = f"{it['old_tightness']:.2f}" if it['old_tightness'] is not None else 'n/a'
+            gold.append(f"\n## {it['key']}  (first-review tightness {score}, floor {it['floor']:.2f})\n")
             if it['prev']:
                 gold.append(f"- gold before: {it['prev']['l2']}")
             gold.append(f"- **GOLD:** {it['l2_text']}")
@@ -171,7 +195,7 @@ def cmd_export(a) -> int:
             fh.write('\n'.join(blind) + '\n')
         with open(os.path.join(base, 'packs', f'recheck_{nn}.gold.md'), 'w', encoding='utf-8') as fh:
             fh.write('\n'.join(gold) + '\n')
-    log.info('exported %d below-floor references into %d packs', len(items), n)
+    log.info('exported %d references into %d packs', len(items), n)
     return 0
 
 
@@ -243,6 +267,8 @@ def main() -> int:
     p.add_argument('--per-pack', type=int, default=25)
     p.add_argument('--include-rechecked', action='store_true',
                    help='also export sentences that already have a row from a recheck-* run')
+    p.add_argument('--sentences', help='test_id:idx,... — these sentences only, whatever their tightness')
+    p.add_argument('--reason', help='why these references are re-reviewed (replaces the tightness intro)')
     p.set_defaults(fn=cmd_export)
     p = sub.add_parser('score')
     p.add_argument('run')

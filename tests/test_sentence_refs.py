@@ -115,7 +115,7 @@ def test_script_leak_and_numbers():
     assert sr.leaked_script('handmade accessories (手作り)', 'ja') == ['り', '作', '手']
     assert sr.leaked_script('a long time ago', 'zh') == []
     assert sr.leaked_script('这是 Tokyo 的 catalogue', 'en') == ['Tokyo', 'catalogue']
-    assert sr.missing_numbers('３個のりんごを買った。', 'He bought three apples.') == ['3']
+    assert sr.missing_numbers('３個のりんごを買った。', 'He bought four apples.') == ['3']
     assert sr.missing_numbers('３個のりんごを買った。', 'He bought 3 apples.') == []
 
 
@@ -146,8 +146,24 @@ def test_missing_numbers_compares_values_not_digit_strings():
     assert m('20世纪70年代', 'the 1870s') == ['20', '70']
     assert m('20世纪', 'in the 19th century') == ['20']
     assert m('He was born in May.', '他五月出生。') == []
-    # numbers written as words are still missing (digits stay digits)
-    assert m('３個のりんごを買った。', 'He bought three apples.') == ['3']
+    # numbers written as words count in the reference (developer 2026-11-17)
+    assert m('３個のりんごを買った。', 'He bought three apples.') == []
+    assert m('他有25个学生。', 'He has twenty-five students.') == []
+    assert m('共105人', 'one hundred and five people') == []
+    assert m('300万人', 'three million people') == []
+    assert m('1,200 people', 'twelve hundred people') == []
+    assert m('12个鸡蛋', 'a dozen eggs') == []
+    assert m('一周2次', 'twice a week') == []
+    assert m('第1名', 'first place') == []
+    assert m('It took 1.5 hours.', 'It took one and a half hours.') == []
+    assert m('He bought 3 apples.', '他买了三个苹果。') == []
+    assert m('3,000,000 people', '三百万人') == []
+    assert m('in 2026', '二〇二六年に') == []
+    assert m('12 months', '十二か月') == []
+    assert m('200 yuan', '两百元') == []
+    # ...but the value still has to be right
+    assert m('他有5个朋友。', 'He has four friends.') == ['5']
+    assert m('共105人', 'one hundred and fifty people') == ['105']
 
 def test_tightness_cases():
     assert sr.tightness('很久以前，人们写字很慢。', '很久以前，人们写字很慢。', 'zh') == 1.0

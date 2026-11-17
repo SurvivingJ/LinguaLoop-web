@@ -214,7 +214,9 @@ def normalise_digits(s: str) -> str:
 
 # Numbers are compared by value, not by digit string: "102万" is satisfied by
 # "1,020,000" or "1.02 million" (or "102 wan"), "1000" by "1,000", and a "5" in
-# the original is NOT satisfied by the "5" inside "15" or "2015".
+# the original is NOT satisfied by the "5" inside "15" or "2015". In the
+# reference, numbers written as words count too ("three", "twenty-five",
+# 三, 十二, 两百): developer decision 2026-11-17.
 _NUM = r'\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?'
 _CJK_UNITS = {'百': (100,), '千': (1000,), '万': (10 ** 4,), '萬': (10 ** 4,),
               '亿': (10 ** 8,), '億': (10 ** 8,), '兆': (10 ** 12, 10 ** 6)}  # zh 兆 is also "mega"
@@ -287,14 +289,116 @@ def _number_mentions(text: str) -> list[tuple[str, set]]:
     return out
 
 
+_EN_WORD_UNITS = {
+    'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7,
+    'eight': 8, 'nine': 9, 'ten': 10, 'eleven': 11, 'twelve': 12, 'thirteen': 13,
+    'fourteen': 14, 'fifteen': 15, 'sixteen': 16, 'seventeen': 17, 'eighteen': 18,
+    'nineteen': 19,
+    'first': 1, 'second': 2, 'third': 3, 'fourth': 4, 'fifth': 5, 'sixth': 6, 'seventh': 7,
+    'eighth': 8, 'ninth': 9, 'tenth': 10, 'eleventh': 11, 'twelfth': 12, 'thirteenth': 13,
+    'fourteenth': 14, 'fifteenth': 15, 'sixteenth': 16, 'seventeenth': 17,
+    'eighteenth': 18, 'nineteenth': 19,
+    'once': 1, 'twice': 2, 'thrice': 3,
+}
+_EN_WORD_TENS = {
+    'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50, 'sixty': 60, 'seventy': 70,
+    'eighty': 80, 'ninety': 90, 'twentieth': 20, 'thirtieth': 30, 'fortieth': 40,
+    'fiftieth': 50, 'sixtieth': 60, 'seventieth': 70, 'eightieth': 80, 'ninetieth': 90,
+}
+_EN_WORD_SCALES = {'hundred': 100, 'hundredth': 100, 'dozen': 12, 'thousand': 10 ** 3,
+                   'thousandth': 10 ** 3, 'million': 10 ** 6, 'millionth': 10 ** 6,
+                   'billion': 10 ** 9, 'trillion': 10 ** 12}
+_CJK_DIGITS = {'零': 0, '〇': 0, '一': 1, '二': 2, '两': 2, '兩': 2, '三': 3, '四': 4,
+               '五': 5, '六': 6, '七': 7, '八': 8, '九': 9}
+_CJK_SMALL = {'十': 10, '百': 100, '千': 1000}
+_CJK_BIG = {'万': 10 ** 4, '萬': 10 ** 4, '亿': 10 ** 8, '億': 10 ** 8, '兆': 10 ** 12}
+_CJK_NUMERAL_RE = re.compile('[' + ''.join(_CJK_DIGITS) + ''.join(_CJK_SMALL) + ''.join(_CJK_BIG) + ']+')
+
+
+def _en_word_values(text: str) -> set:
+    """Values of numbers written as English words: every number word on its
+    own, and each run read as one number (twenty-five, one hundred and five,
+    a dozen, three million, one and a half; "half" alone is 0.5)."""
+    from decimal import Decimal
+    words = re.findall(r'[a-z]+', (text or '').lower())
+    vals: set = set()
+
+    def run_value(run: list) -> Decimal:
+        total = current = 0
+        for w in run:
+            if w in _EN_WORD_UNITS or w in _EN_WORD_TENS:
+                current += _EN_WORD_UNITS.get(w, _EN_WORD_TENS.get(w, 0))
+            elif w in ('a', 'an'):
+                current = current or 1
+            elif w in ('hundred', 'hundredth', 'dozen'):
+                current = (current or 1) * _EN_WORD_SCALES[w]
+            elif w in _EN_WORD_SCALES:
+                total += (current or 1) * _EN_WORD_SCALES[w]
+                current = 0
+        return Decimal(total + current)
+
+    run: list = []
+    i = 0
+    while i <= len(words):
+        w = words[i] if i < len(words) else ''
+        nxt = words[i + 1] if i + 1 < len(words) else ''
+        if w in _EN_WORD_UNITS or w in _EN_WORD_TENS or w in _EN_WORD_SCALES:
+            vals.add(Decimal(_EN_WORD_UNITS.get(w, _EN_WORD_TENS.get(w, _EN_WORD_SCALES.get(w)))))
+            run.append(w)
+        elif w in ('a', 'an') and nxt in _EN_WORD_SCALES:
+            run.append(w)
+        elif w == 'and' and run and (nxt in _EN_WORD_UNITS or nxt in _EN_WORD_TENS):
+            run.append(w)
+        elif w == 'and' and run and words[i + 1:i + 3] == ['a', 'half']:
+            v = run_value(run)
+            vals |= {v, v + Decimal('0.5')}
+            run = []
+            i += 3
+            continue
+        else:
+            if w == 'half':
+                vals.add(Decimal('0.5'))
+            if any(x not in ('a', 'an', 'and') for x in run):
+                vals.add(run_value(run))
+            run = []
+        i += 1
+    return vals
+
+
+def _cjk_numeral_values(text: str) -> set:
+    """Values of numbers written with Chinese/Japanese numerals: 三 3, 十二 12,
+    两百 200, 三百万 3,000,000, 二〇二六 2026 (digit by digit), and each digit
+    character on its own."""
+    from decimal import Decimal
+    vals: set = set()
+    for s in _CJK_NUMERAL_RE.findall(text or ''):
+        if len(s) > 1 and all(c in _CJK_DIGITS for c in s):
+            vals.add(Decimal(''.join(str(_CJK_DIGITS[c]) for c in s)))
+        total = section = num = 0
+        for c in s:
+            if c in _CJK_DIGITS:
+                num = _CJK_DIGITS[c]
+                vals.add(Decimal(num))
+            elif c in _CJK_SMALL:
+                section += (num or 1) * _CJK_SMALL[c]
+                num = 0
+            else:
+                total += ((section + num) or 1) * _CJK_BIG[c]
+                section = num = 0
+        vals.add(Decimal(total + section + num))
+    return vals
+
+
 def missing_numbers(l2_text: str, l1_text: str) -> list[str]:
     """Numbers written with digits in the gold that the reference does not carry
-    (by value; scale words and 万/亿/千 are understood on both sides)."""
+    (by value; scale words and 万/亿/千 are understood on both sides; in the
+    reference a number may also be written as words or CJK numerals)."""
     def norm(vals):
         return {v.normalize() if hasattr(v, 'normalize') else v for v in vals}
     have: set = set()
     for _, vals in _number_mentions(l1_text):
         have |= norm(vals)
+    have |= norm(_en_word_values(l1_text)) | norm(_cjk_numeral_values(l1_text))
     return [label for label, vals in _number_mentions(l2_text)
             if any(not isinstance(v, str) for v in vals) and not (norm(vals) & have)]
 

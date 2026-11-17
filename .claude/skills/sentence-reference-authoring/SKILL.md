@@ -73,7 +73,7 @@ winner recorded in ADR-037.
 Faithful and tight over pretty: one entry per sentence, same count and order,
 every number, name, negation, tense and politeness marker kept, nothing added,
 no notes inside `l1`, no L2 script in `l1`, loanwords back to their source
-form, digits stay digits, terminators match the sentence type. CJK → en keeps
+form, numbers written the L1's natural way (digits or words), terminators match the sentence type. CJK → en keeps
 sentence boundaries even where English would merge. en → zh/ja and zh ↔ ja
 follow the gloss conventions in the `cross-language-glosses` skill.
 
@@ -83,7 +83,8 @@ follow the gloss conventions in the `cross-language-glosses` skill.
 `missing_number:<n>`, `preamble`, `length_ratio:<r>`, `duplicate_sentence`.
 `missing_number` compares values, not digit strings: 102万 is carried by
 "1,020,000" or "1.02 million", 11月 by "November", 70年代 by "the 1970s"; a "5" is
-not carried by "15". A number spelled as a word ("three") still fails.
+not carried by "15". Numbers written as words count ("three", "twenty-five",
+"one and a half", 三, 两百); the value must still match.
 Warnings (go to the reviewer, do not block): `author_note_in_l1`.
 
 ## Hard rules

@@ -129,8 +129,11 @@ Mirrors `fat_seed_runner.py`. Commands, all file-based, none calling a hosted mo
   thousands separators and decimals, CJK compounds with 百/千/万/亿/兆 (102万 = 1,020,000;
   1亿2000万 = 120,000,000; the bare number is also accepted for a one-part amount), English
   hundred/thousand/million/billion/trillion, N月 ↔ English month name, N0年代 ↔ 19N0/20N0,
-  N世纪 ↔ any year in that century. A full-width comma stays a list separator. A number
-  spelled as a word still fails (digits stay digits). Re-run over every live reference (3,880)
+  N世纪 ↔ any year in that century. A full-width comma stays a list separator. In the
+  reference (never the gold), numbers written as words count too (developer, 2026-11-17):
+  English cardinals/ordinals/twice/dozen/half, runs like "one hundred and five", "three
+  million", "one and a half", and CJK numerals (三, 十二, 两百, 三百万, 二〇二六). The value
+  must still match ("four" does not carry 5). Re-run over every live reference (3,880)
   and every authored/reviewed document on disk (9,936): no new failure;
 - no preamble patterns (`この文章は`, `本文`, `This passage`, `---`) in either side;
 - length ratio `len(l1)/len(l2)` within per-pair bounds (fitted on the pilot; initial 1.5–6 for
