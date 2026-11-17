@@ -25,6 +25,13 @@
 -- and GET /next serves sentence windows only. Same signature and grants;
 -- re-apply this file to replace the earlier definition.
 --
+-- Revised 2026-11-17 (ADR-050, TASK-1033): each tests[] entry also carries `ag`,
+-- the idx of usable sentences whose active reference two independent reviews
+-- passed (test_sentence_references.faithful_reviews >= 2, from
+-- migrations/test_sentence_references_faithful_reviews.sql, applied first).
+-- Additive key: a reader that does not know `ag` ignores it. Same signature
+-- and grants.
+--
 -- Arguments
 --   p_user_id  the learner (from the verified JWT, never from the client)
 --   p_l2       the study language; NULL = language of the learner's latest attempt
@@ -48,6 +55,8 @@
 --                     rows: that test's sentences in idx order as [sentence id,
 --                     idx, fresh (hash matches the test), usable reference,
 --                     tightness, chars of l2_text]
+--                     ag: idx of usable, fresh sentences whose reference two
+--                     independent reviews agreed on (NULL when none, ADR-050)
 --   ranges[]          every sentence-window dt_passage of those tests:
 --                     id, t, s, e, st status, a age tier
 --   texts[]           [sentence id, l2_text, l1_text] of the usable sentences of
@@ -132,6 +141,7 @@ AS $$
                (NULLIF(c.transcript_hash, '') IS NULL OR s.transcript_hash = c.transcript_hash) AS fresh,
                (r.sentence_id IS NOT NULL) AS ref_ok,
                r.tightness,
+               (COALESCE(r.faithful_reviews, 0) >= 2) AS agreed,
                char_length(s.l2_text) AS chars
           FROM cand c
           JOIN public.test_sentences s ON s.test_id = c.id
@@ -179,7 +189,10 @@ AS $$
                      'rows', (SELECT jsonb_agg(jsonb_build_array(
                                   s.id, s.idx, s.fresh, s.ref_ok, round(s.tightness::numeric, 3), s.chars)
                                   ORDER BY s.idx)
-                                FROM sent s WHERE s.test_id = c.id)))
+                                FROM sent s WHERE s.test_id = c.id),
+                     'ag', (SELECT jsonb_agg(s.idx ORDER BY s.idx)
+                              FROM sent s
+                             WHERE s.test_id = c.id AND s.fresh AND s.ref_ok AND s.agreed)))
                      FROM cand c LEFT JOIN elo e ON e.test_id = c.id), '[]'::jsonb),
         'ranges', COALESCE((SELECT jsonb_agg(jsonb_build_object(
                      'id', p.id, 't', p.source_ref_id, 's', p.sentence_start,

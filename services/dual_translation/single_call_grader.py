@@ -672,7 +672,7 @@ def _attempt(role: str, slug: str, system_prompt: str, user_prompt: str, schema:
         )
     except Exception as exc:  # noqa: BLE001 — network/API errors fail this attempt
         logger.warning("dual_translation.single_call_grader: call to %r failed: %s", slug, exc)
-        attempt["error"] = f"{type(exc).__name__}: {exc}"[:ERROR_TEXT_CAP]
+        attempt["error"] = provider_errors.failure_text(exc)[:ERROR_TEXT_CAP]
         provider_errors.note_failure(exc, slug=slug, role=role)
         return attempt, None, None
     provider_errors.note_answer(slug=slug, role=role)

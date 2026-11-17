@@ -1,0 +1,55 @@
+{
+  "language": "mixed",
+  "l1": "mixed",
+  "arm": "recheck",
+  "rows": [
+    {
+      "test_id": "3574dd04-7689-439c-9b7c-3278c15e82bb",
+      "idx": 2,
+      "sentence_id": 987,
+      "l1": "en",
+      "l1_language_id": 2,
+      "l1_text": "The history of this symbol can be traced back to the 1970s.",
+      "author_model": "claude-opus-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "reviewer_model": "claude-opus-5-5",
+      "review_verdict": "rewritten",
+      "tightness": 1.0,
+      "entailment_ok": true,
+      "run_id": "recheck-numbers-2026-11-17"
+    },
+    {
+      "test_id": "61f4125b-e49b-4315-9aed-9bf32a9331f7",
+      "idx": 1,
+      "sentence_id": 5888,
+      "l1": "en",
+      "l1_language_id": 2,
+      "l1_text": "Suppose a company announces its sales for two years: last year was 980,000 yuan and this year is 1,020,000 yuan, an actual increase of only about 4%.",
+      "author_model": "claude-opus-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "reviewer_model": "claude-opus-5-5",
+      "review_verdict": "rewritten",
+      "tightness": 0.88,
+      "entailment_ok": true,
+      "run_id": "recheck-numbers-2026-11-17"
+    },
+    {
+      "test_id": "61f4125b-e49b-4315-9aed-9bf32a9331f7",
+      "idx": 2,
+      "sentence_id": 5889,
+      "l1": "en",
+      "l1_language_id": 2,
+      "l1_text": "However, if the chart maker does not start the vertical axis at zero but begins marking it at 970,000 yuan, the heights of the two bars will differ greatly, this year's bar will look about five times last year's, and a tiny fluctuation is thereby exaggerated into a startling leap.",
+      "author_model": "claude-opus-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "reviewer_model": "claude-opus-5-5",
+      "review_verdict": "rewritten",
+      "tightness": 0.8286,
+      "entailment_ok": true,
+      "run_id": "recheck-numbers-2026-11-17"
+    }
+  ]
+}

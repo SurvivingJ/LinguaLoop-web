@@ -58,7 +58,7 @@ from services.dual_translation.repair import hooks as repair_hooks
 from services.dual_translation.passage_builder import (
     MAX_WINDOW, SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
 )
-from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE
+from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE, FLOOR_OVERRIDE_REVIEWS
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.vocabulary.fsrs import AGAIN, CardState, schedule_review
@@ -366,13 +366,24 @@ def submit(submission_id: int) -> ApiResponse:
                 **(target_ctx or {}),
             )
 
+        # ADR-044: the single-call grader's per-model-call records are storage
+        # material, not part of the response contract — take them off before the
+        # contract is returned or persisted. With the configured flow's failed
+        # calls they become dt_grading_call rows on every exit below, including
+        # those that store no grade (the only record of why grading failed).
+        call_records = output_sanitizer.sanitize_assets(_grading_call_records(
+            contract, contract.pop('grading_assets', None), grading_calls,
+            passage['l2_language_id'],
+        ))
+
         # The grading provider refused every call (key limit / no credits /
         # bad key / daily quota) and no model answered: nothing graded this
         # submission and an immediate retry would be refused the same way. Say
         # so with a stable code instead of returning an empty provisional grade
-        # (whose UI invites a retry), and save nothing — the submission stays
+        # (whose UI invites a retry), and save no grade — the submission stays
         # ungraded, so a later submit grades it normally.
         if grading_calls.refused_without_answer():
+            _persist_grading_assets(db, submission_id, call_records)
             logger.error(
                 "DT grading unavailable: provider refused every grading call "
                 "(user=%s submission=%s passage=%s l2=%s max_tier=%s): %s",
@@ -385,11 +396,6 @@ def submit(submission_id: int) -> ApiResponse:
                 503, error_code=provider_errors.ERROR_CODE,
             )
 
-        # ADR-044: the single-call grader's per-model-call records are storage
-        # material, not part of the response contract — take them off before the
-        # contract is returned or persisted.
-        grading_assets = contract.pop('grading_assets', None)
-
         # TASK-628: a v2 grade with no scores (both the Detector and the Verifier
         # failed) is provisional and carries no evidence. Persisting it would poison
         # the idempotency cache — dt_grade.submission_id is UNIQUE, so _cached_grade
@@ -397,6 +403,7 @@ def submit(submission_id: int) -> ApiResponse:
         # Skip persistence so the learner's retry re-grades; the provisional contract
         # still returns, and the UI shows the "grading incomplete — retry" notice.
         if contract.get('overall_band') is None:
+            _persist_grading_assets(db, submission_id, call_records)
             return api_success(contract)
 
         # A grade that is not well-formed (a band outside 1-4, a malformed span)
@@ -405,6 +412,7 @@ def submit(submission_id: int) -> ApiResponse:
         problems = output_sanitizer.contract_problems(contract)
         if problems:
             logger.error("DT grade for submission %s not stored, malformed: %s", submission_id, problems[:5])
+            _persist_grading_assets(db, submission_id, call_records)
             contract = output_sanitizer.sanitize_contract(contract)
             contract['provisional'] = True
             return api_success(contract)
@@ -413,14 +421,13 @@ def submit(submission_id: int) -> ApiResponse:
         # documented cap and no NUL/control characters before it is stored or
         # returned, whatever model produced it.
         contract = output_sanitizer.sanitize_contract(contract)
-        grading_assets = output_sanitizer.sanitize_assets(grading_assets)
 
         if repeat_of:
             _persist_grade(db, submission_id, reproduction, idempotency_key, contract,
                            repeat_of=repeat_of)
         else:
             _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
-        _persist_grading_assets(db, submission_id, grading_assets)
+        _persist_grading_assets(db, submission_id, call_records)
 
         if repeat_of:
             # A repeat's errors are kept on dt_grade only (see _persist_grade): no
@@ -685,7 +692,7 @@ def _get_usable_references(db, sentence_ids: list, l1_language_id: int) -> dict:
         return {}
     resp = (
         db.table('test_sentence_references')
-        .select('sentence_id, l1_text, tightness, review_verdict')
+        .select('sentence_id, l1_text, tightness, review_verdict, faithful_reviews')
         .in_('sentence_id', sentence_ids)
         .eq('l1_language_id', l1_language_id)
         .eq('is_active', True)
@@ -1295,7 +1302,7 @@ class _RpcInputs(_NextInputs):
             meta = {'id': str(t['id']), 'language_id': self.l2, 'transcript_hash': t.get('h'),
                     'difficulty': t.get('d'), 'elo': t.get('elo')}
             self._tests[bool(t.get('at'))].append(meta)
-            self._materials[meta['id']] = _materials_from_rows(meta['id'], t.get('rows') or [])
+            self._materials[meta['id']] = _materials_from_rows(meta['id'], t.get('rows') or [], t.get('ag') or [])
         self._ranges = {
             (str(r['t']), int(r['s']), int(r['e'])): {
                 'id': r['id'], 'age_tier': r.get('a'), 'l2_language_id': self.l2,
@@ -1325,11 +1332,14 @@ class _RpcInputs(_NextInputs):
         return self._ranges
 
 
-def _materials_from_rows(test_id: str, rows: list) -> tuple:
+def _materials_from_rows(test_id: str, rows: list, agreed=()) -> tuple:
     """``dt_next_inputs`` sentence rows -> the ``_window_materials`` tuple
     ``(rows, refs_ok, tightness)``. A stale row (``fresh`` false) and a gap
-    in idx stay in the list as window breakers, exactly as there."""
+    in idx stay in the list as window breakers, exactly as there.
+    ``agreed`` (the function's ``ag`` list, ADR-050) are the indices whose
+    reference two independent reviews passed; their rows carry ``agreed``."""
     out_rows, refs_ok, tightness = [], set(), {}
+    agreed = {int(i) for i in (agreed or [])}
     for sid, idx, fresh, ref_ok, tight, chars in rows:
         idx = int(idx)
         out_rows.append({'id': sid, 'test_id': test_id, 'idx': idx,
@@ -1338,6 +1348,8 @@ def _materials_from_rows(test_id: str, rows: list) -> tuple:
             refs_ok.add(idx)
             if tight is not None:
                 tightness[idx] = float(tight)
+            if idx in agreed:
+                out_rows[-1]['agreed'] = True
     present = {r['idx'] for r in out_rows}
     if present:
         out_rows += [{'id': None, 'test_id': test_id, 'idx': i, 'l2_text': ''}
@@ -1707,6 +1719,8 @@ def _window_materials(db, tests: list, l1_language_id: int) -> dict:
                 refs_ok.add(int(row['idx']))
                 if ref.get('tightness') is not None:
                     tightness[int(row['idx'])] = float(ref['tightness'])
+                if (ref.get('faithful_reviews') or 0) >= FLOOR_OVERRIDE_REVIEWS:
+                    row['agreed'] = True
     return out
 
 
@@ -1721,8 +1735,9 @@ def _next_sentence_window(tests: list, materials: dict, l2_language_id: int,
                           served_ranges: dict) -> Optional[dict]:
     """The first fresh 2-4 sentence window over ``tests`` (already in rotation
     order): every sentence has a usable L1 reference, the mean tightness clears
-    the language floor, and no sentence belongs to a window this learner was
-    already served. Window choice is ``select_window_for_primed`` with no
+    the language floor (sentences two independent reviews agreed on are left
+    out of the mean, ADR-050), and no sentence belongs to a window this learner
+    was already served. Window choice is ``select_window_for_primed`` with no
     primed words (the shortest eligible window, then the earliest)."""
     from services.dual_translation.passage_builder import select_window_for_primed
 
@@ -1732,7 +1747,8 @@ def _next_sentence_window(tests: list, materials: dict, l2_language_id: int,
         if not rows:
             continue
         free = refs_ok - served_ranges.get(str(test['id']), set())
-        window = select_window_for_primed(rows, [], [], free, tightness, floor)
+        agreed = frozenset(int(r['idx']) for r in rows if r.get('agreed'))
+        window = select_window_for_primed(rows, [], [], free, tightness, floor, agreed=agreed)
         if window:
             return {'test_id': str(test['id']), 'start': int(window[0]), 'end': int(window[1])}
     return None
@@ -1955,6 +1971,44 @@ _GRADING_CALL_COLUMNS = (
     'dropped', 'result', 'raw_response', 'raw_truncated',
 )
 
+# Single-call attempts are recorded by the grader itself (its asset records);
+# a failure noted under any other role came from the configured v1/v2 flow.
+_SINGLE_CALL_ROLES = ('primary', 'fallback')
+# dt_grading_call.prompt_version for a configured-flow call: that flow's prompts
+# are built per request and carry no version string of their own.
+_CONFIGURED_FLOW_PROMPT_VERSION = 'configured-flow'
+
+
+def _grading_call_records(contract: dict, grading_assets: Optional[list],
+                          grading_calls, l2_language_id) -> list:
+    """Every grading model call worth a dt_grading_call row for this submit:
+    the single-call grader's own attempt records, plus one ``call_failed`` row
+    per configured-flow (v1/v2) call that raised, with the provider's error
+    text. Written whether or not a grade is saved, so a submit that stored no
+    grade still says, in the database, which model failed and why."""
+    records = list(grading_assets or [])
+    trace = contract.get('grader_trace') or {}
+    flow = 'v2' if trace.get('framework_version') == 2 else 'v1'
+    after_single_call = isinstance(trace.get('single_call'), dict)
+    l2_code = DimensionService.get_language_code(l2_language_id)
+    for failure in getattr(grading_calls, 'failures', None) or []:
+        if failure.get('role') in _SINGLE_CALL_ROLES:
+            continue
+        records.append({
+            'flow': flow,
+            'role': 'fallback' if after_single_call else 'primary',
+            'model_slug': failure.get('slug') or 'unknown',
+            'prompt_version': _CONFIGURED_FLOW_PROMPT_VERSION,
+            'prompt_variant': failure.get('role') or None,
+            'l2_code': l2_code,
+            'status': 'call_failed',
+            'error': failure.get('error'),
+            'tokens_in': 0,
+            'tokens_out': 0,
+            'raw_truncated': False,
+        })
+    return records
+
 
 def _error_columns(with_assets: bool = True) -> tuple:
     """The dt_error_instance columns to insert and to read back right now.
@@ -2084,10 +2138,14 @@ def _public_repeat(repeat_of: dict) -> dict:
 def _persist_grading_assets(db, submission_id: int, assets: Optional[list]) -> None:
     """Write the grader's per-model-call records to dt_grading_call (ADR-044).
 
-    Best-effort and deliberately AFTER ``_persist_grade``: these rows are design
-    and audit material, never something a learner's grade may depend on, so a
-    failure here is logged and swallowed. A no-op when the grade carried no
-    records (v1/v2/tier0 grades), while Config.DT_GRADING_ASSET_COLUMNS is off, or
+    Best-effort: these rows are design and audit material, never something a
+    learner's grade may depend on, so a failure here is logged and swallowed.
+    On a stored grade it runs AFTER ``_persist_grade``; on a submit that stores
+    no grade (provider refusal, provisional or malformed grade) it runs alone,
+    so the failed calls and their error text are still recorded — a submission
+    retried after such a failure can therefore carry rows from several attempts.
+    A no-op when there are no records (a tier-0 grade, or a v1/v2 grade whose
+    calls all succeeded), while Config.DT_GRADING_ASSET_COLUMNS is off, or
     while the asset columns were just found missing (`_asset_columns_usable`) —
     the grader_trace stored on dt_grade still names the model, prompt version,
     usage and cost."""

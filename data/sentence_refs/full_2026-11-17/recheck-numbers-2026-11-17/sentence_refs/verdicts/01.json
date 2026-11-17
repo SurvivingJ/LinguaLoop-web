@@ -1,0 +1,14 @@
+{"reviewer_model": "claude-opus-5-5", "items": [
+  {"key": "3574dd04-2-en", "verdict": "rewritten", "entailment_ok": true,
+   "l1": "The history of this symbol can be traced back to the 1970s.",
+   "gold_seen_early": false,
+   "notes": "Dropped the redundant 'of the 20th century'; 'the 1970s' alone is faithful to 20世纪70年代 in context; blind back-translation matched gold exactly."},
+  {"key": "61f4125b-1-en", "verdict": "rewritten", "entailment_ok": true,
+   "l1": "Suppose a company announces its sales for two years: last year was 980,000 yuan and this year is 1,020,000 yuan, an actual increase of only about 4%.",
+   "gold_seen_early": false,
+   "notes": "Reformatted 980000 and 1020000 as 980,000 and 1,020,000 (98万, 102万); wording otherwise unchanged and faithful; low tightness was only phrasing variance (设想/仅)."},
+  {"key": "61f4125b-2-en", "verdict": "rewritten", "entailment_ok": true,
+   "l1": "However, if the chart maker does not start the vertical axis at zero but begins marking it at 970,000 yuan, the heights of the two bars will differ greatly, this year's bar will look about five times last year's, and a tiny fluctuation is thereby exaggerated into a startling leap.",
+   "gold_seen_early": false,
+   "notes": "Reformatted 970000 as 970,000 (97万) and smoothed 'let the vertical axis start from zero' to 'start the vertical axis at zero'; all facts kept; low tightness was register variance (若/起标/便), not looseness."}
+]}

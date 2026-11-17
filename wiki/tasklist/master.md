@@ -19,11 +19,11 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 70 |
-| In Progress (`[~]`) | 15 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 35 |
+| Not Started | 69 |
+| In Progress (`[~]`) | 16 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 36 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
-| Won't Do (obsolete) | 3 |
+| Won't Do (obsolete) | 4 |
 | Done (cumulative, not listed here) | 277 |
 
 *2026-11-17 (billing branch merged into this branch):* `claude/tender-dirac-v603du` (billing plan, TASK-976–1000 in [[tasklist/billing.tasks]], [[decisions/ADR-047-credits-and-subscription-model]]) merged; its counts added (Not Started +17, Blocked +6, Won't Do +2). **ID clash, not renumbered here:** billing's TASK-976–1000 reuse ids already used by [[tasklist/mobile-redesign.tasks]] (976–988, 1007) and [[tasklist/fixes-2026-11-16.tasks]] (989–1006), and its ADR-047 reuses [[decisions/ADR-047-basic-word-knowledge-prior]]'s number. In this file the billing table is the one under "Billing, Credits and Plans"; read a billing id as `billing/TASK-nnn`.
@@ -31,6 +31,8 @@ below.
 *2026-11-17 (Exercise Content in Storage Phase 1 built and integrated, TASK-1008–1025):* the six work-package branches (a store, b writers, c SQL, d1 session readers, d2 prestudy + route readers, e backfill + sweep) were merged into `claude/dreamy-brahmagupta-40a4gq` without conflicts; TASK-1025 aligned `FakeContentDB` with the commit SQL, added `tests/test_exercise_content_integration.py` (scenarios 1–8 in db/db, shadow/dual, storage/dual) and checked that `db` mode issues exactly the pre-ADR calls. Prestudy now loads exercise content only for the words it drills, with an on-demand endpoint for words the learner adds (owner decision). Migrations are written, **not applied**; flags stay `db`. Offline suite: same 48 environmental failures + 1 collection error as the foundation commit. Next: operator tasks TASK-1026–1030. Counts: Not Started 55→37, Done 250→268. See [[tasklist/exercise-content-storage.tasks]], [[decisions/ADR-049-exercise-content-in-storage]] "Implementation status".
 
 *2026-11-17 (NEW — Exercise Content in Storage, ADR-049, TASK-1008–1031):* exercise `content` (119 MB of a 470 MB database on the 500 MB Free cap) moves to one immutable JSON file per sense in the private Storage bucket `exercise-content`. Phase 0 (architect) done: reader/writer inventory (ADR-049 Appendix A), design and contracts. 24 tasks added, all Not Started: package a store (1008–1011; 1008 lands first), b writers (1012–1015), c migrations (1016–1018), d readers (1019–1022), e backfill + sweep (1023–1024), integration (1025); TASK-1026–1030 are operator steps (live DB, deploy, flags, measurement) and not for agents; TASK-1031 post-cut-over clean-up. Two owner questions in the ADR (prestudy fan-out, semdisc leftovers), neither blocking. Counts: Not Started 31→55. See [[tasklist/exercise-content-storage.tasks]].
+
+*2026-11-17 (sentence references, branch claude/happy-sagan-wkcpgs merged with main):* TASK-908 Not Started → In Progress (English references for every Japanese and Chinese test live; English → Chinese deferred). New TASK-1032 Won't Do (English glosses in Chinese transcripts are intended) and TASK-1033 Done (`faithful_reviews` column, `dt_next_inputs` `ag`, `build_daily_session_dt_agreed.sql` applied live; Python deploy pending): two agreeing reviews override the tightness floor ([[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]]). This branch's own `/next` rewrite (filed as TASK-976 before the merge, an id main had already used) was dropped in favour of main's `_choose_next`. Counts (after main's exercise-content tasks): Not Started 53→52, In Progress 15→16, Done (repo)/awaiting 29→30, Won't Do 1→2. Renumbered at the second merge with main (exercise content took ADR-049 / TASK-1008–1031): ADR-050, TASK-1032, TASK-1033. See [[tasklist/test-sentence-references.tasks]].
 
 *2026-11-17 (dual translation, measure-word drill, basic-word mastery, session/pinyin integrated):* TASK-989, 990, 993, 994, 997, 998, 999 Done (each verified on the real app at 393x659; four reviewed migrations applied live by the reviewers — `dt_next_inputs`, `task998_classifier_drill_levels`, `task998_classifier_cloze_sentences_fill`, `task994_vocab_frequency_fill`). TASK-991 Not Started → Blocked (owner: no row on skip, overlap; parts a and c done in repo). TASK-1000 Not Started → In Progress. New: TASK-1001 (DT owner decisions), 1002 (measure-word decisions and content gaps), 1004 (ADR-047 proposals) Blocked; TASK-1003 (slow error-card materialisation on `/next`), 1005 (last numbered-pinyin surfaces), 1006 (DT UX gaps) Not Started. ADR-047 filed as proposed. Counts: Not Started 47→46, In Progress 13→14, Blocked 35→34, Done 252→259.
 
@@ -1182,10 +1184,12 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-905 | test-sentence-references | Skill `sentence-reference-review` (blind back-translation first; Opus sample) | Done (repo) | S | TASK-903 |
 | TASK-906 | test-sentence-references | Upload path `upload_sentence_references.py` | Done (repo) | S | TASK-901, TASK-903 |
 | TASK-907 | test-sentence-references | Two-arm pilot, 30 tests/language, evaluation page, tightness floor | Done (repo) | M | TASK-904, TASK-905, TASK-906 |
-| TASK-908 | test-sentence-references | Full run, all active tests, first L1 set; retire covered dt_passage rows | [ ] | L | TASK-907, TASK-901 live |
+| TASK-908 | test-sentence-references | Full run, all active tests, first L1 set; retire covered dt_passage rows | [~] ja/zh → en done live 2026-11-17; en → zh deferred | L | TASK-907, TASK-901 live |
 | TASK-909 | test-sentence-references | Sentences endpoint, passage-from-sentences, primed-window selector | Done (repo) | M | TASK-901 |
 | TASK-910 | test-sentence-references | Grader target words → per-word contextual_use evidence | Done (repo) | M | TASK-909 |
 | TASK-911 | test-sentence-references | Preview and cloze use `test_sentences` | Done (repo) | S | TASK-902 |
+| TASK-1032 | test-sentence-references | Clean English glosses out of 15 Chinese transcripts | Won't Do (glosses intended, developer 2026-11-17) | S | — |
+| TASK-1033 | test-sentence-references | Two agreeing reviews override the tightness floor (ADR-050) | Done (DB changes live), Python deploy pending | S | TASK-909 |
 
 ### New-Word Drill (new 2026-11-09)
 
