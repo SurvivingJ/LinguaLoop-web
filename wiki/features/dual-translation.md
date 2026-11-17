@@ -58,10 +58,11 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
   in the app). Older app versions that do not say which language get the language of the
   learner's most recent test. A link opened for one test (from its preview page) uses that test's
   own language, whatever language is selected.
-- Order: first a passage from a test the learner has taken that they have never been shown (the
-  older whole-passage pool, then short passages of 2–4 sentences built from the reviewed
-  sentence-by-sentence translations); then the same from tests they have **not taken yet**,
-  nearest their level first; then a passage they were shown but never submitted, oldest first.
+- Order: first the passage the learner was last shown and has neither translated nor skipped;
+  then a new short passage (2–4 sentences, built from the reviewed sentence-by-sentence
+  translations) from a test the learner has taken; then the same from tests they have **not taken
+  yet**, nearest their level first; then a passage they skipped, oldest first. The older
+  whole-passage pool is no longer served (retired and deleted 2026-11-17).
   Only existing reviewed translations are used — nothing is generated on the spot.
 - A passage from a test the learner has not taken says so above the reference: "This passage is
   from a test you haven't taken yet, so you'll see part of that test's text."

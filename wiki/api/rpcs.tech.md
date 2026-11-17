@@ -427,8 +427,9 @@ All additive; callers deployed from main keep working. Detail in the feature spe
 - `GET /api/dual-translation/next` — new optional `reserve=1` (serve a graded passage again once
   nothing new is left) and `test_id=<uuid>` (only that test's passages, in the test's own language;
   400 when not a UUID, 404 `NO_PASSAGES` for an unknown test). New response fields
-  `from_untaken_test` (bool) and `repeat_of {graded_at, band}`; legacy passages now return
-  `passage_id`. Passages from tests the learner has not taken are served after those from attempted
+  `from_untaken_test` (bool) and `repeat_of {graded_at, band}`. (Legacy whole passages, which
+  returned `source:'passage'`, are no longer served: retired and deleted 2026-11-17; every answer
+  is `source:'sentence_refs'`.) Passages from tests the learner has not taken are served after those from attempted
   tests. Reads come from the new RPC `dt_next_inputs` (fallback: per-table reads). See
   [[features/dual-translation.tech]].
 - **New** `GET /api/dual-translation/test-available?test_id=|slug=` → `{available, test_id,
@@ -459,7 +460,7 @@ All additive; callers deployed from main keep working. Detail in the feature spe
 
 | RPC | Change | Migration (rollback) |
 |---|---|---|
-| `dt_next_inputs(p_user_id uuid, p_l2 integer, p_l1 integer) RETURNS jsonb` | **New.** STABLE, SECURITY INVOKER, `search_path = public, pg_temp`, EXECUTE service_role only. One read bundle for `GET /api/dual-translation/next` (attempts, served/graded history, eligible tests with ELO, legacy passages + references, window sentence references). Called from `routes/dual_translation.py` (`_next_inputs`). | `migrations/dt_next_inputs.sql` (`migrations/dt_next_inputs_rollback.sql`: DROP; no earlier definition) |
+| `dt_next_inputs(p_user_id uuid, p_l2 integer, p_l1 integer) RETURNS jsonb` | **New.** STABLE, SECURITY INVOKER, `search_path = public, pg_temp`, EXECUTE service_role only. One read bundle for `GET /api/dual-translation/next` (attempts, served/graded history, eligible tests with ELO, window sentence references; the `legacy` whole-passage array was removed from the file 2026-11-17 — re-apply needed). Called from `routes/dual_translation.py` (`_next_inputs`). | `migrations/dt_next_inputs.sql` (`migrations/dt_next_inputs_rollback.sql`: DROP; no earlier definition) |
 | `get_classifier_drill_session_v2(p_user_id uuid, p_language_id smallint, p_count integer)` | **New.** The 13 v1 columns + `out_level`, `out_mastery_level`, `out_classifier_id_primary`, `out_reverse_noun_options`, `out_cloze_sentence`, `out_cloze_blanked`, `out_max_tier`. SECURITY DEFINER, `search_path=public, pg_temp`, service_role only. Called from `services/drill_service.py` (v1 fallback). `get_classifier_drill_session` (v1) unchanged. | `migrations/task998_classifier_drill_levels.sql` (`…_rollback.sql`: restores the exact previous `update_classifier_mastery`, drops v2 and the column) |
 | `update_classifier_mastery(p_user_id, p_classifier_id, p_is_correct) RETURNS jsonb` | **Replaced, same signature.** Promotion after 5 answers at the current level (`level_attempts`) with EWMA ≥ 0.80; row read FOR UPDATE; result adds `level_attempts`. | same as above |
 

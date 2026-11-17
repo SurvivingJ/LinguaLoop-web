@@ -17,7 +17,7 @@ dependencies:
   - "migration (applied to production 2026-11-14): migrations/dt_grading_assets.sql — dt_error_instance asset columns + dt_grading_call"
   - "migration (column part applied 2026-11-14): migrations/dt_taxonomy_v6_columns.sql — taxonomy_version / explanation_variant / remap_flag"
   - "service (2026-11-16): services.dual_translation.provider_errors — per-request record of refused grading calls (GRADING_UNAVAILABLE)"
-  - "tables read by GET /next (2026-11-16): test_attempts, dt_submission, dt_grade, dt_passage, dt_passage_reference, tests, test_sentences, test_sentence_references"
+  - "tables read by GET /next (2026-11-17): test_attempts, dt_submission, dt_grade, dt_passage, tests, test_sentences, test_sentence_references (dt_passage_reference no longer read: whole-passage pool removed)"
   - "RPC (applied 2026-11-17, TASK-990): public.dt_next_inputs(uuid, integer, integer) RETURNS jsonb — one read bundle for GET /next; migrations/dt_next_inputs.sql, rollback migrations/dt_next_inputs_rollback.sql"
   - "service (2026-11-17): services.dual_translation.output_sanitizer — tolerant JSON extraction, plain-text model fields, Postgres-safe storage, injection-segment detection"
 breaking_change_risk: low
@@ -280,30 +280,31 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   - `?test_id=` (UUID, otherwise **400**) — only passages of this test (the preview page's link).
     The **test's own language** is used, whatever `language_id` says; an unknown or inactive test
     is **404 `NO_PASSAGES`**.
-  - `?reserve=1` — when nothing new is left, serve a graded passage again (step 6).
+  - `?reserve=1` — when nothing new is left, serve a graded passage again (step 4).
 - **Eligibility:** only passages that already have reviewed references in the learner's L1 —
   nothing is generated live. The L1 comes from `users.native_language_id` (English, id 2, when
   unset). Window quality rules are those of Produce: active references with a `pass`/`rewritten`
   verdict, mean tightness ≥ `services.prestudy.PRODUCE_TIGHTNESS_FLOOR[l2]`, only active tests,
   never a sentence of a window already served; stale sentence rows and missing indices break
   windows (see `choose_produce_window`).
-- **Selection order (`_choose_next`):**
-  1. a never-served legacy `dt_passage` (whole-passage pool) from a test the learner **attempted**;
-  2. a new sentence window (2–4 sentences, `select_window_for_primed` with no primed words) from an
+- **Selection order (`_choose_next`; sentence windows only since 2026-11-17 — a `dt_passage` row
+  with no sentence range is never served, resumed or re-served, see `_first_servable`):**
+  0. the passage the learner was last shown and neither translated nor skipped (`resumed`) — not
+     with `reserve=1`;
+  1. a new sentence window (2–4 sentences, `select_window_for_primed` with no primed words) from an
      attempted test;
-  3. a legacy passage from a test **not attempted yet**;
-  4. a new window from a test not attempted yet — 3 and 4 ordered nearest the learner's level first,
-     the `get_recommended_tests` rule: minimum over test types of |test ELO − learner ELO|, 1200
-     when the learner is unrated;
-  5. a passage served before but never graded, least recently served first (a window only while
-     every sentence still has a usable reference);
-  6. only with `reserve=1`: a graded passage, least recently graded first.
+  2. a new window from a test **not attempted yet**, nearest the learner's level first, the
+     `get_recommended_tests` rule: minimum over test types of |test ELO − learner ELO|, 1200 when
+     the learner is unrated;
+  3. a passage served before but never graded (skipped), least recently served first (only while
+     every sentence of the window still has a usable reference);
+  4. only with `reserve=1`: a graded passage, least recently graded first.
 
   Within a group the order is a stable hash of (user, item, number of passages served so far).
-- **Returns:** `{type:'passage', source:'passage'|'sentence_refs', submission_id, l1_text, age_tier,
-  rubric_descriptors, correction_style, from_untaken_test, repeat_of:{graded_at, band}|null}`;
-  a legacy passage also carries `passage_id`; a window carries `passage_id`, `n_sentences`,
-  `primed_token`, `status`. Or `{type:'error_card', ...}` (below).
+- **Returns:** `{type:'passage', source:'sentence_refs', passage_id, submission_id, l1_text,
+  n_sentences, age_tier, rubric_descriptors, correction_style, primed_token, from_untaken_test,
+  resumed, repeat_of:{graded_at, band}|null}` (`source:'passage'`, the retired whole-passage pool,
+  is no longer produced; the session player shows "Skip this passage" only when `source` is set). Or `{type:'error_card', ...}` (below).
 - **404 codes:** `ALL_DONE` — nothing new left and the learner has had a passage graded in this
   language; both clients then show the all-done screen with **"Translate an earlier passage again"**
   (calls `?reserve=1`; the session player does not offer it again after a re-serve that finds
@@ -322,8 +323,9 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   (`dt_cards.generate_cards_for_queued_entries`) is sequential: observed 2026-11-17, one Japanese
   call that materialised three cards took 8.5 s (about 6 round trips per entry) — TASK-1003.
 - **Reads (TASK-990):** one RPC, `dt_next_inputs(p_user_id, p_l2, p_l1)` (see [[api/rpcs.tech]]),
-  returns attempts, served/graded history, eligible tests with ELO, legacy passages and their
-  references, and windows' sentence references. If it fails, the route logs once, stops trying for
+  returns attempts, served/graded history, eligible tests with ELO, and windows' sentence
+  references (the `legacy` array of whole passages was removed 2026-11-17; the revised
+  `migrations/dt_next_inputs.sql` must be re-applied). If it fails, the route logs once, stops trying for
   `_NEXT_INPUTS_RETRY_S` (600 s) and uses the per-table reads (`_TableInputs`, about 21–23 trips).
   The payload grows with the content in the language (77.6 KB zh, 41.2 KB ja for the test account
   on 2026-11-17; about 200 KB inferred at full zh coverage).

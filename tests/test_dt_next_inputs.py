@@ -17,7 +17,8 @@ import pytest
 import routes.dual_translation as dt_routes
 from services.dimension_service import DimensionService
 from tests.test_dual_translation_next_selection import (
-    EN, JA, JA_TEST, UNTAKEN_JA_TEST, USER, ZH, _TableDB, _Query, _Result, _grade, _serve, _tables,
+    EN, JA, JA_TEST, UNTAKEN_JA_TEST, USER, ZH, ZH_TEST, ZH_WINDOWS,
+    _TableDB, _Query, _Result, _grade, _serve, _tables,
 )
 
 USABLE = ('pass', 'rewritten')
@@ -75,13 +76,6 @@ def _rpc_payload(t, user_id, l2, l1):
                          len(s['l2_text'])])
         tests.append({'id': c['id'], 'h': c.get('transcript_hash'), 'd': c.get('difficulty'),
                       'at': c['id'] in attempted, 'elo': c.get('_elo'), 'rows': rows})
-    legacy_refs = {(r['passage_id'], r['l1_language_id']): r for r in t.get('dt_passage_reference', [])}
-    legacy = [{'id': p['id'], 't': p['source_ref_id'], 'a': p['age_tier'],
-               'x': legacy_refs[(p['id'], l1)]['l1_text']}
-              for p in t.get('dt_passage', [])
-              if p['source_kind'] == 'test_transcript' and p['status'] == 'active'
-              and p['l2_language_id'] == l2 and p.get('sentence_start') is None
-              and (p['id'], l1) in legacy_refs]
     ranges = [{'id': p['id'], 't': p['source_ref_id'], 's': p['sentence_start'], 'e': p['sentence_end'],
                'st': p['status'], 'a': p['age_tier']}
               for p in t.get('dt_passage', [])
@@ -103,7 +97,7 @@ def _rpc_payload(t, user_id, l2, l1):
     texts = [[s['id'], s['l2_text'], ref_by_sentence[s['id']]['l1_text']]
              for s in sentences if s['test_id'] in prefetch and s['id'] in ref_by_sentence]
     return {'l1': l1, 'l2': l2, 'salt': salt, 'attempted': attempted, 'history': history,
-            'legacy': legacy, 'tests': tests, 'ranges': ranges, 'texts': texts}
+            'tests': tests, 'ranges': ranges, 'texts': texts}
 
 
 class _RpcCall:
@@ -236,15 +230,10 @@ def _next(client, headers, query):
     return resp.status_code, json.loads(resp.data)
 
 
-@pytest.fixture(autouse=True)
-def _legacy_pool_on(request, monkeypatch):
-    """Most tests in this file were written when the old whole-passage pool was
-    still served, and use it as their Chinese material. It was retired on
-    2026-11-17 (routes.dual_translation.SERVE_LEGACY_PASSAGES = False). They run
-    with the switch on so the selection logic they cover (resume, skip, repeats,
-    ordering) stays tested; tests marked ``legacy_off`` run with the real default."""
-    if 'legacy_off' not in request.keywords:
-        monkeypatch.setattr(dt_routes, 'SERVE_LEGACY_PASSAGES', True)
+def _window_of(db, data):
+    """(test id, start, end) of the passage a GET /next answer served."""
+    p = next(p for p in db.tables['dt_passage'] if p['id'] == data['passage_id'])
+    return str(p['source_ref_id']), p['sentence_start'], p['sentence_end']
 
 
 class TestRoundTrips:
@@ -259,11 +248,6 @@ class TestRoundTrips:
         assert [name for name, _ in rpc_app.inserts] == ['dt_passage', 'dt_submission']
         assert rpc_app.round_trips() == 3
 
-    def test_legacy_passage_is_two_round_trips(self, client, auth_headers, rpc_app):
-        status, data = _next(client, auth_headers, 'language_id=1')
-        assert status == 200 and data['source'] == 'passage' and data['passage_id'] in (1, 2)
-        assert rpc_app.round_trips() == 2
-
     def test_reopening_an_unstarted_passage_reuses_its_submission(self, client, auth_headers, rpc_app):
         """TASK-991: a passage that was shown and neither translated nor skipped is
         resumed: reloading creates no new rows and serves the same passage."""
@@ -274,7 +258,8 @@ class TestRoundTrips:
         assert len(subs) == 1
         assert second['submission_id'] == third['submission_id'] == first['submission_id']
         assert second['resumed'] is True and 'resumed' not in first
-        assert rpc_app.round_trips() == 2 + 1 + 1  # a resume needs only the bundle read
+        assert first['source'] == 'sentence_refs' and _window_of(rpc_app, first)[0] == ZH_TEST
+        assert rpc_app.round_trips() == 3 + 1 + 1  # a resume needs only the bundle read
 
     def test_skip_moves_on_and_the_skipped_passage_comes_back_last(self, client, auth_headers, rpc_app):
         _, first = _next(client, auth_headers, 'language_id=1')
@@ -322,12 +307,13 @@ class TestReserve:
             if status == 404:
                 return data, served
             sub = next(s for s in db.tables['dt_submission'] if s['id'] == data['submission_id'])
+            assert _window_of(db, data)[0] == ZH_TEST
             served.append(sub['passage_id'])
             _grade(db, sub)
 
     def test_all_done_then_reserve_serves_the_least_recently_graded(self, client, auth_headers, rpc_app):
         data, served = self._finish_chinese(client, auth_headers, rpc_app)
-        assert data['error_code'] == dt_routes.ALL_DONE and sorted(served) == [1, 2]
+        assert data['error_code'] == dt_routes.ALL_DONE and len(set(served)) == len(served) == len(ZH_WINDOWS)
         status, again = _next(client, auth_headers, 'language_id=1&reserve=1')
         assert status == 200
         sub = next(s for s in rpc_app.tables['dt_submission'] if s['id'] == again['submission_id'])
@@ -549,12 +535,7 @@ class TestRepeatSubmission:
         assert graded_app.tables.get('dt_grade', []) == []
 
 
-@pytest.mark.legacy_off
-class TestLegacyPoolRetiredOverHttp:
-
-    def test_chinese_fixture_with_whole_passages_only_has_nothing(self, client, auth_headers, rpc_app):
-        status, data = _next(client, auth_headers, 'language_id=1')
-        assert status == 404 and data['error_code'] == dt_routes.NO_PASSAGES
+class TestWindowsOverHttp:
 
     def test_windows_resume_and_skip(self, client, auth_headers, rpc_app):
         _, first = _next(client, auth_headers, 'language_id=3')

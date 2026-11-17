@@ -441,11 +441,26 @@ class TestTokensUsedToday:
 # GET /api/dual-translation/next
 # ---------------------------------------------------------------------------
 
+# The window a stubbed ``_choose_next`` picks, and what the stubbed read bundle
+# knows about it: test 't1', sentences 0-1, an existing active passage 7.
+_WINDOW_CHOICE = {'kind': 'range', 'test_id': 't1', 'start': 0, 'end': 1}
+_WINDOW_L1 = ('Hello.', 'World.')
+
+
 def _stub_next_inputs(monkeypatch, l1=2, l2=3, history=None):
     """GET /next's read bundle (TASK-990) as a plain object, so a test that
-    stubs ``_choose_next`` makes no reads of its own."""
+    stubs ``_choose_next`` makes no reads of its own. It serves
+    ``_WINDOW_CHOICE`` from the bundle: no sentence or passage reads."""
     from types import SimpleNamespace
-    stub = SimpleNamespace(l1=l1, l2=l2, history=history or {}, attempted=set())
+    test = {'id': 't1', 'language_id': l2, 'difficulty': 4}
+    rows = [{'id': 501 + i, 'test_id': 't1', 'idx': i} for i in range(2)]
+    stub = SimpleNamespace(
+        l1=l1, l2=l2, history=history or {}, attempted={'t1'},
+        test_meta=lambda test_id: test if str(test_id) == 't1' else None,
+        materials=lambda tests: {'t1': (rows, {0, 1}, {})},
+        window_texts=lambda db, ids: {501 + i: (f'l2-{i}', _WINDOW_L1[i]) for i in range(2)},
+        range_passage=lambda test_id, start, end: {'id': 7, 'age_tier': 3, 'status': 'active'},
+    )
     monkeypatch.setattr(dt_routes, '_next_inputs', lambda db, uid, lang: SimpleNamespace(
         **{**vars(stub), 'l2': lang if lang is not None else l2}))
     return stub
@@ -479,10 +494,8 @@ class TestGetNext:
             {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
         ])
         _stub_next_inputs(monkeypatch)
-        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts, **kw: {
-            'kind': 'passage',
-            'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
-        })
+        monkeypatch.setattr(dt_routes, '_choose_next',
+                            lambda db, uid, l1, l2, attempts, **kw: dict(_WINDOW_CHOICE))
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))
 
         def _no_active_rubric(db):
@@ -498,7 +511,8 @@ class TestGetNext:
         assert resp.status_code == 200
         data = resp_json(resp)
         assert data['submission_id'] == 42
-        assert data['l1_text'] == 'Hello world'
+        assert data['source'] == 'sentence_refs' and data['passage_id'] == 7
+        assert data['l1_text'] == 'Hello. World.'
         assert data['age_tier'] == 3
         assert data['rubric_descriptors'] == {}
         # The assigned arm is returned to the client...
@@ -1051,10 +1065,8 @@ class TestNextInterleavesErrorCards:
             {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
         ])
         _stub_next_inputs(monkeypatch)
-        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts, **kw: {
-            'kind': 'passage',
-            'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
-        })
+        monkeypatch.setattr(dt_routes, '_choose_next',
+                            lambda db, uid, l1, l2, attempts, **kw: dict(_WINDOW_CHOICE))
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))
 
         def _no_active_rubric(db):
@@ -1086,10 +1098,8 @@ class TestNextInterleavesErrorCards:
             {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
         ])
         _stub_next_inputs(monkeypatch)
-        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts, **kw: {
-            'kind': 'passage',
-            'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
-        })
+        monkeypatch.setattr(dt_routes, '_choose_next',
+                            lambda db, uid, l1, l2, attempts, **kw: dict(_WINDOW_CHOICE))
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))
 
         def _no_active_rubric(db):

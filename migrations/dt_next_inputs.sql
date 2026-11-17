@@ -20,6 +20,11 @@
 -- Rollback: migrations/dt_next_inputs_rollback.sql
 --   (DROP FUNCTION public.dt_next_inputs(uuid, integer, integer);)
 --
+-- Revised 2026-11-17: the `legacy` array (whole-passage dt_passage rows with a
+-- dt_passage_reference) is gone; that pool was retired and its rows deleted,
+-- and GET /next serves sentence windows only. Same signature and grants;
+-- re-apply this file to replace the earlier definition.
+--
 -- Arguments
 --   p_user_id  the learner (from the verified JWT, never from the client)
 --   p_l2       the study language; NULL = language of the learner's latest attempt
@@ -35,8 +40,6 @@
 --                     (no grade, empty reproduction, same L1), sk whether the
 --                     learner skipped that open submission, l2, st status,
 --                     t source test, s/e sentence range, a age tier
---   legacy[]          active whole-passage dt_passage rows in l2 with an l1
---                     reference: id, t test, a age tier, x l1 text
 --   tests[]           active tests in l2 with at least one usable sentence
 --                     reference in l1: id, h transcript hash, d difficulty,
 --                     at attempted, elo distance to the learner's level
@@ -170,15 +173,6 @@ AS $$
                      'l2', hp.l2_language_id, 'st', hp.status, 't', hp.source_ref_id,
                      's', hp.sentence_start, 'e', hp.sentence_end, 'a', hp.age_tier))
                      FROM hp), '[]'::jsonb),
-        'legacy', COALESCE((SELECT jsonb_agg(jsonb_build_object(
-                     'id', p.id, 't', p.source_ref_id, 'a', p.age_tier, 'x', pr.l1_text))
-                     FROM public.dt_passage p
-                     JOIN public.dt_passage_reference pr
-                       ON pr.passage_id = p.id AND pr.l1_language_id = (SELECT l1 FROM lang)
-                    WHERE p.source_kind = 'test_transcript'
-                      AND p.status = 'active'
-                      AND p.l2_language_id = (SELECT l2 FROM lang)
-                      AND p.sentence_start IS NULL), '[]'::jsonb),
         'tests', COALESCE((SELECT jsonb_agg(jsonb_build_object(
                      'id', c.id, 'h', c.transcript_hash, 'd', c.difficulty,
                      'at', c.attempted, 'elo', e.elo_diff,

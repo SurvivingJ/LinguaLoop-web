@@ -11,10 +11,11 @@
 --   2. anon and authenticated cannot execute it (service_role can);
 --   3. its parts agree with direct queries for that learner: salt / history =
 --      distinct served passages, graded flags, open ids, attempted tests,
---      candidate tests (active, in l2, with a usable reference in l1), legacy
---      passages with an l1 reference, and that every history row belongs to
---      the learner (no other user's submissions leak in);
---   4. l2 / l1 resolution with NULL arguments.
+--      candidate tests (active, in l2, with a usable reference in l1), and
+--      that every history row belongs to the learner (no other user's
+--      submissions leak in);
+--   4. the retired whole-passage pool is not returned (no `legacy` key);
+--   5. l2 / l1 resolution with NULL arguments.
 -- =============================================================================
 
 BEGIN;
@@ -94,12 +95,10 @@ BEGIN
   IF jsonb_array_length(j->'tests') <> n THEN
     RAISE EXCEPTION 'FAIL: candidate tests % <> %', jsonb_array_length(j->'tests'), n; END IF;
 
-  SELECT count(*) INTO n FROM public.dt_passage p
-    JOIN public.dt_passage_reference pr ON pr.passage_id = p.id AND pr.l1_language_id = v_l1
-   WHERE p.source_kind = 'test_transcript' AND p.status = 'active' AND p.l2_language_id = v_l2
-     AND p.sentence_start IS NULL;
-  IF jsonb_array_length(j->'legacy') <> n THEN RAISE EXCEPTION 'FAIL: legacy passages'; END IF;
-  RAISE NOTICE 'PASS: attempted, candidate tests, legacy pool';
+  RAISE NOTICE 'PASS: attempted, candidate tests';
+
+  IF j ? 'legacy' THEN RAISE EXCEPTION 'FAIL: retired legacy array still returned'; END IF;
+  RAISE NOTICE 'PASS: no legacy pool';
 
   -- NULL l2 resolves to the latest attempt's language.
   j := public.dt_next_inputs(v_user, NULL, NULL);

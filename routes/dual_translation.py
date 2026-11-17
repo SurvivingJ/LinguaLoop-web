@@ -84,13 +84,6 @@ DEFAULT_L1_LANGUAGE_ID = 2
 
 # GET /next 404 error codes: the learner has no eligible content in this
 # language at all (take a test first) vs. has had every eligible passage graded.
-# The old whole-passage pool (dt_passage rows with no sentence range, built
-# before the sentence references of ADR-037). Owner decision 2026-11-17: no
-# longer served, because a whole passage and the sentence windows of the same
-# test cover the same text and were not recognised as repeats of each other.
-# The rows and their graded history stay; only GET /next ignores them.
-SERVE_LEGACY_PASSAGES = False
-
 NO_PASSAGES = 'NO_PASSAGES'
 ALL_DONE = 'ALL_DONE'
 
@@ -129,20 +122,18 @@ def get_next() -> ApiResponse:
       ``test_id`` — only passages of this test (the test preview page's
         "Translate a passage from this test").
 
-    Selection (``_choose_next``, 2026-11-17): only passages that already have a
-    reviewed reference in the learner's L1 (no live generation), never one the
-    learner has had graded (except with ``reserve``):
+    Selection (``_choose_next``, 2026-11-17): only sentence windows (ADR-037)
+    whose sentences all have a reviewed reference in the learner's L1 (no live
+    generation), never one the learner has had graded (except with ``reserve``):
 
       0. the passage the learner was last shown and neither translated nor
          skipped (``resumed`` in the answer) — not with ``reserve``;
-      1. a legacy whole passage of a test the learner attempted, never served;
-      2. a new sentence window of a test the learner attempted;
-      3. a legacy passage of a test the learner has NOT attempted, nearest the
-         learner's level first (``from_untaken_test`` in the answer — the client
-         says so, because the passage shows part of that test);
-      4. a new sentence window of such a test, nearest level first;
-      5. a passage served before and skipped, least recently served first;
-      6. with ``reserve``: a graded passage, least recently graded first.
+      1. a new sentence window of a test the learner attempted;
+      2. a new sentence window of a test the learner has NOT attempted, nearest
+         the learner's level first (``from_untaken_test`` in the answer — the
+         client says so, because the passage shows part of that test);
+      3. a passage served before and skipped, least recently served first;
+      4. with ``reserve``: a graded passage, least recently graded first.
 
     404 ``ALL_DONE`` when nothing is left and the learner has had a passage
     graded in this language (the client then offers ``reserve``);
@@ -495,7 +486,7 @@ def submit(submission_id: int) -> ApiResponse:
 def skip(submission_id: int) -> ApiResponse:
     """"Skip this passage": mark the learner's open submission as skipped so
     GET /next stops resuming it and moves on. The passage comes back later,
-    after everything not yet seen (``_choose_next`` step 5).
+    after everything not yet seen (``_choose_next`` step 3).
 
     Only an open submission can be skipped: the learner's own, with no grade
     and nothing stored as its reproduction. Skipping twice is a no-op (200).
@@ -1052,33 +1043,14 @@ def _served_history(db, user_id: str, l1_language_id: Optional[int] = None) -> d
     return history
 
 
-def _legacy_reference(db, passage_id: int, l1_language_id: int) -> Optional[str]:
-    resp = (
-        db.table('dt_passage_reference').select('l1_text')
-        .eq('passage_id', passage_id).eq('l1_language_id', l1_language_id)
-        .limit(1).execute()
-    )
-    return resp.data[0]['l1_text'] if resp.data else None
-
-
-def _served_passage(passage: dict, l1_text: str) -> dict:
-    return {
-        'passage_id': passage['id'],
-        'l1_text': l1_text,
-        'age_tier': passage['age_tier'],
-        'l2_language_id': passage['l2_language_id'],
-    }
-
-
 def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
                  attempts: Optional[list], *, reserve: bool = False,
                  test_id: Optional[str] = None, inputs: Optional['_NextInputs'] = None) -> dict:
     """Pick what GET /next serves. Returns one of
 
-    * ``{'kind': 'passage', 'passage': {passage_id, l1_text, age_tier, l2_language_id}}``
-      — an existing passage with an L1 reference (legacy, or a served window);
     * ``{'kind': 'range', 'test_id', 'start', 'end'}`` — a sentence window to
-      open (``_serve_choice``; ``open_range_passage`` for other callers);
+      open, new or served before (``_serve_choice``; ``open_range_passage``
+      for other callers);
     * ``{'kind': 'none', 'all_done': bool}`` — nothing eligible; ``all_done``
       when the learner has had a passage of this language graded.
 
@@ -1095,7 +1067,6 @@ def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
         return {'kind': 'none', 'all_done': False}
     l2 = int(l2_language_id)
     history = inputs.history
-    salt = inputs.salt
     only = str(test_id) if test_id else None
 
     def in_scope(test) -> bool:
@@ -1120,46 +1091,19 @@ def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
                                        'band': history[pid].get('band')}
             return choice
 
-    # 1 / 3. Legacy whole passages never served, attempted tests first.
-    # Retired 2026-11-17 (owner decision): the old whole-passage pool overlaps
-    # the sentence windows of the same tests, so it is no longer served.
-    legacy = [] if not SERVE_LEGACY_PASSAGES else [
-        p for p in inputs.legacy_passages()
-        if int(p.get('l2_language_id') or l2) == l2 and in_scope(p.get('source_ref_id'))]
-    unseen = [p for p in legacy if p['id'] not in history]
-    taken_legacy = sorted(
-        (p for p in unseen if str(p.get('source_ref_id')) in inputs.attempted),
-        key=lambda p: _rotation_key(user_id, p['id'], salt),
-    )
-    for passage in taken_legacy:
-        l1_text = inputs.legacy_text(passage)
-        if l1_text:
-            return {'kind': 'passage', 'passage': _served_passage(passage, l1_text)}
-
-    # 2. A new window of an attempted test (ADR-037 sentence references).
+    # 1. A new window of an attempted test (ADR-037 sentence references).
     taken_tests = inputs.taken_tests(only)
     window = _first_window(inputs, taken_tests, l2, blocked)
     if window:
         return {'kind': 'range', **window}
 
-    # 3. Legacy passages of tests not attempted yet, nearest the learner's level.
-    level = inputs.level_order()
-    untaken_legacy = sorted(
-        (p for p in unseen if str(p.get('source_ref_id')) not in inputs.attempted),
-        key=lambda p: (*level(p.get('source_ref_id')), _rotation_key(user_id, p['id'], salt)),
-    )
-    for passage in untaken_legacy:
-        l1_text = inputs.legacy_text(passage)
-        if l1_text:
-            return {'kind': 'passage', 'passage': _served_passage(passage, l1_text), 'untaken': True}
-
-    # 4. A new window of a test not attempted yet, nearest the learner's level.
+    # 2. A new window of a test not attempted yet, nearest the learner's level.
     untaken_tests = inputs.untaken_tests(only)
     window = _first_window(inputs, untaken_tests, l2, blocked)
     if window:
         return {'kind': 'range', **window, 'untaken': True}
 
-    # 5. Served before, never graded (skipped): least recently served first.
+    # 3. Served before, never graded (skipped): least recently served first.
     ungraded = [pid for pid, h in history.items() if not h['graded']]
     ungraded.sort(key=lambda pid: history[pid]['last_served'])
     hit = _first_servable(inputs, ungraded, l2, in_scope)
@@ -1170,7 +1114,7 @@ def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
               and int((inputs.passages.get(pid) or {}).get('l2_language_id') or 0) == l2
               and in_scope((inputs.passages.get(pid) or {}).get('source_ref_id'))]
 
-    # 6. TASK-989: re-serve on request, least recently graded first.
+    # 4. TASK-989: re-serve on request, least recently graded first.
     if reserve and graded:
         graded.sort(key=lambda pid: (history[pid].get('last_graded_at') or '', pid))
         hit = _first_servable(inputs, graded, l2, in_scope)
@@ -1207,34 +1151,28 @@ def _merge_ranges(a: dict, b: dict) -> dict:
 
 def _first_servable(inputs: '_NextInputs', passage_ids: list, l2: int, in_scope) -> Optional[tuple]:
     """The first of ``passage_ids`` (already ordered) that can be served again:
-    active, in this language and scope, and either a legacy passage with an L1
-    reference or a window whose sentences all still have usable references.
-    Returns ``(choice, passage_id)``."""
+    active, in this language and scope, and a window whose sentences all still
+    have usable references. Returns ``(choice, passage_id)``.
+
+    A dt_passage row with no sentence range (the old whole-passage pool, deleted
+    2026-11-17) is never chosen: this is the only place a served passage id
+    becomes a choice (resume, skipped, reserve), it skips any row without
+    sentence_start/sentence_end, and new choices are always sentence windows."""
     for pid in passage_ids:
         passage = inputs.passages.get(pid)
         if not passage or passage.get('status') != 'active':
             continue
         if int(passage.get('l2_language_id') or 0) != l2 or not in_scope(passage.get('source_ref_id')):
             continue
-        untaken = str(passage.get('source_ref_id')) not in inputs.attempted
-        if passage.get('sentence_start') is not None and passage.get('sentence_end') is not None:
-            test = inputs.test_meta(passage.get('source_ref_id'))
-            if not test:
-                continue
-            materials = inputs.materials([test])
-            if _range_still_servable(passage, materials):
-                out = {'kind': 'range', 'test_id': str(passage['source_ref_id']),
-                       'start': int(passage['sentence_start']), 'end': int(passage['sentence_end'])}
-                if untaken:
-                    out['untaken'] = True
-                return out, pid
+        if passage.get('sentence_start') is None or passage.get('sentence_end') is None:
             continue
-        if not SERVE_LEGACY_PASSAGES:
-            continue  # an old whole passage: never resumed, re-queued or re-served
-        l1_text = inputs.legacy_text(passage)
-        if l1_text:
-            out = {'kind': 'passage', 'passage': _served_passage(passage, l1_text)}
-            if untaken:
+        test = inputs.test_meta(passage.get('source_ref_id'))
+        if not test:
+            continue
+        if _range_still_servable(passage, inputs.materials([test])):
+            out = {'kind': 'range', 'test_id': str(passage['source_ref_id']),
+                   'start': int(passage['sentence_start']), 'end': int(passage['sentence_end'])}
+            if str(passage.get('source_ref_id')) not in inputs.attempted:
                 out['untaken'] = True
             return out, pid
     return None
@@ -1274,12 +1212,6 @@ class _NextInputs:
     passages: dict
 
     # -- overridden ---------------------------------------------------------
-    def legacy_passages(self) -> list:
-        raise NotImplementedError
-
-    def legacy_text(self, passage: dict) -> Optional[str]:
-        raise NotImplementedError
-
     def candidate_tests(self, attempted: bool) -> list:
         """Active tests in l2 (``{id, language_id, transcript_hash, difficulty,
         elo}``) that were (not) attempted, unordered."""
@@ -1357,13 +1289,6 @@ class _RpcInputs(_NextInputs):
                 'status': h.get('st'), 'source_ref_id': h.get('t'),
                 'sentence_start': h.get('s'), 'sentence_end': h.get('e'),
             }
-        self._legacy = [
-            {'id': r['id'], 'age_tier': r.get('a'), 'l2_language_id': self.l2,
-             'source_ref_id': r.get('t'), 'sentence_start': None, 'status': 'active',
-             'l1_text': r.get('x')}
-            for r in (data.get('legacy') or [])
-        ]
-        self._legacy_by_id = {p['id']: p for p in self._legacy}
         self._tests = {True: [], False: []}
         self._materials: dict = {}
         for t in data.get('tests') or []:
@@ -1380,13 +1305,6 @@ class _RpcInputs(_NextInputs):
             for r in (data.get('ranges') or [])
         }
         self._texts = {int(x[0]): (x[1], x[2]) for x in (data.get('texts') or [])}
-
-    def legacy_passages(self) -> list:
-        return self._legacy
-
-    def legacy_text(self, passage: dict) -> Optional[str]:
-        hit = self._legacy_by_id.get(passage['id'])
-        return hit.get('l1_text') if hit else None
 
     def candidate_tests(self, attempted: bool) -> list:
         return self._tests[bool(attempted)]
@@ -1445,27 +1363,10 @@ class _TableInputs(_NextInputs):
         self.history = _served_history(db, user_id, self.l1)
         self.salt = len(self.history)
         self.passages = {p['id']: p for p in _passages_by_id(db, list(self.history))}
-        self._legacy = None
         self._tests: dict = {}
         self._materials: dict = {}
         self._ranges: dict = {}
         self._ranges_read: set = set()
-
-    def legacy_passages(self) -> list:
-        if self._legacy is None:
-            rows = (
-                self.db.table('dt_passage')
-                .select('id, age_tier, l2_language_id, source_ref_id, sentence_start, status')
-                .eq('source_kind', 'test_transcript')
-                .eq('status', 'active')
-                .eq('l2_language_id', self.l2)
-                .execute()
-            ).data or []
-            self._legacy = [p for p in rows if p.get('sentence_start') is None]
-        return self._legacy
-
-    def legacy_text(self, passage: dict) -> Optional[str]:
-        return _legacy_reference(self.db, passage['id'], self.l1)
 
     def candidate_tests(self, attempted: bool) -> list:
         key = bool(attempted)
@@ -1645,23 +1546,6 @@ def _serve_choice(db, user_id: str, inputs: _NextInputs, choice: dict) -> ApiRes
         extra['from_untaken_test'] = True
     if choice.get('repeat_of'):
         extra['repeat_of'] = choice['repeat_of']
-
-    if choice['kind'] == 'passage':
-        passage = choice['passage']
-        l2_code = DimensionService.get_language_code(passage['l2_language_id'])
-        submission_id = _open_or_create_submission(db, user_id, inputs, passage['passage_id'], l1)
-        if submission_id is None:
-            return server_error("Failed to create submission")
-        return api_success({
-            **extra,
-            'source': 'passage',
-            'passage_id': passage['passage_id'],
-            'submission_id': submission_id,
-            'l1_text': passage['l1_text'],
-            'age_tier': passage['age_tier'],
-            'rubric_descriptors': _rubric_descriptors_for(db, passage['age_tier'], l2_code),
-            'correction_style': Config.resolve_correction_style(user_id),
-        })
 
     test = inputs.test_meta(choice['test_id'])
     start, end = int(choice['start']), int(choice['end'])

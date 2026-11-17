@@ -140,8 +140,9 @@ class _TableDB:
 
 
 # ---------------------------------------------------------------------------
-# Fixtures: a Chinese test with legacy passages, a Japanese test with
-# sentence-level references only.
+# Fixtures: an attempted Chinese test (two windows), an attempted Japanese test
+# (three windows) and an untaken Japanese test (one window), all built from
+# test_sentences with approved sentence-level references (ADR-037).
 # ---------------------------------------------------------------------------
 
 ZH_TEST = 'aaaaaaaa-0000-0000-0000-000000000001'
@@ -152,6 +153,11 @@ JA_SENTENCES = ['今日は晴れです。', '公園に行きました。', '友�
                 'とても楽しかったです。', '夕方に家に帰りました。']
 JA_REFS = ['It is sunny today.', 'I went to the park.', 'I met a friend.', 'We ate lunch together.',
            'It was a lot of fun.', 'I went home in the evening.']
+ZH_SENTENCES = ['我们去公园。', '天气很好。', '他喜欢看书。', '书很有意思。']
+ZH_REFS = ['We go to the park.', 'The weather is nice.', 'He likes reading.', 'Books are interesting.']
+ZH_SENTENCE_IDS = tuple(700 + i for i in range(len(ZH_SENTENCES)))
+# The two windows of ZH_TEST, in the order they are served.
+ZH_WINDOWS = [(0, 1), (2, 3)]
 
 
 def _tables(**overrides):
@@ -170,18 +176,7 @@ def _tables(**overrides):
             {'id': UNTAKEN_JA_TEST, 'language_id': JA, 'difficulty': 4, 'transcript_hash': 'hu',
              'is_active': True, 'vocab_token_map': None},
         ],
-        'dt_passage': [
-            {'id': 1, 'l2_language_id': ZH, 'source_kind': 'test_transcript', 'source_ref_id': ZH_TEST,
-             'l2_text': '我们去公园。天气很好。', 'age_tier': 3, 'status': 'active',
-             'sentence_start': None, 'sentence_end': None},
-            {'id': 2, 'l2_language_id': ZH, 'source_kind': 'test_transcript', 'source_ref_id': ZH_TEST,
-             'l2_text': '他喜欢看书。书很有意思。', 'age_tier': 3, 'status': 'active',
-             'sentence_start': None, 'sentence_end': None},
-        ],
-        'dt_passage_reference': [
-            {'passage_id': 1, 'l1_language_id': EN, 'l1_text': 'We go to the park. The weather is nice.'},
-            {'passage_id': 2, 'l1_language_id': EN, 'l1_text': 'He likes reading. Books are interesting.'},
-        ],
+        'dt_passage': [],
         'test_sentences': [
             {'id': 500 + i, 'test_id': JA_TEST, 'idx': i, 'l2_text': text, 'token_start': None,
              'token_end': None, 'transcript_hash': 'hj'}
@@ -191,6 +186,10 @@ def _tables(**overrides):
              'token_end': None, 'transcript_hash': 'hu'},
             {'id': 601, 'test_id': UNTAKEN_JA_TEST, 'idx': 1, 'l2_text': '出してはいけません。',
              'token_start': None, 'token_end': None, 'transcript_hash': 'hu'},
+        ] + [
+            {'id': sid, 'test_id': ZH_TEST, 'idx': i, 'l2_text': text, 'token_start': None,
+             'token_end': None, 'transcript_hash': 'hz'}
+            for i, (sid, text) in enumerate(zip(ZH_SENTENCE_IDS, ZH_SENTENCES))
         ],
         'test_sentence_references': [
             {'sentence_id': 500 + i, 'l1_language_id': EN, 'l1_text': text, 'tightness': 0.9,
@@ -200,6 +199,10 @@ def _tables(**overrides):
             {'sentence_id': sid, 'l1_language_id': EN, 'l1_text': 'Not taken.', 'tightness': 0.9,
              'review_verdict': 'pass', 'is_active': True}
             for sid in (600, 601)
+        ] + [
+            {'sentence_id': sid, 'l1_language_id': EN, 'l1_text': text, 'tightness': 0.95,
+             'review_verdict': 'rewritten', 'is_active': True}
+            for sid, text in zip(ZH_SENTENCE_IDS, ZH_REFS)
         ],
         'dt_submission': [],
         'dt_grade': [],
@@ -218,17 +221,28 @@ def _taken_only(**overrides):
     return tables
 
 
+def _window_passage_id(db, choice):
+    """The dt_passage id of a window choice, found or created as
+    open_range_passage does."""
+    test = dt_routes._get_test_for_passage(db, choice['test_id'])
+    sentences = dt_routes._get_sentence_range(db, choice['test_id'], choice['start'], choice['end'])
+    return dt_routes._find_or_create_range_passage(
+        db, test, choice['start'], choice['end'], l2_text=''.join(s['l2_text'] for s in sentences),
+    )['id']
+
+
+def _span(choice):
+    return (choice['test_id'], choice['start'], choice['end'])
+
+
+def _zh_window(start, end):
+    return {'kind': 'range', 'test_id': ZH_TEST, 'start': start, 'end': end}
+
+
 def _serve(db, choice, l1=EN):
-    """What GET /next would record for this choice: a dt_submission row (for a
-    range, the passage is found-or-created first, as open_range_passage does)."""
-    if choice['kind'] == 'passage':
-        pid = choice['passage']['passage_id']
-    else:
-        test = dt_routes._get_test_for_passage(db, choice['test_id'])
-        sentences = dt_routes._get_sentence_range(db, choice['test_id'], choice['start'], choice['end'])
-        pid = dt_routes._find_or_create_range_passage(
-            db, test, choice['start'], choice['end'], l2_text=''.join(s['l2_text'] for s in sentences),
-        )['id']
+    """What GET /next would record for this choice: a dt_submission row on the
+    window's passage (found-or-created first, as open_range_passage does)."""
+    pid = _window_passage_id(db, choice)
     return db.table('dt_submission').insert({
         'user_id': USER, 'passage_id': pid, 'l1_language_id': l1, 'reproduction': '',
     }).execute().data[0]
@@ -252,21 +266,10 @@ def _choose(db, l2, l1=EN):
 # _choose_next
 # ---------------------------------------------------------------------------
 
-@pytest.fixture(autouse=True)
-def _legacy_pool_on(request, monkeypatch):
-    """Most tests in this file were written when the old whole-passage pool was
-    still served, and use it as their Chinese material. It was retired on
-    2026-11-17 (routes.dual_translation.SERVE_LEGACY_PASSAGES = False). They run
-    with the switch on so the selection logic they cover (resume, skip, repeats,
-    ordering) stays tested; tests marked ``legacy_off`` run with the real default."""
-    if 'legacy_off' not in request.keywords:
-        monkeypatch.setattr(dt_routes, 'SERVE_LEGACY_PASSAGES', True)
-
-
 class TestEligibility:
 
     def test_none_when_nothing_has_a_reference(self):
-        db = _TableDB(_tables(test_attempts=[], dt_passage_reference=[], test_sentence_references=[]))
+        db = _TableDB(_tables(test_attempts=[], test_sentence_references=[]))
         assert _choose(db, ZH) == {'kind': 'none', 'all_done': False}
         assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
 
@@ -275,24 +278,34 @@ class TestEligibility:
         gets a passage that already has a reviewed reference, marked untaken."""
         db = _TableDB(_tables(test_attempts=[]))
         zh = _choose(db, ZH)
-        assert zh['kind'] == 'passage' and zh['untaken'] is True
+        assert zh['kind'] == 'range' and zh['test_id'] == ZH_TEST and zh['untaken'] is True
         ja = _choose(db, JA)
         assert ja['kind'] == 'range' and ja['untaken'] is True
 
-    def test_legacy_passage_without_l1_reference_is_not_served(self):
-        db = _TableDB(_tables(dt_passage_reference=[], test_sentences=[], test_sentence_references=[]))
-        assert _choose(db, ZH) == {'kind': 'none', 'all_done': False}
-
-    def test_returns_legacy_passage_with_l1_reference(self):
-        db = _TableDB(_tables())
-        choice = _choose(db, ZH)
-        assert choice['kind'] == 'passage'
-        passage = choice['passage']
-        assert passage['passage_id'] in (1, 2)
-        assert passage['l2_language_id'] == ZH
-        assert passage['age_tier'] == 3
-        expected = {1: 'We go to the park. The weather is nice.', 2: 'He likes reading. Books are interesting.'}
-        assert passage['l1_text'] == expected[passage['passage_id']]
+    def test_a_passage_with_no_sentence_range_is_never_served_resumed_or_re_served(self):
+        """The old whole-passage pool (dt_passage rows with no sentence range,
+        deleted 2026-11-17) is not served: a stray such row with an L1
+        reference, an open submission and a graded one is never chosen."""
+        tables = _tables(test_sentences=[], test_sentence_references=[])
+        tables['dt_passage'] = [
+            {'id': pid, 'l2_language_id': ZH, 'source_kind': 'test_transcript', 'source_ref_id': ZH_TEST,
+             'l2_text': '我们去公园。天气很好。', 'age_tier': 3, 'status': 'active',
+             'sentence_start': None, 'sentence_end': None}
+            for pid in (1, 2)
+        ]
+        tables['dt_passage_reference'] = [
+            {'passage_id': pid, 'l1_language_id': EN, 'l1_text': 'We go to the park. The weather is nice.'}
+            for pid in (1, 2)
+        ]
+        db = _TableDB(tables)
+        assert _choose(db, ZH) == {'kind': 'none', 'all_done': False}           # never served
+        db.table('dt_submission').insert({
+            'user_id': USER, 'passage_id': 1, 'l1_language_id': EN, 'reproduction': ''}).execute()
+        assert _choose(db, ZH) == {'kind': 'none', 'all_done': False}           # never resumed
+        _grade(db, db.table('dt_submission').insert({
+            'user_id': USER, 'passage_id': 2, 'l1_language_id': EN, 'reproduction': 'x'}).execute().data[0])
+        reserve = dt_routes._choose_next(db, USER, EN, ZH, dt_routes._attempted_tests(db, USER), reserve=True)
+        assert reserve['kind'] == 'none'                                        # never re-served
 
     def test_same_l1_as_l2_has_nothing(self):
         db = _TableDB(_tables())
@@ -301,7 +314,7 @@ class TestEligibility:
 
 class TestStudyLanguage:
 
-    def test_japanese_learner_never_gets_the_chinese_legacy_passages(self):
+    def test_japanese_learner_never_gets_the_chinese_windows(self):
         db = _TableDB(_tables())
         for _ in range(3):
             choice = _choose(db, JA)
@@ -316,10 +329,11 @@ class TestStudyLanguage:
             choice = _choose(db, ZH)
             if choice['kind'] == 'none':
                 break
-            assert choice['kind'] == 'passage'
-            seen.append(choice['passage']['passage_id'])
+            assert choice['kind'] == 'range'
+            assert choice['test_id'] == ZH_TEST
+            seen.append((choice['start'], choice['end']))
             _grade(db, _serve(db, choice))
-        assert sorted(seen) == [1, 2]
+        assert sorted(seen) == ZH_WINDOWS
 
     def test_attempted_tests_first_then_untaken_tests_flagged(self):
         """Every window of the attempted test comes before any window of a test
@@ -338,20 +352,21 @@ class TestStudyLanguage:
 
 class TestNoRepeats:
 
-    def test_graded_legacy_passage_is_not_served_again(self):
+    def test_graded_window_is_not_served_again(self):
         db = _TableDB(_tables())
-        first = _choose(db, ZH)['passage']['passage_id']
+        first = _span(_choose(db, ZH))
         _grade(db, _serve(db, _choose(db, ZH)))
         second = _choose(db, ZH)
-        assert second['kind'] == 'passage'
-        assert second['passage']['passage_id'] != first
+        assert second['kind'] == 'range'
+        assert _span(second) != first
 
     def test_unseen_passage_before_a_served_ungraded_one(self):
         db = _TableDB(_tables())
         first = _choose(db, ZH)
         _skip(db, _serve(db, first))  # served, then skipped
         second = _choose(db, ZH)
-        assert second['passage']['passage_id'] != first['passage']['passage_id']
+        assert second['kind'] == 'range'
+        assert _span(second) != _span(first)
 
     def test_a_passage_shown_and_not_skipped_is_resumed(self):
         db = _TableDB(_tables())
@@ -359,7 +374,7 @@ class TestNoRepeats:
         _serve(db, first)  # shown, neither translated nor skipped
         again = _choose(db, ZH)
         assert again['resumed'] is True
-        assert again['passage']['passage_id'] == first['passage']['passage_id']
+        assert _span(again) == _span(first)
         # an explicit re-serve request is not a resume
         assert 'resumed' not in dt_routes._choose_next(
             db, USER, EN, ZH, dt_routes._attempted_tests(db, USER), reserve=True)
@@ -395,8 +410,8 @@ class TestNoRepeats:
         second = _skip(db, _serve(db, _choose(db, ZH)))     # served second, skipped
         assert first['passage_id'] != second['passage_id']
         again = _choose(db, ZH)
-        assert again['kind'] == 'passage'
-        assert again['passage']['passage_id'] == first['passage_id']
+        assert again['kind'] == 'range'
+        assert _window_passage_id(db, again) == first['passage_id']
 
     def test_served_but_ungraded_window_comes_back_when_nothing_fresh_is_left(self):
         db = _TableDB(_tables())
@@ -419,15 +434,17 @@ class TestNoRepeats:
         """dt_submission gains a row on every serve, so a long-time learner's
         history outgrows one PostgREST response (max-rows). A graded passage
         whose submission lies past the first page must still never come back."""
-        monkeypatch.setattr(dt_routes, '_POSTGREST_ROW_CAP', 3)
+        # A page of 5 rows: past the 4 sentence rows of one test (read unpaged
+        # per test), well short of the 8 dt_submission rows below.
+        monkeypatch.setattr(dt_routes, '_POSTGREST_ROW_CAP', 5)
         db = _TableDB(_tables())
-        db.row_cap = 3
-        for _ in range(7):  # passage 2 served (and skipped) seven times
-            _serve(db, {'kind': 'passage', 'passage': {'passage_id': 2}})
-        _grade(db, _serve(db, {'kind': 'passage', 'passage': {'passage_id': 1}}))  # 8th row
+        db.row_cap = 5
+        for _ in range(7):  # the second window served (never started) seven times
+            _serve(db, _zh_window(2, 3))
+        _grade(db, _serve(db, _zh_window(0, 1)))  # 8th row, on the second page
         choice = _choose(db, ZH)
-        assert choice['kind'] == 'passage'
-        assert choice['passage']['passage_id'] == 2
+        assert choice['kind'] == 'range'
+        assert (choice['start'], choice['end']) == (2, 3)
 
     def test_attempts_past_the_row_cap_are_all_read(self, monkeypatch):
         monkeypatch.setattr(dt_routes, '_POSTGREST_ROW_CAP', 2)
@@ -447,7 +464,8 @@ class TestNoRepeats:
     def test_graded_work_in_another_language_is_not_all_done_here(self):
         """Every Chinese passage graded, nothing eligible in Japanese: Japanese is
         NO_PASSAGES (nothing to offer), not ALL_DONE (you finished everything)."""
-        db = _TableDB(_tables(test_sentence_references=[]))
+        zh_refs = [r for r in _tables()['test_sentence_references'] if r['sentence_id'] in ZH_SENTENCE_IDS]
+        db = _TableDB(_tables(test_sentence_references=zh_refs))
         while True:
             choice = _choose(db, ZH)
             if choice['kind'] == 'none':
@@ -564,30 +582,6 @@ class TestSentenceWindowQuality:
         assert refs_ok == set(range(6)) and tightness[0] == 0.9
         assert [r['idx'] for r in materials[UNTAKEN_JA_TEST][0]] == [0, 1]
 
-    def test_legacy_pool_first_then_sentence_windows(self):
-        """A Chinese test with both legacy passages and sentence references: the
-        legacy passages are served first, then the sentence windows."""
-        tables = _tables()
-        tables['test_sentences'] += [
-            {'id': 700 + i, 'test_id': ZH_TEST, 'idx': i, 'l2_text': t, 'token_start': None,
-             'token_end': None, 'transcript_hash': 'hz'}
-            for i, t in enumerate(['我们去公园。', '天气很好。', '他喜欢看书。'])
-        ]
-        tables['test_sentence_references'] += [
-            {'sentence_id': 700 + i, 'l1_language_id': EN, 'l1_text': t, 'tightness': 0.95,
-             'review_verdict': 'rewritten', 'is_active': True}
-            for i, t in enumerate(['We go to the park.', 'The weather is nice.', 'He likes reading.'])
-        ]
-        db = _TableDB(tables)
-        kinds = []
-        for _ in range(6):
-            choice = _choose(db, ZH)
-            if choice['kind'] == 'none':
-                break
-            kinds.append(choice['kind'])
-            _grade(db, _serve(db, choice))
-        assert kinds == ['passage', 'passage', 'range']
-
 
 # ---------------------------------------------------------------------------
 # Error cards follow the study language too
@@ -660,9 +654,10 @@ class TestNextRoute:
         resp = client.get('/api/dual-translation/next?language_id=1', headers=auth_headers)
         assert resp.status_code == 200
         data = _body(resp)
-        assert data['source'] == 'passage'
+        assert data['source'] == 'sentence_refs'
         sub = next(s for s in table_app.tables['dt_submission'] if s['id'] == data['submission_id'])
-        assert sub['passage_id'] in (1, 2)
+        passage = next(p for p in table_app.tables['dt_passage'] if p['id'] == sub['passage_id'])
+        assert passage['l2_language_id'] == ZH and passage['source_ref_id'] == ZH_TEST
 
     def test_no_language_falls_back_to_the_latest_attempt_language(self, client, auth_headers, table_app):
         # the Japanese attempt is the most recent one
@@ -692,9 +687,11 @@ class TestNextRoute:
                 break
             sub = next(s for s in table_app.tables['dt_submission']
                        if s['id'] == _body(resp)['submission_id'])
-            served.append(sub['passage_id'])
+            passage = next(p for p in table_app.tables['dt_passage'] if p['id'] == sub['passage_id'])
+            assert passage['source_ref_id'] == ZH_TEST
+            served.append((passage['sentence_start'], passage['sentence_end']))
             _grade(table_app, sub)
-        assert sorted(served) == [1, 2]
+        assert sorted(served) == ZH_WINDOWS
 
     def test_window_submission_is_graded_like_any_other(self, client, auth_headers, table_app, monkeypatch):
         resp = client.get('/api/dual-translation/next?language_id=3', headers=auth_headers)
@@ -728,45 +725,3 @@ class TestNextRoute:
 
     def test_config_language_ids_are_the_accepted_set(self):
         assert Config.VALID_LANGUAGE_IDS == {1, 2, 3}
-
-
-# ---------------------------------------------------------------------------
-# The old whole-passage pool is retired (owner decision 2026-11-17)
-# ---------------------------------------------------------------------------
-
-@pytest.mark.legacy_off
-class TestLegacyPoolRetired:
-
-    def test_the_switch_is_off_by_default(self):
-        assert dt_routes.SERVE_LEGACY_PASSAGES is False
-
-    def test_a_whole_passage_is_never_served(self):
-        """The Chinese fixtures have whole passages only: nothing is eligible."""
-        db = _TableDB(_tables())
-        choice = _choose(db, ZH)
-        assert choice['kind'] == 'none' and choice['all_done'] is False
-
-    def test_sentence_windows_are_still_served(self):
-        db = _TableDB(_tables())
-        choice = _choose(db, JA)
-        assert choice['kind'] == 'range'
-
-    def test_an_open_whole_passage_is_not_resumed(self):
-        db = _TableDB(_tables())
-        legacy = next(p for p in db.tables['dt_passage'] if p.get('sentence_start') is None
-                      and p.get('l2_language_id') == ZH)
-        db.table('dt_submission').insert({
-            'user_id': USER, 'passage_id': legacy['id'], 'l1_language_id': EN, 'reproduction': '',
-        }).execute()
-        assert _choose(db, ZH)['kind'] == 'none'
-
-    def test_a_graded_whole_passage_is_not_re_served(self):
-        db = _TableDB(_tables())
-        legacy = next(p for p in db.tables['dt_passage'] if p.get('sentence_start') is None
-                      and p.get('l2_language_id') == ZH)
-        sub = db.table('dt_submission').insert({
-            'user_id': USER, 'passage_id': legacy['id'], 'l1_language_id': EN, 'reproduction': 'x',
-        }).execute().data[0]
-        _grade(db, sub)
-        choice = dt_routes._choose_next(db, USER, EN, ZH, dt_routes._attempted_tests(db, USER), reserve=True)
-        assert choice['kind'] == 'none'
