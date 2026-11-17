@@ -287,11 +287,18 @@ def test_string_and_int_keys_both_validate():
 
 
 def test_unregistered_prompt_version_is_refused_not_guessed():
-    """A prompt re-authored at v2 without updating the gate fails loudly."""
+    """A prompt re-authored at a new version without updating the gate fails loudly.
+
+    Uses the first version after the registered ones (v2 was registered for
+    morphology_slot in c426784, so a hard-coded 2 no longer tests the refusal).
+    """
+    from services.exercise_generation.schemas import ladder_l4_morphology
+    known = sorted(ladder_l4_morphology.PROMPT_VERSIONS)
+    unregistered = known[-1] + 1
     with pytest.raises(SchemaError) as exc:
-        ladder_schema('morphology_slot', 2)
-    assert 'prompt_version=2' in str(exc.value)
-    assert 'known versions: [1]' in str(exc.value)
+        ladder_schema('morphology_slot', unregistered)
+    assert f'prompt_version={unregistered}' in str(exc.value)
+    assert f'known versions: {known}' in str(exc.value)
 
 
 def test_unknown_type_code_is_refused():
