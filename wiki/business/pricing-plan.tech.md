@@ -20,6 +20,7 @@ open_questions:
   - "OPEN: Can the DT grader route be pinned to zero-data-retention providers on OpenRouter (provider routing flags), and is gpt-6-luna available that way?"
   - "OPEN: Which LMS export formats should the gradebook support at school launch (CSV only, or also Compass, SEQTA or Canvas)?"
   - "OPEN: Where is the school tenant data hosted (Supabase region of project kpfqrjtfxmujzolwsvdq; Railway region)? Needed for the AU-residency statement."
+  - "OPEN (D19): If the Core trigger fires (Core > 60% of payers without a 33% conversion uplift), it changes plan_prices (a new price_version for core) or moves entitlement values from core to pro for new subscribers only. Grandfathered Core subscribers then need per-subscription entitlements (see §2, grandfathering note)."
 ---
 
 # LinguaDojo Pricing Plan — Technical Specification
@@ -84,7 +85,7 @@ All changes are additive migrations except the re-seed of `dim_subscription_tier
 
 | Group | Tier codes |
 |---|---|
-| Solo | `free`, `pro`, `pro_lifetime`, `professional`, `exam_pass` |
+| Solo | `free`, `core`, `pro`, `pro_lifetime`, `professional`, `exam_pass` |
 | Schools and tutors | `school_student`, `teacher_free`, `teacher_class`, `teacher_dept`, `tutor` |
 | Staff | `admin` |
 
@@ -95,11 +96,11 @@ All changes are additive migrations except the re-seed of `dim_subscription_tier
 
 | Column | Change |
 |---|---|
-| `daily_free_tests` | Keep. 1 for `free`. No cap (NULL meaning unlimited) for paid tiers. **This needs a column-semantics change:** the column is `NOT NULL CHECK >= 0`, so either use a large sentinel or move the value into `tier_entitlements`. Recommended: move it. |
-| `monthly_token_grant` | Keep it as the monthly credit allowance. Values: 300 `pro`, 150 `pro_lifetime`, 600 `professional`, 0 elsewhere. |
+| `daily_free_tests` | Keep. 1 for `free`. No cap (NULL meaning unlimited) for paid tiers, `core` included. **This needs a column-semantics change:** the column is `NOT NULL CHECK >= 0`, so either use a large sentinel or move the value into `tier_entitlements`. Recommended: move it. |
+| `monthly_token_grant` | Keep it as the monthly credit allowance. Values: 0 `core`, 300 `pro`, 150 `pro_lifetime`, 600 `professional`, 0 elsewhere. |
 | `tokens_per_test` | Set to 0 on every row, then deprecate. Drop it in a later migration once `get_test_token_cost` has no callers. |
 | `can_generate_tests`, `can_create_custom_tests`, `max_custom_tests`, `can_access_analytics` | Superseded by `tier_entitlements`. Keep them readable and stop writing them. |
-| `allowance_rollover_cap` (new) | `integer NOT NULL DEFAULT 0`. 300 for `pro`, 600 for `professional`, 0 for `pro_lifetime`. The maximum balance is grant + cap. |
+| `allowance_rollover_cap` (new) | `integer NOT NULL DEFAULT 0`. 0 for `core` (no allowance), 300 for `pro`, 600 for `professional`, 0 for `pro_lifetime`. The maximum balance is grant + cap. |
 
 ### 2. New `tier_entitlements`
 
@@ -113,35 +114,39 @@ All changes are additive migrations except the re-seed of `dim_subscription_tier
 
 **Entitlement keys and launch values:**
 
-| key | free | pro / pro_lifetime | professional | school_student | tutor seat (student) |
-|---|---|---|---|---|---|
-| `tests_new_per_day` | 1 (2 for grandfathered users, via `user_entitlement_overrides`) | NULL | NULL | NULL | NULL (assigned and matched) |
-| `session_minutes_per_day` | 10 | NULL | NULL | NULL | 20 |
-| `new_words_per_day` | 5 | NULL | NULL | NULL | 10 |
-| `prestudy_per_week` | 1 | NULL | NULL | NULL | 3 |
-| `dt_free_per_week` | 5 | — | — | — | — |
-| `dt_per_day` | — | 25 | 40 | 20 | 10 |
-| `dt_tokens_per_day` | 20000 | 75000 | 120000 | 60000 | 30000 |
-| `word_import_dictionary` | false | true | true | via teacher | via tutor |
-| `trainer_level_max` | 2 | NULL | NULL | NULL | NULL |
-| `bkt_report_detail` | `summary` (stored as 0) | full (1) | full | full | full |
-| `domain_packs` | false | false | true | false | false |
-| `pd_log_export` | false | false | true | false | false |
-| `custom_test_generation` | true (credits) | true (credits) | true (credits) | false | false |
+| key | free | core | pro / pro_lifetime | professional | school_student | tutor seat (student) |
+|---|---|---|---|---|---|---|
+| `tests_new_per_day` | 1 (2 for grandfathered users, via `user_entitlement_overrides`) | NULL | NULL | NULL | NULL | NULL (assigned and matched) |
+| `session_minutes_per_day` | 10 | NULL | NULL | NULL | NULL | 20 |
+| `new_words_per_day` | 5 | NULL | NULL | NULL | NULL | 10 |
+| `prestudy_per_week` | 1 | NULL | NULL | NULL | NULL | 3 |
+| `dt_free_per_week` | 5 | — | — | — | — | — |
+| `dt_per_day` | — | **5** | 25 | 40 | 20 | 10 |
+| `dt_tokens_per_day` | 20000 | 20000 | 75000 | 120000 | 60000 | 30000 |
+| `word_import_dictionary` | false | true | true | true | via teacher | via tutor |
+| `trainer_level_max` | 2 | NULL | NULL | NULL | NULL | NULL |
+| `bkt_report_detail` | `summary` (stored as 0) | **`summary` (0)** | full (1) | full | full | full |
+| `domain_packs` | false | false | false | true | false | false |
+| `pd_log_export` | false | false | false | true | false | false |
+| `custom_test_generation` | true (credits) | true (credits; purchased only, no allowance) | true (credits) | true (credits) | false | false |
 
-**New `user_entitlement_overrides`** (`user_id`, `entitlement_key`, `int_limit`, `enabled`, `reason`, `expires_at`). Uses: grandfathering the 18 existing users (`tests_new_per_day=2`), the Study Pass, goodwill grants and trials.
+- **Core vs Pro differ in exactly three places:** `dt_per_day` (5 vs 25), `bkt_report_detail` (summary vs full) and `monthly_token_grant` (0 vs 300, on `dim_subscription_tiers`). Keep it that way so the D19 trigger can move a feature by changing one value.
+- `dt_tokens_per_day` for `core` is set to the free tier's 20000 rather than 5 × 3,000 = 15000, so the backstop never bites before the count cap does (5 grades at up to 4k tokens each).
+- **Grandfathering under D19.** If a Core feature is later moved up to Pro, existing Core subscribers keep it. Implement this as a new tier row (`core_v2`) for new subscribers, not by editing the `core` row, so `subscriptions.price_version` and the tier both identify what a subscriber bought.
+
+**New `user_entitlement_overrides`** (`user_id`, `entitlement_key`, `int_limit`, `enabled`, `reason`, `expires_at`). Uses: grandfathering the 18 existing users (`tests_new_per_day=2`), goodwill grants and trials. (The 7-day Study Pass, which also used overrides, was retired on 2026-11-17.)
 
 ### 3. New `plan_prices` (single source of truth for prices)
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | uuid PK | |
-| `plan_code` | text | `pro`, `pro_founding`, `pro_student`, `pro_lifetime`, `professional`, `professional_launch`, `exam_pass`, `study_pass`, `pack_500`, `pack_1100`, `pack_2500`, `tutor_base`, `tutor_seat`, `school_class`, `school_dept_seat`, `school_senior_seat`, `org_pool_5000` |
+| `plan_code` | text | `core`, `pro`, `pro_founding`, `pro_student`, `pro_lifetime`, `professional`, `professional_launch`, `exam_pass`, `pack_500`, `pack_1100`, `pack_2500`, `tutor_base`, `tutor_seat`, `school_class`, `school_dept_seat`, `school_senior_seat`, `org_pool_5000` |
 | `currency` | char(3) | `USD`, `AUD`, `EUR`, `GBP` |
 | `interval` | text | `month`, `year`, `one_time`, `seat_year` |
 | `amount_minor` | integer | Tax-inclusive for consumer plans. Ex-GST for `school_*` and `org_pool_*`. |
 | `tax_inclusive` | boolean | |
-| `credits` | integer NULL | For packs (500 / 1,100 / 2,500), `study_pass` (redeem cost 500) and `exam_pass` (1,000) |
+| `credits` | integer NULL | For packs (500 / 1,100 / 2,500) and `exam_pass` (1,000) |
 | `price_version` | integer | Bumped on every price change. Existing subscribers keep theirs. |
 | `provider` | text | `stripe` or `mor` |
 | `provider_price_id` | text | Stripe `price_…` or the MoR price id. Set when provisioned. |
@@ -149,6 +154,21 @@ All changes are additive migrations except the re-seed of `dim_subscription_tier
 | UNIQUE | (`plan_code`, `currency`, `interval`, `price_version`) | |
 
 `config.TOKEN_PACKAGES` and `PaymentService.TOKEN_PACKAGES` are removed. `GET /api/payments/token-packages` reads `plan_prices` instead.
+
+**Launch seed for solo subscriptions (`price_version = 1`, prices decided 2026-11-17).** Amounts are in minor units and tax-inclusive. The earlier single-tier draft (Pro US$12 / US$99, A$17.99 / A$149) was never provisioned, so it has no `price_version`.
+
+| `plan_code` | `interval` | USD | AUD | EUR | GBP |
+|---|---|---|---|---|---|
+| `core` | `month` | 600 | 899 | 599 | 499 |
+| `core` | `year` | 4900 | 7500 | 4900 | 4200 |
+| `pro` | `month` | 1000 | 1499 | 999 | 849 |
+| `pro` | `year` | 8900 | 12900 | 8900 | 7500 |
+| `pro_founding` | `year` | 6900 | 9900 | — | — |
+| `pro_student` | `year` | 5900 | 8900 | — | — |
+| `pro_lifetime` | `one_time` | 29900 | 44900 | — | — |
+
+- EUR and GBP amounts are derived, not founder-set; confirm them before provisioning.
+- Founding, student and lifetime are sold in USD and AUD only at launch (unchanged from the earlier draft).
 
 ### 4. New `subscriptions`
 
@@ -217,7 +237,7 @@ All changes are additive migrations except the re-seed of `dim_subscription_tier
 | `provider_event_id` | text NULL | The webhook event that caused a credit |
 
 **New `action` values:**
-- **Spends:** `dt_grade_overcap`, `custom_test`, `ref_set`, `sense_import`, `deep_regrade`, `mock_grade`, `study_pass`.
+- **Spends:** `dt_grade_overcap`, `custom_test`, `ref_set`, `sense_import`, `deep_regrade`, `mock_grade`. (`study_pass` is not added: the pass was retired before launch.)
 - **Grants and adjustments:** `allowance_grant`, `allowance_expire`, `bonus_grant`, `bonus_expire`, `purchase`, `refund`, `chargeback`, `legacy_conversion`.
 - **Legacy:** keep `take_test` and `generate_test` for history only.
 
@@ -310,7 +330,7 @@ These are specified in a future `features/classes-and-assignments` page, which d
 - **Packs:** `process_stripe_payment` is re-implemented as a thin wrapper over `grant_credits(..., 'purchased', ...)`.
 
 #### `reset_allowance(p_user_id uuid, p_period_end timestamptz): jsonb`
-- **Purpose:** Called on `invoice.paid` (monthly) or monthly from the scheduler (annual and lifetime).
+- **Purpose:** Called on `invoice.paid` (monthly) or monthly from the scheduler (annual and lifetime). A no-op for tiers whose `monthly_token_grant` is 0 (`core`, `free`), apart from zeroing any leftover allowance after a Pro → Core downgrade.
 - **Calculation:** new allowance = min(remaining + grant, grant + rollover_cap).
 - **Logs** `allowance_expire` for the excess and `allowance_grant` for the new grant.
 - **Idempotency key:** `allowance:<user>:<period_end>`.
@@ -351,8 +371,8 @@ These are specified in a future `features/classes-and-assignments` page, which d
 | Event | Action |
 |---|---|
 | `checkout.session.completed` (mode `subscription`) | Upsert `subscriptions` (status from the subscription object). Set the user tier cache. If the plan has an allowance, call `reset_allowance`. |
-| `checkout.session.completed` (mode `payment`) / `payment_intent.succeeded` | Pack or pass: `grant_credits(purchased)`, or apply the `study_pass` override (7 days) or `exam_pass` (90 days + 1,000 purchased credits). Use `payment_intent.id` as the idempotency key. Lifetime: create a `subscriptions` row with `status='lifetime'`. |
-| `customer.subscription.updated` | Sync status, period, `cancel_at` and plan changes. Upgrades are prorated by the provider. A downgrade applies at period end. |
+| `checkout.session.completed` (mode `payment`) / `payment_intent.succeeded` | Pack: `grant_credits(purchased)`. Exam Pass: apply `exam_pass` (90 days + 1,000 purchased credits). Use `payment_intent.id` as the idempotency key. Lifetime: create a `subscriptions` row with `status='lifetime'`. |
+| `customer.subscription.updated` | Sync status, period, `cancel_at` and plan changes. Upgrades are prorated by the provider. A downgrade applies at period end. **Core → Pro upgrade:** grant the allowance prorated to the share of the period left, `floor(300 × days_left / days_in_period)`, with idempotency key `allowance_upgrade:<subscription>:<period_end>`; the full 300 comes with the next `invoice.paid`. **Pro → Core at period end:** zero the allowance (log `allowance_expire`); keep bonus and purchased credits. |
 | `customer.subscription.deleted` | Set `status=canceled`. Zero the allowance (log `allowance_expire`). Keep purchased and bonus credits. Tier cache → `free`. |
 | `invoice.paid` | Extend the period. Reset the allowance (monthly). For school invoices with `provider='manual'`, ops marks them paid in the admin UI, which applies the same transition. |
 | `invoice.payment_failed` | `status=past_due`. Entitlements are kept for a 7-day grace period (dunning e-mails come from the provider), then downgrade to free. |
@@ -362,8 +382,9 @@ These are specified in a future `features/classes-and-assignments` page, which d
 | Paddle equivalents | `transaction.completed`, `subscription.created`, `subscription.updated`, `subscription.canceled`, `adjustment.created` (refunds). **Verify the names against Paddle's docs before G0.** |
 
 **Stripe objects to provision (one per `plan_prices` row):**
-- **Products:** Pro, Pro Lifetime, Professional, Exam Pass, Study Pass, Credit Pack 500/1,100/2,500, Tutor, School Class, School Department seat, Senior add-on seat, Org Credit Pool 5,000.
-- **Prices:** use `lookup_key = <plan_code>_<currency>_<interval>_v<price_version>`.
+- **Products:** Core, Pro, Pro Lifetime, Professional, Exam Pass, Credit Pack 500/1,100/2,500, Tutor, School Class, School Department seat, Senior add-on seat, Org Credit Pool 5,000. **No Study Pass product** (retired 2026-11-17).
+- **Prices:** use `lookup_key = <plan_code>_<currency>_<interval>_v<price_version>`. Solo subscriptions at launch: `core_<USD|AUD|EUR|GBP>_<month|year>_v1` and `pro_<USD|AUD|EUR|GBP>_<month|year>_v1` (8 prices each; amounts in the `plan_prices` launch seed above), plus `pro_founding_<USD|AUD>_year_v1`, `pro_student_<USD|AUD>_year_v1` and `pro_lifetime_<USD|AUD>_one_time_v1`.
+- **Core and Pro are separate Products** (not two prices on one product), so the Billing Portal can offer Core ↔ Pro switches as plan changes with proration.
 - **Stripe Tax:** turn on for AU GST on Stripe-billed consumer and tutor sales if Stripe is used rather than an MoR.
 - **School invoices:** quantity = seats. Use invoice custom fields for the PO number and ABN.
 
@@ -374,12 +395,13 @@ These are specified in a future `features/classes-and-assignments` page, which d
 | Test start or submit (`routes/tests/submit.py`) | The test is new for the user today and `tests_new_per_day` is reached → deny. Remove `'p_was_free_test': True`. Pass `p_was_free_test = (tier == 'free')` for analytics only. | 402 `{error: 'daily_test_limit', upgrade: true}` |
 | Daily session build ([[features/session-modules]], [[decisions/ADR-043-one-call-daily-session]]) | Clamp the budget to `session_minutes_per_day` and the new-word quota to `new_words_per_day` | Clamp silently; show an upsell banner |
 | Prestudy start ([[features/test-prestudy]]) | Count this week's prestudy sessions against `prestudy_per_week` | 402 |
-| DT submit (`routes/dual_translation.py`) | Free: count this week's submissions against `dt_free_per_week`. Paid: count today's against `dt_per_day`. Over → `spend_credits(1, 'dt_grade_overcap')`, or 402 if the balance is short. Keep the token guardrail as a **cost backstop**: compare against `dt_tokens_per_day` instead of the global `Config.DT_DAILY_TOKEN_BUDGET`. | 402 `{error: 'dt_cap', credits_required: 1}` |
+| DT submit (`routes/dual_translation.py`) | Free: count this week's submissions against `dt_free_per_week`. Paid: count today's against `dt_per_day` (5 Core, 25 Pro, 40 Professional, 20 school student, 10 tutor seat). Over → `spend_credits(1, 'dt_grade_overcap')`, or 402 if the balance is short. Keep the token guardrail as a **cost backstop**: compare against `dt_tokens_per_day` instead of the global `Config.DT_DAILY_TOKEN_BUDGET`. | 402 `{error: 'dt_cap', credits_required: 1}` |
 | Deep re-grade | `spend_credits(8, 'deep_regrade')` before calling the v2 grader. Refund on failure. | 402 |
 | Custom test (`generate_test`) | `custom_test_generation`, then `spend_credits(10)`, plus 30 if references are requested. Refund on pipeline failure. | 402 / 403 |
 | Word-list import ([[tasklist/word-list-import.plan]]) | `word_import_dictionary` for dictionary words. Each sense not yet in the dictionary costs `spend_credits(8, 'sense_import')`. The existing `batch_limits` daily caps stay. | 402 / 403 |
 | Trainers (pinyin, pitch accent, measure words) | `trainer_level_max` | Lock the higher levels in the UI |
-| Knowledge reports | `bkt_report_detail` | Show the summary only |
+| Knowledge reports | `bkt_report_detail` (summary for `free` and `core`; full for `pro` and above) | Show the summary only, with a Pro upsell on the per-word view |
+| Credit allowance | `monthly_token_grant` on the tier (0 Core, 300 Pro, 150 Lifetime, 600 Professional) | Core users see only purchased and bonus credits; credit actions quote the cost and offer a pack or Pro |
 | Professional features | `domain_packs`, `pd_log_export` | 403 |
 
 **Error code.** 402 Payment Required is used only for "credits or plan needed", so the client can show one paywall component.
@@ -401,7 +423,7 @@ These are specified in a future `features/classes-and-assignments` page, which d
 
 ### `PaywallPanel`
 - **Input:** the 402 payload.
-- **What it offers:** Pro (trial if eligible), a pack, or the Study Pass. Prices come from `GET /api/payments/token-packages` (now backed by `plan_prices`).
+- **What it offers:** Core or Pro (a Pro trial if eligible), or a credit pack. On a `dt_cap` 402 from a Core user, lead with Pro (25 a day). Prices come from `GET /api/payments/token-packages` (now backed by `plan_prices`).
 
 ### `BillingSettings`
 - **Shows:**
@@ -413,6 +435,7 @@ These are specified in a future `features/classes-and-assignments` page, which d
 
 ### Pricing page
 - **Content:**
+  - Core and Pro side by side, monthly and annual, with the dividing line stated (Core = study loop; Pro = + translation volume and personal content);
   - prices by currency (detected, with a manual switch);
   - GST/VAT-inclusive labels;
   - the founding counter;
@@ -421,7 +444,7 @@ These are specified in a future `features/classes-and-assignments` page, which d
 ## Key Architectural Decisions
 
 1. **Decision: entitlement keys in a table, not tier booleans in code.**
-   - **Rationale:** Tiers will change (Professional, PPP, school variants). Routes depend on stable keys. This also gives overrides for grandfathering and passes.
+   - **Rationale:** Tiers will change (Core was added on 2026-11-17; Professional, PPP, school variants and the D19 trigger may follow). Routes depend on stable keys. This also gives overrides for grandfathering and passes.
    - **Alternatives rejected:**
      - `tier_required([...])` on routes. Brittle: every new tier means editing routes.
      - More boolean columns on `dim_subscription_tiers`. These do not scale.
@@ -465,7 +488,9 @@ These are specified in a future `features/classes-and-assignments` page, which d
   - an insufficient balance;
   - a duplicate idempotency key returns the first result;
   - concurrent spends (two transactions) never go negative.
-- **`reset_allowance`:** the rollover cap (300 + 300 left → 600; 300 + 450 left → 600, logging 150 expired).
+- **`reset_allowance`:** the rollover cap (300 + 300 left → 600; 300 + 450 left → 600, logging 150 expired). For `core` it grants nothing.
+- **Core vs Pro entitlements:** a Core user's 6th DT grade of the day costs 1 credit (Pro: the 26th); a Core user gets the summary report only.
+- **Plan changes:** Core → Pro mid-period grants the prorated allowance once (replaying the webhook grants nothing more); Pro → Core at period end zeroes the allowance and keeps purchased credits.
 - **`get_entitlements`:** precedence across own subscription, org seat, override and free.
 
 ### Webhook tests
