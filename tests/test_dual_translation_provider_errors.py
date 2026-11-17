@@ -337,3 +337,134 @@ class TestSubmitRoute:
                            json={'reproduction': 'gold'})
         assert resp.status_code == 200
         assert len(wired) == 1
+
+
+# ---------------------------------------------------------------------------
+# Failed calls are stored (dt_grading_call), whether or not a grade is saved
+# ---------------------------------------------------------------------------
+
+class TestFailureRecords:
+    """Every failed grading call keeps its provider error text, so a submit that
+    stores no grade can be diagnosed from the database (2026-11-17: a submit
+    whose two free models and paid fallback all failed left no trace but the
+    host log)."""
+
+    def test_recorder_keeps_every_failure_with_its_text(self):
+        with provider_errors.capture() as calls:
+            provider_errors.note_failure(key_limit(), slug='a', role='primary')
+            provider_errors.note_failure(timeout(), slug='b', role='detector')
+        assert [(f['slug'], f['role'], f['refused'], f['http_status']) for f in calls.failures] == [
+            ('a', 'primary', True, 403), ('b', 'detector', False, None)]
+        assert 'Key limit exceeded' in calls.failures[0]['error']
+        assert calls.failures[0]['error'].startswith('PermissionDeniedError: ')
+        assert calls.failures[1]['error'].startswith('APITimeoutError: ')
+
+    def test_failure_text_is_capped_and_does_not_repeat_the_body(self):
+        text = provider_errors.failure_text(key_limit())
+        assert text.count('Key limit exceeded') == 1
+        long = _status_error(openai.APIStatusError, 402, 'x' * 1000)
+        assert len(provider_errors.failure_text(long)) == 300
+        bare = RuntimeError('boom')
+        assert provider_errors.failure_text(bare) == 'RuntimeError: boom'
+
+    def test_body_not_in_message_is_appended(self):
+        exc = _status_error(openai.APIStatusError, 402, 'short')
+        exc.body = {'error': {'message': 'Insufficient credits'}}
+        assert 'Insufficient credits' in provider_errors.failure_text(exc)
+
+    def test_single_call_attempts_carry_the_provider_text(self, v6, monkeypatch):
+        monkeypatch.setattr(scg, 'call_structured', _raise(key_limit))
+        monkeypatch.setattr(grader_cascade, 'call_model_with_usage', _raise(key_limit))
+        with provider_errors.capture() as calls:
+            contract = _grade(single_call=True, framework_v2=True)
+        assets = contract['grading_assets']
+        assert [(a['role'], a['status']) for a in assets] == [
+            ('primary', 'call_failed'), ('fallback', 'call_failed')]
+        assert all('Key limit exceeded' in a['error'] for a in assets)
+        assert 'detector' in [f['role'] for f in calls.failures]
+
+
+class TestSubmitStoresFailedCalls:
+
+    _OWNER = 'test-user-id-123'
+    _ASSET = {'flow': 'single_call', 'role': 'primary', 'model_slug': 'm/x:free',
+              'prompt_version': 'p', 'status': 'call_failed',
+              'error': 'PermissionDeniedError: Key limit exceeded', 'tokens_in': 0,
+              'tokens_out': 0, 'raw_truncated': False}
+
+    @pytest.fixture
+    def stored(self, monkeypatch):
+        monkeypatch.setattr(DimensionService, 'get_language_code',
+                            classmethod(lambda cls, lid: LANG_CODES.get(lid)))
+        monkeypatch.setattr(dt_routes, '_get_submission', lambda db, sid: {
+            'id': 5, 'user_id': self._OWNER, 'passage_id': 9, 'l1_language_id': 2})
+        monkeypatch.setattr(dt_routes, '_cached_grade', lambda db, sid: None)
+        monkeypatch.setattr(dt_routes, '_get_passage', lambda db, pid: {
+            'id': 9, 'l2_text': 'gold', 'l2_language_id': 3, 'age_tier': 3, 'status': 'active'})
+        monkeypatch.setattr(dt_routes, '_tokens_used_today', lambda db, uid: 0)
+        out = {'grades': [], 'calls': []}
+        monkeypatch.setattr(dt_routes, '_persist_grade', lambda *a, **k: out['grades'].append(a))
+        monkeypatch.setattr(dt_routes, '_persist_grading_assets',
+                            lambda db, sid, rows: out['calls'].append((sid, rows)))
+        monkeypatch.setattr(dt_routes, 'credit_study_time', lambda *a, **k: None)
+        monkeypatch.setattr(dt_routes.repair_hooks, 'after_grade', lambda db, contract, **kw: contract)
+        return out
+
+    def _grader(self, *, single_call_exc, flow_exc=None, band=None, framework_version=2):
+        asset = dict(self._ASSET)
+
+        def _fake(db, **kwargs):
+            provider_errors.note_failure(single_call_exc, slug='m/x:free', role='primary')
+            if flow_exc is not None:
+                provider_errors.note_failure(flow_exc, slug='tier1/model', role='detector')
+            return {
+                'scores': {} if band is None else {'accuracy': band}, 'overall_band': band,
+                'diff': [], 'errors': [], 'provisional': band is None,
+                'grader_trace': {'tokens': {'in': 0, 'out': 0}, 'framework_version': framework_version,
+                                 'single_call': {'used': False}},
+                'grading_assets': [asset],
+            }
+        return _fake
+
+    def _submit(self, client, auth_headers):
+        return client.post('/api/dual-translation/5/submit', headers=auth_headers,
+                           json={'reproduction': '猫です'})
+
+    def test_refused_submit_stores_every_failed_call(self, client, auth_headers, monkeypatch, stored):
+        monkeypatch.setattr(dt_routes, 'grade_submission',
+                            self._grader(single_call_exc=key_limit(), flow_exc=no_credits()))
+        resp = self._submit(client, auth_headers)
+        assert resp.status_code == 503
+        assert stored['grades'] == []
+        [(sid, rows)] = stored['calls']
+        assert sid == 5
+        assert rows[0]['flow'] == 'single_call' and 'Key limit exceeded' in rows[0]['error']
+        flow_row = rows[1]
+        assert {k: flow_row[k] for k in ('flow', 'role', 'model_slug', 'prompt_version',
+                                         'prompt_variant', 'l2_code', 'status')} == {
+            'flow': 'v2', 'role': 'fallback', 'model_slug': 'tier1/model',
+            'prompt_version': 'configured-flow', 'prompt_variant': 'detector',
+            'l2_code': 'ja', 'status': 'call_failed'}
+        assert 'Insufficient credits' in flow_row['error']
+        assert len(rows) == 2  # the single-call failure is not stored twice
+
+    def test_provisional_submit_stores_the_failed_calls(self, client, auth_headers, monkeypatch, stored):
+        monkeypatch.setattr(dt_routes, 'grade_submission',
+                            self._grader(single_call_exc=timeout(), flow_exc=server_error()))
+        resp = self._submit(client, auth_headers)
+        assert resp.status_code == 200 and json.loads(resp.data)['provisional'] is True
+        assert stored['grades'] == []
+        [(_, rows)] = stored['calls']
+        assert [r['flow'] for r in rows] == ['single_call', 'v2']
+        assert rows[1]['error'].startswith('InternalServerError: ')
+        assert 'grading_assets' not in json.loads(resp.data)
+
+    def test_graded_submit_stores_calls_once_after_the_grade(self, client, auth_headers, monkeypatch, stored):
+        monkeypatch.setattr(dt_routes, 'grade_submission',
+                            self._grader(single_call_exc=timeout(), flow_exc=timeout(), band=3,
+                                         framework_version=1))
+        resp = self._submit(client, auth_headers)
+        assert resp.status_code == 200 and json.loads(resp.data)['overall_band'] == 3
+        assert len(stored['grades']) == 1
+        [(_, rows)] = stored['calls']
+        assert [r['flow'] for r in rows] == ['single_call', 'v1']

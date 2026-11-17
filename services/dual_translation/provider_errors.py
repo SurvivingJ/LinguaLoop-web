@@ -76,6 +76,11 @@ class CallRecorder:
     answered: int = 0
     failed: int = 0
     refusals: list = field(default_factory=list)
+    # Every call that raised, refusal or not, in call order:
+    # {slug, role, http_status, refused, error}. The submit route stores the
+    # configured (v1/v2) flow's entries as dt_grading_call rows, so a failed
+    # grade can be diagnosed from the database instead of the host log.
+    failures: list = field(default_factory=list)
 
     def refused_without_answer(self) -> bool:
         """True when at least one call was refused by the provider and no call
@@ -125,7 +130,39 @@ def note_failure(exc: BaseException, slug: str = "", role: str = "") -> Optional
             rec.refusals.append(refusal)
         else:
             rec.failed += 1
+        try:
+            rec.failures.append({
+                "slug": slug or "", "role": role or "",
+                "http_status": _status_code(exc),
+                "refused": refusal is not None,
+                "error": failure_text(exc),
+            })
+        except Exception:  # noqa: BLE001 — recording must never break grading
+            pass
     return refusal
+
+
+def failure_text(exc: BaseException) -> str:
+    """``"<ExceptionType>: <message>"`` capped to ``dt_grading_call.error``'s 300
+    characters. The OpenAI SDK's status errors already put the provider's body
+    (e.g. OpenRouter's "Key limit exceeded") in ``str(exc)``; the body is added
+    only when the message does not already contain it."""
+    text = _error_text(exc) if not _body_in_message(exc) else str(exc)
+    return f"{type(exc).__name__}: {text}"[:_MESSAGE_CAP]
+
+
+def _body_in_message(exc: BaseException) -> bool:
+    """True when the exception message already says what its body says: the
+    body itself, or the provider's ``error.message`` text, appears in it."""
+    body = getattr(exc, "body", None)
+    if body is None:
+        return True
+    message = str(exc)
+    if str(body) in message:
+        return True
+    inner = body.get("error") if isinstance(body, dict) else None
+    inner_text = inner.get("message") if isinstance(inner, dict) else None
+    return isinstance(inner_text, str) and bool(inner_text) and inner_text in message
 
 
 def classify(exc: BaseException, *, slug: str = "", role: str = "") -> Optional[Refusal]:

@@ -355,9 +355,19 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   names a daily quota or credits. A per-minute 429, a timeout or a malformed answer is transient
   and keeps the existing fail-open / provisional path.
 - When at least one call was refused and **no model answered at all**, submit returns
-  **503 `GRADING_UNAVAILABLE`**, saves nothing (no `dt_grade`, no error rows, reproduction left
+  **503 `GRADING_UNAVAILABLE`**, saves no grade (no `dt_grade`, no error rows, reproduction left
   empty) and logs at ERROR with user, submission, passage, L2, tier and each refused model's
   status, kind and message. A refusal followed by any model answer keeps the normal path.
+- **Failed calls are stored (2026-11-17).** The recorder also keeps every call that raised,
+  refusal or not (`CallRecorder.failures`: slug, role, HTTP status, refused, error text from
+  `provider_errors.failure_text`, ≤ 300 chars, provider body included). Submit writes
+  `dt_grading_call` rows on **every** exit after grading — 503, provisional (no band), malformed,
+  and saved grade: the single-call attempt records (their `error` now carries the provider body
+  too) plus one `call_failed` row per configured-flow (v1/v2) call that raised (see the
+  `dt_grading_call` table below). Before this, a submit that stored no grade left the failure
+  only in the host log. Found while diagnosing submission 128 (2026-11-17 21:50 UTC): both free
+  single-call models raised before answering, and the v2 fallback's paid models are refused while
+  the OpenRouter key is at its $10 limit.
 - Clients: `/dual-translation` shows `#dtUnavailableNotice` (`dual_translation.grading_unavailable`),
   scrolled into view, and keeps the learner's text; the session player shows the message with
   "Skip for now" only (no "Try again"). A refused submission stays ungraded, so its passage can
@@ -586,10 +596,10 @@ CHECK added only if absent (`NOT VALID`, validated after commit).
 |---|---|---|
 | `id` | bigint identity PK | |
 | `submission_id` | bigint FK → dt_submission, ON DELETE CASCADE, indexed | |
-| `flow` | text | `single_call` |
-| `role` | text | primary / fallback / shadow (shadow reserved; no writer yet) |
+| `flow` | text | `single_call`; `v2` / `v1` for a configured-flow call that failed (2026-11-17) |
+| `role` | text | primary / fallback / shadow (shadow reserved; no writer yet). A configured-flow row is `fallback` when the single-call grader ran first, else `primary` |
 | `model_slug`, `provider` | text | |
-| `prompt_version`, `prompt_variant` | text | reproduces the prompt with the stored texts |
+| `prompt_version`, `prompt_variant` | text | reproduces the prompt with the stored texts. Configured-flow rows: `configured-flow` / the call's role (`detector`, `verifier`, `tier1`, …) — that flow's prompts carry no version |
 | `severity_rule` | text | model / prior |
 | `l2_code` | text | |
 | `status` | text | ok / call_failed / malformed_json / malformed_shape |
@@ -608,7 +618,10 @@ CHECK added only if absent (`NOT VALID`, validated after commit).
 - `routes/dual_translation.py`: `_error_columns()` adds the seven columns when
   `DT_GRADING_ASSET_COLUMNS` is on (v1/v2 errors do not carry them and keep NULLs);
   `_persist_grading_assets` inserts the `dt_grading_call` rows after `_persist_grade`, best-effort
-  (a failure is logged, never surfaced).
+  (a failure is logged, never surfaced). **Since 2026-11-17** it also runs on a submit that stores
+  no grade (503, provisional, malformed), so a submission retried after a failure can have rows
+  from several attempts; `_grading_call_records` builds the rows (single-call attempts + failed
+  configured-flow calls). Nothing reads the table back.
 - **Missing migration.** If the error insert fails while naming the seven columns, it is retried
   once without them; if that works the grade is saved, the columns are treated as unavailable for
   10 minutes (later submissions skip the failing attempt), and one error is logged per process
