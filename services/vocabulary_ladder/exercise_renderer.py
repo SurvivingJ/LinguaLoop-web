@@ -606,8 +606,11 @@ class LadderExerciseRenderer:
         Recorded at asset level rather than per exercise: several renderers
         pick their own sentence index at render time (L8 scans for one holding
         the collocate), so a per-row "this item came from a mined sentence"
-        claim would sometimes be wrong. The index-aligned ``sources`` list is
-        exact and lets a reviewer resolve any row against the asset.
+        claim would sometimes be wrong. Only the counts are stored: the
+        index-aligned per-sentence list is already on the asset
+        (``word_assets.content.sentences[i].sentence_source``, reached through
+        ``exercises.word_asset_id``), and copying it onto every exercise row
+        cost ~30 MB at 140k rows (removed from the live table 2026-11-17).
 
         Returns None for pre-TASK-513 assets, so their tags are unchanged.
         """
@@ -618,7 +621,6 @@ class LadderExerciseRenderer:
         if not any(sources):
             return None
         return {
-            'sentence_sources': sources,
             'mined_count': sources.count(SENTENCE_SOURCE_MINED),
             'generated_count': sources.count(SENTENCE_SOURCE_GENERATED),
         }

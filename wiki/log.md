@@ -6611,3 +6611,23 @@ Not deployed. Pages: created [[decisions/ADR-046-untaught-words-start-the-drill]
 [[features/new-word-drill]], [[features/new-word-drill.tech]] (note 16), [[tasklist/new-word-drill.tasks]]
 (TASK-975), [[tasklist/master]], index.
 
+
+## [2026-11-17] update | Database back under the Free-plan 500 MB cap (quick wins, part 1)
+Found live: database 523 MB, over the Supabase Free 500 MB cap (Free projects go read-only above it;
+still writable at the time). `exercises` was 253 MB (144k rows), of which `tags` 54 MB and
+`tags.provenance` 30 MB. `provenance.sentence_sources` is an index-aligned copy of
+`word_assets.content.sentences[i].sentence_source` on the row's `word_asset_id` asset; verified identical
+on 140,476 / 140,476 rows that have an asset (14 rows without `word_asset_id` were left untouched).
+Done live: stripped `sentence_sources` from those rows in batches (the `mined_count` / `generated_count`
+counts stay), plain VACUUM between batches, then `VACUUM (FULL, ANALYZE) exercises`. Result: `exercises`
+253 → 200 MB (tags 54 → 33 MB), **database 523 → 470 MB**. Judge tags untouched
+(`v_ladder_judge_reject_rates` reads them; still returns rows). Code: `exercise_renderer._sentence_provenance`
+no longer copies the list onto new rows (counts only); test updated; tests/test_transcript_mining.py +
+tests/test_vocab_ladder_judges.py 64 pass, 2 fail identically before and after (jieba not installable here).
+Not deployed: until the change is deployed, newly rendered exercises still add the list (~200 B/row).
+NOT done: archive + drop `backup_semdisc_content_20261115` (19 MB) and archiving tag history to Supabase
+Storage — uploading to Storage with the service key was refused in this session, and the table is the only
+rollback copy of the 2026-11-15 semantic-discrimination rewrite, so it was not dropped without an archive.
+Proposed (not filed): move exercise `content` out of Postgres into per-sense JSON files in Storage
+("warehouse/shelf"), ~23 KB → ~6 KB of database per sense.
+Pages: index, log.
