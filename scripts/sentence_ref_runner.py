@@ -160,7 +160,10 @@ So every sentence must be faithful and tight, not pretty.
 4. No {l2_name} script in `l1` (no kanji, kana or hanzi in English; no romaji
    either). Loanwords go back to their source form (カタログ -> catalogue).
 5. Proper nouns: use the standard {l1_name} form if one exists, else a
-   transliteration. Keep digits as digits.
+   transliteration. Keep digits as digits, written the way {l1_name} writes them
+   (102万 -> 1,020,000 or 1.02 million; 70年代 -> the 1970s). The number check
+   compares values, so separators, million/万/亿 and month names all match;
+   a number spelled as a word does not.
 6. Terminators: end each `l1` with the punctuation the sentence type needs in
    {l1_name}. Question stays a question.
 7. Arm `sentencewise`: translate one sentence at a time, re-reading the whole

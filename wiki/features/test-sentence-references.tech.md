@@ -123,7 +123,15 @@ Mirrors `fat_seed_runner.py`. Commands, all file-based, none calling a hosted mo
   beyond proper nouns are allowed for en-L2 only); the check lists the offending characters;
 - every Arabic numeral and every proper noun detected in `l2` (token-map senses with
   `part_of_speech` in the proper-noun set, plus katakana loanwords for ja) has a counterpart in
-  `l1` (digit equality; loanword transliteration via a small table or a reviewer flag);
+  `l1` (loanword transliteration via a small table or a reviewer flag). Numbers are compared
+  **by value** (`missing_numbers`, 2026-11-17; it used to test whether the digit string occurred
+  anywhere in `l1`, which failed "1,020,000" for 102万 and let "15" carry a 5): digits with
+  thousands separators and decimals, CJK compounds with 百/千/万/亿/兆 (102万 = 1,020,000;
+  1亿2000万 = 120,000,000; the bare number is also accepted for a one-part amount), English
+  hundred/thousand/million/billion/trillion, N月 ↔ English month name, N0年代 ↔ 19N0/20N0,
+  N世纪 ↔ any year in that century. A full-width comma stays a list separator. A number
+  spelled as a word still fails (digits stay digits). Re-run over every live reference (3,880)
+  and every authored/reviewed document on disk (9,936): no new failure;
 - no preamble patterns (`この文章は`, `本文`, `This passage`, `---`) in either side;
 - length ratio `len(l1)/len(l2)` within per-pair bounds (fitted on the pilot; initial 1.5–6 for
   ja→en, 1.2–5 for zh→en);

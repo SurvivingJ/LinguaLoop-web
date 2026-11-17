@@ -44,7 +44,9 @@ each verdict from your step-1 file. Finish with
 ## What to check
 
 - Meaning: nothing added, nothing dropped, no hedges the gold does not have.
-- Numbers and names: digit for digit; standard L1 forms for proper nouns.
+- Numbers and names: the same values, written as digits the L1's way (102万 →
+  1,020,000 or 1.02 million, not "1020000" or "102 wan"); standard L1 forms for
+  proper nouns.
 - Sentence identity: one L1 entry still maps to exactly one gold sentence.
 - Register: a polite or formal gold is not rendered casual, and vice versa,
   where the L1 can mark it.

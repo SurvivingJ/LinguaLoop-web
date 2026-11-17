@@ -185,7 +185,6 @@ PREAMBLE_RE = re.compile(
     r'^\s*(?:この文章は|本文|本篇|This (?:passage|article|text)|The following (?:passage|text))'
     r'|---'
 )
-_DIGIT_RE = re.compile(r'\d+')
 _PUNCT_RE = re.compile(r'[\s　。、，．,.!！?？:：;；"“”\'‘’「」『』()（）\[\]【】\-—–…·・]')
 
 LENGTH_RATIO_BOUNDS = {       # len(l1) / len(l2), fitted loosely; the pilot refits
@@ -213,10 +212,91 @@ def normalise_digits(s: str) -> str:
     return unicodedata.normalize('NFKC', s or '')
 
 
+# Numbers are compared by value, not by digit string: "102万" is satisfied by
+# "1,020,000" or "1.02 million" (or "102 wan"), "1000" by "1,000", and a "5" in
+# the original is NOT satisfied by the "5" inside "15" or "2015".
+_NUM = r'\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?'
+_CJK_UNITS = {'百': (100,), '千': (1000,), '万': (10 ** 4,), '萬': (10 ** 4,),
+              '亿': (10 ** 8,), '億': (10 ** 8,), '兆': (10 ** 12, 10 ** 6)}  # zh 兆 is also "mega"
+_EN_SCALES = {'hundred': 100, 'thousand': 10 ** 3, 'million': 10 ** 6, 'billion': 10 ** 9,
+              'trillion': 10 ** 12}
+_CJK_MENTION_RE = re.compile(f'(?:(?:{_NUM})[{"".join(_CJK_UNITS)}])+(?:{_NUM})?')
+_EN_MENTION_RE = re.compile(f'({_NUM})(?:\\s*({"|".join(_EN_SCALES)})\\b)?', re.IGNORECASE)
+_NUM_RE = re.compile(_NUM)
+_MONTHS = ('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august',
+           'september', 'october', 'november', 'december')
+# Full English month names count as a mention (so 11月 is carried by "November");
+# 'may' only when capitalised, to keep the modal verb out.
+_MONTH_RE = re.compile(r'\b(January|February|March|April|May|June|July|August|September|October|November|December)\b')
+
+
+def _dec(token: str):
+    from decimal import Decimal
+    return Decimal(token.replace(',', ''))
+
+
+def _cjk_values(mention: str) -> set:
+    """Values a digit+unit mention like 102万 / 1亿2000万 / 3千 can stand for: the
+    compound value (both readings of 兆), plus the bare number when there is one part."""
+    parts = re.findall(f'({_NUM})([{"".join(_CJK_UNITS)}])?', mention)
+    readings = {0}
+    for alt in range(2):  # second pass reads 兆 as 10**6
+        total = section = 0
+        for num, unit in parts:
+            v = _dec(num)
+            if not unit:
+                section += v
+            elif unit in ('百', '千'):
+                section += v * _CJK_UNITS[unit][0]
+            else:
+                m = _CJK_UNITS[unit][min(alt, len(_CJK_UNITS[unit]) - 1)]
+                total += (section + v) * m
+                section = 0
+        readings.add(total + section)
+    readings.discard(0)
+    if len(parts) == 1:
+        readings.add(_dec(parts[0][0]))
+    return readings
+
+
+def _number_mentions(text: str) -> list[tuple[str, set]]:
+    """``[(label, {values})]`` for every number written with digits in ``text``."""
+    # NFKC turns the full-width comma into ',', which would glue a CJK list
+    # (100，200) into one grouped number; keep it a separator.
+    t = unicodedata.normalize('NFKC', (text or '').replace('，', '、'))
+    out, taken = [], []
+    for m in _CJK_MENTION_RE.finditer(t):
+        out.append((m.group(0), _cjk_values(m.group(0))))
+        taken.append(m.span())
+    for m in _EN_MENTION_RE.finditer(t):
+        if any(a <= m.start() < b for a, b in taken):
+            continue
+        v = _dec(m.group(1))
+        vals = {v}
+        if m.group(2):
+            vals.add(v * _EN_SCALES[m.group(2).lower()])
+        if t[m.end():m.end() + 2] == '世纪' and v == int(v) and 1 <= v <= 30:
+            vals |= {(v - 1) * 100 + y for y in range(100)}  # 20世纪 -> any year 1900-1999
+        if t[m.end():m.end() + 2] == '年代' and v == int(v) and 0 <= v < 100 and v % 10 == 0:
+            vals |= {1900 + v, 2000 + v}  # 70年代 -> the 1970s
+        if t[m.end():m.end() + 1] == '月' and 1 <= v <= 12 and v == int(v):
+            vals.add(_MONTHS[int(v) - 1])  # 11月 -> 'november'
+        out.append((m.group(1), vals))
+    for name in _MONTH_RE.findall(t):
+        out.append((name, {name.lower()}))
+    return out
+
+
 def missing_numbers(l2_text: str, l1_text: str) -> list[str]:
-    nums_l2 = _DIGIT_RE.findall(normalise_digits(l2_text))
-    nums_l1 = normalise_digits(l1_text)
-    return [n for n in nums_l2 if n not in nums_l1]
+    """Numbers written with digits in the gold that the reference does not carry
+    (by value; scale words and 万/亿/千 are understood on both sides)."""
+    def norm(vals):
+        return {v.normalize() if hasattr(v, 'normalize') else v for v in vals}
+    have: set = set()
+    for _, vals in _number_mentions(l1_text):
+        have |= norm(vals)
+    return [label for label, vals in _number_mentions(l2_text)
+            if any(not isinstance(v, str) for v in vals) and not (norm(vals) & have)]
 
 
 def has_preamble(text: str) -> bool:

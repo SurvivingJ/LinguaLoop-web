@@ -6827,3 +6827,17 @@ Live column comment corrected to ADR-049. Tests: 202 related tests pass (incl. m
 new cases in `tests/test_dual_translation_next_selection.py` and `tests/test_sentence_ref_floor_override.py`.
 Not deployed: the Python. Deploy is safe in any order relative to these DB changes (the additions are ignored
 by the old code).
+
+## [2026-11-17] fix | Sentence-reference number check compares values
+Developer: "We should fix translation checkers number check." `sentence_refs.missing_numbers` tested whether
+each digit string of the gold appeared anywhere in the reference: false alarms on correct renderings (102万 →
+"1,020,000", 1000 → "1,000", 11月 → "November", 70年代 → "1970s") pushed authors into "1020000 yuan" and "the
+1970s of the 20th century", and it missed real errors (a 5 was "carried" by "15" or "2015"). Now values are
+compared: thousands separators, decimals, 百/千/万/亿/兆 compounds (one-part amounts also accept the bare
+number), English scale words, month names, decades and centuries; full-width commas stay list separators;
+numbers spelled as words still fail. Verified on every live reference (3,880) and every authored/reviewed
+document on disk (9,936): 0 failures before, 0 after; the three 2026-11-17 runs re-check clean. 18 new
+assertions in `tests/test_sentence_refs.py`. Authoring rules (runner), `sentence-reference-authoring` and
+`sentence-reference-review` skills now say numbers are written the L1's way. Not changed: the two live
+references bent by the old check (61f4125b idx 1–2, 3574dd04 idx 2). Pages: [[features/test-sentence-references.tech]],
+[[tasklist/test-sentence-references.tasks]].
