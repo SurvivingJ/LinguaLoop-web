@@ -236,6 +236,17 @@ def _next(client, headers, query):
     return resp.status_code, json.loads(resp.data)
 
 
+@pytest.fixture(autouse=True)
+def _legacy_pool_on(request, monkeypatch):
+    """Most tests in this file were written when the old whole-passage pool was
+    still served, and use it as their Chinese material. It was retired on
+    2026-11-17 (routes.dual_translation.SERVE_LEGACY_PASSAGES = False). They run
+    with the switch on so the selection logic they cover (resume, skip, repeats,
+    ordering) stays tested; tests marked ``legacy_off`` run with the real default."""
+    if 'legacy_off' not in request.keywords:
+        monkeypatch.setattr(dt_routes, 'SERVE_LEGACY_PASSAGES', True)
+
+
 class TestRoundTrips:
 
     def test_new_window_is_three_round_trips(self, client, auth_headers, rpc_app):
@@ -536,3 +547,21 @@ class TestRepeatSubmission:
         status, body = _submit(client, auth_headers, first['submission_id'])
         assert status == 200 and body['provisional'] is True
         assert graded_app.tables.get('dt_grade', []) == []
+
+
+@pytest.mark.legacy_off
+class TestLegacyPoolRetiredOverHttp:
+
+    def test_chinese_fixture_with_whole_passages_only_has_nothing(self, client, auth_headers, rpc_app):
+        status, data = _next(client, auth_headers, 'language_id=1')
+        assert status == 404 and data['error_code'] == dt_routes.NO_PASSAGES
+
+    def test_windows_resume_and_skip(self, client, auth_headers, rpc_app):
+        _, first = _next(client, auth_headers, 'language_id=3')
+        assert first['source'] == 'sentence_refs'
+        _, again = _next(client, auth_headers, 'language_id=3')
+        assert again['submission_id'] == first['submission_id'] and again['resumed'] is True
+        resp = client.post(f"/api/dual-translation/{first['submission_id']}/skip", headers=auth_headers)
+        assert resp.status_code == 200
+        _, second = _next(client, auth_headers, 'language_id=3')
+        assert second['submission_id'] != first['submission_id']

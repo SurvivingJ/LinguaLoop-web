@@ -84,6 +84,13 @@ DEFAULT_L1_LANGUAGE_ID = 2
 
 # GET /next 404 error codes: the learner has no eligible content in this
 # language at all (take a test first) vs. has had every eligible passage graded.
+# The old whole-passage pool (dt_passage rows with no sentence range, built
+# before the sentence references of ADR-037). Owner decision 2026-11-17: no
+# longer served, because a whole passage and the sentence windows of the same
+# test cover the same text and were not recognised as repeats of each other.
+# The rows and their graded history stay; only GET /next ignores them.
+SERVE_LEGACY_PASSAGES = False
+
 NO_PASSAGES = 'NO_PASSAGES'
 ALL_DONE = 'ALL_DONE'
 
@@ -1114,8 +1121,11 @@ def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
             return choice
 
     # 1 / 3. Legacy whole passages never served, attempted tests first.
-    legacy = [p for p in inputs.legacy_passages()
-              if int(p.get('l2_language_id') or l2) == l2 and in_scope(p.get('source_ref_id'))]
+    # Retired 2026-11-17 (owner decision): the old whole-passage pool overlaps
+    # the sentence windows of the same tests, so it is no longer served.
+    legacy = [] if not SERVE_LEGACY_PASSAGES else [
+        p for p in inputs.legacy_passages()
+        if int(p.get('l2_language_id') or l2) == l2 and in_scope(p.get('source_ref_id'))]
     unseen = [p for p in legacy if p['id'] not in history]
     taken_legacy = sorted(
         (p for p in unseen if str(p.get('source_ref_id')) in inputs.attempted),
@@ -1219,6 +1229,8 @@ def _first_servable(inputs: '_NextInputs', passage_ids: list, l2: int, in_scope)
                     out['untaken'] = True
                 return out, pid
             continue
+        if not SERVE_LEGACY_PASSAGES:
+            continue  # an old whole passage: never resumed, re-queued or re-served
         l1_text = inputs.legacy_text(passage)
         if l1_text:
             out = {'kind': 'passage', 'passage': _served_passage(passage, l1_text)}

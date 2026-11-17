@@ -252,6 +252,17 @@ def _choose(db, l2, l1=EN):
 # _choose_next
 # ---------------------------------------------------------------------------
 
+@pytest.fixture(autouse=True)
+def _legacy_pool_on(request, monkeypatch):
+    """Most tests in this file were written when the old whole-passage pool was
+    still served, and use it as their Chinese material. It was retired on
+    2026-11-17 (routes.dual_translation.SERVE_LEGACY_PASSAGES = False). They run
+    with the switch on so the selection logic they cover (resume, skip, repeats,
+    ordering) stays tested; tests marked ``legacy_off`` run with the real default."""
+    if 'legacy_off' not in request.keywords:
+        monkeypatch.setattr(dt_routes, 'SERVE_LEGACY_PASSAGES', True)
+
+
 class TestEligibility:
 
     def test_none_when_nothing_has_a_reference(self):
@@ -717,3 +728,45 @@ class TestNextRoute:
 
     def test_config_language_ids_are_the_accepted_set(self):
         assert Config.VALID_LANGUAGE_IDS == {1, 2, 3}
+
+
+# ---------------------------------------------------------------------------
+# The old whole-passage pool is retired (owner decision 2026-11-17)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.legacy_off
+class TestLegacyPoolRetired:
+
+    def test_the_switch_is_off_by_default(self):
+        assert dt_routes.SERVE_LEGACY_PASSAGES is False
+
+    def test_a_whole_passage_is_never_served(self):
+        """The Chinese fixtures have whole passages only: nothing is eligible."""
+        db = _TableDB(_tables())
+        choice = _choose(db, ZH)
+        assert choice['kind'] == 'none' and choice['all_done'] is False
+
+    def test_sentence_windows_are_still_served(self):
+        db = _TableDB(_tables())
+        choice = _choose(db, JA)
+        assert choice['kind'] == 'range'
+
+    def test_an_open_whole_passage_is_not_resumed(self):
+        db = _TableDB(_tables())
+        legacy = next(p for p in db.tables['dt_passage'] if p.get('sentence_start') is None
+                      and p.get('l2_language_id') == ZH)
+        db.table('dt_submission').insert({
+            'user_id': USER, 'passage_id': legacy['id'], 'l1_language_id': EN, 'reproduction': '',
+        }).execute()
+        assert _choose(db, ZH)['kind'] == 'none'
+
+    def test_a_graded_whole_passage_is_not_re_served(self):
+        db = _TableDB(_tables())
+        legacy = next(p for p in db.tables['dt_passage'] if p.get('sentence_start') is None
+                      and p.get('l2_language_id') == ZH)
+        sub = db.table('dt_submission').insert({
+            'user_id': USER, 'passage_id': legacy['id'], 'l1_language_id': EN, 'reproduction': 'x',
+        }).execute().data[0]
+        _grade(db, sub)
+        choice = dt_routes._choose_next(db, USER, EN, ZH, dt_routes._attempted_tests(db, USER), reserve=True)
+        assert choice['kind'] == 'none'

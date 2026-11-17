@@ -154,3 +154,10 @@ def auth_headers():
     any token triggers the mock Supabase auth path which always succeeds.
     """
     return {'Authorization': 'Bearer fake-jwt-token-for-testing'}
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        'markers',
+        'legacy_off: run with the retired whole-passage dual-translation pool off (the real default)',
+    )

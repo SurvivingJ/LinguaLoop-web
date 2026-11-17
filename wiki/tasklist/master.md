@@ -21,7 +21,7 @@ below.
 |--------|-------|
 | Not Started | 48 |
 | In Progress (`[~]`) | 14 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 32 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 31 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 259 |
@@ -1280,7 +1280,7 @@ Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.te
 |----|---------|-------|--------|------------|------------|
 | TASK-989 | fixes-2026-11-16 | Decide "all done" vs re-serving graded DT passages | Done | XS | — |
 | TASK-990 | fixes-2026-11-16 | Cut `/next` database round trips (SQL read function) | Done | M | TASK-989 |
-| TASK-991 | fixes-2026-11-16 | DT `/next` loose ends (retired range passage, empty submissions, unfiltered cards) | [?] owner (b, overlap) | S | — |
+| TASK-991 | fixes-2026-11-16 | DT `/next` loose ends (retired range passage, empty submissions, unfiltered cards) — resume + skip built, old passage pool retired | Done | S | — |
 | TASK-992 | fixes-2026-11-16 | Return `produce_available` from test submit | [ ] | S | — |
 | TASK-993 | fixes-2026-11-16 | "Take the test" from prestudy resumes the session (`?resume=<slug>`) | Done | S | — |
 | TASK-994 | fixes-2026-11-16 | Fill `dim_vocabulary.frequency_rank` (770 of 846 rows incl. 是/都/有/不) | Done | M | — |
