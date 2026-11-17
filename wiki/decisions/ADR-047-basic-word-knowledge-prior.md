@@ -1,12 +1,12 @@
 ---
 title: "ADR-047: How the app decides a learner already knows basic words"
-status: proposed
+status: accepted
 date: 2026-11-17
 ---
 
 # ADR-047: How the app decides a learner already knows basic words
 
-> **Status: proposed — owner sign-off pending.** Already in effect: step 1 (the frequency fill,
+> **Status: accepted — owner sign-off 2026-11-17.** Already in effect: step 1 (the frequency fill,
 > applied to the live database 2026-11-17 after review) and the gloss-level part of step 5. Steps 2–4
 > and 6 are not built; they are tasked as TASK-1004 in [[tasklist/fixes-2026-11-16.tasks]].
 

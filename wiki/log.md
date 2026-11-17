@@ -6720,3 +6720,6 @@ Pages updated (11): [[features/dual-translation]], [[features/dual-translation.t
 [[tasklist/fixes-2026-11-16.tasks]] (TASK-989/990/993/994/997/998/999 Done, 991 blocked on owner,
 1000 in progress, new TASK-1001–1006), [[tasklist/master]] (Not Started 47→46, In Progress 13→14,
 Blocked 35→34, Done 252→259), index. Not committed, not deployed.
+
+## [2026-11-17] update | Owner decisions on the 2026-11-17 fixes
+ADR-047 (basic-word knowledge prior) accepted. Dual translation: a test whose passage was translated beforehand keeps a full-weight first rated attempt (TASK-1001 part 1). Measure-word drill: manual Choose/Type answers count toward promotion (TASK-1002). Both match the built behaviour; no code change. TASK-1002 and TASK-1004 move from blocked to not started; TASK-991(b) (empty submission rows) still awaits the owner.

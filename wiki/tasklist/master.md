@@ -19,9 +19,9 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 46 |
+| Not Started | 48 |
 | In Progress (`[~]`) | 14 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 34 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 32 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 259 |
@@ -1290,10 +1290,10 @@ Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.te
 | TASK-998 | fixes-2026-11-16 | Classifier drill session RPC: levels and mastery | Done | M | — |
 | TASK-999 | fixes-2026-11-16 | Tone-marked pinyin on the remaining surfaces | Done | S | — |
 | TASK-1000 | fixes-2026-11-16 | Verify the paths the 2026-11-16 fixes could not reach | [~] | M | — |
-| TASK-1001 | fixes-2026-11-16 | DT owner decisions: spoiler half-weight, what a repeat counts towards, unusable-answer rule | [?] owner | S | — |
-| TASK-1002 | fixes-2026-11-16 | Measure-word drill: manual-mode promotion, content gaps, cloze sentence leak | [?] owner | M | TASK-998 |
+| TASK-1001 | fixes-2026-11-16 | DT owner decisions: spoiler half-weight, what a repeat counts towards, unusable-answer rule (spoiler: full weight, decided) | [?] owner | S | — |
+| TASK-1002 | fixes-2026-11-16 | Measure-word drill: manual-mode promotion, content gaps, cloze sentence leak (manual-mode promotion: counts, decided) | [ ] | M | TASK-998 |
 | TASK-1003 | fixes-2026-11-16 | DT `/next`: batch error-card materialisation (8.5 s observed) | [ ] | S | — |
-| TASK-1004 | fixes-2026-11-16 | Basic-word knowledge: ADR-047 proposals (P1–P6, INT-2/3, ja compounds, default ability) | [?] owner | L | TASK-994 |
+| TASK-1004 | fixes-2026-11-16 | Basic-word knowledge: ADR-047 proposals (P1–P6, INT-2/3, ja compounds, default ability) — ADR-047 accepted | [ ] | L | TASK-994 |
 | TASK-1005 | fixes-2026-11-16 | Tone marks on the last numbered-pinyin surfaces (classifier_match, counter drill, admin check) | [ ] | S | — |
 | TASK-1006 | fixes-2026-11-16 | DT UX gaps: test-available for done tests, all-done wording, 404 console error | [ ] | XS | — |
 
