@@ -40,7 +40,7 @@ def _rpc_payload(t, user_id, l2, l1):
     passages = {p['id']: p for p in t.get('dt_passage', [])}
     hist = {}
     for s in [s for s in t.get('dt_submission', []) if s['user_id'] == user_id]:
-        h = hist.setdefault(s['passage_id'], {'ls': '', 'g': False, 'lg': None, 'b': None, 'o': None})
+        h = hist.setdefault(s['passage_id'], {'ls': '', 'g': False, 'lg': None, 'b': None, 'o': None, 'sk': False})
         h['ls'] = max(h['ls'], s.get('created_at') or '')
         g = grades.get(s['id'])
         if g:
@@ -49,7 +49,8 @@ def _rpc_payload(t, user_id, l2, l1):
             if h['lg'] is None or at >= h['lg']:
                 h['lg'], h['b'] = at, g.get('overall_band')
         elif not s.get('reproduction') and s.get('l1_language_id') == l1:
-            h['o'] = max(h['o'] or 0, s['id'])
+            if s['id'] > (h['o'] or 0):
+                h['o'], h['sk'] = s['id'], bool(s.get('skipped_at'))
     history = []
     for pid, h in hist.items():
         p = passages.get(pid)
@@ -253,15 +254,43 @@ class TestRoundTrips:
         assert rpc_app.round_trips() == 2
 
     def test_reopening_an_unstarted_passage_reuses_its_submission(self, client, auth_headers, rpc_app):
-        """TASK-991: Try another / reload without submitting creates no new empty rows."""
+        """TASK-991: a passage that was shown and neither translated nor skipped is
+        resumed: reloading creates no new rows and serves the same passage."""
         _, first = _next(client, auth_headers, 'language_id=1')
         _, second = _next(client, auth_headers, 'language_id=1')
         _, third = _next(client, auth_headers, 'language_id=1')
         subs = rpc_app.tables['dt_submission']
-        assert len(subs) == 2  # one per distinct passage, not one per call
-        assert third['submission_id'] == first['submission_id']
-        assert second['submission_id'] != first['submission_id']
-        assert rpc_app.round_trips() == 2 + 2 + 1  # the reuse needs only the bundle read
+        assert len(subs) == 1
+        assert second['submission_id'] == third['submission_id'] == first['submission_id']
+        assert second['resumed'] is True and 'resumed' not in first
+        assert rpc_app.round_trips() == 2 + 1 + 1  # a resume needs only the bundle read
+
+    def test_skip_moves_on_and_the_skipped_passage_comes_back_last(self, client, auth_headers, rpc_app):
+        _, first = _next(client, auth_headers, 'language_id=1')
+        resp = client.post(f"/api/dual-translation/{first['submission_id']}/skip", headers=auth_headers)
+        assert resp.status_code == 200
+        _, second = _next(client, auth_headers, 'language_id=1')
+        assert second['submission_id'] != first['submission_id'] and 'resumed' not in second
+        # the second one is now the current passage
+        assert _next(client, auth_headers, 'language_id=1')[1]['submission_id'] == second['submission_id']
+        # skip it too: nothing unseen is left, so the first skipped passage returns,
+        # on its original row, and is the current passage again (skip cleared)
+        client.post(f"/api/dual-translation/{second['submission_id']}/skip", headers=auth_headers)
+        _, back = _next(client, auth_headers, 'language_id=1')
+        assert back['submission_id'] == first['submission_id']
+        row = next(s for s in rpc_app.tables['dt_submission'] if s['id'] == first['submission_id'])
+        assert row.get('skipped_at') is None
+        assert len(rpc_app.tables['dt_submission']) == 2
+
+    def test_skip_refuses_other_users_and_translated_submissions(self, client, auth_headers, rpc_app):
+        _, first = _next(client, auth_headers, 'language_id=1')
+        row = next(s for s in rpc_app.tables['dt_submission'] if s['id'] == first['submission_id'])
+        _grade(rpc_app, row)
+        resp = client.post(f"/api/dual-translation/{first['submission_id']}/skip", headers=auth_headers)
+        assert resp.status_code == 409 and row.get('skipped_at') is None
+        row['user_id'] = '00000000-0000-0000-0000-00000000dead'
+        resp = client.post(f"/api/dual-translation/{first['submission_id']}/skip", headers=auth_headers)
+        assert resp.status_code == 404
 
     def test_missing_function_falls_back_to_the_table_reads(self, client, auth_headers, rpc_app, caplog):
         rpc_app.rpc_broken = True
@@ -293,7 +322,12 @@ class TestReserve:
         sub = next(s for s in rpc_app.tables['dt_submission'] if s['id'] == again['submission_id'])
         assert sub['passage_id'] == served[0]  # graded first -> least recently graded
         assert again['repeat_of']['band'] == 3
-        # without reserve it is still all done
+        # the repeat is now the current passage: a plain call resumes it, as a repeat
+        status, resumed = _next(client, auth_headers, 'language_id=1')
+        assert status == 200 and resumed['submission_id'] == again['submission_id']
+        assert resumed['repeat_of']['band'] == 3
+        # once skipped, it is all done again
+        client.post(f"/api/dual-translation/{again['submission_id']}/skip", headers=auth_headers)
         assert _next(client, auth_headers, 'language_id=1')[1]['error_code'] == dt_routes.ALL_DONE
 
     def test_reserve_does_not_preempt_fresh_content(self, client, auth_headers, rpc_app):

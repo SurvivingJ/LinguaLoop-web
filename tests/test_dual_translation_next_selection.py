@@ -234,6 +234,12 @@ def _serve(db, choice, l1=EN):
     }).execute().data[0]
 
 
+def _skip(db, submission):
+    """What POST /<id>/skip records."""
+    submission['skipped_at'] = '2026-11-17T00:00:00+00:00'
+    return submission
+
+
 def _grade(db, submission):
     db.table('dt_grade').insert({'submission_id': submission['id'], 'overall_band': 3}).execute()
 
@@ -332,9 +338,20 @@ class TestNoRepeats:
     def test_unseen_passage_before_a_served_ungraded_one(self):
         db = _TableDB(_tables())
         first = _choose(db, ZH)
-        _serve(db, first)  # served, abandoned (never graded)
+        _skip(db, _serve(db, first))  # served, then skipped
         second = _choose(db, ZH)
         assert second['passage']['passage_id'] != first['passage']['passage_id']
+
+    def test_a_passage_shown_and_not_skipped_is_resumed(self):
+        db = _TableDB(_tables())
+        first = _choose(db, ZH)
+        _serve(db, first)  # shown, neither translated nor skipped
+        again = _choose(db, ZH)
+        assert again['resumed'] is True
+        assert again['passage']['passage_id'] == first['passage']['passage_id']
+        # an explicit re-serve request is not a resume
+        assert 'resumed' not in dt_routes._choose_next(
+            db, USER, EN, ZH, dt_routes._attempted_tests(db, USER), reserve=True)
 
     def test_windows_do_not_overlap_served_windows(self):
         db = _TableDB(_tables())
@@ -363,8 +380,8 @@ class TestNoRepeats:
 
     def test_served_but_ungraded_passage_comes_back_least_recent_first(self):
         db = _TableDB(_tables())
-        first = _serve(db, _choose(db, ZH))      # served first, never graded
-        second = _serve(db, _choose(db, ZH))     # served second, never graded
+        first = _skip(db, _serve(db, _choose(db, ZH)))      # served first, skipped
+        second = _skip(db, _serve(db, _choose(db, ZH)))     # served second, skipped
         assert first['passage_id'] != second['passage_id']
         again = _choose(db, ZH)
         assert again['kind'] == 'passage'
@@ -377,10 +394,10 @@ class TestNoRepeats:
             choice = _choose(db, JA)
             if choice['kind'] == 'none' or len(submissions) > 5:
                 break
-            submissions.append((choice, _serve(db, choice)))
+            submissions.append((choice, _skip(db, _serve(db, choice))))
             if len(submissions) == 3:
                 break
-        # three windows served, the first never graded
+        # three windows served and skipped, the first never graded
         for _, sub in submissions[1:]:
             _grade(db, sub)
         again = _choose(db, JA)

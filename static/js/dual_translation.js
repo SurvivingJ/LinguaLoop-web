@@ -203,6 +203,7 @@
     bindTabs();
     el.submit.addEventListener('click', onSubmit);
     el.tryAnother.addEventListener('click', loadNext);
+    if (el.skip) el.skip.addEventListener('click', onSkip);
     // TASK-989: on the all-done screen the learner may translate an earlier
     // passage again (least recently graded first); "Try another" then stays
     // in that mode.
@@ -257,6 +258,7 @@
       'dtPassageNote',
       'dtReserve',
       'dtBrowseTests',
+      'dtSkip',
     ].forEach(function (id) {
       // strip the 'dt' prefix + lowercase first char for a tidy key
       const key = id.charAt(2).toLowerCase() + id.slice(3);
@@ -665,6 +667,37 @@
   }
 
   // ------------------------------------------------------------ POST /submit
+  // "Skip this passage": GET /next resumes the passage the learner was last
+  // shown until it is translated or skipped, so moving on is an explicit act.
+  // The skipped passage comes back after everything not seen yet.
+  async function onSkip() {
+    if (!state.submissionId || state.skipping) return;
+    state.skipping = true;
+    el.skip.disabled = true;
+    try {
+      const resp = await window.authFetch(
+        '/api/dual-translation/' + encodeURIComponent(state.submissionId) + '/skip',
+        { method: 'POST' }
+      );
+      // 409: already translated elsewhere - moving on is still right.
+      if (!resp.ok && resp.status !== 409) throw new Error('skip ' + resp.status);
+    } catch {
+      state.skipping = false;
+      el.skip.disabled = false;
+      if (typeof window.showToast === 'function') {
+        window.showToast(
+          label('dual_translation.skip_failed', "Couldn't skip this passage. Try again."),
+          'error'
+        );
+      }
+      return;
+    }
+    state.skipping = false;
+    el.skip.disabled = false;
+    if (state.timer && state.timer.stop) state.timer.stop();
+    loadNext();
+  }
+
   async function onSubmit() {
     if (state.submitting) return; // double-submit latch
     const reproduction = (el.reproduction.value || '').trim();

@@ -284,6 +284,13 @@ export function mount(container, ctx) {
       `<button class="ld-btn" type="button" data-dt-submit>${esc(
         T('session.dt_submit', null, 'Submit translation')
       )}</button>
+      ${
+        data.source
+          ? `<button class="ld-link ld-link--quiet dt-skip" type="button" data-dt-skip-passage>${esc(
+              T('dual_translation.skip_passage', null, 'Skip this passage')
+            )}</button>`
+          : ''
+      }
       <button class="ld-link ld-link--quiet" type="button" data-dt-skip hidden>${esc(
         T('session.skip_for_now', null, 'Skip for now')
       )}</button>`
@@ -291,6 +298,31 @@ export function mount(container, ctx) {
 
     if (timer) timer.start();
     $('[data-dt-submit]').onclick = submit;
+    // GET /next resumes this passage until it is translated or skipped; the
+    // skipped one comes back after everything not seen yet.
+    const skipPassage = $('[data-dt-skip-passage]');
+    if (skipPassage) {
+      skipPassage.onclick = async () => {
+        if (state.submitting || state.destroyed || !state.submissionId) return;
+        skipPassage.disabled = true;
+        try {
+          const res = await window.authFetch(
+            `/api/dual-translation/${encodeURIComponent(state.submissionId)}/skip`,
+            { method: 'POST' }
+          );
+          if (!res.ok && res.status !== 409) throw new Error(`skip ${res.status}`);
+        } catch {
+          skipPassage.disabled = false;
+          return;
+        }
+        if (state.destroyed) return;
+        paint(
+          '<div class="dt-player__spin"><div class="spinner-border" role="status" aria-hidden="true"></div></div>',
+          ''
+        );
+        load(false);
+      };
+    }
   }
 
   async function submit() {

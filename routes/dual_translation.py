@@ -126,13 +126,15 @@ def get_next() -> ApiResponse:
     reviewed reference in the learner's L1 (no live generation), never one the
     learner has had graded (except with ``reserve``):
 
+      0. the passage the learner was last shown and neither translated nor
+         skipped (``resumed`` in the answer) — not with ``reserve``;
       1. a legacy whole passage of a test the learner attempted, never served;
       2. a new sentence window of a test the learner attempted;
       3. a legacy passage of a test the learner has NOT attempted, nearest the
          learner's level first (``from_untaken_test`` in the answer — the client
          says so, because the passage shows part of that test);
       4. a new sentence window of such a test, nearest level first;
-      5. a passage served before but never graded, least recently served first;
+      5. a passage served before and skipped, least recently served first;
       6. with ``reserve``: a graded passage, least recently graded first.
 
     404 ``ALL_DONE`` when nothing is left and the learner has had a passage
@@ -479,6 +481,42 @@ def submit(submission_id: int) -> ApiResponse:
     except Exception as e:
         logger.error("Error submitting dual-translation reproduction %s: %s", submission_id, e)
         return server_error("Failed to submit reproduction")
+
+
+@dual_translation_bp.route('/<int:submission_id>/skip', methods=['POST'])
+@supabase_jwt_required
+def skip(submission_id: int) -> ApiResponse:
+    """"Skip this passage": mark the learner's open submission as skipped so
+    GET /next stops resuming it and moves on. The passage comes back later,
+    after everything not yet seen (``_choose_next`` step 5).
+
+    Only an open submission can be skipped: the learner's own, with no grade
+    and nothing stored as its reproduction. Skipping twice is a no-op (200).
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return server_error("Database service not configured")
+        user_id = g.current_user_id
+        rows = (
+            db.table('dt_submission').select('id, user_id, reproduction')
+            .eq('id', submission_id).eq('user_id', user_id).limit(1).execute()
+        ).data or []
+        if not rows:
+            return api_error("Submission not found", 404)
+        graded = (
+            db.table('dt_grade').select('submission_id').eq('submission_id', submission_id)
+            .limit(1).execute()
+        ).data
+        if (rows[0].get('reproduction') or '') or graded:
+            return api_error("This passage has already been translated", 409, error_code='ALREADY_SUBMITTED')
+        db.table('dt_submission').update(
+            {'skipped_at': datetime.now(timezone.utc).isoformat()}
+        ).eq('id', submission_id).eq('user_id', user_id).execute()
+        return api_success({'skipped': True, 'submission_id': submission_id})
+    except Exception as e:
+        logger.error("Error skipping dual-translation submission %s: %s", submission_id, e, exc_info=True)
+        return server_error("Failed to skip passage")
 
 
 # ============================================================================
@@ -966,9 +1004,12 @@ def _served_history(db, user_id: str, l1_language_id: Optional[int] = None) -> d
     over all of this user's dt_submission rows (a passage served twice keeps its
     latest serve). ``open_id``: the newest submission on the passage with no
     grade and no reproduction yet (in ``l1_language_id`` when given) — GET /next
-    reuses it instead of inserting another empty row (TASK-991)."""
+    reuses it instead of inserting another empty row (TASK-991).
+    ``open_skipped``: the learner pressed "Skip this passage" on that open
+    submission; an open submission that was not skipped is the passage GET /next
+    resumes."""
     subs = _read_all_pages(lambda: (
-        db.table('dt_submission').select('id, passage_id, created_at, reproduction, l1_language_id')
+        db.table('dt_submission').select('id, passage_id, created_at, reproduction, l1_language_id, skipped_at')
         .eq('user_id', user_id).order('id')
     ))
     grades: dict = {}
@@ -985,7 +1026,7 @@ def _served_history(db, user_id: str, l1_language_id: Optional[int] = None) -> d
     for row in subs:
         pid = row['passage_id']
         entry = history.setdefault(pid, {'last_served': '', 'graded': False, 'last_graded_at': None,
-                                         'band': None, 'open_id': None})
+                                         'band': None, 'open_id': None, 'open_skipped': False})
         served = str(row.get('created_at') or '')
         if served > entry['last_served']:
             entry['last_served'] = served
@@ -1000,6 +1041,7 @@ def _served_history(db, user_id: str, l1_language_id: Optional[int] = None) -> d
                 l1_language_id is None or row.get('l1_language_id') in (None, l1_language_id)):
             if entry['open_id'] is None or row['id'] > entry['open_id']:
                 entry['open_id'] = row['id']
+                entry['open_skipped'] = bool(row.get('skipped_at'))
     return history
 
 
@@ -1056,6 +1098,21 @@ def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
     # of a new window.
     blocked = _served_ranges(list(inputs.passages.values()))
 
+    # 0. Resume: a passage the learner was shown and neither translated nor
+    # skipped comes back until they do one or the other (newest first). An
+    # explicit re-serve request is not a resume.
+    if not reserve:
+        pending = [pid for pid, h in history.items() if h.get('open_id') and not h.get('open_skipped')]
+        pending.sort(key=lambda pid: history[pid]['open_id'], reverse=True)
+        hit = _first_servable(inputs, pending, l2, in_scope)
+        if hit:
+            choice, pid = hit
+            choice['resumed'] = True
+            if history[pid]['graded']:
+                choice['repeat_of'] = {'graded_at': history[pid].get('last_graded_at'),
+                                       'band': history[pid].get('band')}
+            return choice
+
     # 1 / 3. Legacy whole passages never served, attempted tests first.
     legacy = [p for p in inputs.legacy_passages()
               if int(p.get('l2_language_id') or l2) == l2 and in_scope(p.get('source_ref_id'))]
@@ -1092,7 +1149,7 @@ def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
     if window:
         return {'kind': 'range', **window, 'untaken': True}
 
-    # 5. Served before, never graded: least recently served first.
+    # 5. Served before, never graded (skipped): least recently served first.
     ungraded = [pid for pid, h in history.items() if not h['graded']]
     ungraded.sort(key=lambda pid: history[pid]['last_served'])
     hit = _first_servable(inputs, ungraded, l2, in_scope)
@@ -1281,6 +1338,7 @@ class _RpcInputs(_NextInputs):
             self.history[pid] = {
                 'last_served': str(h.get('ls') or ''), 'graded': bool(h.get('g')),
                 'last_graded_at': h.get('lg'), 'band': h.get('b'), 'open_id': h.get('o'),
+                'open_skipped': bool(h.get('sk')),
             }
             self.passages[pid] = {
                 'id': pid, 'age_tier': h.get('a'), 'l2_language_id': h.get('l2'),
@@ -1569,6 +1627,8 @@ def _serve_choice(db, user_id: str, inputs: _NextInputs, choice: dict) -> ApiRes
     dt_submission row per GET /next). Common path: 1-2 writes."""
     l1 = inputs.l1
     extra = {'type': 'passage'}
+    if choice.get('resumed'):
+        extra['resumed'] = True
     if choice.get('untaken'):
         extra['from_untaken_test'] = True
     if choice.get('repeat_of'):
@@ -1638,8 +1698,17 @@ def _serve_choice(db, user_id: str, inputs: _NextInputs, choice: dict) -> ApiRes
 
 def _open_or_create_submission(db, user_id: str, inputs: _NextInputs, passage_id: int,
                                l1_language_id: int) -> Optional[int]:
-    open_id = (inputs.history.get(passage_id) or {}).get('open_id')
+    entry = inputs.history.get(passage_id) or {}
+    open_id = entry.get('open_id')
     if open_id:
+        if entry.get('open_skipped'):
+            # A skipped passage that comes round again is the current passage
+            # once more: GET /next resumes it until it is translated or skipped.
+            try:
+                db.table('dt_submission').update({'skipped_at': None}).eq('id', int(open_id)).eq(
+                    'user_id', user_id).execute()
+            except Exception as e:  # never block serving on the marker
+                logger.warning("DT /next could not clear skipped_at on %s: %s", open_id, e)
         return int(open_id)
     resp = db.table('dt_submission').insert({
         'user_id': user_id,

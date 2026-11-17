@@ -13,6 +13,9 @@
 -- Execute is revoked from PUBLIC/anon/authenticated, so no client can call it
 -- with someone else's user id; the route passes the user id from the verified JWT.
 --
+-- Requires dt_submission.skipped_at (migrations/dt_submission_skip.sql, applied first):
+-- history[].sk says whether the learner skipped the open submission.
+--
 -- New object only (no existing function, table or policy is changed).
 -- Rollback: migrations/dt_next_inputs_rollback.sql
 --   (DROP FUNCTION public.dt_next_inputs(uuid, integer, integer);)
@@ -29,7 +32,8 @@
 --   history[]         one row per passage served to the learner:
 --                     p passage id, ls last served, g graded, lg last graded at,
 --                     b band of the latest grade, o newest open submission id
---                     (no grade, empty reproduction, same L1), l2, st status,
+--                     (no grade, empty reproduction, same L1), sk whether the
+--                     learner skipped that open submission, l2, st status,
 --                     t source test, s/e sentence range, a age tier
 --   legacy[]          active whole-passage dt_passage rows in l2 with an l1
 --                     reference: id, t test, a age tier, x l1 text
@@ -70,7 +74,7 @@ AS $$
          WHERE a.user_id = p_user_id AND a.test_id IS NOT NULL
     ), subs AS (
         SELECT s.id, s.passage_id, s.created_at, s.reproduction, s.l1_language_id,
-               g.created_at AS graded_at, g.overall_band
+               s.skipped_at, g.created_at AS graded_at, g.overall_band
           FROM public.dt_submission s
           LEFT JOIN public.dt_grade g ON g.submission_id = s.id
          WHERE s.user_id = p_user_id
@@ -82,7 +86,12 @@ AS $$
                (array_agg(sb.overall_band ORDER BY sb.graded_at DESC NULLS LAST, sb.id DESC))[1] AS last_band,
                max(sb.id) FILTER (WHERE sb.graded_at IS NULL
                                     AND coalesce(sb.reproduction, '') = ''
-                                    AND sb.l1_language_id = (SELECT l1 FROM lang)) AS open_id
+                                    AND sb.l1_language_id = (SELECT l1 FROM lang)) AS open_id,
+               -- skipped state of that same (newest) open submission
+               (array_agg(sb.skipped_at IS NOT NULL ORDER BY sb.id DESC)
+                    FILTER (WHERE sb.graded_at IS NULL
+                              AND coalesce(sb.reproduction, '') = ''
+                              AND sb.l1_language_id = (SELECT l1 FROM lang)))[1] AS open_skipped
           FROM subs sb
          GROUP BY sb.passage_id
     ), hp AS (
@@ -157,6 +166,7 @@ AS $$
         'history', COALESCE((SELECT jsonb_agg(jsonb_build_object(
                      'p', hp.passage_id, 'ls', hp.last_served, 'g', hp.graded,
                      'lg', hp.last_graded_at, 'b', hp.last_band, 'o', hp.open_id,
+                     'sk', COALESCE(hp.open_skipped, false),
                      'l2', hp.l2_language_id, 'st', hp.status, 't', hp.source_ref_id,
                      's', hp.sentence_start, 'e', hp.sentence_end, 'a', hp.age_tier))
                      FROM hp), '[]'::jsonb),
