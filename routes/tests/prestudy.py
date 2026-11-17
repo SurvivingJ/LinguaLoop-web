@@ -66,6 +66,33 @@ def get_test_prestudy(identifier):
     return api_success(data=payload)
 
 
+@tests_bp.route('/<identifier>/prestudy/exercises', methods=['GET'])
+@supabase_jwt_required
+@api_errors('Failed to load exercises')
+def get_test_prestudy_exercises(identifier):
+    """Ladder exercises for words that joined the prime's drill set on the page
+    ("I don't know this"); the payload carries exercises for the drill words
+    only (ADR-047 open question 1).
+
+    ``?sense_ids=11,12,...``: 1-20 distinct ids (400 otherwise). Ids that are
+    not linked to this test (``tests.vocab_sense_ids``) or not numbers are
+    ignored. Returns ``{sense_ids: [served ids], exercises: {sense_id:
+    [{id, type, group, level, c}]}}``, the payload's ``exercises`` shape; a
+    served sense with no exercise has no key. Never queues generation.
+    """
+    from services import prestudy
+    tokens = list(dict.fromkeys(t.strip() for t in (request.args.get('sense_ids') or '').split(',') if t.strip()))
+    if not tokens or len(tokens) > prestudy.MAX_ON_DEMAND_SENSES:
+        return bad_request(f"sense_ids must list 1-{prestudy.MAX_ON_DEMAND_SENSES} sense ids")
+    db = get_db()
+    test = _find_test_for_prestudy(db, identifier)
+    if not test:
+        return not_found("Test not found")
+    requested = [int(t) for t in tokens if t.isascii() and t.isdigit()]
+    served, exercises = prestudy.on_demand_exercises(db, test, requested)
+    return api_success(data={'sense_ids': served, 'exercises': exercises})
+
+
 @tests_bp.route('/<identifier>/prestudy/session', methods=['POST'])
 @supabase_jwt_required
 @api_errors('Failed to start prestudy')

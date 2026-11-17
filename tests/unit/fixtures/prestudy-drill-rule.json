@@ -1,0 +1,72 @@
+{
+  "about": "The prestudy drill rule, shared by its two implementations: services/prestudy.py drill_sense_ids() (tests/test_exercise_content_prestudy_reader.py) and static/js/prestudy/prestudy.js drillSenseIds() (tests/unit/prestudy-ondemand.test.js). Each case is a slice of the GET /api/tests/<id>/prestudy payload and the sorted sense ids the prime drills before the learner adds a word. A linked sense (test.vocab_sense_ids) with a senses entry is drilled when p_known < 0.75: the learner's row p, else the Zipf prior 1/(1+exp(-(1.5*(freq-ability)+ln(0.85/0.15)))), 0.3 when freq is null; ability_zipf null means 5.0.",
+  "cases": [
+    {
+      "name": "boundaries at ability 5.0",
+      "payload": {
+        "test": {"vocab_sense_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 2]},
+        "senses": {
+          "1": {"freq": 4.8}, "2": {"freq": 4.8}, "3": {"freq": 7.0}, "4": {"freq": 2.0},
+          "5": {"freq": null}, "6": {"freq": 7.0}, "7": {"freq": 2.0}, "8": {"freq": 4.576},
+          "9": {"freq": 4.5761}, "10": {"freq": 0}, "12": {"freq": 2.0}, "13": {"freq": 9.0}
+        },
+        "knowledge": {
+          "1": {"p": 0.75, "status": "probably_known", "n": 4},
+          "2": {"p": 0.7499, "status": "learning", "n": 4},
+          "3": {"p": 0.2, "status": "encountered", "n": 2},
+          "4": {"p": 0.95, "status": "known", "n": 9},
+          "11": {"p": 0.1, "status": "unknown", "n": 1},
+          "12": {"p": 0.1, "status": "unknown", "n": 1},
+          "13": {"p": 0, "status": "unknown", "n": 3}
+        },
+        "ability_zipf": 5.0
+      },
+      "drill": [2, 3, 5, 7, 8, 10, 13],
+      "why": {
+        "1": "row p 0.75 is probably_known: not drilled (strict <)",
+        "2": "row p 0.7499: drilled; listed twice, drilled once",
+        "3": "row p 0.2 beats the prior of a common word",
+        "4": "row p 0.95 beats the prior of a rare word",
+        "5": "no row, no frequency: prior 0.3",
+        "6": "no row, common word: prior 0.991",
+        "7": "no row, rare word: prior 0.059",
+        "8": "no row, prior 0.7499979",
+        "9": "no row, prior 0.7500260",
+        "10": "freq 0 is a frequency, not a missing one: prior 0.003",
+        "11": "linked and unknown but no senses entry: the page cannot show it",
+        "12": "unknown but not linked (a question-only sense)",
+        "13": "row p 0 wins over the prior of a very common word"
+      }
+    },
+    {
+      "name": "the learner's ability moves the prior",
+      "payload": {
+        "test": {"vocab_sense_ids": [21, 22]},
+        "senses": {"21": {"freq": 4.6}, "22": {"freq": 5.5}},
+        "knowledge": {},
+        "ability_zipf": 5.1
+      },
+      "drill": [21]
+    },
+    {
+      "name": "same words at the default ability",
+      "payload": {
+        "test": {"vocab_sense_ids": [21, 22]},
+        "senses": {"21": {"freq": 4.6}, "22": {"freq": 5.5}},
+        "knowledge": {},
+        "ability_zipf": null
+      },
+      "drill": []
+    },
+    {
+      "name": "no linked senses",
+      "payload": {
+        "test": {"vocab_sense_ids": []},
+        "senses": {"31": {"freq": 1.0}},
+        "knowledge": {"31": {"p": 0.1, "status": "unknown", "n": 1}},
+        "ability_zipf": 5.0
+      },
+      "drill": []
+    }
+  ]
+}
