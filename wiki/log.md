@@ -6759,3 +6759,6 @@ Owner decision (count untaken tests too). `build_daily_session` decided dual-tra
 
 ## [2026-11-17] update | Merged main; app-shell decision renumbered ADR-046 → ADR-048
 `main` gained [[decisions/ADR-046-untaught-words-start-the-drill]] while this branch had used the same number for the mobile app shell. The app-shell record is now [[decisions/ADR-048-mobile-app-shell]]; every reference in the wiki was updated. Code conflict: `static/js/exercise-renderers.js` keeps main's per-option explanation notes and this branch's feedback path.
+
+## [2026-11-17] update | dt_passage_reference dropped
+The owner ran `migrations/dt_passage_reference_drop.sql` on the live database (after its guard was fixed to ignore comment lines: it had matched the "no longer read" comment inside `build_daily_session`). Verified: the table is gone, 64 window passages remain, `build_daily_session` is unchanged (`md5(prosrc)` 2e1c3732…), and the branch's app answers `/next`, due cards, profile and study-session with 200 and no errors logged.
