@@ -1,56 +1,70 @@
 {
- "test_id": "d4a82433-a94f-467d-aff9-0130b15896b4",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 2,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 5,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 6,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "d4a82433-a94f-467d-aff9-0130b15896b4",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7353,
+      "back_translation": "虽然数据仓库和数据湖都属于企业数据管理的基础设施,但它们的设计理念大不相同。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9375,
+      "back_translation": "数据仓库主要存储经过清洗和整理的结构化数据,例如销售报表和财务记录。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9023,
+      "back_translation": "这些数据在进入仓库之前,必须先经过ETL流程,即抽取、转换和加载,并按照预设的模式整理妥当,所以查询快速、结果可靠,非常适合管理层进行固定的统计分析。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.875,
+      "back_translation": "相比之下,数据湖遵循“先存储、后处理”的原则,可以原样保留各种格式的数据,不仅包括结构化数据,也包括日志、图像和音频等非结构化内容。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8923,
+      "back_translation": "它的存储成本低、灵活性极高,因此数据科学家可以按需随时挖掘,探索新的价值。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7692,
+      "back_translation": "然而,缺乏有效治理的数据湖很容易退化成一片混乱的“数据沼泽”。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.6842,
+      "back_translation": "因此,许多公司干脆把两者结合使用,各取所长。"
+    }
+  ]
 }

@@ -1,56 +1,70 @@
 {
- "test_id": "a7924a4c-89f4-4230-bc83-84e695f0fc76",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 2,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 5,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 6,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "a7924a4c-89f4-4230-bc83-84e695f0fc76",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9211,
+      "back_translation": "民意调查看似只是向一部分人提问，却常常左右舆论和决策，所以其结论是否可靠至关重要。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9412,
+      "back_translation": "调查者不可能询问每一位公民，只能通过抽样，从总体中挑出一小部分人作为样本。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8923,
+      "back_translation": "然而，如果样本不能反映总体的构成，结果就会出现系统性偏差，这就是样本偏差。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7643,
+      "back_translation": "比如，如果一个机构只在网上发布问卷，参与者往往主要是年轻人和熟悉互联网的人，老年人和偏远地区居民的意见几乎无法体现；同样，如果电话调查只拨打座机，也会漏掉大量只用手机的人。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8163,
+      "back_translation": "为了提高样本的代表性，研究者通常采用随机抽样，让总体中的每个人都有同等的被选中机会，以尽量避免人为选择。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8214,
+      "back_translation": "即便如此，拒绝回答的人群和带有引导性措辞的问题仍可能扭曲结果。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7671,
+      "back_translation": "显然，要读懂一项民意调查，不能只看数字本身，还必须进一步追问：样本从何而来，又是如何选取的？"
+    }
+  ]
 }

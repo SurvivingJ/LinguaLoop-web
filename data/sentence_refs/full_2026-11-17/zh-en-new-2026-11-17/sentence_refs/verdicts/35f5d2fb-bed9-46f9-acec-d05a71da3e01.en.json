@@ -1,70 +1,88 @@
 {
- "test_id": "35f5d2fb-bed9-46f9-acec-d05a71da3e01",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 2,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 5,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 6,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 7,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 8,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "35f5d2fb-bed9-46f9-acec-d05a71da3e01",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8095,
+      "back_translation": "贝叶斯思维的核心是：面对新的证据，我们不应完全推翻原有的判断，而应在此基础上审慎地修正自己的信念。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8293,
+      "back_translation": "起初，我们根据已有经验形成的判断叫做先验概率；吸收新证据之后得到的修正结果叫做后验概率。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8378,
+      "back_translation": "两者之间的桥梁是条件概率，也就是在另一个事件已经发生的前提下，某个事件发生的可能性。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9091,
+      "back_translation": "医学检测是最经典的例子。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7174,
+      "back_translation": "假设某种疾病的发病率只有百分之一，检测能识别出百分之九十的患者，而健康人被误判为阳性的比例约为百分之九。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9048,
+      "back_translation": "如果一个人检测呈阳性，他真正患病的概率有多高？"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7302,
+      "back_translation": "许多人凭直觉认为接近百分之九十，但实际上，经过计算，后验概率只有大约百分之九。"
+    },
+    {
+      "idx": 7,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8378,
+      "back_translation": "原因在于健康人群的基数极其庞大，所以即使误判率很低，误报的数量仍然远远超过真正的患者。"
+    },
+    {
+      "idx": 8,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9118,
+      "back_translation": "由此可见，贝叶斯思维提醒我们：结论既取决于证据本身，也取决于原有的基础比率。"
+    }
+  ]
 }

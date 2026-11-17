@@ -1,42 +1,52 @@
 {
- "test_id": "db2ab335-51ad-44c6-87a3-43c07e7cfa5d",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 2,
-   "verdict": "rewritten",
-   "entailment_ok": true,
-   "changed": true,
-   "notes": "quarterly series, so 环比 is quarter-on-quarter"
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "db2ab335-51ad-44c6-87a3-43c07e7cfa5d",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.918,
+      "back_translation": "阅读经济新闻时,读者常常被“同比增长”和“环比增长”这样的表述搞得眼花缭乱。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8491,
+      "back_translation": "同比是把当期数据与去年同期相比,可以消除季节性波动的干扰;相比之下,环比是与紧邻的上一期相比,更能反映短期趋势。"
+    },
+    {
+      "idx": 2,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "quarterly series, so 环比 is quarter-on-quarter",
+      "tightness": 0.876,
+      "back_translation": "以某国的季度GDP为例,如果第二季度同比增长5%,说明经济总量高于上年同期;如果环比只增长0.3%,则意味着与第一季度相比,增速明显放缓。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.848,
+      "back_translation": "还必须注意基数效应:如果去年同期受到冲击而数值偏低,那么即使今年的增长率亮眼,也可能只是低基数带来的“虚高”数字;反过来,高基数会让增长率显得平淡。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7843,
+      "back_translation": "因此,只看单一的增长率,容易以偏概全,只有把同比和环比结合起来,并查看底层的基数,才能对经济趋势做出较为客观的判断。"
+    }
+  ]
 }

@@ -3,8 +3,8 @@ title: "Test Sentence References — Task Breakdown"
 feature: test-sentence-references
 prose_page: ../features/test-sentence-references.md
 tech_page: ../features/test-sentence-references.tech.md
-total_tasks: 12
-done: 11
+total_tasks: 14
+done: 12
 ---
 
 # Test Sentence References — Task Breakdown
@@ -278,7 +278,7 @@ The evaluation page exists, the tasklist and ADR-037 are updated with the decisi
 
 ## TASK-908: Full run — all active tests, winning arm
 
-**Status:** [ ] Not Started — unblocked by TASK-907; needs TASK-901 applied live first
+**Status:** [~] In Progress — English references for every Japanese and Chinese test **done live 2026-11-17**; Chinese references for English tests deferred (developer, 2026-11-17: no learner has Chinese as native language yet). See the run record below.
 **Feature:** test-sentence-references
 **Type:** feature
 **Complexity:** L
@@ -291,13 +291,22 @@ tests are fully covered. Second L1 set (ja for zh tests, zh for ja tests, ja for
 follow-on slice once a learner with that L1 exists.
 
 **Acceptance Criteria:**
-- [ ] Every active test with ≥ 2 sentences has an active reference for every sentence in the first L1 set; `status` shows no gaps.
-- [ ] Coverage query per language = 100% of sentences; tightness floor met by ≥ 90% of sentences; the rest are listed for a second review pass.
-- [ ] `dt_passage` rows for fully covered tests are `retired`; existing `dt_submission` history still resolves.
-- [ ] Author and reviewer turn counts recorded in the log (the cost of this run is agent time, not OpenRouter spend).
+- [~] Every active test with ≥ 2 sentences has an active reference for every sentence in the first L1 set; `status` shows no gaps. *(Japanese and Chinese → English: done 2026-11-17. English → Chinese: deferred.)*
+- [x] Coverage query per language = 100% of sentences; tightness floor met by ≥ 90% of sentences; the rest are listed for a second review pass. *(ja 100% / 96.6%, zh 100% / 94.3%; second pass run on 193, 89 listed.)*
+- [x] ~~`dt_passage` rows for fully covered tests are `retired`~~ — obsolete: no legacy passages remain (2026-11-17); `dt_submission` history unaffected.
+- [x] Author and reviewer turn counts recorded in the log (the cost of this run is agent time, not OpenRouter spend).
 
 **Verification:**
 `scripts/sentence_ref_runner.py status` across all RUN dirs; the coverage SQL in the tech page.
+
+**Run record (2026-11-16/17):**
+- 2026-11-16, not previously logged: 30 Japanese + 30 Chinese tests (run_00/run_01, 667 references, sentencewise).
+- 2026-11-17 (`data/sentence_refs/full_2026-11-17/`): `ja-en-2026-11-17` 24 tests / 116 sentences (2 Sonnet author turns, 2 reviewer turns: 1 Opus, 1 Sonnet; 110 pass, 6 rewritten); `zh-en-2026-11-17` 65 tests / 1,036 sentences (9 Sonnet author turns, 9 reviewer turns: 2 Opus, 7 Sonnet; 1,013 pass, 23 rewritten); `zh-en-new-2026-11-17` the 150 Chinese tests added on 2026-11-14, which had no `test_sentences` rows or `transcript_hash` until `build_test_sentences.py --apply` today (1,039 sentences; 10 Sonnet author turns, 10 reviewer turns: 2 Opus, 8 Sonnet; 1,016 pass, 23 rewritten); `recheck-2026-11-17` second blind review of the 193 references below the floor (8 Opus turns; 150 pass, 35 rewritten, 8 fail = broken gold, previous reference kept).
+- Result, active tests: Japanese 388/388 sentences with an English reference (96.6% at the floor), Chinese 3,008/3,008 (94.3%), English→Chinese unchanged at 484/2,486 (94.8% of those at the floor). Servable `/next` windows: 850 Chinese, 81 Japanese.
+- 89 references of the 2026-11-14 batch are below the floor and have had one review only — candidates for the next `sentence_ref_recheck.py` pass. 110 earlier ones stay below the floor after two blind reviews that both called them faithful (open question on the prose page).
+- "`dt_passage` rows for fully covered tests are retired": no longer applies. `dt_passage_reference` had 0 rows and every `dt_passage` row was a range passage on 2026-11-17.
+- OpenRouter spend: none.
+- Harness fixes: `export` counts `rewritten` as covered (it re-exported tests already done); `assemble` takes `author_model`/`arm`/`prompt_version` from the authored document (reviewers never see `docs/`, so every row was `claude-subagent`). Known gap: the number check cannot match 万 amounts written with thousands separators (102万 → "1,020,000" fails `missing_number`), so one test writes "1020000 yuan".
 
 ---
 
@@ -387,3 +396,65 @@ learner asks for it (off by default).
 
 **Verification:**
 vitest; open the preview on a test with sentence rows and on one without.
+
+---
+
+## TASK-976: `GET /api/dual-translation/next` serves reviewed sentence windows
+
+**Status:** [x] Done (repo, 2026-11-17) — not deployed. 21 pytest + 2 vitest; selection run read-only against production for the main learner.
+**Feature:** test-sentence-references
+**Type:** bug
+**Complexity:** M
+**Depends On:** TASK-909
+
+**Description:**
+`/next` (standalone page and the daily-session DT slot) served only `dt_passage` rows with a
+stored `dt_passage_reference`; that table is empty in production, so every learner got 404 and
+the reviewed sentence references reached learners only through the prestudy Produce stage.
+`/next` now builds a 2–4 sentence window from the reviewed references of a test the learner
+attempted (most recent first, unpractised windows first, mean tightness at the Produce floor),
+optionally limited to `?language_id=`; the legacy path stays as the fallback.
+
+**Acceptance Criteria:**
+- [x] A learner with attempted tests that have references gets a window, never one in their L1, never a stale or below-floor window.
+- [x] Windows the learner submitted or skipped are not served again until every window has been done; then the least recently practised comes back.
+- [x] The session player sends `ctx.languageId`; the standalone page sends the selected language.
+- [x] No references → the legacy `dt_passage_reference` path, unchanged.
+
+**Files to Create / Modify:**
+- `routes/dual_translation.py` — `_select_next_passage` (+ `_select_next_sentence_window`, `_window_material`, `_practised_sentences`, `_select_next_legacy_passage`), `?language_id=`
+- `services/dual_translation/passage_builder.py` — `plan_sentence_windows`, `pick_next_window`
+- `static/js/session/players/dual_translation.js`, `static/js/dual_translation.js` — send the language
+- `tests/test_dt_next_sentence_windows.py`, `tests/unit/session-dt-player.test.js`, `tests/test_dual_translation_routes.py`
+
+**Verification:**
+`pytest tests/test_dt_next_sentence_windows.py tests/test_dual_translation_routes.py`;
+`npx vitest run tests/unit/session-dt-player.test.js`; after deploy, open Dual Translation as a
+learner with attempted tests and confirm a passage loads (it returned 404 before).
+
+---
+
+## TASK-977: Clean English glosses out of Chinese transcripts
+
+**Status:** [?] Awaiting decision — developer to decide per test whether the bracketed English is part of the listening content (the audio may read it)
+**Feature:** test-sentence-references
+**Type:** bug
+**Complexity:** S
+**Depends On:** none
+
+**Description:**
+15 active Chinese tests carry English inside the transcript, mostly bracketed glosses such as
+（sustainability） or English words with a Chinese gloss (meritocratic（绩效导向）). The
+reviewers failed 7 references on them as broken gold (6ff700da, 1e6419a4, 4980d9b2, 568533a8,
+eb41dd33). Learners are asked to produce Chinese that contains English. Candidates (2026-11-17):
+6ff700da (9), 0841c0e6 (3), 56d76dd3 (3), 12c9556a, 2c1e8d79, 568533a8 (2 each), 61eb20cc,
+b28afcde, cb4f80b2, c2d263d5, cc7b0bb0, a171a56b, eb41dd33, 4980d9b2 (1 each), 1e6419a4 (3
+English words with Chinese glosses). 18a77687's "这件T恤的T恤" is not included: on 2026-11-12 it
+was left as is because the audio says it.
+
+**Acceptance Criteria:**
+- [ ] Each candidate is either cleaned (gloss removed, word map, pinyin and sentences rebuilt with the existing scripts) or recorded as intended.
+- [ ] Cleaned tests get fresh references through the authoring and review skills (a transcript edit retires the old ones by hash).
+
+**Verification:**
+Re-run the gloss query in the 2026-11-17 log entry; it returns only tests recorded as intended.

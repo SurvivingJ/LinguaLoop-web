@@ -6611,3 +6611,35 @@ Not deployed. Pages: created [[decisions/ADR-046-untaught-words-start-the-drill]
 [[features/new-word-drill]], [[features/new-word-drill.tech]] (note 16), [[tasklist/new-word-drill.tasks]]
 (TASK-975), [[tasklist/master]], index.
 
+
+## [2026-11-17] query + implement + apply | Fleshing out dual-translation sentences
+Developer asked how to flesh out the sentences available for dual translation, then "Execute all above".
+Findings (live, read-only): (1) a 2026-11-16 batch of 667 references (30 ja + 30 zh tests, run_00/run_01)
+was never logged; (2) `dt_passage_reference` had 0 rows (the 2026-11-14 entry recorded 134) and every one of
+the 64 `dt_passage` rows was a Produce range passage, so `GET /api/dual-translation/next` (standalone page and
+daily-session slot) returned 404 to every learner; how the old rows went is not recorded anywhere; (3) 150 zh
+and 10 en tests created 2026-11-14 had no `test_sentences` rows and no `transcript_hash`.
+Done:
+- TASK-976 (repo, not deployed): `/next` serves a 2–4 sentence window of reviewed references from the
+  learner's most recently attempted tests, unpractised windows first, mean tightness at the Produce floor,
+  optional `?language_id=` (session player and standalone page send it); legacy path kept as fallback.
+  `plan_sentence_windows` / `pick_next_window` in `passage_builder.py`. Tests: 21 pytest + 2 vitest; the
+  selected DT/prestudy/sentence suites fail the same 77 tests before and after (spaCy model and other env gaps,
+  plus `test_v6_fixture_items_verify[zh]`, which also fails on clean HEAD).
+- Live: `build_test_sentences.py --apply` for the 160 new tests (preamble audit: 0 found); English references
+  authored (Sonnet) and blind-reviewed (Sonnet, Opus on 2 of every 9–10 packs) for 24 ja + 65 zh + 150 new zh
+  tests: 2,191 rows uploaded and activated, 12 superseded; second blind review of the 193 below-floor
+  references (new `scripts/sentence_ref_recheck.py`, 8 Opus turns): 150 pass, 35 rewritten, 8 fail (broken
+  gold kept the old reference). Coverage now: ja 388/388 (96.6% at the floor), zh 3,008/3,008 (94.3%);
+  en → zh unchanged at 484/2,486 (deferred: no Chinese-native learner). Servable windows: 850 zh, 81 ja.
+  Author/reviewer turns: 21 author + 21 reviewer + 8 recheck. OpenRouter spend: none.
+- Runner fixes: `export` counts `rewritten` as covered; `assemble` takes provenance from the authored doc.
+Findings for the developer: 15 zh transcripts contain English glosses (TASK-977, query:
+`transcript ~ '[（(][A-Za-z][A-Za-z \-]+[)）]' or transcript ~ '[A-Za-z]{3,}[（(][^)）]*[一-鿿]'`); 110
+references stay below the floor after two blind reviews that both called them faithful (OPEN on
+[[features/test-sentence-references]]); 89 of the new batch below the floor have one review only; the
+number check cannot match 万 amounts written with thousands separators; Japanese has a hard ceiling of ~81
+windows (tests average 4.7 sentences); the 10 new en tests have no word map.
+Pages updated: [[features/test-sentence-references]], [[features/test-sentence-references.tech]],
+[[features/dual-translation]], [[features/dual-translation.tech]], [[tasklist/test-sentence-references.tasks]]
+(TASK-908 [~], TASK-976, TASK-977), [[tasklist/master]], [[index]].

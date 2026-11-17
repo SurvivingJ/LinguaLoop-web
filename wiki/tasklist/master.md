@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-14
+last_updated: 2026-11-17
 ---
 
 # Master Task List
@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 31 |
-| In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
+| Not Started | 30 |
+| In Progress (`[~]`) | 14 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 29 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 250 |
+
+*2026-11-17 (dual-translation sentences fleshed out):* TASK-908 Not Started → In Progress (English references for every Japanese and Chinese test, live; English → Chinese deferred by the developer). New TASK-976 Done (repo, deploy pending): `/next` served nothing because `dt_passage_reference` is empty; it now serves reviewed sentence windows. New TASK-977 awaiting decision (English glosses in 15 Chinese transcripts). Counts: Not Started 31→30, In Progress 13→14, Blocked/awaiting/Done-(repo) 27→29. See [[tasklist/test-sentence-references.tasks]].
 
 *2026-11-14 (DT guided self-repair built + integrated, WP-INT):* TASK-952–965 Done (WP-BE + WP-FE), TASK-968 and TASK-969 Done (WP-INT: contract test against the real routes, nine frontend/backend mismatches fixed, real-app browser run over an in-memory DB). TASK-966 (apply `dt_guided_self_repair.sql`, owner decision) and TASK-967 (authenticated E2E on a staging DB) Blocked. New: TASK-971 Not Started (real devices / Safari / screen reader / IME), TASK-972 / TASK-973 / TASK-974 Blocked (native review, re-check evaluation, deploy). TASK-939 and TASK-940 superseded by that breakdown. No task id is duplicated (TASK-970 is dt-taxonomy-v6 only). Counts: Not Started 30→31, Blocked 24→27 (+966, 967, 972, 973, 974; −939, 940), Done 234→250. See [[tasklist/dt-guided-self-repair.tasks]].
 
@@ -1166,10 +1168,12 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-905 | test-sentence-references | Skill `sentence-reference-review` (blind back-translation first; Opus sample) | Done (repo) | S | TASK-903 |
 | TASK-906 | test-sentence-references | Upload path `upload_sentence_references.py` | Done (repo) | S | TASK-901, TASK-903 |
 | TASK-907 | test-sentence-references | Two-arm pilot, 30 tests/language, evaluation page, tightness floor | Done (repo) | M | TASK-904, TASK-905, TASK-906 |
-| TASK-908 | test-sentence-references | Full run, all active tests, first L1 set; retire covered dt_passage rows | [ ] | L | TASK-907, TASK-901 live |
+| TASK-908 | test-sentence-references | Full run, all active tests, first L1 set; retire covered dt_passage rows | [~] ja/zh → en done live 2026-11-17; en → zh deferred | L | TASK-907, TASK-901 live |
 | TASK-909 | test-sentence-references | Sentences endpoint, passage-from-sentences, primed-window selector | Done (repo) | M | TASK-901 |
 | TASK-910 | test-sentence-references | Grader target words → per-word contextual_use evidence | Done (repo) | M | TASK-909 |
 | TASK-911 | test-sentence-references | Preview and cloze use `test_sentences` | Done (repo) | S | TASK-902 |
+| TASK-976 | test-sentence-references | `GET /api/dual-translation/next` serves reviewed sentence windows (was 404 for everyone) | Done (repo), deploy pending | M | TASK-909 |
+| TASK-977 | test-sentence-references | Clean English glosses out of 15 Chinese transcripts | [?] developer decision | S | — |
 
 ### New-Word Drill (new 2026-11-09)
 

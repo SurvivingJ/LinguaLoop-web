@@ -1,49 +1,61 @@
 {
- "test_id": "1c19c2de-c232-4f32-9d12-941970488cd2",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "rewritten",
-   "entailment_ok": true,
-   "changed": true,
-   "notes": "Original dropped 'every day' and had a dangling modifier."
-  },
-  {
-   "idx": 2,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 5,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "1c19c2de-c232-4f32-9d12-941970488cd2",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8308,
+      "back_translation": "近年来，“996”已从个别公司的内部规定，逐渐演变成被默认接受的行业惯例。"
+    },
+    {
+      "idx": 1,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Original dropped 'every day' and had a dangling modifier.",
+      "tightness": 0.9388,
+      "back_translation": "早上九点上班，晚上九点下班，一周工作六天，长时间加班被包装成“奋斗”的美德，甚至成了衡量员工是否忠诚的隐性标准。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8932,
+      "back_translation": "在这样的环境里，同事之间忍不住比谁走得更晚，于是出现了“内卷”现象：投入的时间越来越多，最终的回报却几乎没有增加。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.875,
+      "back_translation": "面对这种消耗，一些年轻人选择“躺平”，用降低欲望、拒绝竞争来保护自己的生活；另一些人则把劳动法当作武器，通过仲裁和诉讼要求公司支付加班费。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8605,
+      "back_translation": "法律明确规定了每日和每月加班的上限，但在实际执行中，取证困难、害怕失业等因素让许多人犹豫不决。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8889,
+      "back_translation": "真正的改变或许不在于个人的忍耐或逃离，而在于把规则重新拉回谈判桌。"
+    }
+  ]
 }

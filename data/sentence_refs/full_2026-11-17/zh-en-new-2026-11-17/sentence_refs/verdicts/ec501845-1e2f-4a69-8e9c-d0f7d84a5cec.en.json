@@ -1,56 +1,70 @@
 {
- "test_id": "ec501845-1e2f-4a69-8e9c-d0f7d84a5cec",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 2,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 5,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 6,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "ec501845-1e2f-4a69-8e9c-d0f7d84a5cec",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8941,
+      "back_translation": "统计显示，冰淇淋销量与溺水人数之间存在显著的相关性：每当夏季气温攀升，两条曲线便同步上升。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.88,
+      "back_translation": "然而，相关并不意味着因果。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7119,
+      "back_translation": "如果由此推断吃冰淇淋会诱发溺水，就落入了典型的伪相关陷阱。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8,
+      "back_translation": "真正的推动力在两者之外：高温这一混杂因素。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7865,
+      "back_translation": "它一方面刺激人们对冷饮的需求，另一方面又驱使大量的人前往河流、湖泊和海边避暑，从而提高了溺水的风险。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8923,
+      "back_translation": "因此，在解读任何统计关联时，我们都应该问：是否存在未被观察到的第三个变量？"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8421,
+      "back_translation": "只有排除混杂因素，并通过对照实验或分层分析加以验证，我们才能从数据的相关性中谨慎地推断出可靠的因果链。"
+    }
+  ]
 }

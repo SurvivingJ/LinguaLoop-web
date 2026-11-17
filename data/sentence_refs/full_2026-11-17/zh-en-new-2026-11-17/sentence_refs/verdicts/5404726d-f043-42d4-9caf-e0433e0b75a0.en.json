@@ -1,56 +1,70 @@
 {
- "test_id": "5404726d-f043-42d4-9caf-e0433e0b75a0",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 2,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 5,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 6,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "5404726d-f043-42d4-9caf-e0433e0b75a0",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9577,
+      "back_translation": "评估分类模型时，许多初学者只看准确率，也就是预测正确的样本占全部样本的比例。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7692,
+      "back_translation": "然而，当数据严重不平衡时，这个指标极具误导性。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7049,
+      "back_translation": "设想一家医院用模型筛查一种罕见疾病，在检查的一千人中只有十人患病；如果模型把所有人都判定为“健康”，准确率高达百分之九十九，却一个病人也没发现。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8919,
+      "back_translation": "要看清真相，就需要使用混淆矩阵，它把预测结果分为四类：真阳性、假阳性、真阴性和假阴性。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7907,
+      "back_translation": "其中，假阳性是一种误报，即健康的人被错误地判断为患者。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8372,
+      "back_translation": "精确率衡量的是在被判断为患病的人中真正患病者的比例，因此反映误报有多少；召回率考察的是所有真正的患者中有多少被成功识别出来，反映漏诊的程度。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9545,
+      "back_translation": "两者往往此消彼长，所以应该结合具体场景来权衡取舍。"
+    }
+  ]
 }

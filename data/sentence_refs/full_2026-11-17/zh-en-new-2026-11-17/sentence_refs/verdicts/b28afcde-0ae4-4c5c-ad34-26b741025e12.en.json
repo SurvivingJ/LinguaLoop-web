@@ -1,56 +1,70 @@
 {
- "test_id": "b28afcde-0ae4-4c5c-ad34-26b741025e12",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 2,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 5,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 6,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "b28afcde-0ae4-4c5c-ad34-26b741025e12",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8889,
+      "back_translation": "居民消费价格指数（CPI）用来衡量居民购买的商品和服务价格的总体变化。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8908,
+      "back_translation": "统计部门并不是简单地把所有价格加起来再取平均，而是先设定一个基期，再选取粮食、房租、交通和医疗等有代表性的项目，并持续记录它们的价格。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8941,
+      "back_translation": "由于各类支出在家庭预算中所占的比例差别很大，每个项目都被赋予相应的权重：居民花得越多，权重越大。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8955,
+      "back_translation": "随后，统计人员用加权平均法，把各种价格相对于基期的涨跌汇总成一个指数。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9143,
+      "back_translation": "如果食品价格上涨10%，而食品的权重比教育高，它对整体CPI的拉动就更明显。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.88,
+      "back_translation": "权重会根据家庭消费调查定期调整，以反映消费习惯的变化。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9355,
+      "back_translation": "因此，CPI能够较为客观地呈现价格走势，为政策制定和家庭理财提供参考。"
+    }
+  ]
 }

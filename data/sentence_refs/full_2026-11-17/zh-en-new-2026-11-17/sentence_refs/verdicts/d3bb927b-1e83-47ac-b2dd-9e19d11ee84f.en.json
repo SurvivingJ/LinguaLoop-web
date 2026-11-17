@@ -1,70 +1,88 @@
 {
- "test_id": "d3bb927b-1e83-47ac-b2dd-9e19d11ee84f",
- "l1": "en",
- "reviewer_model": "claude-sonnet-5-5",
- "sentences": [
-  {
-   "idx": 0,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 1,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 2,
-   "verdict": "rewritten",
-   "entailment_ok": true,
-   "changed": true,
-   "notes": "凉皮 is rice-skin noodles, not generic cold noodles"
-  },
-  {
-   "idx": 3,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 4,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 5,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 6,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 7,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  },
-  {
-   "idx": 8,
-   "verdict": "pass",
-   "entailment_ok": true,
-   "changed": false,
-   "notes": ""
-  }
- ]
+  "test_id": "d3bb927b-1e83-47ac-b2dd-9e19d11ee84f",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9524,
+      "back_translation": "小林是一名普通的上班族。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8889,
+      "back_translation": "白天他在公司做设计,夜里却悄悄开始了另一份副业:在夜市摆摊。"
+    },
+    {
+      "idx": 2,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "凉皮 is rice-skin noodles, not generic cold noodles",
+      "tightness": 0.9091,
+      "back_translation": "他卖烤肠、凉面和柠檬水,价格不高,但生意越来越稳定。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8571,
+      "back_translation": "起初,他担心城管会突然来检查,所以总是选在允许摆摊的街角,还提前办好了健康证。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8679,
+      "back_translation": "慢慢地,他发现地摊经济不只是“小买卖”,更是许多人创业的起点。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.6897,
+      "back_translation": "记账的同时,小林研究顾客的口味,还学会了用社交媒体通知摆摊时间。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9444,
+      "back_translation": "周末他会提前备好食材,让顾客不用等太久。"
+    },
+    {
+      "idx": 7,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "对他来说,摆摊既增加了收入,也让他积累了经营经验。"
+    },
+    {
+      "idx": 8,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8136,
+      "back_translation": "现在,他正准备把小吃摊升级成一家小店,把原来的副业变成真正的事业。"
+    }
+  ]
 }
