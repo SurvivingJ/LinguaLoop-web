@@ -6759,3 +6759,153 @@ Owner decision (count untaken tests too). `build_daily_session` decided dual-tra
 
 ## [2026-11-17] update | Merged main; app-shell decision renumbered ADR-046 → ADR-048
 `main` gained [[decisions/ADR-046-untaught-words-start-the-drill]] while this branch had used the same number for the mobile app shell. The app-shell record is now [[decisions/ADR-048-mobile-app-shell]]; every reference in the wiki was updated. Code conflict: `static/js/exercise-renderers.js` keeps main's per-option explanation notes and this branch's feedback path.
+
+## [2026-11-17] update | Database back under the Free-plan 500 MB cap (quick wins, part 1)
+Found live: database 523 MB, over the Supabase Free 500 MB cap (Free projects go read-only above it;
+still writable at the time). `exercises` was 253 MB (144k rows), of which `tags` 54 MB and
+`tags.provenance` 30 MB. `provenance.sentence_sources` is an index-aligned copy of
+`word_assets.content.sentences[i].sentence_source` on the row's `word_asset_id` asset; verified identical
+on 140,476 / 140,476 rows that have an asset (14 rows without `word_asset_id` were left untouched).
+Done live: stripped `sentence_sources` from those rows in batches (the `mined_count` / `generated_count`
+counts stay), plain VACUUM between batches, then `VACUUM (FULL, ANALYZE) exercises`. Result: `exercises`
+253 → 200 MB (tags 54 → 33 MB), **database 523 → 470 MB**. Judge tags untouched
+(`v_ladder_judge_reject_rates` reads them; still returns rows). Code: `exercise_renderer._sentence_provenance`
+no longer copies the list onto new rows (counts only); test updated; tests/test_transcript_mining.py +
+tests/test_vocab_ladder_judges.py 64 pass, 2 fail identically before and after (jieba not installable here).
+Not deployed: until the change is deployed, newly rendered exercises still add the list (~200 B/row).
+NOT done: archive + drop `backup_semdisc_content_20261115` (19 MB) and archiving tag history to Supabase
+Storage — uploading to Storage with the service key was refused in this session, and the table is the only
+rollback copy of the 2026-11-15 semantic-discrimination rewrite, so it was not dropped without an archive.
+Proposed (not filed): move exercise `content` out of Postgres into per-sense JSON files in Storage
+("warehouse/shelf"), ~23 KB → ~6 KB of database per sense.
+Pages: index, log.
+
+## [2026-11-17] ingest | Exercise content to Storage — Phase 0 (architect): inventory, ADR-049, task breakdown
+Source: owner brief (move exercise `content` out of Postgres; Free cap 500 MB, DB 470 MB, target 10k zh + 10k ja
+words) + read-only catalog queries on the live project. Pages created: 2 ([[decisions/ADR-049-exercise-content-in-storage]]
+(proposed), [[tasklist/exercise-content-storage.tasks]]). Pages updated: 3 ([[database/schema.tech]] planned note +
+stale-index note, [[tasklist/master]] (TASK-1008–1031, Not Started 31→55), index). No code, no migration applied, no
+Storage call. Measured live: `exercises` 200 MB, `content` 119 MB (avg 864 B, inline), 144,374 rows / 11,021 senses,
+10 sense-less zh collocation rows; `storage.objects` row ≈ 595 B. Inventory (ADR Appendix A): only
+`get_practice_session` and `get_review_ahead_items` return content among deployed RPCs (repo bodies match live);
+grading, IRT, admission, views (incl. `v_ladder_judge_reject_rates`, which reads tags + `word_assets.content`) do not
+read it; serve-path Python readers: session assembly + follow-ups, intro block, speed round, gate/stress, prestudy page
+(largest fan-out, zh p90 126 senses), typed re-grade, admin preview; writers funnel through `render_all`, plus
+queue-drain/batch regen, stage-runner render and two content fix scripts. Found: the unique index
+`uq_exercises_context_free_variant` is an expression on `content` (replaced by a `dedupe_key` column); drift —
+`phase17_drop_deprecation_wrappers.sql` not in effect live (`get_exercise_session` ×2 and `get_ladder_session` still
+exist, one returns `e.content`), live-only `apply_semdisc_notes(jsonb)`, `semdisc_rewrite_work`,
+`backup_semdisc_content_20261115`; schema.tech index list stale. Design changes vs the brief: version 0 = backfill
+export so no row is rewritten (stamping 144k rows ≈ 190 MB of row versions); versions from a sequence + no-overwrite
+uploads; compare-and-swap commit on (version, row-id set) under a per-sense advisory lock; two flags (read
+db/shadow/storage, write db/dual) with `db` byte-identical to today; byte LRU (callers mutate content in place) and the
+store's own fetch pool (prestudy runs inside `run_parallel`); per-call cap 160 senses / 3 s. Open (owner, not
+blocking): prestudy fan-out; archive/drop of the semdisc leftovers.
+
+## [2026-11-17] update | Exercise content to Storage — Phase 1 integrated (TASK-1008–1025)
+Branch `claude/dreamy-brahmagupta-40a4gq` (not pushed). Merged with `--no-ff`, no conflicts (no file was touched by
+two packages): `ecs/a-store` (TASK-1009/1010/1011: `58000de`, `cf007b5`, `8462de4`; merge `2b4b35d`), `ecs/b-writers`
+(TASK-1012–1015: `3b5d83d`, `1a602e7`, `5211684`, `24293da`; merge `57a7de9`), `ecs/c-sql` (TASK-1016–1018: `93c653b`,
+`ced9d87`, `b14f7b2`, `8c690fd`; merge `67ca70e`), `ecs/d1-session-readers` (TASK-1019/1020: `75fd2ac`, `5254a14`,
+`d95072d`; merge `a2b208c`), `ecs/d2-prestudy-routes` (TASK-1021/1022: `7d64886`, `00684e8`; merge `c8bb607`),
+`ecs/e-backfill` (TASK-1023/1024: `b9e174d`, `20e8071`, `ba132be`; merge `c4ef849`); TASK-1008 was the foundation
+commit `c3cb106`. Integration fixes: `e508f1c` aligns `FakeContentDB` (package a's test fake) with package c's
+`exercise_content_commit` (static 22023 checks before the CAS, `source_type` required → 23502, update id also deleted →
+22023); no production file needed a fix. New test `tests/test_exercise_content_integration.py` (`5c98e43`): TASK-1025
+scenarios 1–8, the serve paths in db/db, shadow/dual and storage/dual (cold and warm) equal the db payload; db mode
+issues the pre-ADR selects/RPC args with no Storage I/O; storage-mode prestudy reads only the drill senses' files and
+the speed round only the picked rows. Cross-check: the db-mode serve and write paths of `c3cb106` and of the merged
+branch over one fake DB give identical payloads and calls (session, extra round, speed round, `render_all`, scoped
+regen); prestudy differs only by the owner's drill-only change. Tests (all offline): every TASK-1008–1025 verification
+command passes in all three flag combinations; the 35-file cited set gives 554 passed / 2 failed (jieba) in each; full
+suite 5444 passed, 48 failed, 17 skipped, 1 collection error in each combination, failing ids identical to the
+foundation commit (4938 passed there; jieba ×36, MeCab/ipadic, Supabase credentials at import, DT v6 fixtures,
+auth/prompt-split environment tests); `npx vitest run` 518/518. One flake seen once under concurrent load:
+`test_budget_ceiling_cost_integration::test_real_llm_cost_reaches_spend_since_and_trips_the_ceiling` (timing race
+between the worker thread and the every-10 ceiling check; passed 15/15 alone and on the clean re-run). Pages created: 1
+([[features/test-prestudy.tech]]). Pages updated: 9 ([[decisions/ADR-049-exercise-content-in-storage]] "Implementation
+status", Appendix A status, §5 prestudy text, Consequences; [[tasklist/exercise-content-storage.tasks]] 18/24 done;
+[[tasklist/master]] Not Started 55→37, Done 250→268; [[features/test-prestudy]]; [[features/practice-engine.tech]];
+[[features/practice-extra-rounds.tech]]; [[database/schema.tech]] `exercises` columns `content_version` /
+`dedupe_key`, real index list, ADR-049 RPCs; [[api/rpcs.tech]]; index). Nothing applied live; flags stay `db`. Next:
+operator TASK-1026 (apply the two Phase-1 migrations on staging first, smoke-test the real Storage API).
+
+## [2026-11-17] update | Exercise content to Storage — review fixes (TASK-1025 follow-up)
+The independent review of the integrated branch said *needs fixes*: 1 major and 3 minor findings. All four are fixed on `claude/dreamy-brahmagupta-40a4gq`, with tests:
+1. **Major.** Cut-over step 3a (`migrations/exercise_content_drop_column.sql`) now aborts unless:
+   - the 6-argument session RPCs are applied and no 5-argument overload exists;
+   - `storage.objects` holds the `--archive-all` manifest from the last 24 hours;
+   - the sense-less archive exists and is newer than every sense-less row;
+   - the semdisc manifest exists (while semdisc objects remain);
+   - a `--verify` marker from the last 24 hours exists.
+
+   A clean full `--verify` now writes `_archive/verify-ok/<UTC>.json`. A new step 0e shows these checks read-only. All eight raise paths and the pass path were exercised on a scratch PostgreSQL 16.
+2. db mode again sends the pre-ADR select string for the typed re-grade (`routes/practice.py`) and `build_exercise_gen_reference_set.py`.
+3. New `write_sense(expected_version=...)` and `store.base_version(rows)`. `backfill_exercise_audio`, `backfill_hant_mirrors` and `--repair` refuse a stale read-modify-write (`ContentWriteConflict`, no upload, no retry) instead of overwriting a newer version.
+4. The two fix scripts hydrate with offline limits: the whole chunk, 300 s.
+
+Tests, all offline:
+- exercise-content suites: 680 passed (+22);
+- full suite: 5466 passed, 48 failed, 17 skipped, 1 collection error. The failures are the same pre-existing environment ones;
+- vitest prestudy on-demand: 17/17.
+
+Pages updated: 3 ([[decisions/ADR-049-exercise-content-in-storage]] §9 and "Review fixes", ops notes and risks; [[tasklist/exercise-content-storage.tasks]] TASK-1025 and TASK-1030; this log).
+
+Nothing was applied live, and the flags stay `db`.
+
+## [2026-11-17] update | Exercise content to Storage — both Phase-1 migrations applied live (TASK-1026, in progress)
+Production is the only Supabase project; there is no staging.
+
+**Before applying:**
+- The live 5-argument `get_practice_session` and `get_review_ahead_items` bodies were md5-identical to `get_practice_session_language_scope.sql` and `practice_review_ahead.sql`. So the repo test that "only the content lines change" holds for the live state.
+- The three dropped functions had no caller: no Python/JS on this branch or on `main`, no views, no other function.
+- Every column used by `exercise_content_commit` exists live, `pattern_code` included.
+
+**What was applied:**
+- `exercise_content_storage`, through the Supabase migration tool. Bodies and comments are md5-identical to the repo.
+- `exercise_content_session_rpcs`, run by the owner in the SQL editor after the migration tool's confirmation prompt timed out. The bodies have CRLF line endings from the paste; with `\r` removed they are md5-identical.
+
+**Checks after applying:**
+- Only the 6-argument session RPCs exist, and the dead `get_exercise_session` ×2 and `get_ladder_session` are gone.
+- `search_path` is pinned, and all five ADR-049 functions are callable by `service_role` only.
+- Bucket `exercise-content` is private, 1 MB, JSON only.
+- Real calls with 5 named arguments for the largest-ladder learner (zh): 24/24 items with content and `content_version` 0. With `p_include_content => false`, no content. Review-ahead: 10/10 items.
+- Database size: 494,431,379 → 495,873,171 bytes. Migration 1 added 16 KB. The remaining ~1.4 MB is not table data (0 new app rows, no other clients); not traced further.
+
+**ACL check:** clean for the new objects. It also shows pre-existing violations unrelated to this work: `anon` SELECT on 28 public tables (including `users`, `user_tokens`, `token_transactions` and `trusted_devices`; RLS is on for these), and RLS off on the two semdisc leftover tables.
+
+**Not done yet:**
+- `tests/sql/test_exercise_content_storage.sql` inside a ROLLBACK on production (it writes, then rolls back; needs owner approval);
+- deploy of the Phase-1 code;
+- the app walkthrough.
+
+**Note:** other sessions applied migrations `task994_vocab_frequency_fill` and `task998_classifier_drill_levels` today, which may clash with ADR-049's TASK-1026/1030 ids.
+
+Pages updated: 8 ([[tasklist/exercise-content-storage.tasks]] TASK-1026; [[tasklist/master]]; [[decisions/ADR-049-exercise-content-in-storage]] "Live status"; [[database/schema.tech]]; [[api/rpcs.tech]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; index). The status headers of both migration files were updated too.
+
+## [2026-11-17] update | Exercise content to Storage — merged with main; renumbered to ADR-049 / TASK-1008–1031
+`main` (PR #35) was merged into `claude/dreamy-brahmagupta-40a4gq` before the deploy.
+
+**IDs clashed with `main`, which got there first, so this work moved:**
+- **ADR:** `main` has `ADR-047-basic-word-knowledge-prior` and `ADR-048-mobile-app-shell`, so this work's ADR-047 is now [[decisions/ADR-049-exercise-content-in-storage]] (file renamed).
+- **Tasks:** [[tasklist/mobile-redesign.tasks]] (TASK-976–988, 1007) and [[tasklist/fixes-2026-11-16.tasks]] (TASK-989–1006) use the same numbers, so this work's tasks moved by +32. TASK-976–999 is now TASK-1008–1031:
+  - the integration task (old 993) is TASK-1025;
+  - the operator steps (old 994–998) are TASK-1026–1030;
+  - the clean-up task (old 999) is TASK-1031.
+
+  Earlier log entries in this series were renumbered in place.
+- **Scope:** changed only in files this branch touched, and only on lines this branch added. `main`'s own TASK-976–1007 and ADR-047 references are unchanged.
+- **Kept the old ids on purpose:**
+  - the `migrations/exercise_content_*.sql` function bodies and `COMMENT` strings, which are, or will be, the live text compared by md5. Each file's header records the mapping;
+  - the live function comments in the database.
+
+**Code conflicts:**
+- `services/prestudy.py`: kept this branch's drill-only exercise loading (`drill_sense_ids`, `has_exercises`, on-demand endpoint) together with `main`'s `share_plan` / `plan` and `produce_available`. `plan_for_tests` takes `main`'s `share_plan` and keeps `drill_sense_ids` as the single drill rule. `main` and this branch already had the same rule (p < 0.75, Zipf prior).
+- `static/js/prestudy/prestudy.js`: took `main`'s mobile-redesign markup and formatting, then put back the drill-rule helpers, the `has_exercises` set, on-demand loading when a word is added, and the prime's "waiting for exercises" state. Formatted with Prettier.
+
+**Tests, all offline:**
+- full suite: 5865 passed, 51 failed, 1 collection error. The failures are the earlier 48 environment failures plus 3 in `main`'s `test_task994_vocab_frequency_fill.py` (`ipadic` / `jieba` missing here; that file is unchanged from `main`);
+- exercise-content + prestudy suites: 770 passed;
+- vitest: 743/743;
+- eslint, Prettier and ruff are clean.
+

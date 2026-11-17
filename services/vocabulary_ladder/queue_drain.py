@@ -31,6 +31,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 
+from services.exercise_content import store
 from services.supabase_factory import get_supabase_admin
 
 logger = logging.getLogger(__name__)
@@ -338,20 +339,28 @@ def _regenerate(db, row: dict) -> tuple[bool, dict]:
             detail['error'] = 'render produced no rows'
             return False, detail
 
-        delete_query = (
-            db.table('exercises').delete()
-            .eq('word_sense_id', sense_id)
-            .not_.is_('word_asset_id', 'null')
+        # One store call replaces the asset-linked rows (ADR-049 §4): with
+        # EXERCISE_CONTENT_WRITE=db exactly the old delete-then-insert, with
+        # `dual` one new content version for the sense. Scoped regen: only
+        # the levels being replaced are cleared. `new_rows` is already scoped
+        # to the same set (build_rows's own contract), so the delete and the
+        # insert cover exactly the same rows and every other level's
+        # exercises — and their `updated_at` — are left alone.
+        delete_where = store.DeleteWhere(
+            require_word_asset=True,
+            ladder_levels=tuple(sorted(levels)) if levels is not None else None,
         )
-        if levels is not None:
-            # Scoped regen: only clear the levels being replaced. `new_rows`
-            # is already scoped to the same set (build_rows's own contract),
-            # so the delete and the insert cover exactly the same rows and
-            # every other level's exercises — and their `updated_at` — are
-            # left alone.
-            delete_query = delete_query.in_('ladder_level', sorted(levels))
-        delete_query.execute()
-        db.table('exercises').insert(new_rows).execute()
+        try:
+            store.write_sense(db, sense_id, language_id, insert_rows=new_rows,
+                              delete_where=delete_where)
+        except (store.ContentWriteConflict, store.ContentStorageError) as exc:
+            code = ('content_write_conflict' if isinstance(exc, store.ContentWriteConflict)
+                    else 'content_storage_error')
+            logger.error('regeneration for sense %s could not write its exercises (%s): %s',
+                         sense_id, code, exc)
+            detail['error'] = code
+            detail['error_detail'] = str(exc)[:500]
+            return False, detail
         detail['rendered'] = len(new_rows)
 
         # Did the regeneration actually close the gap? A drain reporting

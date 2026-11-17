@@ -133,6 +133,8 @@ The comprehension-test surface: list, fetch, submit. (`/generate_test` and `/cus
 | POST | `/moderate` | `@jwt_required` | OpenAI content moderation passthrough |
 | POST | `/<slug>/submit` | `@jwt_required` | MC test submission — full grading + ELO + BKT pipeline |
 | POST | `/<slug>/submit-pinyin` | `@jwt_required` | Pinyin tone trainer submission |
+| GET | `/<identifier>/prestudy` | `@jwt_required` | Prestudy payload (`routes/tests/prestudy.py`). ADR-049: ladder exercises only for the drill senses, plus `has_exercises` for every linked sense. See [[features/test-prestudy.tech]] |
+| GET | `/<identifier>/prestudy/exercises?sense_ids=…` | `@jwt_required` | NEW 2026-11-17 (TASK-1021): exercises of words added to the drill set; 1–20 ids (400 otherwise), only the test's linked senses served, never queues generation |
 
 ### POST `/<slug>/submit` — submission contract
 
@@ -489,6 +491,9 @@ Every Supabase RPC currently invoked from Python, with its caller. See [database
 | `ladder_graduate` | `LadderService.graduate` | INVOKER. FSRS handoff. |
 | `ladder_compute_p_known` | (helper, inlined into other RPCs) | IMMUTABLE. |
 | `fsrs_schedule_review` | Pure-SQL FSRS scheduler used inside `ladder_*` and `services/vocabulary/fsrs.py` mirror | STABLE. |
+| `exercise_content_begin` / `exercise_content_commit` | `services/exercise_content/writer.py` (`store.write_sense`, `EXERCISE_CONTENT_WRITE=dual`) | INVOKER, service_role only. ADR-049 §8; `migrations/exercise_content_storage.sql`, applied live 2026-11-17 (TASK-1026). Compare-and-swap per sense under `pg_advisory_xact_lock(47047, sense)`. See [[database/schema.tech]] "Exercise content in Storage". |
+| `exercise_content_live_versions` | `scripts/backfill_exercise_content.py`, `scripts/sweep_exercise_content.py` | INVOKER, service_role only. ADR-049; applied live 2026-11-17. `{sense: [versions]}` per language. |
+| `get_practice_session` / `get_review_ahead_items` (ADR-049 change) | `services/practice/session_assembly.py` | Callers pass `**store.rpc_content_args()`: nothing in `db` mode (today's call), `p_include_content` true/false in shadow/storage; the 6-argument functions (`migrations/exercise_content_session_rpcs.sql`) are live since 2026-11-17; the 5-argument ones are gone. |
 | `get_exercise_session` | `services/exercise_session_service.py:_compute_session` | INVOKER. Phase 9 + Phase 11. Two overloads: 3-arg legacy and 4-arg with `p_user_theta`. |
 | `get_session_senses` | Inlined into `get_exercise_session` CTE | INVOKER. |
 | `bkt_update_comprehension` | `VocabularyKnowledgeService.update_from_comprehension` | IMMUTABLE. |

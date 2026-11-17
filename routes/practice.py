@@ -267,11 +267,18 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
     if typed is None:
         return None
 
+    from services.exercise_content import store
+    # word_sense_id is hydrate's sense key outside db mode; db mode keeps today's select
+    # byte-for-byte (ADR-049 §6).
+    columns = 'exercise_type, {content}, language_id'
+    if store.read_mode() != 'db':
+        columns += ', word_sense_id'
     try:
+        db = get_db()
         row = (
-            get_db()
+            db
             .table('exercises')
-            .select('exercise_type, content, language_id')
+            .select(store.select_columns(columns))
             .eq('id', exercise_id)
             .limit(1)
             .execute()
@@ -282,6 +289,17 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
         return None
 
     if not item or item.get('exercise_type') not in _SERVER_GRADED_TYPES:
+        return None
+
+    # Content through the exercise-content store (ADR-049; a no-op in db
+    # mode). Content that cannot be found fails open, like a failed lookup.
+    item['id'] = exercise_id
+    try:
+        store.hydrate([item], language_id=item.get('language_id'), drop_missing=False, db=db)
+    except Exception as exc:
+        logger.warning("typed-grade content lookup failed for %s: %s", exercise_id, exc)
+        return None
+    if item.get('content') is None:
         return None
 
     from services.vocabulary_ladder.deterministic.cloze_typed import grade

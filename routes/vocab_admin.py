@@ -310,10 +310,13 @@ def preview_word(sense_id: int, language_id: int) -> ApiResponse:
     )
     assets = {row['asset_type']: row for row in (assets_resp.data or [])}
 
-    # Fetch exercises
+    # Fetch exercises; content through the exercise-content store (ADR-049),
+    # filled before the jumbled preparation below reads it.
+    from services.exercise_content import store
     ex_resp = (
         db.table('exercises')
-        .select('id, exercise_type, content, complexity_tier, ladder_level')
+        .select(store.select_columns(
+            'id, exercise_type, {content}, complexity_tier, ladder_level, word_sense_id'))
         .eq('word_sense_id', sense_id)
         .eq('language_id', language_id)
         .eq('is_active', True)
@@ -322,6 +325,7 @@ def preview_word(sense_id: int, language_id: int) -> ApiResponse:
         .execute()
     )
     exercises = ex_resp.data or []
+    store.hydrate(exercises, language_id=language_id, db=db)
 
     # Prepare jumbled content
     from services.exercise_generation.language_processor import (

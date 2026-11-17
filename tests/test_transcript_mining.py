@@ -382,7 +382,8 @@ def test_provenance_summarises_the_asset():
         {'text': 'c', 'sentence_source': 'generated'},
     ]})
 
-    assert prov['sentence_sources'] == ['mined', 'generated', 'generated']
+    # The per-sentence list stays on the asset only (not copied per exercise).
+    assert 'sentence_sources' not in prov
     assert prov['mined_count'] == 1
     assert prov['generated_count'] == 2
 

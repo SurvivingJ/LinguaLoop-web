@@ -3,7 +3,9 @@
  *
  * Spec: wiki/features/test-prestudy.md. Ported from the reviewed demo
  * (wiki/demos/test-prestudy-demo.html), wired to:
- *   GET  /api/tests/<slug>/prestudy           study payload (no question text or answers)
+ *   GET  /api/tests/<slug>/prestudy           study payload (no question text or answers;
+ *                                             exercise content for the drill words only)
+ *   GET  /api/tests/<slug>/prestudy/exercises exercises of words added to the drill set
  *   POST /api/tests/<slug>/prestudy/evidence  word-test evidence, once, at the end
  *
  * Flow: Preview (passage, key words, popover) -> Word prime (typed reading ->
@@ -74,6 +76,9 @@
     followSenses: [],
     canProduce: true, // payload produce_available (false: the follow-up ends without Produce)
     added: new Set(), // senses the learner marked "I don't know this" in the preview
+    hasEx: new Set(), // linked senses with ladder exercises (payload has_exercises)
+    exLoader: null, // on-demand exercises for words that join the drill set
+    buildToken: 0, // the prime build waiting for exercises (a newer build cancels it)
   };
   const FOLLOWUP_STAGES = ['read_typed', 'def_mc', 'cloze_mc'];
   const FOLLOWUP_MAX_WORDS = 5;
@@ -82,6 +87,8 @@
   // probably_known), plus any word the learner adds from the passage.
   const DRILL_MAX_P = 0.75;
   const MAX_EST_MINUTES = 30;
+  // Senses per on-demand exercises request (services/prestudy.py MAX_ON_DEMAND_SENSES).
+  const MAX_FETCH_SENSES = 20;
 
   const $ = (id) => document.getElementById(id);
   const T = (key, params) => (window.LinguaI18n ? window.LinguaI18n.t(key, params) : key);
@@ -115,16 +122,37 @@
   function sigmoid(x) {
     return 1 / (1 + Math.exp(-x));
   }
-  function priorP(sense) {
+  function priorP(sense, ability) {
     if (!sense || sense.freq == null) return 0.3;
-    return sigmoid(PRIOR_K * (sense.freq - S.ability) + PRIOR_B);
+    return sigmoid(PRIOR_K * (sense.freq - (ability != null ? ability : S.ability)) + PRIOR_B);
+  }
+  // p_known from a payload before any answer: the learner's row, else the Zipf prior.
+  function payloadPKnown(d, ability, sid) {
+    const k = d.knowledge[sid];
+    return k ? k.p : priorP(d.senses[sid], ability);
   }
   function basePKnown(sid) {
-    const k = D.knowledge[sid];
-    return k ? k.p : priorP(D.senses[sid]);
+    return payloadPKnown(D, S.ability, sid);
   }
   function pNow(sid) {
     return S.know[sid] != null ? S.know[sid] : basePKnown(sid);
+  }
+  // The test's linked senses the page can show (those with a `senses` entry).
+  function linkedSenses(d) {
+    return ((d.test && d.test.vocab_sense_ids) || []).map(String).filter((s) => d.senses[s]);
+  }
+  // THE DRILL RULE. Its server twin is services/prestudy.py drill_sense_ids(),
+  // which picks the words whose exercise content the payload carries; keep the
+  // two in step (both are tested against tests/unit/fixtures/prestudy-drill-rule.json).
+  // A linked word is drilled when its p_known is below probably_known, or when
+  // the learner added it; added words load their exercises on demand.
+  function isDrilled(p, added) {
+    return !!added || p < DRILL_MAX_P;
+  }
+  // The drill set a payload starts with (no answers yet, nothing added).
+  function drillSenseIds(d) {
+    const ability = d.ability_zipf != null ? Number(d.ability_zipf) : 5.0;
+    return linkedSenses(d).filter((sid) => isDrilled(payloadPKnown(d, ability, sid), false));
   }
   function status(p) {
     return p < 0.2
@@ -206,7 +234,7 @@
       r.added = S.added.has(r.sid);
     });
     const ranked = rows
-      .filter((r) => r.added || r.p < DRILL_MAX_P)
+      .filter((r) => isDrilled(r.p, r.added))
       .sort(
         (a, b) =>
           b.inQ - a.inQ ||
@@ -220,13 +248,18 @@
     if (share >= 0.05) return { mode: 'light', cls: 'ok', label: T('prestudy.mode_light') };
     return { mode: 'none', cls: 'ok', label: T('prestudy.mode_none') };
   }
+  // Loaded exercise content (drill words from the payload, added words on demand).
   function exercisesFor(sid) {
     return (D.exercises && D.exercises[String(sid)]) || [];
+  }
+  // Whether a word has ladder exercises at all, loaded or not (payload has_exercises).
+  function hasExercises(sid) {
+    return S.hasEx.has(String(sid));
   }
   function estMinutes(a) {
     const k = a.ranked.length;
     if (currentPlanMode() === 'light') return Math.max(1, Math.round((k * 2 * 8) / 60));
-    const ex = a.ranked.filter((r) => exercisesFor(r.sid).length).length;
+    const ex = a.ranked.filter((r) => hasExercises(r.sid)).length;
     return Math.min(
       MAX_EST_MINUTES,
       Math.max(2, Math.round((60 + k * 5 * 8 + ex * 2 * 20 + 5 * 8) / 60))
@@ -769,9 +802,10 @@
     $('psKwN').textContent = String(a.ranked.length);
     const lang = LANGCODE[t.language_id] || '';
     a.ranked.forEach((r) => {
+      // the count is of the exercises the prime can show; a word still loading shows it once they arrive
       const s = D.senses[r.sid],
         g = gloss(r.sid),
-        nEx = exercisesFor(r.sid).length;
+        nEx = hasExercises(r.sid) ? exercisesFor(r.sid).length : 0;
       const rd = (readingParts(s) || {}).shown || '';
       const el = document.createElement('button');
       el.type = 'button';
@@ -960,18 +994,24 @@
   // added by the learner ("I don't know this") and removed again.
   function popAddButton(sid, p) {
     if (S.mode === 'followup') return '';
-    if (p < DRILL_MAX_P && !S.added.has(sid)) return '';
+    if (isDrilled(p, false) && !S.added.has(sid)) return '';
     const on = S.added.has(sid);
     return `<button type="button" class="ld-btn ld-btn--sm ld-grow ${on ? 'ld-btn--ghost' : ''}" id="psPopAdd">${esc(T(on ? 'prestudy.pop_remove' : 'prestudy.pop_add'))}</button>`;
   }
   function toggleAdded(sid) {
     if (S.added.has(sid)) S.added.delete(sid);
     else S.added.add(sid);
+    // an added word's exercises load now, before the prime needs them; its count chip follows
+    if (S.added.has(sid) && exercisesWaiting([sid]))
+      loadExercisesFor([sid]).then(() => {
+        if (S.step === 1) drawPreview();
+      });
     syncQuizWithAdded(sid);
     drawPreview();
   }
   // A word added or removed after the prime was built: rebuild it if nothing has
-  // been answered yet, otherwise append the new word's items to the end.
+  // been answered yet, otherwise append the new word's items to the end (once
+  // its exercises are loaded, so they join with the rest of its items).
   function syncQuizWithAdded(sid) {
     const q = S.quiz;
     if (!q || S.mode === 'followup' || S.phase !== 'prime') return;
@@ -980,18 +1020,30 @@
       return;
     }
     if (!S.added.has(sid) || q.words.includes(sid)) return;
-    const a = analyse(),
-      allowed = currentPlanMode() === 'light' ? LIGHT_STAGES : null;
-    STAGES.filter((st) => !allowed || allowed.includes(st.k)).forEach((st) => {
-      const it = buildItem(st.k, sid, a);
-      if (it) q.queue.push(it);
-    });
-    q.words.push(sid);
-    q.perWord[sid] = newPerWord(sid);
-    $('psQuizMode').textContent = T('prestudy.prime_header', {
-      words: q.words.length,
-      items: q.queue.length,
-    });
+    const append = () => {
+      if (S.quiz !== q || S.phase !== 'prime' || !S.added.has(sid) || q.words.includes(sid)) return;
+      const wasDone = q.i >= q.queue.length,
+        a = analyse();
+      primeStages().forEach((st) => {
+        const it = buildItem(st.k, sid, a);
+        if (it) q.queue.push(it);
+      });
+      q.words.push(sid);
+      q.perWord[sid] = newPerWord(sid);
+      $('psQuizMode').textContent = T('prestudy.prime_header', {
+        words: q.words.length,
+        items: q.queue.length,
+      });
+      if (S.step === 2) {
+        if (wasDone) drawQuiz();
+        else {
+          drawProgress(q.queue, q.i);
+          updateActionBar();
+        }
+      }
+    };
+    if (exercisesWaiting([sid])) loadExercisesFor([sid]).then(append);
+    else append();
   }
   function hidePop(restoreFocus) {
     const POP = $('psPop'),
@@ -1011,6 +1063,83 @@
     }
     if (restoreFocus === true && open && back && back.isConnected && back.offsetParent)
       back.focus({ preventScroll: true });
+  }
+
+  // ---------- on-demand exercises ----------
+  // The payload carries exercise content only for the words the prime drills
+  // (drillSenseIds; services/prestudy.py drill_sense_ids) and lists every
+  // linked sense that has exercises in has_exercises. A word that joins the
+  // drill set later ("I don't know this"), or a drill word whose content the
+  // payload lacks, loads its exercises from GET .../prestudy/exercises: at most
+  // MAX_FETCH_SENSES senses per request and never two requests in flight for one
+  // sense. A failed request leaves its words on the no-exercise path for this
+  // visit (no retry). The page never asks for generation: the evidence route
+  // decides that from database rows.
+  function createExerciseLoader(opts) {
+    const loadedMap = opts.exercises; // sid -> [exercise], filled in place
+    const has = opts.hasExercises; // Set of sids (strings) that have exercises
+    const usable = opts.usable || (() => true);
+    const size = Math.max(1, Math.min(opts.batchSize || MAX_FETCH_SENSES, MAX_FETCH_SENSES));
+    const pending = new Map(); // sid -> promise of the request carrying it
+    const failed = new Set();
+    const isLoaded = (sid) => Object.prototype.hasOwnProperty.call(loadedMap, sid);
+    const needs = (sid) => has.has(sid) && !isLoaded(sid) && !pending.has(sid) && !failed.has(sid);
+    async function fetchBatch(ids) {
+      try {
+        const res = await opts.fetchImpl(opts.url(ids));
+        if (!res || !res.ok) throw new Error('HTTP ' + (res ? res.status : '?'));
+        const j = await res.json();
+        const got = ((j && j.data) || j || {}).exercises || {};
+        ids.forEach((sid) => {
+          loadedMap[sid] = (Array.isArray(got[sid]) ? got[sid] : []).filter(usable);
+        });
+      } catch (e) {
+        console.warn('[prestudy] exercises not loaded for ' + ids.join(',') + ':', e);
+        ids.forEach((sid) => failed.add(sid));
+      }
+    }
+    // One request per batch of the senses that need one; resolves (never
+    // rejects) once every request carrying one of `sids` has settled.
+    function ensure(sids) {
+      const ids = [...new Set((sids || []).map(String))];
+      const want = ids.filter(needs);
+      for (let i = 0; i < want.length; i += size) {
+        const part = want.slice(i, i + size);
+        const p = Promise.resolve()
+          .then(() => fetchBatch(part))
+          .finally(() => {
+            part.forEach((sid) => pending.delete(sid));
+          });
+        part.forEach((sid) => pending.set(sid, p));
+      }
+      const waits = [
+        ...new Set(ids.filter((sid) => pending.has(sid)).map((sid) => pending.get(sid))),
+      ];
+      return Promise.all(waits).then(() => undefined);
+    }
+    return {
+      ensure,
+      // true while any of `sids` still needs a request or has one in flight
+      waiting: (sids) => (sids || []).map(String).some((sid) => needs(sid) || pending.has(sid)),
+      isPending: (sid) => pending.has(String(sid)),
+      isLoaded: (sid) => isLoaded(String(sid)),
+      hasFailed: (sid) => failed.has(String(sid)),
+    };
+  }
+  // The stages the current prime runs (no ladder exercises in the light prime or the follow-up).
+  function primeStages() {
+    const allowed =
+      S.mode === 'followup' ? FOLLOWUP_STAGES : currentPlanMode() === 'light' ? LIGHT_STAGES : null;
+    return STAGES.filter((st) => !allowed || allowed.includes(st.k));
+  }
+  function primeUsesExercises() {
+    return primeStages().some((st) => st.k === 'ex_use' || st.k === 'ex_judge');
+  }
+  function exercisesWaiting(sids) {
+    return !!S.exLoader && primeUsesExercises() && S.exLoader.waiting(sids);
+  }
+  function loadExercisesFor(sids) {
+    return exercisesWaiting(sids) ? S.exLoader.ensure(sids) : Promise.resolve();
   }
 
   // ---------- exercises ----------
@@ -1447,11 +1576,23 @@
       // every unknown and learning word, plus the words the learner added
       words = a.ranked.map((r) => r.sid);
     }
+    const token = ++S.buildToken;
+    if (exercisesWaiting(words)) {
+      // some words' exercises are still loading: build once they are in (or failed);
+      // the action bar stays off meanwhile
+      $('psQProg').innerHTML = '';
+      $('psQBody').innerHTML = `<div class="ps-note">${esc(T('common.loading'))}</div>`;
+      loadExercisesFor(words).then(() => {
+        if (token === S.buildToken && !S.quiz && S.step === 2) {
+          buildQuiz();
+          updateActionBar();
+        }
+      });
+      return;
+    }
     S.exUsed = new Set();
     const queue = [];
-    const allowed =
-      S.mode === 'followup' ? FOLLOWUP_STAGES : planMode === 'light' ? LIGHT_STAGES : null;
-    STAGES.filter((st) => !allowed || allowed.includes(st.k)).forEach((st) => {
+    primeStages().forEach((st) => {
       const round = shuffle(words.map((sid) => buildItem(st.k, sid, a)).filter(Boolean));
       if (queue.length && round.length > 1 && round[0].sid === queue[queue.length - 1].sid)
         round.push(round.shift());
@@ -2166,7 +2307,11 @@
       const q = S.quiz,
         it = q && q.queue[q.i],
         R = S.ready;
-      if (S.phase !== 'ready' && it) {
+      if (!q && S.phase === 'prime') {
+        // the prime is waiting for its words' exercises (buildQuiz)
+        next.textContent = T('prestudy.next');
+        next.disabled = true;
+      } else if (S.phase !== 'ready' && it) {
         // mid-round: Next is live once this item is answered; before that the
         // dock offers "I don't know" (and Check where the item needs one)
         next.textContent = T(q.i + 1 < q.queue.length ? 'prestudy.next' : 'prestudy.finish');
@@ -2287,6 +2432,7 @@
       updateActionBar();
       return;
     }
+    if (!q && S.phase === 'prime') return; // still loading the prime's exercises
     if (q && q.i < q.queue.length) {
       if (q.queue[q.i].answered == null) return;
       q.i++;
@@ -2449,8 +2595,22 @@
       S.test.vocab_token_map = [[S.test.transcript || '', null]];
     }
     // exercises the renderers cannot draw are dropped up front
-    Object.keys(D.exercises || {}).forEach((sid) => {
+    D.exercises = D.exercises || {};
+    Object.keys(D.exercises).forEach((sid) => {
       D.exercises[sid] = D.exercises[sid].filter(exerciseUsable);
+    });
+    // Content arrives for the drill words only; has_exercises lists every linked
+    // word that has exercises (a payload without it carries every word's).
+    S.hasEx = new Set(
+      Array.isArray(D.has_exercises) ? D.has_exercises.map(String) : Object.keys(D.exercises)
+    );
+    S.exLoader = createExerciseLoader({
+      exercises: D.exercises,
+      hasExercises: S.hasEx,
+      usable: exerciseUsable,
+      url: (ids) =>
+        `/api/tests/${encodeURIComponent(S.slug)}/prestudy/exercises?sense_ids=${ids.map(encodeURIComponent).join(',')}`,
+      fetchImpl: (url) => window.authFetch(url),
     });
     // The server's share (services/prestudy.share_plan) is the one the daily
     // session's card shows; the page's own count is only a fallback.
@@ -2541,6 +2701,12 @@
       go(2);
     } else {
       go(1);
+      // drill words whose exercises the payload lacks (normally none) load while the learner reads
+      const drill = analyse().ranked.map((r) => r.sid);
+      if (exercisesWaiting(drill))
+        loadExercisesFor(drill).then(() => {
+          if (S.step === 1) drawPreview();
+        });
     }
   }
 
@@ -2559,6 +2725,11 @@
     meaningOptions,
     plausibleMeaning,
     wordConfusable,
+    drillSenseIds,
+    isDrilled,
+    createExerciseLoader,
+    DRILL_MAX_P,
+    MAX_FETCH_SENSES,
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

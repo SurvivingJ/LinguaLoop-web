@@ -2,7 +2,7 @@
 title: Test Prestudy (tests as teaching material)
 type: feature
 status: in-progress
-tech_page: ./test-prestudy.tech.md (not yet written — pending the open questions below)
+tech_page: ./test-prestudy.tech.md
 last_updated: 2026-11-17
 demo: ../demos/test-prestudy-demo.html
 open_questions:
@@ -502,6 +502,30 @@ Built (repo; the ELO migration is not yet applied live):
 Still not built: lesson walkthrough (mode 3) and study-then-retry answer explanations (need the
 content spend), sentence-level audio, the dictation-mode preview variant.
 
+### Exercise loading: only the words the prime drills (2026-11-17, ADR-049)
+
+Owner decision 2026-11-17, built in TASK-1021 (repo; ships with the ADR-049 Phase-1 code). Exercise
+content is moving out of the database into one file per word (ADR-049), so the page no longer
+loads every linked word's ladder exercises up front:
+
+- The page data carries exercises **only for the words the prime will drill** — the same rule the
+  page uses (below probably known, from the learner's own knowledge or the frequency prior),
+  worked out on the server. For every other linked word it carries only a yes/no "has
+  exercises" flag.
+- When the learner taps "I don't know this" on a word, its exercises are fetched right away from
+  a small endpoint that serves only this test's own words (up to 20 per request). If the prime
+  needs them before they arrive, it shows "Loading" for a moment; a word added mid-prime joins
+  the end of the queue once they arrive.
+- If that fetch fails, the word is drilled without ladder exercises for this visit (no error, no
+  retry). Whether to queue a word for exercise generation is still decided from the database, so
+  a failed fetch never triggers generation.
+- Minute estimates and "has ladder exercises" read the flag; the per-word exercise count in the
+  word list appears once that word's exercises are loaded.
+
+This applies whatever the content-source setting is. It also cuts the page's biggest load (a
+Chinese test can link 100-300 words) down to the drill set. Technical detail:
+[[features/test-prestudy.tech]].
+
 ## Demo
 
 `wiki/demos/test-prestudy-demo.html` is a standalone page showing modes 1 and 2 on five real tests
@@ -520,6 +544,8 @@ and task breakdown can now be written.
 
 ## Related Pages
 
+- [[features/test-prestudy.tech]] — technical specification (payload, drill rule, on-demand exercises)
+- [[decisions/ADR-049-exercise-content-in-storage]] — why exercises load for the drill set only
 - [[features/comprehension-tests]] — the tests being reused (its "results with explanations"
   claim is stale: no explanations exist in the data)
 - [[features/lookahead-preteaching]] — multi-day preparation through the ladder; this is the

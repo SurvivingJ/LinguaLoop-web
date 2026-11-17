@@ -24,6 +24,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from config import Config
+from services.exercise_content import store
 
 logger = logging.getLogger(__name__)
 
@@ -323,9 +324,15 @@ def build_block(db, user_id: str, language_id: int, rows: List[dict]) -> Optiona
     gloss_lang = get_user_definition_language_id(db, user_id)
     sids = [int(r['sense_id']) for r in rows]
     senses = prestudy._load_senses(db, sids, gloss_lang)
-    ex_rows = db.table('exercises').select('id, word_sense_id, exercise_type, content, ladder_level') \
-        .eq('is_active', True).in_('word_sense_id', sids).in_('exercise_type', list(EX_GROUPS)) \
-        .limit(400).execute().data or []
+    ex_rows = list(
+        db.table('exercises')
+        .select(store.select_columns('id, word_sense_id, exercise_type, {content}, ladder_level'))
+        .eq('is_active', True).in_('word_sense_id', sids).in_('exercise_type', list(EX_GROUPS))
+        .limit(400).execute().data or [])
+    # ADR-049: the block's own hydrate call (the session's item list has its
+    # own). No-op in db mode; an exercise whose content cannot be found is
+    # dropped here, so the word is drilled with the formats it still has.
+    store.hydrate(ex_rows, language_id=int(language_id), db=db)
     by_sense: Dict[int, Dict[str, list]] = {}
     for e in ex_rows:
         by_sense.setdefault(int(e['word_sense_id']), {}).setdefault(EX_GROUPS[e['exercise_type']], []).append({

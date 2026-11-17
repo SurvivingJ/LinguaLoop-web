@@ -14,6 +14,7 @@ import logging
 import random
 from uuid import uuid4
 
+from services.exercise_content import store
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary_ladder.exercise_caps import apply_caps, log_dropped
 from services.vocabulary_ladder.config import (
@@ -56,23 +57,32 @@ class LadderExerciseRenderer:
     def render_all(self, sense_id: int, language_id: int) -> list[dict]:
         """Render exercises for all active ladder levels and insert them.
 
-        Builds the rows in memory (see :meth:`build_rows`) then inserts them.
-        Returns the list of inserted exercise IDs. Note: this is a plain
-        insert with no de-duplication — callers that re-render an existing
-        sense must clear the old rows themselves (or use ``build_rows`` and
-        own the delete/insert ordering, as ``_do_vocab_generate`` does for
-        non-destructive regeneration).
+        Builds the rows in memory (see :meth:`build_rows`) then inserts them
+        with one ``store.write_sense`` call (ADR-049 §4: every insert into
+        ``exercises`` goes through the content store). With
+        ``EXERCISE_CONTENT_WRITE=db`` that is exactly the old single
+        ``exercises`` insert; with ``dual`` the rows' content is merged into a
+        new version of the sense's content file first.
+
+        Returns the list of inserted exercise IDs, or ``[]`` when nothing
+        rendered or the write failed (logged). Note: this is a plain insert
+        with no de-duplication — callers that re-render an existing sense must
+        clear the old rows themselves (or use ``build_rows`` and own the
+        delete/insert ordering, as ``queue_drain._regenerate`` does for
+        non-destructive regeneration with a ``store.DeleteWhere``).
         """
         rows = self.build_rows(sense_id, language_id)
         if not rows:
             return []
         try:
-            self.db.table('exercises').insert(rows).execute()
+            result = store.write_sense(self.db, sense_id, language_id, insert_rows=rows)
             logger.info("Rendered %d ladder exercises for sense %s", len(rows), sense_id)
         except Exception as e:
+            # ContentWriteConflict / ContentStorageError (dual mode) and
+            # PostgREST errors alike: nothing usable was written for this call.
             logger.error("Failed to insert ladder exercises for sense %s: %s", sense_id, e)
             return []
-        return [r['id'] for r in rows]
+        return list(result.inserted_ids)
 
     def build_rows(
         self, sense_id: int, language_id: int,
@@ -606,8 +616,11 @@ class LadderExerciseRenderer:
         Recorded at asset level rather than per exercise: several renderers
         pick their own sentence index at render time (L8 scans for one holding
         the collocate), so a per-row "this item came from a mined sentence"
-        claim would sometimes be wrong. The index-aligned ``sources`` list is
-        exact and lets a reviewer resolve any row against the asset.
+        claim would sometimes be wrong. Only the counts are stored: the
+        index-aligned per-sentence list is already on the asset
+        (``word_assets.content.sentences[i].sentence_source``, reached through
+        ``exercises.word_asset_id``), and copying it onto every exercise row
+        cost ~30 MB at 140k rows (removed from the live table 2026-11-17).
 
         Returns None for pre-TASK-513 assets, so their tags are unchanged.
         """
@@ -618,7 +631,6 @@ class LadderExerciseRenderer:
         if not any(sources):
             return None
         return {
-            'sentence_sources': sources,
             'mined_count': sources.count(SENTENCE_SOURCE_MINED),
             'generated_count': sources.count(SENTENCE_SOURCE_GENERATED),
         }
