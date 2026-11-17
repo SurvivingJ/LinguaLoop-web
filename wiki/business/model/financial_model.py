@@ -1,13 +1,30 @@
-"""LinguaDojo financial model v2 (post red-team). Run: python3 -I wiki/business/model/financial_model.py
+"""LinguaDojo financial model v2 (post red-team). v3 (Core + Pro). Run: python3 -I wiki/business/model/financial_model.py
 Basis: operating P&L by month; cumulative cash INCLUDES lifetime-seat cash when received
 (cash basis for lifetime); break-even and ramen months EXCLUDE lifetime cash."""
 # ---------- unit economics (A$/month, ex-GST) ----------
-SOLO_ARPU_SUB = 0.40*16.35 + 0.45*11.29 + 0.15*7.50
-SOLO_ADDON = 0.60; SOLO_FEES = 0.95; SOLO_VAR = 0.75; SOLO_INFRA = 0.08
+# v3 (2026-11-17): two solo tiers. Core A$8.99/mo, A$75/yr; Pro A$14.99/mo, A$129/yr (founding A$99/yr).
+# Fees: 70% merchant of record at 5% + A$0.74 per charge, 30% Stripe AU at 2.35% + A$0.30 per charge.
+def _fee(price_incl_gst, months):
+    mor = 0.05*price_incl_gst + 0.74; stripe = 0.0235*price_incl_gst + 0.30
+    return (0.7*mor + 0.3*stripe)/months
+CORE_ARPU = 0.5*(8.99/1.1) + 0.5*(75/1.1/12)
+CORE_FEES = 0.5*_fee(8.99, 1) + 0.5*_fee(75, 12)
+CORE_VAR = 0.15                       # worst case: 5 DT a day at A$0.001
+PRO_SOLO_ARPU = 0.40*(14.99/1.1) + 0.45*(129/1.1/12) + 0.15*(99/1.1/12)
+PRO_SOLO_FEES = 0.40*_fee(14.99, 1) + 0.45*_fee(129, 12) + 0.15*_fee(99, 12)
+PRO_SOLO_VAR = 0.75                   # kept as a buffer (heavy-user mix)
+CORE_SHARE = 0.50                     # share of solo payers on Core (assumption)
+CONV_UPLIFT = 1.33                    # paid conversion lift from adding a cheaper tier (assumption)
+def solo_blend(core_share=CORE_SHARE):
+    return (core_share*CORE_ARPU + (1-core_share)*PRO_SOLO_ARPU,
+            core_share*CORE_FEES + (1-core_share)*PRO_SOLO_FEES,
+            core_share*CORE_VAR + (1-core_share)*PRO_SOLO_VAR)
+SOLO_ARPU_SUB, SOLO_FEES, SOLO_VAR = solo_blend()
+SOLO_ADDON = 0.60; SOLO_INFRA = 0.08
 SCHOOL_ACV = 1700.0; SCHOOL_FEES = 17.0; SCHOOL_VAR = 50.0
 TUTOR_ARPU = 54/1.1; TUTOR_FEES = 1.57; TUTOR_VAR = 1.0   # A$39 + 5x A$3, GST-incl, 15 students
 PRO_ARPU = 17.50; PRO_FEES = 0.65; PRO_VAR = 3.0
-PASS_NET = 79/1.1; PASS_FEES = 1.60; PASS_VAR = 4.0
+PASS_NET = 79/1.1; PASS_FEES = 1.60; PASS_VAR = 4.0  # CT Exam Pass (translators); the solo 7-day Study Pass is retired
 LIFETIME_NET = 449/1.1*0.95
 
 base = dict(name='base', signups0=400, g1=0.08, g2=0.03, conv=0.03, churn=0.09,
@@ -63,7 +80,7 @@ def run(s, horizon=36):
     for m in range(1, horizon+1):
         year = 2027 + (m-1)//12; moy = (m-1) % 12 + 1; q = (moy-1)//3 + 1
         if m > 1: signups *= (1+s['g1']) if m <= 24 else (1+s['g2'])
-        new = signups*s['conv'] + (s['launch_payers']/3 if m <= 3 else 0)
+        new = signups*s['conv']*s.get('uplift', CONV_UPLIFT) + (s['launch_payers']/3 if m <= 3 else 0)
         payers = payers*(1-s['churn']) + new
         add = s.get('school_adds', {}).get(m, 0.0)
         if moy == 1 and m > 12: schools *= (1-s['school_churn'])
@@ -114,7 +131,9 @@ opt = dict(base, name='optimistic', signups0=600, g1=0.10, g2=0.04, conv=0.045, 
     trans_new=8, trans_churn=0.04, pass_new=6, var_cac=18.0)
 
 if __name__ == '__main__':
-    print('solo contrib', round(SOLO_ARPU_SUB+SOLO_ADDON-SOLO_FEES-SOLO_VAR-SOLO_INFRA, 2))
+    print('core arpu/fees/contrib', round(CORE_ARPU,2), round(CORE_FEES,2), round(CORE_ARPU+SOLO_ADDON-CORE_FEES-CORE_VAR-SOLO_INFRA,2))
+    print('pro  arpu/fees/contrib', round(PRO_SOLO_ARPU,2), round(PRO_SOLO_FEES,2), round(PRO_SOLO_ARPU+SOLO_ADDON-PRO_SOLO_FEES-PRO_SOLO_VAR-SOLO_INFRA,2))
+    print('solo blended contrib', round(SOLO_ARPU_SUB+SOLO_ADDON-SOLO_FEES-SOLO_VAR-SOLO_INFRA, 2))
     for s in (cons, base, opt):
         rows, sm = run(s)
         print('\n==', s['name'], {k: (round(v) if isinstance(v, float) else v) for k, v in sm.items()})
@@ -137,7 +156,7 @@ if __name__ == '__main__':
         'schools off': dict(school_prep=99, school_launch=99, school_adds={}),
         'trans off': dict(trans_launch=99), 'trans full A$8k/650': dict(trans_oneoff=8000, trans_fixed=650),
         'tutors x2': dict(tutor_new=4), 'cons no cut': dict(),
-        'CAC x2': dict(var_cac=44), 'lifetime 0': dict(lifetime=0)}
+        'CAC x2': dict(var_cac=44), 'no conv uplift': dict(uplift=1.0), 'uplift 1.5x': dict(uplift=1.5), 'lifetime 0': dict(lifetime=0)}
     for k, v in tests.items():
         _, r = run(dict(base, **v))
         print(f"{k:12s} cum36 {r['cum36']:>9,.0f} d {r['cum36']-b['cum36']:>9,.0f} trough {r['trough']:>8,.0f} be {r['be']} ramen {r['ramen']} mrr36 {r['mrr36']:,.0f}")
