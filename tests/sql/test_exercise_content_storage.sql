@@ -238,15 +238,21 @@ BEGIN
 END $test$;
 
 -- ---- 3. The service role can run the write path (sequence USAGE, table grants) ------------
-SET LOCAL ROLE service_role;
+-- Needs membership in service_role to SET ROLE (the Supabase postgres role has it); skipped
+-- with a NOTICE otherwise.
 DO $test$
 DECLARE b jsonb;
 BEGIN
+  IF NOT pg_has_role(current_user, 'service_role', 'MEMBER') THEN
+    RAISE NOTICE 'exercise_content service_role SKIPPED (% is not a member of service_role)', current_user;
+    RETURN;
+  END IF;
+  SET LOCAL ROLE service_role;
   b := public.exercise_content_begin(0);   -- no sense 0: reads the table, draws a version
   IF (b->>'new_version')::int < 1 OR (b->>'current_version')::int <> 0 THEN
     RAISE EXCEPTION 'FAIL begin as service_role: %', b; END IF;
+  RESET ROLE;
   RAISE NOTICE 'exercise_content service_role PASS';
 END $test$;
-RESET ROLE;
 
 ROLLBACK;
