@@ -6,14 +6,18 @@
 --   get_classifier_drill_session to the live database that returned
 --   out_level, out_classifier_id_primary, out_reverse_noun_options and
 --   out_cloze_* and restricted the pool by max_unlocked_tier(). That
---   definition was never committed to migrations/. On 2026-06-07 the repo file
+--   definition was never committed to migrations/ (live migration history:
+--   20260519082733 .. 20260519084411 get_classifier_drill_session_v2..v5_cloze).
+--   On 2026-06-06 (live migration 20260606152415
+--   classifier_drill_exclude_ge_and_improve_distractors) the repo file
 --   migrations/get_classifier_drill_session.sql (still the v1 shape) was
 --   extended with the 个 exclusion and re-applied with DROP + CREATE, which
 --   replaced the live v5 with a 13-column function. Since then:
 --     * every item has level NULL, so Auto mode only ever shows level 1;
 --     * classifier_id_primary is NULL, so the player never adds an answer to
 --       item_results and update_classifier_mastery is never called
---       (observed: user_classifier_mastery has 0 rows for every user; a
+--       (observed before the services/drill_service.py v1 fallback: no
+--       user_classifier_mastery row older than 2026-11-17 02:02 UTC; a
 --       20-item round on the real app on 2026-11-17 wrote a test_attempts row
 --       and made no update_classifier_mastery call);
 --     * the cloze table it read (dim_classifier_example_sentences) was dropped
@@ -23,7 +27,8 @@
 --
 -- WHAT THIS FILE DOES (backward compatible with the code deployed from main):
 --   1. ADD COLUMN user_classifier_mastery.level_attempts integer (nullable, no
---      default: a catalog-only change, no table rewrite; the table has 0 rows).
+--      default: a catalog-only change, no table rewrite; the table has 44 rows,
+--      all the test account's, measured 2026-11-17 before applying).
 --   2. CREATE OR REPLACE update_classifier_mastery, SAME signature and return
 --      type (jsonb). Promotion now needs 5 answers AT THE CURRENT LEVEL
 --      (level_attempts) with EWMA >= 0.80, and level_attempts restarts at 0 on

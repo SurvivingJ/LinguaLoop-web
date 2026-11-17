@@ -3,9 +3,12 @@ title: Dual Translation
 type: feature
 status: planned
 tech_page: ./dual-translation.tech.md
-last_updated: 2026-11-16
+last_updated: 2026-11-17
 open_questions:
-  - "OPEN (2026-11-16): when every eligible passage has been graded, show an honest 'all done' message (current behaviour) or re-serve the least recently graded passage? Needs owner sign-off (TASK-989)."
+  - "RESOLVED 2026-11-17 (TASK-989): 'all done' screen first, with an explicit 'Translate an earlier passage again' action that re-serves the least recently graded passage; a repeat is graded but kept out of the error profile."
+  - "OPEN (2026-11-17): spoiler rule — should the first rated attempt of a test whose passage was translated beforehand count at half weight, as a prestudied attempt does? Needs a hook in routes/tests/submit.py (TASK-1001)."
+  - "OPEN (2026-11-17): confirm what a repeat counts towards — today study minutes, the daily token budget and prestudy Produce bookkeeping, but not the error profile, trends, error cards, guided repair or word-knowledge evidence (TASK-1001)."
+  - "OPEN (2026-11-17): skips — every fresh GET /next still creates a new empty submission; should /next resume the most recent never-started passage first? And should an old whole passage and the sentence windows of the same test count as repeats of each other? (TASK-991)"
   - "RESOLVED 2026-06-23: privacy — no special posture required; learner reproduction text is retained for analysis (an asset, not a risk)."
   - "RESOLVED 2026-06-23: embeddings not needed — cluster errors deterministically by taxonomy subtype; pgvector optional for later intra-subtype refinement."
 ---
@@ -50,20 +53,32 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
    queue and remediated with cloze cards and "isolate-and-re-translate" drills — always
    toward the **corrected** form, never the learner's wrong form.
 
-### Which passage comes next (2026-11-16)
+### Which passage comes next (updated 2026-11-17)
 - The passage is always in the language the learner is studying right now (the language picked
   in the app). Older app versions that do not say which language get the language of the
-  learner's most recent test.
-- New passages come first: first the older whole-passage pool, then short passages (2–4 sentences)
-  built from the sentence-by-sentence translations of tests the learner has taken. A passage the
-  learner has already had graded is **never** shown again; a passage they were shown but skipped
-  can come back later, oldest first.
-- When nothing is left, the learner sees "You've translated every passage from the tests you've
-  taken in this language. Take another test to unlock more." If they have not taken a test in that
-  language yet, they are told to take one first.
+  learner's most recent test. A link opened for one test (from its preview page) uses that test's
+  own language, whatever language is selected.
+- Order: first a passage from a test the learner has taken that they have never been shown (the
+  older whole-passage pool, then short passages of 2–4 sentences built from the reviewed
+  sentence-by-sentence translations); then the same from tests they have **not taken yet**,
+  nearest their level first; then a passage they were shown but never submitted, oldest first.
+  Only existing reviewed translations are used — nothing is generated on the spot.
+- A passage from a test the learner has not taken says so above the reference: "This passage is
+  from a test you haven't taken yet, so you'll see part of that test's text."
+- When everything has been graded, the learner sees an honest "all done" screen ("You've
+  translated every passage…") with two actions in the pinned bar: **Translate an earlier passage
+  again** (the passage graded longest ago) and **Browse tests**. A re-served passage says above the
+  reference when it was translated and what band it got, and that this try does not count towards
+  the error profile. The repeat is graded and shown as usual, but its errors do not feed the error
+  profile, error cards, guided repair or word-knowledge evidence; it still counts as study time.
+- Entry points: the Practice / Today "Quick access" chip, a "Dual Translation" row on the Me page,
+  and on a test's preview page a "Translate a passage from this test" link, shown only when a
+  passage for that test is ready.
 - If the grading service refuses to grade (for example because the account's credit has run out),
   the learner sees "Grading is temporarily unavailable" and keeps what they wrote; nothing is
   saved, so they can try again later.
+- What the learner writes is cleaned of invisible and control characters and limited to 2000
+  characters; text the model writes back is shown as plain text only (no HTML or formatting).
 
 ## Constraints & Edge Cases
 - **Reference-based, not open-ended.** Because every reproduction is graded against an existing
@@ -94,7 +109,9 @@ See [[business-rules/translation-error-taxonomy]] for the full taxonomy, severit
 error-vs-mistake gate, and promotion threshold.
 
 ## Open Questions
-- OPEN: "all done" vs re-serving graded passages once everything has been graded (TASK-989).
+- ANSWERED 2026-11-17: "all done" first, then an explicit re-serve of the least recently graded passage (TASK-989).
+- OPEN: spoiler rule for passages from untaken tests, and what a repeat counts towards (TASK-1001).
+- OPEN: no new row on a skip; overlap of old whole passages and windows (TASK-991).
 - ANSWERED: privacy → no special posture; retain learner text for analysis.
 - ANSWERED: embeddings → not needed; cluster errors by taxonomy subtype (pgvector optional later).
 - ANSWERED: grading is level-neutral; naturalness alone is level-dependent ([[decisions/ADR-018-level-neutral-grading]]).

@@ -18,10 +18,12 @@ update_classifier_mastery.
 """
 
 import logging
+import re
 import time
 from typing import Callable, Optional
 from uuid import uuid4
 
+from services.concurrency import run_parallel
 from services.pinyin_format import format_pinyin
 from services.supabase_factory import get_supabase_admin
 
@@ -46,6 +48,24 @@ def _clean_label(label: Optional[str]) -> Optional[str]:
     if label is None or label.strip().lower() in _PLACEHOLDER_LABELS:
         return None
     return label
+
+
+# Characters that count a following measure word: numerals and demonstratives.
+_COUNTING_CHARS = '一二三四五六七八九十两几这那每某半整多数0123456789０１２３４５６７８９'
+_GLOSS_BLANK = '＿'
+
+
+def _mask_gloss(gloss: Optional[str], answers: list) -> Optional[str]:
+    """The noun's gloss with every accepted classifier that follows a numeral
+    or demonstrative blanked ("地图是一张纸" -> "地图是一＿纸"): the Chinese
+    definitions often count the noun with its own measure word, which gives
+    the answer away on the Choose and Type levels."""
+    if not gloss:
+        return gloss
+    for hanzi in sorted((h for h in answers if h), key=len, reverse=True):
+        gloss = re.sub('([' + _COUNTING_CHARS + '])' + re.escape(hanzi),
+                       lambda m: m.group(1) + _GLOSS_BLANK * len(hanzi), gloss)
+    return gloss
 
 
 def _attach_correct_pinyin(db, items: list[dict]) -> None:
@@ -98,7 +118,8 @@ def _classifier_item(r: dict) -> dict:
         'pair_id':                 r.get('out_pair_id'),
         'noun_lemma':              r.get('out_noun_lemma'),
         'noun_sense_id':           r.get('out_noun_sense_id'),
-        'noun_gloss':              r.get('out_noun_gloss'),
+        'noun_gloss':              _mask_gloss(r.get('out_noun_gloss'),
+                                               r.get('out_correct_classifier_hanzi') or []),
         'noun_pronunciation':      format_pinyin(r.get('out_noun_pronunciation')),
         'correct_classifier_ids':  correct_ids,
         'correct_classifier_hanzi': r.get('out_correct_classifier_hanzi') or [],
@@ -260,40 +281,58 @@ class DrillService:
             result = error_data
 
         if self.mastery_rpc and isinstance(result, dict):
-            result['mastery_updates'] = self._update_mastery(
+            # A replayed submission (same idempotency key) was counted the
+            # first time: applying its answers again would double the
+            # learner's attempts and could promote a level on its own.
+            result['mastery_updates'] = [] if result.get('cached') else self._update_mastery(
                 db, user_id, item_results or [], limit=int(total_items))
         return result
 
     def _update_mastery(self, db, user_id: str, item_results: list[dict],
                         limit: int = MAX_ITEM_RESULTS) -> list[dict]:
-        """One update_classifier_mastery call per well-formed answer, in order.
+        """One update_classifier_mastery call per well-formed answer.
 
         At most ``limit`` answers count (the batch's item count, capped at
         MAX_ITEM_RESULTS); entries that are not ``{classifier_id: int,
-        is_correct: bool}`` are skipped.
+        is_correct: bool}`` are skipped. A classifier's answers are applied
+        one after another in answer order (each moves its EWMA and level);
+        different classifiers' chains run concurrently, so a 20-item round
+        costs about one chain of round trips instead of twenty. The updates
+        come back in answer order; a failed call is logged and left out.
         """
-        updates: list[dict] = []
         valid = [
             it for it in item_results
             if isinstance(it, dict)
             and isinstance(it.get('classifier_id'), int)
             and not isinstance(it.get('classifier_id'), bool)
             and 0 < it['classifier_id'] < 32768
-        ]
-        for item in valid[:max(0, min(limit, MAX_ITEM_RESULTS))]:
-            cid = item['classifier_id']
-            try:
-                resp = db.rpc(self.mastery_rpc, {
-                    'p_user_id':       user_id,
-                    'p_classifier_id': cid,
-                    'p_is_correct':    item.get('is_correct') is True,
-                }).execute()
-                if resp.data:
-                    updates.append(resp.data)
-            except Exception as exc:
-                logger.warning("%s failed for cid=%s: %s", self.mastery_rpc, cid, exc)
-        return updates
+        ][:max(0, min(limit, MAX_ITEM_RESULTS))]
 
+        chains: dict[int, list[tuple[int, bool]]] = {}
+        for pos, item in enumerate(valid):
+            chains.setdefault(item['classifier_id'], []).append(
+                (pos, item.get('is_correct') is True))
+
+        def run_chain(cid: int, answers: list[tuple[int, bool]]):
+            def call() -> list[tuple[int, dict]]:
+                out = []
+                for pos, is_correct in answers:
+                    try:
+                        resp = db.rpc(self.mastery_rpc, {
+                            'p_user_id':       user_id,
+                            'p_classifier_id': cid,
+                            'p_is_correct':    is_correct,
+                        }).execute()
+                        if resp.data:
+                            out.append((pos, resp.data))
+                    except Exception as exc:
+                        logger.warning("%s failed for cid=%s: %s", self.mastery_rpc, cid, exc)
+                return out
+            return call
+
+        done = run_parallel(*(run_chain(cid, answers) for cid, answers in chains.items()))
+        return [data for _, data in sorted((pair for chain in done for pair in chain),
+                                           key=lambda pair: pair[0])]
 
 CLASSIFIER_DRILL = DrillService(
     name='classifier_drill',

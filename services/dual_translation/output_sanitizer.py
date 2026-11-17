@@ -204,7 +204,9 @@ _INJECTION_PATTERNS = [
     r'\b(give|assign|award|grade|score|rate)\s+(me|this|it|the\s+\w+)?\s*(a\s+)?(band|score|grade|mark)\s*(of\s+)?\d',
     r'\b(band|score|grade)\s*(=|:|of)\s*\d',
     r'\bsystem\s+prompt\b',
-    r'\byou\s+are\s+(now\s+)?(a|an|the)\s+\w+',
+    # "you are now a ..." (role reassignment). Plain "you are a teacher" is
+    # ordinary English and must never be scored as an injected instruction.
+    r'\byou\s+are\s+now\s+(a|an|the)\s+\w+',
     r'\bno\s+errors?\s+(found|here|in\s+this)\b',
     r'\b(return|output|respond\s+with)\s+(an?\s+)?(empty|\{)',
     r'"errors"\s*:\s*\[',
@@ -223,6 +225,13 @@ def injection_segments(text: str, reference: str = '') -> list[tuple[int, int]]:
     that contain an instruction to the grader, and that are not themselves in
     the reference (a passage may legitimately say "give me a score")."""
     if not isinstance(text, str) or not text:
+        return []
+    # A passage that itself talks about scores, bands or instructions (an exam
+    # story: "the teacher gave me a score of 90") makes these patterns ordinary
+    # content: a learner's paraphrase of it is not verbatim in the reference
+    # and would otherwise be scored as an addition. Then nothing is flagged
+    # here; the prompt's data boundary and the model still apply.
+    if reference and _INJECTION_RE.search(reference):
         return []
     out: list[tuple[int, int]] = []
     start = 0

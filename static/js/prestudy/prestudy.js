@@ -353,11 +353,25 @@
   }
 
   // ---------- reading graders ----------
+  // Chinese readings are shown in tone-marked pinyin only (TASK-999); the
+  // numbered half of a stored "mù tou (mu4 tou5)" is kept for grading. Uses the
+  // shared formatter (static/js/session/pinyin-format.js, window.LinguaPinyin)
+  // once its module has loaded; until then the marked half as stored.
+  function zhShown(text) {
+    const P = window.LinguaPinyin;
+    if (P && typeof P.formatPinyin === 'function') return P.formatPinyin(text);
+    const m = /^(.*?)\s*\((.*)\)\s*$/.exec(String(text || ''));
+    return (m ? m[1] : String(text || '')).trim();
+  }
+  function isZhTest() {
+    return !!(S.test && S.test.language_id === ZH);
+  }
   function readingParts(s) {
     if (!s || !s.reading) return null;
     const m = /^(.*?)\s*\((.*)\)\s*$/.exec(s.reading); // zh: "mù tou (mu4 tou5)"
+    const shown = (m ? m[1] : s.reading).trim();
     return {
-      shown: (m ? m[1] : s.reading).trim(),
+      shown: isZhTest() ? zhShown(shown) : shown,
       numbered: m ? m[2].trim() : null,
       hanzi: s.lemma || null,
     };
@@ -644,6 +658,30 @@
       return gradeZh(pi.segs, pi.tones, rp.numbered, rp.hanzi).ok;
     }
     return gradeJa(input, rp.shown).ok;
+  }
+  // After a missed typed Chinese reading: the numbered form to type
+  // ("mu4 tou5"), only when the grader accepts exactly that input.
+  // (`languageId` defaults to this page's test; the session page passes none.)
+  function typeAs(rp, languageId) {
+    const lid = languageId != null ? Number(languageId) : S.test && S.test.language_id;
+    if (lid !== ZH || !rp || !rp.numbered) return null;
+    const raw = String(rp.numbered).trim().replace(/\s+/g, ' ');
+    const typed = raw.replace(/u:/g, 'v').replace(/U:/g, 'V');
+    // the same check gradeReading runs for a Chinese test
+    const accepted = (c) => {
+      const pi = parsePinyinInput(c);
+      return gradeZh(pi.segs, pi.tones, rp.numbered, rp.hanzi).ok;
+    };
+    for (const c of typed === raw ? [raw] : [typed, raw]) {
+      if (accepted(c)) return c;
+    }
+    return null;
+  }
+  function typeAsLine(rp) {
+    const v = typeAs(rp);
+    if (!v) return '';
+    const label = T('intro.type_it_as', { typed: v });
+    return esc(label && label !== 'intro.type_it_as' ? label : `Type it as: ${v}`);
   }
   function hasTypedReading(sid) {
     const rp = readingParts(D.senses[sid]);
@@ -1050,7 +1088,7 @@
       }));
     } else if (t === 'definition_match') {
       mc(
-        `<b>${esc(c.word)}</b>${c.pronunciation ? ' <span class="ps-note">' + esc(c.pronunciation) + '</span>' : ''}`,
+        `<b>${esc(c.word)}</b>${c.pronunciation ? ' <span class="ps-note">' + esc(isZhTest() ? zhShown(c.pronunciation) : c.pronunciation) + '</span>' : ''}`,
         shuffle(c.options),
         c.correct_definition,
         () => ({}),
@@ -1691,11 +1729,15 @@
     const readingTxt = rp
       ? ' · ' +
         esc(rp.shown) +
-        (rp.numbered ? ' (' + esc(rp.numbered) + ')' : '') +
         (S.test.language_id === JA ? ' · ' + esc(kanaToRomaji(rp.shown)) : '')
       : '';
     const lines = [];
     if (idk && isRead && g.def) lines.push(esc(T('prestudy.meaning_label', { def: g.def })));
+    // a missed typed reading: how to type it (tone numbers), under the answer
+    if (isRead && !ok && it.kind === 'typed') {
+      const how = typeAsLine(rp);
+      if (how) lines.push(how);
+    }
     if (isRead) lines.push(esc(T('prestudy.meaning_next')));
     if (g.ex && !isRead) lines.push(esc(T('prestudy.example', { ex: g.ex })));
     let ctx = '';
@@ -1796,7 +1838,7 @@
       B.innerHTML = `<div class="ld-stats ld-stats--two ps-statrow">${stat(`${res.score} / ${res.n}`, T('prestudy.readiness_score', { round: R.round, need: res.need }))}
           <div class="ld-stat ps-stat"><span class="ld-tag ld-tag--${res.pass ? 'ok' : 'warn'} ps-chip-lg">${esc(T(res.pass ? 'prestudy.ready' : 'prestudy.not_yet'))}</span><small>${esc(msg)}</small></div></div>
         <div class="ps-tablewrap"><table class="ps-table"><thead><tr><th scope="col">${esc(T('prestudy.col_word'))}</th><th scope="col">${esc(T('prestudy.col_typed'))}</th><th scope="col">${esc(T('prestudy.col_reading'))}</th><th scope="col"><span class="visually-hidden">${esc(T('prestudy.check'))}</span></th></tr></thead><tbody>
-          ${res.rows.map((r) => `<tr><td><b class="ps-cjk ld-tl" lang="${lang}">${esc(D.senses[r.sid].lemma)}</b></td><td><code>${esc(r.u || '—')}</code></td><td>${esc(r.rp.shown)}${r.rp.numbered ? ' <span class="ps-note">(' + esc(r.rp.numbered) + ')</span>' : ''}</td><td>${r.ok ? `<span class="ld-tag ld-tag--ok" aria-label="${esc(T('prestudy.correct'))}">✓</span>` : `<span class="ld-tag ld-tag--bad" aria-label="${esc(T('prestudy.wrong'))}">✗</span>`}</td></tr>`).join('')}
+          ${res.rows.map((r) => `<tr><td><b class="ps-cjk ld-tl" lang="${lang}">${esc(D.senses[r.sid].lemma)}</b></td><td><code>${esc(r.u || '—')}</code></td><td>${esc(r.rp.shown)}${r.ok ? '' : ((h) => (h ? '<br><span class="ps-note">' + h + '</span>' : ''))(typeAsLine(r.rp))}</td><td>${r.ok ? `<span class="ld-tag ld-tag--ok" aria-label="${esc(T('prestudy.correct'))}">✓</span>` : `<span class="ld-tag ld-tag--bad" aria-label="${esc(T('prestudy.wrong'))}">✗</span>`}</td></tr>`).join('')}
         </tbody></table></div>`;
       updateActionBar();
       return;
@@ -2048,8 +2090,10 @@
         window.LinguaPrestudyLinks.setProduceAvailable(S.slug, S.canProduce);
     }
     await completeBlock();
-    // from the daily session: go back, where the session resumes on this test
-    window.location.href = S.returnTo === 'session' ? '/session' : testUrl();
+    // from the daily session: go back and open this test there at once (the
+    // session shows its Today card instead if the test is no longer next)
+    window.location.href =
+      S.returnTo === 'session' ? `/session?resume=${encodeURIComponent(S.slug)}` : testUrl();
   }
 
   // ---------- Produce (after the follow-up) ----------
@@ -2091,7 +2135,9 @@
     // today's translation slot in the session will use this test's window
     if (S.mode === 'followup' && S.canProduce && window.LinguaPrestudyLinks)
       window.LinguaPrestudyLinks.setProduceRequest(S.slug, S.test.id);
-    window.location.href = '/session';
+    // opened from the session's test result: carry on with the item after it
+    window.location.href =
+      S.returnTo === 'session' ? `/session?resume_after=${encodeURIComponent(S.slug)}` : '/session';
   }
 
   // ---------- navigation ----------
@@ -2507,6 +2553,7 @@
     kanaToRomaji,
     normRomaji,
     readingParts,
+    typeAs,
     bktUpdate,
     bktUpdateIdk,
     meaningOptions,

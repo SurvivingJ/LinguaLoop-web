@@ -3,7 +3,7 @@ title: Dual Translation — Technical Specification (Feature 1: Grading)
 type: feature-tech
 status: in-progress
 prose_page: ./dual-translation.md
-last_updated: 2026-11-16
+last_updated: 2026-11-17
 dependencies:
   - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
@@ -18,6 +18,8 @@ dependencies:
   - "migration (column part applied 2026-11-14): migrations/dt_taxonomy_v6_columns.sql — taxonomy_version / explanation_variant / remap_flag"
   - "service (2026-11-16): services.dual_translation.provider_errors — per-request record of refused grading calls (GRADING_UNAVAILABLE)"
   - "tables read by GET /next (2026-11-16): test_attempts, dt_submission, dt_grade, dt_passage, dt_passage_reference, tests, test_sentences, test_sentence_references"
+  - "RPC (applied 2026-11-17, TASK-990): public.dt_next_inputs(uuid, integer, integer) RETURNS jsonb — one read bundle for GET /next; migrations/dt_next_inputs.sql, rollback migrations/dt_next_inputs_rollback.sql"
+  - "service (2026-11-17): services.dual_translation.output_sanitizer — tolerant JSON extraction, plain-text model fields, Postgres-safe storage, injection-segment detection"
 breaking_change_risk: low
 ---
 
@@ -230,62 +232,114 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 
 ### `POST /api/dual-translation/<submission>/submit`
 - **Purpose:** grade a reproduction against its passage gold.
-- **Arguments:** `reproduction` (str, required), `idempotency_key` (str). Passage + L1 implied by submission row.
-- **Returns:** the §2.2 contract (scores, overall_band, diff, errors[] with eager explanations, grader_trace).
+- **Arguments:** `reproduction` (str, required), `idempotency_key` (str), `primed_token`, `active_ms`,
+  `client_event_id`. Passage + L1 implied by submission row. **+2026-11-17:** the reproduction is
+  cleaned of invisible and control characters (NUL included) before anything else; more than
+  `output_sanitizer.MAX_REPRODUCTION_CHARS` (2000) characters is **400 `REPRODUCTION_TOO_LONG`**.
+- **Returns:** the §2.2 contract (scores, overall_band, diff, errors[] with eager explanations,
+  grader_trace). **+2026-11-17:** `repeat_of: {graded_at, band}` when the learner already had this
+  passage graded (also on the cached-grade path).
 - **Errors:** `PASSAGE_RETIRED`, `BUDGET_EXCEEDED` (degrades to Tier 0+1, never hard-fails), `DUPLICATE_SUBMISSION` (returns cached grade).
   **+2026-11-16:** a body that is not valid JSON, or JSON that is not an object, is a 400 (was a 500).
   **503 `GRADING_UNAVAILABLE`** when at least one grading call was *refused* by the provider and no
   model answered at all — see "Provider refusal" below. Nothing is saved in that case.
 - **Auth:** authenticated learner; submission must belong to user.
-- **Side effects:** writes dt_grade + dt_error_instance[]; enqueues systematic errors for Feature 2; logs grader_trace cost.
+- **Side effects:** writes dt_grade + dt_error_instance[]; enqueues systematic errors for Feature 2;
+  logs grader_trace cost. **Repeat (2026-11-17, `_repeat_of`):** the grade is stored and shown, but
+  its errors go only into `dt_grade.grader_trace.repeat` (with the earlier submission id and band);
+  no `dt_error_instance` rows, no guided-repair session or items, no target-word BKT evidence. Study
+  minutes, the daily token budget and `prestudy.record_produce` (the prestudy Produce result and
+  next-day review of omitted primed words) still run.
+- **Storage hygiene (2026-11-17, `services/dual_translation/output_sanitizer.py`):** every contract
+  and `dt_grading_call` record is passed through the sanitiser before it is stored (no NUL, no lone
+  surrogates); learner-facing model text becomes one line of plain text (HTML/script/markdown
+  removed) with caps — `model_note` 240, application 240, explanation/rule 600, highlight reason
+  200, trace strings 4000. A malformed contract (band outside 1–4, bad span) is returned as
+  provisional and **not stored**. The raw model answer stays unchanged in `dt_grading_call.response`
+  (audit only). JSON parsing in `grader_cascade` / `explainer` first tries the existing cleaner,
+  then the tolerant extractor (fences, prose, `<think>` blocks, BOM, zero-width characters).
+- **Single-call grader hardening (2026-11-17):** enum values are case/space-repaired; duplicate
+  errors (same type and learner span) dropped; at most 30 errors kept; an answer with more than half
+  its entries invalid is **unusable** and the next model (or the fallback flow) grades instead — for
+  the paid pair too, not re-measured on the gold set; an injection segment in the learner's text
+  that the model did not flag is scored as an `addition` error, and a naturalness/range judgment
+  whose evidence lies inside one is rejected; an explanation that repeats a grading instruction is
+  rejected (`instruction_echo`). Free models get a data-boundary guard paragraph (prompt variant
+  `v2_guard`) and line breaks in the learner's text are collapsed; the validated paid pair keeps its
+  prompt byte for byte (tested). Injection detection (`output_sanitizer.injection_segments`) needs
+  "you are **now** a/an/the …" for the role pattern and flags nothing when the reference itself
+  matches an injection pattern (an exam story about scores); a scan of every live test sentence and
+  reference (2,084 zh, 2,350 en, 388 ja sentences, 2,748 references) gave 0 hits.
 
-### `GET /api/dual-translation/next`
+### `GET /api/dual-translation/next`  (rewritten 2026-11-17: TASK-989, TASK-990, TASK-991)
 - **Purpose:** serve the next passage for the user (L1 reference chosen via `users.native_language_id`).
-- **Arguments (2026-11-16):** `?language_id=` — the learner's study language (the passage's L2).
-  Must be an integer in `Config.VALID_LANGUAGE_IDS` (1 zh, 2 en, 3 ja), otherwise **400**. When
-  absent (older cached clients), the language of the learner's most recent `test_attempts` row is
-  used, so no client ever gets a mixed language. Both clients send it: the standalone page from
-  `localStorage.selectedLanguageId`, the session player from `ctx.languageId`.
-- **Eligibility (unchanged):** only content from tests the user has **attempted**
-  (`test_attempts`), in the requested language, with an L1 reference for the user's resolved L1.
-  **Correction (TASK-607):** the L1 comes from `users.native_language_id` (nullable; falls back to
-  English, id=2), not from `user_languages`, which only tracks L2 *study* languages.
-- **Selection order (`_choose_next`, 2026-11-16):**
-  1. a legacy `dt_passage` (`source_kind='test_transcript'`, whole-passage pool) never served to
-     this learner;
-  2. a **new sentence-window passage** (2–4 sentences) built from the ADR-037 sentence-level
-     references — the same `open_range_passage` core as `POST /passage-from-sentences`, window
-     chosen by `select_window_for_primed` with no primed words (shortest, then earliest). Same
-     quality rules as Produce: active references with a `pass`/`rewritten` verdict in the learner's
-     L1, mean tightness ≥ `services.prestudy.PRODUCE_TIGHTNESS_FLOOR[l2]`, only active tests, never
-     a sentence of a window already served. Sentence rows from an older transcript and missing
-     indices **break** windows (they stay in the list as non-referenced rows) so a window can never
-     straddle them and name a range the passage route refuses (409 `SENTENCES_STALE` / 422
-     `SENTENCES_MISSING`) — the same rule as `choose_produce_window`. Tests are read 10 at a time
-     (at most `MAX_WINDOW_TESTS_PER_CALL` = 40 per call), stopping at the first batch with a window;
-  3. a passage served before but **never graded**, least recently served first (a range passage
-     only while every sentence still has a usable reference).
+- **Arguments:**
+  - `?language_id=` — the study language (the passage's L2), an integer in
+    `Config.VALID_LANGUAGE_IDS` (1 zh, 2 en, 3 ja), otherwise **400**. When absent (older cached
+    clients), the language of the learner's most recent `test_attempts` row.
+  - `?test_id=` (UUID, otherwise **400**) — only passages of this test (the preview page's link).
+    The **test's own language** is used, whatever `language_id` says; an unknown or inactive test
+    is **404 `NO_PASSAGES`**.
+  - `?reserve=1` — when nothing new is left, serve a graded passage again (step 6).
+- **Eligibility:** only passages that already have reviewed references in the learner's L1 —
+  nothing is generated live. The L1 comes from `users.native_language_id` (English, id 2, when
+  unset). Window quality rules are those of Produce: active references with a `pass`/`rewritten`
+  verdict, mean tightness ≥ `services.prestudy.PRODUCE_TIGHTNESS_FLOOR[l2]`, only active tests,
+  never a sentence of a window already served; stale sentence rows and missing indices break
+  windows (see `choose_produce_window`).
+- **Selection order (`_choose_next`):**
+  1. a never-served legacy `dt_passage` (whole-passage pool) from a test the learner **attempted**;
+  2. a new sentence window (2–4 sentences, `select_window_for_primed` with no primed words) from an
+     attempted test;
+  3. a legacy passage from a test **not attempted yet**;
+  4. a new window from a test not attempted yet — 3 and 4 ordered nearest the learner's level first,
+     the `get_recommended_tests` rule: minimum over test types of |test ELO − learner ELO|, 1200
+     when the learner is unrated;
+  5. a passage served before but never graded, least recently served first (a window only while
+     every sentence still has a usable reference);
+  6. only with `reserve=1`: a graded passage, least recently graded first.
 
-  Within each group the order is a stable hash of (user, item, number of passages served so far):
-  the same state gives the same pick, and the pick changes after every serve. **A graded passage
-  is never served again.** History reads (`test_attempts`, `dt_submission`) are paged past
-  PostgREST's 1000-row cap (`_read_all_pages`).
+  Within a group the order is a stable hash of (user, item, number of passages served so far).
 - **Returns:** `{type:'passage', source:'passage'|'sentence_refs', submission_id, l1_text, age_tier,
-  rubric_descriptors, correction_style}`; a sentence window also carries `passage_id`,
-  `n_sentences`, `primed_token`, `status`. Or `{type:'error_card', ...}` (below).
-- **404 codes:** `ALL_DONE` — nothing left and the learner has had at least one passage graded in
-  *this* language from a test they attempted; `NO_PASSAGES` — nothing eligible (no attempts in this
-  language, or no references). Both clients show their own message
-  (`dual_translation.error_all_done`). The "all done" state instead of re-serving a graded passage
-  is an engineer decision awaiting owner sign-off (TASK-989).
-- **Interleaving:** the served queue **interleaves due error exercises** (isolate-and-re-translate /
-  cloze) with fresh passages — see [[features/dual-translation-remediation.tech]]. Since
-  2026-11-16 due cards are filtered to the requested language (`_card_ids_for_language`) whenever a
-  language is known.
-- **Side effect (unchanged):** every call inserts a `dt_submission` row up front, so a skipped
-  passage leaves an empty row.
-- **Latency:** about 16 sequential DB reads per call (~4–6 s from a remote sandbox at
-  0.25–0.4 s per round trip; much less next to the DB). TASK-990.
+  rubric_descriptors, correction_style, from_untaken_test, repeat_of:{graded_at, band}|null}`;
+  a legacy passage also carries `passage_id`; a window carries `passage_id`, `n_sentences`,
+  `primed_token`, `status`. Or `{type:'error_card', ...}` (below).
+- **404 codes:** `ALL_DONE` — nothing new left and the learner has had a passage graded in this
+  language; both clients then show the all-done screen with **"Translate an earlier passage again"**
+  (calls `?reserve=1`; the session player does not offer it again after a re-serve that finds
+  nothing) and **"Browse tests"** in the pinned dock. `NO_PASSAGES` — nothing eligible at all (honest
+  message: no passage in this language yet).
+- **Open submissions (TASK-991):** a passage that was served and never started reuses its open
+  submission (no grade, empty reproduction, same L1) instead of inserting a new row. Observed
+  2026-11-17: the test-scoped path returns the same submission on reload; the general path picks a
+  *different* new passage after every serve (rotation), so each fresh call still inserts one
+  `dt_submission` (six HTTP calls gave subs 114–119). Growth is bounded by the passage pool, not the
+  call count. Whether to resume the newest never-started passage first is an owner decision.
+- **Retired windows (TASK-991):** `/next` never opens a non-active window passage, and
+  `POST /passage-from-sentences` answers **409 `PASSAGE_RETIRED`** before creating a submission.
+- **Error cards:** due cards are interleaved only when the study language is known (TASK-991), and
+  filtered to it (`_card_ids_for_language`). Materialising newly queued profile entries
+  (`dt_cards.generate_cards_for_queued_entries`) is sequential: observed 2026-11-17, one Japanese
+  call that materialised three cards took 8.5 s (about 6 round trips per entry) — TASK-1003.
+- **Reads (TASK-990):** one RPC, `dt_next_inputs(p_user_id, p_l2, p_l1)` (see [[api/rpcs.tech]]),
+  returns attempts, served/graded history, eligible tests with ELO, legacy passages and their
+  references, and windows' sentence references. If it fails, the route logs once, stops trying for
+  `_NEXT_INPUTS_RETRY_S` (600 s) and uses the per-table reads (`_TableInputs`, about 21–23 trips).
+  The payload grows with the content in the language (77.6 KB zh, 41.2 KB ja for the test account
+  on 2026-11-17; about 200 KB inferred at full zh coverage).
+- **Latency (HTTP from gunicorn next to a remote DB, test account, 2026-11-17):** zh 2.65 / 1.20 /
+  1.45 s, ja 0.92 / 0.77 / 8.54 s (the last one materialised error cards, above); before the RPC:
+  17–19 round trips, 5.5–6.4 s.
+
+### `GET /api/dual-translation/test-available?test_id=|slug=`  (new 2026-11-17)
+- **Purpose:** can the learner translate a passage from this test now? Drives the preview page's
+  hidden `#dtFromTest` link (`static/js/dt-test-entry.js`).
+- **Returns:** `{available, test_id, l1_language_id}` — `services.prestudy.produce_available` with
+  the dual-translation L1; false when L1 = test language. 400 without a valid `test_id`/`slug`, 404
+  for an unknown test; any read error answers `available: false`.
+- **Known gap:** it answers true for a test the learner has fully translated (the link then leads to
+  the all-done screen with the re-serve action).
+- **Auth:** authenticated learner.
 
 ### Provider refusal (`GRADING_UNAVAILABLE`, 2026-11-16)
 - `services/dual_translation/provider_errors.py` records, per submit request (a `ContextVar`
@@ -591,6 +645,7 @@ The only edits it makes to this route file are the submit hook (`repair.hooks.af
 - [[business-rules/translation-error-taxonomy]] — taxonomy + promotion
 - [[database/schema.tech]] — current live schema (these tables are additions)
 - [[features/dictation.tech]] — diff grader reused for Tier 0
+- [[api/rpcs.tech]] — `dt_next_inputs` and the route contracts
 - [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 next-passage / refusal fixes (TASK-989–991)
 - [[features/test-prestudy]] — Produce shares the sentence-window rules
 - [[features/model-arena.tech]] — OpenRouter pricing/runner pattern reused for the router

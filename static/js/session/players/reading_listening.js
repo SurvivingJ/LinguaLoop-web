@@ -43,7 +43,7 @@ import {
   showLoading as setLoading,
 } from '../dom.js';
 import { prefetchJson, takePrefetch, warmAudio, adoptAudio } from '../prefetch.js';
-import { formatPinyin } from '../pinyin-format.js';
+import { formatPinyin, displayPronunciation } from '../pinyin-format.js';
 
 const LANGUAGE_LOCALE_MAP = { cn: 'zh', jp: 'ja', en: 'en', es: 'es' };
 
@@ -1101,8 +1101,11 @@ export function mount(container, ctx) {
       q('popoverPOS').textContent = def.part_of_speech || '';
       q('popoverDefinition').textContent = def.definition;
       const readingEl = q('popoverReading');
-      if (def.reading) {
-        readingEl.textContent = def.reading;
+      // Chinese: tone marks only (the server already sends that form; this
+      // also covers a response cached from before it did).
+      const reading = displayPronunciation(def.reading, langCode());
+      if (reading) {
+        readingEl.textContent = reading;
         readingEl.style.display = 'block';
       } else readingEl.style.display = 'none';
       q('popoverBody').style.display = 'block';

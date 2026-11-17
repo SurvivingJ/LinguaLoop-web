@@ -3,7 +3,7 @@ title: New-Word Drill — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./new-word-drill.md
-last_updated: 2026-11-16
+last_updated: 2026-11-17
 dependencies:
   - "table: user_word_ladder (new intro_* columns)"
   - "table: exercise_attempts (source column from migrations/prestudy_workflow.sql; new source value 'intro')"
@@ -135,8 +135,18 @@ only, under the word and on the feedback line (`readingText()` in
 `static/js/session/players/intro_drill.js`, exported, via `static/js/session/pinyin-format.js`).
 Stored pronunciations are often "marked (numbered)" (`bú huì (bu2 hui4)`); the numbered part stays
 on `reading.numbered` and is used for grading only, so typed tone-number answers are graded as
-before. After a wrong typed reading the learner therefore no longer sees the numbered form they
-were asked to type (product choice, TASK-997). Japanese readings are unchanged.
+before. Japanese readings are unchanged.
+
+**"Type it as" after a missed typed reading (TASK-997, 2026-11-17).** After a wrong or skipped
+(`I don't know`) `read_typed` item in Chinese, the feedback shows the tone-marked answer plus a muted
+line "Type it as: bian4 de2" (`.intro-fb-type ld-muted`, key `intro.type_it_as` in all four locales).
+`typeableReading(word, lang)` builds the candidate from `reading.numbered` (spaces collapsed, `u:`
+written `v`) and returns it only if `gradeReading` accepts it; otherwise no line. Never on a correct
+answer, another item type or Japanese. Checked over all 3,892 distinct zh (lemma, "marked
+(numbered)") pairs in the database: every one gets a hint the checker accepts. Seen on the real app
+2026-11-17 (real `/api/practice/session` payload, POSTs answered locally): "印刷术 · yìn shuā shù —
+… / Type it as: yin4 shua1 shu4", no document scroll, Next in the dock (50 px). Prestudy uses the
+same rule (`typeAs` in `static/js/prestudy/prestudy.js`).
 
 The format sequence is a *preference order*. After a miss the engine re-queues the same item;
 after a correct-but-not-counted answer (gap too short) it re-queues the next format.

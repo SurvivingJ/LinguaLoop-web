@@ -291,6 +291,22 @@ export function readingText(word, lang) {
   return lang === 'zh' ? formatPinyin(word.reading.shown) : word.reading.shown || '';
 }
 
+/**
+ * After a missed (wrong or skipped) typed Chinese reading: the numbered form
+ * the learner should have typed ("bian4 de2"), shown as a secondary hint under
+ * the tone-marked answer. Only a form the reading checker itself accepts is
+ * returned (u: written as v, the way it is typed); otherwise null and no hint.
+ */
+export function typeableReading(word, lang) {
+  if (lang !== 'zh' || !word || !word.reading || !word.reading.numbered) return null;
+  const raw = String(word.reading.numbered).trim().replace(/\s+/g, ' ');
+  const typed = raw.replace(/u:/g, 'v').replace(/U:/g, 'V');
+  for (const c of typed === raw ? [raw] : [typed, raw]) {
+    if (gradeReading(c, word, lang)) return c;
+  }
+  return null;
+}
+
 /** Build the renderable item for an engine pick. */
 export function buildItem(pickd, block, exUsed) {
   const w = pickd.word;
@@ -549,9 +565,14 @@ export function runIntroDrill(cardEl, block, opts = {}) {
       return out;
     }
 
-    function feedback(ok, idk, w, extra) {
+    // `typeAs`: the numbered form to type, after a missed typed reading only.
+    function feedback(ok, idk, w, extra, typeAs) {
       const rd = readingText(w, lang);
       const line = `<strong>${esc(w.lemma)}</strong>${rd ? ' · ' + esc(rd) : ''} — ${esc(w.gloss)}`;
+      const howTo =
+        !ok && typeAs
+          ? `<span class="intro-fb-type ld-muted">${esc(T('intro.type_it_as', { typed: typeAs }, `Type it as: ${typeAs}`))}</span>`
+          : '';
       const head = ok
         ? `<i class="fas fa-check-circle" aria-hidden="true"></i> ${esc(T('intro.right', null, 'Right!'))}`
         : idk
@@ -566,7 +587,7 @@ export function runIntroDrill(cardEl, block, opts = {}) {
         : idk
           ? 'incorrect ld-feedback--idk'
           : 'incorrect ld-feedback--bad';
-      return `<div class="exercise-feedback show ld-feedback ${tone}" role="status"><b>${head}</b><span class="intro-fb-line">${line}</span>${ex}</div>`;
+      return `<div class="exercise-feedback show ld-feedback ${tone}" role="status"><b>${head}</b><span class="intro-fb-line">${line}</span>${howTo}${ex}</div>`;
     }
 
     // Replace a renderer's #exerciseFeedback slot (card or dock) with `fb`.
@@ -634,7 +655,11 @@ export function runIntroDrill(cardEl, block, opts = {}) {
         // Answered: the dock holds only the verdict and Next.
         const actions = find('.intro-actions');
         if (actions && dockEl) actions.hidden = true;
-        find('#introFb').innerHTML = feedback(ok, idk, w);
+        const typeAs =
+          !ok && item.kind === 'typed' && item.grade === 'reading'
+            ? typeableReading(w, lang)
+            : null;
+        find('#introFb').innerHTML = feedback(ok, idk, w, undefined, typeAs);
         const nx = find('#introNext');
         nx.classList.add('show');
         try {

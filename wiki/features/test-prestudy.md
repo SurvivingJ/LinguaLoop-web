@@ -3,7 +3,7 @@ title: Test Prestudy (tests as teaching material)
 type: feature
 status: in-progress
 tech_page: ./test-prestudy.tech.md (not yet written — pending the open questions below)
-last_updated: 2026-11-16
+last_updated: 2026-11-17
 demo: ../demos/test-prestudy-demo.html
 open_questions:
   - "ANSWERED 2026-10-29: ELO for a first attempt made after prestudy = reduced K with factor 0.5 (`test_attempts.prestudied = true`, `elo_reduction_factor = 0.5`, existing badge)."
@@ -13,6 +13,7 @@ open_questions:
   - "OPEN: lesson content spend. Per-sentence L1 translations and answer explanations for ~305 active tests at test-generation prices is roughly $3–10 total; needs approval before Phase 2."
   - "OPEN: may lesson mode show the test's own questions before the attempt? Recommendation: never; use `questions.pool_source = 'lab_expansion'` items (Listening Lab) as teaching checks and keep the originals for the attempt."
   - "ANSWERED 2026-10-30: Chinese reading input = toneless pinyin typed, then a per-syllable tone picker; inline tone numbers or marks also accepted. Alternatives considered: tone marks required (hard to type), hanzi via IME (tests writing, not reading), audio recording (no grader). Open follow-up: whether the pinyin trainer's per-character tone game should replace the picker for multi-character words."
+  - "OPEN 2026-11-17: how the app decides a learner already knows basic words (one shared prior for preview and evidence, default ability for uncalibrated learners, re-basing old rows, one knowledge row per meaning) — [[decisions/ADR-047-basic-word-knowledge-prior]] (proposed, owner sign-off pending; TASK-1004)."
   - "OPEN: whether Azure TTS audio can be segmented per sentence (word timestamps are not stored today). Without it, sentence-by-sentence listening falls back to whole-clip audio plus the text."
 ---
 
@@ -463,6 +464,41 @@ Built (repo; the ELO migration is not yet applied live):
   definitions. 是 / 都 / 有 / 不 show as new because `dim_vocabulary.frequency_rank` is NULL for
   them (flat 0.3 prior) — a content gap (TASK-994).
 
+### Fixes (2026-11-17): basic-word frequencies, gloss level, one-tap return, tone marks
+- **Frequencies filled (TASK-994, applied 2026-11-17).** `migrations/task994_vocab_frequency_fill.sql`
+  filled `dim_vocabulary.frequency_rank` (a wordfreq 3.1.1 **Zipf score**, not a rank, from
+  `services/vocabulary/frequency_service.get_zipf_score`) on 770 rows that were NULL (zh 229, en 422,
+  ja 119). 76 stay NULL on purpose: 64 wordfreq cannot score (chengyu, rare technical words,
+  lemmatiser debris) and 12 Japanese compounds wordfreq scores from their parts with no compound
+  penalty (色ごと 4.77, みず 5.53). 是/都/有/不/很/人 are now 7.17/6.59/6.83/6.76/6.27/6.74.
+  Effect on the test account's previews: zh-d6 "my favorite t-shirt" unknown 70→69 (没有 0.30→0.98),
+  zh-d7 37→35, cn-d9 122→88, cn-d6 "how should saas" 46→26 (plan full→light). 是 0.41, 有 0.31,
+  都 0.16, 很 0.48, 好 0.10 **stay new for that account** because its own knowledge rows hold them
+  there (its answers look automated); a learner with no history now gets the high prior. The rule
+  itself — two different priors in the preview and in SQL, the 5.0 default ability, re-basing —
+  is [[decisions/ADR-047-basic-word-knowledge-prior]] (proposed).
+- **Gloss at the linked sense's level (INT-1, 2026-11-17).** Each meaning exists once per definition
+  level ('simple', 'standard') per definition language, all with the same `sense_rank`.
+  `services/prestudy._load_senses` keyed the cross-language gloss on (vocab_id, sense_rank), so the
+  level PostgREST returned last won, and when a test linked both levels only one got a gloss. It now
+  takes the gloss at the linked sense's own level, else standard, then simple
+  (`tests/test_prestudy_gloss_level.py`). Seen on the real app: 是 (sense 19871, standard) shows
+  "to be; used to say something is true or exists". Senses with no gloss in the learner's language at
+  all (e.g. 小猫) still show the study-language definition — a content gap.
+- **"Take the test" opens the test in one tap (TASK-993).** From a daily-session prestudy block (and
+  the test card's "Study first"), "Take the test" / "Skip and take the test" go to
+  `/session?resume=<slug>`; the follow-up's "Back to today's session" goes to
+  `/session?resume_after=<slug>`. `static/js/session/controller.js` reads the marker once, removes it
+  from the address bar, and skips the Today card only when the item Resume would open is that test
+  (`resume`) or comes right after that finished test (`resume_after`); anything else, and practice
+  mode, shows the Today card. The Back pill still returns to the Today card. Verified 2026-11-17:
+  Take the test on step 3 → the listening test running, Today card hidden, in 4.6 s.
+- **Tone marks only (TASK-999).** Chinese readings in the prestudy word list, popover, typed-reading
+  reveal, readiness table and definition-match note are tone-marked only (`zhShown` via
+  `window.LinguaPinyin`); the numbered half of a stored "mù tou (mu4 tou5)" is kept for grading.
+  After a missed typed reading, the reveal and the readiness table show "Type it as: mu4 tou5"
+  (`typeAs`), only when the grader accepts exactly that input.
+
 Still not built: lesson walkthrough (mode 3) and study-then-retry answer explanations (need the
 content spend), sentence-level audio, the dictation-mode preview variant.
 
@@ -498,5 +534,6 @@ and task breakdown can now be written.
 - [[features/dictation]] — same passages, productive mode
 - [[features/vocabulary-knowledge]] — the BKT evidence prestudy writes
 - [[pages/study-session]] — where the prestudy block would sit
-- [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 prestudy fixes (TASK-992–995)
+- [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 prestudy fixes (TASK-992–995, TASK-1004)
+- [[decisions/ADR-047-basic-word-knowledge-prior]] — how basic words are judged known (proposed)
 - [[database/schema.tech]] — `tests.vocab_token_map`, `questions.sense_ids`, `test_attempts`

@@ -124,3 +124,25 @@ export function formatPinyin(text) {
   }
   return numberedToMarked(s);
 }
+
+/**
+ * A stored pronunciation as a learner sees it: Chinese (`lang` 'zh' or
+ * language id 1) in tone-marked pinyin only, every other language as stored.
+ * Mirror of services/pinyin_format.display_pronunciation. Display only.
+ */
+export function displayPronunciation(text, lang) {
+  if (text == null) return '';
+  const zh = lang === 'zh' || lang === 1 || lang === '1';
+  return zh ? formatPinyin(text) : String(text);
+}
+
+// Classic (non-module) page scripts such as static/js/prestudy/prestudy.js
+// read the same helpers from here once any module has imported this file.
+if (typeof window !== 'undefined') {
+  window.LinguaPinyin = Object.assign(window.LinguaPinyin || {}, {
+    formatPinyin,
+    numberedToMarked,
+    hasNumberedPinyin,
+    displayPronunciation,
+  });
+}

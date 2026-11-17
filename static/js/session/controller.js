@@ -139,9 +139,66 @@ document.addEventListener('languageChanged', () => {
   paintDecor();
 });
 
+// ---- One-tap return from pages that leave the session (TASK-993) ----------
+// A page that takes the learner out of a running session and sends them back
+// to carry on (the prestudy page's "Take the test", the follow-up's "Back to
+// today's session") adds a one-shot marker to the URL:
+//   /session?resume=<slug>        open that test at once, if it is the next item
+//   /session?resume_after=<slug>  open the next item, if it comes after that
+//                                 (finished) test
+// The marker is read once and removed from the address bar before anything
+// else, so a reload or a Back navigation lands on the Today card as usual. It
+// only skips the Today card when the queue the server returns still matches
+// what the page expected; anything else (the item was done elsewhere, the
+// block did not save, the queue was rebuilt) shows the Today card.
+const RESUME_PARAMS = ['resume', 'resume_after'];
+
+export function takeResumeMarker(loc = window.location, hist = window.history) {
+  let params;
+  try {
+    params = new URLSearchParams(loc.search || '');
+  } catch {
+    return null;
+  }
+  const present = RESUME_PARAMS.filter((k) => params.has(k));
+  if (!present.length) return null;
+  const marker = params.get('resume')
+    ? { slug: params.get('resume'), after: false }
+    : params.get('resume_after')
+      ? { slug: params.get('resume_after'), after: true }
+      : null;
+  present.forEach((k) => params.delete(k));
+  const qs = params.toString();
+  try {
+    if (hist && typeof hist.replaceState === 'function') {
+      hist.replaceState(hist.state, '', `${loc.pathname}${qs ? `?${qs}` : ''}${loc.hash || ''}`);
+    }
+  } catch {
+    /* history blocked: the marker is still used only once per page load */
+  }
+  return marker;
+}
+
+// The queue index to open straight away for `marker`, or -1 for the Today card.
+// `start` is where the session would resume (server next_index); the item
+// opened is the one Resume would open from there.
+export function resumeIndex(marker, queue, start = 0) {
+  if (!marker || !marker.slug || !Array.isArray(queue)) return -1;
+  let next = Math.max(0, Number(start) || 0);
+  while (next < queue.length && queue[next].is_completed) next++;
+  const item = queue[next];
+  if (!item) return -1;
+  const isTest = (q) => q && q.kind === 'test' && q.slug === marker.slug;
+  if (!marker.after) return isTest(item) ? next : -1;
+  const at = queue.findIndex(isTest);
+  return at !== -1 && at < next && queue[at].is_completed ? next : -1;
+}
+
 async function init() {
   const params = new URLSearchParams(window.location.search);
   session.practiceOnly = params.get('mode') === 'practice';
+  // Consumed now, before any await: a reload never sees it again.
+  const resume = takeResumeMarker();
   applyModeLabels();
 
   session.languageId = parseInt(localStorage.getItem('selectedLanguageId') || '0', 10);
@@ -159,8 +216,13 @@ async function init() {
             console.warn('[session] metadata:', e)
           )
         : Promise.resolve();
-    await loadSession();
+    const resumed = await loadSession({ resume: session.practiceOnly ? null : resume });
     await metadata;
+    // Opened only now: the stage's [lang] (CJK fonts) needs the metadata.
+    if (resumed) {
+      $('sessionLoading').classList.add('d-none');
+      runCurrent();
+    }
     // Seals and watermarks need the language code, which metadata supplies.
     paintDecor();
   } catch (e) {
@@ -254,7 +316,9 @@ async function fetchSession() {
   return window.authFetch(url);
 }
 
-async function loadSession() {
+// Returns true when `resume` matched and the caller should open the item at
+// session.index straight away (the Today card is not shown).
+async function loadSession({ resume = null } = {}) {
   const res = await fetchSession();
   if (!res.ok) throw new Error(`Session load failed (${res.status})`);
   const body = await res.json();
@@ -284,13 +348,20 @@ async function loadSession() {
   } else {
     session.index = typeof data.next_index === 'number' ? data.next_index : 0;
   }
+
+  const target = resumeIndex(resume, session.queue, session.index);
+  if (target !== -1) {
+    session.index = target;
+    return true;
+  }
   $('sessionLoading').classList.add('d-none');
 
   if (session.queue.length === 0) {
     showEmpty();
-    return;
+    return false;
   }
   renderStart();
+  return false;
 }
 
 function renderStart() {

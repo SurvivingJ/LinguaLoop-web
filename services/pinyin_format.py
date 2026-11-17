@@ -118,3 +118,25 @@ def format_pinyin(text: Optional[str]) -> str:
     if m and has_numbered_pinyin(m.group(2)):
         return numbered_to_marked(m.group(1).strip() or m.group(2).strip()) or ''
     return numbered_to_marked(s) or ''
+
+
+ZH_LANGUAGE_ID = 1
+
+
+def display_pronunciation(text: Optional[str], language_id=None, language_code=None) -> str:
+    """A stored pronunciation as a learner sees it, for any study language.
+
+    Chinese (``language_id`` 1 or ``language_code`` 'zh') -> ``format_pinyin``;
+    every other language (Japanese kana, English) is returned as stored.
+    None -> ''. Display only: never feed this to answer checking.
+    """
+    # The word's own language id decides when it is known; the code (e.g. the
+    # test's language) is only a fallback, so a non-Chinese word in a Chinese
+    # test is never run through the pinyin formatter.
+    if language_id not in (None, ''):
+        is_zh = str(language_id) == str(ZH_LANGUAGE_ID)
+    else:
+        is_zh = language_code == 'zh'
+    if is_zh:
+        return format_pinyin(text)
+    return '' if text is None else str(text)

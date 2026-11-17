@@ -326,6 +326,22 @@ class TestScopeAndUntaken:
         passage = next(p for p in rpc_app.tables['dt_passage'] if p['id'] == data['passage_id'])
         assert passage['source_ref_id'] == JA_TEST
 
+    @pytest.mark.parametrize('broken', [False, True])
+    def test_test_id_uses_the_tests_own_language(self, client, auth_headers, rpc_app, broken):
+        """Review 2026-11-17: the preview page links /dual-translation?test_id=
+        and the page sends the SELECTED study language, which may be another
+        one (a Japanese test while Chinese is selected): the test decides."""
+        rpc_app.rpc_broken = broken
+        status, data = _next(client, auth_headers, f'language_id=1&test_id={UNTAKEN_JA_TEST}')
+        assert status == 200
+        passage = next(p for p in rpc_app.tables['dt_passage'] if p['id'] == data['passage_id'])
+        assert passage['source_ref_id'] == UNTAKEN_JA_TEST
+
+    def test_unknown_test_id_is_no_passages(self, client, auth_headers, rpc_app):
+        status, data = _next(client, auth_headers,
+                             'language_id=3&test_id=00000000-0000-4000-8000-00000000abcd')
+        assert status == 404 and data['error_code'] == dt_routes.NO_PASSAGES
+
     def test_test_id_must_be_a_uuid(self, client, auth_headers, rpc_app):
         assert _next(client, auth_headers, 'language_id=3&test_id=../x')[0] == 400
 
@@ -441,6 +457,32 @@ class TestRepeatSubmission:
         assert cached['repeat_of']['of_submission_id'] == first['submission_id']
         assert [e['subtype'] for e in cached['errors']] == ['word_choice']
         assert 'repeat' not in cached['grader_trace']
+
+    def test_repeat_with_target_words_still_records_the_prestudy_produce(
+        self, client, auth_headers, graded_app, monkeypatch,
+    ):
+        """Review 2026-11-17: prestudy Produce picks its window by primed senses,
+        not by what the learner already translated, so a Produce on a window
+        first met through GET /next is a repeat. The prime session must still
+        get its Produce result (and follow-ups); only BKT evidence is skipped."""
+        import services.prestudy as prestudy
+        produced = []
+        monkeypatch.setattr(prestudy, 'record_produce', lambda db, uid, test_id, lang, sub_id, rows:
+                            produced.append((test_id, sub_id, len(rows))) or 0)
+        with_targets = json.loads(json.dumps(_CONTRACT))
+        with_targets['target_words'] = [{'sense_id': 7, 'status': 'omitted'}]
+        monkeypatch.setattr(dt_routes, 'grade_submission', lambda db, **kw: json.loads(json.dumps(with_targets)))
+        db = graded_app
+        _, first = _next(client, auth_headers, 'language_id=3')
+        _submit(client, auth_headers, first['submission_id'])
+        assert db.calls['bkt'] == 1 and len(produced) == 1
+        repeat = db.table('dt_submission').insert({
+            'user_id': USER, 'passage_id': first['passage_id'], 'l1_language_id': EN, 'reproduction': '',
+        }).execute().data[0]
+        status, again = _submit(client, auth_headers, repeat['id'])
+        assert status == 200 and again['repeat_of']
+        assert db.calls['bkt'] == 1                       # no evidence from the repeat
+        assert [p[1] for p in produced] == [first['submission_id'], repeat['id']]
 
     def test_reproduction_is_cleaned_and_capped(self, client, auth_headers, graded_app):
         _, first = _next(client, auth_headers, 'language_id=3')

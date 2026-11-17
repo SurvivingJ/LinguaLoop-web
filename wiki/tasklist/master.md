@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-16
+last_updated: 2026-11-17
 ---
 
 # Master Task List
@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 47 |
-| In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 35 |
+| Not Started | 46 |
+| In Progress (`[~]`) | 14 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 34 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 252 |
+| Done (cumulative, not listed here) | 259 |
+
+*2026-11-17 (dual translation, measure-word drill, basic-word mastery, session/pinyin integrated):* TASK-989, 990, 993, 994, 997, 998, 999 Done (each verified on the real app at 393x659; four reviewed migrations applied live by the reviewers — `dt_next_inputs`, `task998_classifier_drill_levels`, `task998_classifier_cloze_sentences_fill`, `task994_vocab_frequency_fill`). TASK-991 Not Started → Blocked (owner: no row on skip, overlap; parts a and c done in repo). TASK-1000 Not Started → In Progress. New: TASK-1001 (DT owner decisions), 1002 (measure-word decisions and content gaps), 1004 (ADR-047 proposals) Blocked; TASK-1003 (slow error-card materialisation on `/next`), 1005 (last numbered-pinyin surfaces), 1006 (DT UX gaps) Not Started. ADR-047 filed as proposed. Counts: Not Started 47→46, In Progress 13→14, Blocked 35→34, Done 252→259.
 
 *2026-11-16 (dual translation, prestudy and pinyin fixes integrated):* new breakdown [[tasklist/fixes-2026-11-16.tasks]] (TASK-989–1000) for what the three fixes left open. Not Started: TASK-991, 992, 993, 995, 999, 1000. Blocked / awaiting decision: TASK-989 (owner: "all done" vs re-serve), 990 (LIVE-DB migration), 994 (content write), 996 (data write), 997 (owner: product choice), 998 (LIVE-DB migration). Counts: Not Started 41→47, Blocked 29→35.
 
@@ -1271,23 +1273,29 @@ Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[d
 | TASK-987 | mobile-redesign | Integration requests — i18n merge, Me page links, hard-coded colours | Done | M | — |
 | TASK-988 | mobile-redesign | Commit, review and deploy the redesign | [?] owner | M | TASK-975, TASK-980 |
 
-### Dual Translation, Prestudy and Pinyin Fixes (2026-11-16) — NEW
-Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.tech]] · [[features/test-prestudy]] · [[features/measure-word-trainer.tech]]. In the working tree / checkpoint 76e911c; not deployed.
+### Dual Translation, Prestudy and Pinyin Fixes (2026-11-16, updated 2026-11-17)
+Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.tech]] · [[features/test-prestudy]] · [[features/measure-word-trainer.tech]] · [[decisions/ADR-047-basic-word-knowledge-prior]]. Code in the working tree / checkpoint commits, not deployed; the four 2026-11-17 migrations are live.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-989 | fixes-2026-11-16 | Decide "all done" vs re-serving graded DT passages | [?] owner | XS | — |
-| TASK-990 | fixes-2026-11-16 | Cut `/next` database round trips (SQL read function) | [?] LIVE-DB | M | TASK-989 |
-| TASK-991 | fixes-2026-11-16 | DT `/next` loose ends (retired range passage, empty submissions, unfiltered cards) | [ ] | S | — |
+| TASK-989 | fixes-2026-11-16 | Decide "all done" vs re-serving graded DT passages | Done | XS | — |
+| TASK-990 | fixes-2026-11-16 | Cut `/next` database round trips (SQL read function) | Done | M | TASK-989 |
+| TASK-991 | fixes-2026-11-16 | DT `/next` loose ends (retired range passage, empty submissions, unfiltered cards) | [?] owner (b, overlap) | S | — |
 | TASK-992 | fixes-2026-11-16 | Return `produce_available` from test submit | [ ] | S | — |
-| TASK-993 | fixes-2026-11-16 | "Take the test" from prestudy resumes the session (`?resume=1`) | [ ] | S | — |
-| TASK-994 | fixes-2026-11-16 | Fill `dim_vocabulary.frequency_rank` (846 rows incl. 是/都/有/不) | [?] LIVE-DB | M | — |
+| TASK-993 | fixes-2026-11-16 | "Take the test" from prestudy resumes the session (`?resume=<slug>`) | Done | S | — |
+| TASK-994 | fixes-2026-11-16 | Fill `dim_vocabulary.frequency_rank` (770 of 846 rows incl. 是/都/有/不) | Done | M | — |
 | TASK-995 | fixes-2026-11-16 | Stale stored Produce flag (key by reference language) | [ ] | XS | TASK-992 |
 | TASK-996 | fixes-2026-11-16 | Pinyin data clean-up (classifier display column, combined pronunciations) | [?] LIVE-DB | M | — |
-| TASK-997 | fixes-2026-11-16 | New-word drill: show numbered form after a wrong typed reading? | [?] owner | XS | — |
-| TASK-998 | fixes-2026-11-16 | Classifier drill session RPC: levels and mastery | [?] LIVE-DB | M | — |
-| TASK-999 | fixes-2026-11-16 | Tone-marked pinyin on the remaining surfaces | [ ] | S | — |
-| TASK-1000 | fixes-2026-11-16 | Verify the paths the 2026-11-16 fixes could not reach | [ ] | M | — |
+| TASK-997 | fixes-2026-11-16 | New-word drill: "Type it as" after a wrong typed reading | Done | XS | — |
+| TASK-998 | fixes-2026-11-16 | Classifier drill session RPC: levels and mastery | Done | M | — |
+| TASK-999 | fixes-2026-11-16 | Tone-marked pinyin on the remaining surfaces | Done | S | — |
+| TASK-1000 | fixes-2026-11-16 | Verify the paths the 2026-11-16 fixes could not reach | [~] | M | — |
+| TASK-1001 | fixes-2026-11-16 | DT owner decisions: spoiler half-weight, what a repeat counts towards, unusable-answer rule | [?] owner | S | — |
+| TASK-1002 | fixes-2026-11-16 | Measure-word drill: manual-mode promotion, content gaps, cloze sentence leak | [?] owner | M | TASK-998 |
+| TASK-1003 | fixes-2026-11-16 | DT `/next`: batch error-card materialisation (8.5 s observed) | [ ] | S | — |
+| TASK-1004 | fixes-2026-11-16 | Basic-word knowledge: ADR-047 proposals (P1–P6, INT-2/3, ja compounds, default ability) | [?] owner | L | TASK-994 |
+| TASK-1005 | fixes-2026-11-16 | Tone marks on the last numbered-pinyin surfaces (classifier_match, counter drill, admin check) | [ ] | S | — |
+| TASK-1006 | fixes-2026-11-16 | DT UX gaps: test-available for done tests, all-done wording, 404 console error | [ ] | XS | — |
 
 ### Language Packs (existing — unchanged)
 

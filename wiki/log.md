@@ -6677,3 +6677,46 @@ sentence-window fallback, 404 codes, latency; provider refusal section; submit e
 [[features/measure-word-trainer.tech]] (pinyin display, Auto badge, RPC gap),
 [[features/new-word-drill.tech]] (reading display), [[api/rpcs.tech]] (route contract changes),
 [[tasklist/master]] (Not Started 41→47, Blocked 29→35), index. Not committed, not deployed.
+
+## [2026-11-17] update | Dual translation, measure-word drill, basic-word mastery and session/pinyin integrated
+Source: the build and review reports of four areas changed in the same working tree (dual
+translation all-done/re-serve + untaken tests + `/next` read RPC + sanitised storage; measure-word
+drill levels and mastery; basic-word frequencies and prior; session resume, tone marks, "type it
+as"), checked against checkpoint commit 972548c and the uncommitted diff. Integration checks: the
+four locale files are valid JSON with no duplicate keys and identical key sets (1200 each); no
+conflicting edits between areas; no debug code or scratch files in the repo. Live database: the only
+migrations applied since 2026-11-14 are `dt_next_inputs` (20261117030308),
+`task998_classifier_drill_levels` (20261117034255), `task998_classifier_cloze_sentences_fill`
+(20261117034512) and `task994_vocab_frequency_fill` (20261117035509), all applied by the reviewers;
+each stored statement equals its repo file once comments and whitespace are removed (md5); nothing
+applied that is not in the repo. Rollbacks next to each file (`*_rollback.sql`). Cross-area change
+applied: `services/prestudy._load_senses` takes the cross-language gloss at the linked sense's own
+definition level (then standard, then simple), as the basic-word work specified (INT-1, without its
+`source='llm_gloss'` filter); `tests/test_prestudy_gloss_level.py` (5, three fail on the old code).
+Results: full pytest 5254 passed, 11 skipped, only the two known failures; `npm run check` 0 errors
+(41 existing warnings); `npm run test:unit` 726/726; Playwright 15/15 against the real app. Real-app
+walk at 393x659 as the test account: DT zh from the Today "Quick access" chip (an error card first,
+then a passage, graded band 3 in 11.6 s), ja from the chip (untaken-test note, band 2 in 7.5 s), zh
+from a test preview link (shown, 50 px; first try went to guided repair, second graded band 3 in
+7.0 s), ja from a preview (band 2 in 8.7 s, reused open submission 60); all-done for zh test
+41aa1ec3 with both dock buttons (50/44 px) and a re-serve in 1.1 s showing the repeat note. `GET
+/next` over HTTP: zh 2.65/1.20/1.45 s, ja 0.92/0.77/8.54 s (the slow call materialised three error
+cards — TASK-1003); each fresh call still created an empty submission (114–119). Measure-word Auto
+round: Choose 11, Reverse 7, Type 1, Fill in 1; 20 answers → 20 mastery updates (attempts 205→225).
+Prestudy step 3 "Take the test" → the test running in the session, Today card hidden, 4.6 s. Tone
+marks only: prestudy word list 24/24, popover "飞机 fēi jī", `/flashcards` "zhī dào", test-page
+popover 25 readings (submit answered locally). New-word drill (real practice payload, POSTs answered
+locally): "Type it as: yin4 shua1 shu4" after a wrong typed reading; ja: no hint. Prestudy preview of
+zh-d6 "my favorite t-shirt": 69/127 unknown, 没有 no longer new, 是/有/都/很/好 still new from the
+test account's own knowledge rows. No screen scrolled the document, the pinned bar stayed in view,
+no raw i18n keys; console errors seen: the 404 of `ALL_DONE` (TASK-1006), `ERR_TUNNEL_CONNECTION_FAILED`
+for an external resource blocked by the sandbox proxy, and the known `/api/auth/device-restore` 401
+on `/login`. ADR: [[decisions/ADR-047-basic-word-knowledge-prior]] filed as proposed (owner
+sign-off pending).
+Pages created (1): [[decisions/ADR-047-basic-word-knowledge-prior]].
+Pages updated (11): [[features/dual-translation]], [[features/dual-translation.tech]],
+[[features/measure-word-trainer.tech]], [[features/test-prestudy]], [[features/new-word-drill.tech]],
+[[features/vocabulary-knowledge]], [[api/rpcs.tech]], [[database/schema.tech]],
+[[tasklist/fixes-2026-11-16.tasks]] (TASK-989/990/993/994/997/998/999 Done, 991 blocked on owner,
+1000 in progress, new TASK-1001–1006), [[tasklist/master]] (Not Started 47→46, In Progress 13→14,
+Blocked 35→34, Done 252→259), index. Not committed, not deployed.

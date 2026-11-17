@@ -164,6 +164,16 @@ def get_next() -> ApiResponse:
         only_test = (request.args.get('test_id') or '').strip() or None
         if only_test is not None and not _looks_like_uuid(only_test):
             return bad_request("test_id must be a test id")
+        if only_test is not None:
+            # The test decides the language: the preview page links here without
+            # knowing the learner's selected study language, which may differ
+            # (a Japanese test opened while Chinese is selected).
+            scoped_test = _get_test_for_passage(db, only_test)
+            if not scoped_test:
+                return api_error(
+                    "No dual-translation passage available yet", 404, error_code=NO_PASSAGES,
+                )
+            l2_language_id = int(scoped_test['language_id'])
 
         # TASK-614: interleave due error-remediation cards into the passage
         # stream. Only when the study language is known (TASK-991: a card of
@@ -430,11 +440,18 @@ def submit(submission_id: int) -> ApiResponse:
         # TASK-910: one production-evidence row per primed sense. Not part of
         # _persist_grade (whose ordering contract is about dt_grade caching);
         # best-effort, like the dictation BKT write.
-        if contract.get('target_words') and not repeat_of:
-            _record_target_word_evidence(
-                db, g.current_user_id, passage['l2_language_id'], submission_id,
-                contract['target_words'],
-            )
+        if contract.get('target_words'):
+            # A repeat records no target-word BKT evidence (the learner has seen
+            # this passage's gold before), but the prestudy bookkeeping below
+            # still runs: prestudy Produce chooses its window by primed senses,
+            # not by what the learner already translated, so a Produce on a
+            # window first met through GET /next is a repeat, and its prime
+            # session must still get its Produce result and follow-ups.
+            if not repeat_of:
+                _record_target_word_evidence(
+                    db, g.current_user_id, passage['l2_language_id'], submission_id,
+                    contract['target_words'],
+                )
             # Test prestudy: store the Produce result on the prime session and
             # send omitted primed words to next-day review. Best-effort.
             if passage.get('source_ref_id'):

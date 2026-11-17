@@ -93,6 +93,21 @@ def test_level_never_exceeds_what_the_content_supports(over, level):
     assert ds._classifier_item(_v2_row(**over))['level'] == level
 
 
+@pytest.mark.parametrize('gloss, answers, expected', [
+    ('地图是一张纸，上面画着道路。', ['张', '幅'], '地图是一＿纸，上面画着道路。'),
+    ('天然形成的水道，能流入另一条河。', ['条', '道'], '天然形成的水道，能流入另一＿河。'),  # 道 not counted
+    ('一种电子设备。', ['台', '种'], '一＿电子设备。'),
+    ('每3本书', ['本'], '每3＿书'),
+    ('一本书', ['张'], '一本书'),        # not an answer: kept
+    ('张开嘴', ['张'], '张开嘴'),        # not counted: kept
+    (None, ['张'], None),
+    ('', ['张'], ''),
+])
+def test_gloss_does_not_give_the_answer_away(gloss, answers, expected):
+    item = ds._classifier_item(_v2_row(out_noun_gloss=gloss, out_correct_classifier_hanzi=answers))
+    assert item['noun_gloss'] == expected
+
+
 # ---------------------------------------------------------------------------
 # Session RPC fallback
 # ---------------------------------------------------------------------------
@@ -212,6 +227,42 @@ def test_malformed_answers_are_skipped():
     assert [(p['p_classifier_id'], p['p_is_correct']) for _, p in sent] == [(379, False)]
 
 
+def test_each_classifier_is_updated_in_answer_order_and_results_keep_answer_order():
+    """Chains per classifier run concurrently; within a chain the order holds."""
+    import threading
+    db = MagicMock()
+    seen = {}
+    lock = threading.Lock()
+
+    def rpc(name, params):
+        cid, ok = params['p_classifier_id'], params['p_is_correct']
+        chain = MagicMock()
+
+        def execute():
+            with lock:
+                seen.setdefault(cid, []).append(ok)
+                n = len(seen[cid])
+            if cid == 376 and n == 2:
+                raise RuntimeError('boom')
+            return SimpleNamespace(data={'classifier_id': cid, 'n': n})
+        chain.execute.side_effect = execute
+        return chain
+
+    db.rpc.side_effect = rpc
+    answers = [
+        {'classifier_id': 379, 'is_correct': True},
+        {'classifier_id': 376, 'is_correct': False},
+        {'classifier_id': 379, 'is_correct': False},
+        {'classifier_id': 376, 'is_correct': True},   # fails: left out
+        {'classifier_id': 381, 'is_correct': True},
+        {'classifier_id': 379, 'is_correct': True},
+    ]
+    out = _drill()._update_mastery(db, 'u', answers, limit=20)
+    assert seen == {379: [True, False, True], 376: [False, True], 381: [True]}
+    assert [(u['classifier_id'], u['n']) for u in out] == [
+        (379, 1), (376, 1), (379, 2), (381, 1), (379, 3)]
+
+
 def test_answers_are_capped_at_the_batch_size_and_forty():
     db, sent = _mastery_db()
     answers = [{'classifier_id': 379, 'is_correct': True}] * 100
@@ -233,6 +284,23 @@ def test_submit_passes_total_items_as_the_cap():
     upd.assert_called_once()
     assert upd.call_args.kwargs['limit'] == 3
     assert result['mastery_updates'] == []
+
+
+def test_replayed_submission_does_not_update_mastery_again():
+    """process_classifier_drill_submission answers a repeated idempotency key
+    with the cached attempt ('cached': true); its answers were already applied."""
+    drill = _drill()
+    drill._sentinel_test_id = 'sentinel'
+    db = MagicMock()
+    db.rpc.return_value.execute.return_value = SimpleNamespace(
+        data={'success': True, 'cached': True, 'attempt_id': 'a1'})
+    with patch.object(ds, 'get_supabase_admin', return_value=db), \
+         patch.object(drill, '_update_mastery', return_value=[{'x': 1}]) as upd:
+        result = drill.submit_session('u', 1, 14, 1, 1, idempotency_key='k',
+                                      item_results=[{'classifier_id': 379, 'is_correct': True}])
+    upd.assert_not_called()
+    assert result['mastery_updates'] == []
+    assert result['attempt_id'] == 'a1'
 
 
 # ---------------------------------------------------------------------------

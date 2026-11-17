@@ -7,6 +7,7 @@ import logging
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
+from services.pinyin_format import display_pronunciation
 from services import attempts
 from services.ai_service import ModerationServiceError
 from services.test_service import (
@@ -305,7 +306,11 @@ def get_test_with_ratings(identifier):
                 'definition_language_id': gloss_row['definition_language_id'],
                 'definition_is_gloss': gloss_row['definition_is_gloss'],
                 'part_of_speech': vocab.get('part_of_speech', ''),
-                'reading': sense.get('pronunciation')
+                # Chinese in tone-marked pinyin only (TASK-999): the popover
+                # shows it, nothing grades against it. Other languages as stored.
+                'reading': display_pronunciation(
+                    sense.get('pronunciation'), language_id=vocab.get('language_id'),
+                    language_code=test.get('language')) or None,
             }
 
     # Build response

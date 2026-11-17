@@ -107,11 +107,12 @@ def _load_senses(db, sense_ids: list[int], gloss_language_id: Optional[int]) -> 
     rows: list[dict] = []
     for part in _chunks(sense_ids):
         rows += db.table('dim_word_senses').select(
-            'id, vocab_id, sense_rank, definition, definition_language_id, example_sentence, pronunciation, '
-            'dim_vocabulary(lemma, part_of_speech, frequency_rank, reading, language_id)'
+            'id, vocab_id, sense_rank, definition_level, definition, definition_language_id, example_sentence, '
+            'pronunciation, dim_vocabulary(lemma, part_of_speech, frequency_rank, reading, language_id)'
         ).in_('id', part).execute().data or []
     senses: dict[str, dict] = {}
-    wanted: dict[tuple, int] = {}
+    # (vocab_id, sense_rank) -> [(linked sense id, its definition_level)]
+    wanted: dict[tuple, list[tuple[int, Optional[str]]]] = {}
     for r in rows:
         v = r.get('dim_vocabulary') or {}
         sid = str(r['id'])
@@ -123,16 +124,34 @@ def _load_senses(db, sense_ids: list[int], gloss_language_id: Optional[int]) -> 
             'glosses': {str(r.get('definition_language_id')): {'def': r.get('definition'), 'ex': r.get('example_sentence')}},
         }
         if gloss_language_id and gloss_language_id != r.get('definition_language_id'):
-            wanted[(r['vocab_id'], r.get('sense_rank'))] = r['id']
+            wanted.setdefault((r['vocab_id'], r.get('sense_rank')), []).append(
+                (r['id'], r.get('definition_level')))
     if wanted:
+        # Each meaning exists once per definition level ('simple' and
+        # 'standard' are both sense_rank 1, and a test may link either), so a
+        # linked sense takes the gloss at its own level; keying on rank alone
+        # kept whichever level PostgREST returned last (TASK-994 / INT-1).
+        # Only when no gloss exists at that level: the standard one, then the
+        # simple one, then any other.
+        found: dict[tuple, dict[Optional[str], dict]] = {}
         vocab_ids = sorted({k[0] for k in wanted})
         for part in _chunks(vocab_ids):
             for g in db.table('dim_word_senses').select(
-                'vocab_id, sense_rank, definition, example_sentence, definition_language_id'
+                'vocab_id, sense_rank, definition_level, definition, example_sentence, definition_language_id'
             ).in_('vocab_id', part).eq('definition_language_id', gloss_language_id).execute().data or []:
-                sid = wanted.get((g['vocab_id'], g.get('sense_rank')))
-                if sid is not None and g.get('definition'):
-                    senses[str(sid)]['glosses'][str(gloss_language_id)] = {'def': g['definition'], 'ex': g.get('example_sentence')}
+                key = (g['vocab_id'], g.get('sense_rank'))
+                if key in wanted and g.get('definition'):
+                    found.setdefault(key, {}).setdefault(
+                        g.get('definition_level'),
+                        {'def': g['definition'], 'ex': g.get('example_sentence')})
+        for key, linked in wanted.items():
+            by_level = found.get(key)
+            if not by_level:
+                continue
+            for sid, level in linked:
+                gloss = (by_level.get(level) or by_level.get('standard') or by_level.get('simple')
+                         or next(iter(by_level.values())))
+                senses[str(sid)]['glosses'][str(gloss_language_id)] = gloss
     return senses
 
 
