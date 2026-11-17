@@ -1,0 +1,52 @@
+{
+  "test_id": "637ea3fe-35ef-49a5-9866-e9689e71de8a",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "'Ms.' resolves the gender-neutral さん; the name 田中 maps back unambiguously.",
+      "tightness": 0.8767,
+      "back_translation": "動物園でクマの飼育を担当している田中さんは、季節によってえさの量を変えています。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7273,
+      "back_translation": "秋になると、野生のクマは冬に備えてたくさん食べて、体重が増えます。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "多めにする ('give more than usual') is rendered as 'get more food'; そうだ is rendered as 'Apparently'. The two are entailment-equivalent.",
+      "tightness": 0.6531,
+      "back_translation": "動物園のクマも同じように、秋にはえさが多くなるそうです。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "'she' = Ms. Tanaka. Gold has no subject/gender; English needs a pronoun, so the pronoun choice is a forced, context-consistent rendering, not an added fact.",
+      "tightness": 0.675,
+      "back_translation": "しかし、動物園のクマの多くは冬眠しないので、太りすぎないように細かく調整しています。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7077,
+      "back_translation": "田中さんは「一番大切なのは、クマが自然に近い生活を送れることです」と言います。"
+    }
+  ]
+}

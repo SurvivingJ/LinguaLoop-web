@@ -286,6 +286,81 @@ def select_window_for_primed(
 
 
 # ---------------------------------------------------------------------------
+# Practice windows for GET /next (ADR-037 sentence references)
+# ---------------------------------------------------------------------------
+
+def plan_sentence_windows(
+    sentence_idxs,
+    refs_ok: set[int],
+    tightness: dict[int, float],
+    floor: float,
+    min_size: int = MIN_WINDOW,
+    max_size: int = MAX_WINDOW,
+) -> list[tuple[int, int]]:
+    """Fixed, non-overlapping practice windows over one test's sentences.
+
+    Pure function. Sentences are split into runs of consecutive indices that
+    all have a usable reference (``refs_ok``); each run is packed with
+    ``window_sentences`` (2-4 sentences, a short tail rebalanced, never a
+    1-sentence window). A window is kept only when the mean ``tightness`` of
+    its references is at least ``floor``, with the same rule as
+    ``select_window_for_primed``: sentences without a score are left out of
+    the mean, and a window with no score at all passes only a ``floor`` of 0.
+
+    Returns ``[(start_idx, end_idx), ...]`` inclusive, in transcript order.
+    """
+    idxs = sorted({int(i) for i in (sentence_idxs or []) if int(i) in refs_ok})
+    runs: list[list[int]] = []
+    for i in idxs:
+        if runs and i == runs[-1][-1] + 1:
+            runs[-1].append(i)
+        else:
+            runs.append([i])
+    out: list[tuple[int, int]] = []
+    for run in runs:
+        for window in window_sentences(run, min_size, max_size):
+            vals = [tightness[i] for i in window if tightness.get(i) is not None]
+            if vals:
+                if sum(vals) / len(vals) < floor:
+                    continue
+            elif floor > 0:
+                continue
+            out.append((window[0], window[-1]))
+    return out
+
+
+def pick_next_window(
+    candidates: list[dict],
+    practised: dict[str, dict[int, str]],
+) -> Optional[dict]:
+    """Choose the window GET /next serves. Pure function.
+
+    ``candidates`` are in preference order (most recently attempted test
+    first), each ``{'test_id': str, 'windows': [(start, end), ...]}``.
+    ``practised`` maps ``test_id -> {sentence_idx: last practised timestamp}``
+    (ISO strings compare correctly) for sentences the learner has already
+    submitted or skipped in any DT passage.
+
+    The first window, in candidate order then transcript order, with no
+    practised sentence wins. When every window has been practised, the one
+    whose most recent practice is oldest comes back (simple spaced re-use).
+    Returns ``{'test_id', 'start', 'end', 'fresh': bool}`` or None when no
+    candidate has a window.
+    """
+    stalest: Optional[tuple[str, dict]] = None
+    for cand in candidates:
+        seen = practised.get(str(cand['test_id']), {})
+        for start, end in cand.get('windows') or []:
+            stamps = [seen[i] for i in range(start, end + 1) if i in seen]
+            if not stamps:
+                return {'test_id': cand['test_id'], 'start': start, 'end': end, 'fresh': True}
+            last = max(stamps)
+            if stalest is None or last < stalest[0]:
+                stalest = (last, {'test_id': cand['test_id'], 'start': start, 'end': end, 'fresh': False})
+    return stalest[1] if stalest else None
+
+
+# ---------------------------------------------------------------------------
 # Passage rows
 # ---------------------------------------------------------------------------
 

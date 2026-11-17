@@ -94,7 +94,8 @@ export function mount(container, ctx) {
     }
     let data;
     try {
-      const res = await window.authFetch('/api/dual-translation/next');
+      const lang = ctx && ctx.languageId ? `?language_id=${encodeURIComponent(ctx.languageId)}` : '';
+      const res = await window.authFetch(`/api/dual-translation/next${lang}`);
       const payload = await res.json();
       data = payload.data || payload;
       if (!res.ok) throw new Error(`next failed (${res.status})`);

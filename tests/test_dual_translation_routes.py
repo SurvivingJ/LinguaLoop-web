@@ -469,7 +469,7 @@ class TestGetNext:
 
     def test_404_when_no_passage_available(self, client, auth_headers, monkeypatch):
         monkeypatch.setattr(dt_routes, '_resolve_l1_language_id', lambda db, uid: 2)
-        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1: None)
+        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1, **kw: None)
 
         resp = client.get('/api/dual-translation/next', headers=auth_headers)
 
@@ -481,7 +481,7 @@ class TestGetNext:
         # Force one arm (TASK-617) so the stamped value is deterministic here.
         monkeypatch.setattr(Config, 'DT_CORRECTION_STYLE', 'flag_only')
         monkeypatch.setattr(dt_routes, '_resolve_l1_language_id', lambda db, uid: 2)
-        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1: {
+        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1, **kw: {
             'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3,
         })
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))
@@ -1003,7 +1003,7 @@ class TestNextInterleavesErrorCards:
         monkeypatch.setattr(dt_routes, '_should_serve_error_card', lambda: True)
         monkeypatch.setattr(dt_routes, '_next_due_error_card', lambda db, uid: None)
         monkeypatch.setattr(dt_routes, '_resolve_l1_language_id', lambda db, uid: 2)
-        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1: {
+        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1, **kw: {
             'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3,
         })
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))
@@ -1033,7 +1033,7 @@ class TestNextInterleavesErrorCards:
         monkeypatch.setattr(dt_routes, '_next_due_error_card', _boom)
 
         monkeypatch.setattr(dt_routes, '_resolve_l1_language_id', lambda db, uid: 2)
-        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1: {
+        monkeypatch.setattr(dt_routes, '_select_next_passage', lambda db, uid, l1, **kw: {
             'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3,
         })
         monkeypatch.setattr(DimensionService, 'get_language_code', classmethod(lambda cls, lid: 'ja'))

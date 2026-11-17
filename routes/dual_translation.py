@@ -54,6 +54,7 @@ from services.dual_translation.repair import budget as repair_budget
 from services.dual_translation.repair import hooks as repair_hooks
 from services.dual_translation.passage_builder import (
     MAX_WINDOW, SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
+    pick_next_window, plan_sentence_windows,
 )
 from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
@@ -117,8 +118,11 @@ def get_next() -> ApiResponse:
                 return api_success({'type': 'error_card', **error_card})
 
         l1_language_id = _resolve_l1_language_id(db, user_id)
+        # Optional study language (the session runner and the standalone page
+        # send it), so a Japanese slot never serves a Chinese passage.
+        l2_language_id = request.args.get('language_id', type=int)
 
-        passage = _select_next_passage(db, user_id, l1_language_id)
+        passage = _select_next_passage(db, user_id, l1_language_id, l2_language_id=l2_language_id)
         if not passage:
             return not_found("No dual-translation passage available yet")
 
@@ -726,9 +730,172 @@ def _resolve_l1_language_id(db, user_id: str) -> int:
     return DEFAULT_L1_LANGUAGE_ID
 
 
-def _select_next_passage(db, user_id: str, l1_language_id: int) -> Optional[dict]:
+def _select_next_passage(db, user_id: str, l1_language_id: int,
+                         l2_language_id: Optional[int] = None) -> Optional[dict]:
+    """The passage GET /next serves: a 2-4 sentence window built from the
+    reviewed sentence references (ADR-037) of a test the user has attempted,
+    else (no such window) a legacy ``dt_passage`` with a stored
+    ``dt_passage_reference``. ``l2_language_id`` restricts both to tests in
+    that language. Returns ``{passage_id, l1_text, age_tier, l2_language_id}``
+    or None."""
+    picked = _select_next_sentence_window(db, user_id, l1_language_id, l2_language_id)
+    if picked:
+        return picked
+    return _select_next_legacy_passage(db, user_id, l1_language_id, l2_language_id)
+
+
+#: How many of the user's most recently attempted tests GET /next considers.
+NEXT_WINDOW_MAX_TESTS = 30
+#: How many recent submissions are read to find already-practised sentences.
+NEXT_WINDOW_HISTORY = 500
+
+
+def _select_next_sentence_window(db, user_id: str, l1_language_id: int,
+                                 l2_language_id: Optional[int] = None) -> Optional[dict]:
+    """Serve a window of reviewed sentence references (TASK-976).
+
+    Candidate tests: the user's attempted tests, most recent attempt first,
+    in another language than the L1. Each test's sentences with an active
+    ``pass``/``rewritten`` reference in the L1 are packed into fixed 2-4
+    sentence windows whose mean tightness meets the Produce floor for the
+    test's language. The first window the user has not practised (submitted
+    or skipped) wins; when all are practised, the least recently practised
+    one is served again. The ``dt_passage`` for the range is found or created
+    exactly as POST /passage-from-sentences does.
+    """
+    from services.prestudy import PRODUCE_TIGHTNESS_FLOOR
+
+    attempts = (
+        db.table('test_attempts').select('test_id, created_at')
+        .eq('user_id', user_id).order('created_at', desc=True).limit(1000).execute().data or []
+    )
+    test_ids: list[str] = []
+    for row in attempts:
+        tid = str(row['test_id'])
+        if tid not in test_ids:
+            test_ids.append(tid)
+        if len(test_ids) >= NEXT_WINDOW_MAX_TESTS:
+            break
+    if not test_ids:
+        return None
+
+    tests = {
+        str(t['id']): t for t in (
+            db.table('tests').select('id, language_id, difficulty, transcript_hash')
+            .in_('id', test_ids).eq('is_active', True).execute().data or []
+        )
+        if int(t['language_id']) != int(l1_language_id)
+        and (l2_language_id is None or int(t['language_id']) == int(l2_language_id))
+    }
+    if not tests:
+        return None
+    material = _window_material(db, list(tests), l1_language_id)
+
+    candidates = []
+    for tid in test_ids:
+        test, rows = tests.get(tid), material.get(tid)
+        if not test or not rows:
+            continue
+        stored_hash = test.get('transcript_hash')
+        fresh = {
+            r['idx']: r for r in rows
+            if not stored_hash or r.get('transcript_hash') == stored_hash
+        }
+        windows = plan_sentence_windows(
+            list(fresh), set(fresh),
+            {i: r.get('tightness') for i, r in fresh.items()},
+            PRODUCE_TIGHTNESS_FLOOR.get(int(test['language_id']), 0.6),
+        )
+        if windows:
+            candidates.append({'test_id': tid, 'windows': windows, 'rows': fresh})
+    if not candidates:
+        return None
+
+    pick = pick_next_window(candidates, _practised_sentences(db, user_id))
+    if not pick:
+        return None
+    test = tests[pick['test_id']]
+    rows = next(c['rows'] for c in candidates if c['test_id'] == pick['test_id'])
+    span = [rows[i] for i in range(pick['start'], pick['end'] + 1)]
+    l2_code = _LANG_CODE.get(int(test['language_id']), 'en')
+    l1_code = _LANG_CODE.get(int(l1_language_id), 'en')
+    passage = _find_or_create_range_passage(
+        db, test, pick['start'], pick['end'],
+        l2_text=join_sentences([r['l2_text'] for r in span], l2_code),
+    )
+    if not passage:
+        return None
+    if passage.get('status', DEFAULT_STATUS) != DEFAULT_STATUS:
+        return None
+    return {
+        'passage_id': passage['id'],
+        'l1_text': join_sentences([r['l1_text'] for r in span], l1_code),
+        'age_tier': passage['age_tier'],
+        'l2_language_id': passage['l2_language_id'],
+    }
+
+
+def _window_material(db, test_ids: list, l1_language_id: int) -> dict:
+    """``{test_id: [{idx, l2_text, transcript_hash, l1_text, tightness}, ...]}``
+    for the sentences of ``test_ids`` that have an active, usable reference in
+    the L1 (one embedded read; sentences without one are simply absent)."""
+    resp = (
+        db.table('test_sentence_references')
+        .select('l1_text, tightness, review_verdict, '
+                'test_sentences!inner(test_id, idx, l2_text, transcript_hash)')
+        .in_('test_sentences.test_id', test_ids)
+        .eq('l1_language_id', l1_language_id)
+        .eq('is_active', True)
+        .in_('review_verdict', list(_USABLE_VERDICTS))
+        .limit(5000)
+        .execute()
+    )
+    out: dict = {}
+    for row in resp.data or []:
+        sent = row.get('test_sentences') or {}
+        if row.get('review_verdict') not in _USABLE_VERDICTS or sent.get('test_id') is None:
+            continue
+        out.setdefault(str(sent['test_id']), []).append({
+            'idx': int(sent['idx']), 'l2_text': sent['l2_text'],
+            'transcript_hash': sent.get('transcript_hash'),
+            'l1_text': row['l1_text'], 'tightness': row.get('tightness'),
+        })
+    return out
+
+
+def _practised_sentences(db, user_id: str) -> dict:
+    """``{test_id: {sentence_idx: latest created_at}}`` over the user's recent
+    DT submissions that were submitted (non-empty reproduction) or skipped,
+    on range passages. Unanswered submissions (a /next the user walked away
+    from) do not count, so the same window comes back."""
+    rows = (
+        db.table('dt_submission')
+        .select('created_at, reproduction, skipped_at, '
+                'dt_passage!inner(source_ref_id, sentence_start, sentence_end)')
+        .eq('user_id', user_id).order('created_at', desc=True)
+        .limit(NEXT_WINDOW_HISTORY).execute().data or []
+    )
+    out: dict = {}
+    for row in rows:
+        if not (row.get('reproduction') or '').strip() and not row.get('skipped_at'):
+            continue
+        p = row.get('dt_passage') or {}
+        start, end = p.get('sentence_start'), p.get('sentence_end')
+        if p.get('source_ref_id') is None or start is None or end is None:
+            continue
+        seen = out.setdefault(str(p['source_ref_id']), {})
+        stamp = row.get('created_at') or ''
+        for i in range(int(start), int(end) + 1):
+            if stamp > seen.get(i, ''):
+                seen[i] = stamp
+    return out
+
+
+def _select_next_legacy_passage(db, user_id: str, l1_language_id: int,
+                                l2_language_id: Optional[int] = None) -> Optional[dict]:
     """First active, test_transcript-sourced passage from a test the user has
-    completed that also has an L1 reference for l1_language_id."""
+    completed that also has an L1 reference for l1_language_id (pre-ADR-037
+    windows with a stored ``dt_passage_reference``)."""
     attempts_resp = db.table('test_attempts').select('test_id').eq('user_id', user_id).execute()
     test_ids = list({str(row['test_id']) for row in (attempts_resp.data or [])})
     if not test_ids:
@@ -742,7 +909,10 @@ def _select_next_passage(db, user_id: str, l1_language_id: int) -> Optional[dict
         .in_('source_ref_id', test_ids)
         .execute()
     )
-    candidates = passages_resp.data or []
+    candidates = [
+        p for p in (passages_resp.data or [])
+        if l2_language_id is None or int(p['l2_language_id']) == int(l2_language_id)
+    ]
 
     for passage in candidates:
         ref_resp = (

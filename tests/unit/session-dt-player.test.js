@@ -41,7 +41,7 @@ beforeEach(() => {
   document.body.appendChild(container);
   window.localStorage.clear();
   window.authFetch = vi.fn(async (url, opts) => {
-    if (url === '/api/dual-translation/next') {
+    if (String(url).startsWith('/api/dual-translation/next')) {
       return { ok: true, status: 200, json: async () => PASSAGE };
     }
     if (String(url).endsWith('/submit')) {
@@ -56,6 +56,21 @@ beforeEach(() => {
 afterEach(() => {
   container.remove();
   delete window.authFetch;
+});
+
+describe('session DT player passage request', () => {
+  it('asks /next for a passage in the session language', async () => {
+    ctx.languageId = 3;
+    mount(container, ctx);
+    await flush();
+    expect(window.authFetch).toHaveBeenCalledWith('/api/dual-translation/next?language_id=3');
+  });
+
+  it('omits the language when the session has none', async () => {
+    mount(container, ctx);
+    await flush();
+    expect(window.authFetch).toHaveBeenCalledWith('/api/dual-translation/next');
+  });
 });
 
 describe('session DT player result', () => {

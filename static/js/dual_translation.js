@@ -300,7 +300,10 @@
     state.primedToken = null;
     let resp;
     try {
-      resp = await window.authFetch('/api/dual-translation/next');
+      let langId = NaN;
+      try { langId = parseInt(localStorage.getItem('selectedLanguageId'), 10); } catch (e) { /* storage blocked */ }
+      const lang = Number.isInteger(langId) ? `?language_id=${langId}` : '';
+      resp = await window.authFetch(`/api/dual-translation/next${lang}`);
     } catch (e) {
       return showError(tr('dual_translation.error_load'));
     }
