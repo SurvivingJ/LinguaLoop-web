@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-14
+last_updated: 2026-11-17
 ---
 
 # Master Task List
@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 31 |
+| Not Started | 48 |
 | In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 35 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 250 |
+
+*2026-11-17 (billing plan filed, no code changed):* TASK-976–1000 added for Core/Pro plans, PAYG credits and the tutor step — 17 Not Started, 8 Blocked ([?]: D4 provider, D17 age policy, launch-scope questions for the knowledge report and custom tests, trainer cap, tutor spec). Counts: Not Started 31→48, Blocked 27→35. See [[tasklist/billing.tasks]].
 
 *2026-11-14 (DT guided self-repair built + integrated, WP-INT):* TASK-952–965 Done (WP-BE + WP-FE), TASK-968 and TASK-969 Done (WP-INT: contract test against the real routes, nine frontend/backend mismatches fixed, real-app browser run over an in-memory DB). TASK-966 (apply `dt_guided_self_repair.sql`, owner decision) and TASK-967 (authenticated E2E on a staging DB) Blocked. New: TASK-971 Not Started (real devices / Safari / screen reader / IME), TASK-972 / TASK-973 / TASK-974 Blocked (native review, re-check evaluation, deploy). TASK-939 and TASK-940 superseded by that breakdown. No task id is duplicated (TASK-970 is dt-taxonomy-v6 only). Counts: Not Started 30→31, Blocked 24→27 (+966, 967, 972, 973, 974; −939, 940), Done 234→250. See [[tasklist/dt-guided-self-repair.tasks]].
 
@@ -1245,6 +1247,37 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-972 | dt-guided-self-repair | Native-speaker review of hint templates and zh/ja UI strings | [?] no reviewer | M | — |
 | TASK-973 | dt-guided-self-repair | Evaluate the one-sentence re-check on real submissions | [?] needs real sessions | M | TASK-966, TASK-974 |
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
+
+### Billing, Credits and Plans — NEW 2026-11-17
+Full spec: [[tasklist/billing.tasks]] · [[business/pricing-plan.tech]] · [[decisions/ADR-047-credits-and-subscription-model]]. Planning only; no code changed.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-976 | billing | Docs reconciliation before billing work | [ ] | XS | — |
+| TASK-977 | billing | Settle the balance store (`users.tokens` vs `user_tokens`) | [ ] | S | TASK-976 |
+| TASK-978 | billing | Migration — plans, prices, subscriptions, entitlements (LIVE-DB) | [ ] | M | TASK-977 |
+| TASK-979 | billing | Migration — credit ledger and RPCs (LIVE-DB) | [ ] | L | TASK-978 |
+| TASK-980 | billing | Entitlements service, `ENTITLEMENTS_ENFORCED` flag, endpoint | [ ] | M | TASK-979 |
+| TASK-981 | billing | Credits service and quote endpoint | [ ] | S | TASK-980 |
+| TASK-982 | billing | Retire dead token code (`PaymentService`, `TOKEN_PACKAGES`) | [ ] | S | TASK-981 |
+| TASK-983 | billing | Stripe webhook with idempotency and event dispatch | [ ] | L | TASK-981 |
+| TASK-984 | billing | Stripe provisioning, checkout and portal | [ ] | M | TASK-983 |
+| TASK-985 | billing | Merchant-of-record adapter | [?] D4 | L | TASK-983 |
+| TASK-986 | billing | Scheduled billing jobs and nightly reconciliation | [ ] | S | TASK-983 |
+| TASK-987 | billing | Daily new-test limit: page pre-check + submit backstop | [ ] | M | TASK-980 |
+| TASK-988 | billing | Daily session and prestudy clamps for Free | [ ] | M | TASK-980 |
+| TASK-989 | billing | DT caps, over-cap credits, refunds, per-tier token backstop | [ ] | M | TASK-981 |
+| TASK-990 | billing | Word-list import: dictionary gate and per-new-sense credits | [ ] | M | TASK-981 |
+| TASK-991 | billing | Trainer level cap for Free | [?] founder Q3 | S | TASK-980 |
+| TASK-992 | billing | Fix DT cost logging (D9 data) | [ ] | S | — |
+| TASK-993 | billing | Knowledge report: summary (Free/Core) and per-word (Pro) | [?] spec + scope Q1 | L | TASK-980 |
+| TASK-994 | billing | User custom tests (10 credits, +30 references) | [?] spec + scope Q1 | XL | TASK-981 |
+| TASK-995 | billing | Billing UI: pricing page, paywall, credit chips, billing settings | [ ] | L | TASK-984, TASK-981 |
+| TASK-996 | billing | Trial and lifecycle emails (21-day Pro trial) | [?] D17 | M | TASK-980, TASK-986 |
+| TASK-997 | billing | Staging end-to-end and rollout (LIVE, owner) | [ ] | M | TASK-978–990, TASK-995 |
+| TASK-998 | billing | Re-create organizations for tutors (LIVE-DB) | [?] G1a gate + spec | M | TASK-997 |
+| TASK-999 | billing | Tutor billing: base + per-seat subscription | [?] after TASK-998 | M | TASK-998, TASK-984 |
+| TASK-1000 | billing | Tutor workspace: invite, assign, results | [?] classes-and-assignments spec | XL | TASK-998 |
 
 ### Language Packs (existing — unchanged)
 
