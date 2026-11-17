@@ -104,8 +104,20 @@ def default_report_path(language: str, moment: datetime) -> str:
 
 
 def live_versions(db, language_id: int) -> dict[int, set[int]]:
-    """``{sense_id: {version, ...}}``; raises on anything but the ADR-049 §8 shape."""
-    data = db.rpc(LIVE_VERSIONS_RPC, {'p_language_id': language_id}).execute().data
+    """``{sense_id: {version, ...}}``; raises on anything but the ADR-049 §8 shape.
+
+    On a statement timeout the map is read in keyset pages instead, exactly as the
+    backfill does (scripts/backfill_exercise_content.py ``_live_versions_paged``).
+    """
+    try:
+        data = db.rpc(LIVE_VERSIONS_RPC, {'p_language_id': language_id}).execute().data
+    except Exception as exc:                      # noqa: BLE001 - narrowed just below
+        from scripts.backfill_exercise_content import _is_statement_timeout, _live_versions_paged
+        if not _is_statement_timeout(exc):
+            raise
+        logger.warning('%s(%s) hit the statement timeout; reading the versions in pages',
+                       LIVE_VERSIONS_RPC, language_id)
+        return {sid: set(v) for sid, v in _live_versions_paged(db, language_id).items()}
     if isinstance(data, str):
         data = json.loads(data)
     if data is None:
