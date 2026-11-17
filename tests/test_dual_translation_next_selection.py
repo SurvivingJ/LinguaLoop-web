@@ -529,7 +529,7 @@ class TestSentenceWindowQuality:
         assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
 
     def test_low_tightness_windows_two_reviewers_agreed_on_are_served(self):
-        """ADR-049: a reference two independent reviews passed skips the floor."""
+        """ADR-050: a reference two independent reviews passed skips the floor."""
         refs = _tables()['test_sentence_references']
         for r in refs:
             if r['sentence_id'] < 600:

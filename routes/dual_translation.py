@@ -1329,7 +1329,7 @@ def _materials_from_rows(test_id: str, rows: list, agreed=()) -> tuple:
     """``dt_next_inputs`` sentence rows -> the ``_window_materials`` tuple
     ``(rows, refs_ok, tightness)``. A stale row (``fresh`` false) and a gap
     in idx stay in the list as window breakers, exactly as there.
-    ``agreed`` (the function's ``ag`` list, ADR-049) are the indices whose
+    ``agreed`` (the function's ``ag`` list, ADR-050) are the indices whose
     reference two independent reviews passed; their rows carry ``agreed``."""
     out_rows, refs_ok, tightness = [], set(), {}
     agreed = {int(i) for i in (agreed or [])}
@@ -1729,7 +1729,7 @@ def _next_sentence_window(tests: list, materials: dict, l2_language_id: int,
     """The first fresh 2-4 sentence window over ``tests`` (already in rotation
     order): every sentence has a usable L1 reference, the mean tightness clears
     the language floor (sentences two independent reviews agreed on are left
-    out of the mean, ADR-049), and no sentence belongs to a window this learner
+    out of the mean, ADR-050), and no sentence belongs to a window this learner
     was already served. Window choice is ``select_window_for_primed`` with no
     primed words (the shortest eligible window, then the earliest)."""
     from services.dual_translation.passage_builder import select_window_for_primed

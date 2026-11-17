@@ -305,7 +305,7 @@ follow-on slice once a learner with that L1 exists.
 - Result, active tests: Japanese 388/388 sentences with an English reference (96.6% at the floor), Chinese 3,008/3,008 (94.3%), English→Chinese unchanged at 484/2,486 (94.8% of those at the floor). Servable `/next` windows: 850 Chinese, 81 Japanese.
 - 89 references of the 2026-11-14 batch are below the floor and have had one review only — candidates for the next `sentence_ref_recheck.py` pass. 110 earlier ones stay below the floor after two blind reviews that both called them faithful (open question on the prose page).
 - "`dt_passage` rows for fully covered tests are retired": no longer applies. `dt_passage_reference` had 0 rows and every `dt_passage` row was a range passage on 2026-11-17.
-- Later on 2026-11-17, after the developer's decisions: `recheck2-2026-11-17` second blind review of the 89 (4 Opus turns; 74 pass, 15 rewritten, 0 fail); `recheck-accepted-2026-11-17` activates the 8 references failed only for glossed/duplicated gold (7 pass, 1 rewritten), since the glosses are intended (TASK-1008 Won't Do). With the ADR-049 override (TASK-1009): at floor or agreed ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856, ja 83. Still gated: references rewritten by a second reviewer whose new text has one review (ja 2, zh 20, en→zh 11 below the floor).
+- Later on 2026-11-17, after the developer's decisions: `recheck2-2026-11-17` second blind review of the 89 (4 Opus turns; 74 pass, 15 rewritten, 0 fail); `recheck-accepted-2026-11-17` activates the 8 references failed only for glossed/duplicated gold (7 pass, 1 rewritten), since the glosses are intended (TASK-1032 Won't Do). With the ADR-050 override (TASK-1033): at floor or agreed ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856, ja 83. Still gated: references rewritten by a second reviewer whose new text has one review (ja 2, zh 20, en→zh 11 below the floor).
 - OpenRouter spend: none.
 - Harness fixes: `export` counts `rewritten` as covered (it re-exported tests already done); `assemble` takes `author_model`/`arm`/`prompt_version` from the authored document (reviewers never see `docs/`, so every row was `claude-subagent`). The number check compared digit strings, so 102万 → "1,020,000" failed and one test (61f4125b) was written "1020000 yuan"; fixed later on 2026-11-17 (values, see the tech page; number words accepted too). Both bent references were re-reviewed (`recheck-numbers-2026-11-17`, Opus, `export --sentences ... --reason ...`) and replaced live: 61f4125b idx 1–2 now "980,000 / 1,020,000 / 970,000 yuan", 3574dd04 idx 2 "...traced back to the 1970s." 
 
@@ -400,7 +400,7 @@ vitest; open the preview on a test with sentence rows and on one without.
 
 ---
 
-## TASK-1008: Clean English glosses out of Chinese transcripts
+## TASK-1032: Clean English glosses out of Chinese transcripts
 
 **Status:** Won't Do — developer, 2026-11-17: the glosses are intended content. The 8 references failed for this reason (and for 18a77687's intended "这件T恤的T恤") were activated in `recheck-accepted-2026-11-17`.
 **Feature:** test-sentence-references
@@ -427,7 +427,7 @@ Re-run the gloss query in the 2026-11-17 log entry; it returns only tests record
 
 ---
 
-## TASK-1009: Two agreeing reviews override the tightness floor (ADR-049)
+## TASK-1033: Two agreeing reviews override the tightness floor (ADR-050)
 
 **Status:** [x] Done (repo + migration applied live 2026-11-17) — code not deployed. Deploy after the migration (already applied): the new code reads `faithful_reviews`.
 **Feature:** test-sentence-references

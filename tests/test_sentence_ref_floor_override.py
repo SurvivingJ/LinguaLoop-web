@@ -1,4 +1,4 @@
-"""Two agreeing reviews override the tightness floor (ADR-049, TASK-1009).
+"""Two agreeing reviews override the tightness floor (ADR-050, TASK-1033).
 
 Pure functions: the shared window gate, the primed-window selector with
 ``agreed``, and the faithful-review count the upload script stores. The

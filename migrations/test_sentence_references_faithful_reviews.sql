@@ -1,9 +1,9 @@
 -- ============================================================================
 -- test_sentence_references_faithful_reviews.sql — reviewer agreement overrides
--- the tightness floor (ADR-049, TASK-1009)
+-- the tightness floor (ADR-050, TASK-1033)
 -- Date: 2026-11-17
 -- Spec: wiki/features/test-sentence-references.tech.md ("Floor override")
---       wiki/decisions/ADR-049-reviewer-agreement-overrides-tightness-floor.md
+--       wiki/decisions/ADR-050-reviewer-agreement-overrides-tightness-floor.md
 --
 -- Adds:
 --   * test_sentence_references.faithful_reviews — how many independent reviews
@@ -20,7 +20,7 @@
 -- scripts/upload_sentence_references.py sets it on every new row.
 --
 -- Additive and idempotent. Rollback: ALTER TABLE ... DROP COLUMN faithful_reviews
--- (no code path needs it until the TASK-1009 code is deployed; that code reads
+-- (no code path needs it until the TASK-1033 code is deployed; that code reads
 -- it, so deploy after this file is applied).
 -- RLS/privileges unchanged (table is service-role only, ADR-034).
 --
@@ -46,7 +46,7 @@ END $$;
 
 COMMENT ON COLUMN public.test_sentence_references.faithful_reviews IS
     'Independent reviews (distinct run_id) that passed or wrote this exact l1_text for this '
-    '(sentence, L1). >= 2 lets the sentence skip the tightness floor in window selection (ADR-049).';
+    '(sentence, L1). >= 2 lets the sentence skip the tightness floor in window selection (ADR-050).';
 
 UPDATE public.test_sentence_references r
 SET faithful_reviews = sub.n

@@ -25,7 +25,7 @@
 -- and GET /next serves sentence windows only. Same signature and grants;
 -- re-apply this file to replace the earlier definition.
 --
--- Revised 2026-11-17 (ADR-049, TASK-1009): each tests[] entry also carries `ag`,
+-- Revised 2026-11-17 (ADR-050, TASK-1033): each tests[] entry also carries `ag`,
 -- the idx of usable sentences whose active reference two independent reviews
 -- passed (test_sentence_references.faithful_reviews >= 2, from
 -- migrations/test_sentence_references_faithful_reviews.sql, applied first).
@@ -56,7 +56,7 @@
 --                     idx, fresh (hash matches the test), usable reference,
 --                     tightness, chars of l2_text]
 --                     ag: idx of usable, fresh sentences whose reference two
---                     independent reviews agreed on (NULL when none, ADR-049)
+--                     independent reviews agreed on (NULL when none, ADR-050)
 --   ranges[]          every sentence-window dt_passage of those tests:
 --                     id, t, s, e, st status, a age tier
 --   texts[]           [sentence id, l2_text, l1_text] of the usable sentences of

@@ -214,7 +214,7 @@ def window_meets_floor(idxs, tightness: dict[int, float], floor: float,
 
     Mean tightness of the window's references must be at least ``floor``.
     Sentences in ``agreed`` (two independent reviews passed the exact text,
-    ADR-049) and sentences with no score are left out of the mean. A window
+    ADR-050) and sentences with no score are left out of the mean. A window
     with nothing left to average passes when every sentence is agreed, else
     only a ``floor`` of 0.
     """
@@ -253,7 +253,7 @@ def select_window_for_primed(
     sentence index is in ``refs_ok`` (has an active ``pass``/``rewritten``
     reference for the learner's L1) and it passes ``window_meets_floor``: the
     mean ``tightness`` of its references is at least ``floor``, leaving out
-    sentences in ``agreed`` (ADR-049) and sentences with no recorded
+    sentences in ``agreed`` (ADR-050) and sentences with no recorded
     tightness.
 
     Args:

@@ -19,14 +19,18 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 47 |
-| In Progress (`[~]`) | 15 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 32 |
+| Not Started | 52 |
+| In Progress (`[~]`) | 16 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 30 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 2 |
-| Done (cumulative, not listed here) | 259 |
+| Done (cumulative, not listed here) | 277 |
 
-*2026-11-17 (sentence references, branch claude/happy-sagan-wkcpgs merged with main):* TASK-908 Not Started → In Progress (English references for every Japanese and Chinese test live; English → Chinese deferred). New TASK-1008 Won't Do (English glosses in Chinese transcripts are intended) and TASK-1009 Done (`faithful_reviews` column, `dt_next_inputs` `ag`, `build_daily_session_dt_agreed.sql` applied live; Python deploy pending): two agreeing reviews override the tightness floor ([[decisions/ADR-049-reviewer-agreement-overrides-tightness-floor]]). This branch's own `/next` rewrite (filed as TASK-976 before the merge, an id main had already used) was dropped in favour of main's `_choose_next`. Counts: Not Started 48→47, In Progress 14→15, Done (repo)/awaiting 31→32, Won't Do 1→2. See [[tasklist/test-sentence-references.tasks]].
+*2026-11-17 (Exercise Content in Storage Phase 1 built and integrated, TASK-1008–1025):* the six work-package branches (a store, b writers, c SQL, d1 session readers, d2 prestudy + route readers, e backfill + sweep) were merged into `claude/dreamy-brahmagupta-40a4gq` without conflicts; TASK-1025 aligned `FakeContentDB` with the commit SQL, added `tests/test_exercise_content_integration.py` (scenarios 1–8 in db/db, shadow/dual, storage/dual) and checked that `db` mode issues exactly the pre-ADR calls. Prestudy now loads exercise content only for the words it drills, with an on-demand endpoint for words the learner adds (owner decision). Migrations are written, **not applied**; flags stay `db`. Offline suite: same 48 environmental failures + 1 collection error as the foundation commit. Next: operator tasks TASK-1026–1030. Counts: Not Started 55→37, Done 250→268. See [[tasklist/exercise-content-storage.tasks]], [[decisions/ADR-049-exercise-content-in-storage]] "Implementation status".
+
+*2026-11-17 (NEW — Exercise Content in Storage, ADR-049, TASK-1008–1031):* exercise `content` (119 MB of a 470 MB database on the 500 MB Free cap) moves to one immutable JSON file per sense in the private Storage bucket `exercise-content`. Phase 0 (architect) done: reader/writer inventory (ADR-049 Appendix A), design and contracts. 24 tasks added, all Not Started: package a store (1008–1011; 1008 lands first), b writers (1012–1015), c migrations (1016–1018), d readers (1019–1022), e backfill + sweep (1023–1024), integration (1025); TASK-1026–1030 are operator steps (live DB, deploy, flags, measurement) and not for agents; TASK-1031 post-cut-over clean-up. Two owner questions in the ADR (prestudy fan-out, semdisc leftovers), neither blocking. Counts: Not Started 31→55. See [[tasklist/exercise-content-storage.tasks]].
+
+*2026-11-17 (sentence references, branch claude/happy-sagan-wkcpgs merged with main):* TASK-908 Not Started → In Progress (English references for every Japanese and Chinese test live; English → Chinese deferred). New TASK-1032 Won't Do (English glosses in Chinese transcripts are intended) and TASK-1033 Done (`faithful_reviews` column, `dt_next_inputs` `ag`, `build_daily_session_dt_agreed.sql` applied live; Python deploy pending): two agreeing reviews override the tightness floor ([[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]]). This branch's own `/next` rewrite (filed as TASK-976 before the merge, an id main had already used) was dropped in favour of main's `_choose_next`. Counts (after main's exercise-content tasks): Not Started 53→52, In Progress 15→16, Done (repo)/awaiting 29→30, Won't Do 1→2. Renumbered at the second merge with main (exercise content took ADR-049 / TASK-1008–1031): ADR-050, TASK-1032, TASK-1033. See [[tasklist/test-sentence-references.tasks]].
 
 *2026-11-17 (dual translation, measure-word drill, basic-word mastery, session/pinyin integrated):* TASK-989, 990, 993, 994, 997, 998, 999 Done (each verified on the real app at 393x659; four reviewed migrations applied live by the reviewers — `dt_next_inputs`, `task998_classifier_drill_levels`, `task998_classifier_cloze_sentences_fill`, `task994_vocab_frequency_fill`). TASK-991 Not Started → Blocked (owner: no row on skip, overlap; parts a and c done in repo). TASK-1000 Not Started → In Progress. New: TASK-1001 (DT owner decisions), 1002 (measure-word decisions and content gaps), 1004 (ADR-047 proposals) Blocked; TASK-1003 (slow error-card materialisation on `/next`), 1005 (last numbered-pinyin surfaces), 1006 (DT UX gaps) Not Started. ADR-047 filed as proposed. Counts: Not Started 47→46, In Progress 13→14, Blocked 35→34, Done 252→259.
 
@@ -1180,8 +1184,8 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-909 | test-sentence-references | Sentences endpoint, passage-from-sentences, primed-window selector | Done (repo) | M | TASK-901 |
 | TASK-910 | test-sentence-references | Grader target words → per-word contextual_use evidence | Done (repo) | M | TASK-909 |
 | TASK-911 | test-sentence-references | Preview and cloze use `test_sentences` | Done (repo) | S | TASK-902 |
-| TASK-1008 | test-sentence-references | Clean English glosses out of 15 Chinese transcripts | Won't Do (glosses intended, developer 2026-11-17) | S | — |
-| TASK-1009 | test-sentence-references | Two agreeing reviews override the tightness floor (ADR-049) | Done (DB changes live), Python deploy pending | S | TASK-909 |
+| TASK-1032 | test-sentence-references | Clean English glosses out of 15 Chinese transcripts | Won't Do (glosses intended, developer 2026-11-17) | S | — |
+| TASK-1033 | test-sentence-references | Two agreeing reviews override the tightness floor (ADR-050) | Done (DB changes live), Python deploy pending | S | TASK-909 |
 
 ### New-Word Drill (new 2026-11-09)
 
@@ -1257,6 +1261,36 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-972 | dt-guided-self-repair | Native-speaker review of hint templates and zh/ja UI strings | [?] no reviewer | M | — |
 | TASK-973 | dt-guided-self-repair | Evaluate the one-sentence re-check on real submissions | [?] needs real sessions | M | TASK-966, TASK-974 |
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
+
+### Exercise Content in Storage (ADR-049) — NEW 2026-11-17
+Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-049-exercise-content-in-storage]]. Phase 0 done (inventory, design, contracts). Phase 1 built and integrated 2026-11-17 (TASK-1008–1025). The two Phase-1 migrations are live since 2026-11-17 (TASK-1026, deploy of the Phase-1 code still pending; flags `db`). TASK-1026–1030 are operator tasks, not for agents.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1008 | exercise-content-storage | Store facade, flags, `db` mode, codec, in-memory backend (lands first) | Done | S | — |
+| TASK-1009 | exercise-content-storage | Supabase Storage backend (httpx) and byte-bounded caches | Done | M | TASK-1008 |
+| TASK-1010 | exercise-content-storage | Read path: `storage` and `shadow` hydration, `fetch_sense` | Done | L | TASK-1008, TASK-1009 |
+| TASK-1011 | exercise-content-storage | Write path: `dual` mode, file first then rows by compare-and-swap | Done | L | TASK-1008 |
+| TASK-1012 | exercise-content-storage | Renderer and stage-runner render through `store.write_sense` | Done | S | TASK-1008 |
+| TASK-1013 | exercise-content-storage | Regeneration writers (queue drain, generation batch) through the store | Done | S | TASK-1008 |
+| TASK-1014 | exercise-content-storage | Content fix scripts (audio URLs, Traditional mirrors) through the store | Done | S | TASK-1008 |
+| TASK-1015 | exercise-content-storage | Static guard: no content write outside the store | Done | XS | TASK-1012, TASK-1013, TASK-1014 |
+| TASK-1016 | exercise-content-storage | Migration: columns, sequence, write-side RPCs, bucket | Done (live 2026-11-17) | M | — |
+| TASK-1017 | exercise-content-storage | Migration: session RPCs `p_include_content`; drop dead content RPCs | Done (live 2026-11-17) | M | — |
+| TASK-1018 | exercise-content-storage | Cut-over migration file (drop column, dedupe_key index, VACUUM FULL runbook) | Done (repo) | M | TASK-1016, TASK-1017 |
+| TASK-1019 | exercise-content-storage | Practice session and intro-drill readers hydrate content | Done | M | TASK-1008 |
+| TASK-1020 | exercise-content-storage | Battery readers (speed round, gate/stress) hydrate content | Done | S | TASK-1008 |
+| TASK-1021 | exercise-content-storage | Prestudy loads content only for the drill words (+ on-demand endpoint) | Done | M | TASK-1008 |
+| TASK-1022 | exercise-content-storage | Route readers (typed grading, admin preview) and reference-set script | Done | S | TASK-1008 |
+| TASK-1023 | exercise-content-storage | Backfill, verify and archive script | Done | M | TASK-1008 |
+| TASK-1024 | exercise-content-storage | Orphan-file sweep script | Done | S | TASK-1008 |
+| TASK-1025 | exercise-content-storage | Phase-1 integration run (offline) and wiki update | Done | M | TASK-1009..1024 |
+| TASK-1026 | exercise-content-storage | OPERATOR: apply Phase-1 migrations, deploy with flags `db` (LIVE-DB, approval) — both migrations live 2026-11-17; deploy pending | [~] | S | TASK-1016, TASK-1017, TASK-1025 |
+| TASK-1027 | exercise-content-storage | OPERATOR: dual writes on, backfill and verify | [ ] | M | TASK-1026 |
+| TASK-1028 | exercise-content-storage | OPERATOR: shadow reads ≥ 7 days | [ ] | S | TASK-1027 |
+| TASK-1029 | exercise-content-storage | OPERATOR: serve from Storage, latency within +10% warm | [ ] | S | TASK-1028 |
+| TASK-1030 | exercise-content-storage | OPERATOR: cut-over — archive, drop column, VACUUM FULL, sweep (LIVE-DB, approval) | [ ] | M | TASK-1029, TASK-1018 |
+| TASK-1031 | exercise-content-storage | Post-cut-over clean-up (remove transition code, archive superseded migrations) | [ ] | M | TASK-1030 |
 
 ### Mobile Redesign — App Shell and Design System (ADR-048) — NEW 2026-11-16
 Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[decisions/ADR-048-mobile-app-shell]]. Built in the working tree; not committed, not deployed.

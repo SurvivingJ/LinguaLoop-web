@@ -286,7 +286,7 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   unset). Window quality rules are those of Produce: active references with a `pass`/`rewritten`
   verdict, mean tightness ≥ `services.prestudy.PRODUCE_TIGHTNESS_FLOOR[l2]` (sentences whose
   reference two independent reviews passed are left out of the mean —
-  [[decisions/ADR-049-reviewer-agreement-overrides-tightness-floor]]; `dt_next_inputs` returns
+  [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]]; `dt_next_inputs` returns
   them as `ag`), only active tests,
   never a sentence of a window already served; stale sentence rows and missing indices break
   windows (see `choose_produce_window`).

@@ -293,6 +293,7 @@ def _process_sense(db, language_id: int, sense: dict, pipeline, renderer) -> _Se
     and generating in a pool thread would silently restore fail-open judging,
     the exact failure TASK-510 exists to prevent.
     """
+    from services.exercise_content import store
     from services.exercise_generation.judges.base import JudgeUnavailable, batch_mode
     from services.vocabulary_ladder import queue_drain
 
@@ -330,12 +331,14 @@ def _process_sense(db, language_id: int, sense: dict, pipeline, renderer) -> _Se
                 )
                 return outcome
 
-            # Replace only once the new set exists (non-destructive regen).
-            (db.table('exercises').delete()
-               .eq('word_sense_id', sense_id)
-               .not_.is_('word_asset_id', 'null')
-               .execute())
-            db.table('exercises').insert(rows).execute()
+            # Replace only once the new set exists (non-destructive regen), in
+            # one store call (ADR-049 §4): with EXERCISE_CONTENT_WRITE=db the
+            # old delete-then-insert, with `dual` one new content version. A
+            # write error (ContentWriteConflict / ContentStorageError /
+            # PostgREST) falls through to the handler below: logged, the
+            # sense fails and is queued for regen, as an insert error was.
+            store.write_sense(db, sense_id, language_id, insert_rows=rows,
+                              delete_where=store.DeleteWhere(require_word_asset=True))
 
             outcome.exercises = len(rows)
             outcome.status = 'success' if status == 'success' else 'partial'

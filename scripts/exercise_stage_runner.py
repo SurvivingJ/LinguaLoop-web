@@ -424,7 +424,13 @@ def cmd_render(args) -> int:
     A sense is inserted only if every judge request it made was answered; a
     miss means `prepare --stage 8` again. A sense that already has exercise
     rows is refused — render has no de-duplication.
+
+    The insert is one `store.write_sense` call per sense (ADR-049 §4): with
+    EXERCISE_CONTENT_WRITE=db exactly the old `exercises` insert, with `dual`
+    the content file first. A write error blocks that sense and the run goes
+    on with the next one.
     """
+    from services.exercise_content import store
     from services.vocabulary_ladder.exercise_renderer import LadderExerciseRenderer
 
     db, language_id, _ = db_and_language(args.run_dir)
@@ -456,7 +462,13 @@ def cmd_render(args) -> int:
         logger.info('sense %s: %d rows (%d with word_asset_id)%s', sid, len(rows), linked,
                     '' if not args.dry_run else ' [dry run]')
         if not args.dry_run:
-            db.table('exercises').insert(rows).execute()
+            try:
+                store.write_sense(db, sid, language_id, insert_rows=rows)
+            except Exception as exc:
+                logger.error('sense %s: writing %d row(s) failed — sense blocked: %s',
+                             sid, len(rows), exc)
+                blocked += 1
+                continue
         total += len(rows)
     logger.info('%s %d rows; %d sense(s) blocked', 'would insert' if args.dry_run
                 else 'inserted', total, blocked)

@@ -2,7 +2,7 @@
 -- build_daily_session_dt_agreed.sql — the dual-translation count honours reviewer agreement
 -- Date: 2026-11-17
 --
--- ADR-049 / TASK-1009: a sentence whose active reference two independent
+-- ADR-050 / TASK-1033: a sentence whose active reference two independent
 -- reviews passed (test_sentence_references.faithful_reviews >= 2, from
 -- migrations/test_sentence_references_faithful_reviews.sql) is left out of a
 -- window's mean tightness in GET /api/dual-translation/next and the prestudy
@@ -19,6 +19,10 @@
 -- Same signature, SECURITY DEFINER, search_path and grants.
 --
 -- Rollback: re-apply migrations/archive/build_daily_session_dt_windows.sql.
+--
+-- Renumbered when merged with main (exercise content took ADR-049): the decision is
+-- ADR-050 and the task TASK-1033. The function body below is the applied, live text and
+-- keeps the old id in one comment ("ADR-049" there = ADR-050); it was not rewritten for that.
 -- ============================================================================
 
 BEGIN;

@@ -22,6 +22,7 @@ This class provides:
 import logging
 from datetime import datetime, timezone
 
+from services.exercise_content import store
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary_ladder.config import (
     LADDER_LEVELS, GATES, STRESS_TEST, RINGS,
@@ -384,18 +385,24 @@ class LadderService:
         try:
             resp = (
                 self.db.table('exercises')
-                .select('id, exercise_type, content, complexity_tier, '
-                        'ladder_level, tags, word_sense_id')
+                .select(store.select_columns(
+                    'id, exercise_type, {content}, complexity_tier, '
+                    'ladder_level, tags, word_sense_id'))
                 .eq('language_id', language_id)
                 .eq('word_sense_id', sense_id)
                 .eq('is_active', True)
                 .in_('ladder_level', list(set(levels)))
                 .execute()
             )
+            rows = list(resp.data or [])
+            # ADR-049: fill content from the exercise-content store before
+            # picking (no-op in db mode). A row whose content cannot be found
+            # is dropped, so the battery picks among the rows it can serve.
+            store.hydrate(rows, language_id=language_id, db=self.db)
 
             # Group by level, pick exercises respecting variant diversity
             by_level: dict[int, list[dict]] = {}
-            for row in (resp.data or []):
+            for row in rows:
                 lv = row['ladder_level']
                 by_level.setdefault(lv, []).append(row)
 

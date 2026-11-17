@@ -35,6 +35,26 @@ def _dt_single_call_off(monkeypatch):
     monkeypatch.setattr(Config, 'DT_GRADING_ASSET_COLUMNS', False)
 
 
+@pytest.fixture(autouse=True)
+def _exercise_content_db_mode(monkeypatch):
+    """Pin both ADR-049 exercise-content flags to 'db' and reset the store.
+
+    With EXERCISE_CONTENT_SOURCE / EXERCISE_CONTENT_WRITE at 'db' every reader
+    and writer issues exactly today's PostgREST calls, whatever the shell
+    exports. A test that needs another mode sets it on ``Config`` (and usually
+    ``store.set_backend(InMemoryBackend())``). ``store.reset_state()`` drops
+    the backend, the caches, the warn-once flags and the reader/shadow state
+    after every test so nothing leaks between tests.
+    """
+    from services.exercise_content import store
+
+    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SOURCE', 'db')
+    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', 'db')
+    store.reset_state()
+    yield
+    store.reset_state()
+
+
 # ---------------------------------------------------------------------------
 # Test configuration
 # ---------------------------------------------------------------------------

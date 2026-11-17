@@ -209,7 +209,7 @@ range by primed senses covered ×10 + wrong-question senses ×3 − chars/100, r
 coverage and mean tightness ≥ floor, return the best. Pure function over `test_sentences` rows;
 unit-tested against the demo's five tests.
 
-### Floor override: two agreeing reviews (ADR-049, TASK-1009, 2026-11-17)
+### Floor override: two agreeing reviews (ADR-050, TASK-1033, 2026-11-17)
 
 `test_sentence_references.faithful_reviews smallint NOT NULL DEFAULT 0 CHECK (>= 0)`
 (`migrations/test_sentence_references_faithful_reviews.sql`, applied live 2026-11-17 with a
@@ -234,7 +234,7 @@ zh 2,985/3,008, en→zh 473/484; fixed 2–4 sentence packing gives zh 856 and j
 Since 2026-11-17 `/next` serves only 2–4 sentence windows built from these references (resume,
 attempted tests, then untaken tests, skip and reserve); the selection is specified in
 [[features/dual-translation.tech]] (`_choose_next`, `dt_next_inputs`). Its window gate is
-`select_window_for_primed` with the ADR-049 `agreed` set: `dt_next_inputs` returns `ag` per test,
+`select_window_for_primed` with the ADR-050 `agreed` set: `dt_next_inputs` returns `ag` per test,
 the per-table fallback reads `faithful_reviews`. The daily session's availability count
 (`migrations/build_daily_session_dt_agreed.sql`) applies the same override to adjacent pairs.
 

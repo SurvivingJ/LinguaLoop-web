@@ -1,10 +1,10 @@
 ---
-title: "ADR-049: Two agreeing reviews override the tightness floor"
+title: "ADR-050: Two agreeing reviews override the tightness floor"
 status: accepted
 date: 2026-11-17
 ---
 
-# ADR-049: Two agreeing reviews override the tightness floor
+# ADR-050: Two agreeing reviews override the tightness floor
 
 ## Context
 

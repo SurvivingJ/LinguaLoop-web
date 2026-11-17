@@ -3,7 +3,7 @@ title: Practice Extra Rounds — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: practice-extra-rounds.md
-last_updated: 2026-11-13
+last_updated: 2026-11-17
 dependencies:
   - "get_practice_session (RPC)"
   - "get_review_ahead_items (RPC, new)"
@@ -59,6 +59,17 @@ the response. The queue, `progress` and `next_index` are unchanged: tests stay r
 ### `get_review_ahead_items(p_user_id uuid, p_language_id smallint, p_limit int=10, p_exclude_recent_minutes int=10, p_exclude_sense_ids int[]='{}') → jsonb`
 Array of items `{exercise_id, sense_id, exercise_type, family, content, ladder_level, p_known,
 expected_seconds, mode:'maintenance', review_ahead:true}`. `p_limit` is clamped to 0..50.
+
+**ADR-049 (applied live 2026-11-17; TASK-1017 / TASK-1026):**
+`migrations/exercise_content_session_rpcs.sql` replaces it with a 6th argument
+`p_include_content boolean DEFAULT true` (`LANGUAGE sql VOLATILE`, as live; service_role only;
+the 5-argument function is dropped in the same transaction, so today's calls resolve to the new
+one). Every item gains `content_version`; `content` is present only when `p_include_content`.
+`_extra_review_items` passes `**store.rpc_content_args()` (db: nothing; shadow: true; storage:
+false) and `get_extra_round` fills content with one `store.hydrate` call just before the script
+variant (see [[features/practice-engine.tech]] "Exercise content hydration"). After the cut-over
+content is never returned. In `storage` mode `extra.reviews_served` / `new_words_served` are
+counted before hydration, so they can overstate when an item is dropped (no client reads them).
 
 ## Service
 `PracticeSessionService.get_extra_round(user_id, language_id, reviews, new_words, exclude_sense_ids)`

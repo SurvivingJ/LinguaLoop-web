@@ -2,7 +2,7 @@
 title: "ADR-037: Sentence-level L1 references for test transcripts, authored by Claude agents"
 status: accepted
 date: 2026-10-30
-updated: 2026-11-17 (tightness gate amended by ADR-049)
+updated: 2026-11-17 (tightness gate amended by ADR-050)
 ---
 
 # ADR-037: Sentence-level L1 references for test transcripts, authored by Claude agents
@@ -79,7 +79,7 @@ The review pack is now split into a blind file and a gold file after 5 of 30 rev
 the single-file marker; those tests were excluded from the tightness statistics.
 
 > **Amended 2026-11-17:** two independent reviews that pass the same text override the tightness
-> floor in window selection — [[decisions/ADR-049-reviewer-agreement-overrides-tightness-floor]].
+> floor in window selection — [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]].
 
 ## Consequences
 
