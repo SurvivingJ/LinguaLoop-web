@@ -6611,3 +6611,8 @@ Not deployed. Pages: created [[decisions/ADR-046-untaught-words-start-the-drill]
 [[features/new-word-drill]], [[features/new-word-drill.tech]] (note 16), [[tasklist/new-word-drill.tasks]]
 (TASK-975), [[tasklist/master]], index.
 
+
+## [2026-11-17] query | Business case and pricing plan (agent swarm)
+Founder brief: serious tools for serious learners; segments solo learners → schools → translators; credits PAYG + subscription; bootstrapped; AU/AUD first for schools and translators, global for solo learners; credits scope left to the swarm. Workflow of 9 agents: research (unit costs incl. read-only Supabase queries, capability gaps, solo-learner competitors, AU schools, NAATI/translators) → pricing architect → financial model → red team → synthesis. Red-team corrections cut base-case M36 cash from +A$161k to +A$8.4k. Recommendation: credits meter only live-LLM actions; tutors (M13) inserted ahead of schools; school build gated (M19 base). Status: proposed, nothing built.
+Pages: created [[business/business-case]], [[business/pricing-plan]], [[business/pricing-plan.tech]], [[business/market-research]], [[decisions/ADR-047-credits-and-subscription-model]], `business/model/financial_model.py`; updated index. Not edited, flagged as inconsistent: [[features/token-economy.tech]] lists a webhook route that does not exist; [[business-rules/auth-and-access]] says Free gets 2 tests/day, production seeds 1. Blocker before billing: confirm `subscription_tier_id` cannot be raised by the user (TASK-875).
+Output filed as: [[business/business-case]].
