@@ -1,0 +1,416 @@
+<title>LinguaDojo Name Studies</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@600&family=Literata:opsz,wght@7..72,600&family=Cormorant+Garamond:wght@600&family=Spectral:wght@500&family=Fraunces:opsz,wght,SOFT@9..144,600,50&family=Gloock&family=Archivo:wdth,wght@112,700&family=Bitter:wght@600&family=Bodoni+Moda:opsz,wght@6..96,600&family=Hanken+Grotesk:wght@600&family=Inter:wght@400;500;600&family=Noto+Serif+SC:wght@600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* Layout: one band per name; each band holds two directions, each a specimen column beside a phone mockup. Phones carry their own palettes as content. */
+:root {
+  --bg: #F3F2EE; --surface: #FFFFFF; --fg: #1E1F1C; --muted: #66675F; --line: #DCDAD2; --frame: #1A1B19;
+  --f-ui: 'IBM Plex Sans', system-ui, sans-serif; --f-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #151614; --surface: #1D1E1B; --fg: #ECEAE3; --muted: #A3A399; --line: #33342F; --frame: #000000; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #151614; --surface: #1D1E1B; --fg: #ECEAE3; --muted: #A3A399; --line: #33342F; --frame: #000000; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 48px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.intro { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px 56px; align-items: end; padding-bottom: 24px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+h1 { font-size: clamp(30px, 4.6vw, 52px); line-height: 1.05; letter-spacing: -.025em; margin: 0; font-weight: 600; text-wrap: balance; }
+.brief { margin: 0; color: var(--muted); max-width: 60ch; }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0 8px; border-bottom: 1px solid var(--line); }
+.jump a { color: var(--fg); text-decoration: none; font-size: 13px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; }
+.jump a:hover, .jump a:focus-visible { border-color: var(--fg); outline: none; }
+.name { padding-block: 48px 8px; border-bottom: 1px solid var(--line); }
+.name-head { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr); gap: 16px 48px; align-items: start; margin-bottom: 28px; }
+.name-head h2 { font-size: clamp(36px, 5vw, 56px); line-height: 1; margin: 0; font-weight: 600; letter-spacing: -.01em; }
+.say { margin: 8px 0 0; font: 400 13px var(--f-mono); color: var(--muted); }
+.facts { margin: 0; display: grid; gap: 10px; }
+.facts div { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 12px; }
+.facts dt { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.facts dd { margin: 0; }
+.dirs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.dir { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr) 248px; gap: 20px; align-items: start; margin-bottom: 40px; }
+.spec { display: grid; gap: 14px; min-width: 0; }
+.tile { border-radius: 4px; min-height: 150px; display: grid; place-items: center; padding: 20px 14px; }
+.lockup { display: flex; align-items: center; gap: 12px; max-width: 100%; }
+.lk-mark { width: 56px; height: 56px; flex: none; }
+.word { font-size: clamp(24px, 2.6vw, 32px); line-height: 1; white-space: nowrap; }
+.spec-row { display: flex; align-items: center; gap: 14px; }
+.app { width: 52px; height: 52px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+.app svg { width: 34px; height: 34px; }
+.fav { padding: 5px; border-radius: 4px; outline: 1px solid var(--line); display: grid; place-items: center; flex: none; }
+.spec-txt h3 { margin: 0 0 4px; font-size: 17px; font-weight: 600; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.tags span { font-size: 12px; padding: 1px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.why { margin: 0; font-size: 14px; }
+.swatches { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; }
+.swatches li { display: flex; align-items: center; gap: 6px; }
+.chip { width: 16px; height: 16px; border-radius: 3px; outline: 1px solid color-mix(in srgb, var(--fg) 18%, transparent); outline-offset: -1px; }
+.swatches code { font: 400 11px var(--f-mono); color: var(--muted); }
+.mock { margin: 0; display: grid; justify-items: center; gap: 10px; }
+.mock figcaption { font: 400 11px var(--f-mono); color: var(--muted); }
+.foot { margin-top: 32px; color: var(--muted); font-size: 13px; max-width: 75ch; }
+
+/* ---- phone mockup: tokens come from inline style on .phone ---- */
+.phone { width: 248px; aspect-ratio: 248 / 520; background: var(--frame); border-radius: 36px; padding: 8px; box-shadow: 0 18px 40px -22px rgba(0,0,0,.45); max-width: 100%; }
+.screen { position: relative; height: 100%; background: var(--bg); color: var(--ink); border-radius: 29px; overflow: hidden; display: flex; flex-direction: column; font: 400 11px/1.4 'Inter', system-ui, sans-serif; }
+.status { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px 4px; font-weight: 600; font-size: 11px; }
+.sb { display: flex; gap: 5px; align-items: center; }
+.appbar { display: flex; align-items: center; gap: 7px; padding: 6px 14px 8px; border-bottom: 1px solid var(--ln); }
+.ab-mark svg { width: 22px; height: 22px; display: block; }
+.ab-word { font-size: 15px; line-height: 1; flex: 1; white-space: nowrap; }
+.avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--sf); border: 1px solid var(--ln); display: grid; place-items: center; font-size: 10px; font-weight: 600; color: var(--mu); }
+.body { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.screen .eyebrow { margin: 0; font-size: 9px; letter-spacing: .1em; color: var(--mu); }
+.screen .eyebrow.hi { color: var(--hi); font-weight: 600; }
+.h { margin: 0; font: 600 20px/1.1 var(--hf); letter-spacing: -.01em; }
+.hero { background: var(--sf); border: 1px solid var(--ln); border-radius: 10px; padding: 10px; display: grid; gap: 8px; }
+.hero-top { display: flex; justify-content: space-between; color: var(--mu); font-size: 10px; }
+.hero-top b { color: var(--ink); font-size: 13px; }
+.bar { height: 5px; border-radius: 3px; background: var(--ln); overflow: hidden; display: block; }
+.bar i { display: block; height: 100%; background: var(--ac); border-radius: 3px; }
+.btn { display: block; text-align: center; background: var(--ac); color: var(--aci); border-radius: 8px; padding: 8px; font-weight: 600; font-size: 11.5px; }
+.sect { margin: 4px 0 0; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--mu); }
+.rows { list-style: none; margin: 0; padding: 0; display: grid; }
+.rows li { display: flex; align-items: center; gap: 9px; padding: 7px 0; border-bottom: 1px solid var(--ln); }
+.rows li:last-child { border-bottom: 0; }
+.rows .rt { flex: 1; display: grid; min-width: 0; }
+.rows b { font-weight: 600; font-size: 11.5px; }
+.rows small { color: var(--mu); font-size: 9.5px; }
+.rows em { font-style: normal; color: var(--mu); font-size: 10px; font-variant-numeric: tabular-nums; }
+.rows li.done b { color: var(--mu); }
+.rows li.cur b { color: var(--ink); }
+.st svg { display: block; }
+.motto { margin: auto 0 0; text-align: center; color: var(--mu); font-size: 11px; font-style: italic; }
+.tabs { display: flex; justify-content: space-around; padding: 6px 6px 14px; border-top: 1px solid var(--ln); background: var(--sf); }
+.tab { display: grid; justify-items: center; gap: 2px; font-size: 9px; color: var(--mu); }
+.tab.on { color: var(--ac); font-weight: 600; }
+.exbar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; }
+.exbar .x { color: var(--mu); font-size: 12px; }
+.exbar .bar { flex: 1; }
+.exbar .count { color: var(--mu); font-size: 10px; font-variant-numeric: tabular-nums; }
+.prompt { margin: 0; font: 600 14px/1.25 var(--hf); }
+.sent { background: var(--sf); border: 1px solid var(--ln); border-radius: 10px; padding: 12px 10px; text-align: center; }
+.zh { margin: 0; font: 600 17px/1.4 'Noto Serif SC', 'Songti SC', serif; letter-spacing: .02em; }
+.blank { display: inline-block; min-width: 1.3em; border-bottom: 2px solid var(--ok); color: var(--ok); }
+.gl { margin: 4px 0 0; color: var(--mu); font-size: 10px; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.opt { position: relative; display: grid; justify-items: center; padding: 6px 4px; border-radius: 8px; border: 1px solid var(--ln); background: var(--sf); }
+.opt b { font: 600 17px/1.2 'Noto Serif SC', serif; }
+.opt small { color: var(--mu); font-size: 9px; }
+.opt i { font-style: normal; font-size: 8.5px; font-weight: 600; }
+.opt.ok { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, var(--sf)); }
+.opt.ok i { color: var(--ok); }
+.opt.no { border-color: var(--no); background: color-mix(in srgb, var(--no) 12%, var(--sf)); }
+.opt.no i { color: var(--no); }
+.fb { border-radius: 10px; padding: 9px 10px; background: color-mix(in srgb, var(--hi) 12%, var(--sf)); border: 1px solid color-mix(in srgb, var(--hi) 40%, var(--ln)); }
+.fb p { margin: 0; font-size: 10px; }
+.fb .fb-h { font-weight: 600; font-size: 11px; margin-bottom: 3px; }
+.fb .fb-h span { color: var(--no); }
+.dock { padding: 8px 14px 18px; border-top: 1px solid var(--ln); background: var(--sf); }
+
+@media (max-width: 1100px) { .dirs { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .intro, .name-head { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) { .dir { grid-template-columns: minmax(0, 1fr); } .facts div { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+<div class="wrap">
+  <section class="intro">
+    <div><p class="eyebrow">Brand identity · round two</p><h1>Five names, ten marks</h1></div>
+    <p class="brief">The names recommended from the Latin and non-Latin rounds. Each gets two marks, two colour schemes and a phone mockup of the redesigned app. The first mockup shows the Today screen in light mode; the second shows exercise feedback after a wrong answer in dark mode.</p>
+  </section>
+  <nav class="jump" aria-label="Names"><a href="#linguatim">Linguatim</a><a href="#labor-limae">Labor Limae</a><a href="#linguadojo">LinguaDojo</a><a href="#lingwright">Lingwright</a><a href="#etude">Étude</a></nav>
+  
+<section class="name" id="linguatim">
+  <header class="name-head">
+    <div><p class="eyebrow">Round one · coined Latin</p><h2 style="font-family:'Instrument Sans', 'Helvetica Neue', sans-serif">Linguatim</h2><p class="say">lin-GWAH-tim</p></div>
+    <dl class="facts"><div><dt>Meaning</dt><dd>“Language by language,” built like verbatim (word by word) and gradatim (step by step).</dd></div><div><dt>Tagline</dt><dd>Language, step by step.</dd></div><div><dt>Domains</dt><dd>.app and .io free · .com registered March 2026</dd></div></dl>
+  </header>
+  <div class="dirs">
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#ECE8DE;color:#22397A">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><rect x="26" y="10" width="20" height="12" rx="1" fill="#22397A"/><rect x="26" y="26" width="20" height="12" rx="1" fill="#22397A"/><rect x="26" y="42" width="20" height="12" rx="1" fill="#22397A"/><rect x="26" y="58" width="20" height="12" rx="1" fill="#22397A"/><rect x="26" y="74" width="50" height="12" rx="1" fill="#C9A23F"/></svg><span class="word" style="font-family:'Instrument Sans', 'Helvetica Neue', sans-serif;font-weight:600;letter-spacing:-0.03em">linguatim</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#22397A"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="26" y="10" width="20" height="12" rx="1" fill="#ECE8DE"/><rect x="26" y="26" width="20" height="12" rx="1" fill="#ECE8DE"/><rect x="26" y="42" width="20" height="12" rx="1" fill="#ECE8DE"/><rect x="26" y="58" width="20" height="12" rx="1" fill="#ECE8DE"/><rect x="26" y="74" width="50" height="12" rx="1" fill="#C9A23F"/></svg></div>
+      <div class="fav" style="background:#ECE8DE"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><rect x="26" y="10" width="20" height="12" rx="1" fill="#22397A"/><rect x="26" y="26" width="20" height="12" rx="1" fill="#22397A"/><rect x="26" y="42" width="20" height="12" rx="1" fill="#22397A"/><rect x="26" y="58" width="20" height="12" rx="1" fill="#22397A"/><rect x="26" y="74" width="50" height="12" rx="1" fill="#C9A23F"/></svg></div>
+      <div class="spec-txt"><h3>Courses</h3><p class="tags"><span>Lapis & Limestone</span><span>Instrument Sans</span></p></div>
+    </div>
+    <p class="why">An L laid in courses, like lines of text stacked one on another, with the foot in gold. Each block is one day's work.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#22397A"></span>Lapis<code>#22397A</code></li><li><span class="chip" style="background:#ECE8DE"></span>Limestone<code>#ECE8DE</code></li><li><span class="chip" style="background:#C9A23F"></span>Gold fleck<code>#C9A23F</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone" style="--bg:#ECE8DE;--sf:#F8F5EE;--ink:#1B2340;--mu:#5E6276;--ln:#D8D2C4;--ac:#22397A;--aci:#F4F1E8;--hi:#A9842A;--ok:#2F7A4F;--no:#B23A2E;--hf:'Instrument Sans', 'Helvetica Neue', sans-serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="appbar"><span class="ab-mark"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="26" y="10" width="20" height="12" rx="1" fill="#1B2340"/><rect x="26" y="26" width="20" height="12" rx="1" fill="#1B2340"/><rect x="26" y="42" width="20" height="12" rx="1" fill="#1B2340"/><rect x="26" y="58" width="20" height="12" rx="1" fill="#1B2340"/><rect x="26" y="74" width="50" height="12" rx="1" fill="#A9842A"/></svg></span><span class="ab-word" style="font-family:var(--hf);font-weight:600;letter-spacing:-0.03em">linguatim</span><span class="avatar">A</span></header>
+<div class="body">
+  <p class="eyebrow">Tuesday · Chinese</p>
+  <h4 class="h">Today’s session</h4>
+  <div class="hero"><div class="hero-top"><span><b>11</b> of 25 min</span><span>1 of 4 done</span></div>
+    <div class="bar"><i style="width:44%"></i></div>
+    <span class="btn">Continue session</span></div>
+  <p class="sect">Up next</p>
+  <ul class="rows"><li class="done"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="var(--ok)"/><path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="var(--sf)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="rt"><b>Flashcard review</b><small>14 cards · done</small></span><em>6 min</em></li><li class="cur"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/><path d="M10 2a8 8 0 0 1 7.6 5.5" fill="none" stroke="var(--hi)" stroke-width="2.5" stroke-linecap="round"/></svg></span><span class="rt"><b>New-word drill</b><small>5 new words · 2 of 5</small></span><em>8 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Listening test</b><small>Matched to your level</small></span><em>7 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Measure words</b><small>Ladder ready</small></span><em>4 min</em></li></ul>
+  <p class="motto" style="font-family:var(--hf)">Language, step by step.</p>
+</div><nav class="tabs"><span class="tab on"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Today</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12a7 7 0 0 1 12-5l2 2M19 12a7 7 0 0 1-12 5l-2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 4v5h-5M5 20v-5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Practice</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tests</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Me</span></nav></div></div><figcaption>Today screen · light</figcaption></figure>
+</article>
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#E9EEEA;color:#2F5D50">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><path d="M30 10 V70 Q30 86 46 86" fill="none" stroke="#2F5D50" stroke-width="11" stroke-linecap="butt"/><path d="M64 20 V70 Q64 86 80 86" fill="none" stroke="#2F5D50" stroke-width="11"/><path d="M44 38 H86" stroke="#6F86C2" stroke-width="10"/></svg><span class="word" style="font-family:'Literata', Georgia, serif;font-weight:600;letter-spacing:-0.01em">Linguatim</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#17302A"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M30 10 V70 Q30 86 46 86" fill="none" stroke="#E9EEEA" stroke-width="11" stroke-linecap="butt"/><path d="M64 20 V70 Q64 86 80 86" fill="none" stroke="#E9EEEA" stroke-width="11"/><path d="M44 38 H86" stroke="#9FB1E3" stroke-width="10"/></svg></div>
+      <div class="fav" style="background:#E9EEEA"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><path d="M30 10 V70 Q30 86 46 86" fill="none" stroke="#2F5D50" stroke-width="11" stroke-linecap="butt"/><path d="M64 20 V70 Q64 86 80 86" fill="none" stroke="#2F5D50" stroke-width="11"/><path d="M44 38 H86" stroke="#6F86C2" stroke-width="10"/></svg></div>
+      <div class="spec-txt"><h3>Ligature</h3><p class="tags"><span>Juniper & Frost</span><span>Literata</span></p></div>
+    </div>
+    <p class="why">The l and t of the name share one crossbar, the way a typesetter would join them. The juniper-berry blue on the crossbar is the only accent.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#2F5D50"></span>Juniper<code>#2F5D50</code></li><li><span class="chip" style="background:#E9EEEA"></span>Frost<code>#E9EEEA</code></li><li><span class="chip" style="background:#6F86C2"></span>Berry bloom<code>#6F86C2</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone dark" style="--bg:#0F1C19;--sf:#172824;--ink:#E3ECE7;--mu:#93A69E;--ln:#24382F;--ac:#7FB8A4;--aci:#0D1D18;--hi:#9FB1E3;--ok:#74C08A;--no:#EE8C7C;--hf:'Literata', Georgia, serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="exbar"><span class="x" aria-hidden="true">✕</span><span class="bar"><i style="width:35%"></i></span><span class="count">7 / 20</span></header>
+<div class="body">
+  <p class="eyebrow hi">Missing word</p>
+  <p class="prompt">Choose the word that completes the sentence.</p>
+  <div class="sent"><p class="zh">我每个周末<span class="blank">都</span>去图书馆。</p><p class="gl">I go to the library every weekend.</p></div>
+  <div class="opts"><span class="opt ok"><b>都</b><small>dōu</small><i>Correct</i></span><span class="opt no"><b>也</b><small>yě</small><i>Your answer</i></span><span class="opt "><b>还</b><small>hái</small></span><span class="opt "><b>就</b><small>jiù</small></span></div>
+  <div class="fb"><p class="fb-h"><span>Not quite.</span> 都 dōu, “every, all”</p>
+  <p>English “every weekend” has no matching word, so 都 is easy to drop. It’s added to today’s extra round.</p></div>
+</div>
+<div class="dock"><span class="btn">Continue</span></div></div></div><figcaption>Exercise feedback · dark</figcaption></figure>
+</article></div>
+</section>
+<section class="name" id="labor-limae">
+  <header class="name-head">
+    <div><p class="eyebrow">Round one · Horace, Ars Poetica</p><h2 style="font-family:'Cormorant Garamond', Georgia, serif">Labor Limae</h2><p class="say">LAH-bor LEE-my</p></div>
+    <dl class="facts"><div><dt>Meaning</dt><dd>“The work of the file”: Horace's phrase for the slow, careful revision that finishes good writing.</dd></div><div><dt>Tagline</dt><dd>The work of the file.</dd></div><div><dt>Domains</dt><dd>.app and .io free · .com parked on Sedo, likely for sale</dd></div></dl>
+  </header>
+  <div class="dirs">
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#EFE8DA;color:#33312C">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><path d="M6 62 C 14 62, 22 50, 22 34 C 22 22, 12 24, 14 38 C 16 52, 26 62, 34 60 C 40 58, 42 48, 40 42 C 38 36, 32 40, 36 50 C 39 58, 46 62, 52 60 C 56 59, 57 54, 55 52 C 53 50, 50 54, 54 58 C 57 61, 62 61, 66 61 H 82" fill="none" stroke="#33312C" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="89" cy="61" r="6.5" fill="#A8492A"/></svg><span class="word" style="font-family:'Cormorant Garamond', Georgia, serif;font-weight:600;letter-spacing:0">Labor Limae</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#33312C"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M6 62 C 14 62, 22 50, 22 34 C 22 22, 12 24, 14 38 C 16 52, 26 62, 34 60 C 40 58, 42 48, 40 42 C 38 36, 32 40, 36 50 C 39 58, 46 62, 52 60 C 56 59, 57 54, 55 52 C 53 50, 50 54, 54 58 C 57 61, 62 61, 66 61 H 82" fill="none" stroke="#EFE8DA" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="89" cy="61" r="6.5" fill="#D9744F"/></svg></div>
+      <div class="fav" style="background:#EFE8DA"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><path d="M6 62 C 14 62, 22 50, 22 34 C 22 22, 12 24, 14 38 C 16 52, 26 62, 34 60 C 40 58, 42 48, 40 42 C 38 36, 32 40, 36 50 C 39 58, 46 62, 52 60 C 56 59, 57 54, 55 52 C 53 50, 50 54, 54 58 C 57 61, 62 61, 66 61 H 82" fill="none" stroke="#33312C" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="89" cy="61" r="6.5" fill="#A8492A"/></svg></div>
+      <div class="spec-txt"><h3>Filed Smooth</h3><p class="tags"><span>Iron & Linen</span><span>Cormorant Garamond</span></p></div>
+    </div>
+    <p class="why">Handwritten loops, which also read as the two Ls, worked down until they become one clean line ending in a rust-red point. Draft, revision, done, in a single stroke.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#33312C"></span>Ironstone<code>#33312C</code></li><li><span class="chip" style="background:#EFE8DA"></span>Linen<code>#EFE8DA</code></li><li><span class="chip" style="background:#A8492A"></span>Rust<code>#A8492A</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone" style="--bg:#EFE8DA;--sf:#F9F5EC;--ink:#2A2824;--mu:#6B655A;--ln:#DCD3C1;--ac:#33312C;--aci:#F4EEE2;--hi:#A8492A;--ok:#4E7A3A;--no:#A8492A;--hf:'Cormorant Garamond', Georgia, serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="appbar"><span class="ab-mark"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M6 62 C 14 62, 22 50, 22 34 C 22 22, 12 24, 14 38 C 16 52, 26 62, 34 60 C 40 58, 42 48, 40 42 C 38 36, 32 40, 36 50 C 39 58, 46 62, 52 60 C 56 59, 57 54, 55 52 C 53 50, 50 54, 54 58 C 57 61, 62 61, 66 61 H 82" fill="none" stroke="#2A2824" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="89" cy="61" r="6.5" fill="#A8492A"/></svg></span><span class="ab-word" style="font-family:var(--hf);font-weight:600;letter-spacing:0">Labor Limae</span><span class="avatar">A</span></header>
+<div class="body">
+  <p class="eyebrow">Tuesday · Chinese</p>
+  <h4 class="h">Today’s session</h4>
+  <div class="hero"><div class="hero-top"><span><b>11</b> of 25 min</span><span>1 of 4 done</span></div>
+    <div class="bar"><i style="width:44%"></i></div>
+    <span class="btn">Continue session</span></div>
+  <p class="sect">Up next</p>
+  <ul class="rows"><li class="done"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="var(--ok)"/><path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="var(--sf)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="rt"><b>Flashcard review</b><small>14 cards · done</small></span><em>6 min</em></li><li class="cur"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/><path d="M10 2a8 8 0 0 1 7.6 5.5" fill="none" stroke="var(--hi)" stroke-width="2.5" stroke-linecap="round"/></svg></span><span class="rt"><b>New-word drill</b><small>5 new words · 2 of 5</small></span><em>8 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Listening test</b><small>Matched to your level</small></span><em>7 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Measure words</b><small>Ladder ready</small></span><em>4 min</em></li></ul>
+  <p class="motto" style="font-family:var(--hf)">The work of the file.</p>
+</div><nav class="tabs"><span class="tab on"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Today</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12a7 7 0 0 1 12-5l2 2M19 12a7 7 0 0 1-12 5l-2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 4v5h-5M5 20v-5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Practice</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tests</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Me</span></nav></div></div><figcaption>Today screen · light</figcaption></figure>
+</article>
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#F2EBDD;color:#4A3324">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><path d="M12 12 H31 V69 H62 V88 H12 Z" fill="#4A3324"/><path d="M88 88 H69 V31 H38 V12 H88 Z" fill="#B8913A"/></svg><span class="word" style="font-family:'Spectral', Georgia, serif;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;font-size:0.78em">Labor Limae</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#2A1E15"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M12 12 H31 V69 H62 V88 H12 Z" fill="#EDE3D2"/><path d="M88 88 H69 V31 H38 V12 H88 Z" fill="#C9A24E"/></svg></div>
+      <div class="fav" style="background:#F2EBDD"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><path d="M12 12 H31 V69 H62 V88 H12 Z" fill="#4A3324"/><path d="M88 88 H69 V31 H38 V12 H88 Z" fill="#B8913A"/></svg></div>
+      <div class="spec-txt"><h3>Two Ls</h3><p class="tags"><span>Walnut & Brass</span><span>Spectral</span></p></div>
+    </div>
+    <p class="why">The two Ls of the name, one turned into the other, closing into a square. Capitals spaced like a Roman inscription, in walnut and brass.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#4A3324"></span>Walnut<code>#4A3324</code></li><li><span class="chip" style="background:#F2EBDD"></span>Parchment<code>#F2EBDD</code></li><li><span class="chip" style="background:#B8913A"></span>Brass<code>#B8913A</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone dark" style="--bg:#1C1611;--sf:#261E17;--ink:#EDE3D2;--mu:#A8998A;--ln:#3A2E24;--ac:#C9A24E;--aci:#1C1611;--hi:#E0C27A;--ok:#8DBA74;--no:#E08A6E;--hf:'Spectral', Georgia, serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="exbar"><span class="x" aria-hidden="true">✕</span><span class="bar"><i style="width:35%"></i></span><span class="count">7 / 20</span></header>
+<div class="body">
+  <p class="eyebrow hi">Missing word</p>
+  <p class="prompt">Choose the word that completes the sentence.</p>
+  <div class="sent"><p class="zh">我每个周末<span class="blank">都</span>去图书馆。</p><p class="gl">I go to the library every weekend.</p></div>
+  <div class="opts"><span class="opt ok"><b>都</b><small>dōu</small><i>Correct</i></span><span class="opt no"><b>也</b><small>yě</small><i>Your answer</i></span><span class="opt "><b>还</b><small>hái</small></span><span class="opt "><b>就</b><small>jiù</small></span></div>
+  <div class="fb"><p class="fb-h"><span>Not quite.</span> 都 dōu, “every, all”</p>
+  <p>English “every weekend” has no matching word, so 都 is easy to drop. It’s added to today’s extra round.</p></div>
+</div>
+<div class="dock"><span class="btn">Continue</span></div></div></div><figcaption>Exercise feedback · dark</figcaption></figure>
+</article></div>
+</section>
+<section class="name" id="linguadojo">
+  <header class="name-head">
+    <div><p class="eyebrow">Keep the name · add a Latin motto</p><h2 style="font-family:'Fraunces', Georgia, serif">LinguaDojo</h2><p class="say">LING-gwah-DOH-joh</p></div>
+    <dl class="facts"><div><dt>Meaning</dt><dd>The current name. Lingua is already Latin; the motto Usus magister optimus means “practice is the best teacher.”</dd></div><div><dt>Tagline</dt><dd>Usus magister optimus.</dd></div><div><dt>Domains</dt><dd>.com owned · .app and .io free</dd></div></dl>
+  </header>
+  <div class="dirs">
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#EFE9DC;color:#2346A0">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><path d="M20 92 V48 A30 30 0 0 1 80 48 V92" fill="none" stroke="#2346A0" stroke-width="10"/><path d="M41 52 V77 H63" fill="none" stroke="#C9A673" stroke-width="9"/></svg><span class="word" style="font-family:'Fraunces', Georgia, serif;font-weight:600;letter-spacing:-0.01em;font-variation-settings:'SOFT' 50,'opsz' 96">LinguaDojo</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#2346A0"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M20 92 V48 A30 30 0 0 1 80 48 V92" fill="none" stroke="#EFE9DC" stroke-width="10"/><path d="M41 52 V77 H63" fill="none" stroke="#D2B98A" stroke-width="9"/></svg></div>
+      <div class="fav" style="background:#EFE9DC"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><path d="M20 92 V48 A30 30 0 0 1 80 48 V92" fill="none" stroke="#2346A0" stroke-width="10"/><path d="M41 52 V77 H63" fill="none" stroke="#C9A673" stroke-width="9"/></svg></div>
+      <div class="spec-txt"><h3>Doorway</h3><p class="tags"><span>Delft & Dune</span><span>Fraunces</span></p></div>
+    </div>
+    <p class="why">The D turned upright into a doorway, the entrance to the training hall, with the L in sand on the threshold. It uses your cobalt, bone and sand palette.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#2346A0"></span>Cobalt<code>#2346A0</code></li><li><span class="chip" style="background:#EFE9DC"></span>Bone<code>#EFE9DC</code></li><li><span class="chip" style="background:#C9A673"></span>Dune sand<code>#C9A673</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone" style="--bg:#EFE9DC;--sf:#FAF7F0;--ink:#18213D;--mu:#5D6378;--ln:#DCD3C1;--ac:#2346A0;--aci:#F5F1E8;--hi:#9C7A45;--ok:#2F7A4F;--no:#B23A2E;--hf:'Fraunces', Georgia, serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="appbar"><span class="ab-mark"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M20 92 V48 A30 30 0 0 1 80 48 V92" fill="none" stroke="#18213D" stroke-width="10"/><path d="M41 52 V77 H63" fill="none" stroke="#9C7A45" stroke-width="9"/></svg></span><span class="ab-word" style="font-family:var(--hf);font-weight:600;letter-spacing:-0.01em;font-variation-settings:'SOFT' 50,'opsz' 96">LinguaDojo</span><span class="avatar">A</span></header>
+<div class="body">
+  <p class="eyebrow">Tuesday · Chinese</p>
+  <h4 class="h">Today’s session</h4>
+  <div class="hero"><div class="hero-top"><span><b>11</b> of 25 min</span><span>1 of 4 done</span></div>
+    <div class="bar"><i style="width:44%"></i></div>
+    <span class="btn">Continue session</span></div>
+  <p class="sect">Up next</p>
+  <ul class="rows"><li class="done"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="var(--ok)"/><path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="var(--sf)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="rt"><b>Flashcard review</b><small>14 cards · done</small></span><em>6 min</em></li><li class="cur"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/><path d="M10 2a8 8 0 0 1 7.6 5.5" fill="none" stroke="var(--hi)" stroke-width="2.5" stroke-linecap="round"/></svg></span><span class="rt"><b>New-word drill</b><small>5 new words · 2 of 5</small></span><em>8 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Listening test</b><small>Matched to your level</small></span><em>7 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Measure words</b><small>Ladder ready</small></span><em>4 min</em></li></ul>
+  <p class="motto" style="font-family:var(--hf)">Usus magister optimus.</p>
+</div><nav class="tabs"><span class="tab on"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Today</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12a7 7 0 0 1 12-5l2 2M19 12a7 7 0 0 1-12 5l-2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 4v5h-5M5 20v-5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Practice</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tests</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Me</span></nav></div></div><figcaption>Today screen · light</figcaption></figure>
+</article>
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#F6EFE1;color:#1D1A17">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><defs><path id="motto-1" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"/></defs><circle cx="50" cy="50" r="47" fill="none" stroke="#DD3F26" stroke-width="3"/><circle cx="50" cy="50" r="27" fill="none" stroke="#DD3F26" stroke-width="1.5"/><text font-family="Gloock, Georgia, serif" font-size="9.6" letter-spacing="1.5" fill="#1D1A17"><textPath href="#motto-1" startOffset="0">USUS · MAGISTER · OPTIMUS ·</textPath></text><g transform="translate(29.5 29) scale(0.42)"><path d="M25 8.5 V86 H47 A36 36 0 0 0 47 14" fill="none" stroke="#1D1A17" stroke-width="11"/></g></svg><span class="word" style="font-family:'Gloock', Georgia, serif;letter-spacing:0">LinguaDojo</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#DD3F26"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><g transform="translate(5 7) scale(0.86)"><path d="M25 8.5 V86 H47 A36 36 0 0 0 47 14" fill="none" stroke="#F6EFE1" stroke-width="11"/></g></svg></div>
+      <div class="fav" style="background:#F6EFE1"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><g transform="translate(5 7) scale(0.86)"><path d="M25 8.5 V86 H47 A36 36 0 0 0 47 14" fill="none" stroke="#1D1A17" stroke-width="11"/></g></svg></div>
+      <div class="spec-txt"><h3>Coin</h3><p class="tags"><span>Persimmon</span><span>Gloock</span></p></div>
+    </div>
+    <p class="why">The motto struck around the single-stroke monogram like the edge of a Roman coin. The app icon drops the lettering and keeps the monogram.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#DD3F26"></span>Vermillion<code>#DD3F26</code></li><li><span class="chip" style="background:#F6EFE1"></span>Rice paper<code>#F6EFE1</code></li><li><span class="chip" style="background:#1D1A17"></span>Lamp black<code>#1D1A17</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone dark" style="--bg:#171412;--sf:#221D1A;--ink:#F1E9DC;--mu:#A89C8E;--ln:#352D28;--ac:#E8553B;--aci:#1A0D09;--hi:#F3B39F;--ok:#7DBE8A;--no:#F07A62;--hf:'Gloock', Georgia, serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="exbar"><span class="x" aria-hidden="true">✕</span><span class="bar"><i style="width:35%"></i></span><span class="count">7 / 20</span></header>
+<div class="body">
+  <p class="eyebrow hi">Missing word</p>
+  <p class="prompt">Choose the word that completes the sentence.</p>
+  <div class="sent"><p class="zh">我每个周末<span class="blank">都</span>去图书馆。</p><p class="gl">I go to the library every weekend.</p></div>
+  <div class="opts"><span class="opt ok"><b>都</b><small>dōu</small><i>Correct</i></span><span class="opt no"><b>也</b><small>yě</small><i>Your answer</i></span><span class="opt "><b>还</b><small>hái</small></span><span class="opt "><b>就</b><small>jiù</small></span></div>
+  <div class="fb"><p class="fb-h"><span>Not quite.</span> 都 dōu, “every, all”</p>
+  <p>English “every weekend” has no matching word, so 都 is easy to drop. It’s added to today’s extra round.</p></div>
+</div>
+<div class="dock"><span class="btn">Continue</span></div></div></div><figcaption>Exercise feedback · dark</figcaption></figure>
+</article></div>
+</section>
+<section class="name" id="lingwright">
+  <header class="name-head">
+    <div><p class="eyebrow">Round two · English craft word</p><h2 style="font-family:'Archivo', 'Helvetica Neue', sans-serif">Lingwright</h2><p class="say">LING-rite</p></div>
+    <dl class="facts"><div><dt>Meaning</dt><dd>A maker of language, built like playwright, shipwright and wheelwright: someone who builds things carefully, by hand.</dd></div><div><dt>Tagline</dt><dd>Language, made by hand.</dd></div><div><dt>Domains</dt><dd>.com, .app and .io all free</dd></div></dl>
+  </header>
+  <div class="dirs">
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#F1E9DB;color:#2A2B2E">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><rect x="14" y="12" width="20" height="76" rx="2" fill="#C68B48"/><circle cx="24" cy="26" r="2.6" fill="#F1E9DB"/><circle cx="24" cy="56" r="2.6" fill="#F1E9DB"/><rect x="34" y="70" width="56" height="14" fill="#2A2B2E"/><rect x="42" y="70" width="2.6" height="10" fill="#F1E9DB"/><rect x="49" y="70" width="2.6" height="7" fill="#F1E9DB"/><rect x="56" y="70" width="2.6" height="10" fill="#F1E9DB"/><rect x="63" y="70" width="2.6" height="7" fill="#F1E9DB"/><rect x="70" y="70" width="2.6" height="10" fill="#F1E9DB"/><rect x="77" y="70" width="2.6" height="7" fill="#F1E9DB"/><rect x="84" y="70" width="2.6" height="10" fill="#F1E9DB"/></svg><span class="word" style="font-family:'Archivo', 'Helvetica Neue', sans-serif;font-weight:700;letter-spacing:-0.02em;font-stretch:112%">Lingwright</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#2A2B2E"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="14" y="12" width="20" height="76" rx="2" fill="#C68B48"/><circle cx="24" cy="26" r="2.6" fill="#2A2B2E"/><circle cx="24" cy="56" r="2.6" fill="#2A2B2E"/><rect x="34" y="70" width="56" height="14" fill="#F1E9DB"/><rect x="42" y="70" width="2.6" height="10" fill="#2A2B2E"/><rect x="49" y="70" width="2.6" height="7" fill="#2A2B2E"/><rect x="56" y="70" width="2.6" height="10" fill="#2A2B2E"/><rect x="63" y="70" width="2.6" height="7" fill="#2A2B2E"/><rect x="70" y="70" width="2.6" height="10" fill="#2A2B2E"/><rect x="77" y="70" width="2.6" height="7" fill="#2A2B2E"/><rect x="84" y="70" width="2.6" height="10" fill="#2A2B2E"/></svg></div>
+      <div class="fav" style="background:#F1E9DB"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><rect x="14" y="12" width="20" height="76" rx="2" fill="#C68B48"/><circle cx="24" cy="26" r="2.6" fill="#F1E9DB"/><circle cx="24" cy="56" r="2.6" fill="#F1E9DB"/><rect x="34" y="70" width="56" height="14" fill="#2A2B2E"/><rect x="42" y="70" width="2.6" height="10" fill="#F1E9DB"/><rect x="49" y="70" width="2.6" height="7" fill="#F1E9DB"/><rect x="56" y="70" width="2.6" height="10" fill="#F1E9DB"/><rect x="63" y="70" width="2.6" height="7" fill="#F1E9DB"/><rect x="70" y="70" width="2.6" height="10" fill="#F1E9DB"/><rect x="77" y="70" width="2.6" height="7" fill="#F1E9DB"/><rect x="84" y="70" width="2.6" height="10" fill="#F1E9DB"/></svg></div>
+      <div class="spec-txt"><h3>Try Square</h3><p class="tags"><span>Oak & Graphite</span><span>Archivo</span></p></div>
+    </div>
+    <p class="why">The L is a carpenter's try-square: an oak stock and a graphite blade marked off like a ruler. It is a tool for checking your work, which is what the app does.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#2A2B2E"></span>Graphite<code>#2A2B2E</code></li><li><span class="chip" style="background:#F1E9DB"></span>Sawdust<code>#F1E9DB</code></li><li><span class="chip" style="background:#C68B48"></span>Oak<code>#C68B48</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone" style="--bg:#F1E9DB;--sf:#FBF7EF;--ink:#232427;--mu:#66645E;--ln:#DDD3C2;--ac:#2A2B2E;--aci:#F6F0E4;--hi:#9C6427;--ok:#3F7A44;--no:#B1452F;--hf:'Archivo', 'Helvetica Neue', sans-serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="appbar"><span class="ab-mark"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="14" y="12" width="20" height="76" rx="2" fill="#9C6427"/><circle cx="24" cy="26" r="2.6" fill="#FBF7EF"/><circle cx="24" cy="56" r="2.6" fill="#FBF7EF"/><rect x="34" y="70" width="56" height="14" fill="#232427"/><rect x="42" y="70" width="2.6" height="10" fill="#FBF7EF"/><rect x="49" y="70" width="2.6" height="7" fill="#FBF7EF"/><rect x="56" y="70" width="2.6" height="10" fill="#FBF7EF"/><rect x="63" y="70" width="2.6" height="7" fill="#FBF7EF"/><rect x="70" y="70" width="2.6" height="10" fill="#FBF7EF"/><rect x="77" y="70" width="2.6" height="7" fill="#FBF7EF"/><rect x="84" y="70" width="2.6" height="10" fill="#FBF7EF"/></svg></span><span class="ab-word" style="font-family:var(--hf);font-weight:700;letter-spacing:-0.02em;font-stretch:112%">Lingwright</span><span class="avatar">A</span></header>
+<div class="body">
+  <p class="eyebrow">Tuesday · Chinese</p>
+  <h4 class="h">Today’s session</h4>
+  <div class="hero"><div class="hero-top"><span><b>11</b> of 25 min</span><span>1 of 4 done</span></div>
+    <div class="bar"><i style="width:44%"></i></div>
+    <span class="btn">Continue session</span></div>
+  <p class="sect">Up next</p>
+  <ul class="rows"><li class="done"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="var(--ok)"/><path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="var(--sf)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="rt"><b>Flashcard review</b><small>14 cards · done</small></span><em>6 min</em></li><li class="cur"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/><path d="M10 2a8 8 0 0 1 7.6 5.5" fill="none" stroke="var(--hi)" stroke-width="2.5" stroke-linecap="round"/></svg></span><span class="rt"><b>New-word drill</b><small>5 new words · 2 of 5</small></span><em>8 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Listening test</b><small>Matched to your level</small></span><em>7 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Measure words</b><small>Ladder ready</small></span><em>4 min</em></li></ul>
+  <p class="motto" style="font-family:var(--hf)">Language, made by hand.</p>
+</div><nav class="tabs"><span class="tab on"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Today</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12a7 7 0 0 1 12-5l2 2M19 12a7 7 0 0 1-12 5l-2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 4v5h-5M5 20v-5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Practice</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tests</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Me</span></nav></div></div><figcaption>Today screen · light</figcaption></figure>
+</article>
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#EEF0EA;color:#1F4A43">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><rect x="46" y="14" width="40" height="72" fill="#C06B3E"/><rect x="14" y="14" width="30" height="72" fill="#1F4A43"/><polygon points="44,27 63,19 63,45 44,37" fill="#1F4A43" stroke="#EEF0EA" stroke-width="2.5" stroke-linejoin="miter"/><rect x="40" y="28.5" width="5.5" height="7" fill="#1F4A43"/><polygon points="44,63 63,55 63,81 44,73" fill="#1F4A43" stroke="#EEF0EA" stroke-width="2.5" stroke-linejoin="miter"/><rect x="40" y="64.5" width="5.5" height="7" fill="#1F4A43"/></svg><span class="word" style="font-family:'Bitter', Georgia, serif;font-weight:600;letter-spacing:-0.01em">Lingwright</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#1F4A43"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="46" y="14" width="40" height="72" fill="#D98458"/><rect x="14" y="14" width="30" height="72" fill="#EEF0EA"/><polygon points="44,27 63,19 63,45 44,37" fill="#EEF0EA" stroke="#1F4A43" stroke-width="2.5" stroke-linejoin="miter"/><rect x="40" y="28.5" width="5.5" height="7" fill="#EEF0EA"/><polygon points="44,63 63,55 63,81 44,73" fill="#EEF0EA" stroke="#1F4A43" stroke-width="2.5" stroke-linejoin="miter"/><rect x="40" y="64.5" width="5.5" height="7" fill="#EEF0EA"/></svg></div>
+      <div class="fav" style="background:#EEF0EA"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><rect x="46" y="14" width="40" height="72" fill="#C06B3E"/><rect x="14" y="14" width="30" height="72" fill="#1F4A43"/><polygon points="44,27 63,19 63,45 44,37" fill="#1F4A43" stroke="#EEF0EA" stroke-width="2.5" stroke-linejoin="miter"/><rect x="40" y="28.5" width="5.5" height="7" fill="#1F4A43"/><polygon points="44,63 63,55 63,81 44,73" fill="#1F4A43" stroke="#EEF0EA" stroke-width="2.5" stroke-linejoin="miter"/><rect x="40" y="64.5" width="5.5" height="7" fill="#1F4A43"/></svg></div>
+      <div class="spec-txt"><h3>Dovetail</h3><p class="tags"><span>Spruce & Copper</span><span>Bitter</span></p></div>
+    </div>
+    <p class="why">A dovetail joint: two pieces locked together so they can't be pulled apart. Your language and the one you're learning, joined by translation.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#1F4A43"></span>Spruce<code>#1F4A43</code></li><li><span class="chip" style="background:#EEF0EA"></span>Pale birch<code>#EEF0EA</code></li><li><span class="chip" style="background:#C06B3E"></span>Copper<code>#C06B3E</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone dark" style="--bg:#0E1A18;--sf:#162623;--ink:#E4ECE8;--mu:#94A7A1;--ln:#24372F;--ac:#D98458;--aci:#1A0E07;--hi:#8CC2B4;--ok:#7CC49A;--no:#F08F7A;--hf:'Bitter', Georgia, serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="exbar"><span class="x" aria-hidden="true">✕</span><span class="bar"><i style="width:35%"></i></span><span class="count">7 / 20</span></header>
+<div class="body">
+  <p class="eyebrow hi">Missing word</p>
+  <p class="prompt">Choose the word that completes the sentence.</p>
+  <div class="sent"><p class="zh">我每个周末<span class="blank">都</span>去图书馆。</p><p class="gl">I go to the library every weekend.</p></div>
+  <div class="opts"><span class="opt ok"><b>都</b><small>dōu</small><i>Correct</i></span><span class="opt no"><b>也</b><small>yě</small><i>Your answer</i></span><span class="opt "><b>还</b><small>hái</small></span><span class="opt "><b>就</b><small>jiù</small></span></div>
+  <div class="fb"><p class="fb-h"><span>Not quite.</span> 都 dōu, “every, all”</p>
+  <p>English “every weekend” has no matching word, so 都 is easy to drop. It’s added to today’s extra round.</p></div>
+</div>
+<div class="dock"><span class="btn">Continue</span></div></div></div><figcaption>Exercise feedback · dark</figcaption></figure>
+</article></div>
+</section>
+<section class="name" id="etude">
+  <header class="name-head">
+    <div><p class="eyebrow">Round two · music practice</p><h2 style="font-family:'Bodoni Moda', Georgia, serif">Étude</h2><p class="say">AY-tood</p></div>
+    <dl class="facts"><div><dt>Meaning</dt><dd>A short piece written to drill one technique, which is exactly what each ladder exercise does. Read the same way in English, French and Spanish.</dd></div><div><dt>Tagline</dt><dd>One technique at a time.</dd></div><div><dt>Domains</dt><dd>Bare word taken on all three · etudelab.io, lingetude.com free</dd></div></dl>
+  </header>
+  <div class="dirs">
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#F0EEE8;color:#4B2445">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><path d="M22 28 H76 V40 H38 V51 H68 V63 H38 V76 H78 V88 H22 Z" fill="#4B2445"/><polygon points="42,22 54,22 72,5 58,5" fill="#8FAE52"/></svg><span class="word" style="font-family:'Bodoni Moda', Georgia, serif;font-weight:600;letter-spacing:0;font-variation-settings:'opsz' 96">Étude</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#4B2445"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M22 28 H76 V40 H38 V51 H68 V63 H38 V76 H78 V88 H22 Z" fill="#F0EEE8"/><polygon points="42,22 54,22 72,5 58,5" fill="#A9C27A"/></svg></div>
+      <div class="fav" style="background:#F0EEE8"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><path d="M22 28 H76 V40 H38 V51 H68 V63 H38 V76 H78 V88 H22 Z" fill="#4B2445"/><polygon points="42,22 54,22 72,5 58,5" fill="#8FAE52"/></svg></div>
+      <div class="spec-txt"><h3>The Accent</h3><p class="tags"><span>Fig & Pistachio</span><span>Bodoni Moda</span></p></div>
+    </div>
+    <p class="why">An É whose accent is drawn in pistachio, set apart like a teacher's mark above the work. The type is high-contrast, in the style of engraved sheet music.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#4B2445"></span>Fig<code>#4B2445</code></li><li><span class="chip" style="background:#F0EEE8"></span>Linen grey<code>#F0EEE8</code></li><li><span class="chip" style="background:#8FAE52"></span>Pistachio<code>#8FAE52</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone" style="--bg:#F0EEE8;--sf:#FBFAF6;--ink:#2A1828;--mu:#6C6070;--ln:#DDD6DB;--ac:#4B2445;--aci:#F6F0F4;--hi:#6E8A36;--ok:#4F8A3C;--no:#B53B4B;--hf:'Bodoni Moda', Georgia, serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="appbar"><span class="ab-mark"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M22 28 H76 V40 H38 V51 H68 V63 H38 V76 H78 V88 H22 Z" fill="#2A1828"/><polygon points="42,22 54,22 72,5 58,5" fill="#6E8A36"/></svg></span><span class="ab-word" style="font-family:var(--hf);font-weight:600;letter-spacing:0;font-variation-settings:'opsz' 96">Étude</span><span class="avatar">A</span></header>
+<div class="body">
+  <p class="eyebrow">Tuesday · Chinese</p>
+  <h4 class="h">Today’s session</h4>
+  <div class="hero"><div class="hero-top"><span><b>11</b> of 25 min</span><span>1 of 4 done</span></div>
+    <div class="bar"><i style="width:44%"></i></div>
+    <span class="btn">Continue session</span></div>
+  <p class="sect">Up next</p>
+  <ul class="rows"><li class="done"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="var(--ok)"/><path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="var(--sf)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="rt"><b>Flashcard review</b><small>14 cards · done</small></span><em>6 min</em></li><li class="cur"><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/><path d="M10 2a8 8 0 0 1 7.6 5.5" fill="none" stroke="var(--hi)" stroke-width="2.5" stroke-linecap="round"/></svg></span><span class="rt"><b>New-word drill</b><small>5 new words · 2 of 5</small></span><em>8 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Listening test</b><small>Matched to your level</small></span><em>7 min</em></li><li class=""><span class="st"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8" fill="none" stroke="var(--ln)" stroke-width="2.5"/></svg></span><span class="rt"><b>Measure words</b><small>Ladder ready</small></span><em>4 min</em></li></ul>
+  <p class="motto" style="font-family:var(--hf)">One technique at a time.</p>
+</div><nav class="tabs"><span class="tab on"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>Today</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12a7 7 0 0 1 12-5l2 2M19 12a7 7 0 0 1-12 5l-2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 4v5h-5M5 20v-5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Practice</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tests</span><span class="tab"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Me</span></nav></div></div><figcaption>Today screen · light</figcaption></figure>
+</article>
+<article class="dir">
+  <div class="spec">
+    <div class="tile" style="background:#E9EEF0;color:#173A4E">
+      <div class="lockup"><svg viewBox="0 0 100 100" class="lk-mark" aria-hidden="true"><rect x="20" y="12" width="15" height="76" fill="#173A4E"/><rect x="43" y="12" width="6" height="76" fill="#173A4E"/><circle cx="66" cy="38" r="8" fill="#D1A94A"/><circle cx="66" cy="62" r="8" fill="#D1A94A"/></svg><span class="word" style="font-family:'Hanken Grotesk', 'Helvetica Neue', sans-serif;font-weight:600;letter-spacing:-0.025em">étude</span></div>
+    </div>
+    <div class="spec-row">
+      <div class="app" style="background:#173A4E"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="20" y="12" width="15" height="76" fill="#E9EEF0"/><rect x="43" y="12" width="6" height="76" fill="#E9EEF0"/><circle cx="66" cy="38" r="8" fill="#D9B45A"/><circle cx="66" cy="62" r="8" fill="#D9B45A"/></svg></div>
+      <div class="fav" style="background:#E9EEF0"><svg viewBox="0 0 100 100" width="24" height="24" class="" aria-hidden="true"><rect x="20" y="12" width="15" height="76" fill="#173A4E"/><rect x="43" y="12" width="6" height="76" fill="#173A4E"/><circle cx="66" cy="38" r="8" fill="#D1A94A"/><circle cx="66" cy="62" r="8" fill="#D1A94A"/></svg></div>
+      <div class="spec-txt"><h3>Repeat Sign</h3><p class="tags"><span>Lake & Reed</span><span>Hanken Grotesk</span></p></div>
+    </div>
+    <p class="why">The musical sign for “repeat from here”: a thick bar, a thin bar and two dots. It is a practice loop drawn with notation everyone already knows.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#173A4E"></span>Deep lake<code>#173A4E</code></li><li><span class="chip" style="background:#E9EEF0"></span>Mist<code>#E9EEF0</code></li><li><span class="chip" style="background:#D1A94A"></span>Reed gold<code>#D1A94A</code></li></ul>
+  </div>
+  <figure class="mock"><div class="phone dark" style="--bg:#0D1820;--sf:#15242E;--ink:#E3EBEF;--mu:#93A6B1;--ln:#22343F;--ac:#D9B45A;--aci:#1A1405;--hi:#8FC1DA;--ok:#7FC59A;--no:#EE8B7B;--hf:'Hanken Grotesk', 'Helvetica Neue', sans-serif"><div class="screen"><div class="status"><span>9:41</span><span class="sb"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.5" y="0.5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<header class="exbar"><span class="x" aria-hidden="true">✕</span><span class="bar"><i style="width:35%"></i></span><span class="count">7 / 20</span></header>
+<div class="body">
+  <p class="eyebrow hi">Missing word</p>
+  <p class="prompt">Choose the word that completes the sentence.</p>
+  <div class="sent"><p class="zh">我每个周末<span class="blank">都</span>去图书馆。</p><p class="gl">I go to the library every weekend.</p></div>
+  <div class="opts"><span class="opt ok"><b>都</b><small>dōu</small><i>Correct</i></span><span class="opt no"><b>也</b><small>yě</small><i>Your answer</i></span><span class="opt "><b>还</b><small>hái</small></span><span class="opt "><b>就</b><small>jiù</small></span></div>
+  <div class="fb"><p class="fb-h"><span>Not quite.</span> 都 dōu, “every, all”</p>
+  <p>English “every weekend” has no matching word, so 都 is easy to drop. It’s added to today’s extra round.</p></div>
+</div>
+<div class="dock"><span class="btn">Continue</span></div></div></div><figcaption>Exercise feedback · dark</figcaption></figure>
+</article></div>
+</section>
+  <p class="foot">Mockups use the redesigned app's real structure (Today · Practice · Tests · Me) and sample Chinese content. Wordmarks are set in live web fonts and are sketches, not final artwork. Domain status is from registry lookups on 17 November 2026; no trademark search has been done. Standalone mark and app-icon SVGs are in <code>wiki/design/brand/names/</code>.</p>
+</div>

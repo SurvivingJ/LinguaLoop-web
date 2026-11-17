@@ -6762,3 +6762,6 @@ Owner decision (count untaken tests too). `build_daily_session` decided dual-tra
 
 ## [2026-11-17] design | LinguaDojo logo studies, round one
 Brand interview: abstract marks only, concepts LD monogram / correction mark / loop, mixed type, palettes cobalt-bone-sand, cream-vermillion, cream-emerald plus nature-derived pairings. Ten studies produced: [[design/brand/logo-studies]], specimen `wiki/design/brand/logo-studies.html`, SVGs in `wiki/design/brand/logos/`. Pages created: 1. Open: which direction goes to round two; whether it replaces the "Dojo" theme tokens.
+
+## [2026-11-17] design | Brand name studies, round two
+Latin and non-Latin name research with registry lookups (RDAP for .com/.app/.io; three registry hosts added to the session environment's allowlist with owner approval) and searches for brands already using each name. Shortlist: Linguatim, Labor Limae, LinguaDojo + motto, Lingwright, Étude. Ten new marks and palettes with phone mockups of the Today and exercise-feedback screens: [[design/brand/name-studies]]. Pages created: 1. Open: rename or keep; ADR-004's alternative-name list is stale; no trademark search done.
