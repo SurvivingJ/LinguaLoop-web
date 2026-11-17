@@ -7015,3 +7015,23 @@ comment inside the live `build_daily_session` body says "ADR-049" (= ADR-050; no
 md5 unchanged); the `faithful_reviews` column comment was updated live to ADR-050. Earlier log entries of this
 branch were renumbered in place before landing. Conflicts were only in `wiki/index.md`, `wiki/log.md` and
 `wiki/tasklist/master.md`; `services/prestudy.py` and `routes/tests/prestudy.py` merged automatically.
+
+## [2026-11-17] query + fix | Why dual translation grading failed; failed grading calls now stored
+Developer: "Why isn't dual translation grading working?", then "Yes" to storing failed calls' errors.
+Findings (live, read-only): last saved grade 04:49 UTC; one submit since — submission 128 (ja, passage 98)
+at 21:50 UTC. Both free single-call models (`particle-ai/particle-1:free`, `nvidia/nemotron-3.5-super-vl:free`)
+raised within ~1 s with no response (`llm_calls`: 0 tokens, no latency); the v2 fallback then reads
+`qwen/qwen3.6-flash` / `qwen/qwen3.7-plus` from `prompt_templates`, which the OpenRouter key refuses (403 "Key
+limit exceeded (total limit) … $10.00 of $10.00 used; does not reset"). No grade, no `dt_grading_call` row, so
+the cause of the free-model failure was only in the host log. Replaying passage 98 locally with the repo's
+code and key graded in 3 s and passed every storage check; both free models are up. The deployed key may
+differ from this environment's (free-request counts disagree) — unconfirmed.
+Fix (code, not deployed): `provider_errors.CallRecorder.failures` keeps every raised call (slug, role, HTTP
+status, refused, `failure_text` ≤ 300 chars incl. the provider body); single-call attempts use the same text;
+submit writes `dt_grading_call` rows on every exit after grading (503, provisional, malformed, saved), adding
+one `call_failed` row per failed configured-flow call (`flow` v1/v2, `prompt_version` `configured-flow`,
+`prompt_variant` = role). No migration (existing columns; a rolled-back live insert passed the CHECKs). Tests:
+7 new in `tests/test_dual_translation_provider_errors.py`; 425 DT tests pass.
+Owner actions: top up / raise the OpenRouter key limit (the paid fallback is dead until then); check the host
+log at 21:50 UTC for `single_call_grader: call to … failed`; submission 128 is still open and can be resubmitted.
+Pages: [[features/dual-translation.tech]], [[index]].
