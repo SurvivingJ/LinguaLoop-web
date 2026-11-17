@@ -21,9 +21,9 @@ below.
 |--------|-------|
 | Not Started | 48 |
 | In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 35 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 33 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
-| Won't Do (obsolete) | 1 |
+| Won't Do (obsolete) | 3 |
 | Done (cumulative, not listed here) | 250 |
 
 *2026-11-17 (billing plan filed, no code changed):* TASK-976–1000 added for Core/Pro plans, PAYG credits and the tutor step — 17 Not Started, 8 Blocked ([?]: D4 provider, D17 age policy, launch-scope questions for the knowledge report and custom tests, trainer cap, tutor spec). Counts: Not Started 31→48, Blocked 27→35. See [[tasklist/billing.tasks]].
@@ -1262,13 +1262,13 @@ Full spec: [[tasklist/billing.tasks]] · [[business/pricing-plan.tech]] · [[dec
 | TASK-982 | billing | Retire dead token code (`PaymentService`, `TOKEN_PACKAGES`) | [ ] | S | TASK-981 |
 | TASK-983 | billing | Stripe webhook with idempotency and event dispatch | [ ] | L | TASK-981 |
 | TASK-984 | billing | Stripe provisioning, checkout and portal | [ ] | M | TASK-983 |
-| TASK-985 | billing | Merchant-of-record adapter | [?] D4 | L | TASK-983 |
+| TASK-985 | billing | Merchant-of-record adapter | Won't Do (D4 = Stripe) | L | TASK-983 |
 | TASK-986 | billing | Scheduled billing jobs and nightly reconciliation | [ ] | S | TASK-983 |
 | TASK-987 | billing | Daily new-test limit: page pre-check + submit backstop | [ ] | M | TASK-980 |
 | TASK-988 | billing | Daily session and prestudy clamps for Free | [ ] | M | TASK-980 |
 | TASK-989 | billing | DT caps, over-cap credits, refunds, per-tier token backstop | [ ] | M | TASK-981 |
 | TASK-990 | billing | Word-list import: dictionary gate and per-new-sense credits | [ ] | M | TASK-981 |
-| TASK-991 | billing | Trainer level cap for Free | [?] founder Q3 | S | TASK-980 |
+| TASK-991 | billing | Trainer level cap for Free | Won't Do (Q3) | S | TASK-980 |
 | TASK-992 | billing | Fix DT cost logging (D9 data) | [ ] | S | — |
 | TASK-993 | billing | Knowledge report: summary (Free/Core) and per-word (Pro) | [?] spec + scope Q1 | L | TASK-980 |
 | TASK-994 | billing | User custom tests (10 credits, +30 references) | [?] spec + scope Q1 | XL | TASK-981 |

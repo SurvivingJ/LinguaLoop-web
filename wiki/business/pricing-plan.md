@@ -5,7 +5,7 @@ status: planned
 tech_page: ./pricing-plan.tech.md
 last_updated: 2026-11-17
 open_questions:
-  - "OPEN (D4): Merchant of record for global consumer sales: Paddle (5% + 50¢; separate terms under US$10, unverified), Stripe Managed Payments (about +3.5%; AU eligibility unconfirmed), or Stripe + Stripe Tax with own EU/UK VAT registration? Core monthly (US$6) and Pro monthly (US$10) now sit at or below Paddle's US$10 small-ticket line, so these terms matter more than before."
+  - "ANSWERED 2026-11-17 (D4): **Stripe everywhere** (Stripe Billing + Stripe Tax). No merchant of record. Consequence: the founder registers for tax where required — AU GST, EU VAT via the non-Union OSS scheme and UK VAT from the first consumer sale there; US sales tax only once a state's economic-nexus threshold is reached (Stripe Tax monitors thresholds)."
   - "OPEN (D19): Core/Pro mix and conversion uplift. The model assumes 50% of payers on Core and a 1.33× lift in sign-up → paid from adding Core. Measure both in the first 90 days after launch; if Core is over 60% of payers and conversion has not risen at least 33% over the Pro-only baseline, raise Core to US$7 / A$9.99 or move features up to Pro."
   - "OPEN (D9): Re-price new-word import once DT/import cost logging works. 8 credits now; drop to 5 if the measured mean live cost per new sense is under A$0.04 over 30 days."
   - "OPEN (D15): Professional at A$219/yr (A$179 launch) or lower, given the PD-log caps (D.4 20 points per cycle, B.6 10 points per activity)?"
@@ -163,7 +163,7 @@ The nominal value of a credit is about A$0.015 / US$0.01 at the smallest pack.
 | **2,500** | US$19.99 | A$29.99 | **+25%** | 0.0120 |
 
 - There is no pack below A$7.49. Below that, the A$0.30 fee takes more than 6%.
-- If the merchant of record's terms under US$10 are poor (D4), sell packs through Stripe directly, or drop the 500 pack and start at US$9.99.
+- Packs are sold through Stripe (D4, decided 2026-11-17), so the US$4.99 pack keeps a fee of about 1.75% + A$0.30 domestic.
 - Packs carry no extra bonus for subscribers. Pro's allowance already covers that, Core is priced without credits, and dropping the bonus keeps worst-case pack margins above zero.
 - Packs are the only PAYG product for solo learners now that the Study Pass is retired.
 
@@ -323,7 +323,7 @@ Every pack keeps a positive margin, even in the worst case. Any new sense or cus
 | D1 | What credits meter | **Only live-LLM actions. Tests are never metered.** (The 7-day Study Pass that was part of this default is retired: dearer than a month of Core.) | Keep per-test tokens |
 | D2 | Solo tiers at launch | **Decided: two solo tiers at launch, Core + Pro.** Professional comes later. | One tier (Pro only), the earlier default; Pro + "Pro Plus" AI tier |
 | D3 | Solo prices | **Decided: Core US$6 / US$49, A$8.99 / A$75; Pro US$10 / US$89, A$14.99 / A$129.** | The earlier draft: Pro only at US$12 / US$99, A$17.99 / A$149 |
-| D4 | Payment stack | **Merchant of record for global consumers (verify Paddle's sub-US$10 terms and Stripe Managed Payments' AU eligibility). Stripe Invoicing for AU schools. Stripe for AU tutors.** | Stripe + Stripe Tax everywhere, with self-registration for EU/UK VAT |
+| D4 | Payment stack | **DECIDED 2026-11-17: Stripe everywhere** (Billing + Tax for consumers and tutors, Invoicing for AU schools). Founder registers for EU VAT (non-Union OSS) and UK VAT before selling there. | (Rejected) a merchant of record such as Paddle |
 | D5 | Trial | **21 days, no card, re-offered at day 45** | 7 days with a card |
 | D6 | Free-tier tests | **1 new matched test a day; existing users keep 2** | 2 a day for everyone |
 | D7 | Lifetime plan | **100 seats at US$299, 150 credits a month, "lifetime" defined in the terms** | Founding annual only |

@@ -4,12 +4,15 @@ feature: billing
 prose_page: ../business/pricing-plan.md
 tech_page: ../business/pricing-plan.tech.md
 total_tasks: 25
+wont_do: 2
 done: 0
 ---
 
 # Billing, Credits and Plans — Task Breakdown
 
-Draft for founder review (2026-11-17). **Planning only: no code has been changed.** The tasks
+Draft for founder review (2026-11-17). **Planning only: no code has been changed.**
+
+**Founder answers (2026-11-17):** Q2 Stripe everywhere (D4), so TASK-985 is Won't Do. Q3 drop the trainer cap, so TASK-991 is Won't Do. Q4 no refund on provisional DT grades. Q5 retire daily free tokens. Q1 (launch scope of the knowledge report and custom tests) is still open. The tasks
 implement [[business/pricing-plan]] (Free / Core / Pro, PAYG credit packs) as specified in
 [[business/pricing-plan.tech]] and [[decisions/ADR-047-credits-and-subscription-model]].
 
@@ -21,7 +24,7 @@ Each task's file:line references come from that map, so check them before editin
 | Phase | Gate | Tasks |
 |---|---|---|
 | **G0a: foundations** (no user-visible change) | none | TASK-976 – TASK-982 |
-| **G0b: payments** | D4 (provider) for consumer checkout | TASK-983 – TASK-986 |
+| **G0b: payments** | none (D4 = Stripe) | TASK-983 – TASK-986 |
 | **G0c: enforcement** (behind `ENTITLEMENTS_ENFORCED`) | G0a done | TASK-987 – TASK-992 |
 | **G0d: product surfaces Pro needs** | founder scope decisions | TASK-993 – TASK-995 |
 | **G0e: launch** | all of the above | TASK-996 – TASK-997 |
@@ -100,7 +103,7 @@ read-migrated and retired.
   - the sum of `users.tokens`;
   - the count of `user_tokens` rows and the sum of `purchased_tokens` and `bonus_tokens`;
   - what `grant_daily_free_tokens` writes.
-- [ ] A decision is recorded on the wiki page, with the default: daily free tokens are **discontinued**, because the free tier is now count-based. Any `users.tokens` balance from purchases (expected 0) converts 1:1 into `user_tokens.purchased_tokens` in TASK-979. Free daily grants are not converted.
+- [ ] The decision is recorded on the wiki page: daily free tokens are **retired** (founder decision 2026-11-17, Q5), because the free tier is now count-based. Any `users.tokens` balance from purchases (expected 0) converts 1:1 into `user_tokens.purchased_tokens` in TASK-979. Free daily grants are not converted.
 - [ ] `GET /api/users/tokens` is listed for replacement by `GET /api/billing/entitlements` (TASK-980). The route keeps working until TASK-997.
 
 **Technical Notes:** read with the Supabase MCP `execute_sql` (SELECT only). Do not change data in this task.
@@ -136,7 +139,7 @@ Create the billing catalogue and subscription state from tech spec §1–4 and �
   - `premium` and `enterprise` are `is_active=false`, after a SELECT shows they have no users.
   - `tokens_per_test` is 0 on every row.
   - The other tiers in the spec (`professional`, `exam_pass`, school, tutor) are **not** seeded yet; they belong to G1/G2.
-- [ ] `tier_entitlements` is seeded for `free`, `core`, `pro` and `pro_lifetime` exactly as in the spec table. Core and Pro differ only in `dt_per_day` (5 vs 25), `bkt_report_detail` (0 vs 1) and `monthly_token_grant`.
+- [ ] `tier_entitlements` is seeded for `free`, `core`, `pro` and `pro_lifetime` exactly as in the spec table, **without** `trainer_level_max` (dropped, Q3). Core and Pro differ only in `dt_per_day` (5 vs 25), `bkt_report_detail` (0 vs 1) and `monthly_token_grant`.
 - [ ] `plan_prices` seed, `price_version=1`:
   - Core and Pro, month and year, in USD/AUD/EUR/GBP;
   - `pro_founding`, `pro_student` and `pro_lifetime` in USD/AUD;
@@ -371,9 +374,9 @@ routes.
   - It returns `{url}`.
 - [ ] `POST /api/payments/create-intent` reads `plan_prices` and sets metadata `{user_id, plan_code, credits, price_version}`, or is removed in favour of Checkout mode `payment`. Pick one and record it.
 - [ ] `GET /api/billing/portal` returns a Billing Portal session URL, with Core ↔ Pro switching and cancellation enabled in the portal config.
-- [ ] Stripe Tax is on for AU GST.
+- [ ] Stripe Tax is on, with registrations AU first and EU OSS / UK before EUR/GBP prices are enabled.
 
-**Technical Notes:** if D4 picks a merchant of record for global consumers, this task still ships Stripe for AU and packs. TASK-985 adds the MoR path, and `plan_prices.provider` selects it per row.
+**Technical Notes:** D4 = Stripe everywhere. Stripe Tax is on for every currency. Collect tax only in jurisdictions where the founder is registered (Stripe Tax registrations: AU first, then EU OSS and UK before EU/UK prices go live). Until then, show EUR/GBP prices only after registration, or sell those markets in USD.
 
 **Files to Create / Modify:**
 - `scripts/provision_stripe_prices.py` — new
@@ -387,7 +390,7 @@ routes.
 
 ## TASK-985: Merchant-of-record adapter (consumer checkout outside AU)
 
-**Status:** [?] Blocked — needs **D4** (Paddle vs Stripe Managed Payments vs Stripe + own VAT)
+**Status:** Won't Do — D4 decided 2026-11-17: Stripe everywhere, no merchant of record
 **Feature:** billing
 **Type:** feature
 **Complexity:** L
@@ -529,7 +532,7 @@ credit, refunded if the grade fails. The global token budget becomes a per-tier 
 - [ ] A refund is issued when the grade fails:
   - an exception (the 500 path at :296);
   - `overall_band is None` (:245);
-  - a provisional result: refund only if the product decision says so; default is no refund, because a grade was shown.
+  - a provisional result is **not** refunded (founder decision 2026-11-17, Q4): a grade was shown.
 - [ ] The token guardrail at :208 / `_tokens_used_today` (:786) compares against `dt_tokens_per_day` for the tier instead of `Config.DT_DAILY_TOKEN_BUDGET`. Behaviour is unchanged (drop to tier 1, never block).
 - [ ] Guided-repair re-checks (`routes/dt_repair.py:100`) are **not** counted against the cap. They are part of the same submission.
 - [ ] The prestudy Produce path is counted the same way.
@@ -586,7 +589,7 @@ its generation fails.
 
 ## TASK-991: Trainer level cap for Free
 
-**Status:** [?] Blocked — needs a founder decision on whether it is worth building (see questions)
+**Status:** Won't Do — founder decision 2026-11-17 (Q3): drop the trainer cap; Free is limited by tests and session minutes
 **Feature:** billing
 **Type:** feature
 **Complexity:** S
@@ -833,7 +836,7 @@ with a due date, and a results view. The same tables (`classes`, `assignments`,
 | # | Question | Why it matters | Default if unanswered |
 |---|---|---|---|
 | Q1 | Are the knowledge report (TASK-993) and user custom tests (TASK-994) in launch scope? | Without them, Pro differs from Core only by DT volume (25 vs 5 a day) and 300 credits that can only be spent on new-word imports and DT over the cap. Pro at A$14.99 may be hard to sell. | Build the knowledge report (L) before launch. Launch custom tests after, and say so on the pricing page. |
-| Q2 | D4: which payment provider handles global consumers? | Decides whether TASK-985 exists and which webhook family is primary. | Launch on Stripe only, with Stripe Tax for AU. Accept registering for EU/UK VAT later, or use Stripe Managed Payments if it is eligible. |
-| Q3 | Keep the trainer level cap for Free (TASK-991)? | The trainers aren't levelled products today, so this cap means little to users. | Drop it. Free is already limited by tests and session minutes. |
-| Q4 | Refund over-cap DT credits on a *provisional* grade? | A provisional grade is shown but incomplete. | No refund on provisional grades; refund on an error or no band. |
-| Q5 | Daily free tokens (`users.tokens`): retire? | They no longer have a purpose under count-based limits. | Retire (TASK-977/997). |
+| Q2 | D4: which payment provider handles global consumers? | Decides whether TASK-985 exists and which webhook family is primary. | **ANSWERED: Stripe everywhere.** TASK-985 Won't Do. |
+| Q3 | Keep the trainer level cap for Free (TASK-991)? | The trainers aren't levelled products today, so this cap means little to users. | **ANSWERED: drop it.** TASK-991 Won't Do; remove `trainer_level_max` from the TASK-978 seed. |
+| Q4 | Refund over-cap DT credits on a *provisional* grade? | A provisional grade is shown but incomplete. | **ANSWERED: no refund on provisional;** refund on an error or no band. |
+| Q5 | Daily free tokens (`users.tokens`): retire? | They no longer have a purpose under count-based limits. | **ANSWERED: retire** (TASK-977/997). |

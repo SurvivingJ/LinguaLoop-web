@@ -14,7 +14,7 @@ dependencies:
   - "Stripe API (PaymentIntents, Checkout, Billing, Invoicing, Tax); merchant of record (Paddle or Stripe Managed Payments, TBD)"
 breaking_change_risk: high
 open_questions:
-  - "OPEN: Merchant of record choice (D4). This decides whether consumer subscriptions are Stripe Subscriptions or Paddle subscriptions, and which webhook family is primary."
+  - "ANSWERED 2026-11-17 (D4): **Stripe everywhere** (Stripe Billing + Stripe Tax). No merchant of record. Consequence: the founder registers for tax where required — AU GST, EU VAT via the non-Union OSS scheme and UK VAT from the first consumer sale there; US sales tax only once a state's economic-nexus threshold is reached (Stripe Tax monitors thresholds). Only the Stripe webhook family is built; the MoR webhook route below is not built."
   - "OPEN: Is TASK-875 (revoke client writes on users; drop the users_update_own / users_admin_all policies) applied in production? schema.tech.md says the users table policies still let a user raise their own subscription_tier_id. BLOCKER for billing."
   - "OPEN: What does max_tier='tier1' do when the ADR-044 single-call grader is active? The DT_DAILY_TOKEN_BUDGET guardrail (routes/dual_translation.py:208) degrades rather than blocks, and it was written for the v1 cascade."
   - "OPEN: Can the DT grader route be pinned to zero-data-retention providers on OpenRouter (provider routing flags), and is gpt-6-luna available that way?"
@@ -457,7 +457,7 @@ These are specified in a future `features/classes-and-assignments` page, which d
 4. **Decision: the DT fair-use cap is count-based; the token budget becomes a per-tier backstop.**
    - **Rationale:** At 2–3k tokens per grade, a 20k-token budget cannot deliver an advertised 25 a day. Learners understand counts, not tokens.
    - **Alternatives rejected:** advertising a token budget.
-5. **Decision: a single merchant of record for global consumers, and Stripe for AU B2B (pending D4).**
+5. **Decision (superseded 2026-11-17 by D4 = Stripe everywhere): a single merchant of record for global consumers, and Stripe for AU B2B.** Kept for the record; `POST /api/billing/mor-webhook` and `provider='mor'` are not built.
    - **Rationale:** EU/UK VAT applies from the first sale to consumers in those markets. An MoR removes the registrations. AU schools need ABN tax invoices and bank transfer.
    - **Alternatives rejected:** Stripe + Stripe Tax everywhere. That means the founder registers for VAT in the EU and UK.
 
