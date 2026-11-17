@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 41 |
+| Not Started | 47 |
 | In Progress (`[~]`) | 13 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 29 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 35 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
 | Done (cumulative, not listed here) | 252 |
+
+*2026-11-16 (dual translation, prestudy and pinyin fixes integrated):* new breakdown [[tasklist/fixes-2026-11-16.tasks]] (TASK-989–1000) for what the three fixes left open. Not Started: TASK-991, 992, 993, 995, 999, 1000. Blocked / awaiting decision: TASK-989 (owner: "all done" vs re-serve), 990 (LIVE-DB migration), 994 (content write), 996 (data write), 997 (owner: product choice), 998 (LIVE-DB migration). Counts: Not Started 41→47, Blocked 29→35.
 
 *2026-11-16 (i18n gaps filled):* TASK-985 Done. `es.json` gained the 57 keys it lacked (the `dt_repair.*` family plus `session.dt_repair_heading` / `_none`); 17 keys used in code but present in no locale (`session.speed_*`, `dual_translation.target_*`) added to all four. The four locale files now have identical key sets (1175). Counts: Not Started 42→41, Done 251→252.
 
@@ -1268,6 +1270,24 @@ Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[d
 | TASK-986 | mobile-redesign | Regression tests for logout delegation and the study-language chip | [ ] | S | — |
 | TASK-987 | mobile-redesign | Integration requests — i18n merge, Me page links, hard-coded colours | Done | M | — |
 | TASK-988 | mobile-redesign | Commit, review and deploy the redesign | [?] owner | M | TASK-975, TASK-980 |
+
+### Dual Translation, Prestudy and Pinyin Fixes (2026-11-16) — NEW
+Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.tech]] · [[features/test-prestudy]] · [[features/measure-word-trainer.tech]]. In the working tree / checkpoint 76e911c; not deployed.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-989 | fixes-2026-11-16 | Decide "all done" vs re-serving graded DT passages | [?] owner | XS | — |
+| TASK-990 | fixes-2026-11-16 | Cut `/next` database round trips (SQL read function) | [?] LIVE-DB | M | TASK-989 |
+| TASK-991 | fixes-2026-11-16 | DT `/next` loose ends (retired range passage, empty submissions, unfiltered cards) | [ ] | S | — |
+| TASK-992 | fixes-2026-11-16 | Return `produce_available` from test submit | [ ] | S | — |
+| TASK-993 | fixes-2026-11-16 | "Take the test" from prestudy resumes the session (`?resume=1`) | [ ] | S | — |
+| TASK-994 | fixes-2026-11-16 | Fill `dim_vocabulary.frequency_rank` (846 rows incl. 是/都/有/不) | [?] LIVE-DB | M | — |
+| TASK-995 | fixes-2026-11-16 | Stale stored Produce flag (key by reference language) | [ ] | XS | TASK-992 |
+| TASK-996 | fixes-2026-11-16 | Pinyin data clean-up (classifier display column, combined pronunciations) | [?] LIVE-DB | M | — |
+| TASK-997 | fixes-2026-11-16 | New-word drill: show numbered form after a wrong typed reading? | [?] owner | XS | — |
+| TASK-998 | fixes-2026-11-16 | Classifier drill session RPC: levels and mastery | [?] LIVE-DB | M | — |
+| TASK-999 | fixes-2026-11-16 | Tone-marked pinyin on the remaining surfaces | [ ] | S | — |
+| TASK-1000 | fixes-2026-11-16 | Verify the paths the 2026-11-16 fixes could not reach | [ ] | M | — |
 
 ### Language Packs (existing — unchanged)
 

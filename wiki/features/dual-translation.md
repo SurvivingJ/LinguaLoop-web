@@ -3,8 +3,9 @@ title: Dual Translation
 type: feature
 status: planned
 tech_page: ./dual-translation.tech.md
-last_updated: 2026-06-22
+last_updated: 2026-11-16
 open_questions:
+  - "OPEN (2026-11-16): when every eligible passage has been graded, show an honest 'all done' message (current behaviour) or re-serve the least recently graded passage? Needs owner sign-off (TASK-989)."
   - "RESOLVED 2026-06-23: privacy — no special posture required; learner reproduction text is retained for analysis (an asset, not a risk)."
   - "RESOLVED 2026-06-23: embeddings not needed — cluster errors deterministically by taxonomy subtype; pgvector optional for later intra-subtype refinement."
 ---
@@ -49,6 +50,21 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
    queue and remediated with cloze cards and "isolate-and-re-translate" drills — always
    toward the **corrected** form, never the learner's wrong form.
 
+### Which passage comes next (2026-11-16)
+- The passage is always in the language the learner is studying right now (the language picked
+  in the app). Older app versions that do not say which language get the language of the
+  learner's most recent test.
+- New passages come first: first the older whole-passage pool, then short passages (2–4 sentences)
+  built from the sentence-by-sentence translations of tests the learner has taken. A passage the
+  learner has already had graded is **never** shown again; a passage they were shown but skipped
+  can come back later, oldest first.
+- When nothing is left, the learner sees "You've translated every passage from the tests you've
+  taken in this language. Take another test to unlock more." If they have not taken a test in that
+  language yet, they are told to take one first.
+- If the grading service refuses to grade (for example because the account's credit has run out),
+  the learner sees "Grading is temporarily unavailable" and keeps what they wrote; nothing is
+  saved, so they can try again later.
+
 ## Constraints & Edge Cases
 - **Reference-based, not open-ended.** Because every reproduction is graded against an existing
   gold L2, a large share of grading is deterministic and free. The pipeline is designed
@@ -78,6 +94,7 @@ See [[business-rules/translation-error-taxonomy]] for the full taxonomy, severit
 error-vs-mistake gate, and promotion threshold.
 
 ## Open Questions
+- OPEN: "all done" vs re-serving graded passages once everything has been graded (TASK-989).
 - ANSWERED: privacy → no special posture; retain learner text for analysis.
 - ANSWERED: embeddings → not needed; cluster errors by taxonomy subtype (pgvector optional later).
 - ANSWERED: grading is level-neutral; naturalness alone is level-dependent ([[decisions/ADR-018-level-neutral-grading]]).
@@ -94,5 +111,6 @@ error-vs-mistake gate, and promotion threshold.
 - [[algorithms/translation-grading-cascade]] — Tier 0 deterministic + OpenRouter cascade
 - [[business-rules/translation-error-taxonomy]] — error taxonomy and promotion rules
 - [[features/dictation]] — reuses the same Levenshtein diff grader for Tier 0
+- [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 fixes
 - [[features/flashcards]] — reuses FSRS-4 for remediation card scheduling
 - [[decisions/ADR-014-reference-first-grading]], [[decisions/ADR-015-eager-error-explanations]], [[decisions/ADR-016-per-pair-error-taxonomy]], [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]]

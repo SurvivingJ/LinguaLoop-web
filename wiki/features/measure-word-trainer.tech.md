@@ -3,7 +3,7 @@ title: Measure Word Trainer — Technical Specification
 type: feature-tech
 status: complete
 prose_page: ./measure-word-trainer.md
-last_updated: 2026-06-07
+last_updated: 2026-11-16
 dependencies:
   - "dim_classifiers, dim_classifier_distractor_groups, dim_classifier_noun_pairs"
   - "dim_test_types row classifier_drill (id=14)"
@@ -181,6 +181,26 @@ LLM-assisted **authoring** tool; nothing here runs at request time.
 - `scripts/merge_classifier_curation.py` — consolidates accepted review JSON →
   `approved_curation.json`. Existing classifiers keep curated group/tier (only nouns folded in);
   new/promoted classifiers contribute an LLM-classified meta block for human review.
+
+## Pinyin display and the Auto badge (2026-11-16)
+- `dim_classifiers.pinyin_display` holds numbered pinyin on 71 of 146 rows ("bi3", "lu:3"); noun
+  pronunciations can be "marked (numbered)". The drill payload (`services/drill_service.py`
+  `_classifier_item`, `_attach_correct_pinyin`) now passes `noun_pronunciation`,
+  `distractor_pinyin` and `correct_classifier_pinyin` through `services/pinyin_format.format_pinyin`
+  (tone marks only; ü as ü/v/u:, neutral tone 5/0, erhua, run-together syllables; already-marked
+  text, kana and English unchanged), and the player applies `formatPinyin` again as a backstop.
+  Python and JS share one case file, `tests/fixtures/pinyin_format/cases.json`. The Japanese
+  counter drill is untouched. The clean data fix — rewriting the 71 rows from `pinyin` — is
+  TASK-996 (needs a data write).
+- The Auto-mode level badge names what is on screen with translated labels and no "· " prefix:
+  Choose / Type (the mode-toggle keys `mode_mc` / `mode_type`), Reverse
+  (`classifier_drill.level_reverse`), Fill in (`classifier_drill.level_cloze`). A level-4 item
+  with no `cloze_blanked` is drawn as a choose item and badged "Choose".
+- **Known gap (not fixed):** `get_classifier_drill_session` returns none of `out_level`,
+  `out_classifier_id_primary` or the reverse/cloze fields, so on the real app Auto only ever
+  shows level 1, and (inferred from code) drill answers never reach `update_classifier_mastery`.
+  Only 214 of 2,664 zh noun pairs link to a word sense, so most nouns show no pronunciation.
+  TASK-998.
 
 ## Key Architectural Decisions
 

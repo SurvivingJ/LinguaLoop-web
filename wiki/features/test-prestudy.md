@@ -3,7 +3,7 @@ title: Test Prestudy (tests as teaching material)
 type: feature
 status: in-progress
 tech_page: ./test-prestudy.tech.md (not yet written — pending the open questions below)
-last_updated: 2026-11-09
+last_updated: 2026-11-16
 demo: ../demos/test-prestudy-demo.html
 open_questions:
   - "ANSWERED 2026-10-29: ELO for a first attempt made after prestudy = reduced K with factor 0.5 (`test_attempts.prestudied = true`, `elo_reduction_factor = 0.5`, existing badge)."
@@ -412,6 +412,57 @@ Built (repo; the ELO migration is not yet applied live):
   tests: Automatically / Ask me / Off" on the Study Plan's Daily session card
   (`user_study_plans.prestudy_mode`).
 
+### Fixes (2026-11-16): Produce only when possible, one gloss language per item, one unknown share
+
+- **Produce availability signal.** Produce needs a 2–4 sentence window whose sentences all have
+  approved references in the learner's reference language and clear the tightness floor; few
+  tests have one (measured 2026-11-16 with English references: 20 of 274 active zh tests, 28 of
+  83 ja). `services/prestudy.produce_available(db, test, l1)` answers
+  `choose_produce_window(db, test, l1, [], []) is not None` — the same function the produce route
+  uses (primed/missed words only rank windows, never decide whether one exists); any read failure
+  answers false. The reference language comes from `resolve_produce_l1(test_language, preferred)`
+  (the learner's definition language, English when unset or equal to the test language; none for
+  an English test), shared with the produce route.
+  - The prestudy payload (`GET /api/tests/<slug>/prestudy`) now carries `produce_available` and
+    `produce_l1_language_id`; it also returns `plan` (below).
+  - New `GET /api/tests/<slug>/prestudy/produce-available` (login required, test-level read only)
+    → `{produce_available, produce_l1_language_id}`; 404 for an unknown test.
+  - On "Take the test" the page stores `{ok, at}` in sessionStorage under
+    `prestudy_produce_ok:<slug>` (kept 6 h, separate from the "prestudied" marker that submit
+    clears). `renderResultActions` uses `o.produceAvailable` if passed, else that stored flag, else
+    one call to the route above — so the normal flow (prestudy then test in the same tab) makes no
+    extra request.
+  - Results screen: wrong answers → "Review the words you missed"; no wrong answers on a
+    prestudied attempt → "Translate a passage from this test" **only when Produce is available**,
+    otherwise just the half-weight note.
+  - Follow-up page: when Produce is unavailable step 3 is labelled "Done"
+    (`prestudy.step_done`), the Produce box/button are hidden, the round summary reads
+    `prestudy.next_finish`, and a `#psDone` button saves the answers and goes to the test preview
+    (from the daily session, "Back to today's session" is the primary button instead and no Produce
+    request is queued).
+  - `choose_produce_window` keeps sentence rows built from an older transcript, and placeholders
+    for missing indices, in the list as window breakers (they never count as referenced), so a
+    window can never straddle them and name a range the passage route refuses (409
+    `SENTENCES_STALE` / 422 `SENTENCES_MISSING`). Dual translation's `/next` uses the same rule.
+- **Option-set rule (word prime).** All options of one meaning item come from **one gloss
+  language** (`meaningOptions()` in `static/js/prestudy/prestudy.js`): the learner's gloss
+  language when the target has a gloss in it, otherwise the study language's own definitions for
+  the whole item; if fewer than two acceptable distractors exist in the first language the next is
+  tried, and the item is skipped if neither works. (About half of test-linked zh senses — 3,804 of
+  7,708 — have no English gloss; ja 98 of 1,829.) A distractor is rejected
+  (`plausibleMeaning()`) when it is the same word or one word contains the other (坐 / 坐在), when
+  the glosses are identical or overlap, or when either gloss names the other word. The passage
+  cloze rejects candidate words that could also fill the blank (`wordConfusable()`: containment,
+  or a plausible meaning in any gloss language both words have; a missing gloss is not a reason to
+  reject). Study-language options carry a `lang` attribute. This is a heuristic: synonyms whose
+  glosses share no words are not caught.
+- **One unknown-share definition.** `share_plan()` / `_p_known_fn()` in `services/prestudy.py` are
+  used by both the daily-session card (`plan_for_tests`) and the prestudy payload (`plan`); the
+  page's starting figure is `plan.unknown_share`. A reported 29% (card) vs 53% (page) gap was a
+  timing difference (a batch of knowledge rows was written between the two reads), not two
+  definitions. 是 / 都 / 有 / 不 show as new because `dim_vocabulary.frequency_rank` is NULL for
+  them (flat 0.3 prior) — a content gap (TASK-994).
+
 Still not built: lesson walkthrough (mode 3) and study-then-retry answer explanations (need the
 content spend), sentence-level audio, the dictation-mode preview variant.
 
@@ -447,4 +498,5 @@ and task breakdown can now be written.
 - [[features/dictation]] — same passages, productive mode
 - [[features/vocabulary-knowledge]] — the BKT evidence prestudy writes
 - [[pages/study-session]] — where the prestudy block would sit
+- [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 prestudy fixes (TASK-992–995)
 - [[database/schema.tech]] — `tests.vocab_token_map`, `questions.sense_ids`, `test_attempts`

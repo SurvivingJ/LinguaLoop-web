@@ -3,7 +3,7 @@ title: New-Word Drill — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./new-word-drill.md
-last_updated: 2026-11-10
+last_updated: 2026-11-16
 dependencies:
   - "table: user_word_ladder (new intro_* columns)"
   - "table: exercise_attempts (source column from migrations/prestudy_workflow.sql; new source value 'intro')"
@@ -129,6 +129,14 @@ format different from the word's previous counted answer.
 New formats (not in prestudy today):
 - `recall_typed`: prompt = learner-language gloss; answer = lemma (ja: kana or kanji form accepted; zh: hanzi or pinyin with tones; en: case-insensitive, trimmed, one-edit typo tolerance for words ≥ 6 letters reported as "almost").
 - `cloze_typed`: example sentence with the word blanked; answer typed, graded as `recall_typed`.
+
+**Reading display (2026-11-16):** for Chinese the drill shows the reading as tone-marked pinyin
+only, under the word and on the feedback line (`readingText()` in
+`static/js/session/players/intro_drill.js`, exported, via `static/js/session/pinyin-format.js`).
+Stored pronunciations are often "marked (numbered)" (`bú huì (bu2 hui4)`); the numbered part stays
+on `reading.numbered` and is used for grading only, so typed tone-number answers are graded as
+before. After a wrong typed reading the learner therefore no longer sees the numbered form they
+were asked to type (product choice, TASK-997). Japanese readings are unchanged.
 
 The format sequence is a *preference order*. After a miss the engine re-queues the same item;
 after a correct-but-not-counted answer (gap too short) it re-queues the next format.

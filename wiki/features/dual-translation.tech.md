@@ -3,7 +3,7 @@ title: Dual Translation — Technical Specification (Feature 1: Grading)
 type: feature-tech
 status: in-progress
 prose_page: ./dual-translation.md
-last_updated: 2026-11-14
+last_updated: 2026-11-16
 dependencies:
   - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
@@ -16,6 +16,8 @@ dependencies:
   - "service (2026-11-14, flag-gated): services.dual_translation.single_call_grader / single_call_prompts / sentence_pairs — ADR-044"
   - "migration (applied to production 2026-11-14): migrations/dt_grading_assets.sql — dt_error_instance asset columns + dt_grading_call"
   - "migration (column part applied 2026-11-14): migrations/dt_taxonomy_v6_columns.sql — taxonomy_version / explanation_variant / remap_flag"
+  - "service (2026-11-16): services.dual_translation.provider_errors — per-request record of refused grading calls (GRADING_UNAVAILABLE)"
+  - "tables read by GET /next (2026-11-16): test_attempts, dt_submission, dt_grade, dt_passage, dt_passage_reference, tests, test_sentences, test_sentence_references"
 breaking_change_risk: low
 ---
 
@@ -231,20 +233,76 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 - **Arguments:** `reproduction` (str, required), `idempotency_key` (str). Passage + L1 implied by submission row.
 - **Returns:** the §2.2 contract (scores, overall_band, diff, errors[] with eager explanations, grader_trace).
 - **Errors:** `PASSAGE_RETIRED`, `BUDGET_EXCEEDED` (degrades to Tier 0+1, never hard-fails), `DUPLICATE_SUBMISSION` (returns cached grade).
+  **+2026-11-16:** a body that is not valid JSON, or JSON that is not an object, is a 400 (was a 500).
+  **503 `GRADING_UNAVAILABLE`** when at least one grading call was *refused* by the provider and no
+  model answered at all — see "Provider refusal" below. Nothing is saved in that case.
 - **Auth:** authenticated learner; submission must belong to user.
 - **Side effects:** writes dt_grade + dt_error_instance[]; enqueues systematic errors for Feature 2; logs grader_trace cost.
 
 ### `GET /api/dual-translation/next`
 - **Purpose:** serve the next passage for the user (L1 reference chosen via `users.native_language_id`).
-- **Selection rule:** draw only from `dt_passage` whose `source_ref_id` is a test the **user has
-  already completed** (any of reading/listening/dictation — check `test_attempts` for the user),
-  so content is inherently at-level. L1 reference chosen for the user's L1.
-  **Correction (TASK-607):** the original draft said this came from `user_languages` — it doesn't;
-  that table only tracks L2 *study* languages. `users.native_language_id` was added specifically
-  for this (nullable; falls back to English, id=2, while unset — no onboarding UI sets it yet).
-- **Returns:** `{submission_id, l1_text, age_tier, rubric_descriptors}` (rubric shown as "feed-up").
+- **Arguments (2026-11-16):** `?language_id=` — the learner's study language (the passage's L2).
+  Must be an integer in `Config.VALID_LANGUAGE_IDS` (1 zh, 2 en, 3 ja), otherwise **400**. When
+  absent (older cached clients), the language of the learner's most recent `test_attempts` row is
+  used, so no client ever gets a mixed language. Both clients send it: the standalone page from
+  `localStorage.selectedLanguageId`, the session player from `ctx.languageId`.
+- **Eligibility (unchanged):** only content from tests the user has **attempted**
+  (`test_attempts`), in the requested language, with an L1 reference for the user's resolved L1.
+  **Correction (TASK-607):** the L1 comes from `users.native_language_id` (nullable; falls back to
+  English, id=2), not from `user_languages`, which only tracks L2 *study* languages.
+- **Selection order (`_choose_next`, 2026-11-16):**
+  1. a legacy `dt_passage` (`source_kind='test_transcript'`, whole-passage pool) never served to
+     this learner;
+  2. a **new sentence-window passage** (2–4 sentences) built from the ADR-037 sentence-level
+     references — the same `open_range_passage` core as `POST /passage-from-sentences`, window
+     chosen by `select_window_for_primed` with no primed words (shortest, then earliest). Same
+     quality rules as Produce: active references with a `pass`/`rewritten` verdict in the learner's
+     L1, mean tightness ≥ `services.prestudy.PRODUCE_TIGHTNESS_FLOOR[l2]`, only active tests, never
+     a sentence of a window already served. Sentence rows from an older transcript and missing
+     indices **break** windows (they stay in the list as non-referenced rows) so a window can never
+     straddle them and name a range the passage route refuses (409 `SENTENCES_STALE` / 422
+     `SENTENCES_MISSING`) — the same rule as `choose_produce_window`. Tests are read 10 at a time
+     (at most `MAX_WINDOW_TESTS_PER_CALL` = 40 per call), stopping at the first batch with a window;
+  3. a passage served before but **never graded**, least recently served first (a range passage
+     only while every sentence still has a usable reference).
+
+  Within each group the order is a stable hash of (user, item, number of passages served so far):
+  the same state gives the same pick, and the pick changes after every serve. **A graded passage
+  is never served again.** History reads (`test_attempts`, `dt_submission`) are paged past
+  PostgREST's 1000-row cap (`_read_all_pages`).
+- **Returns:** `{type:'passage', source:'passage'|'sentence_refs', submission_id, l1_text, age_tier,
+  rubric_descriptors, correction_style}`; a sentence window also carries `passage_id`,
+  `n_sentences`, `primed_token`, `status`. Or `{type:'error_card', ...}` (below).
+- **404 codes:** `ALL_DONE` — nothing left and the learner has had at least one passage graded in
+  *this* language from a test they attempted; `NO_PASSAGES` — nothing eligible (no attempts in this
+  language, or no references). Both clients show their own message
+  (`dual_translation.error_all_done`). The "all done" state instead of re-serving a graded passage
+  is an engineer decision awaiting owner sign-off (TASK-989).
 - **Interleaving:** the served queue **interleaves due error exercises** (isolate-and-re-translate /
-  cloze) with fresh passages — see [[features/dual-translation-remediation.tech]].
+  cloze) with fresh passages — see [[features/dual-translation-remediation.tech]]. Since
+  2026-11-16 due cards are filtered to the requested language (`_card_ids_for_language`) whenever a
+  language is known.
+- **Side effect (unchanged):** every call inserts a `dt_submission` row up front, so a skipped
+  passage leaves an empty row.
+- **Latency:** about 16 sequential DB reads per call (~4–6 s from a remote sandbox at
+  0.25–0.4 s per round trip; much less next to the DB). TASK-990.
+
+### Provider refusal (`GRADING_UNAVAILABLE`, 2026-11-16)
+- `services/dual_translation/provider_errors.py` records, per submit request (a `ContextVar`
+  recorder opened with `provider_errors.capture()`), what each grading call did. Every model call
+  site reports into it: `single_call_grader._attempt`, `grader_cascade._invoke_model` (v2 path and
+  arbiter) and `grader_cascade._call_tier` (the v1 Tier-2 worker thread runs in a copied context).
+- A **refusal** is HTTP 401, 402 or 403 (but not a 403 moderation flag), or a 429 whose message
+  names a daily quota or credits. A per-minute 429, a timeout or a malformed answer is transient
+  and keeps the existing fail-open / provisional path.
+- When at least one call was refused and **no model answered at all**, submit returns
+  **503 `GRADING_UNAVAILABLE`**, saves nothing (no `dt_grade`, no error rows, reproduction left
+  empty) and logs at ERROR with user, submission, passage, L2, tier and each refused model's
+  status, kind and message. A refusal followed by any model answer keeps the normal path.
+- Clients: `/dual-translation` shows `#dtUnavailableNotice` (`dual_translation.grading_unavailable`),
+  scrolled into view, and keeps the learner's text; the session player shows the message with
+  "Skip for now" only (no "Try again"). A refused submission stays ungraded, so its passage can
+  come back through step 3 of `/next`.
 
 ### `POST /api/dual-translation/passages/build` (admin/batch)
 - **Purpose:** extract L2 passages from corpus + batch-generate L1 references (async batch).
@@ -533,4 +591,6 @@ The only edits it makes to this route file are the submit hook (`repair.hooks.af
 - [[business-rules/translation-error-taxonomy]] — taxonomy + promotion
 - [[database/schema.tech]] — current live schema (these tables are additions)
 - [[features/dictation.tech]] — diff grader reused for Tier 0
+- [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 next-passage / refusal fixes (TASK-989–991)
+- [[features/test-prestudy]] — Produce shares the sentence-window rules
 - [[features/model-arena.tech]] — OpenRouter pricing/runner pattern reused for the router

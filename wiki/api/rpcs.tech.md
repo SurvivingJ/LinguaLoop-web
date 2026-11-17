@@ -3,7 +3,7 @@ title: API — Technical Specification
 type: api-tech
 status: complete
 prose_page: ./rpcs.md
-last_updated: 2026-11-11
+last_updated: 2026-11-16
 dependencies:
   - "Flask Blueprints (15 in `routes/`)"
   - "Supabase JWT middleware (`middleware/auth.py`)"
@@ -393,6 +393,32 @@ Url-prefix `/admin/arena` (mounted by `admin_app.py`). ⚠ No auth decorators.
 - `review_governor_state` — now also counts due drill reviews, weighted by expected items (`migrations/new_word_drill_governor.sql`).
 - `ladder_new_word_state` — counts intro rows (`migrations/new_word_drill.sql`).
 - HTTP: `POST /api/practice/intro/complete`, `POST /api/tests/<id>/prestudy/admit-overflow`; `POST /api/practice/attempt` accepts `exercise_context`.
+
+### Route contract changes (2026-11-16): dual translation, prestudy, pinyin display
+
+Full detail in the feature specs; summary of what callers see:
+
+- `GET /api/dual-translation/next?language_id=<1|2|3>` — new optional query parameter (400 when not
+  an integer in `Config.VALID_LANGUAGE_IDS`; absent → language of the latest test attempt). New
+  response field `source: 'passage' | 'sentence_refs'` (sentence windows also return
+  `passage_id`, `n_sentences`, `primed_token`, `status`). 404 now carries `error_code`
+  `ALL_DONE` or `NO_PASSAGES`. A graded passage is never served again. See
+  [[features/dual-translation.tech]] "GET /api/dual-translation/next".
+- `POST /api/dual-translation/<submission_id>/submit` — new **503 `GRADING_UNAVAILABLE`** when the
+  grading provider refused every call that was made (401/402/403, quota 429) and no model
+  answered; nothing is saved. A non-object or malformed JSON body is now 400 (was 500).
+- `GET /api/tests/<slug>/prestudy` — payload adds `produce_available` (bool),
+  `produce_l1_language_id` and `plan` (the same unknown-share plan as the daily-session card).
+- **New** `GET /api/tests/<slug>/prestudy/produce-available` — login required →
+  `{produce_available, produce_l1_language_id}`; 404 for an unknown test. Same rule as
+  `POST /api/tests/<id>/prestudy/produce` (which answers 422 `NO_WINDOW` exactly when this is false).
+  See [[features/test-prestudy]] "Fixes (2026-11-16)".
+- Classifier drill session items (`noun_pronunciation`, `distractor_pinyin`,
+  `correct_classifier_pinyin`) and the post-test vocab check (`pronunciation`, Chinese only) now
+  return **tone-marked pinyin only** (`services/pinyin_format.format_pinyin`; numbered "bi3" and
+  "marked (numbered)" stored forms are converted). `noun_pronunciation` is `''` rather than `null`
+  when none is stored. Japanese readings are unchanged. Grading inputs (`reading.numbered` in the
+  new-word drill) are unchanged.
 
 ## RPC Call Site Map
 

@@ -6645,3 +6645,35 @@ Source: two phone-sized end-to-end runs (zh, ja) against the real server with th
 
 ## [2026-11-16] update | Dual translation grading moved to free models (temporary)
 Investigation: the OpenRouter key reached its $10 total limit, so every paid grading call returned 403 and submissions showed "Grading didn't finish"; no grade had ever been stored. Temporary change: `config.py` defaults for `DT_SINGLE_CALL_MODEL` / `DT_SINGLE_CALL_FALLBACK_MODEL` are now `particle-ai/particle-1:free` / `nvidia/nemotron-3.5-super-vl:free` (reasoning disabled in `single_call_grader.REQUEST_EXTRAS`). Verified with real zh submissions as the test account (non-provisional grade, errors and repair items stored). Not validated against the gold set (ADR-044 validated gpt-6-luna and deepseek-v4.1-flash only); revert by env vars once the key is funded. Still open: `/api/dual-translation/next` has no study-language filter and repeats the same passage; passage/reference coverage is thin (about 29 tests per language).
+
+## [2026-11-16] update | Dual translation, prestudy and pinyin fixes integrated
+Source: the engineer and reviewer reports for three areas changed in the same working tree (dual
+translation next passage + provider refusal; prestudy Produce availability + option sets + unknown
+share; pinyin display), checked against `git show 76e911c` (checkpoint commit) and the uncommitted
+diff. Integration: the four locale files are valid JSON with no duplicate keys and identical key
+sets (1188 each; the six new keys translated in en/zh/ja/es); no file was edited by two areas in
+conflicting ways (`reading_listening.js` only has the pinyin edit; `services/prestudy.py` only
+prestudy edits); no debug code or scratch files in the repo. One cross-area defect fixed:
+dual translation's `_window_materials` dropped stale sentence rows before
+`select_window_for_primed`, which walks list positions — the same straddle bug the prestudy
+reviewer fixed in `choose_produce_window` — so a `/next` window could name a range
+`open_range_passage` refuses (409/422). Stale rows and missing indices now stay as window breakers;
+two tests added (both fail on the previous function). Results: full pytest 5077 passed, 11
+skipped, only the two known failures; `npm run check` 0 errors (41 existing warnings);
+`npm run test:unit` 663/663; Playwright 15/15 against the real app. Real-app walk at 393x659 as the
+test account: DT zh (passage 97, L2 1, graded band 4, repair sheet: one sentence fixed, one
+compared) and ja (passage 98, L2 3, band 4, no repair items); a zh prestudied test (3/4) → results
+offered only "Review the words you missed" → follow-up step 3 "Done", Produce hidden, no Produce
+request; word prime in zh (typed readings) and ja (12 MC items, 0 mixed-language sets); a 20-item
+classifier drill round (badge "Choose", tone-marked pinyin only). No screen scrolled the document,
+the pinned bar stayed in view, no raw i18n keys; the only console error was the 401 from
+`/api/auth/device-restore` (token injected without a refresh cookie). No ADR: no new
+architectural decision; the "all done" choice awaits the owner (TASK-989).
+Pages created (1): [[tasklist/fixes-2026-11-16.tasks]] (TASK-989–1000).
+Pages updated (8): [[features/dual-translation.tech]] (`/next` arguments, selection order,
+sentence-window fallback, 404 codes, latency; provider refusal section; submit errors),
+[[features/dual-translation]] (which passage comes next; open question), [[features/test-prestudy]]
+(Fixes 2026-11-16: Produce availability signal, option-set rule, one unknown share),
+[[features/measure-word-trainer.tech]] (pinyin display, Auto badge, RPC gap),
+[[features/new-word-drill.tech]] (reading display), [[api/rpcs.tech]] (route contract changes),
+[[tasklist/master]] (Not Started 41→47, Blocked 29→35), index. Not committed, not deployed.
