@@ -14,19 +14,26 @@ Callers use ``store.backend()``; tests install an ``InMemoryBackend`` with
 * ``InMemoryBackend`` — dict-backed, thread-safe, records every call; used by
   every package's tests.
 * ``SupabaseStorageBackend`` — httpx against ``{SUPABASE_URL}/storage/v1`` with
-  the service key. TASK-976 ships the constructor and ``from_config()``
-  (which ``store.backend()`` calls; no I/O on construction); TASK-977
-  implements the four methods.
+  the service key (TASK-977). Constructing it does no I/O. Requests go
+  through a module-level pooled ``httpx.Client`` (one per (timeout,
+  concurrency) setting, in practice one per process), created lazily and
+  shared by every instance, so connections stay alive across the fetch pool
+  and across backend rebuilds. ``storage3`` is not used (ADR-047 §9 note).
+  The service key never appears in ``repr``, log lines or exception text.
 """
 
 from __future__ import annotations
 
+import re
 import threading
 import time
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
+from urllib.parse import quote
+
+import httpx
 
 from config import Config
 from services.exercise_content import store
@@ -38,6 +45,10 @@ __all__ = [
 ]
 
 OPS = ('get', 'put', 'delete', 'list')
+
+DELETE_BATCH = 100          # paths per DELETE /object/{bucket} request
+LIST_PAGE = 1000            # entries per POST /object/list/{bucket} request
+IMMUTABLE_CACHE_CONTROL = 'max-age=31536000, immutable'
 
 
 @dataclass(frozen=True)
@@ -219,21 +230,158 @@ class InMemoryBackend:
                      for path, entry in snapshot])
 
 
-class SupabaseStorageBackend:
-    """Supabase Storage REST backend (httpx, service key). Methods: TASK-977.
+# ---------------------------------------------------------------------------
+# Supabase Storage over httpx (TASK-977)
+# ---------------------------------------------------------------------------
 
-    Constructing it stores configuration only (no client, no I/O). The service
-    key is kept private and never appears in ``repr`` or error text.
+_clients_lock = threading.Lock()
+_clients: dict[tuple[float, int], httpx.Client] = {}
+
+
+def _new_client(timeout_s: float, concurrency: int,
+                transport: httpx.BaseTransport | None = None) -> httpx.Client:
+    """A pooled client: ``max_connections = concurrency + 4``, ``concurrency`` kept alive.
+
+    ``trust_env`` stays on (proxy and CA bundle from the environment); no HTTP/2
+    (there is no ``h2`` dependency). Constructing a client does no I/O.
+    """
+    return httpx.Client(
+        timeout=timeout_s,
+        limits=httpx.Limits(max_connections=concurrency + 4,
+                            max_keepalive_connections=concurrency),
+        transport=transport,
+    )
+
+
+def shared_client(timeout_s: float, concurrency: int) -> httpx.Client:
+    """The module-level client for these settings, created on first use (thread-safe).
+
+    Every ``SupabaseStorageBackend`` without an injected transport uses it, so a
+    rebuilt backend keeps the warm connections. ``httpx.Client`` is thread-safe.
+    In production there is one setting, hence one client per process.
+    """
+    key = (float(timeout_s), int(concurrency))
+    client = _clients.get(key)
+    if client is not None and not client.is_closed:
+        return client
+    with _clients_lock:
+        client = _clients.get(key)
+        if client is None or client.is_closed:
+            client = _new_client(*key)
+            _clients[key] = client
+        return client
+
+
+def close_shared_clients() -> None:
+    """Close the module-level clients (process shutdown, tests); the next request
+    builds a fresh one."""
+    with _clients_lock:
+        clients = list(_clients.values())
+        _clients.clear()
+    for client in clients:
+        try:
+            client.close()
+        except Exception:  # pragma: no cover - closing is best effort
+            pass
+
+
+def _json_or_none(response: httpx.Response) -> Any:
+    try:
+        return response.json()
+    except ValueError:          # JSONDecodeError and UnicodeDecodeError are ValueErrors
+        return None
+
+
+def _body_field(body: Any, name: str) -> str:
+    if isinstance(body, dict) and body.get(name) is not None:
+        return str(body[name]).strip()
+    return ''
+
+
+def _token(text: str) -> str:
+    return text.strip().lower().replace(' ', '_')
+
+
+def _is_not_found(response: httpx.Response) -> bool:
+    """404, or the 400 Supabase Storage sends for a missing object
+    (``{"statusCode": "404", "error": "not_found", ...}``)."""
+    if response.status_code == 404:
+        return True
+    if response.status_code != 400:
+        return False
+    body = _json_or_none(response)
+    return (_body_field(body, 'statusCode') == '404'
+            or _token(_body_field(body, 'error')) == 'not_found')
+
+
+def _is_duplicate(response: httpx.Response) -> bool:
+    """409, or the 400 Supabase Storage sends for an existing object without upsert
+    (``{"statusCode": "409", "error": "Duplicate", ...}``)."""
+    if response.status_code == 409:
+        return True
+    if response.status_code != 400:
+        return False
+    body = _json_or_none(response)
+    return (_body_field(body, 'statusCode') == '409'
+            or _token(_body_field(body, 'error')) == 'duplicate')
+
+
+_FRACTION = re.compile(r'\.(\d+)')
+_SHORT_OFFSET = re.compile(r'([+-]\d{2})$')
+
+
+def _parse_timestamp(value: Any) -> datetime | None:
+    """ISO-8601 from the list API (``2026-11-17T13:37:53.123Z``) as an aware datetime
+    (UTC when no offset is given); None when absent or unparseable."""
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str) and value.strip():
+        text = value.strip()
+        if text[-1:] in ('Z', 'z'):
+            text = text[:-1] + '+00:00'
+        # Older Pythons accept only 3 or 6 fractional digits and only +HH:MM offsets.
+        text = _FRACTION.sub(lambda m: '.' + (m.group(1) + '000000')[:6], text, count=1)
+        if text[10:11] in ('T', 't', ' '):
+            text = text[:10] + 'T' + _SHORT_OFFSET.sub(r'\1:00', text[11:])
+        try:
+            parsed = datetime.fromisoformat(text)
+        except ValueError:
+            return None
+    else:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+class SupabaseStorageBackend:
+    """Supabase Storage REST backend (httpx, service key; ADR-047 §9, TASK-977).
+
+    * ``get``    ``GET  /object/{bucket}/{path}`` -> bytes; None when not found.
+    * ``put``    ``POST /object/{bucket}/{path}`` with ``x-upsert: false``; ``AlreadyExists``.
+    * ``delete`` ``DELETE /object/{bucket}`` ``{"prefixes": [...]}``, 100 paths per request.
+    * ``list``   ``POST /object/list/{bucket}`` paged by 1,000, folders skipped, sorted by path.
+
+    Constructing it stores configuration only (no client, no I/O). Requests use
+    the module-level ``shared_client(http_timeout_s, concurrency)``; a test may
+    pass ``transport=httpx.MockTransport(...)``, which gives the instance its own
+    client with the same timeout and limits (``close()`` closes that one only).
+    Every failure other than "not found" / "already exists" raises
+    ``ContentStorageError`` naming the operation, the path and the HTTP status.
+    The service key is kept private and never appears in ``repr`` or error text.
     """
 
     def __init__(self, url: str | None, service_key: str | None,
                  bucket: str = 'exercise-content', *, http_timeout_s: float = 2.0,
-                 concurrency: int = 16):
+                 concurrency: int = 16, transport: httpx.BaseTransport | None = None):
         self.url = url.strip().rstrip('/') if isinstance(url, str) and url.strip() else None
         self.bucket = bucket
         self.http_timeout_s = http_timeout_s
         self.concurrency = concurrency
-        self._service_key = service_key
+        self._service_key = service_key.strip() if isinstance(service_key, str) else service_key
+        self._transport = transport
+        self._private_client: httpx.Client | None = None
+        self._client_lock = threading.Lock()
 
     @classmethod
     def from_config(cls) -> 'SupabaseStorageBackend':
@@ -255,14 +403,146 @@ class SupabaseStorageBackend:
     def __repr__(self) -> str:
         return f'SupabaseStorageBackend(url={self.url!r}, bucket={self.bucket!r})'
 
+    # -- plumbing -----------------------------------------------------------
+
+    def _client(self) -> httpx.Client:
+        if self._transport is None:
+            return shared_client(self.http_timeout_s, self.concurrency)
+        with self._client_lock:
+            if self._private_client is None or self._private_client.is_closed:
+                self._private_client = _new_client(self.http_timeout_s, self.concurrency,
+                                                   self._transport)
+            return self._private_client
+
+    def close(self) -> None:
+        """Close the instance's own client (injected transport). The module-level
+        shared client stays open for the next backend (see ``close_shared_clients``)."""
+        with self._client_lock:
+            client, self._private_client = self._private_client, None
+        if client is not None:
+            client.close()
+
+    def _scrub(self, text: str) -> str:
+        key = self._service_key
+        if isinstance(key, str) and key:
+            text = text.replace(key, '***')
+        return text
+
+    def _headers(self, extra: Mapping[str, str] | None = None) -> dict[str, str]:
+        if not self.url:
+            raise ContentStorageError('exercise content storage: SUPABASE_URL is not configured')
+        if not self._service_key:
+            raise ContentStorageError(
+                'exercise content storage: SUPABASE_SERVICE_ROLE_KEY is not configured')
+        headers = {'Authorization': f'Bearer {self._service_key}', 'apikey': self._service_key}
+        if extra:
+            headers.update(extra)
+        return headers
+
+    def _bucket_url(self, *parts: str) -> str:
+        return '/'.join((self.base_url or '', 'object', *parts, quote(self.bucket, safe='')))
+
+    def _object_url(self, path: str) -> str:
+        return f'{self._bucket_url()}/{quote(path, safe="/")}'
+
+    def _request(self, op: str, target: str, method: str, url: str, *,
+                 headers: Mapping[str, str] | None = None, **kwargs: Any) -> httpx.Response:
+        request_headers = self._headers(headers)
+        try:
+            return self._client().request(method, url, headers=request_headers, **kwargs)
+        except httpx.TimeoutException as exc:
+            raise ContentStorageError(
+                f'exercise content storage {op} {target!r} timed out after '
+                f'{self.http_timeout_s}s ({type(exc).__name__})') from None
+        except (httpx.HTTPError, httpx.InvalidURL) as exc:
+            raise ContentStorageError(
+                f'exercise content storage {op} {target!r} failed: {type(exc).__name__}: '
+                f'{self._scrub(str(exc))[:300]}') from None
+
+    def _failure(self, op: str, target: str, response: httpx.Response) -> ContentStorageError:
+        body = _json_or_none(response)
+        if isinstance(body, dict):
+            detail = ' '.join(f'{name}={body[name]}' for name in ('statusCode', 'error', 'message')
+                              if body.get(name) is not None)
+        else:
+            detail = response.text
+        detail = self._scrub(' '.join(detail.split()))[:300]
+        suffix = f' ({detail})' if detail else ''
+        return ContentStorageError(
+            f'exercise content storage {op} {target!r} failed: HTTP {response.status_code}{suffix}')
+
+    # -- protocol -----------------------------------------------------------
+
     def get(self, path: str) -> bytes | None:
-        raise NotImplementedError('TASK-977')
+        path = _check_path(path)
+        response = self._request('get', path, 'GET', self._object_url(path))
+        if response.status_code == 200:
+            return response.content
+        if _is_not_found(response):
+            return None
+        raise self._failure('get', path, response)
 
     def put(self, path: str, data: bytes) -> None:
-        raise NotImplementedError('TASK-977')
+        path = _check_path(path)
+        payload = _as_bytes(data)
+        response = self._request(
+            'put', path, 'POST', self._object_url(path), content=payload,
+            headers={'x-upsert': 'false', 'content-type': 'application/json',
+                     'cache-control': IMMUTABLE_CACHE_CONTROL})
+        if 200 <= response.status_code < 300:
+            return
+        if _is_duplicate(response):
+            raise AlreadyExists(f'{path} already exists')
+        raise self._failure('put', path, response)
 
     def delete(self, paths: Sequence[str]) -> None:
-        raise NotImplementedError('TASK-977')
+        if isinstance(paths, str):
+            raise TypeError('delete takes a sequence of paths, not a str')
+        batch = [_check_path(path) for path in paths]
+        for start in range(0, len(batch), DELETE_BATCH):
+            chunk = batch[start:start + DELETE_BATCH]
+            target = chunk[0] if len(chunk) == 1 else f'{chunk[0]} (+{len(chunk) - 1} more)'
+            response = self._request('delete', target, 'DELETE', self._bucket_url(),
+                                     json={'prefixes': chunk})
+            if not 200 <= response.status_code < 300:
+                raise self._failure('delete', target, response)
 
     def list(self, prefix: str) -> Iterator[StoredObject]:
-        raise NotImplementedError('TASK-977')
+        """Every object directly inside the folder ``prefix``, sorted by path.
+
+        All pages are read before this returns (Storage's name order follows the
+        database collation, so the result is sorted here), and a failure raises
+        here: a caller never iterates a partial listing.
+        """
+        folder = _folder(prefix)
+        target = folder + '/'
+        found: dict[str, StoredObject] = {}
+        offset = 0
+        while True:
+            response = self._request(
+                'list', target, 'POST', self._bucket_url('list'),
+                json={'prefix': folder, 'limit': LIST_PAGE, 'offset': offset,
+                      'sortBy': {'column': 'name', 'order': 'asc'}})
+            if response.status_code != 200:
+                raise self._failure('list', target, response)
+            page = _json_or_none(response)
+            if not isinstance(page, list):
+                raise ContentStorageError(
+                    f'exercise content storage list {target!r} did not return a JSON array')
+            before = len(found)
+            for entry in page:
+                if not isinstance(entry, dict) or entry.get('id') is None:
+                    continue                                    # a folder entry
+                name = entry.get('name')
+                if not isinstance(name, str) or not name:
+                    continue
+                path = f'{folder}/{name}' if folder else name
+                metadata = entry.get('metadata')
+                size = metadata.get('size') if isinstance(metadata, dict) else None
+                found[path] = StoredObject(
+                    path=path, size=size if store._is_int(size) else None,
+                    created_at=_parse_timestamp(entry.get('created_at')))
+            if len(page) < LIST_PAGE or len(found) == before:
+                break
+            offset += len(page)
+        return iter(sorted(found.values(), key=lambda obj: obj.path))
