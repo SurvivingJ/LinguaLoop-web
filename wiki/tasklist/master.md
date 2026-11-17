@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 53 |
+| Not Started | 70 |
 | In Progress (`[~]`) | 15 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 29 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 35 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
-| Won't Do (obsolete) | 1 |
+| Won't Do (obsolete) | 3 |
 | Done (cumulative, not listed here) | 277 |
+
+*2026-11-17 (billing branch merged into this branch):* `claude/tender-dirac-v603du` (billing plan, TASK-976–1000 in [[tasklist/billing.tasks]], [[decisions/ADR-047-credits-and-subscription-model]]) merged; its counts added (Not Started +17, Blocked +6, Won't Do +2). **ID clash, not renumbered here:** billing's TASK-976–1000 reuse ids already used by [[tasklist/mobile-redesign.tasks]] (976–988, 1007) and [[tasklist/fixes-2026-11-16.tasks]] (989–1006), and its ADR-047 reuses [[decisions/ADR-047-basic-word-knowledge-prior]]'s number. In this file the billing table is the one under "Billing, Credits and Plans"; read a billing id as `billing/TASK-nnn`.
 
 *2026-11-17 (Exercise Content in Storage Phase 1 built and integrated, TASK-1008–1025):* the six work-package branches (a store, b writers, c SQL, d1 session readers, d2 prestudy + route readers, e backfill + sweep) were merged into `claude/dreamy-brahmagupta-40a4gq` without conflicts; TASK-1025 aligned `FakeContentDB` with the commit SQL, added `tests/test_exercise_content_integration.py` (scenarios 1–8 in db/db, shadow/dual, storage/dual) and checked that `db` mode issues exactly the pre-ADR calls. Prestudy now loads exercise content only for the words it drills, with an on-demand endpoint for words the learner adds (owner decision). Migrations are written, **not applied**; flags stay `db`. Offline suite: same 48 environmental failures + 1 collection error as the foundation commit. Next: operator tasks TASK-1026–1030. Counts: Not Started 55→37, Done 250→268. See [[tasklist/exercise-content-storage.tasks]], [[decisions/ADR-049-exercise-content-in-storage]] "Implementation status".
 
@@ -37,6 +39,8 @@ below.
 *2026-11-16 (i18n gaps filled):* TASK-985 Done. `es.json` gained the 57 keys it lacked (the `dt_repair.*` family plus `session.dt_repair_heading` / `_none`); 17 keys used in code but present in no locale (`session.speed_*`, `dual_translation.target_*`) added to all four. The four locale files now have identical key sets (1175). Counts: Not Started 42→41, Done 251→252.
 
 *2026-11-16 (mobile redesign built — app shell and design system, ADR-048):* new breakdown [[tasklist/mobile-redesign.tasks]] (TASK-976–988 and TASK-1007) for every open issue and unverified item the redesign engineers reported. TASK-987 Done (i18n merge, Me page links, hard-coded colours — closed during integration, verified in the tree). TASK-982 (Playwright E2E, needs credentials) and TASK-988 (commit, review, deploy — owner) Blocked. The other 11 Not Started. Counts: Not Started 31→42, Blocked 27→29, Done 250→251.
+
+*2026-11-17 (billing plan filed, no code changed):* TASK-976–1000 added for Core/Pro plans, PAYG credits and the tutor step — 17 Not Started, 8 Blocked ([?]: D4 provider, D17 age policy, launch-scope questions for the knowledge report and custom tests, trainer cap, tutor spec). Counts: Not Started 31→48, Blocked 27→35. See [[tasklist/billing.tasks]].
 
 *2026-11-14 (DT guided self-repair built + integrated, WP-INT):* TASK-952–965 Done (WP-BE + WP-FE), TASK-968 and TASK-969 Done (WP-INT: contract test against the real routes, nine frontend/backend mismatches fixed, real-app browser run over an in-memory DB). TASK-966 (apply `dt_guided_self_repair.sql`, owner decision) and TASK-967 (authenticated E2E on a staging DB) Blocked. New: TASK-971 Not Started (real devices / Safari / screen reader / IME), TASK-972 / TASK-973 / TASK-974 Blocked (native review, re-check evaluation, deploy). TASK-939 and TASK-940 superseded by that breakdown. No task id is duplicated (TASK-970 is dt-taxonomy-v6 only). Counts: Not Started 30→31, Blocked 24→27 (+966, 967, 972, 973, 974; −939, 940), Done 234→250. See [[tasklist/dt-guided-self-repair.tasks]].
 
@@ -1331,6 +1335,37 @@ Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.te
 | TASK-1004 | fixes-2026-11-16 | Basic-word knowledge: ADR-047 proposals (P1–P6, INT-2/3, ja compounds, default ability) — ADR-047 accepted | [ ] | L | TASK-994 |
 | TASK-1005 | fixes-2026-11-16 | Tone marks on the last numbered-pinyin surfaces (classifier_match, counter drill, admin check) | [ ] | S | — |
 | TASK-1006 | fixes-2026-11-16 | DT UX gaps: test-available for done tests, all-done wording, 404 console error | [ ] | XS | — |
+
+### Billing, Credits and Plans — NEW 2026-11-17
+Full spec: [[tasklist/billing.tasks]] · [[business/pricing-plan.tech]] · [[decisions/ADR-047-credits-and-subscription-model]]. Planning only; no code changed.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-976 | billing | Docs reconciliation before billing work | [ ] | XS | — |
+| TASK-977 | billing | Settle the balance store (`users.tokens` vs `user_tokens`) | [ ] | S | TASK-976 |
+| TASK-978 | billing | Migration — plans, prices, subscriptions, entitlements (LIVE-DB) | [ ] | M | TASK-977 |
+| TASK-979 | billing | Migration — credit ledger and RPCs (LIVE-DB) | [ ] | L | TASK-978 |
+| TASK-980 | billing | Entitlements service, `ENTITLEMENTS_ENFORCED` flag, endpoint | [ ] | M | TASK-979 |
+| TASK-981 | billing | Credits service and quote endpoint | [ ] | S | TASK-980 |
+| TASK-982 | billing | Retire dead token code (`PaymentService`, `TOKEN_PACKAGES`) | [ ] | S | TASK-981 |
+| TASK-983 | billing | Stripe webhook with idempotency and event dispatch | [ ] | L | TASK-981 |
+| TASK-984 | billing | Stripe provisioning, checkout and portal | [ ] | M | TASK-983 |
+| TASK-985 | billing | Merchant-of-record adapter | Won't Do (D4 = Stripe) | L | TASK-983 |
+| TASK-986 | billing | Scheduled billing jobs and nightly reconciliation | [ ] | S | TASK-983 |
+| TASK-987 | billing | Daily new-test limit: page pre-check + submit backstop | [ ] | M | TASK-980 |
+| TASK-988 | billing | Daily session and prestudy clamps for Free | [ ] | M | TASK-980 |
+| TASK-989 | billing | DT caps, over-cap credits, refunds, per-tier token backstop | [ ] | M | TASK-981 |
+| TASK-990 | billing | Word-list import: dictionary gate and per-new-sense credits | [ ] | M | TASK-981 |
+| TASK-991 | billing | Trainer level cap for Free | Won't Do (Q3) | S | TASK-980 |
+| TASK-992 | billing | Fix DT cost logging (D9 data) | [ ] | S | — |
+| TASK-993 | billing | Knowledge report: summary (Free/Core) and per-word (Pro) | [?] spec + scope Q1 | L | TASK-980 |
+| TASK-994 | billing | User custom tests (10 credits, +30 references) | [?] spec + scope Q1 | XL | TASK-981 |
+| TASK-995 | billing | Billing UI: pricing page, paywall, credit chips, billing settings | [ ] | L | TASK-984, TASK-981 |
+| TASK-996 | billing | Trial and lifecycle emails (21-day Pro trial) | [?] D17 | M | TASK-980, TASK-986 |
+| TASK-997 | billing | Staging end-to-end and rollout (LIVE, owner) | [ ] | M | TASK-978–990, TASK-995 |
+| TASK-998 | billing | Re-create organizations for tutors (LIVE-DB) | [?] G1a gate + spec | M | TASK-997 |
+| TASK-999 | billing | Tutor billing: base + per-seat subscription | [?] after TASK-998 | M | TASK-998, TASK-984 |
+| TASK-1000 | billing | Tutor workspace: invite, assign, results | [?] classes-and-assignments spec | XL | TASK-998 |
 
 ### Language Packs (existing — unchanged)
 
