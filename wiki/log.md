@@ -6759,3 +6759,6 @@ Owner decision (count untaken tests too). `build_daily_session` decided dual-tra
 
 ## [2026-11-17] update | Merged main; app-shell decision renumbered ADR-046 → ADR-048
 `main` gained [[decisions/ADR-046-untaught-words-start-the-drill]] while this branch had used the same number for the mobile app shell. The app-shell record is now [[decisions/ADR-048-mobile-app-shell]]; every reference in the wiki was updated. Code conflict: `static/js/exercise-renderers.js` keeps main's per-option explanation notes and this branch's feedback path.
+
+## [2026-11-17] design | LinguaDojo logo studies, round one
+Brand interview: abstract marks only, concepts LD monogram / correction mark / loop, mixed type, palettes cobalt-bone-sand, cream-vermillion, cream-emerald plus nature-derived pairings. Ten studies produced: [[design/brand/logo-studies]], specimen `wiki/design/brand/logo-studies.html`, SVGs in `wiki/design/brand/logos/`. Pages created: 1. Open: which direction goes to round two; whether it replaces the "Dojo" theme tokens.

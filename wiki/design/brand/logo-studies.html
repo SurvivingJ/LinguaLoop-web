@@ -1,0 +1,255 @@
+<title>LinguaDojo Mark Studies</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,400;9..144,700,50&family=Gloock&family=Young+Serif&family=Schibsted+Grotesk:wght@700&family=Familjen+Grotesk:wght@600&family=Instrument+Serif:ital@0;1&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Newsreader:opsz,wght@6..72,500&family=Syne:wght@700&family=Red+Hat+Display:wght@700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: specimen sheet. Quiet gallery chrome, each study a bordered card; the logo tiles carry their own fixed palettes as content. */
+:root {
+  --bg: #F3F2EE; --surface: #FFFFFF; --fg: #1E1F1C; --muted: #66675F; --line: #DCDAD2; --accent: #2346A0;
+  --f-ui: 'IBM Plex Sans', system-ui, sans-serif; --f-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #151614; --surface: #1D1E1B; --fg: #ECEAE3; --muted: #A3A399; --line: #33342F; --accent: #8FA8F0; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #151614; --surface: #1D1E1B; --fg: #ECEAE3; --muted: #A3A399; --line: #33342F; --accent: #8FA8F0; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 48px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.intro { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 32px 56px; align-items: end; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+h1 { font-size: clamp(30px, 4.6vw, 52px); line-height: 1.05; letter-spacing: -.025em; margin: 0; font-weight: 600; text-wrap: balance; }
+.brief { margin: 0; color: var(--muted); max-width: 60ch; }
+.brief b { color: var(--fg); font-weight: 600; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 32px; }
+.study { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }
+.tile { position: relative; aspect-ratio: 16 / 8; display: grid; place-items: center; padding: 24px; }
+.tile-no { position: absolute; top: 14px; left: 16px; font: 500 12px/1 var(--f-mono); opacity: .55; }
+.lockup { display: flex; align-items: center; gap: clamp(10px, 2vw, 18px); max-width: 100%; }
+.lockup-mark { width: clamp(56px, 9vw, 88px); height: auto; flex: none; }
+.word { font-size: clamp(28px, 4.4vw, 46px); line-height: 1; white-space: nowrap; }
+.sizes { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 20px 28px; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+.sizes figure { margin: 0; display: grid; justify-items: center; gap: 8px; }
+.sizes figcaption { font: 400 11px/1 var(--f-mono); color: var(--muted); }
+.app { width: 72px; height: 72px; border-radius: 16px; display: grid; place-items: center; }
+.app svg { width: 46px; height: 46px; }
+.fav { padding: 6px; border-radius: 4px; outline: 1px solid var(--line); display: grid; place-items: center; }
+.meta { padding: 20px 22px 24px; display: grid; gap: 14px; }
+.meta h2 { font-size: 20px; margin: 0 0 6px; letter-spacing: -.01em; font-weight: 600; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.tags span { font-size: 12px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.why { margin: 0; max-width: 62ch; }
+.swatches { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.swatches li { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.chip { width: 18px; height: 18px; border-radius: 3px; outline: 1px solid color-mix(in srgb, var(--fg) 18%, transparent); outline-offset: -1px; }
+.swatches code { font: 400 12px var(--f-mono); color: var(--muted); }
+.foot { margin-top: 40px; color: var(--muted); font-size: 13px; max-width: 75ch; }
+@media (max-width: 860px) { .grid, .intro { grid-template-columns: minmax(0, 1fr); } .tile { aspect-ratio: auto; min-height: 200px; } }
+@media (max-width: 440px) { .word { font-size: 25px; } .lockup-mark { width: 48px; } }
+</style>
+<div class="wrap">
+  <section class="intro">
+    <div><p class="eyebrow">Brand identity · round one</p><h1>Ten marks for LinguaDojo</h1></div>
+    <p class="brief">Brief from ADR-004 and your answers: <b>rigour over comfort</b>, no mascots or game-app gloss, <b>abstract</b> marks only (no ensō or hanko), built from an <b>LD monogram</b>, a <b>correction mark</b> or a <b>loop</b>. Studies 01–03 use your three palettes; 04–10 take pairings from nature.</p>
+  </section>
+  <div class="grid">
+<article class="study" id="logo-01">
+  <div class="tile" style="background:#EFE9DC;color:#2346A0">
+    <span class="tile-no" style="color:#2346A0">01</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><path d="M25 8.5 V86 H47 A36 36 0 0 0 47 14" fill="none" stroke="#2346A0" stroke-width="11" stroke-linejoin="miter"/></svg>
+      <span class="word" style="font-family:'Fraunces', Georgia, serif;font-variation-settings:'SOFT' 50,'opsz' 96;letter-spacing:-0.01em"><span style="font-weight:400">Lingua</span><span style="font-weight:700">Dojo</span></span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#2346A0"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M25 8.5 V86 H47 A36 36 0 0 0 47 14" fill="none" stroke="#EFE9DC" stroke-width="11" stroke-linejoin="miter"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><path d="M25 8.5 V86 H47 A36 36 0 0 0 47 14" fill="none" stroke="#2346A0" stroke-width="11" stroke-linejoin="miter"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#EFE9DC"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><path d="M25 8.5 V86 H47 A36 36 0 0 0 47 14" fill="none" stroke="#2346A0" stroke-width="11" stroke-linejoin="miter"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#EFE9DC"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><path d="M25 8.5 V86 H47 A36 36 0 0 0 47 14" fill="none" stroke="#2346A0" stroke-width="11" stroke-linejoin="miter"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Single Stroke</h2><p class="tags"><span>LD monogram</span><span>Delft & Dune</span><span>Fraunces</span></p></header>
+    <p class="why">One unbroken line draws the L's stem and the D's bowl. The D's top-left corner is left open so the L's stem stands clear. Cobalt on bone recalls Delft ink on unglazed clay, and the sand rule underneath is the mat the work happens on.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#2346A0"></span><span class="sw-name">Cobalt</span><code>#2346A0</code></li><li><span class="chip" style="background:#EFE9DC"></span><span class="sw-name">Bone</span><code>#EFE9DC</code></li><li><span class="chip" style="background:#D2B98A"></span><span class="sw-name">Dune sand</span><code>#D2B98A</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-02">
+  <div class="tile" style="background:#F6EFE1;color:#1D1A17">
+    <span class="tile-no" style="color:#1D1A17">02</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><rect x="4" y="25" width="30" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="40" y="25" width="34" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="80" y="25" width="16" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="4" y="59" width="10" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="29" y="58" width="36" height="11" rx="1" fill="#1D1A17"/><rect x="80" y="59" width="16" height="9" rx="1" fill="#1D1A17" opacity=".3"/><path d="M22.1 60.5 L22.8 59.0 L23.8 57.6 L24.9 56.1 L26.3 54.8 L27.8 53.5 L29.5 52.2 L31.4 51.1 L33.4 50.1 L35.6 49.2 L37.9 48.4 L40.2 47.7 L42.6 47.2 L45.1 46.8 L47.6 46.5 L50.1 46.4 L52.6 46.4 L55.0 46.6 L57.4 47.0 L59.6 47.4 L61.8 48.1 L63.9 48.8 L65.8 49.7 L67.5 50.7 L69.1 51.8 L70.5 53.0 L71.7 54.3 L72.6 55.7 L73.4 57.2 L73.9 58.7 L74.2 60.3 L74.2 61.8 L74.0 63.5 L73.5 65.1 L72.8 66.6 L71.9 68.2 L70.7 69.7 L69.4 71.2 L67.8 72.6 L66.0 73.9 L64.1 75.2 L62.0 76.3 L59.8 77.3 L57.4 78.2 L55.0 78.9 L52.5 79.5 L49.9 80.0 L47.3 80.3 L44.6 80.5 L42.0 80.5 L39.4 80.3 L36.9 80.0 L34.5 79.6 L32.1 79.0 L29.9 78.2 L27.8 77.4 L25.9 76.3 L24.2 75.2 L22.7 74.0 L21.4 72.6 L20.3 71.2 L19.5 69.6 L18.8 68.1 L18.5 66.4 L18.4 64.8 L18.5 63.1 L18.9 61.4 L19.6 59.7 L20.5 58.1 L21.6 56.4 L23.0 54.9 L24.5 53.4 L26.3 52.0" fill="none" stroke="#DD3F26" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="word" style="font-family:'Gloock', Georgia, serif;letter-spacing:0">LinguaDojo</span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#DD3F26"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="4" y="25" width="30" height="9" rx="1" fill="#F6EFE1" opacity=".3"/><rect x="40" y="25" width="34" height="9" rx="1" fill="#F6EFE1" opacity=".3"/><rect x="80" y="25" width="16" height="9" rx="1" fill="#F6EFE1" opacity=".3"/><rect x="4" y="59" width="10" height="9" rx="1" fill="#F6EFE1" opacity=".3"/><rect x="29" y="58" width="36" height="11" rx="1" fill="#F6EFE1"/><rect x="80" y="59" width="16" height="9" rx="1" fill="#F6EFE1" opacity=".3"/><path d="M22.1 60.5 L22.8 59.0 L23.8 57.6 L24.9 56.1 L26.3 54.8 L27.8 53.5 L29.5 52.2 L31.4 51.1 L33.4 50.1 L35.6 49.2 L37.9 48.4 L40.2 47.7 L42.6 47.2 L45.1 46.8 L47.6 46.5 L50.1 46.4 L52.6 46.4 L55.0 46.6 L57.4 47.0 L59.6 47.4 L61.8 48.1 L63.9 48.8 L65.8 49.7 L67.5 50.7 L69.1 51.8 L70.5 53.0 L71.7 54.3 L72.6 55.7 L73.4 57.2 L73.9 58.7 L74.2 60.3 L74.2 61.8 L74.0 63.5 L73.5 65.1 L72.8 66.6 L71.9 68.2 L70.7 69.7 L69.4 71.2 L67.8 72.6 L66.0 73.9 L64.1 75.2 L62.0 76.3 L59.8 77.3 L57.4 78.2 L55.0 78.9 L52.5 79.5 L49.9 80.0 L47.3 80.3 L44.6 80.5 L42.0 80.5 L39.4 80.3 L36.9 80.0 L34.5 79.6 L32.1 79.0 L29.9 78.2 L27.8 77.4 L25.9 76.3 L24.2 75.2 L22.7 74.0 L21.4 72.6 L20.3 71.2 L19.5 69.6 L18.8 68.1 L18.5 66.4 L18.4 64.8 L18.5 63.1 L18.9 61.4 L19.6 59.7 L20.5 58.1 L21.6 56.4 L23.0 54.9 L24.5 53.4 L26.3 52.0" fill="none" stroke="#F6EFE1" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><rect x="4" y="25" width="30" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="40" y="25" width="34" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="80" y="25" width="16" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="4" y="59" width="10" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="29" y="58" width="36" height="11" rx="1" fill="#1D1A17"/><rect x="80" y="59" width="16" height="9" rx="1" fill="#1D1A17" opacity=".3"/><path d="M22.1 60.5 L22.8 59.0 L23.8 57.6 L24.9 56.1 L26.3 54.8 L27.8 53.5 L29.5 52.2 L31.4 51.1 L33.4 50.1 L35.6 49.2 L37.9 48.4 L40.2 47.7 L42.6 47.2 L45.1 46.8 L47.6 46.5 L50.1 46.4 L52.6 46.4 L55.0 46.6 L57.4 47.0 L59.6 47.4 L61.8 48.1 L63.9 48.8 L65.8 49.7 L67.5 50.7 L69.1 51.8 L70.5 53.0 L71.7 54.3 L72.6 55.7 L73.4 57.2 L73.9 58.7 L74.2 60.3 L74.2 61.8 L74.0 63.5 L73.5 65.1 L72.8 66.6 L71.9 68.2 L70.7 69.7 L69.4 71.2 L67.8 72.6 L66.0 73.9 L64.1 75.2 L62.0 76.3 L59.8 77.3 L57.4 78.2 L55.0 78.9 L52.5 79.5 L49.9 80.0 L47.3 80.3 L44.6 80.5 L42.0 80.5 L39.4 80.3 L36.9 80.0 L34.5 79.6 L32.1 79.0 L29.9 78.2 L27.8 77.4 L25.9 76.3 L24.2 75.2 L22.7 74.0 L21.4 72.6 L20.3 71.2 L19.5 69.6 L18.8 68.1 L18.5 66.4 L18.4 64.8 L18.5 63.1 L18.9 61.4 L19.6 59.7 L20.5 58.1 L21.6 56.4 L23.0 54.9 L24.5 53.4 L26.3 52.0" fill="none" stroke="#DD3F26" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#F6EFE1"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><rect x="4" y="25" width="30" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="40" y="25" width="34" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="80" y="25" width="16" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="4" y="59" width="10" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="29" y="58" width="36" height="11" rx="1" fill="#1D1A17"/><rect x="80" y="59" width="16" height="9" rx="1" fill="#1D1A17" opacity=".3"/><path d="M22.1 60.5 L22.8 59.0 L23.8 57.6 L24.9 56.1 L26.3 54.8 L27.8 53.5 L29.5 52.2 L31.4 51.1 L33.4 50.1 L35.6 49.2 L37.9 48.4 L40.2 47.7 L42.6 47.2 L45.1 46.8 L47.6 46.5 L50.1 46.4 L52.6 46.4 L55.0 46.6 L57.4 47.0 L59.6 47.4 L61.8 48.1 L63.9 48.8 L65.8 49.7 L67.5 50.7 L69.1 51.8 L70.5 53.0 L71.7 54.3 L72.6 55.7 L73.4 57.2 L73.9 58.7 L74.2 60.3 L74.2 61.8 L74.0 63.5 L73.5 65.1 L72.8 66.6 L71.9 68.2 L70.7 69.7 L69.4 71.2 L67.8 72.6 L66.0 73.9 L64.1 75.2 L62.0 76.3 L59.8 77.3 L57.4 78.2 L55.0 78.9 L52.5 79.5 L49.9 80.0 L47.3 80.3 L44.6 80.5 L42.0 80.5 L39.4 80.3 L36.9 80.0 L34.5 79.6 L32.1 79.0 L29.9 78.2 L27.8 77.4 L25.9 76.3 L24.2 75.2 L22.7 74.0 L21.4 72.6 L20.3 71.2 L19.5 69.6 L18.8 68.1 L18.5 66.4 L18.4 64.8 L18.5 63.1 L18.9 61.4 L19.6 59.7 L20.5 58.1 L21.6 56.4 L23.0 54.9 L24.5 53.4 L26.3 52.0" fill="none" stroke="#DD3F26" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#F6EFE1"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><rect x="4" y="25" width="30" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="40" y="25" width="34" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="80" y="25" width="16" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="4" y="59" width="10" height="9" rx="1" fill="#1D1A17" opacity=".3"/><rect x="29" y="58" width="36" height="11" rx="1" fill="#1D1A17"/><rect x="80" y="59" width="16" height="9" rx="1" fill="#1D1A17" opacity=".3"/><path d="M22.1 60.5 L22.8 59.0 L23.8 57.6 L24.9 56.1 L26.3 54.8 L27.8 53.5 L29.5 52.2 L31.4 51.1 L33.4 50.1 L35.6 49.2 L37.9 48.4 L40.2 47.7 L42.6 47.2 L45.1 46.8 L47.6 46.5 L50.1 46.4 L52.6 46.4 L55.0 46.6 L57.4 47.0 L59.6 47.4 L61.8 48.1 L63.9 48.8 L65.8 49.7 L67.5 50.7 L69.1 51.8 L70.5 53.0 L71.7 54.3 L72.6 55.7 L73.4 57.2 L73.9 58.7 L74.2 60.3 L74.2 61.8 L74.0 63.5 L73.5 65.1 L72.8 66.6 L71.9 68.2 L70.7 69.7 L69.4 71.2 L67.8 72.6 L66.0 73.9 L64.1 75.2 L62.0 76.3 L59.8 77.3 L57.4 78.2 L55.0 78.9 L52.5 79.5 L49.9 80.0 L47.3 80.3 L44.6 80.5 L42.0 80.5 L39.4 80.3 L36.9 80.0 L34.5 79.6 L32.1 79.0 L29.9 78.2 L27.8 77.4 L25.9 76.3 L24.2 75.2 L22.7 74.0 L21.4 72.6 L20.3 71.2 L19.5 69.6 L18.8 68.1 L18.5 66.4 L18.4 64.8 L18.5 63.1 L18.9 61.4 L19.6 59.7 L20.5 58.1 L21.6 56.4 L23.0 54.9 L24.5 53.4 L26.3 52.0" fill="none" stroke="#DD3F26" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>The Circled Word</h2><p class="tags"><span>Correction mark</span><span>Persimmon</span><span>Gloock</span></p></header>
+    <p class="why">A line of text with one word circled in red by a teacher who was not satisfied with it. The ring overshoots its own start, the way a real pen does. It is the most direct reading of 'honest feedback' in the set.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#DD3F26"></span><span class="sw-name">Vermillion</span><code>#DD3F26</code></li><li><span class="chip" style="background:#F6EFE1"></span><span class="sw-name">Rice paper</span><code>#F6EFE1</code></li><li><span class="chip" style="background:#1D1A17"></span><span class="sw-name">Lamp black</span><code>#1D1A17</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-03">
+  <div class="tile" style="background:#F2EDDF;color:#0D6A4A">
+    <span class="tile-no" style="color:#0D6A4A">03</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><path d="M28 90 V14 H50 A36 36 0 0 1 50 86 H42 V30 H50 A20 20 0 0 1 50 70 H47" fill="none" stroke="#0D6A4A" stroke-width="8" stroke-linejoin="miter"/><circle cx="56" cy="50" r="5" fill="#0D6A4A"/></svg>
+      <span class="word" style="font-family:'Young Serif', Georgia, serif;letter-spacing:-0.01em">LinguaDojo</span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#0D6A4A"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M28 90 V14 H50 A36 36 0 0 1 50 86 H42 V30 H50 A20 20 0 0 1 50 70 H47" fill="none" stroke="#F2EDDF" stroke-width="8" stroke-linejoin="miter"/><circle cx="56" cy="50" r="5" fill="#F2EDDF"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><path d="M28 90 V14 H50 A36 36 0 0 1 50 86 H42 V30 H50 A20 20 0 0 1 50 70 H47" fill="none" stroke="#0D6A4A" stroke-width="8" stroke-linejoin="miter"/><circle cx="56" cy="50" r="5" fill="#0D6A4A"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#F2EDDF"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><path d="M28 90 V14 H50 A36 36 0 0 1 50 86 H42 V30 H50 A20 20 0 0 1 50 70 H47" fill="none" stroke="#0D6A4A" stroke-width="8" stroke-linejoin="miter"/><circle cx="56" cy="50" r="5" fill="#0D6A4A"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#F2EDDF"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><path d="M28 90 V14 H50 A36 36 0 0 1 50 86 H42 V30 H50 A20 20 0 0 1 50 70 H47" fill="none" stroke="#0D6A4A" stroke-width="8" stroke-linejoin="miter"/><circle cx="56" cy="50" r="5" fill="#0D6A4A"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Inward Spiral</h2><p class="tags"><span>Loop / LD monogram</span><span>Moss Garden</span><span>Young Serif</span></p></header>
+    <p class="why">A D drawn twice, the second pass inside the first, so the line winds toward a point at the centre. It nods to LinguaLoop: each loop of practice is tighter than the last. Square corners keep it disciplined rather than playful.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#0D6A4A"></span><span class="sw-name">Emerald</span><code>#0D6A4A</code></li><li><span class="chip" style="background:#F2EDDF"></span><span class="sw-name">Cream</span><code>#F2EDDF</code></li><li><span class="chip" style="background:#12291F"></span><span class="sw-name">Deep moss</span><code>#12291F</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-04">
+  <div class="tile" style="background:#EDF0EA;color:#0B6A86">
+    <span class="tile-no" style="color:#0B6A86">04</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><path d="M20 16 H48 A34 34 0 0 1 48 84 H20 Z" fill="none" stroke="#0B6A86" stroke-width="8" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#EDF0EA" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#E0782F" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="word" style="font-family:'Schibsted Grotesk', 'Helvetica Neue', sans-serif;font-weight:700;letter-spacing:-0.02em">LinguaDojo</span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#0F2A33"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M20 16 H48 A34 34 0 0 1 48 84 H20 Z" fill="none" stroke="#5FB3CC" stroke-width="8" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#0F2A33" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#E0782F" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><path d="M20 16 H48 A34 34 0 0 1 48 84 H20 Z" fill="none" stroke="#0B6A86" stroke-width="8" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#EDF0EA" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#E0782F" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#EDF0EA"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><path d="M20 16 H48 A34 34 0 0 1 48 84 H20 Z" fill="none" stroke="#0B6A86" stroke-width="8" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#EDF0EA" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#E0782F" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#EDF0EA"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><path d="M20 16 H48 A34 34 0 0 1 48 84 H20 Z" fill="none" stroke="#0B6A86" stroke-width="8" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#EDF0EA" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 50 L46 64 L80 22" fill="none" stroke="#E0782F" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Breakout Tick</h2><p class="tags"><span>Correction mark</span><span>Kingfisher</span><span>Schibsted Grotesk</span></p></header>
+    <p class="why">A tick that starts inside the D and breaks out through its edge: the moment you get something right that was beyond you. The kingfisher's blue back and rust breast give a pair of colours that is bright but not neon.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#0B6A86"></span><span class="sw-name">Kingfisher</span><code>#0B6A86</code></li><li><span class="chip" style="background:#E0782F"></span><span class="sw-name">Breast rust</span><code>#E0782F</code></li><li><span class="chip" style="background:#EDF0EA"></span><span class="sw-name">Riverbank</span><code>#EDF0EA</code></li><li><span class="chip" style="background:#0F2A33"></span><span class="sw-name">Deep water</span><code>#0F2A33</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-05">
+  <div class="tile" style="background:#E6E4DC;color:#2D3A41">
+    <span class="tile-no" style="color:#2D3A41">05</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><defs><clipPath id="ld-clip-3"><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z"/></clipPath></defs><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z" fill="#B8C46C"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#2D3A41"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#6B7646" clip-path="url(#ld-clip-3)"/></svg>
+      <span class="word" style="font-family:'Familjen Grotesk', 'Helvetica Neue', sans-serif;font-weight:600;letter-spacing:-0.025em"><span>lingua</span><span style="color:#6B7646">dojo</span></span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#2D3A41"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><defs><clipPath id="ld-clip-4"><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z"/></clipPath></defs><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z" fill="#B8C46C"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#E6E4DC"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#8E9A55" clip-path="url(#ld-clip-4)"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><defs><clipPath id="ld-clip-5"><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z"/></clipPath></defs><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z" fill="#B8C46C"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#2D3A41"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#6B7646" clip-path="url(#ld-clip-5)"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#E6E4DC"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><defs><clipPath id="ld-clip-6"><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z"/></clipPath></defs><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z" fill="#B8C46C"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#2D3A41"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#6B7646" clip-path="url(#ld-clip-6)"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#E6E4DC"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><defs><clipPath id="ld-clip-7"><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z"/></clipPath></defs><path d="M25 14 H49 A36 36 0 0 1 49 86 H25 Z" fill="#B8C46C"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#2D3A41"/><path d="M13 14 H31 V68 H63 V86 H13 Z" fill="#6B7646" clip-path="url(#ld-clip-7)"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Overprint</h2><p class="tags"><span>LD monogram</span><span>Lichen on Slate</span><span>Familjen Grotesk</span></p></header>
+    <p class="why">A solid L and a solid D printed over each other like two passes of ink; where they overlap a third colour appears. It suggests two languages, or what you know plus what you're learning, producing something neither has alone. Heavy and geometric, so it holds up as a 16 px favicon.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#2D3A41"></span><span class="sw-name">Slate</span><code>#2D3A41</code></li><li><span class="chip" style="background:#B8C46C"></span><span class="sw-name">Lichen</span><code>#B8C46C</code></li><li><span class="chip" style="background:#6B7646"></span><span class="sw-name">Overlap olive</span><code>#6B7646</code></li><li><span class="chip" style="background:#E6E4DC"></span><span class="sw-name">Field stone</span><code>#E6E4DC</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-06">
+  <div class="tile" style="background:#EBE0C9;color:#6A1E2A">
+    <span class="tile-no" style="color:#6A1E2A">06</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><rect x="4" y="44" width="44" height="12" fill="#6A1E2A"/><rect x="70" y="44" width="26" height="12" fill="#6A1E2A"/><path d="M45 86 L59 61 L73 86" fill="none" stroke="#6A1E2A" stroke-width="7" stroke-linejoin="miter"/><rect x="46" y="20" width="28" height="12" fill="#C79A4B"/></svg>
+      <span class="word" style="font-family:'Instrument Serif', Georgia, serif;font-size:clamp(33px, 5.2vw, 54px);letter-spacing:0">Lingua<em style="font-style:italic">Dojo</em></span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#6A1E2A"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="4" y="44" width="44" height="12" fill="#EBE0C9"/><rect x="70" y="44" width="26" height="12" fill="#EBE0C9"/><path d="M45 86 L59 61 L73 86" fill="none" stroke="#EBE0C9" stroke-width="7" stroke-linejoin="miter"/><rect x="46" y="20" width="28" height="12" fill="#C79A4B"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><rect x="4" y="44" width="44" height="12" fill="#6A1E2A"/><rect x="70" y="44" width="26" height="12" fill="#6A1E2A"/><path d="M45 86 L59 61 L73 86" fill="none" stroke="#6A1E2A" stroke-width="7" stroke-linejoin="miter"/><rect x="46" y="20" width="28" height="12" fill="#C79A4B"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#EBE0C9"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><rect x="4" y="44" width="44" height="12" fill="#6A1E2A"/><rect x="70" y="44" width="26" height="12" fill="#6A1E2A"/><path d="M45 86 L59 61 L73 86" fill="none" stroke="#6A1E2A" stroke-width="7" stroke-linejoin="miter"/><rect x="46" y="20" width="28" height="12" fill="#C79A4B"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#EBE0C9"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><rect x="4" y="44" width="44" height="12" fill="#6A1E2A"/><rect x="70" y="44" width="26" height="12" fill="#6A1E2A"/><path d="M45 86 L59 61 L73 86" fill="none" stroke="#6A1E2A" stroke-width="7" stroke-linejoin="miter"/><rect x="46" y="20" width="28" height="12" fill="#C79A4B"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Insertion Caret</h2><p class="tags"><span>Correction mark</span><span>Oxblood & Oat</span><span>Instrument Serif</span></p></header>
+    <p class="why">The proofreader's caret (‸) means 'something belongs here'. It sits under a gap in a line of words, with the missing word placed above it. The vocabulary is an editor's, not a game's, which suits translators and test-takers.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#6A1E2A"></span><span class="sw-name">Oxblood</span><code>#6A1E2A</code></li><li><span class="chip" style="background:#EBE0C9"></span><span class="sw-name">Oat</span><code>#EBE0C9</code></li><li><span class="chip" style="background:#C79A4B"></span><span class="sw-name">Ripe wheat</span><code>#C79A4B</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-07">
+  <div class="tile" style="background:#E7E2D8;color:#24221F">
+    <span class="tile-no" style="color:#24221F">07</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><path d="M85.32 31.22 A40 40 0 1 1 48.60 10.02" fill="none" stroke="#24221F" stroke-width="7"/><path d="M49.06 76.98 A27 27 0 1 1 73.84 62.68" fill="none" stroke="#24221F" stroke-width="7"/><path d="M38.13 42.58 A14 14 0 1 1 38.13 57.42" fill="none" stroke="#24221F" stroke-width="7"/><circle cx="50" cy="50" r="5.5" fill="#C98A2A"/></svg>
+      <span class="word" style="font-family:'Bricolage Grotesque', 'Helvetica Neue', sans-serif;font-weight:700;letter-spacing:-0.03em;font-variation-settings:'opsz' 96">LinguaDojo</span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#24221F"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M85.32 31.22 A40 40 0 1 1 48.60 10.02" fill="none" stroke="#E7E2D8" stroke-width="7"/><path d="M49.06 76.98 A27 27 0 1 1 73.84 62.68" fill="none" stroke="#E7E2D8" stroke-width="7"/><path d="M38.13 42.58 A14 14 0 1 1 38.13 57.42" fill="none" stroke="#E7E2D8" stroke-width="7"/><circle cx="50" cy="50" r="5.5" fill="#C98A2A"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><path d="M85.32 31.22 A40 40 0 1 1 48.60 10.02" fill="none" stroke="#24221F" stroke-width="7"/><path d="M49.06 76.98 A27 27 0 1 1 73.84 62.68" fill="none" stroke="#24221F" stroke-width="7"/><path d="M38.13 42.58 A14 14 0 1 1 38.13 57.42" fill="none" stroke="#24221F" stroke-width="7"/><circle cx="50" cy="50" r="5.5" fill="#C98A2A"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#E7E2D8"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><path d="M85.32 31.22 A40 40 0 1 1 48.60 10.02" fill="none" stroke="#24221F" stroke-width="7"/><path d="M49.06 76.98 A27 27 0 1 1 73.84 62.68" fill="none" stroke="#24221F" stroke-width="7"/><path d="M38.13 42.58 A14 14 0 1 1 38.13 57.42" fill="none" stroke="#24221F" stroke-width="7"/><circle cx="50" cy="50" r="5.5" fill="#C98A2A"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#E7E2D8"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><path d="M85.32 31.22 A40 40 0 1 1 48.60 10.02" fill="none" stroke="#24221F" stroke-width="7"/><path d="M49.06 76.98 A27 27 0 1 1 73.84 62.68" fill="none" stroke="#24221F" stroke-width="7"/><path d="M38.13 42.58 A14 14 0 1 1 38.13 57.42" fill="none" stroke="#24221F" stroke-width="7"/><circle cx="50" cy="50" r="5.5" fill="#C98A2A"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Dial</h2><p class="tags"><span>Loop</span><span>Basalt & Ochre</span><span>Bricolage Grotesque</span></p></header>
+    <p class="why">Three open rings with their gaps turned like a combination dial, and an ochre core. It echoes Vocab Dojo's rings and the idea of unlocking each one in turn. It keeps the current display face, so it is the least disruptive change to the live app.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#24221F"></span><span class="sw-name">Basalt</span><code>#24221F</code></li><li><span class="chip" style="background:#C98A2A"></span><span class="sw-name">Ochre</span><code>#C98A2A</code></li><li><span class="chip" style="background:#E7E2D8"></span><span class="sw-name">Volcanic ash</span><code>#E7E2D8</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-08">
+  <div class="tile" style="background:#F1EDE6;color:#3A2D28">
+    <span class="tile-no" style="color:#3A2D28">08</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><circle cx="38" cy="50" r="24" fill="none" stroke="#3A2D28" stroke-width="9"/><circle cx="62" cy="50" r="24" fill="none" stroke="#7F6AA2" stroke-width="9"/><path d="M44.21 26.82 A24 24 0 0 1 54.97 33.03" fill="none" stroke="#F1EDE6" stroke-width="15"/><path d="M42 26 A24 24 0 0 1 57 35" fill="none" stroke="#3A2D28" stroke-width="9"/></svg>
+      <span class="word" style="font-family:'Newsreader', Georgia, serif;font-weight:500;font-variation-settings:'opsz' 72;letter-spacing:-0.01em">LinguaDojo</span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#3A2D28"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><circle cx="38" cy="50" r="24" fill="none" stroke="#F1EDE6" stroke-width="9"/><circle cx="62" cy="50" r="24" fill="none" stroke="#B3A1D1" stroke-width="9"/><path d="M44.21 26.82 A24 24 0 0 1 54.97 33.03" fill="none" stroke="#3A2D28" stroke-width="15"/><path d="M42 26 A24 24 0 0 1 57 35" fill="none" stroke="#F1EDE6" stroke-width="9"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><circle cx="38" cy="50" r="24" fill="none" stroke="#3A2D28" stroke-width="9"/><circle cx="62" cy="50" r="24" fill="none" stroke="#7F6AA2" stroke-width="9"/><path d="M44.21 26.82 A24 24 0 0 1 54.97 33.03" fill="none" stroke="#F1EDE6" stroke-width="15"/><path d="M42 26 A24 24 0 0 1 57 35" fill="none" stroke="#3A2D28" stroke-width="9"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#F1EDE6"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><circle cx="38" cy="50" r="24" fill="none" stroke="#3A2D28" stroke-width="9"/><circle cx="62" cy="50" r="24" fill="none" stroke="#7F6AA2" stroke-width="9"/><path d="M44.21 26.82 A24 24 0 0 1 54.97 33.03" fill="none" stroke="#F1EDE6" stroke-width="15"/><path d="M42 26 A24 24 0 0 1 57 35" fill="none" stroke="#3A2D28" stroke-width="9"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#F1EDE6"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><circle cx="38" cy="50" r="24" fill="none" stroke="#3A2D28" stroke-width="9"/><circle cx="62" cy="50" r="24" fill="none" stroke="#7F6AA2" stroke-width="9"/><path d="M44.21 26.82 A24 24 0 0 1 54.97 33.03" fill="none" stroke="#F1EDE6" stroke-width="15"/><path d="M42 26 A24 24 0 0 1 57 35" fill="none" stroke="#3A2D28" stroke-width="9"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Linked Pair</h2><p class="tags"><span>Loop</span><span>Heather & Peat</span><span>Newsreader</span></p></header>
+    <p class="why">Two loops woven through each other: your language and the one you're learning, held together by translation. It ties directly to dual translation and to practice as a loop. Moorland purple and peat-brown are an unusual, quiet pairing.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#3A2D28"></span><span class="sw-name">Peat</span><code>#3A2D28</code></li><li><span class="chip" style="background:#7F6AA2"></span><span class="sw-name">Heather</span><code>#7F6AA2</code></li><li><span class="chip" style="background:#F1EDE6"></span><span class="sw-name">Chalk</span><code>#F1EDE6</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-09">
+  <div class="tile" style="background:#D5E4E8;color:#14324A">
+    <span class="tile-no" style="color:#14324A">09</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><rect x="10" y="10" width="80" height="80" rx="5" fill="#14324A"/><path d="M31 16 H57.5 A26.5 26.5 0 0 1 57.5 69 H31 Z" fill="#D5E4E8"/><rect x="75" y="75" width="9" height="9" fill="#E6C24A"/></svg>
+      <span class="word" style="font-family:'Syne', 'Helvetica Neue', sans-serif;font-weight:700;letter-spacing:-0.02em">Lingua<span style="text-decoration:underline;text-decoration-color:#C9A12A;text-decoration-thickness:0.12em;text-underline-offset:0.12em">Dojo</span></span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#D5E4E8"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><rect x="10" y="10" width="80" height="80" rx="5" fill="#14324A"/><path d="M31 16 H57.5 A26.5 26.5 0 0 1 57.5 69 H31 Z" fill="#D5E4E8"/><rect x="75" y="75" width="9" height="9" fill="#E6C24A"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><rect x="10" y="10" width="80" height="80" rx="5" fill="#14324A"/><path d="M31 16 H57.5 A26.5 26.5 0 0 1 57.5 69 H31 Z" fill="#D5E4E8"/><rect x="75" y="75" width="9" height="9" fill="#E6C24A"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#D5E4E8"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><rect x="10" y="10" width="80" height="80" rx="5" fill="#14324A"/><path d="M31 16 H57.5 A26.5 26.5 0 0 1 57.5 69 H31 Z" fill="#D5E4E8"/><rect x="75" y="75" width="9" height="9" fill="#E6C24A"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#D5E4E8"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><rect x="10" y="10" width="80" height="80" rx="5" fill="#14324A"/><path d="M31 16 H57.5 A26.5 26.5 0 0 1 57.5 69 H31 Z" fill="#D5E4E8"/><rect x="75" y="75" width="9" height="9" fill="#E6C24A"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Negative Space</h2><p class="tags"><span>LD monogram</span><span>Fjord & Glacier</span><span>Syne</span></p></header>
+    <p class="why">A solid tile with a D cut out of it. The ice-coloured D is the figure, and what remains of the tile is an equal-weight L. It is built to be an app icon first. A poppy-yellow full stop at the end of the L, echoed in the wordmark's underline, is the one point of warmth.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#14324A"></span><span class="sw-name">Fjord</span><code>#14324A</code></li><li><span class="chip" style="background:#D5E4E8"></span><span class="sw-name">Glacier</span><code>#D5E4E8</code></li><li><span class="chip" style="background:#E6C24A"></span><span class="sw-name">Arctic poppy</span><code>#E6C24A</code></li></ul>
+  </div>
+</article>
+<article class="study" id="logo-10">
+  <div class="tile" style="background:#F4ECE3;color:#1C3B36">
+    <span class="tile-no" style="color:#1C3B36">10</span>
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" class="lockup-mark" aria-hidden="true"><path d="M8 68 C 28 68, 40 61, 48 47 C 56 33, 54 13, 44 15 C 33 17, 33 44, 46 60 L 55 71" fill="none" stroke="#1C3B36" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M55 71 L 90 28" fill="none" stroke="#E46E55" stroke-width="8" stroke-linecap="round"/></svg>
+      <span class="word" style="font-family:'Red Hat Display', 'Helvetica Neue', sans-serif;font-weight:700;letter-spacing:-0.02em">Lingua<span style="color:#C4513A">Dojo</span></span>
+    </div>
+  </div>
+  <div class="sizes">
+    <figure><div class="app" style="background:#1C3B36"><svg viewBox="0 0 100 100" class="" aria-hidden="true"><path d="M8 68 C 28 68, 40 61, 48 47 C 56 33, 54 13, 44 15 C 33 17, 33 44, 46 60 L 55 71" fill="none" stroke="#F4ECE3" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M55 71 L 90 28" fill="none" stroke="#E46E55" stroke-width="8" stroke-linecap="round"/></svg></div><figcaption>App icon</figcaption></figure>
+    <figure><div class="mono"><svg viewBox="0 0 100 100" width="56" height="56" class="" aria-hidden="true"><path d="M8 68 C 28 68, 40 61, 48 47 C 56 33, 54 13, 44 15 C 33 17, 33 44, 46 60 L 55 71" fill="none" stroke="#1C3B36" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M55 71 L 90 28" fill="none" stroke="#E46E55" stroke-width="8" stroke-linecap="round"/></svg></div><figcaption>Mark alone</figcaption></figure>
+    <figure><div class="fav" style="background:#F4ECE3"><svg viewBox="0 0 100 100" width="32" height="32" class="" aria-hidden="true"><path d="M8 68 C 28 68, 40 61, 48 47 C 56 33, 54 13, 44 15 C 33 17, 33 44, 46 60 L 55 71" fill="none" stroke="#1C3B36" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M55 71 L 90 28" fill="none" stroke="#E46E55" stroke-width="8" stroke-linecap="round"/></svg></div><figcaption>32 px</figcaption></figure>
+    <figure><div class="fav" style="background:#F4ECE3"><svg viewBox="0 0 100 100" width="16" height="16" class="" aria-hidden="true"><path d="M8 68 C 28 68, 40 61, 48 47 C 56 33, 54 13, 44 15 C 33 17, 33 44, 46 60 L 55 71" fill="none" stroke="#1C3B36" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M55 71 L 90 28" fill="none" stroke="#E46E55" stroke-width="8" stroke-linecap="round"/></svg></div><figcaption>16 px</figcaption></figure>
+  </div>
+  <div class="meta">
+    <header><h2>Loop to Tick</h2><p class="tags"><span>Loop + correction</span><span>Tidepool</span><span>Red Hat Display</span></p></header>
+    <p class="why">One line that loops once, like a handwritten l, then drops into a tick. Practice, then the correct answer, in a single gesture. It combines both concepts you picked, and the colours come from a rock pool: kelp-green and anemone coral.</p>
+    <ul class="swatches"><li><span class="chip" style="background:#1C3B36"></span><span class="sw-name">Kelp</span><code>#1C3B36</code></li><li><span class="chip" style="background:#E46E55"></span><span class="sw-name">Anemone</span><code>#E46E55</code></li><li><span class="chip" style="background:#F4ECE3"></span><span class="sw-name">Shell</span><code>#F4ECE3</code></li></ul>
+  </div>
+</article></div>
+  <p class="foot">Wordmarks are set in live web fonts, so they are typographic sketches. The chosen direction would be redrawn and outlined before production. Each study is also saved as standalone <code>mark.svg</code>, <code>app-icon.svg</code> and <code>lockup.svg</code> files under <code>wiki/design/brand/logos/</code>.</p>
+</div>
