@@ -6909,3 +6909,20 @@ Pages updated: 8 ([[tasklist/exercise-content-storage.tasks]] TASK-1026; [[taskl
 - vitest: 743/743;
 - eslint, Prettier and ruff are clean.
 
+## [2026-11-17] update | Exercise content to Storage — Phase-1 code merged to main; SQL test passed on production (TASK-1026)
+**Merge:** PR #36 was merged to `main` as `8e0afb6`, with both flags at their `db` default. Railway deploys from `main`; the deploy itself could not be observed here, because this environment's network does not allow the production host.
+
+**CI:**
+- vitest + eslint passed on the first run.
+- pytest failed once: `tests/test_prompt_split_l4_l8.py::test_unregistered_prompt_version_is_refused_not_guessed`, which was red on `main` too. Commit c426784 had registered `morphology_slot` prompt v2, but the test still used v2 as its "unregistered" example.
+- Fixed in `00b1673`: the test now uses the first version after the registered ones. Both CI jobs were then green.
+
+**SQL test:** the owner ran `tests/sql/test_exercise_content_storage.sql` in the SQL editor, inside its own ROLLBACK.
+- No error was raised.
+- `exercise_content_version_seq` stands at exactly 4, the four draws a complete run makes.
+- A read-only check found 0 rows left behind (no new exercises, no non-zero `content_version`, no `dedupe_key`).
+- Database size: 495,815,827 bytes.
+
+**Remaining for TASK-1026:** the owner's in-app check of Practice and the prestudy page, including on-demand exercise loading for an added word.
+Pages updated: 2 ([[tasklist/exercise-content-storage.tasks]], [[tasklist/master]]).
+
