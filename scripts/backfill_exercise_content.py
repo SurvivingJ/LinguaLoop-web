@@ -82,14 +82,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import gzip
 import hashlib
-import io
 import json
 import logging
 import os
 import re
 import sys
+import zlib
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -613,15 +612,22 @@ def run_language(ctx: Context, language: str) -> None:
 # Archives
 # ---------------------------------------------------------------------------
 
-_GZIP_MARGIN = 256 * 1024    # GzipFile's write buffer and zlib's pending output
+# zlib with a gzip wrapper (wbits 31): the header carries mtime 0 and no file name, so
+# the same lines always give the same bytes (a re-run can compare an existing object).
+_GZIP_WBITS = 31
+# The compressor holds back up to one deflate block (about 24 KB measured on zh-like
+# JSON), so a part is closed this far below the limit; _fit() re-splits the rare part
+# that still ends up over it.
+_GZIP_MARGIN_MAX = 64 * 1024
+
+
+def _compressor():
+    return zlib.compressobj(9, zlib.DEFLATED, _GZIP_WBITS)
 
 
 def _gzip(lines: Sequence[bytes]) -> bytes:
-    buffer = io.BytesIO()
-    with gzip.GzipFile(filename='', mode='wb', fileobj=buffer, mtime=0) as handle:
-        for line in lines:
-            handle.write(line)
-    return buffer.getvalue()
+    compressor = _compressor()
+    return b''.join([compressor.compress(line) for line in lines] + [compressor.flush()])
 
 
 def _fit(lines: list[bytes], max_bytes: int) -> list[tuple[bytes, int]]:
@@ -640,41 +646,44 @@ class GzipParts:
 
     def __init__(self, max_bytes: int):
         self.max_bytes = max_bytes
+        self.margin = min(_GZIP_MARGIN_MAX, max_bytes // 2)
         self.parts: list[tuple[bytes, int]] = []
         self.rows = 0
-        self._buffer: io.BytesIO | None = None
-        self._handle: gzip.GzipFile | None = None
+        self._compressor = None
+        self._chunks: list[bytes] = []
+        self._size = 0
         self._lines: list[bytes] = []
 
     def _open(self) -> None:
-        self._buffer = io.BytesIO()
-        self._handle = gzip.GzipFile(filename='', mode='wb', fileobj=self._buffer, mtime=0)
-        self._lines = []
+        self._compressor = _compressor()
+        self._chunks, self._size, self._lines = [], 0, []
 
     def _close(self) -> None:
-        self._handle.close()
-        data = self._buffer.getvalue()
+        self._chunks.append(self._compressor.flush())
+        data = b''.join(self._chunks)
         if len(data) <= self.max_bytes:
             self.parts.append((data, len(self._lines)))
         else:
             self.parts.extend(_fit(self._lines, self.max_bytes))
-        self._buffer = self._handle = None
-        self._lines = []
+        self._compressor = None
+        self._chunks, self._size, self._lines = [], 0, []
 
     def add(self, line: bytes) -> None:
-        if (self._handle is not None and self._lines
-                and self._buffer.tell() + len(line) + _GZIP_MARGIN > self.max_bytes):
+        if (self._compressor is not None and self._lines
+                and self._size + len(line) + self.margin > self.max_bytes):
             self._close()
-        if self._handle is None:
+        if self._compressor is None:
             self._open()
-        self._handle.write(line)
+        chunk = self._compressor.compress(line)
+        self._chunks.append(chunk)
+        self._size += len(chunk)
         self._lines.append(line)
         self.rows += 1
 
     def finish(self) -> list[tuple[bytes, int]]:
-        if self._handle is None and not self.parts:
+        if self._compressor is None and not self.parts:
             self._open()                       # an empty archive is one empty gzip object
-        if self._handle is not None:
+        if self._compressor is not None:
             self._close()
         return self.parts
 

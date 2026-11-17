@@ -753,15 +753,15 @@ def test_archive_all_row_count_mismatch_writes_nothing(mem, paths):
 
 
 def test_archive_all_splits_objects_over_the_size_limit(mem, paths):
-    def noise(i):
-        return hashlib.sha256(str(i).encode()).hexdigest() * 8   # ~512 hex chars, poor compression
+    def noise(i):                                              # 512 hex chars, ~2x compression
+        return ''.join(hashlib.sha256(f'{i}-{k}'.encode()).hexdigest() for k in range(8))
     rows = [row(300 + i // 10, content={'blob': noise(i)}) for i in range(400)]
     db = FakeDB(rows)
     assert run(db, paths, '--language', 'all', '--archive-all', 'T2',
                '--archive-max-bytes', '65536') == 0
     folder = '_archive/exercises-content-T2'
     zh_parts = sorted(p for p in mem.paths() if p.startswith(f'{folder}/zh.part-'))
-    assert len(zh_parts) >= 2
+    assert 2 <= len(zh_parts) <= 8                            # split, but not line by line
     assert zh_parts[0] == f'{folder}/zh.part-0001.jsonl.gz'
     assert f'{folder}/zh.jsonl.gz' not in mem.paths()
     objects = mem.objects()
@@ -777,8 +777,9 @@ def test_archive_all_splits_objects_over_the_size_limit(mem, paths):
 
 
 def test_gzip_parts_are_deterministic_and_bounded():
-    lines = [json.dumps({'i': i, 'x': hashlib.sha256(str(i).encode()).hexdigest() * 4})
-             .encode() + b'\n' for i in range(600)]
+    lines = [json.dumps({'i': i, 'x': ''.join(hashlib.sha256(f'{i}-{k}'.encode()).hexdigest()
+                                              for k in range(4))}).encode() + b'\n'
+             for i in range(600)]
 
     def build():
         parts = bf.GzipParts(65536)
@@ -788,10 +789,13 @@ def test_gzip_parts_are_deterministic_and_bounded():
     first, second = build(), build()
     assert first == second
     assert all(len(data) <= 65536 for data, _ in first)
+    assert len(first) >= 2 and all(len(data) > 65536 // 4 for data, _ in first[:-1])
     assert sum(rows for _, rows in first) == 600
     assert b''.join(gzip.decompress(data) for data, _ in first) == b''.join(lines)
     with pytest.raises(bf.ArchiveError):
         bf._fit([os.urandom(80_000)], 65536)
+    empty = bf.GzipParts(65536).finish()
+    assert len(empty) == 1 and empty[0][1] == 0 and gzip.decompress(empty[0][0]) == b''
 
 
 def test_archive_sense_less(mem, paths):
