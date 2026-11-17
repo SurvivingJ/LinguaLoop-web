@@ -311,7 +311,6 @@ def _base_tables(**overrides):
             'corrected_form': 'the cat', 'learner_form': 'cat', 'subtype': 'article',
         }],
         'dt_passage': [{'l2_text': 'The cat sat on the mat.'}],
-        'dt_passage_reference': [{'l1_text': 'Le chat context.'}],
     }
     tables.update(overrides)
     return tables
@@ -524,3 +523,28 @@ class TestSelectErrorExercisesForPractice:
         )
         assert len(out) == 1
         assert out[0]['card_id'] == 1
+
+
+class TestWindowL1Text:
+    """The L1 context of a card comes from the passage's sentence references."""
+
+    def test_a_window_passage_joins_its_sentence_references(self, monkeypatch):
+        from services.dual_translation.repair import sentences as repair_sentences
+        seen = {}
+
+        def fake(db, test_id, start, end, l1):
+            seen['args'] = (test_id, start, end, l1)
+            return ['The cat sat.', 'It was sleepy.']
+
+        monkeypatch.setattr(repair_sentences, '_range_l1_texts', fake)
+        passage = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': 2, 'sentence_end': 3}
+        assert cards._window_l1_text(None, passage, 2) == 'The cat sat. It was sleepy.'
+        assert seen['args'] == ('test-1', 2, 3, 2)
+
+    def test_no_sentence_range_or_missing_reference_gives_an_empty_context(self, monkeypatch):
+        from services.dual_translation.repair import sentences as repair_sentences
+        monkeypatch.setattr(repair_sentences, '_range_l1_texts', lambda *a: None)
+        window = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': 0, 'sentence_end': 1}
+        assert cards._window_l1_text(None, window, 2) == ''
+        whole = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': None, 'sentence_end': None}
+        assert cards._window_l1_text(None, whole, 2) == ''

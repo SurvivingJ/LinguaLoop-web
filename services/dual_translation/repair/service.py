@@ -219,14 +219,11 @@ def _prompts_for(db, ctx: dict, model=None):
     sub, passage = ctx["submission"], ctx["passage"]
     if model is None:
         model = sentences.sentence_model(passage.get("l2_text") or "", sub.get("reproduction") or "")
-    try:
-        l1_text = store.get_l1_passage_text(db, passage["id"], ctx["l1_id"])
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("dt_repair: L1 passage text unavailable: %s", exc)
-        l1_text = None
+    # Passages are sentence windows: their L1 text comes from the sentence
+    # references inside l1_context. (The whole-passage reference table is gone.)
     return sentences.l1_context(db, passage=passage, gold_l2=passage.get("l2_text") or "",
                                 l1_language_id=ctx["l1_id"], l1_code=ctx["l1"], model=model,
-                                l1_passage_text=l1_text)
+                                l1_passage_text=None)
 
 
 def _event(db, item: dict, surface: str, kind: str, body: Optional[dict] = None, **fields) -> None:

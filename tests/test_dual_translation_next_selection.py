@@ -293,10 +293,6 @@ class TestEligibility:
              'sentence_start': None, 'sentence_end': None}
             for pid in (1, 2)
         ]
-        tables['dt_passage_reference'] = [
-            {'passage_id': pid, 'l1_language_id': EN, 'l1_text': 'We go to the park. The weather is nice.'}
-            for pid in (1, 2)
-        ]
         db = _TableDB(tables)
         assert _choose(db, ZH) == {'kind': 'none', 'all_done': False}           # never served
         db.table('dt_submission').insert({

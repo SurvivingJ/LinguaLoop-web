@@ -508,7 +508,6 @@ def _e2e_tables():
             'subtype': 'article',
         }],
         'dt_passage': [{'id': 9, 'l2_text': GOLD_L2}],
-        'dt_passage_reference': [{'l1_text': L1_TEXT}],
     }
 
 
