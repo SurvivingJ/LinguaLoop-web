@@ -13,9 +13,17 @@ Spec: wiki/features/test-prestudy.md (modes 1 and 2, readiness check).
       senses:     {sense_id: {lemma, pos, freq, reading,
                               glosses: {lang_id: {def, ex}}}},
       knowledge:  {sense_id: {p, status, n}},    # the learner's BKT rows
-      exercises:  {sense_id: [{id, type, group, level, c}]},
+      exercises:  {sense_id: [{id, type, group, level, c}]},   # drill senses only
+      has_exercises: [sense_id, ...],            # every linked sense with prime-renderable exercises
       gloss_language_id, ability_zipf
     }
+
+Exercise content is loaded only for the senses the word prime drills
+(``drill_sense_ids``, the same rule as the page; ADR-047 open question 1).
+``has_exercises`` lists every linked sense that has active exercises of a type
+the prime renders, from row ids only. A word that joins the drill set later
+("I don't know this") fetches its exercises from
+``GET /api/tests/<id>/prestudy/exercises`` (``on_demand_exercises``).
 
 The scored questions' text, choices and answers are never included: prestudy
 must not leak the test. Only each question's linked senses are sent, so the
@@ -28,10 +36,12 @@ route through VocabularyKnowledgeService.update_from_word_tests_batch.
 from __future__ import annotations
 
 import logging
+import math
 import random
-from typing import Optional
+from typing import Iterable, Optional
 
 from services.concurrency import run_parallel
+from services.exercise_content import store
 from services.pagination import fetch_all
 
 logger = logging.getLogger(__name__)
@@ -58,6 +68,58 @@ EXERCISE_GROUP = {
 }
 MAX_EXERCISES_PER_TYPE = 2
 DEFAULT_ABILITY_ZIPF = 5.0
+#: Senses per on-demand exercises request (GET /api/tests/<id>/prestudy/exercises);
+#: static/js/prestudy/prestudy.js MAX_FETCH_SENSES sends at most this many.
+MAX_ON_DEMAND_SENSES = 20
+
+# Zipf prior for a sense the learner has no row for (recommended_tests_ranked;
+# static/js/prestudy/prestudy.js PRIOR_K / PRIOR_B).
+_PRIOR_K = 1.5
+_PRIOR_B = math.log(0.85 / 0.15)
+
+# The prime drills every word below probably_known (p < 0.75): unknown,
+# encountered and learning. The unknown share that picks the plan mode still
+# counts only p < 0.5.
+DRILL_MAX_P = 0.75
+
+
+def prior_p_known(freq, ability: float) -> float:
+    """Zipf prior used when a learner has no row for a sense (matches the page)."""
+    if freq is None:
+        return 0.3
+    return 1.0 / (1.0 + math.exp(-(_PRIOR_K * (float(freq) - ability) + _PRIOR_B)))
+
+
+def drill_sense_ids(sense_ids: Iterable, senses: dict, knowledge: dict, ability: float) -> list[int]:
+    """The senses the word prime drills before the learner adds any word.
+
+    THE drill rule, kept in step with its client twin ``drillSenseIds`` /
+    ``isDrilled`` in static/js/prestudy/prestudy.js (``analyse()`` -> ``ranked``,
+    which also drills the words the learner adds; those fetch their exercises
+    on demand). A sense is drilled when it has an entry in ``senses`` (the
+    payload's ``senses`` map; the page ignores a linked sense without one) and
+    its p_known is below ``DRILL_MAX_P``: the learner's row (``knowledge[sid]['p']``)
+    when there is one, otherwise the Zipf prior from ``senses[sid]['freq']`` and
+    ``ability``. Both sides are tested against tests/unit/fixtures/prestudy-drill-rule.json.
+
+    ``sense_ids`` are the test's linked senses (``tests.vocab_sense_ids``);
+    ``senses`` / ``knowledge`` are keyed by the sense id as a string, as in the
+    payload. Returns sorted, distinct ints.
+    """
+    out: set[int] = set()
+    for raw in sense_ids or []:
+        try:
+            sid = int(raw)
+        except (TypeError, ValueError):
+            continue
+        sense = senses.get(str(sid))
+        if sense is None:
+            continue
+        k = knowledge.get(str(sid))
+        p = float(k['p']) if k is not None else prior_p_known(sense.get('freq'), ability)
+        if p < DRILL_MAX_P:
+            out.add(sid)
+    return sorted(out)
 
 
 def trim_exercise(row: dict, rng: random.Random | None = None) -> Optional[dict]:
@@ -144,14 +206,19 @@ def _load_knowledge(db, user_id: str, sense_ids: list[int]) -> dict[str, dict]:
     return out
 
 
-def _load_exercises(db, sense_ids: list[int]) -> dict[str, list[dict]]:
+def _load_exercises(db, sense_ids: list[int], *, language_id: Optional[int] = None) -> dict[str, list[dict]]:
+    """Grouped, trimmed exercises of ``sense_ids`` (the drill senses, or an
+    on-demand batch). Content comes through the exercise-content store: in
+    ``storage`` mode the rows carry ``content_version`` and one ``hydrate``
+    call fills ``content`` (rows whose content cannot be found are dropped)."""
     rows: list[dict] = []
+    columns = store.select_columns('id, word_sense_id, exercise_type, {content}, ladder_level')
     for part in _chunks(sense_ids):
         # Paged: 200 senses can have far more than PostgREST's 1000-row cap.
-        rows += fetch_all(lambda part=part: db.table('exercises').select(
-            'id, word_sense_id, exercise_type, content, ladder_level'
-        ).eq('is_active', True).in_('word_sense_id', part)
-         .in_('exercise_type', list(EXERCISE_FIELDS)).order('id'))
+        rows += fetch_all(lambda part=part: db.table('exercises').select(columns)
+                          .eq('is_active', True).in_('word_sense_id', part)
+                          .in_('exercise_type', list(EXERCISE_FIELDS)).order('id'))
+    store.hydrate(rows, language_id=language_id, db=db)
     return group_exercises(rows)
 
 
@@ -166,28 +233,53 @@ def _ability_zipf(db, user_id: str, language_id: int) -> float:
     return DEFAULT_ABILITY_ZIPF
 
 
+def _linked_sense_ids(test: dict) -> list[int]:
+    """The test's linked senses (``tests.vocab_sense_ids``), sorted and distinct."""
+    out: set[int] = set()
+    for s in test.get('vocab_sense_ids') or []:
+        try:
+            n = int(s)
+        except (TypeError, ValueError):
+            continue
+        if n:
+            out.add(n)
+    return sorted(out)
+
+
 def build_prestudy_payload(db, test: dict, user_id: str, gloss_language_id: Optional[int]) -> dict:
     """Everything the prestudy page needs for one test (see module docstring).
 
     ``test`` is a ``tests`` row with at least id, slug, title, language_id,
     transcript, audio_url, difficulty, target_age_tier, vocab_sense_ids,
     vocab_token_map, furigana_payload, pinyin_payload.
+
+    Exercise content is loaded for the drill senses only (``drill_sense_ids``
+    over the linked senses, restricted to those in ``has_exercises``).
     """
-    sense_ids = sorted({int(s) for s in (test.get('vocab_sense_ids') or []) if s})
+    sense_ids = _linked_sense_ids(test)
     language_id = int(test.get('language_id') or 0)
-    # Independent reads run concurrently: first the three that need only the
-    # test row, then the two keyed on the passage + question senses.
-    questions, exercises, ability = run_parallel(
+    # Two concurrent batches. The first needs only the test row: the questions,
+    # the ability prior, the linked senses' words and knowledge (all the drill
+    # rule reads) and which linked senses have exercises (row ids only). The
+    # second needs the first: question-only senses and the drill senses'
+    # exercise content.
+    questions, ability, senses, knowledge, with_exercises = run_parallel(
         lambda: db.table('questions').select('sense_ids').eq('test_id', test['id']).execute().data or [],
-        lambda: _load_exercises(db, sense_ids) if sense_ids else {},
         lambda: _ability_zipf(db, user_id, language_id),
+        lambda: _load_senses(db, sense_ids, gloss_language_id) if sense_ids else {},
+        lambda: _load_knowledge(db, user_id, sense_ids) if sense_ids else {},
+        lambda: senses_with_exercises(db, sense_ids, exercise_types=list(EXERCISE_FIELDS)) if sense_ids else set(),
     )
     q_sense_ids = sorted({int(s) for q in questions for s in (q.get('sense_ids') or []) if s})
-    all_ids = sorted(set(sense_ids) | set(q_sense_ids))
-    senses, knowledge = run_parallel(
-        lambda: _load_senses(db, all_ids, gloss_language_id) if all_ids else {},
-        lambda: _load_knowledge(db, user_id, all_ids) if all_ids else {},
+    extra_ids = sorted(set(q_sense_ids) - set(sense_ids))
+    drill = [s for s in drill_sense_ids(sense_ids, senses, knowledge, ability) if s in with_exercises]
+    extra_senses, extra_knowledge, exercises = run_parallel(
+        lambda: _load_senses(db, extra_ids, gloss_language_id) if extra_ids else {},
+        lambda: _load_knowledge(db, user_id, extra_ids) if extra_ids else {},
+        lambda: _load_exercises(db, drill, language_id=language_id or None) if drill else {},
     )
+    senses.update(extra_senses)
+    knowledge.update(extra_knowledge)
     return {
         'test': {k: test.get(k) for k in (
             'id', 'slug', 'title', 'language_id', 'transcript', 'audio_url', 'difficulty',
@@ -196,9 +288,36 @@ def build_prestudy_payload(db, test: dict, user_id: str, gloss_language_id: Opti
         'senses': senses,
         'knowledge': knowledge,
         'exercises': exercises,
+        'has_exercises': sorted(with_exercises),
         'gloss_language_id': gloss_language_id or language_id,
         'ability_zipf': ability,
     }
+
+
+def on_demand_exercises(db, test: dict, requested: Iterable) -> tuple[list[int], dict[str, list[dict]]]:
+    """Exercises of senses that joined the drill set on the page
+    (GET /api/tests/<id>/prestudy/exercises).
+
+    ``requested`` ids that are not ints or not linked to ``test``
+    (``tests.vocab_sense_ids``) are ignored; at most ``MAX_ON_DEMAND_SENSES``
+    distinct ids are served (the route rejects longer lists). Returns
+    ``(sense_ids served, {sense_id: [trimmed exercise]})`` in the payload's
+    ``exercises`` shape; a served sense with no exercise has no key.
+    """
+    linked = set(_linked_sense_ids(test))
+    ids: list[int] = []
+    for raw in requested or []:
+        try:
+            sid = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if sid in linked and sid not in ids:
+            ids.append(sid)
+        if len(ids) >= MAX_ON_DEMAND_SENSES:
+            break
+    if not ids:
+        return [], {}
+    return ids, _load_exercises(db, ids, language_id=int(test.get('language_id') or 0) or None)
 
 
 def evidence_rows(answers: list[dict], allowed_sense_ids: set[int]) -> list[dict]:
@@ -400,13 +519,21 @@ def request_generation(db, sense_ids: list[int], language_id: int, exercises: di
     return queued
 
 
-def senses_with_exercises(db, sense_ids: list[int]) -> set[int]:
+def senses_with_exercises(db, sense_ids: list[int], *, exercise_types: Optional[list[str]] = None) -> set[int]:
+    """Senses with at least one active exercise row (row ids only, never
+    content), optionally only rows of ``exercise_types``. Generation decisions
+    (``request_generation``) and the payload's ``has_exercises`` read this, so a
+    content-hydration miss can never make a sense look exercise-less."""
     out: set[int] = set()
     for part in _chunks(sorted(set(sense_ids))):
         # Paged: a chunk can match more rows than PostgREST's 1000-row cap,
         # which used to drop senses silently (undercounting exercise coverage).
-        for r in fetch_all(lambda part=part: db.table('exercises').select('word_sense_id')
-                           .eq('is_active', True).in_('word_sense_id', part).order('id')):
+        def query(part=part):
+            q = db.table('exercises').select('word_sense_id').eq('is_active', True).in_('word_sense_id', part)
+            if exercise_types is not None:
+                q = q.in_('exercise_type', list(exercise_types))
+            return q.order('id')
+        for r in fetch_all(query):
             out.add(int(r['word_sense_id']))
     return out
 
@@ -646,27 +773,10 @@ def mark_followups(db, user_id: str, sense_ids: list[int], field: str = 'served_
 # Daily session planning (Triggers; Time, shown honestly)
 # ---------------------------------------------------------------------------
 
-import math  # noqa: E402
-
 AUTO_THRESHOLD = 0.25          # unknown share above which a new test gets a full prestudy block
 LIGHT_THRESHOLD = 0.05         # 5-25%: light prime (three words)
 PRESTUDY_TEST_TYPES = ('reading', 'listening')
 PRESTUDY_MODES = ('auto', 'ask', 'off')
-_PRIOR_K = 1.5
-_PRIOR_B = math.log(0.85 / 0.15)
-
-
-def prior_p_known(freq, ability: float) -> float:
-    """Zipf prior used when a learner has no row for a sense (matches the page)."""
-    if freq is None:
-        return 0.3
-    return 1.0 / (1.0 + math.exp(-(_PRIOR_K * (float(freq) - ability) + _PRIOR_B)))
-
-
-# The prime drills every word below probably_known (p < 0.75): unknown,
-# encountered and learning. The unknown share that picks the plan mode still
-# counts only p < 0.5.
-DRILL_MAX_P = 0.75
 MAX_EST_MINUTES = 30
 
 
@@ -744,7 +854,11 @@ def plan_for_tests(db, user_id: str, language_id: int, tests: list[dict]) -> dic
         return float(k['p']) if k else prior_p_known(freq.get(sid), ability)
 
     unknown_by_test = {tid: [s for s in ids if p(s) < 0.5] for tid, ids in senses_by_test.items()}
-    drill_by_test = {tid: [s for s in ids if p(s) < DRILL_MAX_P] for tid, ids in senses_by_test.items()}
+    # The page's drill rule; every linked sense counts here (no senses map is
+    # loaded for the plan, so a sense without frequency gets the 0.3 prior).
+    described = {str(s): {'freq': freq.get(s)} for s in all_ids}
+    drill_by_test = {tid: drill_sense_ids(ids, described, knowledge, ability)
+                     for tid, ids in senses_by_test.items()}
     top = sorted({s for d in drill_by_test.values() for s in d})
     if with_exercises is not None:
         have_ex = with_exercises & set(top)
