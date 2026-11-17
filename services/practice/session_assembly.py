@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from services.concurrency import run_parallel
 from services import study_plan_service as _plan
+from services.exercise_content import store
 from services.day_boundary import plan_today_iso
 from services.practice.constants import (
     EXTRA_NEW_WORDS_MAX,
@@ -21,6 +22,12 @@ from services.practice.constants import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _lacks_content(item: Any) -> bool:
+    """An exercise item (it has an ``exercise_id``) that has no content."""
+    return isinstance(item, dict) and bool(item.get('exercise_id')) \
+        and item.get('content') is None
 
 
 class SessionAssemblyMixin:
@@ -210,6 +217,13 @@ class SessionAssemblyMixin:
         if cold_subscribed:
             payload['cold_subscribed'] = cold_subscribed
 
+        # ADR-047: item content comes from the exercise-content store. One
+        # hydrate call for the final item list, after every step that picks,
+        # drops or orders items (none of them reads content, so fewer files
+        # are fetched) and before the steps that rewrite content in place
+        # (script variant, jumbled preparation). No-op in db mode.
+        self._hydrate_items(payload, language_id)
+
         # TASK-526: serve the Traditional mirror to learners who asked for it.
         # Pure field selection over content.hant, which TASK-509 dual-stored at
         # generation time — no OpenCC on the request path. Best-effort: a
@@ -268,6 +282,7 @@ class SessionAssemblyMixin:
             'p_mode':           mode,
             'p_target_minutes': target_minutes,
             'p_user_theta':     user_theta,
+            **store.rpc_content_args(),
         }).execute().data
 
     def _inject_prestudy_followups(
@@ -297,7 +312,8 @@ class SessionAssemblyMixin:
         if need:
             rows = (
                 self.db.table('exercises')
-                .select('id, word_sense_id, exercise_type, content, ladder_level')
+                .select(store.select_columns(
+                    'id, word_sense_id, exercise_type, {content}, ladder_level'))
                 .eq('is_active', True).in_('word_sense_id', need)
                 .order('ladder_level').execute().data or []
             )
@@ -319,6 +335,10 @@ class SessionAssemblyMixin:
                     'mode':             'maintenance',
                     'prestudy_followup': True,
                 }
+                # ADR-047: the version the content is hydrated from (absent in
+                # db mode, where the row carries its content).
+                if 'content_version' in r:
+                    picked[sid]['content_version'] = r['content_version']
             extras = [picked[s] for s in need if s in picked]
         if extras:
             payload['items'] = self._interleave_extras(items, extras)
@@ -454,6 +474,9 @@ class SessionAssemblyMixin:
                         payload['no_content_reason'] = None
             except Exception as e:
                 logger.warning('extra round: intro block failed (non-fatal): %s', e)
+        # ADR-047: fill item content (see get_session), before the steps that
+        # rewrite it in place.
+        self._hydrate_items(payload, language_id)
         try:
             self._apply_script_variant(payload, user_id, language_id)
         except Exception as e:
@@ -547,6 +570,7 @@ class SessionAssemblyMixin:
                 'p_limit':                  EXTRA_REVIEW_ITEMS - len(items),
                 'p_exclude_recent_minutes': EXTRA_REVIEW_RECENT_MINUTES,
                 'p_exclude_sense_ids':      sorted(seen_senses),
+                **store.rpc_content_args(),
             }).execute()
             ahead = resp.data if isinstance(resp.data, list) else []
         except Exception as e:
@@ -724,6 +748,60 @@ class SessionAssemblyMixin:
         )
         for p, it in zip(positions, picked):
             items[p] = it
+
+    # ------------------------------------------------------------------
+    # Serve-time preparation
+    # ------------------------------------------------------------------
+
+    def _hydrate_items(
+        self, payload: Dict[str, Any], language_id: int,
+    ) -> Optional[store.HydrationReport]:
+        """Fill ``payload['items']`` content from the exercise-content store, in place.
+
+        ADR-047 §5: with ``EXERCISE_CONTENT_SOURCE=storage`` the session RPCs
+        return items without content; this is the one hydrate call for a
+        session's item list (the intro block hydrates its own rows in
+        ``intro_drill.build_block``). ``db`` mode: no I/O and no change.
+        Items without an ``exercise_id`` (gate / stress-test markers) are left
+        alone; an item whose content cannot be found is dropped, order kept.
+
+        When that empties a non-empty list the payload says so
+        (``no_content_reason = 'content_unavailable'``) with one ERROR log.
+        Returns the hydration report, or None when there was nothing to do or
+        hydration failed.
+        """
+        items = payload.get('items')
+        if not isinstance(items, list) or not items:
+            return None
+        before = len(items)
+        report: Optional[store.HydrationReport] = None
+        try:
+            report = store.hydrate(
+                items, language_id=language_id, id_key='exercise_id',
+                sense_key='sense_id', db=self.db)
+        except Exception:
+            # hydrate never raises for storage or network problems (ADR-047
+            # §9), so this is a bug. Serve what has content rather than fail
+            # the session; in db / shadow mode the items carry their content.
+            logger.exception(
+                'exercise content hydration failed (lang=%s, %d item(s))',
+                language_id, before)
+            if store.read_mode() == 'storage':
+                items[:] = [i for i in items if not _lacks_content(i)]
+        if report is not None and (report.fetched or report.db_fallback or report.dropped):
+            logger.info(
+                'exercise content hydrated (lang=%s mode=%s): items=%d groups=%d '
+                'cache_hits=%d fetched=%d db_fallback=%d over_cap=%d dropped=%d '
+                'elapsed_ms=%.1f',
+                language_id, report.mode, report.items, report.groups,
+                report.cache_hits, report.fetched, report.db_fallback,
+                report.over_cap, report.dropped, report.elapsed_ms)
+        if not items:
+            payload['no_content_reason'] = 'content_unavailable'
+            logger.error(
+                'exercise content unavailable: all %d session item(s) dropped '
+                '(lang=%s)', before, language_id)
+        return report
 
     @staticmethod
     def _prepare_jumbled_items(items, language_id: int) -> None:
