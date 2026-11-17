@@ -596,6 +596,24 @@ class FakeContentDB:
         updates = params.get('p_update_contents') or {}
         if not isinstance(insert_rows, list) or not isinstance(updates, Mapping):
             raise FakeDBError('22023', 'p_insert_rows must be an array, p_update_contents an object')
+        # Static input checks, before the compare-and-swap, as in
+        # migrations/exercise_content_storage.sql (TASK-993 alignment): bad input
+        # raises 22023 whatever the table holds; a missing source_type is the
+        # NOT NULL violation (23502) the real INSERT raises.
+        for row in insert_rows:
+            if not isinstance(row, Mapping) or not row.get('id'):
+                raise FakeDBError('22023', f'insert row without id: {row!r:.120}')
+            if not _same(row.get('word_sense_id'), sense_id):
+                raise FakeDBError('22023', f'insert row for another sense: {row!r:.120}')
+            if not isinstance(row.get('content'), Mapping):
+                raise FakeDBError('22023', f'insert row {row.get("id")} has no JSON object '
+                                           f'under "content"')
+            if row.get('source_type') is None:
+                raise FakeDBError('23502', 'null value in column "source_type" of relation '
+                                           '"exercises" violates not-null constraint')
+        for exercise_id, content in updates.items():
+            if not isinstance(content, Mapping):
+                raise FakeDBError('22023', f'the update for {exercise_id} is not a JSON object')
 
         rows = self._sense_rows(sense_id)
         current = max((r['content_version'] for r in rows), default=0) or 0
@@ -607,15 +625,14 @@ class FakeContentDB:
             raise FakeDBError('22023', f'p_new_version {new} must be greater than the current '
                                        f'version {current}')
         in_sense = {r['id'] for r in rows}
-        for row in insert_rows:
-            if not isinstance(row, Mapping) or not _same(row.get('word_sense_id'), sense_id):
-                raise FakeDBError('22023', f'insert row for another sense: {row!r:.120}')
         for exercise_id in delete_ids:
             if exercise_id not in in_sense:
                 raise FakeDBError('22023', f'delete id {exercise_id} is not in sense {sense_id}')
         for exercise_id in updates:
             if str(exercise_id) not in in_sense:
                 raise FakeDBError('22023', f'update id {exercise_id} is not in sense {sense_id}')
+            if str(exercise_id) in delete_ids:
+                raise FakeDBError('22023', f'update id {exercise_id} is also deleted')
 
         staged = {key: dict(row) for key, row in self._exercises.items()}
         deleted = 0
