@@ -17,7 +17,6 @@ from types import SimpleNamespace
 import pytest
 
 from services.exercise_content import store
-from services.vocabulary_ladder import speed_round
 from services.vocabulary_ladder.ladder_service import LadderService
 from services.vocabulary_ladder.speed_round import (
     MAX_BATTERY, MAX_ITEMS_PER_SENSE, MIN_BATTERY, SpeedRoundComposer, _to_item,

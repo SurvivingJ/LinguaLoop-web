@@ -15,7 +15,6 @@ import copy
 import logging
 from datetime import date
 from types import SimpleNamespace
-from unittest.mock import MagicMock
 
 import pytest
 
