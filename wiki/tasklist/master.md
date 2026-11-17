@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 69 |
+| Not Started | 91 |
 | In Progress (`[~]`) | 16 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 36 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 51 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 4 |
 | Done (cumulative, not listed here) | 277 |
+
+*2026-11-17 (Knowledge Report specced, no code changed):* agent swarm (5 research, design, 2 challengers, synthesis) → [[features/knowledge-report]], [[features/knowledge-report.tech]], ADR-051–056 (proposed), [[tasklist/knowledge-report.tasks]] TASK-1034–1071 (38: 22 Not Started, 16 Blocked [?]). Billing TASK-993 superseded (pointer kept); billing TASK-980/997 cross-referenced to TASK-1038/TASK-1059. IDs start after main's ADR-050 / TASK-1033. Counts: Not Started 69→91, Blocked 36→51 (+16, −TASK-993).
 
 *2026-11-17 (billing branch merged into this branch):* `claude/tender-dirac-v603du` (billing plan, TASK-976–1000 in [[tasklist/billing.tasks]], [[decisions/ADR-047-credits-and-subscription-model]]) merged; its counts added (Not Started +17, Blocked +6, Won't Do +2). **ID clash, not renumbered here:** billing's TASK-976–1000 reuse ids already used by [[tasklist/mobile-redesign.tasks]] (976–988, 1007) and [[tasklist/fixes-2026-11-16.tasks]] (989–1006), and its ADR-047 reuses [[decisions/ADR-047-basic-word-knowledge-prior]]'s number. In this file the billing table is the one under "Billing, Credits and Plans"; read a billing id as `billing/TASK-nnn`.
 
@@ -1362,7 +1364,7 @@ Full spec: [[tasklist/billing.tasks]] · [[business/pricing-plan.tech]] · [[dec
 | TASK-990 | billing | Word-list import: dictionary gate and per-new-sense credits | [ ] | M | TASK-981 |
 | TASK-991 | billing | Trainer level cap for Free | Won't Do (Q3) | S | TASK-980 |
 | TASK-992 | billing | Fix DT cost logging (D9 data) | [ ] | S | — |
-| TASK-993 | billing | Knowledge report: summary (Free/Core) and per-word (Pro) | [?] spec + scope Q1 | L | TASK-980 |
+| TASK-993 | billing | Knowledge report — superseded by [[tasklist/knowledge-report.tasks]] (TASK-1034–1071) | Superseded | — | — |
 | TASK-994 | billing | User custom tests (10 credits, +30 references) | [?] spec + scope Q1 | XL | TASK-981 |
 | TASK-995 | billing | Billing UI: pricing page, paywall, credit chips, billing settings | [ ] | L | TASK-984, TASK-981 |
 | TASK-996 | billing | Trial and lifecycle emails (21-day Pro trial) | [?] D17 | M | TASK-980, TASK-986 |
@@ -1370,6 +1372,50 @@ Full spec: [[tasklist/billing.tasks]] · [[business/pricing-plan.tech]] · [[dec
 | TASK-998 | billing | Re-create organizations for tutors (LIVE-DB) | [?] G1a gate + spec | M | TASK-997 |
 | TASK-999 | billing | Tutor billing: base + per-seat subscription | [?] after TASK-998 | M | TASK-998, TASK-984 |
 | TASK-1000 | billing | Tutor workspace: invite, assign, results | [?] classes-and-assignments spec | XL | TASK-998 |
+
+### Knowledge Report — NEW 2026-11-17
+Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] · [[features/knowledge-report.tech]] · [[decisions/ADR-051-vocabulary-size-from-calibration-frame]] – [[decisions/ADR-056-report-actions-reuse-existing-study-paths]]. Planning only; no code changed. Supersedes billing TASK-993. v1 = TASK-1034–1059; deferred = TASK-1060–1071.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1034 | knowledge-report | Foundation migration — snapshot and list tables, frame, pairs and prune functions (LIVE-DB) | [ ] | M | none |
+| TASK-1035 | knowledge-report | Pure estimator and rules module (`knowledge_estimate.py`) | [ ] | M | none |
+| TASK-1036 | knowledge-report | Summary RPC `knowledge_report_summary` (LIVE-DB) | [ ] | L | TASK-1034 |
+| TASK-1037 | knowledge-report | Nightly snapshot job | [ ] | M | TASK-1034, TASK-1035, TASK-1036 |
+| TASK-1038 | knowledge-report | Entitlement seam, shared 402 helper, feature flags and intent logging | [ ] | S | none |
+| TASK-1039 | knowledge-report | `GET /api/knowledge/summary` and the summary service | [ ] | M | TASK-1035, TASK-1036, TASK-1038 |
+| TASK-1040 | knowledge-report | `/knowledge` page — summary cards, states, Me row, i18n | [ ] | L | TASK-1039 |
+| TASK-1041 | knowledge-report | Prestudy next step (`GET /api/knowledge/prestudy-suggestion`) | [ ] | S | TASK-1039, TASK-1040 |
+| TASK-1042 | knowledge-report | Calibration result shows the same vocabulary range | [ ] | S | TASK-1039 |
+| TASK-1043 | knowledge-report | Practice deep link `?mode=practice&extra=reviews` | [ ] | XS | TASK-1040 |
+| TASK-1044 | knowledge-report | Words RPC `knowledge_report_words` (LIVE-DB) | [ ] | M | TASK-1034 |
+| TASK-1045 | knowledge-report | `GET /api/knowledge/words` (Pro) with validation, gate and intent log | [ ] | M | TASK-1044, TASK-1038, TASK-1039 |
+| TASK-1046 | knowledge-report | Pro UI — All words and Missed recently tabs, filters, sorts, search | [ ] | L | TASK-1045, TASK-1040 |
+| TASK-1047 | knowledge-report | Word sheet — detail RPC, route and UI (LIVE-DB) | [ ] | M | TASK-1044, TASK-1046 |
+| TASK-1048 | knowledge-report | Export — filtered and list CSV, Anki text (Pro) | [ ] | M | TASK-1045, TASK-1046, TASK-1049 |
+| TASK-1049 | knowledge-report | List-words RPC and route (LIVE-DB) | [ ] | M | TASK-1034, TASK-1038 |
+| TASK-1050 | knowledge-report | List cards (summary) and the Pro Lists tab | [ ] | M | TASK-1049, TASK-1046 |
+| TASK-1051 | knowledge-report | "Add these words to my word list" (Pro study action) | [ ] | S | TASK-1050, TASK-1046 |
+| TASK-1052 | knowledge-report | Word-list loader and data package | [?] needs OQ2 (HSK edition) and OQ3 (licences, list-subset export) answ… | M | TASK-1034 |
+| TASK-1053 | knowledge-report | Load the exam lists into production [?] (LIVE-DB) | [?] OQ2, OQ3, and the size gate: `pg_database_size` ≤ 490,000,000 B (af… | S | TASK-1052 |
+| TASK-1054 | knowledge-report | Performance evaluation on live data | [ ] | S | TASK-1036, TASK-1044 |
+| TASK-1055 | knowledge-report | End-to-end smoke and visual fixtures | [ ] | S | TASK-1040, TASK-1046 |
+| TASK-1056 | knowledge-report | Validate the estimator and the ratings | [?] needs OQ6 (exclude 110fb390?), TASK-1061 (forced-choice items, OQ5)… | M | TASK-1035, TASK-1037, TASK-1061 |
+| TASK-1057 | knowledge-report | Documentation reconciliation | [ ] | S | TASK-1034, TASK-1036, TASK-1038, TASK-1040 |
+| TASK-1058 | knowledge-report | Enable the report in production (LIVE environment change) | [ ] | XS | TASK-1037, TASK-1040, TASK-1041, TASK-1054 |
+| TASK-1059 | knowledge-report | Pro launch gate | [?] needs TASK-1053 (OQ2, OQ3, size gate OQ13) and the owner's acceptan… | XS | TASK-1046, TASK-1048, TASK-1051, TASK-1053 |
+| TASK-1060 | knowledge-report | Import not-in-dictionary words with credits | [?] billing's credit spend path (`spend_credits(8, 'sense_import')`, `w… | L | TASK-1051 |
+| TASK-1061 | knowledge-report | Calibration forced-choice probe items [?] (LIVE-DB) | [?] OQ5 (owner approval of a Calibration change) | M | none |
+| TASK-1062 | knowledge-report | Calibration selector — one lemma, rank-1 sense [?] (LIVE-DB) | [?] OQ9 (owner approval of a live Calibration function change) | M | none |
+| TASK-1063 | knowledge-report | Refresh the zh calibration anchor pool [?] (LIVE-DB data) | [?] OQ29 and the size gate (≈ 5–7 MB, ESTIMATE from 369 B per pool row… | S | none |
+| TASK-1064 | knowledge-report | Targeted practice of an explicit word set | [?] OQ15 (scope with the Practice owner) | L | TASK-1046, TASK-1050 |
+| TASK-1065 | knowledge-report | Evidence-kind counters or an evidence log [?] (LIVE-DB) | [?] OQ16 (worth changing the seven writer functions?) and the size gate | L | none |
+| TASK-1066 | knowledge-report | Decay function clean-ups [?] (LIVE-DB) | [?] OQ14 (owner approval for a live change with no staging) | S | none |
+| TASK-1067 | knowledge-report | Frequency-aware decay and a model review flag | [?] OQ17 (its own ADR and validation data) | XL | TASK-1065, TASK-1066 |
+| TASK-1068 | knowledge-report | Learner corrections on the word sheet | [?] OQ18 (should self-reports write BKT state?) | M | TASK-1047 |
+| TASK-1069 | knowledge-report | Today card | [?] OQ19 (placement on Today) | S | TASK-1040 |
+| TASK-1070 | knowledge-report | "Upcoming tests" coverage card (Pro) | [?] OQ32 | M | TASK-1041, TASK-1046 |
+| TASK-1071 | knowledge-report | Estimated percentage per exam level | [?] OQ34 and TASK-1056 | M | TASK-1050, TASK-1056 |
 
 ### Language Packs (existing — unchanged)
 
