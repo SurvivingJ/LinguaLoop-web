@@ -58,7 +58,7 @@ from services.dual_translation.repair import hooks as repair_hooks
 from services.dual_translation.passage_builder import (
     MAX_WINDOW, SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
 )
-from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE
+from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE, FLOOR_OVERRIDE_REVIEWS
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.vocabulary.fsrs import AGAIN, CardState, schedule_review
@@ -685,7 +685,7 @@ def _get_usable_references(db, sentence_ids: list, l1_language_id: int) -> dict:
         return {}
     resp = (
         db.table('test_sentence_references')
-        .select('sentence_id, l1_text, tightness, review_verdict')
+        .select('sentence_id, l1_text, tightness, review_verdict, faithful_reviews')
         .in_('sentence_id', sentence_ids)
         .eq('l1_language_id', l1_language_id)
         .eq('is_active', True)
@@ -1295,7 +1295,7 @@ class _RpcInputs(_NextInputs):
             meta = {'id': str(t['id']), 'language_id': self.l2, 'transcript_hash': t.get('h'),
                     'difficulty': t.get('d'), 'elo': t.get('elo')}
             self._tests[bool(t.get('at'))].append(meta)
-            self._materials[meta['id']] = _materials_from_rows(meta['id'], t.get('rows') or [])
+            self._materials[meta['id']] = _materials_from_rows(meta['id'], t.get('rows') or [], t.get('ag') or [])
         self._ranges = {
             (str(r['t']), int(r['s']), int(r['e'])): {
                 'id': r['id'], 'age_tier': r.get('a'), 'l2_language_id': self.l2,
@@ -1325,11 +1325,14 @@ class _RpcInputs(_NextInputs):
         return self._ranges
 
 
-def _materials_from_rows(test_id: str, rows: list) -> tuple:
+def _materials_from_rows(test_id: str, rows: list, agreed=()) -> tuple:
     """``dt_next_inputs`` sentence rows -> the ``_window_materials`` tuple
     ``(rows, refs_ok, tightness)``. A stale row (``fresh`` false) and a gap
-    in idx stay in the list as window breakers, exactly as there."""
+    in idx stay in the list as window breakers, exactly as there.
+    ``agreed`` (the function's ``ag`` list, ADR-050) are the indices whose
+    reference two independent reviews passed; their rows carry ``agreed``."""
     out_rows, refs_ok, tightness = [], set(), {}
+    agreed = {int(i) for i in (agreed or [])}
     for sid, idx, fresh, ref_ok, tight, chars in rows:
         idx = int(idx)
         out_rows.append({'id': sid, 'test_id': test_id, 'idx': idx,
@@ -1338,6 +1341,8 @@ def _materials_from_rows(test_id: str, rows: list) -> tuple:
             refs_ok.add(idx)
             if tight is not None:
                 tightness[idx] = float(tight)
+            if idx in agreed:
+                out_rows[-1]['agreed'] = True
     present = {r['idx'] for r in out_rows}
     if present:
         out_rows += [{'id': None, 'test_id': test_id, 'idx': i, 'l2_text': ''}
@@ -1707,6 +1712,8 @@ def _window_materials(db, tests: list, l1_language_id: int) -> dict:
                 refs_ok.add(int(row['idx']))
                 if ref.get('tightness') is not None:
                     tightness[int(row['idx'])] = float(ref['tightness'])
+                if (ref.get('faithful_reviews') or 0) >= FLOOR_OVERRIDE_REVIEWS:
+                    row['agreed'] = True
     return out
 
 
@@ -1721,8 +1728,9 @@ def _next_sentence_window(tests: list, materials: dict, l2_language_id: int,
                           served_ranges: dict) -> Optional[dict]:
     """The first fresh 2-4 sentence window over ``tests`` (already in rotation
     order): every sentence has a usable L1 reference, the mean tightness clears
-    the language floor, and no sentence belongs to a window this learner was
-    already served. Window choice is ``select_window_for_primed`` with no
+    the language floor (sentences two independent reviews agreed on are left
+    out of the mean, ADR-050), and no sentence belongs to a window this learner
+    was already served. Window choice is ``select_window_for_primed`` with no
     primed words (the shortest eligible window, then the earliest)."""
     from services.dual_translation.passage_builder import select_window_for_primed
 
@@ -1732,7 +1740,8 @@ def _next_sentence_window(tests: list, materials: dict, l2_language_id: int,
         if not rows:
             continue
         free = refs_ok - served_ranges.get(str(test['id']), set())
-        window = select_window_for_primed(rows, [], [], free, tightness, floor)
+        agreed = frozenset(int(r['idx']) for r in rows if r.get('agreed'))
+        window = select_window_for_primed(rows, [], [], free, tightness, floor, agreed=agreed)
         if window:
             return {'test_id': str(test['id']), 'start': int(window[0]), 'end': int(window[1])}
     return None

@@ -1,0 +1,44 @@
+{
+ "test_id": "da9862e8-0351-4799-94e6-f1829e9913a2",
+ "l2": "zh",
+ "l1": "en",
+ "arm": "sentencewise",
+ "prompt_version": "sr-1.0",
+ "sentences": [
+  {
+   "idx": 0,
+   "l2": "在信息爆炸的时代，企业每天都会积累海量数据，这些数据通常存放在数据库中。",
+   "l1": "In an age of information explosion, enterprises accumulate massive amounts of data every day, and this data is usually stored in databases."
+  },
+  {
+   "idx": 1,
+   "l2": "要从中准确地提取所需信息，就必须借助SQL，即结构化查询语言。",
+   "l1": "To accurately extract the information needed from it, one must rely on SQL, that is, Structured Query Language."
+  },
+  {
+   "idx": 2,
+   "l2": "它的核心功能是查询：用户只需通过简洁的语句，说明想要哪些数据、满足什么条件，系统便会返回相应结果。",
+   "l1": "Its core function is querying: the user only needs to use concise statements to state which data they want and what conditions it must meet, and the system will return the corresponding results."
+  },
+  {
+   "idx": 3,
+   "l2": "数据库里的信息一般按表格形式组织，每张表由若干行记录和列组成，每一列称为一个字段，例如“姓名”“订单金额”或“下单日期”。",
+   "l1": "Information in a database is generally organized in tabular form, each table consists of a number of rows of records and columns, and each column is called a field, for example \"name\", \"order amount\" or \"order date\"."
+  },
+  {
+   "idx": 4,
+   "l2": "通过SELECT语句，我们可以指定需要的字段，再用WHERE子句筛选出符合条件的记录。",
+   "l1": "With the SELECT statement, we can specify the fields we need, and then use the WHERE clause to filter out the records that meet the conditions."
+  },
+  {
+   "idx": 5,
+   "l2": "然而，现实中的信息往往分散在不同的表里，比如客户资料与订单明细各自独立存放。",
+   "l1": "However, in reality information is often scattered across different tables, for example customer data and order details are each stored separately."
+  },
+  {
+   "idx": 6,
+   "l2": "这时就需要表连接，依据两张表共有的字段，如客户编号，把相关记录对应起来，从而得到完整的分析视图。",
+   "l1": "This is when a table join is needed, which matches up the related records according to a field the two tables share, such as the customer ID, thereby obtaining a complete analytical view."
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+  "test_id": "cf8af784-85e0-4546-8bc2-6718e64dd3e4",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9706,
+      "back_translation": "每到选举季,媒体公布民调结果时,总会附上一行小字:“误差范围为正负三个百分点。”"
+    },
+    {
+      "idx": 1,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "'popular' ambiguous; use plain-language for 通俗",
+      "tightness": 0.8235,
+      "back_translation": "这不是套话,而是置信区间的一种通俗说法。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.962,
+      "back_translation": "民调机构不可能询问每一位选民,只能随机抽取大约一千名受访者,再由此估计全体选民的态度。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8649,
+      "back_translation": "样本只是总体的一小部分,估计难免存在一些偏差,所以必须给出一个区间,而不是单一的数字。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9038,
+      "back_translation": "比如,某候选人的支持率为百分之五十,误差范围为正负三个百分点,意思是真实支持率大致在百分之四十七到百分之五十三之间。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.729,
+      "back_translation": "这一判断还取决于置信水平,通常设定为百分之九十五,也就是说,同一项调查重复一百次,得到的区间中大约有九十五个会覆盖真实值。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8618,
+      "back_translation": "“三个点”之所以常见,是因为样本量约为一千时,误差恰好接近这个数字;若想把误差减半,样本量就得扩大到四倍,成本会急剧上升,所以多数机构选择折中。"
+    }
+  ]
+}

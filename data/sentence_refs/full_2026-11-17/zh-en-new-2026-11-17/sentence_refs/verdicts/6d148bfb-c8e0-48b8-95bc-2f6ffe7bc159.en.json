@@ -1,0 +1,43 @@
+{
+  "test_id": "6d148bfb-c8e0-48b8-95bc-2f6ffe7bc159",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.835,
+      "back_translation": "在市中心，许多老旧小区建于上世纪八九十年代，规划阶段几乎没有人预料到私家车会变得如此普及，因此停车位的配比严重不足。"
+    },
+    {
+      "idx": 1,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Gold 占道停车 = parking that occupies the lane, not specifically 'illegal'; also 突发意外 = accident occurs.",
+      "tightness": 0.7671,
+      "back_translation": "如今，停车难已成为居民日常生活中最棘手的矛盾之一：傍晚时分，狭窄的巷子两侧停满了车辆，就连消防通道也被违规停车一点点蚕食，以至于遇到紧急情况时，救援车辆几乎无法通行。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.75,
+      "back_translation": "业主指责物业不作为，而物业则声称自己没有执法权，双方各执一词，纠纷年复一年地持续着。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7784,
+      "back_translation": "一些小区尝试过与附近的商场错峰共享车位，或者引入车牌识别系统来规范出入，效果相当不错；然而，更根本的困境在于，公共空间的重新分配难免触及每家每户的利益，如何在公平与效率之间取得平衡，仍然有赖于长期的协商与妥协。"
+    }
+  ]
+}

@@ -528,6 +528,35 @@ class TestSentenceWindowQuality:
         db = _TableDB(_taken_only(test_sentence_references=refs))
         assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
 
+    def test_low_tightness_windows_two_reviewers_agreed_on_are_served(self):
+        """ADR-050: a reference two independent reviews passed skips the floor."""
+        refs = _tables()['test_sentence_references']
+        for r in refs:
+            if r['sentence_id'] < 600:
+                r['tightness'] = 0.2
+                r['faithful_reviews'] = 2
+        db = _TableDB(_taken_only(test_sentence_references=refs))
+        assert _choose(db, JA)['kind'] == 'range'
+
+    def test_one_review_does_not_override_the_floor(self):
+        refs = _tables()['test_sentence_references']
+        for r in refs:
+            if r['sentence_id'] < 600:
+                r['tightness'] = 0.2
+                r['faithful_reviews'] = 1
+        db = _TableDB(_taken_only(test_sentence_references=refs))
+        assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
+
+    def test_function_rows_carry_the_agreed_list(self):
+        """dt_next_inputs returns `ag` per test; agreed rows get the flag."""
+        rows = [[10, 0, True, True, 0.2, 5], [11, 1, True, True, 0.2, 5], [12, 2, False, True, 0.2, 5]]
+        out_rows, refs_ok, tightness = dt_routes._materials_from_rows('t', rows, [0, 1, 2])
+        assert [r.get('agreed', False) for r in out_rows] == [True, True, False]
+        assert dt_routes._next_sentence_window(
+            [{'id': 't'}], {'t': (out_rows, refs_ok, tightness)}, JA, {}) == {'test_id': 't', 'start': 0, 'end': 1}
+        plain, refs_ok, tightness = dt_routes._materials_from_rows('t', rows)
+        assert dt_routes._next_sentence_window([{'id': 't'}], {'t': (plain, refs_ok, tightness)}, JA, {}) is None
+
     def test_references_must_be_in_the_learners_l1(self):
         refs = _tables()['test_sentence_references']
         for r in refs:

@@ -125,6 +125,7 @@ error-vs-mistake gate, and promotion threshold.
 
 ## Related Pages
 - [[features/dual-translation.tech]] — architecture, data model, grading pipeline (Feature 1)
+- [[features/test-sentence-references]] — where the passages and their native-language references come from
 - [[features/dual-translation-remediation.tech]] — error synthesis + spaced remediation (Feature 2)
 - [[algorithms/translation-grading-cascade]] — Tier 0 deterministic + OpenRouter cascade
 - [[business-rules/translation-error-taxonomy]] — error taxonomy and promotion rules

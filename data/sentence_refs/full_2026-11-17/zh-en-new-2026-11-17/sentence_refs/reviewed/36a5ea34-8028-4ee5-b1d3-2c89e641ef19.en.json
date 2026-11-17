@@ -1,0 +1,44 @@
+{
+ "test_id": "36a5ea34-8028-4ee5-b1d3-2c89e641ef19",
+ "l2": "zh",
+ "l1": "en",
+ "arm": "sentencewise",
+ "prompt_version": "sr-1.0",
+ "sentences": [
+  {
+   "idx": 0,
+   "l2": "在科学研究中，假设检验是判断数据能否支持某种结论的常用方法。",
+   "l1": "In scientific research, hypothesis testing is a common method for judging whether data can support a certain conclusion."
+  },
+  {
+   "idx": 1,
+   "l2": "研究者通常先设定一个“没有效应”的原假设，例如某种新药与安慰剂的疗效并无差别，然后计算在原假设成立的前提下，观察到当前数据或更极端数据的概率，这个概率就是p值。",
+   "l1": "Researchers usually first set a null hypothesis of \"no effect\", for example that a new drug and a placebo have no difference in efficacy, and then calculate the probability of observing the current data or more extreme data on the premise that the null hypothesis holds, and this probability is the p-value."
+  },
+  {
+   "idx": 2,
+   "l2": "若p值低于事先约定的显著性水平，常见的取值为0.05，便称结果“显著”，意味着可以拒绝原假设。",
+   "l1": "If the p-value is lower than a significance level agreed in advance, with 0.05 being a common value, the result is called \"significant\", which means the null hypothesis can be rejected."
+  },
+  {
+   "idx": 3,
+   "l2": "然而，“显著”并不等于效应很大，更不代表结论一定正确。",
+   "l1": "However, \"significant\" does not mean the effect is large, and even less does it mean the conclusion is necessarily correct."
+  },
+  {
+   "idx": 4,
+   "l2": "p值只能说明数据与原假设之间的矛盾程度，却无法告诉我们原假设为真的概率。",
+   "l1": "The p-value can only indicate the degree of conflict between the data and the null hypothesis, but cannot tell us the probability that the null hypothesis is true."
+  },
+  {
+   "idx": 5,
+   "l2": "即便采用严格的标准，仍可能出现误判：原假设其实成立，却被错误拒绝；或者效应确实存在，却未被发现。",
+   "l1": "Even with strict standards, misjudgments can still occur: the null hypothesis is in fact true but is wrongly rejected; or an effect really exists but is not detected."
+  },
+  {
+   "idx": 6,
+   "l2": "因此，解读结果时，既要关注p值，也要结合样本量、效应大小与研究设计，才能避免被一个数字误导。",
+   "l1": "Therefore, when interpreting results, one must pay attention to the p-value and also take into account the sample size, the effect size and the study design, in order to avoid being misled by a single number."
+  }
+ ]
+}

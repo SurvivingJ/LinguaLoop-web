@@ -43,6 +43,10 @@ def segment_sentences(text: Optional[str], language_code: str) -> list[str]:
 PROMPT_VERSION = 'sr-1.0'
 ARMS = ('sentencewise', 'aligned')
 VERDICTS = ('pending', 'pass', 'rewritten', 'fail')
+USABLE_VERDICTS = ('pass', 'rewritten')
+#: Independent reviews of the exact same text (distinct runs) at which a
+#: reference skips the tightness floor in window selection (ADR-050).
+FLOOR_OVERRIDE_REVIEWS = 2
 LANG_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
 LANG_ID = {v: k for k, v in LANG_CODE.items()}
 
@@ -181,7 +185,6 @@ PREAMBLE_RE = re.compile(
     r'^\s*(?:この文章は|本文|本篇|This (?:passage|article|text)|The following (?:passage|text))'
     r'|---'
 )
-_DIGIT_RE = re.compile(r'\d+')
 _PUNCT_RE = re.compile(r'[\s　。、，．,.!！?？:：;；"“”\'‘’「」『』()（）\[\]【】\-—–…·・]')
 
 LENGTH_RATIO_BOUNDS = {       # len(l1) / len(l2), fitted loosely; the pilot refits
@@ -209,10 +212,195 @@ def normalise_digits(s: str) -> str:
     return unicodedata.normalize('NFKC', s or '')
 
 
+# Numbers are compared by value, not by digit string: "102万" is satisfied by
+# "1,020,000" or "1.02 million" (or "102 wan"), "1000" by "1,000", and a "5" in
+# the original is NOT satisfied by the "5" inside "15" or "2015". In the
+# reference, numbers written as words count too ("three", "twenty-five",
+# 三, 十二, 两百): developer decision 2026-11-17.
+_NUM = r'\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?'
+_CJK_UNITS = {'百': (100,), '千': (1000,), '万': (10 ** 4,), '萬': (10 ** 4,),
+              '亿': (10 ** 8,), '億': (10 ** 8,), '兆': (10 ** 12, 10 ** 6)}  # zh 兆 is also "mega"
+_EN_SCALES = {'hundred': 100, 'thousand': 10 ** 3, 'million': 10 ** 6, 'billion': 10 ** 9,
+              'trillion': 10 ** 12}
+_CJK_MENTION_RE = re.compile(f'(?:(?:{_NUM})[{"".join(_CJK_UNITS)}])+(?:{_NUM})?')
+_EN_MENTION_RE = re.compile(f'({_NUM})(?:\\s*({"|".join(_EN_SCALES)})\\b)?', re.IGNORECASE)
+_NUM_RE = re.compile(_NUM)
+_MONTHS = ('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august',
+           'september', 'october', 'november', 'december')
+# Full English month names count as a mention (so 11月 is carried by "November");
+# 'may' only when capitalised, to keep the modal verb out.
+_MONTH_RE = re.compile(r'\b(January|February|March|April|May|June|July|August|September|October|November|December)\b')
+
+
+def _dec(token: str):
+    from decimal import Decimal
+    return Decimal(token.replace(',', ''))
+
+
+def _cjk_values(mention: str) -> set:
+    """Values a digit+unit mention like 102万 / 1亿2000万 / 3千 can stand for: the
+    compound value (both readings of 兆), plus the bare number when there is one part."""
+    parts = re.findall(f'({_NUM})([{"".join(_CJK_UNITS)}])?', mention)
+    readings = {0}
+    for alt in range(2):  # second pass reads 兆 as 10**6
+        total = section = 0
+        for num, unit in parts:
+            v = _dec(num)
+            if not unit:
+                section += v
+            elif unit in ('百', '千'):
+                section += v * _CJK_UNITS[unit][0]
+            else:
+                m = _CJK_UNITS[unit][min(alt, len(_CJK_UNITS[unit]) - 1)]
+                total += (section + v) * m
+                section = 0
+        readings.add(total + section)
+    readings.discard(0)
+    if len(parts) == 1:
+        readings.add(_dec(parts[0][0]))
+    return readings
+
+
+def _number_mentions(text: str) -> list[tuple[str, set]]:
+    """``[(label, {values})]`` for every number written with digits in ``text``."""
+    # NFKC turns the full-width comma into ',', which would glue a CJK list
+    # (100，200) into one grouped number; keep it a separator.
+    t = unicodedata.normalize('NFKC', (text or '').replace('，', '、'))
+    out, taken = [], []
+    for m in _CJK_MENTION_RE.finditer(t):
+        out.append((m.group(0), _cjk_values(m.group(0))))
+        taken.append(m.span())
+    for m in _EN_MENTION_RE.finditer(t):
+        if any(a <= m.start() < b for a, b in taken):
+            continue
+        v = _dec(m.group(1))
+        vals = {v}
+        if m.group(2):
+            vals.add(v * _EN_SCALES[m.group(2).lower()])
+        if t[m.end():m.end() + 2] == '世纪' and v == int(v) and 1 <= v <= 30:
+            vals |= {(v - 1) * 100 + y for y in range(100)}  # 20世纪 -> any year 1900-1999
+        if t[m.end():m.end() + 2] == '年代' and v == int(v) and 0 <= v < 100 and v % 10 == 0:
+            vals |= {1900 + v, 2000 + v}  # 70年代 -> the 1970s
+        if t[m.end():m.end() + 1] == '月' and 1 <= v <= 12 and v == int(v):
+            vals.add(_MONTHS[int(v) - 1])  # 11月 -> 'november'
+        out.append((m.group(1), vals))
+    for name in _MONTH_RE.findall(t):
+        out.append((name, {name.lower()}))
+    return out
+
+
+_EN_WORD_UNITS = {
+    'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7,
+    'eight': 8, 'nine': 9, 'ten': 10, 'eleven': 11, 'twelve': 12, 'thirteen': 13,
+    'fourteen': 14, 'fifteen': 15, 'sixteen': 16, 'seventeen': 17, 'eighteen': 18,
+    'nineteen': 19,
+    'first': 1, 'second': 2, 'third': 3, 'fourth': 4, 'fifth': 5, 'sixth': 6, 'seventh': 7,
+    'eighth': 8, 'ninth': 9, 'tenth': 10, 'eleventh': 11, 'twelfth': 12, 'thirteenth': 13,
+    'fourteenth': 14, 'fifteenth': 15, 'sixteenth': 16, 'seventeenth': 17,
+    'eighteenth': 18, 'nineteenth': 19,
+    'once': 1, 'twice': 2, 'thrice': 3,
+}
+_EN_WORD_TENS = {
+    'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50, 'sixty': 60, 'seventy': 70,
+    'eighty': 80, 'ninety': 90, 'twentieth': 20, 'thirtieth': 30, 'fortieth': 40,
+    'fiftieth': 50, 'sixtieth': 60, 'seventieth': 70, 'eightieth': 80, 'ninetieth': 90,
+}
+_EN_WORD_SCALES = {'hundred': 100, 'hundredth': 100, 'dozen': 12, 'thousand': 10 ** 3,
+                   'thousandth': 10 ** 3, 'million': 10 ** 6, 'millionth': 10 ** 6,
+                   'billion': 10 ** 9, 'trillion': 10 ** 12}
+_CJK_DIGITS = {'零': 0, '〇': 0, '一': 1, '二': 2, '两': 2, '兩': 2, '三': 3, '四': 4,
+               '五': 5, '六': 6, '七': 7, '八': 8, '九': 9}
+_CJK_SMALL = {'十': 10, '百': 100, '千': 1000}
+_CJK_BIG = {'万': 10 ** 4, '萬': 10 ** 4, '亿': 10 ** 8, '億': 10 ** 8, '兆': 10 ** 12}
+_CJK_NUMERAL_RE = re.compile('[' + ''.join(_CJK_DIGITS) + ''.join(_CJK_SMALL) + ''.join(_CJK_BIG) + ']+')
+
+
+def _en_word_values(text: str) -> set:
+    """Values of numbers written as English words: every number word on its
+    own, and each run read as one number (twenty-five, one hundred and five,
+    a dozen, three million, one and a half; "half" alone is 0.5)."""
+    from decimal import Decimal
+    words = re.findall(r'[a-z]+', (text or '').lower())
+    vals: set = set()
+
+    def run_value(run: list) -> Decimal:
+        total = current = 0
+        for w in run:
+            if w in _EN_WORD_UNITS or w in _EN_WORD_TENS:
+                current += _EN_WORD_UNITS.get(w, _EN_WORD_TENS.get(w, 0))
+            elif w in ('a', 'an'):
+                current = current or 1
+            elif w in ('hundred', 'hundredth', 'dozen'):
+                current = (current or 1) * _EN_WORD_SCALES[w]
+            elif w in _EN_WORD_SCALES:
+                total += (current or 1) * _EN_WORD_SCALES[w]
+                current = 0
+        return Decimal(total + current)
+
+    run: list = []
+    i = 0
+    while i <= len(words):
+        w = words[i] if i < len(words) else ''
+        nxt = words[i + 1] if i + 1 < len(words) else ''
+        if w in _EN_WORD_UNITS or w in _EN_WORD_TENS or w in _EN_WORD_SCALES:
+            vals.add(Decimal(_EN_WORD_UNITS.get(w, _EN_WORD_TENS.get(w, _EN_WORD_SCALES.get(w)))))
+            run.append(w)
+        elif w in ('a', 'an') and nxt in _EN_WORD_SCALES:
+            run.append(w)
+        elif w == 'and' and run and (nxt in _EN_WORD_UNITS or nxt in _EN_WORD_TENS):
+            run.append(w)
+        elif w == 'and' and run and words[i + 1:i + 3] == ['a', 'half']:
+            v = run_value(run)
+            vals |= {v, v + Decimal('0.5')}
+            run = []
+            i += 3
+            continue
+        else:
+            if w == 'half':
+                vals.add(Decimal('0.5'))
+            if any(x not in ('a', 'an', 'and') for x in run):
+                vals.add(run_value(run))
+            run = []
+        i += 1
+    return vals
+
+
+def _cjk_numeral_values(text: str) -> set:
+    """Values of numbers written with Chinese/Japanese numerals: 三 3, 十二 12,
+    两百 200, 三百万 3,000,000, 二〇二六 2026 (digit by digit), and each digit
+    character on its own."""
+    from decimal import Decimal
+    vals: set = set()
+    for s in _CJK_NUMERAL_RE.findall(text or ''):
+        if len(s) > 1 and all(c in _CJK_DIGITS for c in s):
+            vals.add(Decimal(''.join(str(_CJK_DIGITS[c]) for c in s)))
+        total = section = num = 0
+        for c in s:
+            if c in _CJK_DIGITS:
+                num = _CJK_DIGITS[c]
+                vals.add(Decimal(num))
+            elif c in _CJK_SMALL:
+                section += (num or 1) * _CJK_SMALL[c]
+                num = 0
+            else:
+                total += ((section + num) or 1) * _CJK_BIG[c]
+                section = num = 0
+        vals.add(Decimal(total + section + num))
+    return vals
+
+
 def missing_numbers(l2_text: str, l1_text: str) -> list[str]:
-    nums_l2 = _DIGIT_RE.findall(normalise_digits(l2_text))
-    nums_l1 = normalise_digits(l1_text)
-    return [n for n in nums_l2 if n not in nums_l1]
+    """Numbers written with digits in the gold that the reference does not carry
+    (by value; scale words and 万/亿/千 are understood on both sides; in the
+    reference a number may also be written as words or CJK numerals)."""
+    def norm(vals):
+        return {v.normalize() if hasattr(v, 'normalize') else v for v in vals}
+    have: set = set()
+    for _, vals in _number_mentions(l1_text):
+        have |= norm(vals)
+    have |= norm(_en_word_values(l1_text)) | norm(_cjk_numeral_values(l1_text))
+    return [label for label, vals in _number_mentions(l2_text)
+            if any(not isinstance(v, str) for v in vals) and not (norm(vals) & have)]
 
 
 def has_preamble(text: str) -> bool:
@@ -315,6 +503,23 @@ def strip_author_notes(doc: dict) -> dict:
 
 def verdict_ok(v: dict) -> bool:
     return v.get('verdict') in ('pass', 'rewritten')
+
+
+def faithful_reviews(new_row: dict, run_id: str, existing: Iterable[dict]) -> int:
+    """How many independent reviews (distinct run_id) passed or wrote this
+    exact text for this (sentence, L1), counting the new row's own review.
+    ``existing`` rows carry sentence_id, l1_language_id, l1_text, run_id,
+    review_verdict. A row whose verdict is not usable counts 0 (ADR-050)."""
+    if new_row.get('review_verdict') not in USABLE_VERDICTS:
+        return 0
+    runs = {run_id}
+    for e in existing:
+        if (e.get('sentence_id') == new_row['sentence_id']
+                and e.get('l1_language_id') == new_row['l1_language_id']
+                and e.get('l1_text') == new_row['l1_text']
+                and e.get('review_verdict') in USABLE_VERDICTS):
+            runs.add(e.get('run_id'))
+    return len(runs)
 
 
 def activation_plan(new_rows: Iterable[dict], existing_active: dict[tuple[int, int], int]) -> dict:

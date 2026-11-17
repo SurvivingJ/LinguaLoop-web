@@ -108,7 +108,7 @@ def _tests_from_db(language: str, l1: str, limit: int, test_ids: list[str] | Non
             continue
         sids = [r['id'] for r in rows]
         active = db.table('test_sentence_references').select('sentence_id').in_('sentence_id', sids) \
-            .eq('l1_language_id', l1id).eq('is_active', True).eq('review_verdict', 'pass').execute().data or []
+            .eq('l1_language_id', l1id).eq('is_active', True).in_('review_verdict', ['pass', 'rewritten']).execute().data or []
         if len(active) == len(rows):
             continue  # fully covered already
         out.append({'test_id': t['id'], 'title': t.get('title'), 'language': language,
@@ -160,7 +160,10 @@ So every sentence must be faithful and tight, not pretty.
 4. No {l2_name} script in `l1` (no kanji, kana or hanzi in English; no romaji
    either). Loanwords go back to their source form (カタログ -> catalogue).
 5. Proper nouns: use the standard {l1_name} form if one exists, else a
-   transliteration. Keep digits as digits.
+   transliteration. Write numbers the way {l1_name} naturally would, as digits or
+   words (three apples; 102万 -> 1,020,000 or 1.02 million; 70年代 -> the 1970s).
+   The number check compares values, so separators, million/万/亿, month names
+   and number words (three, 三) all match; the value itself must be right.
 6. Terminators: end each `l1` with the punctuation the sentence type needs in
    {l1_name}. Question stays a question.
 7. Arm `sentencewise`: translate one sentence at a time, re-reading the whole
@@ -369,6 +372,9 @@ def cmd_assemble(a) -> int:
     wl = worklist(run)
     reviewed = docs_in(run, 'reviewed')
     verdicts = docs_in(run, 'verdicts')
+    # Reviewers never open docs/, so provenance the reviewed copy lacks comes
+    # from the authored document.
+    authored = docs_in(run, 'docs')
     canon = {t['test_id']: t for t in wl['tests']}
     rows, problems = [], 0
     for key, d in reviewed.items():
@@ -394,8 +400,9 @@ def cmd_assemble(a) -> int:
             rows.append({
                 'test_id': tid, 'idx': s['idx'], 'sentence_id': canon_s.get('sentence_id'),
                 'l1': wl['l1'], 'l1_language_id': sr.LANG_ID[wl['l1']], 'l1_text': s['l1'],
-                'author_model': d.get('author_model') or 'claude-subagent', 'prompt_version': d.get('prompt_version'),
-                'arm': d.get('arm'), 'reviewer_model': v.get('reviewer_model'),
+                'author_model': authored.get(key, {}).get('author_model') or d.get('author_model') or 'claude-subagent',
+                'prompt_version': d.get('prompt_version') or authored.get(key, {}).get('prompt_version'),
+                'arm': d.get('arm') or authored.get(key, {}).get('arm'), 'reviewer_model': v.get('reviewer_model'),
                 'review_verdict': vr['verdict'], 'tightness': vr.get('tightness'), 'entailment_ok': vr.get('entailment_ok'),
                 'run_id': os.path.basename(os.path.normpath(run)),
             })

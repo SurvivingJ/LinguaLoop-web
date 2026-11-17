@@ -1,0 +1,52 @@
+{
+ "items": [
+  {
+   "key": "18a77687-26-en",
+   "verdict": "pass",
+   "reviewer_note": "Gold is corrupted: subject reads 这件T恤的T恤 ('this T-shirt's T-shirt'), a duplication glitch that also hits idx 33; reference matches the evident intent and should stand once the transcript is fixed.",
+   "reason": "developer 2026-11-17: English glosses / duplicated phrase in the transcript are intended (TASK-977 Won't Do), so the gold is not broken; the second reviewer judged the reference faithful (entailment_ok)"
+  },
+  {
+   "key": "18a77687-33-en",
+   "verdict": "pass",
+   "reviewer_note": "Gold is corrupted with the same 这件T恤的T恤 duplication as idx 26; reference renders the intended 也让我更懂得珍惜 correctly and should stand once the transcript is fixed.",
+   "reason": "developer 2026-11-17: English glosses / duplicated phrase in the transcript are intended (TASK-977 Won't Do), so the gold is not broken; the second reviewer judged the reference faithful (entailment_ok)"
+  },
+  {
+   "key": "1e6419a4-22-en",
+   "verdict": "pass",
+   "reviewer_note": "Gold mixes scripts: it holds the English word 'meritocratic' plus a parenthetical gloss （绩效导向）, and the next sentence does the same with guild and clan; the reference mirrors the content faithfully, but the transcript needs fixing.",
+   "reason": "developer 2026-11-17: English glosses / duplicated phrase in the transcript are intended (TASK-977 Won't Do), so the gold is not broken; the second reviewer judged the reference faithful (entailment_ok)"
+  },
+  {
+   "key": "4980d9b2-9-en",
+   "verdict": "pass",
+   "reviewer_note": "Gold is mixed script, with an English gloss （mixed-use development） inside the Chinese, which also lowers the score; reference itself is faithful and unchanged.",
+   "reason": "developer 2026-11-17: English glosses / duplicated phrase in the transcript are intended (TASK-977 Won't Do), so the gold is not broken; the second reviewer judged the reference faithful (entailment_ok)"
+  },
+  {
+   "key": "568533a8-5-en",
+   "verdict": "pass",
+   "reviewer_note": "Gold is mixed script, with an English gloss （polychronic time） inside the Chinese; reference itself is faithful and unchanged.",
+   "reason": "developer 2026-11-17: English glosses / duplicated phrase in the transcript are intended (TASK-977 Won't Do), so the gold is not broken; the second reviewer judged the reference faithful (entailment_ok)"
+  },
+  {
+   "key": "6ff700da-0-en",
+   "verdict": "pass",
+   "reviewer_note": "Gold is mixed script, with Latin glosses (sustainability) and (waste reduction) inside the Chinese, which a learner can never reproduce; the reference itself is faithful and unchanged.",
+   "reason": "developer 2026-11-17: English glosses / duplicated phrase in the transcript are intended (TASK-977 Won't Do), so the gold is not broken; the second reviewer judged the reference faithful (entailment_ok)"
+  },
+  {
+   "key": "6ff700da-8-en",
+   "verdict": "rewritten",
+   "reviewer_note": "Gold is mixed script, with Latin (vermicomposter) and (Eisenia fetida) inside the Chinese; the reference also dropped 液, so the l1 here adds \"liquid\" to match 腐殖质浓缩液.",
+   "reason": "developer 2026-11-17: English glosses / duplicated phrase in the transcript are intended (TASK-977 Won't Do), so the gold is not broken; the second reviewer judged the reference faithful (entailment_ok)"
+  },
+  {
+   "key": "eb41dd33-7-en",
+   "verdict": "pass",
+   "reviewer_note": "Gold is mixed script: an English gloss （servo motor） sits in parentheses after 舵机; reference is faithful and needs no change once the gloss is dropped from the gold.",
+   "reason": "developer 2026-11-17: English glosses / duplicated phrase in the transcript are intended (TASK-977 Won't Do), so the gold is not broken; the second reviewer judged the reference faithful (entailment_ok)"
+  }
+ ]
+}

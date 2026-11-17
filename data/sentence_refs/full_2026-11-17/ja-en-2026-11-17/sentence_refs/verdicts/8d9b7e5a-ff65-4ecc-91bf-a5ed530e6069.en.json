@@ -1,0 +1,52 @@
+{
+  "test_id": "8d9b7e5a-ff65-4ecc-91bf-a5ed530e6069",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9412,
+      "back_translation": "弟はサッカーをしていて、足をけがした。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9375,
+      "back_translation": "母はすぐに弟を病院に連れて行った。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9394,
+      "back_translation": "医者は足を見て、「大きなけがではないので、心配しなくていいですよ」と言った。"
+    },
+    {
+      "idx": 3,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "awkward English smoothed; meaning unchanged",
+      "tightness": 0.76,
+      "back_translation": "それから傷をきれいに洗って、薬を塗る治療をしてくれた。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "弟は一週間サッカーを休むことになった。"
+    }
+  ]
+}

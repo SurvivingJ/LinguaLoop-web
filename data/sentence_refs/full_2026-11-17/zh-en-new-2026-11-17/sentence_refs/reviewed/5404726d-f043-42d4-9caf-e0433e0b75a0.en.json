@@ -1,0 +1,44 @@
+{
+ "test_id": "5404726d-f043-42d4-9caf-e0433e0b75a0",
+ "l2": "zh",
+ "l1": "en",
+ "arm": "sentencewise",
+ "prompt_version": "sr-1.0",
+ "sentences": [
+  {
+   "idx": 0,
+   "l2": "评估分类模型时，许多初学者只盯着准确率，也就是预测正确的样本占全部样本的比例。",
+   "l1": "When evaluating a classification model, many beginners look only at accuracy, that is, the proportion of correctly predicted samples among all samples."
+  },
+  {
+   "idx": 1,
+   "l2": "然而，当数据严重失衡时，这一指标极具迷惑性。",
+   "l1": "However, when the data is severely imbalanced, this metric is highly misleading."
+  },
+  {
+   "idx": 2,
+   "l2": "设想某医院用模型筛查罕见疾病，一千名受检者中仅十人患病，若模型一律判定为“健康”，准确率高达百分之九十九，却一个患者也没找出来。",
+   "l1": "Imagine a hospital using a model to screen for a rare disease, with only ten of a thousand people examined being ill; if the model judges everyone as \"healthy\", the accuracy is as high as ninety-nine percent, yet not a single patient is found."
+  },
+  {
+   "idx": 3,
+   "l2": "要看清真相，就需要借助混淆矩阵，它把预测结果分为真阳性、假阳性、真阴性和假阴性四类。",
+   "l1": "To see the truth clearly, one needs to use a confusion matrix, which divides prediction results into four categories: true positives, false positives, true negatives and false negatives."
+  },
+  {
+   "idx": 4,
+   "l2": "其中假阳性就是误报，即健康者被误判为患者。",
+   "l1": "Among these, a false positive is a false alarm, that is, a healthy person being wrongly judged to be a patient."
+  },
+  {
+   "idx": 5,
+   "l2": "精确率衡量的是，在被判定患病的人中真正患病者所占的比例，因此反映误报的多寡；召回率则考察全部真实患者中有多少被成功识别，反映漏诊的程度。",
+   "l1": "Precision measures, among the people judged to be ill, the proportion who are truly ill, and so reflects how many false alarms there are; recall examines how many of all the real patients are successfully identified, and reflects the degree of missed diagnoses."
+  },
+  {
+   "idx": 6,
+   "l2": "两者往往此消彼长，所以应结合具体场景权衡取舍。",
+   "l1": "The two often trade off against each other, so one should weigh the choice in light of the specific scenario."
+  }
+ ]
+}

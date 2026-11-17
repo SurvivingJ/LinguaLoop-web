@@ -10,7 +10,8 @@
 --
 -- Nothing reads it any more:
 --   * build_daily_session counts sentence windows
---     (migrations/build_daily_session_dt_windows.sql, applied first);
+--     (migrations/build_daily_session_dt_windows.sql, applied first; now canonical in
+--      migrations/build_daily_session_dt_agreed.sql);
 --   * dt_next_inputs no longer returns the legacy list (migrations/dt_next_inputs.sql);
 --   * services/dual_translation/cards.py and repair/ read the sentence references.
 --

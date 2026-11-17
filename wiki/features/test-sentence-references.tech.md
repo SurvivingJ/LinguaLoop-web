@@ -1,9 +1,9 @@
 ---
 title: Test Sentence References — Technical Specification
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: ./test-sentence-references.md
-last_updated: 2026-10-30
+last_updated: 2026-11-17
 dependencies:
   - "tests.transcript, tests.vocab_token_map"
   - "services/dual_translation/passage_builder.segment_sentences"
@@ -123,7 +123,18 @@ Mirrors `fat_seed_runner.py`. Commands, all file-based, none calling a hosted mo
   beyond proper nouns are allowed for en-L2 only); the check lists the offending characters;
 - every Arabic numeral and every proper noun detected in `l2` (token-map senses with
   `part_of_speech` in the proper-noun set, plus katakana loanwords for ja) has a counterpart in
-  `l1` (digit equality; loanword transliteration via a small table or a reviewer flag);
+  `l1` (loanword transliteration via a small table or a reviewer flag). Numbers are compared
+  **by value** (`missing_numbers`, 2026-11-17; it used to test whether the digit string occurred
+  anywhere in `l1`, which failed "1,020,000" for 102万 and let "15" carry a 5): digits with
+  thousands separators and decimals, CJK compounds with 百/千/万/亿/兆 (102万 = 1,020,000;
+  1亿2000万 = 120,000,000; the bare number is also accepted for a one-part amount), English
+  hundred/thousand/million/billion/trillion, N月 ↔ English month name, N0年代 ↔ 19N0/20N0,
+  N世纪 ↔ any year in that century. A full-width comma stays a list separator. In the
+  reference (never the gold), numbers written as words count too (developer, 2026-11-17):
+  English cardinals/ordinals/twice/dozen/half, runs like "one hundred and five", "three
+  million", "one and a half", and CJK numerals (三, 十二, 两百, 三百万, 二〇二六). The value
+  must still match ("four" does not carry 5). Re-run over every live reference (3,880)
+  and every authored/reviewed document on disk (9,936): no new failure;
 - no preamble patterns (`この文章は`, `本文`, `This passage`, `---`) in either side;
 - length ratio `len(l1)/len(l2)` within per-pair bounds (fitted on the pilot; initial 1.5–6 for
   ja→en, 1.2–5 for zh→en);
@@ -157,6 +168,22 @@ per arm and language, in `wiki/evaluations/sentence-refs-pilot-YYYY-MM-DD.md`. D
 the arm with higher median tightness wins unless its entailment pass rate is more than 3 points
 lower. Sets the tightness floor from the distribution.
 
+### Second review of below-floor references — `scripts/sentence_ref_recheck.py` (TASK-908)
+
+`export --out-dir RUN` reads every active `pass`/`rewritten` reference whose tightness is below
+the Produce floor for its test language (`services.prestudy.PRODUCE_TIGHTNESS_FLOOR`: zh 0.70,
+en 0.60, ja 0.65) and writes packs of 25: a blind file (the L1 target sentence with its L1
+neighbours) and a gold file (the L2 sentence, its L2 neighbours, the current reference). An Opus
+reviewer in a fresh context back-translates every target blind (`back/NN.json`), then judges
+against the gold and rewrites loose references (`verdicts/NN.json`; `fail` only for a broken
+gold). `score RUN` reruns the deterministic checks on each final reference, computes tightness
+from the new back-translation and writes `upload.json` for the normal upload script, which
+replaces only the rechecked sentences. A `fail` row is stored inactive, so the previous reference
+stays served. `export` skips sentences that already have a row from a `recheck-*` run unless
+`--include-rechecked`. Assemble/upload provenance: `author_model`, `arm` and `prompt_version` are taken
+from the authored document in `docs/` when the reviewed copy lacks them (reviewers never open
+`docs/`).
+
 ## API / RPC Surface
 
 ### `GET /api/tests/<slug>/sentences?l1=<code>`
@@ -181,6 +208,35 @@ lower. Sets the tightness floor from the distribution.
 range by primed senses covered ×10 + wrong-question senses ×3 − chars/100, require full reference
 coverage and mean tightness ≥ floor, return the best. Pure function over `test_sentences` rows;
 unit-tested against the demo's five tests.
+
+### Floor override: two agreeing reviews (ADR-050, TASK-1033, 2026-11-17)
+
+`test_sentence_references.faithful_reviews smallint NOT NULL DEFAULT 0 CHECK (>= 0)`
+(`migrations/test_sentence_references_faithful_reviews.sql`, applied live 2026-11-17 with a
+backfill): the number of distinct `run_id`s whose row for the same (sentence, L1) has the exact
+same `l1_text` and verdict `pass`/`rewritten`. `scripts/upload_sentence_references.py` sets it
+on insert (`sentence_refs.faithful_reviews(new_row, run_id, prior_rows)`; 0 for `fail`).
+
+Gate, used by `select_window_for_primed` (GET /next and Produce):
+`passage_builder.window_meets_floor(idxs, tightness, floor, agreed)`: mean tightness of the
+window ≥ floor, leaving out sentences in `agreed` (`faithful_reviews >= 2`,
+`sentence_refs.FLOOR_OVERRIDE_REVIEWS`) and sentences with no score; nothing left to average →
+passes if every sentence is agreed, else only a floor of 0. `/next` reads `faithful_reviews` in
+`dt_next_inputs` (`ag` per test) and its per-table fallback; `services/prestudy.py` (Produce) reads it
+with the references; `build_daily_session` mirrors the rule for its adjacent-pair availability count
+(`migrations/build_daily_session_dt_agreed.sql`, applied live 2026-11-17).
+
+Live after the decision: agreed rows ja 43, zh 391, en→zh 239; at floor or agreed ja 386/388,
+zh 2,985/3,008, en→zh 473/484; fixed 2–4 sentence packing gives zh 856 and ja 83 eligible windows (a lower bound on what `/next` can cut).
+
+### `GET /api/dual-translation/next` serves sentence windows
+
+Since 2026-11-17 `/next` serves only 2–4 sentence windows built from these references (resume,
+attempted tests, then untaken tests, skip and reserve); the selection is specified in
+[[features/dual-translation.tech]] (`_choose_next`, `dt_next_inputs`). Its window gate is
+`select_window_for_primed` with the ADR-050 `agreed` set: `dt_next_inputs` returns `ag` per test,
+the per-table fallback reads `faithful_reviews`. The daily session's availability count
+(`migrations/build_daily_session_dt_agreed.sql`) applies the same override to adjacent pairs.
 
 ### Changed: grader target words (TASK-910)
 `grade(submission, target_sense_ids)`: after the cascade, for each target sense locate its

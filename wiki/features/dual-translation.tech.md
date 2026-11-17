@@ -284,7 +284,10 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 - **Eligibility:** only passages that already have reviewed references in the learner's L1 —
   nothing is generated live. The L1 comes from `users.native_language_id` (English, id 2, when
   unset). Window quality rules are those of Produce: active references with a `pass`/`rewritten`
-  verdict, mean tightness ≥ `services.prestudy.PRODUCE_TIGHTNESS_FLOOR[l2]`, only active tests,
+  verdict, mean tightness ≥ `services.prestudy.PRODUCE_TIGHTNESS_FLOOR[l2]` (sentences whose
+  reference two independent reviews passed are left out of the mean —
+  [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]]; `dt_next_inputs` returns
+  them as `ag`), only active tests,
   never a sentence of a window already served; stale sentence rows and missing indices break
   windows (see `choose_produce_window`).
 - **Selection order (`_choose_next`; sentence windows only since 2026-11-17 — a `dt_passage` row
