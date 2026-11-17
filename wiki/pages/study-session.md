@@ -52,7 +52,7 @@ row, and remember where I got to if I close the tab halfway through.
 5. **One item at a time.** Each item mounts its own player (listening, reading,
    dictation, pinyin, pitch accent, classifier drill, or practice) into the same stage
    area. While an item runs the page becomes a one-task screen (since 2026-11-16,
-   [[decisions/ADR-046-mobile-app-shell]]): the tab bar and top bar disappear, a header shows
+   [[decisions/ADR-048-mobile-app-shell]]): the tab bar and top bar disappear, a header shows
    a **Back** button, the item's type as title, the test title as subtitle and sometimes a
    counter or clock on the right; under it a slim progress strip shows a row of dots — one
    per item — and a done/total count. Only the middle of the screen scrolls; each player's

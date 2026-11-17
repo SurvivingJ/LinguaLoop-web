@@ -32,7 +32,7 @@ below.
 
 *2026-11-16 (i18n gaps filled):* TASK-985 Done. `es.json` gained the 57 keys it lacked (the `dt_repair.*` family plus `session.dt_repair_heading` / `_none`); 17 keys used in code but present in no locale (`session.speed_*`, `dual_translation.target_*`) added to all four. The four locale files now have identical key sets (1175). Counts: Not Started 42→41, Done 251→252.
 
-*2026-11-16 (mobile redesign built — app shell and design system, ADR-046):* new breakdown [[tasklist/mobile-redesign.tasks]] (TASK-975–988) for every open issue and unverified item the redesign engineers reported. TASK-987 Done (i18n merge, Me page links, hard-coded colours — closed during integration, verified in the tree). TASK-982 (Playwright E2E, needs credentials) and TASK-988 (commit, review, deploy — owner) Blocked. The other 11 Not Started. Counts: Not Started 31→42, Blocked 27→29, Done 250→251.
+*2026-11-16 (mobile redesign built — app shell and design system, ADR-048):* new breakdown [[tasklist/mobile-redesign.tasks]] (TASK-976–988 and TASK-1007) for every open issue and unverified item the redesign engineers reported. TASK-987 Done (i18n merge, Me page links, hard-coded colours — closed during integration, verified in the tree). TASK-982 (Playwright E2E, needs credentials) and TASK-988 (commit, review, deploy — owner) Blocked. The other 11 Not Started. Counts: Not Started 31→42, Blocked 27→29, Done 250→251.
 
 *2026-11-14 (DT guided self-repair built + integrated, WP-INT):* TASK-952–965 Done (WP-BE + WP-FE), TASK-968 and TASK-969 Done (WP-INT: contract test against the real routes, nine frontend/backend mismatches fixed, real-app browser run over an in-memory DB). TASK-966 (apply `dt_guided_self_repair.sql`, owner decision) and TASK-967 (authenticated E2E on a staging DB) Blocked. New: TASK-971 Not Started (real devices / Safari / screen reader / IME), TASK-972 / TASK-973 / TASK-974 Blocked (native review, re-check evaluation, deploy). TASK-939 and TASK-940 superseded by that breakdown. No task id is duplicated (TASK-970 is dt-taxonomy-v6 only). Counts: Not Started 30→31, Blocked 24→27 (+966, 967, 972, 973, 974; −939, 940), Done 234→250. See [[tasklist/dt-guided-self-repair.tasks]].
 
@@ -1193,6 +1193,7 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-919 | new-word-drill | Time estimate and review governor count intro load | Done | S | TASK-915 |
 | TASK-920 | new-word-drill | Feature flag and rollout (LIVE-DB, approval) | Done | S | TASK-912..919 |
 | TASK-921 | new-word-drill | Measurement script and baseline | Done | S | TASK-920 |
+| TASK-975 | new-word-drill | Never-taught words met in practice start the drill (ADR-046) | Done | S | TASK-915 |
 | TASK-922 | new-word-drill | Practice attempts move the ladder (ladder_apply_progress, ADR-041) | Done | M | — |
 | TASK-923 | new-word-drill | Practice player runs gate/stress-test batteries | Done | M | TASK-922 |
 | TASK-924 | new-word-drill | Drill cleanups: atomic commit, spacers, shared counting | Done | M | TASK-915 |
@@ -1253,12 +1254,12 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-973 | dt-guided-self-repair | Evaluate the one-sentence re-check on real submissions | [?] needs real sessions | M | TASK-966, TASK-974 |
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
 
-### Mobile Redesign — App Shell and Design System (ADR-046) — NEW 2026-11-16
-Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[decisions/ADR-046-mobile-app-shell]]. Built in the working tree; not committed, not deployed.
+### Mobile Redesign — App Shell and Design System (ADR-048) — NEW 2026-11-16
+Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[decisions/ADR-048-mobile-app-shell]]. Built in the working tree; not committed, not deployed.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-975 | mobile-redesign | Real-device check — iOS Safari and Android Chrome (dvh, safe areas, keyboard) | [ ] | M | — |
+| TASK-1007 | mobile-redesign | Real-device check — iOS Safari and Android Chrome (dvh, safe areas, keyboard) | [ ] | M | — |
 | TASK-976 | mobile-redesign | Check rendering with the real web fonts | [ ] | S | — |
 | TASK-977 | mobile-redesign | Render the Forest, Inkstone and Still Water themes | [ ] | S | — |
 | TASK-978 | mobile-redesign | Open the bottom sheets, theme dropdown and toast | [ ] | S | — |
@@ -1271,7 +1272,7 @@ Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[d
 | TASK-985 | mobile-redesign | Fill the remaining i18n gaps (es `session.dt_repair_heading`; 10 fallback-only keys) | Done | XS | — |
 | TASK-986 | mobile-redesign | Regression tests for logout delegation and the study-language chip | [ ] | S | — |
 | TASK-987 | mobile-redesign | Integration requests — i18n merge, Me page links, hard-coded colours | Done | M | — |
-| TASK-988 | mobile-redesign | Commit, review and deploy the redesign | [?] owner | M | TASK-975, TASK-980 |
+| TASK-988 | mobile-redesign | Commit, review and deploy the redesign | [?] owner | M | TASK-1007, TASK-980 |
 
 ### Dual Translation, Prestudy and Pinyin Fixes (2026-11-16, updated 2026-11-17)
 Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.tech]] · [[features/test-prestudy]] · [[features/measure-word-trainer.tech]] · [[decisions/ADR-047-basic-word-knowledge-prior]]. Code in the working tree / checkpoint commits, not deployed; the four 2026-11-17 migrations are live.

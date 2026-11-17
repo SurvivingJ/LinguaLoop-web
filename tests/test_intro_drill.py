@@ -292,3 +292,74 @@ def test_daily_session_counts_due_reviews_for_the_learners_local_day(monkeypatch
             practice_service=practice, mpnw=lambda: 3.0)
     assert seen == {'intro': ('u', 3, date(2026, 11, 9)), 'followups': ('u', 3, '2026-11-09')}
     assert [(q['id'], q['minutes']) for q in body['queue'] if q['kind'] == 'practice'] == [('intro_reviews', 4)]
+
+
+# ---------------------------------------------------------------------------
+# Never-taught words met in practice start the drill (ADR-046)
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def untaught_db(monkeypatch):
+    d = _Db()
+    d.tables['user_word_ladder'] = [{'user_id': 'u', 'sense_id': 10, 'word_state': 'active'}]
+    d.tables['user_vocabulary_knowledge'] = [
+        {'user_id': 'u', 'sense_id': 11, 'p_known': 0.27, 'word_test_correct': 0},   # met in a test
+        {'user_id': 'u', 'sense_id': 12, 'p_known': 0.30, 'word_test_correct': 1},   # answered right before
+        {'user_id': 'u', 'sense_id': 13, 'p_known': 0.95, 'word_test_correct': 0},   # known from tests
+        {'user_id': 'other', 'sense_id': 11, 'p_known': 0.10, 'word_test_correct': 3},  # another learner
+    ]
+    monkeypatch.setattr(idr, '_today', lambda *_a: date(2026, 11, 15))
+    monkeypatch.setattr(idr, 'drillable_sense_ids', lambda _db, _u, sids: {s for s in sids if s != 15})
+    return d
+
+
+def test_untaught_sense_ids(untaught_db):
+    # 10 on the ladder, 12 answered right, 13 known: not untaught; 14 has no knowledge row
+    assert idr.untaught_sense_ids(untaught_db, 'u', [10, 11, 12, 13, 14, 11, None]) == [11, 14]
+    assert idr.untaught_sense_ids(untaught_db, 'u', []) == []
+
+
+def test_route_untaught_starts_the_drill_in_every_mode(untaught_db):
+    payload = {'items': [
+        {'sense_id': 10, 'exercise_id': 1},
+        {'sense_id': 11, 'exercise_id': 2, 'exercise_type': 'spot_incorrect_sentence'},
+        {'sense_id': 11, 'exercise_id': 3, 'exercise_type': 'semantic_discrimination'},
+        {'sense_id': 12, 'exercise_id': 4},
+        {'sense_id': 15, 'exercise_id': 5},                      # no gloss: cannot be drilled
+        {'sense_id': 16, 'exercise_id': 6, 'prestudy_followup': True},
+        {'sense_id': None, 'is_error_exercise': True},
+    ]}
+    out = idr.route_untaught(untaught_db, 'u', 3, payload)
+    assert out == {'admitted': [11], 'deferred': []}
+    assert [i.get('exercise_id') for i in payload['items']] == [1, 4, 5, 6, None]
+    row = next(r for r in untaught_db.tables['user_word_ladder'] if r['sense_id'] == 11)
+    assert row['word_state'] == 'intro' and row['intro_stage'] == 1
+    assert row['intro_due_date'] == '2026-11-15' and row['current_ring'] == 1
+    assert row['intro_history'][0]['event'] == 'overload'
+    assert row['intro_history'][0]['source'] == idr.UNTAUGHT_SOURCE
+    # served now in every mode, past the new-word quota
+    assert idr.bypasses_quota(row)
+    assert [r['sense_id'] for r in idr.select_block_rows([row], 'maintenance', 0)] == [11]
+
+
+def test_route_untaught_caps_words_per_session(untaught_db):
+    n = idr.UNTAUGHT_MAX_PER_SESSION + 2
+    payload = {'items': [{'sense_id': 100 + i, 'exercise_id': i} for i in range(n)]}
+    out = idr.route_untaught(untaught_db, 'u', 3, payload)
+    assert out['admitted'] == [100 + i for i in range(idr.UNTAUGHT_MAX_PER_SESSION)]
+    assert out['deferred'] == [100 + i for i in range(idr.UNTAUGHT_MAX_PER_SESSION, n)]
+    # over-cap words are not served plain either
+    assert payload['items'] == []
+
+
+def test_route_untaught_leaves_payload_when_insert_fails(untaught_db, monkeypatch):
+    payload = {'items': [{'sense_id': 11, 'exercise_id': 2}]}
+    orig = _Q.execute
+
+    def boom(self):
+        if self.op == 'insert':
+            raise RuntimeError('duplicate key')
+        return orig(self)
+    monkeypatch.setattr(_Q, 'execute', boom)
+    assert idr.route_untaught(untaught_db, 'u', 3, payload) == {'admitted': [], 'deferred': []}
+    assert payload['items'] == [{'sense_id': 11, 'exercise_id': 2}]

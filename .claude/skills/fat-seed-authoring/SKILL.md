@@ -181,6 +181,10 @@ Surplus blocks are dropped with a warning; missing ones fail `check`.
 
 An option is `{"text": "…", "is_correct": true|false, "explanation": "…"}`.
 Every option gets an explanation. Exactly one is correct.
+**Every explanation (options, level_6 wrong sentences, level_7
+`error_description`) is written in English** for every language, quoting
+target-language words as needed. It says concretely what is wrong and why, tied
+to this sense of the word — never "doesn't fit the context".
 
 | block | shape |
 |---|---|

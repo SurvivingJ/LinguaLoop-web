@@ -5,7 +5,7 @@ status: in-progress
 tech_page: app-shell.tech.md
 last_updated: 2026-11-16
 open_questions:
-  - "OPEN — Does the shell behave on real iOS Safari (dvh, safe-area insets, keyboard handling)? Only Chromium has been tested. TASK-975."
+  - "OPEN — Does the shell behave on real iOS Safari (dvh, safe-area insets, keyboard handling)? Only Chromium has been tested. TASK-1007."
   - "OPEN — Do the derived colours (tertiary text, dark-mode brand button text, etc.) meet WCAG AA contrast in every theme? Chosen by hand, not measured. TASK-981."
   - "OPEN — Is the redesign ready to ship? It is built in the working tree but not committed, reviewed or deployed. TASK-988."
 ---
@@ -17,7 +17,7 @@ open_questions:
 The frame every LinguaDojo page sits in — navigation, the one-task-per-screen layout, colour
 themes, fonts and the shared visual components — rebuilt on 2026-11-16 to the approved mobile
 mockup so the app works as a phone app first. The decision record is
-[[decisions/ADR-046-mobile-app-shell]].
+[[decisions/ADR-048-mobile-app-shell]].
 
 ## User Story
 
@@ -71,7 +71,7 @@ sheets that slide up from the bottom of the screen.
 
 - **Keyboard open.** While the on-screen keyboard is open, the task screen shrinks to the
   visible area so the action area stays above the keyboard. Tested only in Chromium so far, not
-  on a real iPhone (TASK-975).
+  on a real iPhone (TASK-1007).
 - **Notches and home indicators.** The shell pads itself around the phone's safe areas.
 - **Old saved theme.** The stored value that meant Still Water now means the new default; a
   learner who wants the old look picks Still Water once.
@@ -94,7 +94,7 @@ sheets that slide up from the bottom of the screen.
 
 ## Open Questions
 
-- **OPEN** — real iOS Safari / Android behaviour (TASK-975).
+- **OPEN** — real iOS Safari / Android behaviour (TASK-1007).
 - **OPEN** — measured colour contrast of the derived tokens (TASK-981).
 - **OPEN** — commit, review and deploy (TASK-988).
 - **ANSWERED** — Where do the links that left the phone top bar go? The Me page (built 2026-11-16).
@@ -103,7 +103,7 @@ sheets that slide up from the bottom of the screen.
 ## Related Pages
 
 - [[pages/app-shell.tech]] — technical counterpart
-- [[decisions/ADR-046-mobile-app-shell]] — the decision
+- [[decisions/ADR-048-mobile-app-shell]] — the decision
 - [[pages/pages-overview]] — route map, with each page's shell mode
 - [[pages/study-session]] — the daily session, which switches task mode at runtime
 - [[features/dt-guided-self-repair]] — the repair sheet, whose own no-scroll rule came first

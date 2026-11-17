@@ -41,8 +41,8 @@ because THIS word does not mean that. Build each of the three with a move:
   a nonsense verb (「色数を飲む」); an error on another word; two problems at
   once. Test: a native speaker says 「この言葉はこうは使わない」, not 「文法が
   変だ」 and not 「変な内容だ」.
-- Explanation names the confusion: 「ここは〈知識〉の意味。技術は腕前や方法を
-  指すので合わない」. Three different moves/partners; B uses none of A's.
+- Explanation (in English) names the confusion: "This slot needs 知識
+  (knowledge); 技術 means a skill or technique, so it doesn't fit". Three different moves/partners; B uses none of A's.
 
 ## 3. level_7: one span, on the target
 - A new sentence (not a core sentence; corrected_sentence must equal no core
@@ -64,8 +64,10 @@ because THIS word does not mean that. Build each of the three with a move:
 
 ## 5. Explanations and distractors everywhere
 - Every explanation is specific and true: what the option means and why that
-  clashes here. Never 「形は合うが意味が合わない」 or any generic line; never
-  English (error_tags, form_label too); never contradict the definition.
+  clashes here. Write every explanation IN ENGLISH (quote Japanese words and
+  phrases as needed). Never a generic line like "the form fits but the meaning
+  doesn't" or 「形は合うが意味が合わない」; never contradict the definition.
+  error_tags and form_label stay in Japanese.
 - level_3 / level_5 / particle distractors must not fit the slot when the
   sentence is read as plain Japanese (「嫌っていました」 fits 「この歌を___」);
   same part of speech, same domain, no two near-synonyms. Particle distractors

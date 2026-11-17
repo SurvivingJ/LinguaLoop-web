@@ -14,7 +14,7 @@ LinguaDojo uses server-rendered Jinja2 templates with vanilla JavaScript for cli
 
 ## Navigation and Layout (mobile redesign, 2026-11-16)
 
-Every page sits in one app shell ([[pages/app-shell]], [[decisions/ADR-046-mobile-app-shell]]) in
+Every page sits in one app shell ([[pages/app-shell]], [[decisions/ADR-048-mobile-app-shell]]) in
 one of three modes:
 
 - **Tab pages** — phones (< 768 px): slim top bar (study-language chip, Report, light/dark toggle) and
@@ -105,7 +105,7 @@ static/
 ## Related Pages
 
 - [[pages/app-shell]] / [[pages/app-shell.tech]] — the shell, navigation, themes and shared components
-- [[decisions/ADR-046-mobile-app-shell]] — why the shell is one task per screen
+- [[decisions/ADR-048-mobile-app-shell]] — why the shell is one task per screen
 - [[api/rpcs]] — API endpoints called by pages
 - [[api/rpcs.tech]] — Full endpoint reference
 - [[overview/project.tech]] — Frontend architecture and deployment

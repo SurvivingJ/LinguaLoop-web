@@ -1,10 +1,10 @@
 ---
-title: "ADR-046: Mobile app shell — one task per screen, header / stage / dock, bottom tabs, dvh sizing, new default theme"
+title: "ADR-048: Mobile app shell — one task per screen, header / stage / dock, bottom tabs, dvh sizing, new default theme"
 status: accepted
 date: 2026-11-16
 ---
 
-# ADR-046: Mobile app shell — one task per screen, header / stage / dock, bottom tabs, dvh sizing, new default theme
+# ADR-048: Mobile app shell — one task per screen, header / stage / dock, bottom tabs, dvh sizing, new default theme
 
 ## Context
 

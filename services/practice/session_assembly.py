@@ -157,6 +157,19 @@ class SessionAssemblyMixin:
         # Stage 2-4 words in every mode; brand-new stage-1 words only where new
         # words are taught (acquisition / auto), within today's quota. Optional
         # tail rounds serve them too: that is where today's leftover words go.
+        # A word the engine picked that the learner was never taught (met once
+        # in a test, never drilled) starts the drill at session 1 instead of
+        # being served as an ordinary exercise (ADR-046).
+        if intro_drill.ENABLED:
+            try:
+                routed = intro_drill.route_untaught(self.db, user_id, language_id, payload)
+                if routed['admitted'] or routed['deferred']:
+                    payload['untaught_routed'] = routed
+            except Exception as e:
+                logger.warning(
+                    'untaught-word routing failed (non-fatal) for user=%s lang=%s: %s',
+                    user_id, language_id, e,
+                )
         try:
             if intro_drill.ENABLED:
                 # Intro words are drilled only by the drill: drop them from
@@ -396,7 +409,18 @@ class SessionAssemblyMixin:
         # New-word drill: extra new words are intro words, so they come as an
         # intro block (session 1), not ladder items. A review round also
         # carries the drill words whose next session (2-4) is due: they are
-        # reviews, and the regular items never include intro words.
+        # reviews, and the regular items never include intro words. Review
+        # items for never-taught words start the drill instead (ADR-046).
+        if reviews:
+            try:
+                from services import intro_drill
+                if intro_drill.ENABLED:
+                    before = len(payload['items'])
+                    intro_drill.route_untaught(self.db, user_id, language_id, payload)
+                    # routed words are counted below as drill words instead
+                    payload['extra']['reviews_served'] -= before - len(payload['items'])
+            except Exception as e:
+                logger.warning('extra round: untaught routing failed (non-fatal): %s', e)
         if reviews or (new_words and targets):
             try:
                 from services import intro_drill

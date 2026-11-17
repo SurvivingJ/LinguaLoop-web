@@ -19,7 +19,7 @@ breaking_change_risk: high
 
 # App Shell and Design System — Technical Specification
 
-Decision: [[decisions/ADR-046-mobile-app-shell]]. Source of truth for the look:
+Decision: [[decisions/ADR-048-mobile-app-shell]]. Source of truth for the look:
 `wiki/demos/mobile-redesign-mockup.html`. State on 2026-11-16: built in the working tree,
 **not committed and not deployed** (TASK-988). Claims below were checked against the files.
 
@@ -234,12 +234,12 @@ all pre-date the redesign) and `session.dt_repair_heading` missing in `es` only 
 - Limits: Chromium only (no WebKit, so iOS `dvh`/keyboard behaviour is not reproduced), Google
   Fonts blocked by default, fixture data only, no audio, fake JWT. Needs the Python dependencies
   (a venv existed only in a scratch directory) and `node_modules`.
-- Owed: TASK-975–988 in [[tasklist/mobile-redesign.tasks]].
+- Owed: TASK-976–988 and TASK-1007 in [[tasklist/mobile-redesign.tasks]].
 
 ## Related Pages
 
 - [[pages/app-shell]] — prose counterpart
-- [[decisions/ADR-046-mobile-app-shell]]
+- [[decisions/ADR-048-mobile-app-shell]]
 - [[pages/pages-overview]], [[pages/study-session.tech]]
 - [[features/dt-guided-self-repair.tech]] §8.3
 - [[tasklist/mobile-redesign.tasks]]

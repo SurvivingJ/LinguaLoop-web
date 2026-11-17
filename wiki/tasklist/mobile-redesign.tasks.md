@@ -9,14 +9,14 @@ done: 2
 
 # Mobile Redesign (App Shell and Design System) — Task Breakdown
 
-Spec: [[pages/app-shell.tech]]. Decision: [[decisions/ADR-046-mobile-app-shell]]. Mockup:
+Spec: [[pages/app-shell.tech]]. Decision: [[decisions/ADR-048-mobile-app-shell]]. Mockup:
 `wiki/demos/mobile-redesign-mockup.html`.
 
 The redesign was built on 2026-11-16 by a foundation engineer, area engineers (auth, session,
 tests, prestudy, translation, trainers, settings) and an integration step. These tasks cover
 **every open issue and unverified item the engineers reported**, checked against the working
 tree on 2026-11-16. Drafted 2026-11-16, **not yet reviewed by the owner** (CLAUDE.md §5d). IDs
-start at TASK-975 (highest existing id was TASK-974).
+start at TASK-976 (TASK-975 was taken on main by the new-word drill; the real-device check is TASK-1007).
 
 Note: the integration report reached the wiki truncated (its i18n paragraph and anything after
 it were cut off). TASK-985 records what a re-run of the integrator's key check shows; any other
@@ -32,7 +32,7 @@ PORT=5099 python3 tests/e2e/redesign/walk.py all
 
 ---
 
-## TASK-975: Real-device check — iOS Safari and Android Chrome
+## TASK-1007: Real-device check — iOS Safari and Android Chrome
 
 **Status:** [ ] Not Started
 **Feature:** mobile-redesign
@@ -397,7 +397,7 @@ Me page; replace hard-coded colours in page CSS.
 **Feature:** mobile-redesign
 **Type:** infra
 **Complexity:** M (3-8h)
-**Depends On:** TASK-975, TASK-980 (recommended before deploy)
+**Depends On:** TASK-1007, TASK-980 (recommended before deploy)
 
 **Description:**
 The redesign (85 files changed in `templates/` and `static/`, plus new `static/css/redesign/`,
@@ -408,7 +408,7 @@ reformatted all of `styles.css`, so its diff is large and mostly whitespace in p
 - [ ] Committed on a branch in reviewable commits (formatting of `styles.css` separate from changes if practical)
 - [ ] PR opened and reviewed by the owner
 - [ ] Deployed; post-deploy smoke on a phone: tabs, one task screen, theme switch, logout
-- [ ] Learners with stored `linguadojo-theme=default` see the new palette (expected, ADR-046)
+- [ ] Learners with stored `linguadojo-theme=default` see the new palette (expected, ADR-048)
 
 **Files to Create / Modify:** none beyond the built files.
 

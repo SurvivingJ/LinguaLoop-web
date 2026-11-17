@@ -160,7 +160,7 @@ incomplete item (`_next_incomplete_index`).
   complete, so the item returns on resume.
 
 ### Task-mode frame (mobile redesign, 2026-11-16)
-See [[pages/app-shell.tech]] and [[decisions/ADR-046-mobile-app-shell]].
+See [[pages/app-shell.tech]] and [[decisions/ADR-048-mobile-app-shell]].
 - While an item runs the controller calls `LinguaShell.setTaskMode(true)` and
   `LinguaShell.setTaskHeader(headerFor(item))` (title = item type, subtitle = test title, glyph =
   seal); on the start card and summary it calls `setTaskMode(false)` (tab page).

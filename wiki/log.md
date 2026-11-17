@@ -6596,7 +6596,22 @@ called an earlier "taxonomy v6 already active" read "unreconciled". It is not a 
 active until the orchestrator's cutover on 2026-11-14, and the grader agent's read was made after that
 cutover the same day. All three now say so.
 
-## [2026-11-16] ingest | Mobile redesign built — app shell and design system (ADR-046)
+## [2026-11-15] update | Never-taught words met in practice start the drill (ADR-046)
+Developer report: new words in the daily session got two hard exercises each instead of the drill.
+Live data (developer's account, ja): the nine drill words that day were on intro session 2 (session 1
+done 2026-11-13; session 2 = cold typed reading + two ladder exercises, as designed). Two words,
+雰囲気 and 開放, were not drill words: met in a reading test on 2026-09-08, never taught, no ladder
+row, served by the practice engine as ordinary exercises (spot the incorrect sentence, semantic
+discrimination, definition match, typed cloze). Also: 18 words admitted that morning were waiting at
+session 1 because only the Practice (maintenance) block was done. Developer decision: "if we see
+them, we should drill them from the beginning." Built `intro_drill.route_untaught` (never taught =
+no ladder row, no correct exercise answer, p_known < 0.5; max 5 per request; reuses the `overload`
+event so no migration), wired into `get_session` and extra-round reviews; 4 new tests (18/18 pass).
+Not deployed. Pages: created [[decisions/ADR-046-untaught-words-start-the-drill]]; updated
+[[features/new-word-drill]], [[features/new-word-drill.tech]] (note 16), [[tasklist/new-word-drill.tasks]]
+(TASK-975), [[tasklist/master]], index.
+
+## [2026-11-16] ingest | Mobile redesign built — app shell and design system (ADR-048)
 Source: the engineers' reports for the mobile redesign build (foundation + integration; the
 integration report reached the wiki truncated after its i18n paragraph), the foundation hand-off
 notes, and the approved mockup `wiki/demos/mobile-redesign-mockup.html`. Claims were checked
@@ -6613,8 +6628,8 @@ no-scroll work (2026-11-14, `14d554a`) pinned the body around the DT repair shee
 pages kept a sticky header + footer frame and `vh` heights (`.session-stage { min-height: 50vh }`,
 `.login-container { min-height: 100vh }`) with actions at the end of the content.
 Nothing outside `wiki/` was changed. The redesign is in the working tree only: not committed, not deployed.
-Pages created (4): [[decisions/ADR-046-mobile-app-shell]], [[pages/app-shell]],
-[[pages/app-shell.tech]], [[tasklist/mobile-redesign.tasks]] (TASK-975–988).
+Pages created (4): [[decisions/ADR-048-mobile-app-shell]], [[pages/app-shell]],
+[[pages/app-shell.tech]], [[tasklist/mobile-redesign.tasks]] (TASK-976–988 and TASK-1007).
 Pages updated (5): [[pages/pages-overview]] (navigation and layout section; shell mode per route;
 route registration now `web/pages.py`; added the missing `/test/<slug>/prestudy`, `/word-list`,
 `/calibration`, `/counter-drill` rows; base.html, themes, static assets), [[pages/study-session]]
@@ -6622,7 +6637,7 @@ route registration now `web/pages.py`; added the missing `/test/<slug>/prestudy`
 [[pages/study-session.tech]] (task-mode frame, `ctx.frame`, Back), [[tasklist/master]], index.
 Tasks: TASK-987 Done (integration requests: i18n merge of 65 keys, Me page links, hard-coded
 colours — verified); TASK-982 (Playwright E2E, credentials) and TASK-988 (commit, review, deploy —
-owner) Blocked; TASK-975–981, 983–986 Not Started. A re-run of the integrator's i18n key check
+owner) Blocked; TASK-976–981 and TASK-1007, 983–986 Not Started. A re-run of the integrator's i18n key check
 still lists `session.dt_repair_heading` missing in `es` and ten fallback-only keys that pre-date the
 redesign (TASK-985). Open questions: 3 (real iOS Safari, measured contrast, ship decision).
 
@@ -6741,3 +6756,6 @@ Owner decision. The script only built whole-passage `dt_passage` rows and `dt_pa
 
 ## [2026-11-17] update | Daily session counts dual translation from sentence windows; dt_passage_reference unread
 Owner decision (count untaken tests too). `build_daily_session` decided dual-translation availability from whole-passage `dt_passage` rows with a `dt_passage_reference`, from attempted tests only; with that pool deleted it hydrated 0 for every learner. New canonical file `migrations/build_daily_session_dt_windows.sql` (applied live by an in-place rewrite; live `md5(prosrc)` = `2e1c3732cfe5c311d1588623e6ed9154` = the file's body): counts active tests in the study language, attempted or not, with two adjacent usable sentences outside every served or retired window and clearing the tightness floor, plus window passages shown and not graded; 0 when L1 = L2. Standalone check for the test account: zh 85, ja 54, en 0. `daily_session_one_topic_per_day.sql` archived. Error cards (`cards._window_l1_text`) and sentence repair now take L1 text from the sentence references only; `store.get_l1_passage_text` removed. Nothing reads `dt_passage_reference` any more; `migrations/dt_passage_reference_drop.sql` written, NOT applied (apply after this branch is deployed). Not verified: a real daily session containing a dual-translation item — the test account's plan budgeted only listening today, so none was requested.
+
+## [2026-11-17] update | Merged main; app-shell decision renumbered ADR-046 → ADR-048
+`main` gained [[decisions/ADR-046-untaught-words-start-the-drill]] while this branch had used the same number for the mobile app shell. The app-shell record is now [[decisions/ADR-048-mobile-app-shell]]; every reference in the wiki was updated. Code conflict: `static/js/exercise-renderers.js` keeps main's per-option explanation notes and this branch's feedback path.

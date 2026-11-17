@@ -3,7 +3,7 @@ title: New-Word Drill (criterion-based intro sessions)
 type: feature
 status: in-progress
 tech_page: ./new-word-drill.tech.md
-last_updated: 2026-11-10
+last_updated: 2026-11-15
 open_questions:
   - "ANSWERED 2026-11-09: schedule = Option B (successive relearning), targets 5 / 3 / 2 / 2 counted correct answers, +1 when the cold recall that opens sessions 2–4 is missed."
   - "ANSWERED 2026-11-09: new_words_per_day default raised to 10 (was 5)."
@@ -83,6 +83,12 @@ session's target by one.
   prompt.
 - Words drilled in **test prestudy** also enter the schedule. If the prime met session 1's
   target, prestudy *was* session 1, and session 2 is due the next day.
+- **Words met but never taught** (added 2026-11-15). The practice engine can pick a word you met
+  once in a test but were never taught. If it does, that word starts the drill at session 1 right
+  away, in every mode, and is not shown as an ordinary exercise. "Never taught" means: not on the
+  ladder, never answered an exercise right, and the app thinks you probably don't know it yet.
+  At most 5 such words per practice round; any more are held back and drilled when they come up
+  again. See [[decisions/ADR-046-untaught-words-start-the-drill]].
 
 ### How much time it takes
 
@@ -155,3 +161,4 @@ All answered 2026-11-09 (see frontmatter).
 - [[algorithms/vocabulary-ladder]] — ring 1 is replaced by this drill
 - [[features/practice-engine]] — the session that hosts the drill
 - [[decisions/ADR-033-budget-scope-and-new-word-budget]] — the new-word quota
+- [[decisions/ADR-046-untaught-words-start-the-drill]] — never-taught words met in practice start the drill
