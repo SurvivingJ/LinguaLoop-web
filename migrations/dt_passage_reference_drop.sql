@@ -28,9 +28,16 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.dt_passage_reference LIMIT 1) THEN
     RAISE EXCEPTION 'dt_passage_reference is not empty; not dropping';
   END IF;
+  -- Lines that are SQL comments are ignored: build_daily_session's body says in
+  -- a comment that the table is "no longer read".
   IF EXISTS (
-    SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
-     WHERE n.nspname = 'public' AND p.prokind = 'f' AND p.prosrc ILIKE '%dt_passage_reference%'
+    SELECT 1
+      FROM pg_proc p
+      JOIN pg_namespace n ON n.oid = p.pronamespace,
+           LATERAL unnest(string_to_array(p.prosrc, E'\n')) AS l(line)
+     WHERE n.nspname = 'public' AND p.prokind = 'f'
+       AND l.line ILIKE '%dt_passage_reference%'
+       AND ltrim(l.line) NOT LIKE '--%'
   ) THEN
     RAISE EXCEPTION 'a database function still reads dt_passage_reference; not dropping';
   END IF;
