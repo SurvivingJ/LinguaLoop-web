@@ -108,6 +108,8 @@
   let CORRECTION_STYLE = 'direct_metalinguistic';
 
   const state = {
+    // TASK-989: true after "Translate an earlier passage again" (GET /next?reserve=1).
+    reserve: false,
     submissionId: null,
     ageTier: null,
     selfRating: null,
@@ -201,6 +203,15 @@
     bindTabs();
     el.submit.addEventListener('click', onSubmit);
     el.tryAnother.addEventListener('click', loadNext);
+    // TASK-989: on the all-done screen the learner may translate an earlier
+    // passage again (least recently graded first); "Try another" then stays
+    // in that mode.
+    if (el.reserve) {
+      el.reserve.addEventListener('click', function () {
+        state.reserve = true;
+        loadNext();
+      });
+    }
     el.naturalnessToggle.addEventListener('click', function () {
       state.naturalnessShown = true;
       renderDims(state.lastContract.scores || {});
@@ -241,6 +252,11 @@
       'dtDock',
       'dtErrorCardDock',
       'dtTabs',
+      'dtEmpty',
+      'dtEmptyMsg',
+      'dtPassageNote',
+      'dtReserve',
+      'dtBrowseTests',
     ].forEach(function (id) {
       // strip the 'dt' prefix + lowercase first char for a tidy key
       const key = id.charAt(2).toLowerCase() + id.slice(3);
@@ -254,6 +270,7 @@
     el.errorCard.style.display = phase === 'errorCard' ? 'block' : 'none';
     el.reproduce.style.display = phase === 'reproduce' ? 'flex' : 'none';
     el.result.style.display = phase === 'result' ? 'flex' : 'none';
+    if (el.empty) el.empty.style.display = phase === 'empty' ? 'block' : 'none';
     syncFrame(phase);
   }
 
@@ -415,18 +432,33 @@
       return showError(tr('dual_translation.error_load'));
     }
     if (resp.status === 404) {
-      // ALL_DONE: every passage of the learner's tests in this language is graded.
-      // NO_PASSAGES (or an older backend): nothing eligible yet.
+      // ALL_DONE: every passage with a reviewed reference in this language is
+      // graded -> offer to translate an earlier one again (unless that is what
+      // was just asked for and nothing could be re-served).
+      // NO_PASSAGES (or an older backend): nothing with a reference yet.
       const body = await resp.json().catch(() => ({}));
       if (body && body.error_code === 'ALL_DONE') {
-        return showError(
-          label(
-            'dual_translation.error_all_done',
-            "You've translated every passage from the tests you've taken in this language. Take another test to unlock more."
-          )
+        const scoped = !!pageTestId();
+        return showEmpty(
+          scoped
+            ? label(
+                'dual_translation.test_all_done',
+                "You've translated every passage from this test."
+              )
+            : label(
+                'dual_translation.all_done_any',
+                "You've translated every passage that has a reviewed translation in this language. You can translate an earlier one again, or come back when new passages are added."
+              ),
+          !state.reserve
         );
       }
-      return showError(tr('dual_translation.error_none'));
+      return showEmpty(
+        label(
+          'dual_translation.none_available',
+          'No passage in this language has a reviewed translation into your language yet. Take a test in the meantime, and check back later.'
+        ),
+        false
+      );
     }
     if (!resp.ok) {
       return showError(tr('dual_translation.error_load') + ' (' + resp.status + ')');
@@ -460,9 +492,62 @@
     } catch {
       /* storage blocked: let the server choose */
     }
-    return id > 0
-      ? '/api/dual-translation/next?language_id=' + encodeURIComponent(id)
-      : '/api/dual-translation/next';
+    const params = [];
+    if (id > 0) params.push('language_id=' + encodeURIComponent(id));
+    if (state.reserve) params.push('reserve=1');
+    const testId = pageTestId();
+    if (testId) params.push('test_id=' + encodeURIComponent(testId));
+    return '/api/dual-translation/next' + (params.length ? '?' + params.join('&') : '');
+  }
+
+  // /dual-translation?test_id=<uuid>: the test preview page's "Translate a
+  // passage from this test" - every passage then comes from that test.
+  function pageTestId() {
+    try {
+      const v = new URLSearchParams(window.location.search).get('test_id') || '';
+      return /^[0-9a-fA-F-]{36}$/.test(v) ? v : '';
+    } catch {
+      return '';
+    }
+  }
+
+  function showEmpty(message, offerReserve) {
+    if (!el.empty) return showError(message);
+    el.emptyMsg.textContent = message;
+    showPhase('empty');
+    if (el.reserve) el.reserve.hidden = !offerReserve;
+    if (el.dock) el.dock.hidden = false;
+  }
+
+  // From a test not taken yet (it shows part of that test) / a passage
+  // translated before (re-served on request; not counted in the error profile).
+  function passageNote(data) {
+    const r = data && data.repeat_of;
+    if (r) {
+      const when = r.graded_at ? new Date(r.graded_at) : null;
+      if (when && !isNaN(when.getTime()) && r.band != null) {
+        const date = when.toLocaleDateString();
+        const fallback =
+          'You translated this passage on ' +
+          date +
+          ' (band ' +
+          r.band +
+          "). This try doesn't count towards your error profile.";
+        const v = tr('dual_translation.repeat_note', { date: date, band: r.band });
+        return v && v !== 'dual_translation.repeat_note' ? v : fallback;
+      }
+      return label(
+        'dual_translation.repeat_note_nodate',
+        "You've translated this passage before. This try doesn't count towards your error profile."
+      );
+    }
+    if (data && data.from_untaken_test) {
+      return label(
+        'dual_translation.untaken_note',
+        "This passage is from a test you haven't taken yet, so you'll see part of that test's text."
+      );
+    }
+    return '';
   }
 
   function startPassage(data) {
@@ -485,6 +570,11 @@
     }
 
     el.reference.textContent = data.l1_text || '';
+    if (el.passageNote) {
+      const note = passageNote(data);
+      el.passageNote.textContent = note;
+      el.passageNote.hidden = !note;
+    }
     renderRubric(data.rubric_descriptors || {});
     showPhase('reproduce');
     el.reproduction.focus();

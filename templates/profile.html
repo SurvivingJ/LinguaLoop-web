@@ -41,6 +41,11 @@
                         <span><b data-i18n="common.nav.word_list">Word List</b><small data-me-t="me.word_list_sub">Upload words to keep practising</small></span></span>
                     <span class="ld-set__chev" aria-hidden="true">›</span>
                 </a>
+                <a class="ld-set" href="{{ url_for('dual_translation_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" aria-hidden="true">译</span>
+                        <span><b data-i18n="dual_translation.title">Dual Translation</b><small data-i18n="dual_translation.me_sub">Translate a passage into the language you're studying</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
                 <a class="ld-set" href="{{ url_for('dual_translation_profile_page') }}">
                     <span class="me-set__main"><span class="ld-seal" aria-hidden="true">△</span>
                         <span><b data-i18n="dual_translation.profile.title">My Error Profile</b><small data-me-t="me.error_profile_sub">Patterns from your translations</small></span></span>

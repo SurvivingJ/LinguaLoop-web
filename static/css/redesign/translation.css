@@ -82,6 +82,37 @@
   margin: 0 0 12px;
 }
 
+/* Nothing to serve (ALL_DONE / NO_PASSAGES); the actions are in the dock. */
+.dt-page .dt-empty {
+  text-align: center;
+  color: var(--ink-2);
+}
+
+.dt-page .dt-empty__msg {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* From a test not taken yet / translated before. */
+.dt-page .dt-passage-note[hidden],
+.dt-player .dt-passage-note[hidden] {
+  display: none;
+}
+
+.dt-passage-note {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.dt-page .dt-dock a.ld-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  text-decoration: none;
+}
+
 .dt-page .dt-error-actions {
   display: flex;
   flex-wrap: wrap;

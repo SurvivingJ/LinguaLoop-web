@@ -21,11 +21,43 @@ import { T, escapeHtml as esc } from '../dom.js';
 
 // GET /next for the session's study language (the server falls back to the
 // language of the learner's latest test when none is given).
-export function nextUrl(languageId) {
+// `reserve`: TASK-989 - translate an earlier (already graded) passage again.
+export function nextUrl(languageId, reserve = false) {
   const id = parseInt(languageId, 10);
-  return id > 0
-    ? `/api/dual-translation/next?language_id=${encodeURIComponent(id)}`
-    : '/api/dual-translation/next';
+  const params = [];
+  if (id > 0) params.push(`language_id=${encodeURIComponent(id)}`);
+  if (reserve) params.push('reserve=1');
+  return `/api/dual-translation/next${params.length ? `?${params.join('&')}` : ''}`;
+}
+
+// The line shown above the reference for a passage from a test not taken yet,
+// or one translated before (re-served; kept out of the error profile).
+export function passageNote(data) {
+  const r = data && data.repeat_of;
+  if (r) {
+    const when = r.graded_at ? new Date(r.graded_at) : null;
+    if (when && !isNaN(when.getTime()) && r.band != null) {
+      const date = when.toLocaleDateString();
+      return T(
+        'dual_translation.repeat_note',
+        { date, band: r.band },
+        'You translated this passage on {date} (band {band}). This try doesn’t count towards your error profile.'
+      );
+    }
+    return T(
+      'dual_translation.repeat_note_nodate',
+      null,
+      'You’ve translated this passage before. This try doesn’t count towards your error profile.'
+    );
+  }
+  if (data && data.from_untaken_test) {
+    return T(
+      'dual_translation.untaken_note',
+      null,
+      'This passage is from a test you haven’t taken yet, so you’ll see part of that test’s text.'
+    );
+  }
+  return '';
 }
 
 export function mount(container, ctx) {
@@ -112,8 +144,8 @@ export function mount(container, ctx) {
     }
   }
 
-  async function load() {
-    const produce = await loadProduce();
+  async function load(reserve = false) {
+    const produce = reserve ? null : await loadProduce();
     if (state.destroyed) return;
     if (produce) {
       state.submissionId = produce.submission_id;
@@ -123,15 +155,26 @@ export function mount(container, ctx) {
     }
     let data;
     try {
-      const res = await window.authFetch(nextUrl(ctx.languageId));
+      const res = await window.authFetch(nextUrl(ctx.languageId, reserve));
       const payload = await res.json();
       data = payload.data || payload;
       if (res.status === 404 && data && data.error_code === 'ALL_DONE') {
         renderUnavailable(
           T(
-            'dual_translation.error_all_done',
+            'dual_translation.all_done_any',
             null,
-            'You’ve translated every passage from the tests you’ve taken in this language. Take another test to unlock more.'
+            'You’ve translated every passage that has a reviewed translation in this language. You can translate an earlier one again, or come back when new passages are added.'
+          ),
+          { reserve: !reserve }
+        );
+        return;
+      }
+      if (res.status === 404 && data && data.error_code === 'NO_PASSAGES') {
+        renderUnavailable(
+          T(
+            'dual_translation.none_available',
+            null,
+            'No passage in this language has a reviewed translation into your language yet. Take a test in the meantime, and check back later.'
           )
         );
         return;
@@ -176,14 +219,20 @@ export function mount(container, ctx) {
     });
   }
 
-  function renderUnavailable(message) {
+  function renderUnavailable(message, opts = {}) {
     if (state.destroyed) return;
     paint(
       `<div class="dt-player__msg">
         <h2 class="ld-h2">${esc(T('session.dt_heading', null, 'Dual Translation'))}</h2>
         <p class="ld-muted">${esc(message)}</p>
       </div>`,
-      `<a class="ld-btn ld-btn--ghost" href="/dual-translation">${esc(
+      `${
+        opts.reserve
+          ? `<button class="ld-btn" type="button" data-dt-reserve>${esc(
+              T('dual_translation.reserve_action', null, 'Translate an earlier passage again')
+            )}</button>`
+          : ''
+      }<a class="ld-btn ld-btn--ghost" href="/dual-translation">${esc(
         T('session.open_page', null, 'Open page')
       )}</a>
       <button class="ld-link ld-link--quiet" type="button" data-dt-skip>${esc(
@@ -192,6 +241,16 @@ export function mount(container, ctx) {
     );
     const skip = $('[data-dt-skip]');
     if (skip) skip.onclick = () => ctx.onSkip && ctx.onSkip();
+    const again = $('[data-dt-reserve]');
+    if (again) {
+      again.onclick = () => {
+        paint(
+          '<div class="dt-player__spin"><div class="spinner-border" role="status" aria-hidden="true"></div></div>',
+          ''
+        );
+        load(true);
+      };
+    }
   }
 
   function renderPassage(data) {
@@ -200,8 +259,9 @@ export function mount(container, ctx) {
     state.ageTier = data.age_tier != null ? data.age_tier : null;
     // The runner sets the study language on its stage (#sessionStage[lang]).
     const l2 = (container.getAttribute && container.getAttribute('lang')) || '';
+    const note = passageNote(data);
     paint(
-      `<p class="ld-muted ld-small dt-player__instr">${esc(
+      `${note ? `<p class="ld-note dt-passage-note" data-dt-note>${esc(note)}</p>` : ''}<p class="ld-muted ld-small dt-player__instr">${esc(
         T(
           'session.dt_instructions',
           null,

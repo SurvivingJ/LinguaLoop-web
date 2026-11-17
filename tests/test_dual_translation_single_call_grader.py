@@ -1011,22 +1011,52 @@ class TestTypeListExhaustive:
 class TestUnknownType:
 
     def test_unknown_slug_is_dropped_counted_and_logged(self, monkeypatch, logged, caplog):
+        """One unknown slug among valid entries is dropped and counted; the
+        valid entries still grade."""
         _use_model(monkeypatch, {PRIMARY: {'errors': [
             _entry(2, 'was', 'not_a_type', 'major', ref='is'),
-            _entry(2, 'was', None, 'major', ref='is'),
-            _entry(2, 'was', 'keigo', 'major', ref='is'),  # a real slug, but not an English one
+            _entry(2, 'was', 'verb_form_tense', 'major', ref='is'),
+            _entry(2, 'This was', 'verb_form_tense', 'minor', ref='This is'),
         ]}})
 
         with caplog.at_level('WARNING', logger='services.dual_translation.single_call_grader'):
             contract = _grade(EN_GOLD, EN_TENSE, 'en')
 
-        assert contract['errors'] == []
+        assert len(contract['errors']) >= 1
         sc = contract['grader_trace']['single_call']
-        assert sc['dropped']['unknown_type'] == 3 and sc['dropped']['invalid_entry'] == 0
-        assert sc['dropped_total'] == 3 and sc['type_aliased'] == 0
-        assert contract['scores']['accuracy'] == 4
+        assert sc['used'] is True
+        assert sc['dropped']['unknown_type'] == 1 and sc['dropped']['invalid_entry'] == 0
+        assert sum('unknown error type' in r.getMessage() for r in caplog.records) == 1
+        assert contract['grading_assets'][0]['dropped']['unknown_type'] == 1
+
+    def test_answer_of_only_unknown_slugs_is_unusable_never_a_perfect_grade(
+        self, monkeypatch, logged, caplog,
+    ):
+        """2026-11-17: an answer whose entries are (mostly) invalid is not a grade
+        of the translation. Keeping none of them would store band 4 for a
+        translation the model said had three errors; the attempt is marked
+        unusable (counted, logged, stored) and the next model grades."""
+        v2_calls = _sentinel_v2(monkeypatch)
+        _use_model(monkeypatch, {PRIMARY: {'errors': [
+            _entry(2, 'was', 'not_a_type', 'major', ref='is'),
+            _entry(2, 'was', None, 'major', ref='is'),
+            _entry(2, 'was', 'keigo', 'major', ref='is'),  # a real slug, but not an English one
+        ]}, FALLBACK: {'errors': [_entry(2, 'was', 'verb_form_tense', 'major', ref='is')]}})
+
+        with caplog.at_level('WARNING', logger='services.dual_translation.single_call_grader'):
+            contract = _grade(EN_GOLD, EN_TENSE, 'en', framework_v2=True)
+
+        assert v2_calls == []
+        sc = contract['grader_trace']['single_call']
+        assert sc['path'] == 'fallback_model'
+        assert [a['status'] for a in sc['attempts']] == ['malformed_shape', 'ok']
+        assert 'unusable answer: 3 of 3' in sc['attempts'][0]['error']
+        assert [e['subtype'] for e in contract['errors']] == ['verb_form_tense']
+        assert contract['scores']['accuracy'] < 4
         assert sum('unknown error type' in r.getMessage() for r in caplog.records) == 3
-        assert contract['grading_assets'][0]['dropped']['unknown_type'] == 3
+        first = contract['grading_assets'][0]
+        assert first['status'] == 'malformed_shape' and first['dropped']['unknown_type'] == 3
+        assert first['errors_raw'] == 3 and first['errors_kept'] == 0
 
     def test_legacy_v5_slug_is_mapped_and_counted(self, monkeypatch, logged, caplog):
         assert TAXONOMY_V6['legacy_aliases']['classifier']['to'] == 'measure_word'
@@ -1043,7 +1073,10 @@ class TestUnknownType:
         assert any('mapped legacy error type' in r.getMessage() for r in caplog.records)
 
     def test_legacy_slug_that_maps_outside_this_language_is_dropped(self, monkeypatch, logged):
-        _use_model(monkeypatch, {PRIMARY: {'errors': [_entry(2, 'was', 'classifier', 'major', ref='is')]}})
+        _use_model(monkeypatch, {PRIMARY: {'errors': [
+            _entry(2, 'was', 'classifier', 'major', ref='is'),
+            _entry(2, 'was', 'verb_form_tense', 'major', ref='is'),
+        ]}})
 
         sc = _grade(EN_GOLD, EN_TENSE, 'en')['grader_trace']['single_call']
 
@@ -1053,12 +1086,14 @@ class TestUnknownType:
         _use_model(monkeypatch, {PRIMARY: {'errors': [
             _entry(2, 'was', 'verb_form_tense', 'severe', ref='is'),
             'a string, not an object',
+            _entry(2, 'was', 'verb_form_tense', 'major', ref='is'),
+            _entry(2, 'This was', 'verb_form_tense', 'Major ', ref='This is'),  # repaired enum
         ]}})
 
         contract = _grade(EN_GOLD, EN_TENSE, 'en')
 
-        assert contract['errors'] == []
         assert contract['grader_trace']['single_call']['dropped']['invalid_entry'] == 2
+        assert contract['errors'] and all(e['severity'] == 'major' for e in contract['errors'])
 
 
 # ---------------------------------------------------------------------------

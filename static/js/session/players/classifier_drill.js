@@ -624,21 +624,23 @@ ${dock(`<div class="ld-row cd-results-actions">
 function classifierLevel(state, item) {
   if (state.mode === 'mc') return 1;
   if (state.mode === 'type') return 2;
-  // Auto: the server-stamped per-classifier level.
-  const lvl = parseInt(item.level || 1, 10);
-  return Math.max(1, Math.min(4, lvl));
+  // Auto: the server-stamped per-classifier level (get_classifier_drill_session_v2
+  // already lowers it to what the item's content supports), lowered again here
+  // if the content is missing: Fill in needs a cloze sentence, Reverse needs
+  // wrong nouns to offer; Type needs nothing.
+  let lvl = Math.max(1, Math.min(4, parseInt(item.level || 1, 10) || 1));
+  const reverseOk = (item.reverse_noun_options || []).length > 0;
+  if (lvl === 4 && !item.cloze_blanked) lvl = reverseOk ? 3 : 2;
+  if (lvl === 3 && !reverseOk) lvl = 2;
+  return lvl;
 }
 
 // Shown in Auto mode only, to make promotions and demotions visible: the
-// item's level, named like the mode toggle (Choose / Type) where it matches.
+// level the item is drawn at, named like the mode toggle (Choose / Type)
+// where it matches.
 function updateLevelBadge({ state, el, t }) {
   if (state.mode === 'auto') {
-    // A level-4 item with no cloze sentence is drawn as a choose item (see
-    // renderInput), so the badge names what is on screen.
-    const shown =
-      state.effectiveLevel === 4 && !(state.currentItem && state.currentItem.cloze_blanked)
-        ? 1
-        : state.effectiveLevel;
+    const shown = state.effectiveLevel;
     const tag =
       shown === 1
         ? t('mode_mc', null, 'Choose')
@@ -713,7 +715,8 @@ function renderClassifierMc(d) {
 function renderClassifierCloze(d) {
   const { state, el, t } = d;
   const blanked = state.currentItem.cloze_blanked || '';
-  el.promptWrap.style.display = 'block';
+  // The sentence is the prompt: no "一 _ noun" line above it.
+  el.promptWrap.style.display = 'none';
   el.promptBlank.textContent = '';
   el.noun.textContent = '';
   el.pronunciation.textContent = '';
@@ -754,7 +757,11 @@ function renderClassifierReverse(d) {
   el.pronunciation.textContent = '';
   el.gloss.textContent = '';
   el.reversePrompt.style.display = 'block';
-  el.reversePrompt.textContent = t('reverse_prompt', null, 'Which noun fits?') + ' ' + canonical;
+  el.reversePrompt.textContent = t(
+    'reverse_question',
+    { classifier: canonical },
+    'Which noun takes ' + canonical + '?'
+  );
 
   const pool = [
     {
@@ -795,8 +802,13 @@ function recordClassifierAnswer({ state }, isCorrect, picked) {
   }
 }
 
+function clearMasteryChanges(el) {
+  el.results.querySelectorAll('.drill-mastery').forEach((n) => n.remove());
+}
+
 // Standalone page: say how many classifiers moved up or down a level.
 function showMasteryChanges({ el, t }, updates) {
+  clearMasteryChanges(el);
   const promotions = updates.filter((u) => u && u.promoted);
   const demotions = updates.filter((u) => u && u.demoted);
   if (!promotions.length && !demotions.length) return;
@@ -882,7 +894,7 @@ export const CLASSIFIER = {
   renderInput(d) {
     const { state, el } = d;
     const lvl = state.effectiveLevel;
-    if (lvl === 4 && state.currentItem.cloze_blanked) {
+    if (lvl === 4) {
       renderClassifierCloze(d);
       return;
     }
@@ -967,6 +979,11 @@ export const CLASSIFIER = {
   onFinish({ el }, total) {
     // The session's control row goes; the page keeps its header.
     if (el.controls) el.controls.style.display = 'none';
+    // A previous round's ELO and level changes are not this round's.
+    clearMasteryChanges(el);
+    el.resultsElo.style.display = 'none';
+    // The level badge names the item on screen; the results have none.
+    el.levelBadge.style.display = 'none';
     el.progressFill.style.width = '100%';
     el.progressLabel.textContent = String(total);
   },

@@ -209,6 +209,15 @@ def _tables(**overrides):
     return tables
 
 
+def _taken_only(**overrides):
+    """The fixture without references for the untaken test, for checks that
+    are about one test's own windows (that test would otherwise be served)."""
+    tables = _tables(**overrides)
+    tables['test_sentence_references'] = [
+        r for r in tables['test_sentence_references'] if r['sentence_id'] not in (600, 601)]
+    return tables
+
+
 def _serve(db, choice, l1=EN):
     """What GET /next would record for this choice: a dt_submission row (for a
     range, the passage is found-or-created first, as open_range_passage does)."""
@@ -239,9 +248,19 @@ def _choose(db, l2, l1=EN):
 
 class TestEligibility:
 
-    def test_none_when_no_attempted_tests(self):
-        db = _TableDB(_tables(test_attempts=[]))
+    def test_none_when_nothing_has_a_reference(self):
+        db = _TableDB(_tables(test_attempts=[], dt_passage_reference=[], test_sentence_references=[]))
         assert _choose(db, ZH) == {'kind': 'none', 'all_done': False}
+        assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
+
+    def test_no_attempts_still_serves_untaken_tests_flagged(self):
+        """Start any time (2026-11-17): with no attempt at all the learner still
+        gets a passage that already has a reviewed reference, marked untaken."""
+        db = _TableDB(_tables(test_attempts=[]))
+        zh = _choose(db, ZH)
+        assert zh['kind'] == 'passage' and zh['untaken'] is True
+        ja = _choose(db, JA)
+        assert ja['kind'] == 'range' and ja['untaken'] is True
 
     def test_legacy_passage_without_l1_reference_is_not_served(self):
         db = _TableDB(_tables(dt_passage_reference=[], test_sentences=[], test_sentence_references=[]))
@@ -285,14 +304,19 @@ class TestStudyLanguage:
             _grade(db, _serve(db, choice))
         assert sorted(seen) == [1, 2]
 
-    def test_windows_only_from_attempted_tests(self):
+    def test_attempted_tests_first_then_untaken_tests_flagged(self):
+        """Every window of the attempted test comes before any window of a test
+        the learner has not taken; those carry ``untaken`` (the client says the
+        passage shows part of a test not taken yet)."""
         db = _TableDB(_tables())
+        order = []
         while True:
             choice = _choose(db, JA)
             if choice['kind'] == 'none':
                 break
-            assert choice['test_id'] != UNTAKEN_JA_TEST
+            order.append((choice['test_id'], choice.get('untaken', False)))
             _grade(db, _serve(db, choice))
+        assert order == [(JA_TEST, False)] * 3 + [(UNTAKEN_JA_TEST, True)]
 
 
 class TestNoRepeats:
@@ -320,13 +344,13 @@ class TestNoRepeats:
             choice = _choose(db, JA)
             if choice['kind'] == 'none':
                 break
-            span = set(range(choice['start'], choice['end'] + 1))
+            span = {(choice['test_id'], i) for i in range(choice['start'], choice['end'] + 1)}
             assert not span & covered
             assert 2 <= len(span) <= 4
             covered |= span
-            windows.append((choice['start'], choice['end']))
+            windows.append((choice['test_id'], choice['start'], choice['end']))
             _grade(db, _serve(db, choice))
-        assert windows == [(0, 1), (2, 3), (4, 5)]
+        assert windows == [(JA_TEST, 0, 1), (JA_TEST, 2, 3), (JA_TEST, 4, 5), (UNTAKEN_JA_TEST, 0, 1)]
 
     def test_all_done_once_everything_is_graded(self):
         db = _TableDB(_tables())
@@ -451,7 +475,7 @@ class TestSentenceWindowQuality:
         for r in refs:
             if r['sentence_id'] in (501, 503, 505):
                 r['review_verdict'] = 'fail'
-        db = _TableDB(_tables(test_sentence_references=refs))
+        db = _TableDB(_taken_only(test_sentence_references=refs))
         assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
 
     def test_low_tightness_windows_are_skipped(self):
@@ -459,7 +483,7 @@ class TestSentenceWindowQuality:
         for r in refs:
             if r['sentence_id'] < 600:
                 r['tightness'] = 0.2  # below the Japanese floor (0.65)
-        db = _TableDB(_tables(test_sentence_references=refs))
+        db = _TableDB(_taken_only(test_sentence_references=refs))
         assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
 
     def test_references_must_be_in_the_learners_l1(self):
@@ -474,7 +498,7 @@ class TestSentenceWindowQuality:
         for t in tests:
             if t['id'] == JA_TEST:
                 t['transcript_hash'] = 'changed'
-        db = _TableDB(_tables(tests=tests))
+        db = _TableDB(_taken_only(tests=tests))
         assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
 
     def test_a_window_never_straddles_a_stale_row(self):
@@ -498,7 +522,7 @@ class TestSentenceWindowQuality:
         for t in tests:
             if t['id'] == JA_TEST:
                 t['is_active'] = False
-        db = _TableDB(_tables(tests=tests))
+        db = _TableDB(_taken_only(tests=tests))
         assert _choose(db, JA) == {'kind': 'none', 'all_done': False}
 
     def test_window_materials_survive_a_capped_batch_read(self, monkeypatch):

@@ -100,18 +100,74 @@ describe('standalone DT page: GET /next', () => {
     expect(calls[0].url).toBe('/api/dual-translation/next');
   });
 
-  it('shows the all-done message on ALL_DONE', async () => {
+  it('shows the all-done state with a re-serve action on ALL_DONE', async () => {
+    window.localStorage.setItem('selectedLanguageId', '3');
     responses.next = [respond(404, { status: 'error', error_code: 'ALL_DONE' })];
     await boot();
-    const box = document.getElementById('dtError');
+    const box = document.getElementById('dtEmpty');
     expect(box.style.display).toBe('block');
     expect(box.textContent).toContain('translated every passage');
+    const reserve = document.getElementById('dtReserve');
+    expect(reserve.hidden).toBe(false);
+    expect(document.getElementById('dtDock').hidden).toBe(false);
+    expect(document.getElementById('dtBrowseTests').hidden).toBe(false);
+
+    // The action asks for a re-serve and shows the "translated before" note.
+    responses.next = [
+      respond(200, {
+        ...PASSAGE,
+        repeat_of: { graded_at: '2026-11-10T09:00:00Z', band: 3, of_submission_id: 5 },
+      }),
+    ];
+    reserve.click();
+    for (let i = 0; i < 4; i++) await flush();
+    expect(calls[1].url).toBe('/api/dual-translation/next?language_id=3&reserve=1');
+    const note = document.getElementById('dtPassageNote');
+    expect(note.hidden).toBe(false);
+    expect(note.textContent).toContain('band 3');
+    expect(note.textContent).toContain("doesn't count");
   });
 
-  it('keeps the "finish a test first" message for NO_PASSAGES', async () => {
+  it('does not offer a re-serve when a re-serve found nothing', async () => {
+    responses.next = [respond(404, { status: 'error', error_code: 'ALL_DONE' })];
+    await boot();
+    responses.next = [respond(404, { status: 'error', error_code: 'ALL_DONE' })];
+    document.getElementById('dtReserve').click();
+    for (let i = 0; i < 4; i++) await flush();
+    expect(document.getElementById('dtReserve').hidden).toBe(true);
+  });
+
+  it('NO_PASSAGES is an honest empty state that points to the tests', async () => {
     responses.next = [respond(404, { status: 'error', error_code: 'NO_PASSAGES' })];
     await boot();
-    expect(document.getElementById('dtError').textContent).toBe('dual_translation.error_none');
+    expect(document.getElementById('dtEmptyMsg').textContent).toContain('reviewed translation');
+    expect(document.getElementById('dtReserve').hidden).toBe(true);
+    expect(document.getElementById('dtBrowseTests').getAttribute('href')).toBe('/tests');
+  });
+
+  it('notes a passage from a test not taken yet', async () => {
+    responses.next = [respond(200, { ...PASSAGE, from_untaken_test: true })];
+    await boot();
+    const note = document.getElementById('dtPassageNote');
+    expect(note.hidden).toBe(false);
+    expect(note.textContent).toContain("haven't taken");
+  });
+
+  it('a normal passage has no note', async () => {
+    await boot();
+    expect(document.getElementById('dtPassageNote').hidden).toBe(true);
+  });
+
+  it('passes a test_id from the page URL', async () => {
+    window.history.replaceState(null, '', '/dual-translation?test_id=bbbbbbbb-0000-0000-0000-000000000002');
+    try {
+      await boot();
+      expect(calls[0].url).toBe(
+        '/api/dual-translation/next?test_id=bbbbbbbb-0000-0000-0000-000000000002'
+      );
+    } finally {
+      window.history.replaceState(null, '', '/');
+    }
   });
 });
 

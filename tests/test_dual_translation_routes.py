@@ -441,6 +441,16 @@ class TestTokensUsedToday:
 # GET /api/dual-translation/next
 # ---------------------------------------------------------------------------
 
+def _stub_next_inputs(monkeypatch, l1=2, l2=3, history=None):
+    """GET /next's read bundle (TASK-990) as a plain object, so a test that
+    stubs ``_choose_next`` makes no reads of its own."""
+    from types import SimpleNamespace
+    stub = SimpleNamespace(l1=l1, l2=l2, history=history or {}, attempted=set())
+    monkeypatch.setattr(dt_routes, '_next_inputs', lambda db, uid, lang: SimpleNamespace(
+        **{**vars(stub), 'l2': lang if lang is not None else l2}))
+    return stub
+
+
 class TestGetNext:
 
     def test_404_when_no_passage_available(self, client, auth_headers, monkeypatch):
@@ -449,7 +459,8 @@ class TestGetNext:
         monkeypatch.setattr(dt_routes, '_attempted_tests', lambda db, uid: [
             {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
         ])
-        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts: {
+        _stub_next_inputs(monkeypatch)
+        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts, **kw: {
             'kind': 'none', 'all_done': False,
         })
 
@@ -467,7 +478,8 @@ class TestGetNext:
         monkeypatch.setattr(dt_routes, '_attempted_tests', lambda db, uid: [
             {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
         ])
-        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts: {
+        _stub_next_inputs(monkeypatch)
+        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts, **kw: {
             'kind': 'passage',
             'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
         })
@@ -977,18 +989,55 @@ class TestNextInterleavesErrorCards:
 
     def test_serves_error_card_when_selected_and_due(self, client, auth_headers, monkeypatch):
         monkeypatch.setattr(dt_routes, '_should_serve_error_card', lambda: True)
-        monkeypatch.setattr(dt_routes, '_next_due_error_card', lambda db, uid, l2=None: {
-            'card_id': 11, 'card_type': 'cloze', 'subtype': 'article',
-            'prompt_payload': {'prompt': '____ cat', 'answer': 'the'},
-            'state': 'new', 'due_date': None,
-        })
+        seen = []
 
-        resp = client.get('/api/dual-translation/next', headers=auth_headers)
+        def _card(db, uid, l2=None):
+            seen.append(l2)
+            return {
+                'card_id': 11, 'card_type': 'cloze', 'subtype': 'article',
+                'prompt_payload': {'prompt': '____ cat', 'answer': 'the'},
+                'state': 'new', 'due_date': None,
+            }
+        monkeypatch.setattr(dt_routes, '_next_due_error_card', _card)
+
+        def _no_reads(*a, **k):
+            raise AssertionError("a card for a known language needs no passage reads")
+        monkeypatch.setattr(dt_routes, '_next_inputs', _no_reads)
+
+        resp = client.get('/api/dual-translation/next?language_id=3', headers=auth_headers)
 
         assert resp.status_code == 200
         data = resp_json(resp)
         assert data['type'] == 'error_card'
         assert data['card_id'] == 11
+        assert seen == [3]
+
+    def test_language_from_the_latest_attempt_filters_the_card(self, client, auth_headers, monkeypatch):
+        """No language_id (an older client): the card is chosen only after the
+        language is resolved, and only for that language (TASK-991)."""
+        monkeypatch.setattr(dt_routes, '_should_serve_error_card', lambda: True)
+        seen = []
+        monkeypatch.setattr(dt_routes, '_next_due_error_card',
+                            lambda db, uid, l2=None: seen.append(l2) or {'card_id': 11, 'subtype': 'a'})
+        _stub_next_inputs(monkeypatch, l2=1)
+
+        resp = client.get('/api/dual-translation/next', headers=auth_headers)
+
+        assert resp.status_code == 200 and resp_json(resp)['card_id'] == 11
+        assert seen == [1]
+
+    def test_no_card_when_no_language_is_known(self, client, auth_headers, monkeypatch):
+        monkeypatch.setattr(dt_routes, '_should_serve_error_card', lambda: True)
+
+        def _boom(db, uid, l2=None):
+            raise AssertionError("no card may be served without a known study language")
+        monkeypatch.setattr(dt_routes, '_next_due_error_card', _boom)
+        _stub_next_inputs(monkeypatch, l2=None)
+
+        resp = client.get('/api/dual-translation/next', headers=auth_headers)
+
+        assert resp.status_code == 404
+        assert resp_json(resp)['error_code'] == dt_routes.NO_PASSAGES
 
     def test_falls_through_to_passage_when_selected_but_none_due(
         self, client, app, auth_headers, monkeypatch,
@@ -1001,7 +1050,8 @@ class TestNextInterleavesErrorCards:
         monkeypatch.setattr(dt_routes, '_attempted_tests', lambda db, uid: [
             {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
         ])
-        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts: {
+        _stub_next_inputs(monkeypatch)
+        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts, **kw: {
             'kind': 'passage',
             'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
         })
@@ -1035,7 +1085,8 @@ class TestNextInterleavesErrorCards:
         monkeypatch.setattr(dt_routes, '_attempted_tests', lambda db, uid: [
             {'test_id': 't1', 'language_id': 3, 'created_at': '2026-11-01T00:00:00Z'},
         ])
-        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts: {
+        _stub_next_inputs(monkeypatch)
+        monkeypatch.setattr(dt_routes, '_choose_next', lambda db, uid, l1, l2, attempts, **kw: {
             'kind': 'passage',
             'passage': {'passage_id': 7, 'l1_text': 'Hello world', 'age_tier': 3, 'l2_language_id': 3},
         })

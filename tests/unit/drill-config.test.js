@@ -234,7 +234,12 @@ describe('classifier drill in the session', () => {
   });
 
   it('names every Auto level in the badge', async () => {
-    const at = (level) => ({ ...CD_ITEMS[0], level, cloze_blanked: '一___书', reverse_noun_options: ['猫'] });
+    const at = (level) => ({
+      ...CD_ITEMS[0],
+      level,
+      cloze_blanked: '一___书',
+      reverse_noun_options: ['猫'],
+    });
     for (const [level, label] of [
       [3, 'Reverse'],
       [4, 'Fill in'],
@@ -249,12 +254,95 @@ describe('classifier drill in the session', () => {
     }
   });
 
-  it('a level-4 item with no cloze sentence is drawn and badged as Choose', async () => {
+  // TASK-998: an item falls back to the highest level its content supports
+  // (Fill in needs a cloze sentence, Reverse needs wrong nouns; Type needs
+  // nothing), and the badge names what is drawn.
+  it('a level-4 item with no cloze sentence and no reverse nouns is drawn and badged as Type', async () => {
     stubApi({ batches: [[{ ...CD_ITEMS[0], level: 4, cloze_blanked: null }]] });
     vi.useRealTimers();
     await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Type');
+    expect(q('cdTypedForm').style.display).toBe('block');
+    expect(q('cdOptions').style.display).toBe('none');
+  });
+
+  it('a level-4 item with no cloze sentence but reverse nouns is drawn as Reverse', async () => {
+    stubApi({
+      batches: [
+        [
+          {
+            ...CD_ITEMS[0],
+            level: 4,
+            cloze_blanked: null,
+            reverse_noun_options: ['猫', '车', '鱼'],
+          },
+        ],
+      ],
+    });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Reverse');
+    expect(q('cdReversePrompt').textContent).toBe('Which noun takes 本?');
+    const texts = [...container.querySelectorAll('.cd-option-text')].map((e) => e.textContent);
+    expect(texts.sort()).toEqual(['书', '猫', '车', '鱼'].sort());
+  });
+
+  it('a level-3 item with no reverse nouns is drawn as Type', async () => {
+    stubApi({ batches: [[{ ...CD_ITEMS[0], level: 3, reverse_noun_options: [] }]] });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Type');
+  });
+
+  it('Fill in shows the sentence alone, judges the classifier and records the level', async () => {
+    stubApi({
+      batches: [
+        [
+          {
+            ...CD_ITEMS[0],
+            level: 4,
+            cloze_blanked: '这___书很好看。',
+            reverse_noun_options: ['猫', '车', '鱼'],
+          },
+        ],
+      ],
+    });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdLevelBadge').textContent).toBe('Fill in');
+    // No "一 _ noun" line above the sentence.
+    expect(q('cdPromptWrap').style.display).toBe('none');
+    expect(q('cdReversePrompt').querySelector('.cd-cloze').textContent).toContain('这');
+    expect(q('cdReversePrompt').querySelector('.cd-cloze-blank')).not.toBeNull();
+
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    option('.cd-option', '本').click();
+    await settle(400);
+    vi.useRealTimers();
+    await flush();
+    const post = calls.find((c) => c.method === 'POST');
+    expect(post.body.item_results).toEqual([{ classifier_id: 10, is_correct: true, level: 4 }]);
+  });
+
+  it('Reverse records an answer against the classifier and the next item restores the prompt', async () => {
+    stubApi({
+      batches: [
+        [
+          { ...CD_ITEMS[0], level: 3, reverse_noun_options: ['猫', '车', '鱼'] },
+          { ...CD_ITEMS[0], level: 1, noun_lemma: '杂志' },
+        ],
+      ],
+    });
+    vi.useRealTimers();
+    await startSession({ item: {}, languageId: 1, onComplete: vi.fn() });
+    expect(q('cdNoun').textContent).toBe('?');
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    option('.cd-option', '书').click();
+    await settle(400);
     expect(q('cdLevelBadge').textContent).toBe('Choose');
-    expect(container.querySelectorAll('.cd-option').length).toBeGreaterThan(0);
+    expect(q('cdNoun').textContent).toBe('杂志');
+    expect(q('cdPromptBlank').textContent).toBe('_');
+    expect(q('cdReversePrompt').style.display).toBe('none');
   });
 
   it('plays a batch, submits it and completes the item once', async () => {
@@ -371,7 +459,7 @@ describe('classifier drill in the session', () => {
 describe('classifier drill page', () => {
   it('shows the page layout, the mastery banner, another round and the way out', async () => {
     stubApi({
-      batches: [[CD_ITEMS[0]], [CD_ITEMS[0]]],
+      batches: [[CD_ITEMS[0]], [CD_ITEMS[0]], [CD_ITEMS[0]]],
       submit: {
         data: {
           user_elo_change: { change: 0 },
@@ -409,6 +497,16 @@ describe('classifier drill page', () => {
     await flush();
     await flush();
     expect(calls.filter((c) => c.url.includes('/session?'))).toHaveLength(2);
+    // Finishing the second round shows only that round's banner.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    option('.cd-option', '本').click();
+    await settle(400);
+    vi.useRealTimers();
+    await flush();
+    expect(container.querySelectorAll('.drill-mastery')).toHaveLength(1);
+    q('cdResultsNext').click();
+    await flush();
+    await flush();
     expect(q('cdResults').style.display).toBe('none');
     expect(container.querySelector('.drill-player').classList.contains('is-results')).toBe(false);
     expect(q('cdStage').style.display).toBe('block');

@@ -126,6 +126,9 @@
             </button>
             <p class="ld-hint mb-0" data-i18n="test_preview.study_first_hint">Learn the key words before you take the test. Your first attempt then counts at half weight for your rating.</p>
         </div>
+
+        <!-- Dual translation from this test: shown by js/dt-test-entry.js only when a passage is ready -->
+        <a class="ld-btn ld-btn--ghost d-none" id="dtFromTest" href="/dual-translation"><i class="bi bi-translate" aria-hidden="true"></i> <span data-i18n="dual_translation.test_cta">Translate a passage from this test</span></a>
     </div>
 </div>
 {% endblock %}
@@ -139,4 +142,5 @@
 
 {% block extra_js %}
 <script defer src="{{ url_for('static', filename='js/pages/test-preview.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/dt-test-entry.js') }}"></script>
 {% endblock %}

@@ -29,6 +29,12 @@
 
         <div id="dtError" class="ld-card dt-error-box" style="display:none;"></div>
 
+        <!-- Nothing to serve (GET /next 404): ALL_DONE offers a re-serve of an
+             earlier passage (TASK-989), NO_PASSAGES points to the tests. -->
+        <div id="dtEmpty" class="ld-card dt-empty" role="status" style="display:none;">
+            <p class="dt-empty__msg" id="dtEmptyMsg"></p>
+        </div>
+
         <!-- ===== PHASE 0b: Error-remediation card (TASK-731) =====
              GET /next interleaves due dt_card rows into the passage stream; the
              shared window.DTErrorCard renderer fills this container (its action
@@ -37,6 +43,8 @@
 
         <!-- ===== PHASE 1: Reproduction (feed-up) ===== -->
         <div id="dtReproduce" class="dt-reproduce" style="display:none;">
+            <!-- From a test not taken yet / translated before (re-serve). -->
+            <div id="dtPassageNote" class="ld-note dt-passage-note" hidden></div>
             <div class="ld-card dt-card dt-ref-card">
                 <p class="ld-eyebrow dt-card-label" data-i18n="dual_translation.reference_label">Reference (in your language)</p>
                 <div class="dt-reference" id="dtReference"></div>
@@ -130,6 +138,8 @@
         <button type="button" id="dtSubmit" class="ld-btn dt-submit" data-dt-dock="reproduce" data-i18n="dual_translation.submit">Submit for feedback</button>
         <div id="dtErrorCardDock" class="dt-errorcard-dock" data-dt-dock="errorCard"></div>
         <button type="button" class="ld-btn dt-secondary" id="dtTryAnother" data-dt-dock="result" data-i18n="dual_translation.try_another">Try another</button>
+        <button type="button" class="ld-btn" id="dtReserve" data-dt-dock="empty" data-i18n="dual_translation.reserve_action">Translate an earlier passage again</button>
+        <a class="ld-btn ld-btn--ghost" id="dtBrowseTests" href="/tests" data-dt-dock="empty" data-i18n="dual_translation.browse_tests">Browse tests</a>
     </div>
 </div>
 {% endblock %}

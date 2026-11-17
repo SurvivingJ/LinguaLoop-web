@@ -48,7 +48,7 @@ from typing import Optional
 from config import Config
 from services.dictation.tokenizer import normalize as _dictation_normalize
 from services.dimension_service import DimensionService
-from services.llm_output_cleaner import clean_json_response
+from services.dual_translation import output_sanitizer
 from services.model_arena.llm_runner import call_model_with_usage
 from services.dual_translation import prompts, provider_errors, scoring, explainer, word_choice_variant
 from services.dual_translation.router import resolve_tier, TIER_ORDER
@@ -922,7 +922,7 @@ def _call_tier(
     provider_errors.note_answer(slug=slug, role=tier)
 
     try:
-        payload = json.loads(clean_json_response(content))
+        payload = output_sanitizer.parse_model_json(content)
     except (ValueError, json.JSONDecodeError) as exc:
         logger.warning(
             "dual_translation.grader_cascade: %s response from %r was not valid JSON (%s): %.200r",
@@ -1735,7 +1735,7 @@ def _invoke_model(
     provider_errors.note_answer(slug=slug, role=role)
 
     try:
-        payload = json.loads(clean_json_response(content))
+        payload = output_sanitizer.parse_model_json(content)
     except (ValueError, json.JSONDecodeError) as exc:
         logger.warning(
             "dual_translation.grader_cascade: %s response from %r was not valid JSON (%s): %.200r",

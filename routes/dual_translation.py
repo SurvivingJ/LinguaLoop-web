@@ -50,6 +50,7 @@ from middleware.auth import jwt_required as supabase_jwt_required
 from services.dimension_service import DimensionService
 from services.dual_translation import cards as dt_cards
 from services.dual_translation import primed_token
+from services.dual_translation import output_sanitizer
 from services.dual_translation import provider_errors
 from services.dual_translation.grader_cascade import grade_submission, get_active_rubric
 from services.dual_translation.repair import budget as repair_budget
@@ -109,26 +110,38 @@ _NATURALNESS_HIDDEN_AGE_TIERS = (1, 2)
 def get_next() -> ApiResponse:
     """Serve the next dual-translation passage for the authenticated user.
 
-    Query: ``language_id`` — the learner's selected study language (the L2 the
-    passage is in). Validated against Config.VALID_LANGUAGE_IDS (400 otherwise).
-    When absent (an older cached client), the language of the learner's most
-    recent test attempt is used, so the old behaviour keeps working without
-    ever mixing languages.
+    Query:
+      ``language_id`` — the learner's selected study language (the L2 the
+        passage is in). Validated against Config.VALID_LANGUAGE_IDS (400
+        otherwise). When absent (an older cached client), the language of the
+        learner's most recent test attempt is used.
+      ``reserve=1`` — TASK-989: when nothing new is left, serve an already
+        graded passage again (least recently graded first). The repeat is
+        recorded as a repeat at submit (``_repeat_of``) and kept out of the
+        error profile, the guided-repair queue and target-word evidence.
+      ``test_id`` — only passages of this test (the test preview page's
+        "Translate a passage from this test").
 
-    Selection (``_choose_next``): only content from tests the user has attempted
-    (spec: "already completed", so content is at-level), in that language, with
-    an L1 reference for the user's resolved L1, in this order:
+    Selection (``_choose_next``, 2026-11-17): only passages that already have a
+    reviewed reference in the learner's L1 (no live generation), never one the
+    learner has had graded (except with ``reserve``):
 
-      1. a legacy ``dt_passage`` the learner has never been served;
-      2. a new sentence-window passage built from the ADR-037 sentence-level
-         references (``open_range_passage``, the passage-from-sentences core),
-         avoiding sentences of windows already served;
-      3. a passage served before but never graded (least recently served first).
+      1. a legacy whole passage of a test the learner attempted, never served;
+      2. a new sentence window of a test the learner attempted;
+      3. a legacy passage of a test the learner has NOT attempted, nearest the
+         learner's level first (``from_untaken_test`` in the answer — the client
+         says so, because the passage shows part of that test);
+      4. a new sentence window of such a test, nearest level first;
+      5. a passage served before but never graded, least recently served first;
+      6. with ``reserve``: a graded passage, least recently graded first.
 
-    A passage the learner has had graded is never served again: when 1-3 are
-    empty the answer is 404 ``ALL_DONE`` (``NO_PASSAGES`` when the learner has
-    no eligible content at all). Creates the dt_submission row up front
-    (reproduction filled in later, at submit).
+    404 ``ALL_DONE`` when nothing is left and the learner has had a passage
+    graded in this language (the client then offers ``reserve``);
+    ``NO_PASSAGES`` when nothing is eligible at all.
+
+    TASK-990: the reads come from one database call (``dt_next_inputs``) with a
+    per-table fallback. TASK-991: a passage the learner was served and never
+    started reuses that open submission instead of inserting a new empty row.
     """
     try:
         db = current_app.supabase_service
@@ -147,32 +160,36 @@ def get_next() -> ApiResponse:
                 return bad_request("language_id is not a supported study language")
         else:
             l2_language_id = None
-
-        attempts = _attempted_tests(db, user_id)
-        if l2_language_id is None:
-            l2_language_id = _latest_attempt_language(attempts)
+        reserve = request.args.get('reserve') in ('1', 'true')
+        only_test = (request.args.get('test_id') or '').strip() or None
+        if only_test is not None and not _looks_like_uuid(only_test):
+            return bad_request("test_id must be a test id")
 
         # TASK-614: interleave due error-remediation cards into the passage
-        # stream so remediation happens in the flow of normal practice.
-        if _should_serve_error_card():
+        # stream. Only when the study language is known (TASK-991: a card of
+        # another language is never served), and never on an explicit
+        # reserve / single-test request.
+        wants_card = not reserve and only_test is None and _should_serve_error_card()
+        if wants_card and l2_language_id is not None:
+            error_card = _next_due_error_card(db, user_id, l2_language_id)
+            if error_card:
+                return api_success({'type': 'error_card', **error_card})
+            wants_card = False
+
+        inputs = _next_inputs(db, user_id, l2_language_id)
+        l2_language_id = inputs.l2
+        if l2_language_id is None:
+            return api_error(
+                "No dual-translation passage yet - choose a study language first", 404,
+                error_code=NO_PASSAGES,
+            )
+        if wants_card:
             error_card = _next_due_error_card(db, user_id, l2_language_id)
             if error_card:
                 return api_success({'type': 'error_card', **error_card})
 
-        if l2_language_id is None:
-            return api_error(
-                "No dual-translation passage yet - finish a test first", 404,
-                error_code=NO_PASSAGES,
-            )
-
-        l1_language_id = _resolve_l1_language_id(db, user_id)
-        choice = _choose_next(db, user_id, l1_language_id, l2_language_id, attempts)
-
-        if choice['kind'] == 'range':
-            return open_range_passage(
-                db, user_id, choice['test_id'], choice['start'], choice['end'], l1_language_id, [],
-                extra={'type': 'passage', 'source': 'sentence_refs'},
-            )
+        choice = _choose_next(db, user_id, inputs.l1, l2_language_id, None,
+                              reserve=reserve, test_id=only_test, inputs=inputs)
         if choice['kind'] == 'none':
             if choice.get('all_done'):
                 return api_error(
@@ -182,41 +199,63 @@ def get_next() -> ApiResponse:
             return api_error(
                 "No dual-translation passage available yet", 404, error_code=NO_PASSAGES,
             )
-
-        passage = choice['passage']
-
-        # TASK-617: assign + stamp the correction-style A/B arm at serve time.
-        # Stamping it onto dt_submission (rather than only recomputing from
-        # user_id later) keeps the experiment analyzable even if the config
-        # mode or bucketing changes — the row records exactly what was shown.
-        correction_style = Config.resolve_correction_style(user_id)
-
-        submission_resp = db.table('dt_submission').insert({
-            'user_id': user_id,
-            'passage_id': passage['passage_id'],
-            'l1_language_id': l1_language_id,
-            'reproduction': '',
-            'correction_style': correction_style,
-        }).execute()
-        if not submission_resp.data:
-            return server_error("Failed to create submission")
-
-        submission_id = submission_resp.data[0]['id']
-        l2_code = DimensionService.get_language_code(passage['l2_language_id'])
-
-        return api_success({
-            'type': 'passage',
-            'source': 'passage',
-            'submission_id': submission_id,
-            'l1_text': passage['l1_text'],
-            'age_tier': passage['age_tier'],
-            'rubric_descriptors': _rubric_descriptors_for(db, passage['age_tier'], l2_code),
-            'correction_style': correction_style,
-        })
+        return _serve_choice(db, user_id, inputs, choice)
 
     except Exception as e:
-        logger.error("Error fetching next dual-translation passage: %s", e)
+        logger.error("Error fetching next dual-translation passage: %s", e, exc_info=True)
         return server_error("Failed to fetch next passage")
+
+
+@dual_translation_bp.route('/test-available', methods=['GET'])
+@supabase_jwt_required
+def get_test_available() -> ApiResponse:
+    """Can the learner translate a passage from this test right now?
+
+    Query: ``test_id`` or ``slug`` (the preview page knows only the slug).
+    ``{available, test_id, l1_language_id}``. Same rule
+    as the prestudy Produce stage (``services.prestudy.produce_available``: a
+    2-4 sentence window whose references in the learner's L1 all exist and clear
+    the tightness floor), with the dual-translation L1 (``users.native_language_id``,
+    English when unset). Never fails: any read error answers ``available: false``.
+    """
+    try:
+        db = current_app.supabase_service
+        if not db:
+            return server_error("Database service not configured")
+        test_id = (request.args.get('test_id') or '').strip()
+        slug = (request.args.get('slug') or '').strip()
+        if test_id:
+            if not _looks_like_uuid(test_id):
+                return bad_request("test_id must be a test id")
+            test = _get_test_for_passage(db, test_id)
+        elif slug and len(slug) <= 200:
+            rows = (
+                db.table('tests').select('id, language_id, difficulty, transcript_hash')
+                .eq('slug', slug).eq('is_active', True).limit(1).execute()
+            ).data or []
+            test = rows[0] if rows else None
+        else:
+            return bad_request("test_id or slug required")
+        if not test:
+            return not_found("Test not found")
+        l1 = _resolve_l1_language_id(db, g.current_user_id)
+        out = {'available': False, 'test_id': str(test['id']), 'l1_language_id': l1}
+        if int(l1) != int(test['language_id']):
+            from services import prestudy
+            out['available'] = prestudy.produce_available(db, test, int(l1))
+        return api_success(out)
+    except Exception as e:
+        logger.warning("dual-translation test availability failed: %s", e)
+        return api_success({'available': False})
+
+
+def _looks_like_uuid(value: str) -> bool:
+    import uuid as _uuid
+    try:
+        _uuid.UUID(str(value))
+        return True
+    except (TypeError, ValueError, AttributeError):
+        return False
 
 
 # ============================================================================
@@ -248,6 +287,17 @@ def submit(submission_id: int) -> ApiResponse:
 
         if not reproduction or not isinstance(reproduction, str):
             return bad_request("reproduction required")
+        # Invisible/control characters out before grading, so the stored text,
+        # the spans and the graded text are the same string (NUL would also fail
+        # the dt_submission write). Markup is kept: it is the learner's text.
+        reproduction = output_sanitizer.clean_learner_text(reproduction)
+        if not reproduction:
+            return bad_request("reproduction required")
+        if len(reproduction) > output_sanitizer.MAX_REPRODUCTION_CHARS:
+            return api_error(
+                f"Your translation is longer than {output_sanitizer.MAX_REPRODUCTION_CHARS} characters",
+                400, error_code="REPRODUCTION_TOO_LONG",
+            )
 
         submission_row = _get_submission(db, submission_id)
         if not submission_row:
@@ -258,6 +308,8 @@ def submit(submission_id: int) -> ApiResponse:
 
         cached = _cached_grade(db, submission_id)
         if cached is not None:
+            if cached.get('repeat_of'):
+                return api_success(cached)  # a repeat never has a repair session
             # Guided self-repair: the existing session (redacted while open), or
             # one created now if grading succeeded but the session was not.
             return api_success(repair_hooks.for_cached(db, g.current_user_id, submission_id, cached))
@@ -268,6 +320,10 @@ def submit(submission_id: int) -> ApiResponse:
 
         if passage['status'] != 'active':
             return api_error("This passage has been retired", 400, error_code="PASSAGE_RETIRED")
+
+        # TASK-989: a passage this learner already had graded (re-served on
+        # request) is graded and shown as usual but recorded as a repeat.
+        repeat_of = _repeat_of(db, g.current_user_id, submission_row)
 
         # TASK-601: budget gate. At/over the per-user/day token budget, cap
         # the cascade to Tier 0+1 rather than skip grading — grade_submission
@@ -333,21 +389,48 @@ def submit(submission_id: int) -> ApiResponse:
         if contract.get('overall_band') is None:
             return api_success(contract)
 
-        _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
+        # A grade that is not well-formed (a band outside 1-4, a malformed span)
+        # is never stored half-valid: it is answered as provisional, unsaved,
+        # exactly like a grade with no scores, so a retry grades it again.
+        problems = output_sanitizer.contract_problems(contract)
+        if problems:
+            logger.error("DT grade for submission %s not stored, malformed: %s", submission_id, problems[:5])
+            contract = output_sanitizer.sanitize_contract(contract)
+            contract['provisional'] = True
+            return api_success(contract)
+
+        # D (2026-11-17): every model-derived string is plain text with a
+        # documented cap and no NUL/control characters before it is stored or
+        # returned, whatever model produced it.
+        contract = output_sanitizer.sanitize_contract(contract)
+        grading_assets = output_sanitizer.sanitize_assets(grading_assets)
+
+        if repeat_of:
+            _persist_grade(db, submission_id, reproduction, idempotency_key, contract,
+                           repeat_of=repeat_of)
+        else:
+            _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
         _persist_grading_assets(db, submission_id, grading_assets)
 
-        # Guided self-repair (wiki/features/dt-guided-self-repair.tech.md 3.3): the
-        # response to send. Never raises; not eligible / any failure -> `contract`
-        # itself. The side effects below keep reading the unredacted `contract`.
-        response = repair_hooks.after_grade(
-            db, user_id=g.current_user_id, submission_row=submission_row, passage=passage,
-            contract=contract, reproduction=reproduction,
-        )
+        if repeat_of:
+            # A repeat's errors are kept on dt_grade only (see _persist_grade): no
+            # dt_error_instance rows (error profile / recurrence trends / cards),
+            # no guided-repair session or queue items, no target-word BKT evidence.
+            contract['repeat_of'] = _public_repeat(repeat_of)
+            response = contract
+        else:
+            # Guided self-repair (wiki/features/dt-guided-self-repair.tech.md 3.3): the
+            # response to send. Never raises; not eligible / any failure -> `contract`
+            # itself. The side effects below keep reading the unredacted `contract`.
+            response = repair_hooks.after_grade(
+                db, user_id=g.current_user_id, submission_row=submission_row, passage=passage,
+                contract=contract, reproduction=reproduction,
+            )
 
         # TASK-910: one production-evidence row per primed sense. Not part of
         # _persist_grade (whose ordering contract is about dt_grade caching);
         # best-effort, like the dictation BKT write.
-        if contract.get('target_words'):
+        if contract.get('target_words') and not repeat_of:
             _record_target_word_evidence(
                 db, g.current_user_id, passage['l2_language_id'], submission_id,
                 contract['target_words'],
@@ -485,6 +568,10 @@ def open_range_passage(db, user_id: str, test_id: str, start: int, end: int, l1_
     )
     if not passage:
         return server_error("Failed to create passage")
+    if passage.get('status') not in (None, 'active'):
+        # TASK-991: an existing window passage that was retired is never opened
+        # (submit would answer PASSAGE_RETIRED after the learner wrote it).
+        return api_error("This passage has been retired", 409, error_code="PASSAGE_RETIRED")
     l1_text = join_sentences([refs[sr['id']]['l1_text'] for sr in sentences], l1_code)
 
     correction_style = Config.resolve_correction_style(user_id)
@@ -558,12 +645,16 @@ def _get_usable_references(db, sentence_ids: list, l1_language_id: int) -> dict:
     }
 
 
-def _find_or_create_range_passage(db, test: dict, start: int, end: int, *, l2_text: str) -> Optional[dict]:
+def _find_or_create_range_passage(db, test: dict, start: int, end: int, *, l2_text: str,
+                                  known_absent: bool = False) -> Optional[dict]:
     """The ``dt_passage`` for (test, start, end): existing row, else inserted.
-    A lost race on the partial unique index re-reads the winner's row."""
-    existing = _select_range_passage(db, str(test['id']), start, end)
-    if existing:
-        return existing
+    A lost race on the partial unique index re-reads the winner's row.
+    ``known_absent``: the caller just read that no such row exists (GET /next's
+    read bundle), so the select is skipped."""
+    if not known_absent:
+        existing = _select_range_passage(db, str(test['id']), start, end)
+        if existing:
+            return existing
     payload = {
         'l2_language_id': test['language_id'],
         'source_kind': SOURCE_KIND,
@@ -853,30 +944,45 @@ def _rotation_key(user_id: str, item, salt: int) -> str:
     return hashlib.sha256(f"{user_id}|{item}|{salt}".encode('utf-8')).hexdigest()
 
 
-def _served_history(db, user_id: str) -> dict:
-    """``{passage_id: {'last_served': iso, 'graded': bool}}`` over all of this
-    user's dt_submission rows (a passage served twice keeps its latest serve)."""
+def _served_history(db, user_id: str, l1_language_id: Optional[int] = None) -> dict:
+    """``{passage_id: {last_served, graded, last_graded_at, band, open_id}}``
+    over all of this user's dt_submission rows (a passage served twice keeps its
+    latest serve). ``open_id``: the newest submission on the passage with no
+    grade and no reproduction yet (in ``l1_language_id`` when given) — GET /next
+    reuses it instead of inserting another empty row (TASK-991)."""
     subs = _read_all_pages(lambda: (
-        db.table('dt_submission').select('id, passage_id, created_at')
+        db.table('dt_submission').select('id, passage_id, created_at, reproduction, l1_language_id')
         .eq('user_id', user_id).order('id')
     ))
-    graded_ids: set = set()
+    grades: dict = {}
     sub_ids = [row['id'] for row in subs]
     for i in range(0, len(sub_ids), 200):
         part = sub_ids[i:i + 200]
         rows = (
-            db.table('dt_grade').select('submission_id').in_('submission_id', part).execute()
+            db.table('dt_grade').select('submission_id, created_at, overall_band')
+            .in_('submission_id', part).execute()
         ).data or []
-        graded_ids.update(r['submission_id'] for r in rows)
+        for r in rows:
+            grades[r['submission_id']] = r
     history: dict = {}
     for row in subs:
         pid = row['passage_id']
-        entry = history.setdefault(pid, {'last_served': '', 'graded': False})
+        entry = history.setdefault(pid, {'last_served': '', 'graded': False, 'last_graded_at': None,
+                                         'band': None, 'open_id': None})
         served = str(row.get('created_at') or '')
         if served > entry['last_served']:
             entry['last_served'] = served
-        if row['id'] in graded_ids:
+        grade = grades.get(row['id'])
+        if grade is not None:
             entry['graded'] = True
+            at = str(grade.get('created_at') or '')
+            if entry['last_graded_at'] is None or at >= entry['last_graded_at']:
+                entry['last_graded_at'] = at
+                entry['band'] = grade.get('overall_band')
+        elif not (row.get('reproduction') or '') and (
+                l1_language_id is None or row.get('l1_language_id') in (None, l1_language_id)):
+            if entry['open_id'] is None or row['id'] > entry['open_id']:
+                entry['open_id'] = row['id']
     return history
 
 
@@ -899,94 +1005,633 @@ def _served_passage(passage: dict, l1_text: str) -> dict:
 
 
 def _choose_next(db, user_id: str, l1_language_id: int, l2_language_id: int,
-                 attempts: list) -> dict:
+                 attempts: Optional[list], *, reserve: bool = False,
+                 test_id: Optional[str] = None, inputs: Optional['_NextInputs'] = None) -> dict:
     """Pick what GET /next serves. Returns one of
 
     * ``{'kind': 'passage', 'passage': {passage_id, l1_text, age_tier, l2_language_id}}``
       — an existing passage with an L1 reference (legacy, or a served window);
     * ``{'kind': 'range', 'test_id', 'start', 'end'}`` — a sentence window to
-      open through ``open_range_passage``;
+      open (``_serve_choice``; ``open_range_passage`` for other callers);
     * ``{'kind': 'none', 'all_done': bool}`` — nothing eligible; ``all_done``
-      when the learner has had every eligible passage graded.
+      when the learner has had a passage of this language graded.
 
-    Eligibility is unchanged from the spec: content only from tests the user
-    has attempted, in ``l2_language_id``, with an L1 reference. Graded passages
-    are never re-served (see get_next for why "all done" is honest instead).
+    A passage or window from a test the learner has not attempted also carries
+    ``'untaken': True``; a re-served graded passage (``reserve``) carries
+    ``'repeat_of': {'graded_at', 'band'}``. The order is in get_next's docstring.
+
+    ``inputs`` is the read bundle (``_next_inputs``); without it the per-table
+    reads are used, starting from ``attempts`` (test_attempts rows).
     """
-    test_ids = list(dict.fromkeys(str(row['test_id']) for row in attempts if row.get('test_id')))
-    if not test_ids or l1_language_id == l2_language_id:
+    if inputs is None:
+        inputs = _TableInputs(db, user_id, l1_language_id, l2_language_id, attempts)
+    if l1_language_id == l2_language_id:
         return {'kind': 'none', 'all_done': False}
+    l2 = int(l2_language_id)
+    history = inputs.history
+    salt = inputs.salt
+    only = str(test_id) if test_id else None
 
-    history = _served_history(db, user_id)
-    salt = len(history)
+    def in_scope(test) -> bool:
+        return only is None or str(test) == only
 
-    # 1. Legacy dt_passage rows of attempted tests in this language, never served.
-    legacy = (
-        db.table('dt_passage')
-        .select('id, age_tier, l2_language_id, source_ref_id, sentence_start')
-        .eq('source_kind', 'test_transcript')
-        .eq('status', 'active')
-        .eq('l2_language_id', l2_language_id)
-        .in_('source_ref_id', test_ids)
-        .execute()
-    ).data or []
-    legacy = [p for p in legacy if p.get('sentence_start') is None]
-    unseen = sorted(
-        (p for p in legacy if p['id'] not in history),
+    # Served windows (graded or not) and retired range passages are never part
+    # of a new window.
+    blocked = _served_ranges(list(inputs.passages.values()))
+
+    # 1 / 3. Legacy whole passages never served, attempted tests first.
+    legacy = [p for p in inputs.legacy_passages()
+              if int(p.get('l2_language_id') or l2) == l2 and in_scope(p.get('source_ref_id'))]
+    unseen = [p for p in legacy if p['id'] not in history]
+    taken_legacy = sorted(
+        (p for p in unseen if str(p.get('source_ref_id')) in inputs.attempted),
         key=lambda p: _rotation_key(user_id, p['id'], salt),
     )
-    for passage in unseen:
-        l1_text = _legacy_reference(db, passage['id'], l1_language_id)
+    for passage in taken_legacy:
+        l1_text = inputs.legacy_text(passage)
         if l1_text:
             return {'kind': 'passage', 'passage': _served_passage(passage, l1_text)}
 
-    # 2. A new window from the sentence-level references (ADR-037).
-    served_passages = _passages_by_id(db, list(history))
-    served_ranges = _served_ranges(served_passages)
-    window_tests = _eligible_window_tests(db, user_id, test_ids, l2_language_id, salt)
-    # Read a batch of tests' sentences + references at a time and stop at the
-    # first batch with a fresh window (most calls need one batch). Step 3 only
-    # runs after every batch was read, so ``materials`` is complete there.
-    materials: dict = {}
-    for i in range(0, len(window_tests), _WINDOW_TEST_BATCH):
-        batch = window_tests[i:i + _WINDOW_TEST_BATCH]
-        materials.update(_window_materials(db, batch, l1_language_id))
-        window = _next_sentence_window(batch, materials, l2_language_id, served_ranges)
-        if window:
-            return {'kind': 'range', **window}
+    # 2. A new window of an attempted test (ADR-037 sentence references).
+    taken_tests = inputs.taken_tests(only)
+    window = _first_window(inputs, taken_tests, l2, blocked)
+    if window:
+        return {'kind': 'range', **window}
 
-    # 3. Served before, never graded: least recently served first.
-    ungraded = {pid for pid, h in history.items() if not h['graded']}
-    eligible_tests = set(test_ids)
-    if ungraded:
-        rows = [
-            p for p in served_passages
-            if p['id'] in ungraded and p.get('status') == 'active'
-            and int(p.get('l2_language_id') or 0) == int(l2_language_id)
-            and str(p.get('source_ref_id')) in eligible_tests
-        ]
-        rows.sort(key=lambda p: history[p['id']]['last_served'])
-        for passage in rows:
-            if passage.get('sentence_start') is not None and passage.get('sentence_end') is not None:
-                if _range_still_servable(passage, materials):
-                    return {
-                        'kind': 'range', 'test_id': str(passage['source_ref_id']),
-                        'start': int(passage['sentence_start']), 'end': int(passage['sentence_end']),
-                    }
-                continue
-            l1_text = _legacy_reference(db, passage['id'], l1_language_id)
-            if l1_text:
-                return {'kind': 'passage', 'passage': _served_passage(passage, l1_text)}
-
-    # "All done" only when the learner has had a passage graded in THIS language
-    # (from a test they attempted); graded work in another language says nothing
-    # about this one, which then simply has nothing eligible (NO_PASSAGES).
-    graded_here = any(
-        history[p['id']]['graded'] for p in served_passages
-        if int(p.get('l2_language_id') or 0) == int(l2_language_id)
-        and str(p.get('source_ref_id')) in eligible_tests
+    # 3. Legacy passages of tests not attempted yet, nearest the learner's level.
+    level = inputs.level_order()
+    untaken_legacy = sorted(
+        (p for p in unseen if str(p.get('source_ref_id')) not in inputs.attempted),
+        key=lambda p: (*level(p.get('source_ref_id')), _rotation_key(user_id, p['id'], salt)),
     )
-    return {'kind': 'none', 'all_done': graded_here}
+    for passage in untaken_legacy:
+        l1_text = inputs.legacy_text(passage)
+        if l1_text:
+            return {'kind': 'passage', 'passage': _served_passage(passage, l1_text), 'untaken': True}
+
+    # 4. A new window of a test not attempted yet, nearest the learner's level.
+    untaken_tests = inputs.untaken_tests(only)
+    window = _first_window(inputs, untaken_tests, l2, blocked)
+    if window:
+        return {'kind': 'range', **window, 'untaken': True}
+
+    # 5. Served before, never graded: least recently served first.
+    ungraded = [pid for pid, h in history.items() if not h['graded']]
+    ungraded.sort(key=lambda pid: history[pid]['last_served'])
+    hit = _first_servable(inputs, ungraded, l2, in_scope)
+    if hit:
+        return hit[0]
+
+    graded = [pid for pid, h in history.items() if h['graded']
+              and int((inputs.passages.get(pid) or {}).get('l2_language_id') or 0) == l2
+              and in_scope((inputs.passages.get(pid) or {}).get('source_ref_id'))]
+
+    # 6. TASK-989: re-serve on request, least recently graded first.
+    if reserve and graded:
+        graded.sort(key=lambda pid: (history[pid].get('last_graded_at') or '', pid))
+        hit = _first_servable(inputs, graded, l2, in_scope)
+        if hit:
+            choice, pid = hit
+            choice['repeat_of'] = {'graded_at': history[pid].get('last_graded_at'),
+                                   'band': history[pid].get('band')}
+            return choice
+
+    # "All done" only when the learner has had a passage of THIS language
+    # graded; graded work in another language says nothing about this one,
+    # which then simply has nothing eligible (NO_PASSAGES).
+    return {'kind': 'none', 'all_done': bool(graded)}
+
+
+def _first_window(inputs: '_NextInputs', tests: list, l2: int, blocked: dict) -> Optional[dict]:
+    """The first fresh window over ``tests`` (in order), reading their
+    materials a batch at a time and stopping at the first batch with one."""
+    for i in range(0, len(tests), _WINDOW_TEST_BATCH):
+        batch = tests[i:i + _WINDOW_TEST_BATCH]
+        materials = inputs.materials(batch)
+        window = _next_sentence_window(batch, materials, l2, _merge_ranges(blocked, inputs.retired_ranges()))
+        if window:
+            return window
+    return None
+
+
+def _merge_ranges(a: dict, b: dict) -> dict:
+    out = {k: set(v) for k, v in a.items()}
+    for k, v in b.items():
+        out.setdefault(k, set()).update(v)
+    return out
+
+
+def _first_servable(inputs: '_NextInputs', passage_ids: list, l2: int, in_scope) -> Optional[tuple]:
+    """The first of ``passage_ids`` (already ordered) that can be served again:
+    active, in this language and scope, and either a legacy passage with an L1
+    reference or a window whose sentences all still have usable references.
+    Returns ``(choice, passage_id)``."""
+    for pid in passage_ids:
+        passage = inputs.passages.get(pid)
+        if not passage or passage.get('status') != 'active':
+            continue
+        if int(passage.get('l2_language_id') or 0) != l2 or not in_scope(passage.get('source_ref_id')):
+            continue
+        untaken = str(passage.get('source_ref_id')) not in inputs.attempted
+        if passage.get('sentence_start') is not None and passage.get('sentence_end') is not None:
+            test = inputs.test_meta(passage.get('source_ref_id'))
+            if not test:
+                continue
+            materials = inputs.materials([test])
+            if _range_still_servable(passage, materials):
+                out = {'kind': 'range', 'test_id': str(passage['source_ref_id']),
+                       'start': int(passage['sentence_start']), 'end': int(passage['sentence_end'])}
+                if untaken:
+                    out['untaken'] = True
+                return out, pid
+            continue
+        l1_text = inputs.legacy_text(passage)
+        if l1_text:
+            out = {'kind': 'passage', 'passage': _served_passage(passage, l1_text)}
+            if untaken:
+                out['untaken'] = True
+            return out, pid
+    return None
+
+
+# ----------------------------------------------------------------------------
+# GET /next read bundle (TASK-990)
+# ----------------------------------------------------------------------------
+
+# How long the per-table reads are used without retrying the bundle after it
+# was found missing (migrations/dt_next_inputs.sql not applied) or failing.
+_NEXT_INPUTS_RETRY_S = 600
+_next_inputs_state = {'unavailable_until': 0.0, 'logged': False}
+
+
+class _NextInputs:
+    """Everything ``_choose_next`` reads, behind one interface. Two sources:
+    ``_RpcInputs`` (one call to ``dt_next_inputs``) and ``_TableInputs`` (the
+    per-table reads, used before that migration is applied, when it fails, and
+    by the unit tests' filtering fake DB).
+
+    Attributes: ``l1``, ``l2`` (resolved), ``salt`` (passages ever served),
+    ``attempted`` (set of attempted test ids, as str), ``history``
+    (``{passage_id: {last_served, graded, last_graded_at, band, open_id}}``)
+    and ``passages`` (``{passage_id: dt_passage row without text}`` for every
+    served passage)."""
+
+    source = 'none'
+    # Tests examined per call (None: all). The per-table path caps it to bound
+    # its reads; the bundle has every candidate's materials already.
+    max_tests: Optional[int] = None
+    l1: int
+    l2: Optional[int]
+    salt: int
+    attempted: set
+    history: dict
+    passages: dict
+
+    # -- overridden ---------------------------------------------------------
+    def legacy_passages(self) -> list:
+        raise NotImplementedError
+
+    def legacy_text(self, passage: dict) -> Optional[str]:
+        raise NotImplementedError
+
+    def candidate_tests(self, attempted: bool) -> list:
+        """Active tests in l2 (``{id, language_id, transcript_hash, difficulty,
+        elo}``) that were (not) attempted, unordered."""
+        raise NotImplementedError
+
+    def materials(self, tests: list) -> dict:
+        raise NotImplementedError
+
+    def range_passage(self, test_id: str, start: int, end: int) -> Optional[dict]:
+        raise NotImplementedError
+
+    def window_texts(self, db, sentence_ids: list) -> dict:
+        """``{sentence_id: (l2_text, l1_text)}``."""
+        return _read_window_texts(db, sentence_ids, self.l1)
+
+    # -- shared -------------------------------------------------------------
+    def taken_tests(self, only: Optional[str] = None) -> list:
+        """Attempted candidate tests (only ``only`` when given), in rotation
+        order, capped at ``max_tests``."""
+        tests = sorted((t for t in self.candidate_tests(True) if only is None or str(t['id']) == only),
+                       key=lambda t: _rotation_key(self.user_id, t['id'], self.salt))
+        return tests[:self.max_tests] if self.max_tests else tests
+
+    def untaken_tests(self, only: Optional[str] = None) -> list:
+        """Not-attempted candidate tests (only ``only`` when given), nearest the
+        learner's level first (ELO distance; unrated last), then rotation
+        order; capped at ``max_tests``."""
+        level = self.level_order()
+        tests = sorted((t for t in self.candidate_tests(False) if only is None or str(t['id']) == only),
+                       key=lambda t: (*level(t['id']), _rotation_key(self.user_id, t['id'], self.salt)))
+        return tests[:self.max_tests] if self.max_tests else tests
+
+    def level_order(self):
+        """``test_id -> (unrated, elo distance)``: a sort key, nearest first."""
+        elo = {str(t['id']): t.get('elo') for t in self.candidate_tests(False)}
+
+        def key(test_id):
+            d = elo.get(str(test_id))
+            return (d is None, float(d) if d is not None else 0.0)
+        return key
+
+    def test_meta(self, test_id) -> Optional[dict]:
+        for t in self.candidate_tests(True) + self.candidate_tests(False):
+            if str(t['id']) == str(test_id):
+                return t
+        return None
+
+    def retired_ranges(self) -> dict:
+        """``{test_id: set(idx)}`` of known range passages that are not active."""
+        return _served_ranges([p for p in self._known_ranges().values() if p.get('status') != 'active'])
+
+    def _known_ranges(self) -> dict:
+        return {}
+
+
+class _RpcInputs(_NextInputs):
+    source = 'rpc'
+
+    def __init__(self, user_id: str, data: dict):
+        self.user_id = user_id
+        self.l1 = int(data.get('l1') or DEFAULT_L1_LANGUAGE_ID)
+        self.l2 = int(data['l2']) if data.get('l2') is not None else None
+        self.salt = int(data.get('salt') or 0)
+        self.attempted = {str(t) for t in (data.get('attempted') or [])}
+        self.history, self.passages = {}, {}
+        for h in data.get('history') or []:
+            pid = h['p']
+            self.history[pid] = {
+                'last_served': str(h.get('ls') or ''), 'graded': bool(h.get('g')),
+                'last_graded_at': h.get('lg'), 'band': h.get('b'), 'open_id': h.get('o'),
+            }
+            self.passages[pid] = {
+                'id': pid, 'age_tier': h.get('a'), 'l2_language_id': h.get('l2'),
+                'status': h.get('st'), 'source_ref_id': h.get('t'),
+                'sentence_start': h.get('s'), 'sentence_end': h.get('e'),
+            }
+        self._legacy = [
+            {'id': r['id'], 'age_tier': r.get('a'), 'l2_language_id': self.l2,
+             'source_ref_id': r.get('t'), 'sentence_start': None, 'status': 'active',
+             'l1_text': r.get('x')}
+            for r in (data.get('legacy') or [])
+        ]
+        self._legacy_by_id = {p['id']: p for p in self._legacy}
+        self._tests = {True: [], False: []}
+        self._materials: dict = {}
+        for t in data.get('tests') or []:
+            meta = {'id': str(t['id']), 'language_id': self.l2, 'transcript_hash': t.get('h'),
+                    'difficulty': t.get('d'), 'elo': t.get('elo')}
+            self._tests[bool(t.get('at'))].append(meta)
+            self._materials[meta['id']] = _materials_from_rows(meta['id'], t.get('rows') or [])
+        self._ranges = {
+            (str(r['t']), int(r['s']), int(r['e'])): {
+                'id': r['id'], 'age_tier': r.get('a'), 'l2_language_id': self.l2,
+                'status': r.get('st'), 'source_ref_id': str(r['t']),
+                'sentence_start': r['s'], 'sentence_end': r['e'],
+            }
+            for r in (data.get('ranges') or [])
+        }
+        self._texts = {int(x[0]): (x[1], x[2]) for x in (data.get('texts') or [])}
+
+    def legacy_passages(self) -> list:
+        return self._legacy
+
+    def legacy_text(self, passage: dict) -> Optional[str]:
+        hit = self._legacy_by_id.get(passage['id'])
+        return hit.get('l1_text') if hit else None
+
+    def candidate_tests(self, attempted: bool) -> list:
+        return self._tests[bool(attempted)]
+
+    def materials(self, tests: list) -> dict:
+        return {str(t['id']): self._materials[str(t['id'])]
+                for t in tests if str(t['id']) in self._materials}
+
+    def range_passage(self, test_id: str, start: int, end: int) -> Optional[dict]:
+        return self._ranges.get((str(test_id), int(start), int(end)))
+
+    def window_texts(self, db, sentence_ids: list) -> dict:
+        if all(int(i) in self._texts for i in sentence_ids):
+            return {int(i): self._texts[int(i)] for i in sentence_ids}
+        return super().window_texts(db, sentence_ids)
+
+    def _known_ranges(self) -> dict:
+        return self._ranges
+
+
+def _materials_from_rows(test_id: str, rows: list) -> tuple:
+    """``dt_next_inputs`` sentence rows -> the ``_window_materials`` tuple
+    ``(rows, refs_ok, tightness)``. A stale row (``fresh`` false) and a gap
+    in idx stay in the list as window breakers, exactly as there."""
+    out_rows, refs_ok, tightness = [], set(), {}
+    for sid, idx, fresh, ref_ok, tight, chars in rows:
+        idx = int(idx)
+        out_rows.append({'id': sid, 'test_id': test_id, 'idx': idx,
+                         'char_start': 0, 'char_end': int(chars or 0)})
+        if fresh and ref_ok:
+            refs_ok.add(idx)
+            if tight is not None:
+                tightness[idx] = float(tight)
+    present = {r['idx'] for r in out_rows}
+    if present:
+        out_rows += [{'id': None, 'test_id': test_id, 'idx': i, 'l2_text': ''}
+                     for i in range(min(present), max(present) + 1) if i not in present]
+    out_rows.sort(key=lambda r: r['idx'])
+    return out_rows, refs_ok, tightness
+
+
+class _TableInputs(_NextInputs):
+    """The per-table reads (the pre-TASK-990 path), lazily: tests not
+    attempted, their ratings and materials are only read when the attempted
+    tests have nothing left."""
+    source = 'tables'
+    max_tests = MAX_WINDOW_TESTS_PER_CALL
+
+    def __init__(self, db, user_id: str, l1: Optional[int], l2: Optional[int],
+                 attempts: Optional[list] = None):
+        self.db, self.user_id = db, user_id
+        attempts = _attempted_tests(db, user_id) if attempts is None else attempts
+        self.l2 = int(l2) if l2 is not None else _latest_attempt_language(attempts)
+        self.l1 = int(l1) if l1 is not None else _resolve_l1_language_id(db, user_id)
+        self.attempted = {str(r['test_id']) for r in attempts if r.get('test_id')}
+        self.history = _served_history(db, user_id, self.l1)
+        self.salt = len(self.history)
+        self.passages = {p['id']: p for p in _passages_by_id(db, list(self.history))}
+        self._legacy = None
+        self._tests: dict = {}
+        self._materials: dict = {}
+        self._ranges: dict = {}
+        self._ranges_read: set = set()
+
+    def legacy_passages(self) -> list:
+        if self._legacy is None:
+            rows = (
+                self.db.table('dt_passage')
+                .select('id, age_tier, l2_language_id, source_ref_id, sentence_start, status')
+                .eq('source_kind', 'test_transcript')
+                .eq('status', 'active')
+                .eq('l2_language_id', self.l2)
+                .execute()
+            ).data or []
+            self._legacy = [p for p in rows if p.get('sentence_start') is None]
+        return self._legacy
+
+    def legacy_text(self, passage: dict) -> Optional[str]:
+        return _legacy_reference(self.db, passage['id'], self.l1)
+
+    def candidate_tests(self, attempted: bool) -> list:
+        key = bool(attempted)
+        if key not in self._tests:
+            if key:
+                ids = sorted(self.attempted)
+                tests = []
+                for i in range(0, len(ids), 100):
+                    tests += (
+                        self.db.table('tests').select('id, language_id, difficulty, transcript_hash')
+                        .in_('id', ids[i:i + 100]).eq('is_active', True).execute()
+                    ).data or []
+            else:
+                tests = _read_all_pages(lambda: (
+                    self.db.table('tests').select('id, language_id, difficulty, transcript_hash')
+                    .eq('language_id', self.l2).eq('is_active', True).order('id')
+                ))
+                tests = [t for t in tests if str(t['id']) not in self.attempted]
+                with_refs = _tests_with_references(self.db, self.l1)
+                if with_refs is not None:
+                    tests = [t for t in tests if str(t['id']) in with_refs]
+                _attach_elo(self.db, self.user_id, self.l2, tests)
+            self._tests[key] = [
+                {**t, 'id': str(t['id'])} for t in tests
+                if int(t.get('language_id') or 0) == int(self.l2)
+            ]
+        return self._tests[key]
+
+    def materials(self, tests: list) -> dict:
+        missing = [t for t in tests if str(t['id']) not in self._materials]
+        if missing:
+            self._materials.update(_window_materials(self.db, missing, self.l1))
+            for t in missing:
+                self._materials.setdefault(str(t['id']), ([], set(), {}))
+            self._read_ranges([str(t['id']) for t in missing])
+        return {str(t['id']): self._materials[str(t['id'])] for t in tests}
+
+    def _read_ranges(self, test_ids: list) -> None:
+        rows = (
+            self.db.table('dt_passage')
+            .select('id, age_tier, l2_language_id, status, source_ref_id, sentence_start, sentence_end')
+            .in_('source_ref_id', test_ids).execute()
+        ).data or []
+        self._ranges_read.update(test_ids)
+        for p in rows:
+            if p.get('sentence_start') is not None and p.get('sentence_end') is not None:
+                self._ranges[(str(p['source_ref_id']), int(p['sentence_start']), int(p['sentence_end']))] = p
+
+    def range_passage(self, test_id: str, start: int, end: int) -> Optional[dict]:
+        key = (str(test_id), int(start), int(end))
+        if key not in self._ranges and str(test_id) not in self._ranges_read:
+            hit = _select_range_passage(self.db, str(test_id), int(start), int(end))
+            if hit:
+                self._ranges[key] = hit
+        return self._ranges.get(key)
+
+    def _known_ranges(self) -> dict:
+        return self._ranges
+
+
+def _tests_with_references(db, l1: int) -> Optional[set]:
+    """Ids of tests with at least one usable sentence reference in ``l1`` (the
+    per-table path's filter for tests not attempted, which are otherwise every
+    active test of the language). None when the embedded read is unavailable
+    (no filter then)."""
+    try:
+        rows = _read_all_pages(lambda: (
+            db.table('test_sentence_references').select('id, test_sentences(test_id)')
+            .eq('l1_language_id', l1).eq('is_active', True)
+            .in_('review_verdict', list(_USABLE_VERDICTS)).order('id')
+        ))
+    except Exception as e:
+        logger.info("DT reference test lookup unavailable (%s); not filtering", e)
+        return None
+    out = set()
+    for r in rows:
+        emb = r.get('test_sentences')
+        if isinstance(emb, list):
+            emb = emb[0] if emb else None
+        if not isinstance(emb, dict) or not emb.get('test_id'):
+            return None
+        out.add(str(emb['test_id']))
+    return out
+
+
+def _attach_elo(db, user_id: str, l2: int, tests: list) -> None:
+    """``t['elo']`` = the get_recommended_tests distance: min over test types of
+    |test ELO - learner ELO (1200 when unrated)|; None when the test is unrated."""
+    try:
+        mine = {
+            int(r['test_type_id']): r.get('elo_rating')
+            for r in (db.table('user_skill_ratings').select('test_type_id, elo_rating')
+                      .eq('user_id', user_id).eq('language_id', l2).execute()).data or []
+        }
+        ids = [str(t['id']) for t in tests]
+        best: dict = {}
+        for i in range(0, len(ids), 200):
+            for r in (db.table('test_skill_ratings').select('test_id, test_type_id, elo_rating')
+                      .in_('test_id', ids[i:i + 200]).execute()).data or []:
+                if r.get('elo_rating') is None:
+                    continue
+                d = abs(int(r['elo_rating']) - int(mine.get(int(r['test_type_id'])) or 1200))
+                tid = str(r['test_id'])
+                best[tid] = min(best.get(tid, d), d)
+        for t in tests:
+            t['elo'] = best.get(str(t['id']))
+    except Exception as e:  # ordering only: never block serving
+        logger.info("DT level ordering unavailable (%s); rotation order only", e)
+        for t in tests:
+            t.setdefault('elo', None)
+
+
+def _next_inputs(db, user_id: str, l2_language_id: Optional[int]) -> _NextInputs:
+    """The read bundle for GET /next: one ``dt_next_inputs`` call, or the
+    per-table reads while that function is missing or failing (logged once per
+    process, retried after ``_NEXT_INPUTS_RETRY_S``)."""
+    if time.monotonic() >= _next_inputs_state['unavailable_until'] and hasattr(db, 'rpc'):
+        try:
+            data = db.rpc('dt_next_inputs', {
+                'p_user_id': user_id, 'p_l2': l2_language_id, 'p_l1': None,
+            }).execute().data
+            if isinstance(data, list):  # some client versions wrap a scalar
+                data = data[0] if data else None
+            if isinstance(data, dict) and 'history' in data:
+                return _RpcInputs(user_id, data)
+            raise ValueError(f"unexpected dt_next_inputs answer: {type(data).__name__}")
+        except Exception as e:
+            _next_inputs_state['unavailable_until'] = time.monotonic() + _NEXT_INPUTS_RETRY_S
+            if not _next_inputs_state['logged']:
+                _next_inputs_state['logged'] = True
+                logger.warning(
+                    "dt_next_inputs unavailable (%s); GET /next uses the per-table reads. "
+                    "Is migrations/dt_next_inputs.sql applied? Logged once per process.", e)
+    return _TableInputs(db, user_id, None, l2_language_id)
+
+
+def _read_window_texts(db, sentence_ids: list, l1_language_id: int) -> dict:
+    """``{sentence_id: (l2_text, l1_text)}`` for a window's sentences: one read
+    (the reference with its sentence embedded); a second read only when the
+    embedding is unavailable."""
+    ids = [int(i) for i in sentence_ids]
+    rows = (
+        db.table('test_sentence_references')
+        .select('sentence_id, l1_text, test_sentences(l2_text)')
+        .in_('sentence_id', ids)
+        .eq('l1_language_id', l1_language_id)
+        .eq('is_active', True)
+        .in_('review_verdict', list(_USABLE_VERDICTS))
+        .execute()
+    ).data or []
+    out = {}
+    for r in rows:
+        embedded = r.get('test_sentences')
+        if isinstance(embedded, list):
+            embedded = embedded[0] if embedded else None
+        out[int(r['sentence_id'])] = ((embedded or {}).get('l2_text'), r.get('l1_text'))
+    if any(v[0] is None for v in out.values()):
+        l2 = {
+            int(r['id']): r.get('l2_text') for r in (
+                db.table('test_sentences').select('id, l2_text').in_('id', ids).execute()
+            ).data or []
+        }
+        out = {k: (l2.get(k), v[1]) for k, v in out.items()}
+    return out
+
+
+def _serve_choice(db, user_id: str, inputs: _NextInputs, choice: dict) -> ApiResponse:
+    """Open the chosen passage: find or create its dt_passage (a window), then
+    reuse the learner's open submission on it (served, never started, same L1)
+    or create one (TASK-991: skipping a passage no longer leaves one empty
+    dt_submission row per GET /next). Common path: 1-2 writes."""
+    l1 = inputs.l1
+    extra = {'type': 'passage'}
+    if choice.get('untaken'):
+        extra['from_untaken_test'] = True
+    if choice.get('repeat_of'):
+        extra['repeat_of'] = choice['repeat_of']
+
+    if choice['kind'] == 'passage':
+        passage = choice['passage']
+        l2_code = DimensionService.get_language_code(passage['l2_language_id'])
+        submission_id = _open_or_create_submission(db, user_id, inputs, passage['passage_id'], l1)
+        if submission_id is None:
+            return server_error("Failed to create submission")
+        return api_success({
+            **extra,
+            'source': 'passage',
+            'passage_id': passage['passage_id'],
+            'submission_id': submission_id,
+            'l1_text': passage['l1_text'],
+            'age_tier': passage['age_tier'],
+            'rubric_descriptors': _rubric_descriptors_for(db, passage['age_tier'], l2_code),
+            'correction_style': Config.resolve_correction_style(user_id),
+        })
+
+    test = inputs.test_meta(choice['test_id'])
+    start, end = int(choice['start']), int(choice['end'])
+    rows = {int(r['idx']): r for r in inputs.materials([test])[str(test['id'])][0]} if test else {}
+    ids = [rows[i]['id'] for i in range(start, end + 1) if i in rows and rows[i].get('id')]
+    if not test or len(ids) != end - start + 1:
+        logger.warning("DT /next window %s %s-%s lost its sentence rows; nothing served", choice['test_id'], start, end)
+        return api_error("No dual-translation passage available yet", 404, error_code=NO_PASSAGES)
+
+    texts = inputs.window_texts(db, ids)
+    if any(int(i) not in texts or not texts[int(i)][1] for i in ids):
+        return api_error("No dual-translation passage available yet", 404, error_code=NO_PASSAGES)
+    l2_code = _LANG_CODE.get(int(inputs.l2), 'en')
+    l1_code = _LANG_CODE.get(int(l1), 'en')
+
+    passage = inputs.range_passage(test['id'], start, end)
+    if passage is None:
+        passage = _find_or_create_range_passage(
+            db, {**test, 'language_id': inputs.l2}, start, end,
+            l2_text=join_sentences([texts[int(i)][0] or '' for i in ids], l2_code),
+            known_absent=True,  # range_passage() just looked it up
+        )
+    if not passage:
+        return server_error("Failed to create passage")
+    if passage.get('status') not in (None, 'active'):
+        # TASK-991: never open a retired window (submit would refuse it).
+        return api_error("No dual-translation passage available yet", 404, error_code=NO_PASSAGES)
+
+    submission_id = _open_or_create_submission(db, user_id, inputs, passage['id'], l1)
+    if submission_id is None:
+        return server_error("Failed to create submission")
+    age_tier = passage.get('age_tier') or difficulty_to_age_tier(test.get('difficulty'))
+    return api_success({
+        **extra,
+        'source': 'sentence_refs',
+        'passage_id': passage['id'],
+        'l1_text': join_sentences([texts[int(i)][1] for i in ids], l1_code),
+        'n_sentences': end - start + 1,
+        'submission_id': submission_id,
+        'age_tier': age_tier,
+        'rubric_descriptors': _rubric_descriptors_for(db, age_tier, l2_code),
+        'correction_style': Config.resolve_correction_style(user_id),
+        'primed_token': primed_token.issue(user_id, passage['id'], []),
+    })
+
+
+def _open_or_create_submission(db, user_id: str, inputs: _NextInputs, passage_id: int,
+                               l1_language_id: int) -> Optional[int]:
+    open_id = (inputs.history.get(passage_id) or {}).get('open_id')
+    if open_id:
+        return int(open_id)
+    resp = db.table('dt_submission').insert({
+        'user_id': user_id,
+        'passage_id': passage_id,
+        'l1_language_id': l1_language_id,
+        'reproduction': '',
+        'correction_style': Config.resolve_correction_style(user_id),
+    }).execute()
+    return resp.data[0]['id'] if resp.data else None
 
 
 def _passages_by_id(db, passage_ids: list) -> list:
@@ -1090,20 +1735,6 @@ def _tightness_floor(l2_language_id: int) -> float:
     return PRODUCE_TIGHTNESS_FLOOR.get(int(l2_language_id), 0.6)
 
 
-def _eligible_window_tests(db, user_id: str, test_ids: list, l2_language_id: int, salt: int) -> list:
-    """The attempted, active tests in this language, in rotation order, capped
-    at MAX_WINDOW_TESTS_PER_CALL."""
-    tests: list = []
-    for i in range(0, len(test_ids), 100):
-        tests += (
-            db.table('tests').select('id, language_id, transcript_hash')
-            .in_('id', test_ids[i:i + 100]).eq('is_active', True).execute()
-        ).data or []
-    tests = [t for t in tests if int(t.get('language_id') or 0) == int(l2_language_id)]
-    tests.sort(key=lambda t: _rotation_key(user_id, t['id'], salt))
-    return tests[:MAX_WINDOW_TESTS_PER_CALL]
-
-
 def _next_sentence_window(tests: list, materials: dict, l2_language_id: int,
                           served_ranges: dict) -> Optional[dict]:
     """The first fresh 2-4 sentence window over ``tests`` (already in rotation
@@ -1205,18 +1836,30 @@ def _cached_grade(db, submission_id: int) -> Optional[dict]:
         return None
 
     grade = grade_resp.data[0]
-    errors = _read_error_rows(db, submission_id)
-    return {
+    repeat = (grade.get('grader_trace') or {}).get('repeat')
+    if isinstance(repeat, dict):
+        errors = [dict(e) for e in (repeat.get('errors') or [])]
+        for row in errors:
+            if row.get('explanation_source') == 'model' and row.get('model_note'):
+                row['explanation_parts'] = {'rule': row.get('explanation') or '',
+                                            'application': row['model_note']}
+    else:
+        errors = _read_error_rows(db, submission_id)
+    out = {
         'scores': grade['scores'],
         'overall_band': grade['overall_band'],
         'diff': grade['diff'],
         'errors': errors,
-        'grader_trace': grade['grader_trace'],
+        'grader_trace': ({k: v for k, v in grade['grader_trace'].items() if k != 'repeat'}
+                         if isinstance(repeat, dict) else grade['grader_trace']),
         # TASK-628: surface the persisted provisional flag so a cached provisional
         # grade (a single-tier failure that still had evidence) keeps showing the
         # retry notice. Absent on v1/tier0 grader_trace -> defaults False.
         'provisional': (grade['grader_trace'] or {}).get('provisional', False),
     }
+    if isinstance(repeat, dict):
+        out['repeat_of'] = _public_repeat(repeat)
+    return out
 
 
 def _read_error_rows(db, submission_id: int) -> list:
@@ -1356,6 +1999,7 @@ def _error_row(error: dict, submission_id: int, columns: tuple) -> dict:
 
 def _persist_grade(
     db, submission_id: int, reproduction: str, idempotency_key: Optional[str], contract: dict,
+    repeat_of: Optional[dict] = None,
 ) -> None:
     """Write the reproduction text back onto dt_submission (it was created
     with a '' placeholder at /next time) plus N dt_error_instance rows and one
@@ -1371,13 +2015,30 @@ def _persist_grade(
     evidence-first invariant (ADR-019). Writing the grade last means a failed
     error insert leaves no grade behind, so the retry re-grades cleanly.
     dt_error_instance FKs dt_submission, not dt_grade, so nothing requires the
-    reverse order."""
+    reverse order.
+
+    TASK-989: for a repeat (``repeat_of``: the learner's earlier grade of the same
+    passage) the error rows are NOT written to dt_error_instance — every
+    aggregate built on that table (nightly error synthesis and its recurrence
+    trend, error cards, guided-repair items) would otherwise count one passage's
+    errors twice, and a second try after seeing the gold measures recall of the
+    correction, not the learner's level. They are kept, column-whitelisted, in
+    ``grader_trace.repeat`` with the earlier grade, so the cached grade still
+    shows them."""
     db.table('dt_submission').update({
         'reproduction': reproduction,
         'idempotency_key': idempotency_key,
     }).eq('id', submission_id).execute()
 
-    if contract['errors']:
+    trace = contract['grader_trace']
+    if repeat_of:
+        columns = _error_columns(with_assets=True)
+        trace = {**(trace or {}), 'repeat': {
+            **_public_repeat(repeat_of),
+            'errors': [{k: v for k, v in _error_row(e, submission_id, columns).items()
+                        if k != 'submission_id'} for e in (contract['errors'] or [])],
+        }}
+    elif contract['errors']:
         columns = _error_columns()
         rows = [_error_row(error, submission_id, columns) for error in contract['errors']]
         if not _names_asset_columns(columns):
@@ -1400,8 +2061,42 @@ def _persist_grade(
         'scores': contract['scores'],
         'overall_band': contract['overall_band'],
         'diff': contract['diff'],
-        'grader_trace': contract['grader_trace'],
+        'grader_trace': trace,
     }).execute()
+
+
+def _repeat_of(db, user_id: str, submission_row: dict) -> Optional[dict]:
+    """The learner's latest earlier grade of this submission's passage
+    (``{of_submission_id, graded_at, band}``), or None when this is the first
+    graded attempt. Two reads; a read failure counts as not a repeat (the grade
+    is then aggregated like any other, which is the pre-TASK-989 behaviour)."""
+    try:
+        others = [
+            r['id'] for r in (
+                db.table('dt_submission').select('id')
+                .eq('user_id', user_id).eq('passage_id', submission_row['passage_id'])
+                .execute()
+            ).data or []
+            if r.get('id') != submission_row['id']
+        ]
+        if not others:
+            return None
+        grades = (
+            db.table('dt_grade').select('submission_id, created_at, overall_band')
+            .in_('submission_id', others[-500:]).execute()
+        ).data or []
+    except Exception as e:
+        logger.warning("DT repeat check failed (treated as first attempt): %s", e)
+        return None
+    if not grades:
+        return None
+    latest = max(grades, key=lambda r: (str(r.get('created_at') or ''), r['submission_id']))
+    return {'of_submission_id': latest['submission_id'], 'graded_at': latest.get('created_at'),
+            'band': latest.get('overall_band')}
+
+
+def _public_repeat(repeat_of: dict) -> dict:
+    return {k: repeat_of.get(k) for k in ('of_submission_id', 'graded_at', 'band')}
 
 
 def _persist_grading_assets(db, submission_id: int, assets: Optional[list]) -> None:
