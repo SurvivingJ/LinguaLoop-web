@@ -3,8 +3,8 @@ title: "Test Sentence References — Task Breakdown"
 feature: test-sentence-references
 prose_page: ../features/test-sentence-references.md
 tech_page: ../features/test-sentence-references.tech.md
-total_tasks: 14
-done: 12
+total_tasks: 15
+done: 13
 ---
 
 # Test Sentence References — Task Breakdown
@@ -305,6 +305,7 @@ follow-on slice once a learner with that L1 exists.
 - Result, active tests: Japanese 388/388 sentences with an English reference (96.6% at the floor), Chinese 3,008/3,008 (94.3%), English→Chinese unchanged at 484/2,486 (94.8% of those at the floor). Servable `/next` windows: 850 Chinese, 81 Japanese.
 - 89 references of the 2026-11-14 batch are below the floor and have had one review only — candidates for the next `sentence_ref_recheck.py` pass. 110 earlier ones stay below the floor after two blind reviews that both called them faithful (open question on the prose page).
 - "`dt_passage` rows for fully covered tests are retired": no longer applies. `dt_passage_reference` had 0 rows and every `dt_passage` row was a range passage on 2026-11-17.
+- Later on 2026-11-17, after the developer's decisions: `recheck2-2026-11-17` second blind review of the 89 (4 Opus turns; 74 pass, 15 rewritten, 0 fail); `recheck-accepted-2026-11-17` activates the 8 references failed only for glossed/duplicated gold (7 pass, 1 rewritten), since the glosses are intended (TASK-977 Won't Do). With the ADR-047 override (TASK-978): at floor or agreed ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856, ja 83. Still gated: references rewritten by a second reviewer whose new text has one review (ja 2, zh 20, en→zh 11 below the floor).
 - OpenRouter spend: none.
 - Harness fixes: `export` counts `rewritten` as covered (it re-exported tests already done); `assemble` takes `author_model`/`arm`/`prompt_version` from the authored document (reviewers never see `docs/`, so every row was `claude-subagent`). Known gap: the number check cannot match 万 amounts written with thousands separators (102万 → "1,020,000" fails `missing_number`), so one test writes "1020000 yuan".
 
@@ -436,7 +437,7 @@ learner with attempted tests and confirm a passage loads (it returned 404 before
 
 ## TASK-977: Clean English glosses out of Chinese transcripts
 
-**Status:** [?] Awaiting decision — developer to decide per test whether the bracketed English is part of the listening content (the audio may read it)
+**Status:** Won't Do — developer, 2026-11-17: the glosses are intended content. The 8 references failed for this reason (and for 18a77687's intended "这件T恤的T恤") were activated in `recheck-accepted-2026-11-17`.
 **Feature:** test-sentence-references
 **Type:** bug
 **Complexity:** S
@@ -458,3 +459,36 @@ was left as is because the audio says it.
 
 **Verification:**
 Re-run the gloss query in the 2026-11-17 log entry; it returns only tests recorded as intended.
+
+---
+
+## TASK-978: Two agreeing reviews override the tightness floor (ADR-047)
+
+**Status:** [x] Done (repo + migration applied live 2026-11-17) — code not deployed. Deploy after the migration (already applied): the new code reads `faithful_reviews`.
+**Feature:** test-sentence-references
+**Type:** feature
+**Complexity:** S
+**Depends On:** TASK-976
+
+**Description:**
+Developer decision 2026-11-17: when two independent reviews agree a reference is faithful, its
+tightness score no longer gates window selection. Store the agreement as
+`test_sentence_references.faithful_reviews` and use one gate for `/next` and Produce.
+
+**Acceptance Criteria:**
+- [x] Migration adds `faithful_reviews` (CHECK ≥ 0) and backfills it from existing rows; applied live.
+- [x] `upload_sentence_references.py` sets it on every insert (distinct runs that passed or wrote the same text; 0 for `fail`).
+- [x] `window_meets_floor` leaves agreed sentences out of the mean; both selectors use it.
+- [x] `/next` and Produce read the column.
+
+**Files to Create / Modify:**
+- `migrations/test_sentence_references_faithful_reviews.sql`
+- `services/dual_translation/sentence_refs.py` — `FLOOR_OVERRIDE_REVIEWS`, `faithful_reviews()`
+- `services/dual_translation/passage_builder.py` — `window_meets_floor`, `agreed` parameter on both selectors
+- `routes/dual_translation.py`, `services/prestudy.py`, `scripts/upload_sentence_references.py`
+- `tests/test_dt_next_sentence_windows.py`, `tests/test_upload_sentence_references.py`
+
+**Verification:**
+`pytest tests/test_dt_next_sentence_windows.py tests/test_upload_sentence_references.py tests/test_window_selector.py tests/test_prestudy_session.py tests/test_migration_security_lint.py`;
+live: `select count(*) filter (where faithful_reviews >= 2) from test_sentence_references where is_active` (673 on 2026-11-17).
+

@@ -6643,3 +6643,24 @@ windows (tests average 4.7 sentences); the 10 new en tests have no word map.
 Pages updated: [[features/test-sentence-references]], [[features/test-sentence-references.tech]],
 [[features/dual-translation]], [[features/dual-translation.tech]], [[tasklist/test-sentence-references.tasks]]
 (TASK-908 [~], TASK-976, TASK-977), [[tasklist/master]], [[index]].
+
+## [2026-11-17] decision + implement + apply | Reviewer agreement overrides the tightness floor; glosses kept; new batch rechecked
+Developer answers to the four questions: (1) English glosses in Chinese transcripts stay — TASK-977 Won't Do;
+(2) "Blind reviewers agreement can override" the tightness floor; (3) yes, second review of the 89 below-floor
+references from the 2026-11-14 batch; (4) English → Chinese stays deferred.
+Done:
+- ADR-047 + TASK-978: `migrations/test_sentence_references_faithful_reviews.sql` **applied live** (column
+  `faithful_reviews`, CHECK ≥ 0, backfill = distinct runs that passed or wrote the same text). Upload script sets it;
+  `passage_builder.window_meets_floor` (shared by `/next` and Produce) leaves agreed sentences (≥ 2) out of the mean.
+  Code committed, not deployed — deploy is safe now (the column exists). 181 related tests pass (incl. migration
+  security lint). Agreed active rows: ja 43, zh 391, en→zh 239.
+- `recheck-accepted-2026-11-17`: the 8 references a second reviewer failed only for glossed/duplicated gold
+  activated (7 pass, 1 rewritten: 6ff700da-8 restores 液 "liquid").
+- `recheck2-2026-11-17` (4 Opus turns): 89 → 74 pass, 15 rewritten, 0 fail; `export` now skips sentences already
+  second-reviewed (`--include-rechecked` to override).
+Result: gate passed (floor or agreement) by ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856,
+ja 83. Still gated: second-review rewrites whose new text has one review (ja 2, zh 20, en→zh 11).
+Pages: created [[decisions/ADR-047-reviewer-agreement-overrides-tightness-floor]]; updated
+[[decisions/ADR-037-sentence-level-l1-references]] (amended note), [[features/test-sentence-references]],
+[[features/test-sentence-references.tech]], [[tasklist/test-sentence-references.tasks]] (TASK-908 record, TASK-977,
+TASK-978), [[tasklist/master]], [[index]].

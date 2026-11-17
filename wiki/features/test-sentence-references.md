@@ -8,7 +8,8 @@ open_questions:
   - "ANSWERED 2026-10-30: tightness floor set from the pilot — ja 0.65, zh 0.70, en 0.60 (mean over a window)."
   - "ANSWERED 2026-11-17 (developer): English references for Japanese and Chinese tests first (every learner with a native language set has English); Chinese references for English tests wait for a Chinese-speaking learner. The 484 already written stay active."
   - "ANSWERED 2026-10-30: a transcript edit retires its references by hash mismatch (build_test_sentences.py)."
-  - "OPEN: a second blind reviewer confirmed 150 of 193 below-floor references as faithful, yet 110 still score below the floor. Should a second-review pass lift a sentence over the floor for window selection, or is tightness the only gate? Today it is the only gate; about 3–5% of sentences stay below it."
+  - "ANSWERED 2026-11-17 (developer): two reviewers agreeing that a translation is faithful overrides the tightness floor ([[decisions/ADR-047-reviewer-agreement-overrides-tightness-floor]])."
+  - "ANSWERED 2026-11-17 (developer): English glosses inside Chinese transcripts (e.g. （sustainability）) are intended content; transcripts are not cleaned (TASK-977 Won't Do)."
 ---
 
 # Test Sentence References
@@ -76,7 +77,8 @@ grading.
 - Each sentence has at most one active reference per native language.
 - References never contain the studied language's script, a preamble, or added content.
 - The Produce window prefers sentences at or above the tightness floor and never spans a
-  retired reference.
+  retired reference. A sentence whose translation two independent reviewers approved counts as
+  meeting the floor whatever its score ([[decisions/ADR-047-reviewer-agreement-overrides-tightness-floor]]).
 
 ## Open Questions
 
@@ -86,6 +88,7 @@ See frontmatter.
 
 - [[features/test-sentence-references.tech]] — Technical specification
 - [[decisions/ADR-037-sentence-level-l1-references]] — The decision and the alternatives
+- [[decisions/ADR-047-reviewer-agreement-overrides-tightness-floor]] — Two agreeing reviews override the tightness floor
 - [[features/test-prestudy]] — The workflow this serves
 - [[features/dual-translation]] — Grading, rubric and remediation (unchanged)
 - [[tasklist/test-sentence-references.tasks]] — Task breakdown

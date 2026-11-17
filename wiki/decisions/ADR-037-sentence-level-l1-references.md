@@ -2,7 +2,7 @@
 title: "ADR-037: Sentence-level L1 references for test transcripts, authored by Claude agents"
 status: accepted
 date: 2026-10-30
-updated: 2026-10-30 (pilot result)
+updated: 2026-11-17 (tightness gate amended by ADR-047)
 ---
 
 # ADR-037: Sentence-level L1 references for test transcripts, authored by Claude agents
@@ -77,6 +77,9 @@ ja and zh and halves the Japanese rewrite rate (3.4% vs 6.7%). Tightness floors 
 p10: ja 0.65, zh 0.70, en 0.60, applied as a preference in the window selector, never a block.
 The review pack is now split into a blind file and a gold file after 5 of 30 reviewers read past
 the single-file marker; those tests were excluded from the tightness statistics.
+
+> **Amended 2026-11-17:** two independent reviews that pass the same text override the tightness
+> floor in window selection — [[decisions/ADR-047-reviewer-agreement-overrides-tightness-floor]].
 
 ## Consequences
 

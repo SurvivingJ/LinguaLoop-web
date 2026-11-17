@@ -168,7 +168,8 @@ against the gold and rewrites loose references (`verdicts/NN.json`; `fail` only 
 gold). `score RUN` reruns the deterministic checks on each final reference, computes tightness
 from the new back-translation and writes `upload.json` for the normal upload script, which
 replaces only the rechecked sentences. A `fail` row is stored inactive, so the previous reference
-stays served. Assemble/upload provenance: `author_model`, `arm` and `prompt_version` are taken
+stays served. `export` skips sentences that already have a row from a `recheck-*` run unless
+`--include-rechecked`. Assemble/upload provenance: `author_model`, `arm` and `prompt_version` are taken
 from the authored document in `docs/` when the reviewed copy lacks them (reviewers never open
 `docs/`).
 
@@ -197,6 +198,24 @@ range by primed senses covered ×10 + wrong-question senses ×3 − chars/100, r
 coverage and mean tightness ≥ floor, return the best. Pure function over `test_sentences` rows;
 unit-tested against the demo's five tests.
 
+### Floor override: two agreeing reviews (ADR-047, TASK-978, 2026-11-17)
+
+`test_sentence_references.faithful_reviews smallint NOT NULL DEFAULT 0 CHECK (>= 0)`
+(`migrations/test_sentence_references_faithful_reviews.sql`, applied live 2026-11-17 with a
+backfill): the number of distinct `run_id`s whose row for the same (sentence, L1) has the exact
+same `l1_text` and verdict `pass`/`rewritten`. `scripts/upload_sentence_references.py` sets it
+on insert (`sentence_refs.faithful_reviews(new_row, run_id, prior_rows)`; 0 for `fail`).
+
+Gate, shared by `plan_sentence_windows` and `select_window_for_primed`:
+`passage_builder.window_meets_floor(idxs, tightness, floor, agreed)`: mean tightness of the
+window ≥ floor, leaving out sentences in `agreed` (`faithful_reviews >= 2`,
+`sentence_refs.FLOOR_OVERRIDE_REVIEWS`) and sentences with no score; nothing left to average →
+passes if every sentence is agreed, else only a floor of 0. `/next` reads `faithful_reviews` in
+its embedded read; `services/prestudy.py` (Produce) reads it with the references.
+
+Live after the decision: agreed rows ja 43, zh 391, en→zh 239; at floor or agreed ja 386/388,
+zh 2,985/3,008, en→zh 473/484; servable windows zh 856, ja 83.
+
 ### Changed: `GET /api/dual-translation/next` serves sentence windows (TASK-976, 2026-11-17)
 
 Before: `/next` served only `dt_passage` rows that had a stored `dt_passage_reference`. That
@@ -214,8 +233,8 @@ Now `_select_next_passage(db, user_id, l1_language_id, l2_language_id=None)`:
    `transcript_hash` differs from `tests.transcript_hash` are dropped.
 3. Windows: `passage_builder.plan_sentence_windows(idxs, refs_ok, tightness, floor)`: runs of
    consecutive covered sentences, each packed into fixed 2–4 sentence windows by
-   `window_sentences`; a window is kept only when its mean tightness ≥ the Produce floor for the
-   test language (same rule as `select_window_for_primed`).
+   `window_sentences`; a window is kept only when it passes `window_meets_floor` for the test
+   language's Produce floor (same gate as `select_window_for_primed`, with the ADR-047 override).
 4. Choice: `passage_builder.pick_next_window(candidates, practised)`: the first window, in
    candidate then transcript order, none of whose sentences the user has practised; else the
    window whose latest practice is oldest. "Practised" = any `dt_submission` (last 500) with a

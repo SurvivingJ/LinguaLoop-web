@@ -23,8 +23,10 @@ below.
 | In Progress (`[~]`) | 14 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 29 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
-| Won't Do (obsolete) | 1 |
+| Won't Do (obsolete) | 2 |
 | Done (cumulative, not listed here) | 250 |
+
+*2026-11-17 (developer decisions):* TASK-977 → Won't Do (English glosses in Chinese transcripts are intended). New TASK-978 Done (repo; migration `test_sentence_references_faithful_reviews.sql` applied live; code deploy pending): two agreeing reviews override the tightness floor ([[decisions/ADR-047-reviewer-agreement-overrides-tightness-floor]]). Second review of the 89 below-floor references of the 2026-11-14 batch done. Counts: awaiting decision −1 (977) +1 (978 Done (repo), awaiting deploy) = 29; Won't Do 1→2.
 
 *2026-11-17 (dual-translation sentences fleshed out):* TASK-908 Not Started → In Progress (English references for every Japanese and Chinese test, live; English → Chinese deferred by the developer). New TASK-976 Done (repo, deploy pending): `/next` served nothing because `dt_passage_reference` is empty; it now serves reviewed sentence windows. New TASK-977 awaiting decision (English glosses in 15 Chinese transcripts). Counts: Not Started 31→30, In Progress 13→14, Blocked/awaiting/Done-(repo) 27→29. See [[tasklist/test-sentence-references.tasks]].
 
@@ -1173,7 +1175,8 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-910 | test-sentence-references | Grader target words → per-word contextual_use evidence | Done (repo) | M | TASK-909 |
 | TASK-911 | test-sentence-references | Preview and cloze use `test_sentences` | Done (repo) | S | TASK-902 |
 | TASK-976 | test-sentence-references | `GET /api/dual-translation/next` serves reviewed sentence windows (was 404 for everyone) | Done (repo), deploy pending | M | TASK-909 |
-| TASK-977 | test-sentence-references | Clean English glosses out of 15 Chinese transcripts | [?] developer decision | S | — |
+| TASK-977 | test-sentence-references | Clean English glosses out of 15 Chinese transcripts | Won't Do (glosses intended, developer 2026-11-17) | S | — |
+| TASK-978 | test-sentence-references | Two agreeing reviews override the tightness floor (ADR-047) | Done (repo + migration live), deploy pending | S | TASK-976 |
 
 ### New-Word Drill (new 2026-11-09)
 
