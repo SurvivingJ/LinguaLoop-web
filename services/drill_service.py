@@ -7,18 +7,37 @@ is parameterised by test_id / test_type_id and has nothing classifier-specific.
 
 Only the classifier drill tracks per-item mastery (there is no per-counter
 mastery table); counter progress is carried by the sentinel test's ELO alone.
+
+The classifier drill reads get_classifier_drill_session_v2 (TASK-998), which
+stamps each item with the level to draw it at (1 Choose, 2 Type, 3 Reverse,
+4 Fill in) from the learner's per-classifier mastery, the answer classifier,
+the Reverse options and the cloze sentence. Where v2 is not installed the
+service falls back to the original get_classifier_drill_session (no levels)
+and still names the answer classifier, so answers keep reaching
+update_classifier_mastery.
 """
 
 import logging
+import re
+import time
 from typing import Callable, Optional
 from uuid import uuid4
 
+from services.concurrency import run_parallel
+from services.pinyin_format import format_pinyin
 from services.supabase_factory import get_supabase_admin
 
 logger = logging.getLogger(__name__)
 
 ZH_LANGUAGE_ID = 1
 JA_LANGUAGE_ID = 3
+
+# The most answers one submission may record mastery for (the session route
+# caps a batch at 40 items).
+MAX_ITEM_RESULTS = 40
+
+# How long to skip a session RPC the database reported missing before trying it again.
+_MISSING_RPC_RETRY_SECONDS = 300
 
 # A placeholder some imported classifiers carry instead of a meaning label.
 _PLACEHOLDER_LABELS = {'(imported)', 'imported', ''}
@@ -29,6 +48,24 @@ def _clean_label(label: Optional[str]) -> Optional[str]:
     if label is None or label.strip().lower() in _PLACEHOLDER_LABELS:
         return None
     return label
+
+
+# Characters that count a following measure word: numerals and demonstratives.
+_COUNTING_CHARS = '一二三四五六七八九十两几这那每某半整多数0123456789０１２３４５６７８９'
+_GLOSS_BLANK = '＿'
+
+
+def _mask_gloss(gloss: Optional[str], answers: list) -> Optional[str]:
+    """The noun's gloss with every accepted classifier that follows a numeral
+    or demonstrative blanked ("地图是一张纸" -> "地图是一＿纸"): the Chinese
+    definitions often count the noun with its own measure word, which gives
+    the answer away on the Choose and Type levels."""
+    if not gloss:
+        return gloss
+    for hanzi in sorted((h for h in answers if h), key=len, reverse=True):
+        gloss = re.sub('([' + _COUNTING_CHARS + '])' + re.escape(hanzi),
+                       lambda m: m.group(1) + _GLOSS_BLANK * len(hanzi), gloss)
+    return gloss
 
 
 def _attach_correct_pinyin(db, items: list[dict]) -> None:
@@ -44,33 +81,60 @@ def _attach_correct_pinyin(db, items: list[dict]) -> None:
         try:
             rows = db.table('dim_classifiers').select('id, pinyin_display') \
                 .in_('id', ids).execute().data or []
-            by_id = {r['id']: r.get('pinyin_display') or '' for r in rows}
+            by_id = {r['id']: format_pinyin(r.get('pinyin_display')) for r in rows}
         except Exception as e:
             logger.warning("classifier pinyin lookup failed: %s", e)
     for it in items:
         it['correct_classifier_pinyin'] = [by_id.get(cid, '') for cid in (it.get('correct_classifier_ids') or [])]
 
 
+def _level(value) -> Optional[int]:
+    """A drill level 1-4, or None when the RPC did not stamp one."""
+    try:
+        level = int(value)
+    except (TypeError, ValueError):
+        return None
+    return min(4, max(1, level))
+
+
 def _classifier_item(r: dict) -> dict:
+    # Pronunciations are stored tone-marked, numbered ("bi3") or both
+    # ("biàn dé (bian4 de2)"); the learner sees tone marks only.
+    correct_ids = r.get('out_correct_classifier_ids') or []
+    primary = r.get('out_classifier_id_primary')
+    if primary is None and correct_ids:
+        # v1 RPC: the first acceptable classifier is the one the Choose and
+        # Type answers are judged on, so mastery is recorded against it.
+        primary = correct_ids[0]
+    level = _level(r.get('out_level'))
+    cloze_blanked = r.get('out_cloze_blanked') or None
+    reverse = [n for n in (r.get('out_reverse_noun_options') or []) if n]
+    # Never stamp a level the item cannot be drawn at.
+    if level == 4 and not cloze_blanked:
+        level = 3
+    if level == 3 and len(reverse) < 3:
+        level = 2
     return {
         'pair_id':                 r.get('out_pair_id'),
         'noun_lemma':              r.get('out_noun_lemma'),
         'noun_sense_id':           r.get('out_noun_sense_id'),
-        'noun_gloss':              r.get('out_noun_gloss'),
-        'noun_pronunciation':      r.get('out_noun_pronunciation'),
-        'correct_classifier_ids':  r.get('out_correct_classifier_ids') or [],
+        'noun_gloss':              _mask_gloss(r.get('out_noun_gloss'),
+                                               r.get('out_correct_classifier_hanzi') or []),
+        'noun_pronunciation':      format_pinyin(r.get('out_noun_pronunciation')),
+        'correct_classifier_ids':  correct_ids,
         'correct_classifier_hanzi': r.get('out_correct_classifier_hanzi') or [],
         'distractor_ids':          r.get('out_distractor_ids') or [],
         'distractor_hanzi':        r.get('out_distractor_hanzi') or [],
-        'distractor_pinyin':       r.get('out_distractor_pinyin') or [],
+        'distractor_pinyin':       [format_pinyin(p) for p in (r.get('out_distractor_pinyin') or [])],
         'semantic_label':          _clean_label(r.get('out_semantic_label')),
         'distractor_group_label':  r.get('out_distractor_group_label'),
         'difficulty_tier':         r.get('out_difficulty_tier'),
-        'level':                   r.get('out_level'),
-        'classifier_id_primary':   r.get('out_classifier_id_primary'),
-        'reverse_noun_options':    r.get('out_reverse_noun_options') or [],
+        'level':                   level,
+        'mastery_level':           _level(r.get('out_mastery_level')),
+        'classifier_id_primary':   primary,
+        'reverse_noun_options':    reverse,
         'cloze_sentence':          r.get('out_cloze_sentence'),
-        'cloze_blanked':           r.get('out_cloze_blanked'),
+        'cloze_blanked':           cloze_blanked,
     }
 
 
@@ -96,13 +160,23 @@ def _counter_item(r: dict) -> dict:
     }
 
 
+def _is_missing_function(exc: Exception) -> bool:
+    """Whether PostgREST / Postgres reported the called function as missing."""
+    code = getattr(exc, 'code', None)
+    text = str(exc)
+    return (code in ('PGRST202', '42883')
+            or 'PGRST202' in text or '42883' in text
+            or 'Could not find the function' in text)
+
+
 class DrillService:
     """One drill: its language, sentinel test, session RPC and item shape."""
 
     def __init__(self, *, name: str, language_id: int, sentinel_slug: str,
                  session_rpc: str, to_item: Callable[[dict], dict],
                  finish_items: Optional[Callable] = None,
-                 mastery_rpc: Optional[str] = None):
+                 mastery_rpc: Optional[str] = None,
+                 fallback_session_rpc: Optional[str] = None):
         self.name = name
         self.language_id = language_id
         self.sentinel_slug = sentinel_slug
@@ -110,7 +184,9 @@ class DrillService:
         self.to_item = to_item
         self.finish_items = finish_items
         self.mastery_rpc = mastery_rpc
+        self.fallback_session_rpc = fallback_session_rpc
         self._sentinel_test_id: Optional[str] = None
+        self._session_rpc_missing_until = 0.0
 
     def _fetch_sentinel_test_id(self, language_id: int) -> Optional[str]:
         """Look up (and cache) the sentinel test UUID."""
@@ -134,15 +210,27 @@ class DrillService:
     def get_session(self, user_id: str, language_id: int, count: int = 20) -> list[dict]:
         """A batch of drill items, ready for JSON. Empty list on error."""
         db = get_supabase_admin()
+        params = {
+            'p_user_id': user_id,
+            'p_language_id': language_id,
+            'p_count': count,
+        }
+        rpc = self.session_rpc
+        if self.fallback_session_rpc and time.monotonic() < self._session_rpc_missing_until:
+            rpc = self.fallback_session_rpc
         try:
-            rows = db.rpc(self.session_rpc, {
-                'p_user_id': user_id,
-                'p_language_id': language_id,
-                'p_count': count,
-            }).execute().data or []
+            rows = db.rpc(rpc, params).execute().data or []
         except Exception as e:
-            logger.error("%s RPC failed: %s", self.session_rpc, e)
-            return []
+            if not (self.fallback_session_rpc and rpc == self.session_rpc and _is_missing_function(e)):
+                logger.error("%s RPC failed: %s", rpc, e)
+                return []
+            logger.warning("%s is not installed; using %s", rpc, self.fallback_session_rpc)
+            self._session_rpc_missing_until = time.monotonic() + _MISSING_RPC_RETRY_SECONDS
+            try:
+                rows = db.rpc(self.fallback_session_rpc, params).execute().data or []
+            except Exception as e2:
+                logger.error("%s RPC failed: %s", self.fallback_session_rpc, e2)
+                return []
 
         items = [self.to_item(r) for r in rows]
         if self.finish_items:
@@ -193,34 +281,65 @@ class DrillService:
             result = error_data
 
         if self.mastery_rpc and isinstance(result, dict):
-            result['mastery_updates'] = self._update_mastery(db, user_id, item_results or [])
+            # A replayed submission (same idempotency key) was counted the
+            # first time: applying its answers again would double the
+            # learner's attempts and could promote a level on its own.
+            result['mastery_updates'] = [] if result.get('cached') else self._update_mastery(
+                db, user_id, item_results or [], limit=int(total_items))
         return result
 
-    def _update_mastery(self, db, user_id: str, item_results: list[dict]) -> list[dict]:
-        updates: list[dict] = []
-        for item in item_results:
-            cid = None
-            try:
-                cid = item.get('classifier_id')
-                if cid is None:
-                    continue
-                resp = db.rpc(self.mastery_rpc, {
-                    'p_user_id':       user_id,
-                    'p_classifier_id': int(cid),
-                    'p_is_correct':    bool(item.get('is_correct')),
-                }).execute()
-                if resp.data:
-                    updates.append(resp.data)
-            except Exception as exc:
-                logger.warning("%s failed for cid=%s: %s", self.mastery_rpc, cid, exc)
-        return updates
+    def _update_mastery(self, db, user_id: str, item_results: list[dict],
+                        limit: int = MAX_ITEM_RESULTS) -> list[dict]:
+        """One update_classifier_mastery call per well-formed answer.
 
+        At most ``limit`` answers count (the batch's item count, capped at
+        MAX_ITEM_RESULTS); entries that are not ``{classifier_id: int,
+        is_correct: bool}`` are skipped. A classifier's answers are applied
+        one after another in answer order (each moves its EWMA and level);
+        different classifiers' chains run concurrently, so a 20-item round
+        costs about one chain of round trips instead of twenty. The updates
+        come back in answer order; a failed call is logged and left out.
+        """
+        valid = [
+            it for it in item_results
+            if isinstance(it, dict)
+            and isinstance(it.get('classifier_id'), int)
+            and not isinstance(it.get('classifier_id'), bool)
+            and 0 < it['classifier_id'] < 32768
+        ][:max(0, min(limit, MAX_ITEM_RESULTS))]
+
+        chains: dict[int, list[tuple[int, bool]]] = {}
+        for pos, item in enumerate(valid):
+            chains.setdefault(item['classifier_id'], []).append(
+                (pos, item.get('is_correct') is True))
+
+        def run_chain(cid: int, answers: list[tuple[int, bool]]):
+            def call() -> list[tuple[int, dict]]:
+                out = []
+                for pos, is_correct in answers:
+                    try:
+                        resp = db.rpc(self.mastery_rpc, {
+                            'p_user_id':       user_id,
+                            'p_classifier_id': cid,
+                            'p_is_correct':    is_correct,
+                        }).execute()
+                        if resp.data:
+                            out.append((pos, resp.data))
+                    except Exception as exc:
+                        logger.warning("%s failed for cid=%s: %s", self.mastery_rpc, cid, exc)
+                return out
+            return call
+
+        done = run_parallel(*(run_chain(cid, answers) for cid, answers in chains.items()))
+        return [data for _, data in sorted((pair for chain in done for pair in chain),
+                                           key=lambda pair: pair[0])]
 
 CLASSIFIER_DRILL = DrillService(
     name='classifier_drill',
     language_id=ZH_LANGUAGE_ID,
     sentinel_slug='__classifier_drill_zh',
-    session_rpc='get_classifier_drill_session',
+    session_rpc='get_classifier_drill_session_v2',
+    fallback_session_rpc='get_classifier_drill_session',
     to_item=_classifier_item,
     finish_items=_attach_correct_pinyin,
     mastery_rpc='update_classifier_mastery',

@@ -19,16 +19,22 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 30 |
-| In Progress (`[~]`) | 14 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 29 |
+| Not Started | 47 |
+| In Progress (`[~]`) | 15 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 32 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 2 |
-| Done (cumulative, not listed here) | 250 |
+| Done (cumulative, not listed here) | 259 |
 
-*2026-11-17 (developer decisions):* TASK-977 → Won't Do (English glosses in Chinese transcripts are intended). New TASK-978 Done (repo; migration `test_sentence_references_faithful_reviews.sql` applied live; code deploy pending): two agreeing reviews override the tightness floor ([[decisions/ADR-047-reviewer-agreement-overrides-tightness-floor]]). Second review of the 89 below-floor references of the 2026-11-14 batch done. Counts: awaiting decision −1 (977) +1 (978 Done (repo), awaiting deploy) = 29; Won't Do 1→2.
+*2026-11-17 (sentence references, branch claude/happy-sagan-wkcpgs merged with main):* TASK-908 Not Started → In Progress (English references for every Japanese and Chinese test live; English → Chinese deferred). New TASK-1008 Won't Do (English glosses in Chinese transcripts are intended) and TASK-1009 Done (`faithful_reviews` column, `dt_next_inputs` `ag`, `build_daily_session_dt_agreed.sql` applied live; Python deploy pending): two agreeing reviews override the tightness floor ([[decisions/ADR-049-reviewer-agreement-overrides-tightness-floor]]). This branch's own `/next` rewrite (filed as TASK-976 before the merge, an id main had already used) was dropped in favour of main's `_choose_next`. Counts: Not Started 48→47, In Progress 14→15, Done (repo)/awaiting 31→32, Won't Do 1→2. See [[tasklist/test-sentence-references.tasks]].
 
-*2026-11-17 (dual-translation sentences fleshed out):* TASK-908 Not Started → In Progress (English references for every Japanese and Chinese test, live; English → Chinese deferred by the developer). New TASK-976 Done (repo, deploy pending): `/next` served nothing because `dt_passage_reference` is empty; it now serves reviewed sentence windows. New TASK-977 awaiting decision (English glosses in 15 Chinese transcripts). Counts: Not Started 31→30, In Progress 13→14, Blocked/awaiting/Done-(repo) 27→29. See [[tasklist/test-sentence-references.tasks]].
+*2026-11-17 (dual translation, measure-word drill, basic-word mastery, session/pinyin integrated):* TASK-989, 990, 993, 994, 997, 998, 999 Done (each verified on the real app at 393x659; four reviewed migrations applied live by the reviewers — `dt_next_inputs`, `task998_classifier_drill_levels`, `task998_classifier_cloze_sentences_fill`, `task994_vocab_frequency_fill`). TASK-991 Not Started → Blocked (owner: no row on skip, overlap; parts a and c done in repo). TASK-1000 Not Started → In Progress. New: TASK-1001 (DT owner decisions), 1002 (measure-word decisions and content gaps), 1004 (ADR-047 proposals) Blocked; TASK-1003 (slow error-card materialisation on `/next`), 1005 (last numbered-pinyin surfaces), 1006 (DT UX gaps) Not Started. ADR-047 filed as proposed. Counts: Not Started 47→46, In Progress 13→14, Blocked 35→34, Done 252→259.
+
+*2026-11-16 (dual translation, prestudy and pinyin fixes integrated):* new breakdown [[tasklist/fixes-2026-11-16.tasks]] (TASK-989–1000) for what the three fixes left open. Not Started: TASK-991, 992, 993, 995, 999, 1000. Blocked / awaiting decision: TASK-989 (owner: "all done" vs re-serve), 990 (LIVE-DB migration), 994 (content write), 996 (data write), 997 (owner: product choice), 998 (LIVE-DB migration). Counts: Not Started 41→47, Blocked 29→35.
+
+*2026-11-16 (i18n gaps filled):* TASK-985 Done. `es.json` gained the 57 keys it lacked (the `dt_repair.*` family plus `session.dt_repair_heading` / `_none`); 17 keys used in code but present in no locale (`session.speed_*`, `dual_translation.target_*`) added to all four. The four locale files now have identical key sets (1175). Counts: Not Started 42→41, Done 251→252.
+
+*2026-11-16 (mobile redesign built — app shell and design system, ADR-048):* new breakdown [[tasklist/mobile-redesign.tasks]] (TASK-976–988 and TASK-1007) for every open issue and unverified item the redesign engineers reported. TASK-987 Done (i18n merge, Me page links, hard-coded colours — closed during integration, verified in the tree). TASK-982 (Playwright E2E, needs credentials) and TASK-988 (commit, review, deploy — owner) Blocked. The other 11 Not Started. Counts: Not Started 31→42, Blocked 27→29, Done 250→251.
 
 *2026-11-14 (DT guided self-repair built + integrated, WP-INT):* TASK-952–965 Done (WP-BE + WP-FE), TASK-968 and TASK-969 Done (WP-INT: contract test against the real routes, nine frontend/backend mismatches fixed, real-app browser run over an in-memory DB). TASK-966 (apply `dt_guided_self_repair.sql`, owner decision) and TASK-967 (authenticated E2E on a staging DB) Blocked. New: TASK-971 Not Started (real devices / Safari / screen reader / IME), TASK-972 / TASK-973 / TASK-974 Blocked (native review, re-check evaluation, deploy). TASK-939 and TASK-940 superseded by that breakdown. No task id is duplicated (TASK-970 is dt-taxonomy-v6 only). Counts: Not Started 30→31, Blocked 24→27 (+966, 967, 972, 973, 974; −939, 940), Done 234→250. See [[tasklist/dt-guided-self-repair.tasks]].
 
@@ -1174,9 +1180,8 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-909 | test-sentence-references | Sentences endpoint, passage-from-sentences, primed-window selector | Done (repo) | M | TASK-901 |
 | TASK-910 | test-sentence-references | Grader target words → per-word contextual_use evidence | Done (repo) | M | TASK-909 |
 | TASK-911 | test-sentence-references | Preview and cloze use `test_sentences` | Done (repo) | S | TASK-902 |
-| TASK-976 | test-sentence-references | `GET /api/dual-translation/next` serves reviewed sentence windows (was 404 for everyone) | Done (repo), deploy pending | M | TASK-909 |
-| TASK-977 | test-sentence-references | Clean English glosses out of 15 Chinese transcripts | Won't Do (glosses intended, developer 2026-11-17) | S | — |
-| TASK-978 | test-sentence-references | Two agreeing reviews override the tightness floor (ADR-047) | Done (repo + migration live), deploy pending | S | TASK-976 |
+| TASK-1008 | test-sentence-references | Clean English glosses out of 15 Chinese transcripts | Won't Do (glosses intended, developer 2026-11-17) | S | — |
+| TASK-1009 | test-sentence-references | Two agreeing reviews override the tightness floor (ADR-049) | Done (DB changes live), Python deploy pending | S | TASK-909 |
 
 ### New-Word Drill (new 2026-11-09)
 
@@ -1252,6 +1257,50 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-972 | dt-guided-self-repair | Native-speaker review of hint templates and zh/ja UI strings | [?] no reviewer | M | — |
 | TASK-973 | dt-guided-self-repair | Evaluate the one-sentence re-check on real submissions | [?] needs real sessions | M | TASK-966, TASK-974 |
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
+
+### Mobile Redesign — App Shell and Design System (ADR-048) — NEW 2026-11-16
+Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[decisions/ADR-048-mobile-app-shell]]. Built in the working tree; not committed, not deployed.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1007 | mobile-redesign | Real-device check — iOS Safari and Android Chrome (dvh, safe areas, keyboard) | [ ] | M | — |
+| TASK-976 | mobile-redesign | Check rendering with the real web fonts | [ ] | S | — |
+| TASK-977 | mobile-redesign | Render the Forest, Inkstone and Still Water themes | [ ] | S | — |
+| TASK-978 | mobile-redesign | Open the bottom sheets, theme dropdown and toast | [ ] | S | — |
+| TASK-979 | mobile-redesign | Check pages with real data against the global restyle | [ ] | M | — |
+| TASK-980 | mobile-redesign | Run the full Python test suite | [ ] | S | — |
+| TASK-981 | mobile-redesign | Measure colour contrast of every theme | [ ] | S | — |
+| TASK-982 | mobile-redesign | Run the Playwright E2E specs | [?] needs credentials | S | — |
+| TASK-983 | mobile-redesign | Clear the remaining lint and format failures | [ ] | S | TASK-988 |
+| TASK-984 | mobile-redesign | Make the preview harness reproducible | [ ] | S | — |
+| TASK-985 | mobile-redesign | Fill the remaining i18n gaps (es `session.dt_repair_heading`; 10 fallback-only keys) | Done | XS | — |
+| TASK-986 | mobile-redesign | Regression tests for logout delegation and the study-language chip | [ ] | S | — |
+| TASK-987 | mobile-redesign | Integration requests — i18n merge, Me page links, hard-coded colours | Done | M | — |
+| TASK-988 | mobile-redesign | Commit, review and deploy the redesign | [?] owner | M | TASK-1007, TASK-980 |
+
+### Dual Translation, Prestudy and Pinyin Fixes (2026-11-16, updated 2026-11-17)
+Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.tech]] · [[features/test-prestudy]] · [[features/measure-word-trainer.tech]] · [[decisions/ADR-047-basic-word-knowledge-prior]]. Code in the working tree / checkpoint commits, not deployed; the four 2026-11-17 migrations are live.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-989 | fixes-2026-11-16 | Decide "all done" vs re-serving graded DT passages | Done | XS | — |
+| TASK-990 | fixes-2026-11-16 | Cut `/next` database round trips (SQL read function) | Done | M | TASK-989 |
+| TASK-991 | fixes-2026-11-16 | DT `/next` loose ends (retired range passage, empty submissions, unfiltered cards) — resume + skip built, old passage pool retired | Done | S | — |
+| TASK-992 | fixes-2026-11-16 | Return `produce_available` from test submit | [ ] | S | — |
+| TASK-993 | fixes-2026-11-16 | "Take the test" from prestudy resumes the session (`?resume=<slug>`) | Done | S | — |
+| TASK-994 | fixes-2026-11-16 | Fill `dim_vocabulary.frequency_rank` (770 of 846 rows incl. 是/都/有/不) | Done | M | — |
+| TASK-995 | fixes-2026-11-16 | Stale stored Produce flag (key by reference language) | [ ] | XS | TASK-992 |
+| TASK-996 | fixes-2026-11-16 | Pinyin data clean-up (classifier display column, combined pronunciations) | [?] LIVE-DB | M | — |
+| TASK-997 | fixes-2026-11-16 | New-word drill: "Type it as" after a wrong typed reading | Done | XS | — |
+| TASK-998 | fixes-2026-11-16 | Classifier drill session RPC: levels and mastery | Done | M | — |
+| TASK-999 | fixes-2026-11-16 | Tone-marked pinyin on the remaining surfaces | Done | S | — |
+| TASK-1000 | fixes-2026-11-16 | Verify the paths the 2026-11-16 fixes could not reach | [~] | M | — |
+| TASK-1001 | fixes-2026-11-16 | DT owner decisions: spoiler half-weight, what a repeat counts towards, unusable-answer rule (spoiler: full weight, decided) | [?] owner | S | — |
+| TASK-1002 | fixes-2026-11-16 | Measure-word drill: manual-mode promotion, content gaps, cloze sentence leak (manual-mode promotion: counts, decided) | [ ] | M | TASK-998 |
+| TASK-1003 | fixes-2026-11-16 | DT `/next`: batch error-card materialisation (8.5 s observed) | [ ] | S | — |
+| TASK-1004 | fixes-2026-11-16 | Basic-word knowledge: ADR-047 proposals (P1–P6, INT-2/3, ja compounds, default ability) — ADR-047 accepted | [ ] | L | TASK-994 |
+| TASK-1005 | fixes-2026-11-16 | Tone marks on the last numbered-pinyin surfaces (classifier_match, counter drill, admin check) | [ ] | S | — |
+| TASK-1006 | fixes-2026-11-16 | DT UX gaps: test-available for done tests, all-done wording, 404 console error | [ ] | XS | — |
 
 ### Language Packs (existing — unchanged)
 

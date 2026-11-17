@@ -2,12 +2,13 @@
 // Japanese pitch-accent trainer: an item of the daily session, and the whole
 // of the standalone page /test/<slug>/pitch-accent
 // (static/js/pages/test-pitch-accent.js mounts it with ctx.standalone). Its
-// styles live in the global static/css/styles.css. Container-scoped, leak-free
+// styles live in static/css/redesign/trainers.css (.syl-trainer--pitch),
+// loaded on every page. Container-scoped, leak-free
 // teardown (document keydown + timer tracked), error-modal buttons wired via
 // listeners. In the session it finishes through ctx.onComplete().
 
 import { T, escapeHtml } from '../dom.js';
-import { createTrainer, prefetchTest } from './_syllable_trainer.js';
+import { createTrainer, prefetchTest, applyLocalKeys } from './_syllable_trainer.js';
 
 export const prefetch = prefetchTest;
 
@@ -58,23 +59,17 @@ export function mount(container, ctx) {
     furiganaUsedThisAttempt: false,
   });
 
-  // static/css/styles.css scopes every pitch-accent rule (.pa-header,
-  // .passage-grid, .word-token, .controls-hint, .scratchpad, ...) under
-  // body.pitch-accent-page — the class templates/test_pitch_accent.html sets
-  // via its body_class block. The daily-session runner's body carries
-  // study-session-page instead, so without this the whole player mounts
-  // completely unstyled (no layout, no colors, no progress bar). The class is
-  // set and cleared around this player's mount/destroy so it never leaks onto
-  // other players sharing the session body.
-  document.body.classList.add('pitch-accent-page');
-
+  // Styles are scoped to the player's own root (.syl-trainer--pitch in
+  // static/css/redesign/trainers.css), so the session and the page need no
+  // body class. (The legacy body.pitch-accent-page rules in styles.css no
+  // longer match anything.)
   container.innerHTML = trainer.standalone ? MARKUP : trainer.compact(MARKUP);
+  if (trainer.frame) q('paRootScreen').classList.add('is-framed');
   trainer.addBackLink();
   init();
 
   return {
     destroy() {
-      document.body.classList.remove('pitch-accent-page');
       trainer.destroy();
     },
   };
@@ -93,6 +88,7 @@ export function mount(container, ctx) {
       showLoading(true);
       if (!state.slug) throw new Error('No test slug');
       if (trainer.standalone) await trainer.prepare();
+      applyLocalKeys(container);
       try {
         const savedMode = localStorage.getItem('pa_mode');
         if (savedMode === 'quick' || savedMode === 'contour') state.mode = savedMode;
@@ -103,6 +99,7 @@ export function mount(container, ctx) {
       renderPassage();
       setupInputHandlers();
       setupModeToggle();
+      renderQuickPad();
       renderControls();
       startTimer();
 
@@ -111,9 +108,7 @@ export function mount(container, ctx) {
       q('controlsHint').style.display = 'block';
       updateTouchAreaVisibility();
 
-      qsa('#modeToggle button').forEach((btn) =>
-        btn.classList.toggle('active', btn.dataset.mode === state.mode)
-      );
+      syncModeButtons();
       highlightCurrent();
       showLoading(false);
     } catch (err) {
@@ -150,6 +145,7 @@ export function mount(container, ctx) {
         ? LinguaMetadata.getNativeName(state.testData.language)
         : '日本語';
     q('testLanguage').textContent = langName || '日本語';
+    if (state.testData.title) trainer.setHeader({ subtitle: state.testData.title });
   }
 
   function renderPassage() {
@@ -302,14 +298,14 @@ export function mount(container, ctx) {
     // Boundary column (post-word pitch) is always present and always
     // selectable — see resetContourInput for why it can't be reference-only.
     const cols = moraCount + 1;
-    const colTemplate = `60px repeat(${cols}, 1fr)`;
+    const colTemplate = `44px repeat(${cols}, minmax(0, 1fr))`;
     const isPhantomParticle = !token.trailing_particle;
 
     let highRow = `<div class="scratch-row" style="grid-template-columns: ${colTemplate};"><div class="scratch-row-label">HIGH</div>`;
     for (let i = 0; i <= moraCount; i++) {
       const sel = state.contourInput[i] === 'H' ? 'selected row-high' : '';
       const cur = i === state.contourCursor ? 'current' : '';
-      highRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="H"><span class="scratch-dot"></span></div>`;
+      highRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="H" role="button" tabindex="-1" aria-label="HIGH ${i + 1}" aria-pressed="${state.contourInput[i] === 'H'}"><span class="scratch-dot"></span></div>`;
     }
     highRow += `</div>`;
 
@@ -317,7 +313,7 @@ export function mount(container, ctx) {
     for (let i = 0; i <= moraCount; i++) {
       const sel = state.contourInput[i] === 'L' ? 'selected row-low' : '';
       const cur = i === state.contourCursor ? 'current' : '';
-      lowRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="L"><span class="scratch-dot"></span></div>`;
+      lowRow += `<div class="scratch-cell ${sel} ${cur}" data-mora="${i}" data-pitch="L" role="button" tabindex="-1" aria-label="LOW ${i + 1}" aria-pressed="${state.contourInput[i] === 'L'}"><span class="scratch-dot"></span></div>`;
     }
     lowRow += `</div>`;
 
@@ -341,10 +337,10 @@ export function mount(container, ctx) {
 
     wrap.innerHTML = `
             <div class="scratchpad" id="scratchpad">
-                <div class="scratch-word">${escapeHtml(token.surface)}</div>
+                <div class="scratch-word" lang="ja">${escapeHtml(token.surface)}</div>
                 <div class="scratch-instruction">${inst}</div>
                 <div class="scratch-wrap"><div class="scratch-track">${highRow}${lowRow}${moraRow}</div></div>
-                <button class="scratch-submit" id="scratchSubmit" ${ready ? '' : 'disabled'}>${submitLabel}</button>
+                <button type="button" class="scratch-submit ld-btn" id="scratchSubmit" ${ready ? '' : 'disabled'}>${submitLabel}</button>
             </div>`;
 
     wrap.querySelectorAll('.scratch-cell[data-mora]').forEach((cell) => {
@@ -490,7 +486,7 @@ export function mount(container, ctx) {
       yourAnswerHtml = `
                 <div class="error-classes">
                     <div class="class-label"><div class="class-name" style="color: var(--accent-${info.guessedClass})">${escapeHtml(guessName)}</div><div class="class-desc">${t('pitch.your_answer', 'Your answer')}</div></div>
-                    <div style="font-size: 1.5rem; color: var(--text-muted); align-self: center;"><i class="bi bi-arrow-right"></i></div>
+                    <div class="tone-arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></div>
                     <div class="class-label"><div class="class-name" style="color: var(--accent-${token.pattern_class})">${escapeHtml(className)}</div><div class="class-desc">${t('pitch.correct', 'Correct')}</div></div>
                 </div>`;
     } else if (info.mode === 'contour' && info.reason) {
@@ -517,12 +513,12 @@ export function mount(container, ctx) {
 
     const html = `
             <div class="error-backdrop" data-pa-dismiss></div>
-            <div class="error-modal">
-                <div class="error-word cls-${token.pattern_class}" style="color: var(--accent-${token.pattern_class})">${escapeHtml(token.surface)}</div>
-                <div class="error-kana">${escapeHtml(token.kana || '')}</div>
+            <div class="error-modal" role="dialog" aria-modal="true">
+                <div class="error-word cls-${token.pattern_class}" lang="ja" style="color: var(--accent-${token.pattern_class})">${escapeHtml(token.surface)}</div>
+                <div class="error-kana" lang="ja">${escapeHtml(token.kana || '')}</div>
                 ${yourAnswerHtml}
-                <div style="text-align: center; margin: 8px 0 12px;">
-                    <svg width="${svgW}" height="${svgH}" style="max-width: 100%;">
+                <div class="error-contour" lang="ja">
+                    <svg width="${svgW}" height="${svgH}" style="max-width: 100%;" aria-hidden="true">
                         <line x1="0" y1="${yHigh}" x2="${svgW}" y2="${yHigh}" stroke="var(--border-default)" stroke-dasharray="3 4"/>
                         <line x1="0" y1="${yLow}" x2="${svgW}" y2="${yLow}" stroke="var(--border-default)" stroke-dasharray="3 4"/>
                         <line x1="${dividerX}" y1="6" x2="${dividerX}" y2="${svgH - 22}" stroke="var(--border-strong)" stroke-width="1" stroke-dasharray="2 3"/>
@@ -539,9 +535,10 @@ export function mount(container, ctx) {
                         ? ` — ${t('pitch.explain.heiban', 'no drop; pitch stays high after the first mora (including any following particle).')}`
                         : ` — ${t('pitch.explain.drop_at', 'drop after mora')} ${token.accent}${token.accent === token.mora_count ? ' ' + t('pitch.explain.odaka_particle', '— the drop only becomes audible because of the following particle.') : ''}`
                     }
-                    ${classDesc ? `<br><span style="color: var(--text-muted); font-size: 0.85rem;">${escapeHtml(classDesc)}</span>` : ''}
+                    ${classDesc ? `<br><span class="accent-desc">${escapeHtml(classDesc)}</span>` : ''}
                 </div>
-                <button class="error-continue-btn" type="button" data-pa-dismiss>${t('pitch.continue', 'Continue')} <span style="font-size: 0.8em; opacity: 0.7;">(Enter)</span></button>
+                <button class="error-continue-btn ld-btn" type="button" data-pa-dismiss>${t('pitch.continue', 'Continue')} <span class="error-continue-key" aria-hidden="true">(Enter)</span></button>
+                <p class="error-again">${t('trainers.answer_again_word', 'You’ll answer this word again.')}</p>
             </div>`;
     trainer.showErrorModal(html, 'data-pa-dismiss', () => {
       if (state.mode === 'contour') {
@@ -653,6 +650,42 @@ export function mount(container, ctx) {
     });
   }
 
+  /** The mode buttons: .active (legacy hook) and aria-pressed (.ld-seg look). */
+  function syncModeButtons() {
+    qsa('#modeToggle button').forEach((b) => {
+      const on = b.dataset.mode === state.mode;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+  }
+
+  /**
+   * Quick mode's on-screen answers in the dock: the four pattern classes,
+   * each with its arrow key and the shape of its contour. A tap is the same
+   * answer as that arrow key or swipe.
+   */
+  function renderQuickPad() {
+    const pad = q('paQuickPad');
+    if (!pad) return;
+    pad.setAttribute('aria-label', t('trainers.pitch_pad', 'Pitch patterns'));
+    pad.innerHTML = ['heiban', 'atamadaka', 'nakadaka', 'odaka']
+      .map((cls) => {
+        const info = CLASS_INFO[cls];
+        const name = t(info.key, cls);
+        return (
+          `<button type="button" class="pa-quick-btn cls-${cls}" data-pa-class="${cls}">` +
+          `${quickShapeSvg(cls)}` +
+          `<span class="pa-quick-name"><kbd aria-hidden="true">${info.arrow}</kbd> ${escapeHtml(name)}</span>` +
+          `<small lang="ja">${CLASS_KANJI[cls]}</small>` +
+          `</button>`
+        );
+      })
+      .join('');
+    pad.querySelectorAll('button[data-pa-class]').forEach((btn) => {
+      on(btn, 'click', () => handleClassInput(btn.dataset.paClass));
+    });
+  }
+
   function setupModeToggle() {
     qsa('#modeToggle button').forEach((btn) => {
       on(btn, 'click', () => {
@@ -663,9 +696,7 @@ export function mount(container, ctx) {
         try {
           localStorage.setItem('pa_mode', newMode);
         } catch (e) {}
-        qsa('#modeToggle button').forEach((b) =>
-          b.classList.toggle('active', b.dataset.mode === newMode)
-        );
+        syncModeButtons();
         renderControls();
         updateTouchAreaVisibility();
         if (state.mode === 'contour') {
@@ -679,6 +710,10 @@ export function mount(container, ctx) {
   }
 
   function renderControls() {
+    const pad = q('paQuickPad');
+    if (pad) pad.hidden = state.mode !== 'quick';
+    const hint = q('paSwipeHint');
+    if (hint) hint.hidden = state.mode !== 'quick';
     const grid = q('controlsGrid');
     if (state.mode === 'quick') {
       grid.innerHTML = `
@@ -697,6 +732,9 @@ export function mount(container, ctx) {
 
   function completeGame() {
     state.isComplete = true;
+    if (document.activeElement && container.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
     q('controlsHint').style.display = 'none';
     updateTouchAreaVisibility();
     clearScratchpad();
@@ -732,70 +770,97 @@ export function mount(container, ctx) {
   }
 }
 
+// Kanji names of the four classes (shown under the romanised name).
+const CLASS_KANJI = { heiban: '平板', atamadaka: '頭高', nakadaka: '中高', odaka: '尾高' };
+
+// The textbook shape of each class over three morae and the following
+// particle (H = high, L = low): only an illustration on the quick buttons.
+const CLASS_SHAPE = {
+  heiban: ['L', 'H', 'H', 'H'],
+  atamadaka: ['H', 'L', 'L', 'L'],
+  nakadaka: ['L', 'H', 'L', 'L'],
+  odaka: ['L', 'H', 'H', 'L'],
+};
+
+function quickShapeSvg(cls) {
+  const shape = CLASS_SHAPE[cls];
+  const w = 64;
+  const h = 22;
+  const step = w / shape.length;
+  const pts = shape.map((p, i) => [step * i + step / 2, p === 'H' ? 5 : h - 5]);
+  const path = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0] + ',' + p[1]).join(' ');
+  const dots = pts
+    .map(
+      (p, i) =>
+        `<circle cx="${p[0]}" cy="${p[1]}" r="${i === pts.length - 1 ? 2.2 : 2.8}"${
+          i === pts.length - 1 ? ' class="is-particle"' : ''
+        }/>`
+    )
+    .join('');
+  return `<svg class="pa-quick-shape" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><path d="${path}"/>${dots}</svg>`;
+}
+
 // ========================================================================
-// MARKUP — styles come from the global static/css/styles.css (loaded by base.html)
+// MARKUP — one task screen (FOUNDATION.md): mode / furigana / progress strip,
+// the passage in the scrolling stage (the Quick-mode swipe surface lies over
+// it), the answers (Quick pad or Contour scratchpad) in the pinned dock.
+// Styles: static/css/redesign/trainers.css (.syl-trainer--pitch).
 // ========================================================================
 const MARKUP = `
+<div class="ld-screen syl-trainer syl-trainer--pitch" id="paRootScreen">
 <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-    <div class="loading-spinner">
-        <div class="spinner-icon"></div>
-        <p class="mb-0 text-slate-600" data-i18n="pitch.loading">Loading pitch accent data...</p>
+    <div class="loading-spinner" role="status">
+        <div class="spinner-icon" aria-hidden="true"></div>
+        <p class="mb-0" data-i18n="pitch.loading">Loading pitch accent data...</p>
     </div>
 </div>
 
-<div id="errorState" class="container py-5" style="display: none;">
+<div id="errorState" class="trainer-error" style="display: none;">
     <div class="alert alert-danger">
-        <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pitch.error.title">Error</span></h2>
+        <h2 class="h5"><i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i><span data-i18n="pitch.error.title">Error</span></h2>
         <p id="errorMessage" class="mb-2"></p>
     </div>
 </div>
 
-<div class="pa-header" id="paHeader" style="display: none;">
-    <div class="container py-3">
-        <div class="row align-items-center g-2">
-            <div class="col-12 col-md-auto">
-                <h1 class="mb-0 h5">
-                    <i class="bi bi-music-note-beamed text-primary me-2"></i>
-                    <span id="testTitle" data-i18n="pitch.title">Pitch Accent Trainer</span>
-                </h1>
-            </div>
-            <div class="col-12 col-md-auto ms-md-auto d-flex align-items-center gap-2 flex-wrap">
-                <div class="mode-toggle" id="modeToggle">
-                    <button type="button" data-mode="quick" class="active">
-                        <i class="bi bi-lightning-charge-fill me-1"></i><span data-i18n="pitch.mode.quick">Quick</span>
-                    </button>
-                    <button type="button" data-mode="contour">
-                        <i class="bi bi-graph-up me-1"></i><span data-i18n="pitch.mode.contour">Contour</span>
-                    </button>
-                </div>
-                <span class="badge bg-primary" id="testLanguage"></span>
-                <label class="furigana-toggle" id="furiganaToggleLabel" title="Furigana over kanji (halves ELO change)">
-                    <input type="checkbox" id="furiganaToggle">
-                    <span>ふりがな</span>
-                </label>
-                <span class="text-slate-500">
-                    <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
-                </span>
-            </div>
+<div class="trainer-strip" id="paHeader" style="display: none;">
+    <div class="trainer-strip__row">
+        <h1 class="trainer-title"><span id="testTitle" data-i18n="pitch.title">Pitch Accent Trainer</span></h1>
+        <div class="ld-seg mode-toggle" id="modeToggle">
+            <button type="button" data-mode="quick" class="active" aria-pressed="true">
+                <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i> <span data-i18n="pitch.mode.quick">Quick</span>
+            </button>
+            <button type="button" data-mode="contour" aria-pressed="false">
+                <i class="bi bi-graph-up" aria-hidden="true"></i> <span data-i18n="pitch.mode.contour">Contour</span>
+            </button>
+        </div>
+        <label class="furigana-toggle" id="furiganaToggleLabel" title="Furigana over kanji (halves ELO change)">
+            <input type="checkbox" id="furiganaToggle" role="switch">
+            <span lang="ja">ふりがな</span>
+        </label>
+        <span class="ld-tag ld-tag--brand" id="testLanguage"></span>
+        <span class="trainer-clock"><i class="far fa-clock" aria-hidden="true"></i> <span id="elapsedTime">00:00</span></span>
+    </div>
+    <div class="ld-bar trainer-bar"><i class="pa-progress-fill" id="progressFill" style="width: 0%"></i></div>
+</div>
+
+<div class="trainer-swipe">
+    <div class="ld-stage trainer-stage">
+        <div class="passage-container" id="passageContainer" style="display: none;" lang="ja">
+            <div class="passage-grid" id="passageGrid"></div>
+            <p class="ld-hint trainer-hint" id="paSwipeHint" data-trk="trainers.pitch_swipe_hint">Tap a pattern below, or swipe on the passage: ← Heiban · ↑ Atamadaka · → Nakadaka · ↓ Odaka.</p>
         </div>
     </div>
-    <div class="pa-progress-bar">
-        <div class="pa-progress-fill" id="progressFill" style="width: 0%"></div>
-    </div>
+    <!-- Swipe-to-answer overlay (Quick mode, touch devices): covers the passage only -->
+    <div class="touch-area" id="touchArea" style="display: none;"></div>
 </div>
 
-<!-- Swipe-to-answer overlay (Quick mode, touch devices) -->
-<div class="touch-area" id="touchArea" style="display: none;"></div>
-
-<div class="passage-container" id="passageContainer" style="display: none;">
-    <div class="passage-grid" id="passageGrid"></div>
+<div class="ld-dock trainer-dock" id="controlsHint" style="display: none;">
+    <div class="pa-quickpad" id="paQuickPad" role="group"></div>
     <div id="scratchpadContainer"></div>
-</div>
-
-<div class="controls-hint" id="controlsHint" style="display: none;">
-    <div class="controls-grid" id="controlsGrid"></div>
+    <div class="controls-grid ld-wide-only" id="controlsGrid" aria-hidden="true"></div>
 </div>
 
 <div id="errorModalContainer"></div>
 <div id="resultsContainer"></div>
+</div>
 `;

@@ -1,0 +1,21 @@
+{
+  "GET /api/study-session*": { "status": "success", "data": {
+    "next_index": 0,
+    "queue": [
+      { "kind": "test", "id": "t1", "slug": "a-weekend-hike", "title": "周末去爬山", "test_type": "listening", "is_completed": false },
+      { "kind": "practice", "id": "p1", "mode": "maintenance", "minutes": 8, "is_completed": false },
+      { "kind": "test", "id": "t2", "slug": "the-old-bookshop", "title": "老书店", "test_type": "reading", "is_completed": false },
+      { "kind": "flashcards", "id": "fc_0", "cards": 6, "is_completed": false },
+      { "kind": "dual_translation", "id": "dt_0", "is_completed": false }
+    ] } },
+  "GET /api/practice/session*": { "items": [
+    { "exercise_id": "ex-cloze-1", "exercise_type": "cloze_completion", "lemma": "木头", "pronunciation": "mù tou", "definition": "wood", "ladder_level": 3, "ladder_name": "Context", "expected_seconds": 20,
+      "content": { "sentence_with_blank": "这张桌子是用___做的。", "options": ["木头", "石头", "山脚", "书店"], "correct_answer": "木头", "explanation": "桌子 (table) is made of 木头 (wood)." } },
+    { "exercise_id": "ex-jumble-1", "exercise_type": "jumbled_sentence", "lemma": "搬", "pronunciation": "bān", "definition": "to move", "ladder_level": 5, "ladder_name": "Production", "content": { "chunks": ["我们", "下个月", "搬", "家"], "correct_ordering": [0,1,2,3] } },
+    { "exercise_id": "ex-typed-1", "exercise_type": "cloze_typed", "lemma": "山脚", "pronunciation": "shān jiǎo", "definition": "foot of a mountain", "ladder_level": 4, "ladder_name": "Recall", "content": { "sentence_with_blank": "我们在___下休息了一会儿。", "answer": { "accepted": ["山脚"] }, "target_word": "山脚" } },
+    { "exercise_id": "ex-spot-1", "exercise_type": "spot_incorrect_part", "content": { "parts": [ {"text": "我昨天"}, {"text": "去了"}, {"text": "一个书", "is_error": true, "correct_form": "一家书店"}, {"text": "。"} ] } }
+  ] },
+  "POST /api/practice/attempt": { "ok": true, "requeue": false },
+  "POST /api/study-session/complete-block": { "status": "success" },
+  "POST /api/tests/daily-load/complete": { "status": "success" }
+}

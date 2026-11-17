@@ -17,11 +17,41 @@ const LINGUADOJO = window.LINGUADOJO || {};
 // `i18n` its translation key; `class` is the badge style.
 const ELO_RANGES = {
   T1: { min: 0, max: 1024, label: 'Toddler (4–5)', i18n: 'difficulty.tier1', class: 'badge-tier1' },
-  T2: { min: 1025, max: 1287, label: 'Primary school (8–9)', i18n: 'difficulty.tier2', class: 'badge-tier2' },
-  T3: { min: 1288, max: 1474, label: 'Young teen (13–14)', i18n: 'difficulty.tier3', class: 'badge-tier3' },
-  T4: { min: 1475, max: 1624, label: 'High school (16–17)', i18n: 'difficulty.tier4', class: 'badge-tier4' },
-  T5: { min: 1625, max: 1812, label: 'University (19–21)', i18n: 'difficulty.tier5', class: 'badge-tier5' },
-  T6: { min: 1813, max: 9999, label: 'Professional (30+)', i18n: 'difficulty.tier6', class: 'badge-tier6' },
+  T2: {
+    min: 1025,
+    max: 1287,
+    label: 'Primary school (8–9)',
+    i18n: 'difficulty.tier2',
+    class: 'badge-tier2',
+  },
+  T3: {
+    min: 1288,
+    max: 1474,
+    label: 'Young teen (13–14)',
+    i18n: 'difficulty.tier3',
+    class: 'badge-tier3',
+  },
+  T4: {
+    min: 1475,
+    max: 1624,
+    label: 'High school (16–17)',
+    i18n: 'difficulty.tier4',
+    class: 'badge-tier4',
+  },
+  T5: {
+    min: 1625,
+    max: 1812,
+    label: 'University (19–21)',
+    i18n: 'difficulty.tier5',
+    class: 'badge-tier5',
+  },
+  T6: {
+    min: 1813,
+    max: 9999,
+    label: 'Professional (30+)',
+    i18n: 'difficulty.tier6',
+    class: 'badge-tier6',
+  },
 };
 
 // Language flag mapping
@@ -115,7 +145,10 @@ function getDifficultyLabel(elo) {
  */
 function getDifficultyText(elo) {
   const band = ELO_RANGES[getDifficultyBand(elo)];
-  const t = window.LinguaI18n && typeof window.LinguaI18n.t === 'function' ? window.LinguaI18n.t(band.i18n) : null;
+  const t =
+    window.LinguaI18n && typeof window.LinguaI18n.t === 'function'
+      ? window.LinguaI18n.t(band.i18n)
+      : null;
   return t && t !== band.i18n ? t : band.label;
 }
 

@@ -32,31 +32,47 @@ export function mount(container, ctx) {
   const dropped = Number(item.tests_dropped_today) || 0;
   const why =
     item.trigger === 'retry'
-      ? T('session.prestudy.why_retry', null, 'You are retrying this test. Study its key words first.')
+      ? T(
+          'session.prestudy.why_retry',
+          null,
+          'You are retrying this test. Study its key words first.'
+        )
       : light
-        ? T('session.prestudy.why_light', { pct }, `${pct}% of this test's key words are new to you: a quick warm-up on the words you don't know yet.`)
-        : T('session.prestudy.why_full', { pct }, `${pct}% of this test's key words are new to you. Learn them first, then take the test.`);
+        ? T(
+            'session.prestudy.why_light',
+            { pct },
+            `${pct}% of this test's key words are new to you: a quick warm-up on the words you don't know yet.`
+          )
+        : T(
+            'session.prestudy.why_full',
+            { pct },
+            `${pct}% of this test's key words are new to you. Learn them first, then take the test.`
+          );
 
+  const lang = { 1: 'zh', 2: 'en', 3: 'ja' }[Number(ctx.languageId)] || '';
+  // The runner's header names the test type and title (seal 学); the eyebrow
+  // says what this card is, and the stage keeps the test title so it reads on its own.
+  // One task screen: the explanation in the stage, both choices in the dock.
   container.innerHTML = `
-    <div class="session-card"><div class="card"><div class="card-body p-4">
-      <div class="d-flex align-items-center gap-2 mb-2">
-        <i class="bi bi-book-half text-primary" aria-hidden="true"></i>
-        <h2 class="h5 mb-0">${esc(T('session.prestudy.title', null, 'Study first'))}</h2>
+    <div class="ld-screen ps-block">
+      <div class="ld-stage">
+        <div class="ps-block-wm" aria-hidden="true">学</div>
+        <p class="ld-eyebrow ps-block-eyebrow">${esc(T('session.prestudy.title', null, 'Study first'))}</p>
+        ${item.title ? `<h2 class="ld-h1 ps-block-title"${lang ? ` lang="${lang}"` : ''}>${esc(item.title)}</h2>` : ''}
+        <p class="ps-block-why">${esc(why)}</p>
+        <div class="ld-wrap">
+          <span class="ld-tag">${esc(T('session.prestudy.minutes', { n: minutes }, `About ${minutes} min`))}</span>
+          <span class="ld-tag">${esc(T('session.prestudy.elo', null, 'Your first attempt then counts at half weight'))}</span>
+          ${dropped ? `<span class="ld-tag ld-tag--warn">${esc(T('session.prestudy.dropped', { count: dropped }, dropped === 1 ? '1 fewer test today' : `${dropped} fewer tests today`))}</span>` : ''}
+        </div>
       </div>
-      <p class="mb-1 fw-semibold">${esc(item.title || '')}</p>
-      <p class="text-muted mb-3">${esc(why)}</p>
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <span class="badge rounded-pill text-bg-light border">${esc(T('session.prestudy.minutes', { n: minutes }, `About ${minutes} min`))}</span>
-        <span class="badge rounded-pill text-bg-light border">${esc(T('session.prestudy.elo', null, 'Your first attempt then counts at half weight'))}</span>
-        ${dropped ? `<span class="badge rounded-pill text-bg-warning">${esc(T('session.prestudy.dropped', { count: dropped }, dropped === 1 ? '1 fewer test today' : `${dropped} fewer tests today`))}</span>` : ''}
-      </div>
-      <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-primary" data-prestudy-start href="${esc(prestudyUrl(item, ctx.languageId))}">
-          <i class="bi bi-play-circle-fill me-1" aria-hidden="true"></i>${esc(T('session.prestudy.start', null, 'Start studying'))}
+      <div class="ld-dock">
+        <a class="ld-btn" data-prestudy-start href="${esc(prestudyUrl(item, ctx.languageId))}">
+          <i class="bi bi-play-circle-fill" aria-hidden="true"></i>${esc(T('session.prestudy.start', null, 'Start studying'))}
         </a>
-        <button type="button" class="btn btn-outline-secondary" data-prestudy-cold>${esc(T('session.prestudy.cold', null, 'Take it cold'))}</button>
+        <button type="button" class="ld-btn ld-btn--ghost" data-prestudy-cold>${esc(T('session.prestudy.cold', null, 'Take it cold'))}</button>
       </div>
-    </div></div></div>`;
+    </div>`;
 
   const cold = container.querySelector('[data-prestudy-cold]');
   if (cold) cold.onclick = () => ctx.onComplete && ctx.onComplete({ skipped: true });

@@ -13,8 +13,13 @@
 //    Study-Plan progress hook), then shows a single Continue button that calls
 //    ctx.onComplete. No redirect, no "Next round" loop.
 //  - a standalone page (/classifier-drill, /counter-drill): `mountDrillPage`,
-//    which passes ctx.standalone. The page markup has its own sticky header and
-//    a results card offering another round or the way out.
+//    which passes ctx.standalone. The page markup has its own progress strip
+//    and a results screen offering another round or the way out.
+//
+// Both hosts render one task screen (FOUNDATION.md): a progress strip, the
+// prompt and answers in the scrolling .ld-stage, and feedback / Check / the
+// results actions in the pinned .ld-dock. Styles: static/css/redesign/
+// trainers.css (.drill-player), loaded on every page.
 //
 // Player contract: mount(container, ctx) -> { destroy() }.
 //   ctx = { item, languageId, onComplete(result), onSkip() }.
@@ -23,6 +28,7 @@
 
 import { T, escapeHtml, shuffle, applyI18n } from '../dom.js';
 import { prefetchJson, takePrefetch } from '../prefetch.js';
+import { formatPinyin } from '../pinyin-format.js';
 
 const BATCH_SIZE = 20;
 
@@ -109,6 +115,8 @@ const ELEMENT_IDS = {
   resultsNext: 'ResultsNext',
   resultsExit: 'ResultsExit',
   modeToggle: 'ModeToggle',
+  check: 'Check',
+  hint: 'Hint',
 };
 
 /**
@@ -188,6 +196,7 @@ export function mountDrill(container, ctx, cfg) {
   Object.keys(ELEMENT_IDS).forEach((key) => {
     el[key] = container.querySelector('#' + cfg.prefix + ELEMENT_IDS[key]);
   });
+  el.screen = container.querySelector('.drill-player');
   // The row shown while a batch is being played.
   const bar = el.header || el.controls;
 
@@ -199,7 +208,10 @@ export function mountDrill(container, ctx, cfg) {
     languageId,
     t,
     later,
-    renderInput: () => cfg.renderInput(d),
+    renderInput: () => {
+      cfg.renderInput(d);
+      syncDock();
+    },
     choose: handleChoiceClick,
     openFeedback,
     advance,
@@ -224,6 +236,7 @@ export function mountDrill(container, ctx, cfg) {
       applyModeToToggle();
       bindModeToggle();
       el.fbContinue.addEventListener('click', closeFeedback);
+      translateLocalKeys();
       bindResults();
       cfg.bindTyped(d);
       bindKeyboard();
@@ -238,7 +251,35 @@ export function mountDrill(container, ctx, cfg) {
 
   function applyModeToToggle() {
     const buttons = el.modeToggle.querySelectorAll('button');
-    buttons.forEach((b) => b.classList.toggle('active', b.dataset.mode === state.mode));
+    buttons.forEach((b) => {
+      const on = b.dataset.mode === state.mode;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+  }
+
+  // Strings added by the 2026-11 redesign (static/i18n/_redesign/
+  // trainers.json): the key's text, or the markup's English until the key is
+  // merged into the locale files (a data-i18n would show the raw key).
+  function translateLocalKeys() {
+    container.querySelectorAll('[data-trk]').forEach((node) => {
+      if (!node.dataset.trkFallback) node.dataset.trkFallback = node.textContent;
+      node.textContent = T(node.dataset.trk, null, node.dataset.trkFallback);
+    });
+  }
+
+  // The dock: Check while the typed answer is on screen, the tap hint while
+  // options are. Feedback and the results hide both (trainers.css).
+  function syncDock() {
+    const typed = !!el.typedForm && el.typedForm.style.display !== 'none';
+    if (el.check) el.check.hidden = !typed;
+    if (el.hint) el.hint.hidden = typed;
+  }
+
+  // The results replace the prompt; their actions replace the dock's.
+  function setResultsShown(show) {
+    el.results.style.display = show ? cfg.display.results : 'none';
+    if (el.screen) el.screen.classList.toggle('is-results', show);
   }
 
   function bindModeToggle() {
@@ -259,7 +300,7 @@ export function mountDrill(container, ctx, cfg) {
     if (el.resultsContinue) el.resultsContinue.addEventListener('click', complete);
     if (el.resultsNext) {
       el.resultsNext.addEventListener('click', function () {
-        el.results.style.display = 'none';
+        setResultsShown(false);
         loadBatch();
       });
     }
@@ -323,7 +364,7 @@ export function mountDrill(container, ctx, cfg) {
   async function loadBatch() {
     el.loading.style.display = cfg.display.loading;
     el.stage.style.display = 'none';
-    el.results.style.display = 'none';
+    setResultsShown(false);
     bar.style.display = 'none';
     if (el.empty) el.empty.style.display = 'none';
 
@@ -367,7 +408,7 @@ export function mountDrill(container, ctx, cfg) {
     el.controls.style.display = 'none';
     el.stage.style.display = 'none';
     el.loading.style.display = 'none';
-    el.results.style.display = 'block';
+    setResultsShown(true);
     el.resultsGrade.textContent = '👍';
     el.resultsPct.parentElement.style.display = 'none';
     el.results.querySelector('.cd-results-stats').style.display = 'none';
@@ -379,6 +420,10 @@ export function mountDrill(container, ctx, cfg) {
   function renderCurrent() {
     if (state.cursor >= state.items.length) return finishBatch();
     cfg.renderCurrent(d);
+    syncDock();
+    // A new item starts at the top of the stage.
+    const scroller = el.stage.closest('.ld-stage');
+    if (scroller) scroller.scrollTop = 0;
   }
 
   function handleChoiceClick(idx) {
@@ -423,7 +468,9 @@ export function mountDrill(container, ctx, cfg) {
     el.resultsTotal.textContent = total;
     el.resultsTime.textContent = time;
     el.resultsGrade.textContent = cfg.grade(pct);
-    el.results.style.display = cfg.display.results;
+    setResultsShown(true);
+    const scroller = el.results.closest('.ld-stage');
+    if (scroller) scroller.scrollTop = 0;
 
     // Submit (best-effort): records the attempt and its ELO change.
     try {
@@ -464,163 +511,109 @@ export function mountDrill(container, ctx, cfg) {
 }
 
 // ==========================================================================
-// MARKUP. The session copy is self-contained (inline <style>) and has no
-// page-level sticky header: the session shell already has a sticky progress
-// bar, so the drill's own progress sits in a non-sticky control row. The page
-// copy is styled by static/css/pages/drill.css.
+// MARKUP. One task screen per host (see the header comment); the session copy
+// has a control row (mode + progress) instead of the page's strip and a
+// single Next on the results. Styles: static/css/redesign/trainers.css.
 // ==========================================================================
-const SESSION_STYLES = `
-<style>
-    .cd-controls { max-width: 640px; margin: 8px auto 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    .cd-controls-progress { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
-    .cd-progress-track { width: 120px; height: 6px; background: var(--border-default); border-radius: 3px; overflow: hidden; }
-    .cd-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--info) 100%); transition: width 0.3s ease; width: 0; }
-    .cd-stage { max-width: 640px; margin: 0 auto; padding: 32px 20px; }
-    .cd-prompt { text-align: center; font-size: 3.5rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text-primary); margin-bottom: 12px; line-height: 1.1; }
-    .cd-blank { display: inline-block; min-width: 1.2em; border-bottom: 4px solid var(--info); color: transparent; }
-    .cd-pronunciation { text-align: center; font-size: 1.5rem; color: var(--text-muted); margin-bottom: 4px; }
-    .cd-gloss { text-align: center; font-size: 1.05rem; color: var(--text-secondary); margin-bottom: 36px; }
-    .cd-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px; }
-    .cd-option { font-size: 2.25rem; font-weight: 600; padding: 18px 8px; border: 2px solid var(--border-default); border-radius: 12px; background: var(--bg-surface); cursor: pointer; transition: transform 0.1s, border-color 0.1s, background 0.15s; position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    @media (hover: hover) and (pointer: fine) { .cd-option:hover:not(:disabled) { border-color: var(--primary); transform: translateY(-1px); } }
-    .cd-option:focus { outline: none; }
-    .cd-option:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-    .cd-option:disabled { cursor: default; opacity: 0.65; }
-    .cd-option.correct  { background: #ecfdf5; border-color: #10b981; }
-    .cd-option.wrong    { background: #fef2f2; border-color: #ef4444; }
-    .cd-option .cd-option-key { position: absolute; top: 6px; left: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
-    .cd-option .cd-option-pinyin { font-size: 0.95rem; color: var(--text-muted); font-weight: 400; }
-    .cd-typed-input { display: block; width: 100%; font-size: 2.5rem; font-weight: 600; text-align: center; padding: 14px 8px; border: 2px solid var(--border-default); border-radius: 12px; background: var(--bg-surface); outline: none; transition: border-color 0.1s; }
-    .cd-typed-input:focus { border-color: var(--primary); }
-    .cd-typed-input.wrong { border-color: #ef4444; background: #fef2f2; }
-    .cd-typed-input.correct { border-color: #10b981; background: #ecfdf5; }
-    .cd-feedback { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: none; align-items: center; justify-content: center; z-index: 1050; padding: 20px; }
-    .cd-feedback.show { display: flex; }
-    .cd-feedback-card { background: var(--bg-surface); border-radius: 16px; padding: 28px; max-width: 480px; width: 100%; box-shadow: var(--shadow-lg); }
-    .cd-feedback-canonical { font-size: 3rem; text-align: center; font-weight: 700; margin: 8px 0 4px; }
-    .cd-feedback-canonical .hl { color: var(--info); }
-    .cd-feedback-group { text-align: center; font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 18px; }
-    .cd-feedback-examples { background: var(--bg-page); border-radius: 10px; padding: 12px 16px; font-size: 1rem; margin-bottom: 18px; }
-    .cd-feedback-cta { width: 100%; background: var(--primary); color: white; font-weight: 600; padding: 14px; border-radius: 10px; border: 0; cursor: pointer; font-size: 1rem; }
-    .cd-results { max-width: 480px; margin: 40px auto; padding: 36px 28px; background: var(--bg-surface); border-radius: 16px; box-shadow: var(--shadow-md); text-align: center; }
-    .cd-results-grade { font-size: 4rem; margin: 8px 0; }
-    .cd-results-pct { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
-    .cd-results-stats { display: flex; justify-content: center; gap: 36px; margin: 20px 0 24px; font-size: 0.95rem; color: var(--text-secondary); }
-    .cd-results-elo-badge { display: inline-block; padding: 6px 14px; border-radius: 999px; background: var(--bg-page); font-weight: 600; margin-bottom: 18px; }
-    .cd-mode-toggle { display: inline-flex; background: var(--bg-page); border-radius: 999px; padding: 4px; }
-    .cd-mode-toggle button { background: transparent; border: 0; padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); cursor: pointer; }
-    .cd-mode-toggle button.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-sm); }
-    @media (max-width: 640px) {
-        .cd-stage { padding: 20px 14px; }
-        .cd-prompt { font-size: 2.5rem; letter-spacing: 0.05em; }
-        .cd-pronunciation { font-size: 1.2rem; }
-        .cd-gloss { font-size: 0.95rem; margin-bottom: 24px; }
-        .cd-options { gap: 10px; margin-top: 20px; }
-        .cd-option { font-size: 1.85rem; padding: 16px 6px; min-height: 76px; }
-        .cd-typed-input { font-size: 2rem; padding: 12px 6px; }
-        .cd-feedback-card { padding: 22px 18px; }
-        .cd-feedback-canonical { font-size: 2.1rem; }
-        .cd-mode-toggle button { padding: 5px 10px; font-size: 0.8rem; }
-        #cdReversePrompt { font-size: 1rem !important; }
-    }
-</style>
-`;
+const MODE_TOGGLE = `
+        <div class="ld-seg cd-mode-toggle drill-modes" id="cdModeToggle" title="Auto adapts each item to your per-classifier mastery">
+            <button type="button" data-mode="auto" class="active" aria-pressed="true" data-i18n="classifier_drill.mode_auto">Auto</button>
+            <button type="button" data-mode="mc" aria-pressed="false" data-i18n="classifier_drill.mode_mc">Choose</button>
+            <button type="button" data-mode="type" aria-pressed="false" data-i18n="classifier_drill.mode_type">Type</button>
+        </div>`;
 
-// Prompt, answer inputs and the feedback card: the same in both hosts.
+// The control row: mode toggle, Auto's level badge, count and bar. `id` and
+// `cls` name the row (cdControls in the session, cdHeader on the page).
+const strip = (id, cls) => `
+<div id="${id}" class="${cls} drill-strip" style="display:none;">
+    <div class="drill-strip__row">
+        ${MODE_TOGGLE}
+        <div class="drill-count">
+            <span class="ld-tag ld-tag--info" id="cdLevelBadge" style="display:none;"></span>
+            <span class="drill-count__n"><span id="cdProgressLabel">0</span> / <span id="cdProgressTotal">0</span></span>
+        </div>
+    </div>
+    <div class="ld-bar drill-bar"><i class="cd-progress-fill" id="cdProgressFill"></i></div>
+</div>`;
+
+// The prompt and answer inputs: the same in both hosts.
 const STAGE_MARKUP = `
 <div id="cdStage" class="cd-stage" style="display:none;">
-    <div class="cd-prompt" id="cdPromptWrap">
+    <div class="cd-prompt" id="cdPromptWrap" lang="zh">
         <span>一</span>
         <span class="cd-blank" id="cdPromptBlank">_</span>
         <span id="cdNoun"></span>
     </div>
     <div class="cd-pronunciation" id="cdPronunciation"></div>
     <div class="cd-gloss" id="cdGloss"></div>
-    <div class="cd-gloss" id="cdReversePrompt" style="display:none; font-size:1.1rem; color:var(--text-secondary);"></div>
+    <div class="cd-gloss cd-reverse" id="cdReversePrompt" style="display:none;"></div>
 
-    <div class="cd-options" id="cdOptions" style="display:none;"></div>
+    <div class="cd-options" id="cdOptions" style="display:none;" lang="zh"></div>
 
     <form id="cdTypedForm" style="display:none;" autocomplete="off">
         <input id="cdTypedInput" type="text" class="cd-typed-input" maxlength="2"
-               inputmode="text" autocapitalize="off"
+               inputmode="text" autocapitalize="off" lang="zh"
                data-i18n-placeholder="classifier_drill.typed_placeholder"
+               aria-label="量词"
                placeholder="量词" />
     </form>
-</div>
+</div>`;
 
-<div id="cdFeedback" class="cd-feedback" role="dialog" aria-modal="true">
-    <div class="cd-feedback-card">
-        <div class="cd-feedback-canonical" id="cdFeedbackCanonical"></div>
-        <div class="cd-feedback-group" id="cdFeedbackGroup"></div>
-        <div class="cd-feedback-examples" id="cdFeedbackExamples"></div>
-        <button class="cd-feedback-cta" id="cdFeedbackContinue" data-i18n="classifier_drill.feedback_continue">Continue</button>
+// The dock: feedback (shown with .show), Check for a typed answer, the tap
+// hint for options, and the results actions (shown on .is-results).
+const dock = (resultsActions) => `
+<div class="ld-dock drill-dock">
+    <div id="cdFeedback" class="cd-feedback drill-feedback" role="region" aria-live="polite">
+        <div class="cd-feedback-card drill-feedback__card">
+            <div class="cd-feedback-canonical" id="cdFeedbackCanonical" lang="zh"></div>
+            <div class="cd-feedback-group" id="cdFeedbackGroup"></div>
+            <div class="cd-feedback-examples" id="cdFeedbackExamples"></div>
+        </div>
+        <button type="button" class="cd-feedback-cta ld-btn" id="cdFeedbackContinue" data-i18n="classifier_drill.feedback_continue">Continue</button>
     </div>
-</div>
-`;
+    <button type="submit" form="cdTypedForm" class="ld-btn drill-check" id="cdCheck" hidden data-trk="trainers.check">Check</button>
+    <p class="ld-hint drill-hint" id="cdHint" data-trk="trainers.drill_tap_hint">Tap an answer.</p>
+    <div class="drill-results-actions">${resultsActions}</div>
+</div>`;
 
-const SESSION_MARKUP = `${SESSION_STYLES}
-<div id="cdLoading" class="text-center py-5 text-muted" data-i18n="classifier_drill.loading" style="display:none;">Loading…</div>
+const resultsBody = (note) => `
+    <div id="cdResults" class="cd-results drill-results" style="display:none;">
+        <div class="drill-results__score">
+            <div class="cd-results-grade" id="cdResultsGrade" aria-hidden="true">🎯</div>
+            <div class="cd-results-pct"><span id="cdResultsPct">0</span>%</div>
+        </div>
+        <div class="cd-results-stats">
+            <div><strong id="cdResultsCorrect">0</strong> / <span id="cdResultsTotal">0</span> <span data-i18n="classifier_drill.results_classifiers">classifiers</span></div>
+            <div><strong id="cdResultsTime">0</strong>s</div>
+        </div>
+        ${note}
+        <div class="cd-results-elo-badge ld-tag ld-tag--ok" id="cdResultsElo" style="display:none;"></div>
+    </div>`;
 
-<div id="cdControls" class="cd-controls" style="display:none;">
-    <div class="cd-mode-toggle" id="cdModeToggle" title="Auto adapts each item to your per-classifier mastery">
-        <button type="button" data-mode="auto" class="active" data-i18n="classifier_drill.mode_auto">Auto</button>
-        <button type="button" data-mode="mc"   data-i18n="classifier_drill.mode_mc">Choose</button>
-        <button type="button" data-mode="type" data-i18n="classifier_drill.mode_type">Type</button>
-    </div>
-    <div class="cd-controls-progress">
-        <span id="cdLevelBadge" style="display:none;"></span>
-        <span><span id="cdProgressLabel">0</span> / <span id="cdProgressTotal">0</span></span>
-        <div class="cd-progress-track"><div class="cd-progress-fill" id="cdProgressFill"></div></div>
-    </div>
+const SESSION_MARKUP = `
+<div class="ld-screen drill-player drill-player--cd">
+${strip('cdControls', 'cd-controls')}
+<div class="ld-stage drill-stage">
+    <div id="cdLoading" class="drill-msg" data-i18n="classifier_drill.loading" style="display:none;">Loading…</div>
+    ${STAGE_MARKUP}
+    ${resultsBody('<div id="cdResultsNote" class="drill-results__note"></div>')}
 </div>
-${STAGE_MARKUP}
-<div id="cdResults" class="cd-results" style="display:none;">
-    <div class="cd-results-grade" id="cdResultsGrade">🎯</div>
-    <div class="cd-results-pct"><span id="cdResultsPct">0</span>%</div>
-    <div class="cd-results-stats">
-        <div><strong id="cdResultsCorrect">0</strong> / <span id="cdResultsTotal">0</span> <span data-i18n="classifier_drill.results_classifiers">classifiers</span></div>
-        <div><strong id="cdResultsTime">0</strong>s</div>
-    </div>
-    <div id="cdResultsNote" class="text-muted" style="display:block; margin-bottom:12px;"></div>
-    <div class="cd-results-elo-badge" id="cdResultsElo" style="display:none;"></div>
-    <button class="cd-feedback-cta" id="cdResultsContinue" data-i18n="session.next_item">Next</button>
+${dock('<button type="button" class="cd-feedback-cta ld-btn" id="cdResultsContinue" data-i18n="session.next_item">Next</button>')}
 </div>
 `;
 
 const PAGE_MARKUP = `
-<div id="cdHeader" class="cd-header py-3 px-3 px-md-4 flex items-center justify-between gap-2" style="display:none;">
-    <div class="cd-header-left">
-        <a href="/tests" class="text-slate-500 hover:text-slate-700" aria-label="Home" style="font-size: 1.1rem; line-height: 1;">&larr;</a>
-        <h1 class="text-base font-semibold" data-i18n="classifier_drill.title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Measure Words</h1>
-    </div>
-    <div class="cd-header-right">
-        <div class="text-xs text-slate-500" id="cdLevelBadge" style="display:none;"></div>
-        <div class="text-sm text-slate-500" style="white-space: nowrap;"><span id="cdProgressLabel">0</span> / <span id="cdProgressTotal">0</span></div>
-    </div>
-    <div class="cd-header-controls">
-        <div class="cd-mode-toggle" id="cdModeToggle" title="Auto adapts each item to your per-classifier mastery">
-            <button type="button" data-mode="auto" class="active" data-i18n="classifier_drill.mode_auto">Auto</button>
-            <button type="button" data-mode="mc"   data-i18n="classifier_drill.mode_mc">Choose</button>
-            <button type="button" data-mode="type" data-i18n="classifier_drill.mode_type">Type</button>
-        </div>
-    </div>
-    <div class="cd-progress-bar"><div class="cd-progress-fill" id="cdProgressFill"></div></div>
+<div class="ld-screen drill-player drill-player--cd">
+${strip('cdHeader', 'cd-header')}
+<div class="ld-stage drill-stage">
+    <div id="cdLoading" class="drill-msg" data-i18n="classifier_drill.loading">Loading…</div>
+    ${STAGE_MARKUP}
+    ${resultsBody('')}
 </div>
-
-<div id="cdLoading" class="text-center py-20 text-slate-500" data-i18n="classifier_drill.loading">Loading…</div>
-${STAGE_MARKUP}
-<div id="cdResults" class="cd-results" style="display:none;">
-    <div class="cd-results-grade" id="cdResultsGrade">🎯</div>
-    <div class="cd-results-pct"><span id="cdResultsPct">0</span>%</div>
-    <div class="cd-results-stats">
-        <div><strong id="cdResultsCorrect">0</strong> / <span id="cdResultsTotal">0</span> <span data-i18n="classifier_drill.results_classifiers">classifiers</span></div>
-        <div><strong id="cdResultsTime">0</strong>s</div>
-    </div>
-    <div class="cd-results-elo-badge" id="cdResultsElo" style="display:none;"></div>
-    <div class="cd-results-actions">
-        <button class="cd-feedback-cta" id="cdResultsNext" data-i18n="classifier_drill.results_next">Next round</button>
-        <button class="cd-feedback-cta" id="cdResultsExit" style="background: var(--bg-page); color: var(--text-primary);" data-i18n="classifier_drill.results_exit">Done</button>
-    </div>
+${dock(`<div class="ld-row cd-results-actions">
+        <button type="button" class="cd-feedback-cta ld-btn ld-btn--ghost" id="cdResultsNext" data-i18n="classifier_drill.results_next">Next round</button>
+        <button type="button" class="cd-feedback-cta ld-btn" id="cdResultsExit" data-i18n="classifier_drill.results_exit">Done</button>
+    </div>`)}
 </div>
 `;
 
@@ -631,22 +624,31 @@ ${STAGE_MARKUP}
 function classifierLevel(state, item) {
   if (state.mode === 'mc') return 1;
   if (state.mode === 'type') return 2;
-  // Auto: the server-stamped per-classifier level.
-  const lvl = parseInt(item.level || 1, 10);
-  return Math.max(1, Math.min(4, lvl));
+  // Auto: the server-stamped per-classifier level (get_classifier_drill_session_v2
+  // already lowers it to what the item's content supports), lowered again here
+  // if the content is missing: Fill in needs a cloze sentence, Reverse needs
+  // wrong nouns to offer; Type needs nothing.
+  let lvl = Math.max(1, Math.min(4, parseInt(item.level || 1, 10) || 1));
+  const reverseOk = (item.reverse_noun_options || []).length > 0;
+  if (lvl === 4 && !item.cloze_blanked) lvl = reverseOk ? 3 : 2;
+  if (lvl === 3 && !reverseOk) lvl = 2;
+  return lvl;
 }
 
-// Shown in Auto mode only, to make promotions and demotions visible.
-function updateLevelBadge({ state, el }) {
+// Shown in Auto mode only, to make promotions and demotions visible: the
+// level the item is drawn at, named like the mode toggle (Choose / Type)
+// where it matches.
+function updateLevelBadge({ state, el, t }) {
   if (state.mode === 'auto') {
+    const shown = state.effectiveLevel;
     const tag =
-      state.effectiveLevel === 1
-        ? '· MC'
-        : state.effectiveLevel === 2
-          ? '· Type'
-          : state.effectiveLevel === 3
-            ? '· Reverse'
-            : '· Cloze';
+      shown === 1
+        ? t('mode_mc', null, 'Choose')
+        : shown === 2
+          ? t('mode_type', null, 'Type')
+          : shown === 3
+            ? t('level_reverse', null, 'Reverse')
+            : t('level_cloze', null, 'Fill in');
     el.levelBadge.textContent = tag;
     el.levelBadge.style.display = 'inline';
   } else {
@@ -668,14 +670,14 @@ function renderClassifierOptions(d, withPinyin) {
     btn.type = 'button';
     btn.dataset.idx = idx;
     btn.innerHTML =
-      '<span class="cd-option-key">' +
+      '<span class="cd-option-key" aria-hidden="true">' +
       (idx + 1) +
       '</span>' +
-      '<span>' +
+      '<span class="cd-option-text">' +
       escapeHtml(opt.hanzi) +
       '</span>' +
       (withPinyin && opt.pinyin
-        ? '<span class="cd-option-pinyin">' + escapeHtml(opt.pinyin) + '</span>'
+        ? '<span class="cd-option-pinyin">' + escapeHtml(formatPinyin(opt.pinyin)) + '</span>'
         : '');
     btn.addEventListener('click', function () {
       d.choose(idx);
@@ -713,21 +715,19 @@ function renderClassifierMc(d) {
 function renderClassifierCloze(d) {
   const { state, el, t } = d;
   const blanked = state.currentItem.cloze_blanked || '';
-  el.promptWrap.style.display = 'block';
+  // The sentence is the prompt: no "一 _ noun" line above it.
+  el.promptWrap.style.display = 'none';
   el.promptBlank.textContent = '';
   el.noun.textContent = '';
   el.pronunciation.textContent = '';
   el.gloss.textContent = '';
   el.reversePrompt.style.display = 'block';
   el.reversePrompt.innerHTML =
-    '<div style="font-size:0.95rem; color:var(--text-muted); margin-bottom:8px;">' +
+    '<div class="cd-cloze-label">' +
     t('cloze_prompt', null, 'Fill in the measure word') +
     '</div>' +
-    '<div style="font-size:1.6rem; font-weight:600; line-height:1.5; color:var(--text-primary);">' +
-    escapeHtml(blanked).replace(
-      /___/g,
-      '<span style="color:var(--info); border-bottom:3px solid var(--info); padding:0 8px;">&nbsp;___&nbsp;</span>'
-    ) +
+    '<div class="cd-cloze" lang="zh">' +
+    escapeHtml(blanked).replace(/___/g, '<span class="cd-cloze-blank">&nbsp;___&nbsp;</span>') +
     '</div>';
   el.typedForm.style.display = 'none';
   el.options.style.display = 'grid';
@@ -740,7 +740,8 @@ function renderClassifierForward({ state, el }) {
   el.reversePrompt.style.display = 'none';
   el.promptBlank.textContent = '_';
   el.noun.textContent = item.noun_lemma || '';
-  el.pronunciation.textContent = item.noun_pronunciation || '';
+  // Tone-marked pinyin only (stored values can be "bi3" or "biàn dé (bian4 de2)").
+  el.pronunciation.textContent = formatPinyin(item.noun_pronunciation);
   el.gloss.textContent = item.noun_gloss || '';
 }
 
@@ -750,13 +751,17 @@ function renderClassifierReverse(d) {
   const canonical = (item.correct_classifier_hanzi || [])[0] || '';
   el.promptWrap.style.display = 'block';
   el.promptBlank.textContent = canonical;
-  el.promptBlank.style.color = 'var(--info)';
+  el.promptBlank.style.color = 'var(--brand)';
   el.promptBlank.style.borderBottom = 'none';
   el.noun.textContent = '?';
   el.pronunciation.textContent = '';
   el.gloss.textContent = '';
   el.reversePrompt.style.display = 'block';
-  el.reversePrompt.textContent = t('reverse_prompt', null, 'Which noun fits?') + ' ' + canonical;
+  el.reversePrompt.textContent = t(
+    'reverse_question',
+    { classifier: canonical },
+    'Which noun takes ' + canonical + '?'
+  );
 
   const pool = [
     {
@@ -797,14 +802,18 @@ function recordClassifierAnswer({ state }, isCorrect, picked) {
   }
 }
 
+function clearMasteryChanges(el) {
+  el.results.querySelectorAll('.drill-mastery').forEach((n) => n.remove());
+}
+
 // Standalone page: say how many classifiers moved up or down a level.
 function showMasteryChanges({ el, t }, updates) {
+  clearMasteryChanges(el);
   const promotions = updates.filter((u) => u && u.promoted);
   const demotions = updates.filter((u) => u && u.demoted);
   if (!promotions.length && !demotions.length) return;
   const banner = document.createElement('div');
-  banner.style.cssText =
-    'margin-top:14px; padding:10px 14px; background:var(--bg-page); border-radius:10px; font-size:0.9rem;';
+  banner.className = 'ld-note drill-mastery';
   let html = '';
   if (promotions.length) {
     html += '<div>🎓 ' + t('promoted_n', { count: promotions.length }) + '</div>';
@@ -885,7 +894,7 @@ export const CLASSIFIER = {
   renderInput(d) {
     const { state, el } = d;
     const lvl = state.effectiveLevel;
-    if (lvl === 4 && state.currentItem.cloze_blanked) {
+    if (lvl === 4) {
       renderClassifierCloze(d);
       return;
     }
@@ -949,7 +958,7 @@ export const CLASSIFIER = {
     const canonical = (item.correct_classifier_hanzi || [])[0] || '';
     const altList = (item.correct_classifier_hanzi || []).slice(1);
     const altSuffix = altList.length
-      ? ' <span style="font-size:1.5rem; color: var(--text-muted);">(' +
+      ? ' <span class="cd-feedback-alt">(' +
         t('also', null, 'also') +
         ': ' +
         altList.join(' / ') +
@@ -970,6 +979,11 @@ export const CLASSIFIER = {
   onFinish({ el }, total) {
     // The session's control row goes; the page keeps its header.
     if (el.controls) el.controls.style.display = 'none';
+    // A previous round's ELO and level changes are not this round's.
+    clearMasteryChanges(el);
+    el.resultsElo.style.display = 'none';
+    // The level badge names the item on screen; the results have none.
+    el.levelBadge.style.display = 'none';
     el.progressFill.style.width = '100%';
     el.progressLabel.textContent = String(total);
   },

@@ -356,7 +356,7 @@ def _source_texts(db, submission_id: int) -> tuple[str | None, str]:
 
     passages = (
         db.table("dt_passage")
-        .select("l2_text")
+        .select("l2_text, source_ref_id, sentence_start, sentence_end")
         .eq("id", passage_id)
         .limit(1)
         .execute()
@@ -365,20 +365,31 @@ def _source_texts(db, submission_id: int) -> tuple[str | None, str]:
     )
     if not passages:
         return None, ""
-    gold_l2 = passages[0]["l2_text"]
+    passage = passages[0]
+    return passage["l2_text"], _window_l1_text(db, passage, l1_language_id)
 
-    refs = (
-        db.table("dt_passage_reference")
-        .select("l1_text")
-        .eq("passage_id", passage_id)
-        .eq("l1_language_id", l1_language_id)
-        .limit(1)
-        .execute()
-        .data
-        or []
-    )
-    l1_text = refs[0]["l1_text"] if refs else ""
-    return gold_l2, l1_text
+
+def _window_l1_text(db, passage: dict, l1_language_id) -> str:
+    """The L1 text of a sentence-window passage: its sentences' reviewed
+    references (ADR-037), joined. ``''`` when the passage has no sentence range
+    or any sentence lacks a usable reference. (Passages used to carry one
+    whole-passage reference in ``dt_passage_reference``; that pool is gone.)"""
+    if passage.get("sentence_start") is None or passage.get("sentence_end") is None \
+            or not passage.get("source_ref_id") or l1_language_id is None:
+        return ""
+    # lazy: the repair package imports this module's siblings
+    from services.dual_translation.passage_builder import join_sentences
+    from services.dual_translation.repair.sentences import _range_l1_texts
+    from services.dual_translation.sentence_refs import LANG_CODE
+    try:
+        texts = _range_l1_texts(db, str(passage["source_ref_id"]), int(passage["sentence_start"]),
+                                int(passage["sentence_end"]), int(l1_language_id))
+    except Exception as exc:  # noqa: BLE001 - the L1 context is optional
+        logger.warning("dual_translation.cards: window L1 lookup failed: %s", exc)
+        return ""
+    if not texts:
+        return ""
+    return join_sentences(texts, LANG_CODE.get(int(l1_language_id), "en"))
 
 
 def _taxonomy_stamp(db) -> dict:

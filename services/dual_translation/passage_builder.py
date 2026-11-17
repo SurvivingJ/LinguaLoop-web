@@ -6,7 +6,8 @@ per supported L1 (!= the passage's L2). Nothing here touches the DB directly:
 the only network-touching function (`generate_l1_reference`) takes its router
 resolver and model caller as injectable arguments so the whole module is
 unit-testable with everything mocked. The batch runner that wires this to a
-live Supabase + OpenRouter is `scripts/build_dt_passages.py`.
+live Supabase + OpenRouter was `scripts/build_dt_passages.py`, removed 2026-11-17
+with the whole-passage pool it built; passages are now sentence windows (ADR-037).
 
 Design decisions (confirmed 2026-06-29, see wiki/tasklist/dual-translation.tasks.md
 TASK-603 notes):
@@ -19,7 +20,7 @@ TASK-603 notes):
     is left NULL (matches the migration's nullable default).
 
   * **source_ref_id = str(tests.id)** (a uuid) so `routes/dual_translation.py::
-    _select_next_passage` (which filters `dt_passage.source_ref_id IN
+    _choose_next` (which filters `dt_passage.source_ref_id IN
     test_attempts.test_id`) can serve the row. `source_kind` is locked to
     'test_transcript'; mystery scenes are a separate table and simply not
     sourced here.
@@ -213,7 +214,7 @@ def window_meets_floor(idxs, tightness: dict[int, float], floor: float,
 
     Mean tightness of the window's references must be at least ``floor``.
     Sentences in ``agreed`` (two independent reviews passed the exact text,
-    ADR-047) and sentences with no score are left out of the mean. A window
+    ADR-049) and sentences with no score are left out of the mean. A window
     with nothing left to average passes when every sentence is agreed, else
     only a ``floor`` of 0.
     """
@@ -252,7 +253,7 @@ def select_window_for_primed(
     sentence index is in ``refs_ok`` (has an active ``pass``/``rewritten``
     reference for the learner's L1) and it passes ``window_meets_floor``: the
     mean ``tightness`` of its references is at least ``floor``, leaving out
-    sentences in ``agreed`` (ADR-047) and sentences with no recorded
+    sentences in ``agreed`` (ADR-049) and sentences with no recorded
     tightness.
 
     Args:
@@ -298,76 +299,6 @@ def select_window_for_primed(
     if best is None:
         return None
     return best[1], best[2]
-
-
-# ---------------------------------------------------------------------------
-# Practice windows for GET /next (ADR-037 sentence references)
-# ---------------------------------------------------------------------------
-
-def plan_sentence_windows(
-    sentence_idxs,
-    refs_ok: set[int],
-    tightness: dict[int, float],
-    floor: float,
-    min_size: int = MIN_WINDOW,
-    max_size: int = MAX_WINDOW,
-    agreed: frozenset = frozenset(),
-) -> list[tuple[int, int]]:
-    """Fixed, non-overlapping practice windows over one test's sentences.
-
-    Pure function. Sentences are split into runs of consecutive indices that
-    all have a usable reference (``refs_ok``); each run is packed with
-    ``window_sentences`` (2-4 sentences, a short tail rebalanced, never a
-    1-sentence window). A window is kept only when it passes
-    ``window_meets_floor`` (the same gate as ``select_window_for_primed``,
-    including the ``agreed`` override of ADR-047).
-
-    Returns ``[(start_idx, end_idx), ...]`` inclusive, in transcript order.
-    """
-    idxs = sorted({int(i) for i in (sentence_idxs or []) if int(i) in refs_ok})
-    runs: list[list[int]] = []
-    for i in idxs:
-        if runs and i == runs[-1][-1] + 1:
-            runs[-1].append(i)
-        else:
-            runs.append([i])
-    out: list[tuple[int, int]] = []
-    for run in runs:
-        for window in window_sentences(run, min_size, max_size):
-            if window_meets_floor(window, tightness, floor, agreed):
-                out.append((window[0], window[-1]))
-    return out
-
-
-def pick_next_window(
-    candidates: list[dict],
-    practised: dict[str, dict[int, str]],
-) -> Optional[dict]:
-    """Choose the window GET /next serves. Pure function.
-
-    ``candidates`` are in preference order (most recently attempted test
-    first), each ``{'test_id': str, 'windows': [(start, end), ...]}``.
-    ``practised`` maps ``test_id -> {sentence_idx: last practised timestamp}``
-    (ISO strings compare correctly) for sentences the learner has already
-    submitted or skipped in any DT passage.
-
-    The first window, in candidate order then transcript order, with no
-    practised sentence wins. When every window has been practised, the one
-    whose most recent practice is oldest comes back (simple spaced re-use).
-    Returns ``{'test_id', 'start', 'end', 'fresh': bool}`` or None when no
-    candidate has a window.
-    """
-    stalest: Optional[tuple[str, dict]] = None
-    for cand in candidates:
-        seen = practised.get(str(cand['test_id']), {})
-        for start, end in cand.get('windows') or []:
-            stamps = [seen[i] for i in range(start, end + 1) if i in seen]
-            if not stamps:
-                return {'test_id': cand['test_id'], 'start': start, 'end': end, 'fresh': True}
-            last = max(stamps)
-            if stalest is None or last < stalest[0]:
-                stalest = (last, {'test_id': cand['test_id'], 'start': start, 'end': end, 'fresh': False})
-    return stalest[1] if stalest else None
 
 
 # ---------------------------------------------------------------------------

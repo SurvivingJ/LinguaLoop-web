@@ -105,13 +105,6 @@ def get_error_rows(db, submission_id: int) -> list:
             .eq("submission_id", submission_id).execute()).data or []
 
 
-def get_l1_passage_text(db, passage_id: int, l1_language_id: int) -> Optional[str]:
-    row = _one(db.table("dt_passage_reference").select("l1_text")
-               .eq("passage_id", passage_id).eq("l1_language_id", l1_language_id)
-               .limit(1).execute())
-    return (row or {}).get("l1_text")
-
-
 # ── dt_repair_session ───────────────────────────────────────────────────────
 
 def insert_session(db, row: dict) -> dict:

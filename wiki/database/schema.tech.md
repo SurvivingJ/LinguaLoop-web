@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-11-11
+last_updated: 2026-11-17
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -283,7 +283,7 @@ Master vocabulary lemma registry. Each lemma is unique per language.
 | `phrase_type` | text | YES | 'single_word' | |
 | `component_lemmas` | text[] | YES | | For multi-word entries |
 | `part_of_speech` | text | YES | | |
-| `frequency_rank` | real | YES | | |
+| `frequency_rank` | real | YES | | A wordfreq 3.1.1 **Zipf score** (0–8, higher = more common), not a rank. 770 NULL rows filled 2026-11-17 (TASK-994, `migrations/task994_vocab_frequency_fill.sql`); 76 stay NULL by design (zh 12, en 20, ja 44). |
 | `level_tag` | text | YES | | |
 | `semantic_class` | text | YES | | |
 | `created_at` | timestamptz | YES | now() | |
@@ -2076,7 +2076,7 @@ L1 reference translations per sentence, with authoring/review provenance. At mos
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
-| `sentence_start` | smallint | YES | | Inclusive first `test_sentences.idx` of the passage within `source_ref_id`. NULL on pre-existing rows |
+| `sentence_start` | smallint | YES | | Inclusive first `test_sentences.idx` of the passage within `source_ref_id`. NULL only on the old whole-passage rows (all deleted 2026-11-17; GET /next never serves a row without a range) |
 | `sentence_end` | smallint | YES | | Inclusive last index. CHECK `dt_passage_sentence_range_chk`: both NULL, or both set with 0 <= sentence_start <= sentence_end (added NOT VALID, then validated) |
 
 - **Unique:** `uq_dt_passage_sentence_range (source_ref_id, sentence_start, sentence_end) WHERE both NOT NULL` — a sentence range of a test is extracted once and reused.
@@ -2268,6 +2268,21 @@ RLS policies now call `(select auth.uid())` / `(select auth.role())` (evaluated 
 
 ### Triggers
 - `sync_exercise_history()` -> trigger -- copy exercise_attempts to user_exercise_history (Phase 4)
+
+### Live changes applied 2026-11-17 (reviewed migrations, all backward compatible)
+
+| Migration (repo file = applied name) | Applied version | Effect | Rollback |
+|---|---|---|---|
+| `migrations/dt_next_inputs.sql` | 20261117030308 | New function `dt_next_inputs(uuid, integer, integer) RETURNS jsonb` (STABLE, SECURITY INVOKER, `search_path = public, pg_temp`, EXECUTE service_role only). Nothing existing changed. Revised in the repo 2026-11-17 (no `legacy` key; same signature and grants), re-apply pending. | `migrations/dt_next_inputs_rollback.sql` (DROP FUNCTION) |
+| `migrations/task998_classifier_drill_levels.sql` | 20261117034255 | `ALTER TABLE user_classifier_mastery ADD COLUMN IF NOT EXISTS level_attempts integer` (nullable, catalog-only; 44 rows, all NULL at apply). `CREATE OR REPLACE update_classifier_mastery` (same signature; promotion after 5 answers at the current level). New `get_classifier_drill_session_v2` (DEFINER, service_role only). v1 untouched. | `migrations/task998_classifier_drill_levels_rollback.sql` (exact previous mastery function; drops v2 and the column — loses `level_attempts`) |
+| `migrations/task998_classifier_cloze_sentences_fill.sql` | 20261117034512 | Guarded DO-block UPDATE: `dim_classifier_noun_pairs.example_sentence` filled on exactly 661 language-1 rows that were NULL (copied from judged ladder sentences, then active zh test sentences). Re-run after any `scripts/build_classifier_dictionary.py` rebuild. | `migrations/task998_classifier_cloze_sentences_fill_rollback.sql` (NULL on the 661 rows) |
+| `migrations/task994_vocab_frequency_fill.sql` | 20261117035509 | Guarded DO-block UPDATE: `dim_vocabulary.frequency_rank` filled on exactly 770 rows that were NULL (zh 229, en 422, ja 119), only where id, lemma and language are unchanged; `updated_at` bumped by `update_vocab_timestamp`. No `user_vocabulary_knowledge` row changed. | `migrations/task994_vocab_frequency_fill_rollback.sql` (resets a row only if it still holds the filled value) |
+
+Integration check 2026-11-17: the four entries are the only migrations applied since 2026-11-14, and
+each one's stored statement equals its repo file once comments and whitespace are removed (md5
+compared). Readers of the filled `frequency_rank`: `selection_vocab_ability` (moves by ≤ 0.02 Zipf),
+`bkt_infer_from_frequency` (can raise low-evidence rows upward), `calibration_anchor_pool` (picks the
+words up on its next manual refresh). See [[decisions/ADR-047-basic-word-knowledge-prior]].
 
 ---
 

@@ -41,8 +41,9 @@ function renderOptions(d) {
     .map(
       (o, i) =>
         `<button type="button" class="ct-option" data-idx="${i}">` +
-        `<div class="ct-option-text">${escapeHtml(o.text)}</div>` +
-        `<div class="ct-option-reading">${escapeHtml(o.reading)}</div>` +
+        `<span class="ct-option-key" aria-hidden="true">${i + 1}</span>` +
+        `<span class="ct-option-text" lang="ja">${escapeHtml(o.text)}</span>` +
+        `<span class="ct-option-reading" lang="ja">${escapeHtml(o.reading)}</span>` +
         `</button>`
     )
     .join('');
@@ -173,6 +174,7 @@ export const COUNTER = {
 
     el.fbCanonical.textContent =
       (isCorrect ? '✓ ' : '✕ ') + (item.noun_lemma || '') + 'を一' + canonical;
+    el.feedback.classList.toggle('is-ok', !!isCorrect);
     el.fbReading.textContent = reading;
     el.fbGroup.textContent = item.semantic_label || '';
 
@@ -224,74 +226,86 @@ export const COUNTER = {
     el.resultsElo.style.display = '';
   },
 
+  // One task screen (FOUNDATION.md): progress strip, prompt and answers in the
+  // scrolling stage, feedback / Check / results actions in the pinned dock.
+  // Styles: static/css/redesign/trainers.css (.drill-player).
   pageMarkup: `
-<div id="ctHeader" class="ct-header py-3 px-3 px-md-4 flex items-center justify-between gap-2" style="display:none;">
-    <div class="ct-header-left">
-        <a href="/tests" class="text-slate-500 hover:text-slate-700" aria-label="Home" style="font-size: 1.1rem; line-height: 1;">&larr;</a>
-        <h1 class="text-base font-semibold" data-i18n="counter_drill.title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Counters</h1>
-    </div>
-    <div class="ct-header-right">
-        <div class="text-sm text-slate-500" style="white-space: nowrap;"><span id="ctProgressLabel">0</span> / <span id="ctProgressTotal">0</span></div>
-    </div>
-    <div class="ct-header-controls">
-        <div class="ct-mode-toggle" id="ctModeToggle">
-            <button type="button" data-mode="mc" class="active" data-i18n="counter_drill.mode_mc">Choose</button>
-            <button type="button" data-mode="type" data-i18n="counter_drill.mode_type">Type</button>
+<div class="ld-screen drill-player drill-player--ct">
+<div id="ctHeader" class="ct-header drill-strip" style="display:none;">
+    <div class="drill-strip__row">
+        <div class="ld-seg ct-mode-toggle drill-modes" id="ctModeToggle">
+            <button type="button" data-mode="mc" class="active" aria-pressed="true" data-i18n="counter_drill.mode_mc">Choose</button>
+            <button type="button" data-mode="type" aria-pressed="false" data-i18n="counter_drill.mode_type">Type</button>
+        </div>
+        <div class="drill-count">
+            <span class="drill-count__n"><span id="ctProgressLabel">0</span> / <span id="ctProgressTotal">0</span></span>
         </div>
     </div>
-    <div class="ct-progress-bar"><div class="ct-progress-fill" id="ctProgressFill"></div></div>
+    <div class="ld-bar drill-bar"><i class="ct-progress-fill" id="ctProgressFill"></i></div>
 </div>
 
-<div id="ctLoading" class="text-center py-20 text-slate-500" data-i18n="counter_drill.loading">Loading…</div>
+<div class="ld-stage drill-stage">
+    <div id="ctLoading" class="drill-msg" data-i18n="counter_drill.loading">Loading…</div>
 
-<div id="ctEmpty" class="ct-empty" style="display:none;">
-    <p data-i18n="counter_drill.empty">No counter items are available yet.</p>
+    <div id="ctEmpty" class="ct-empty drill-msg" style="display:none;">
+        <p data-i18n="counter_drill.empty">No counter items are available yet.</p>
+    </div>
+
+    <div id="ctStage" class="ct-stage" style="display:none;">
+        <div class="ct-prompt" id="ctPromptWrap" lang="ja">
+            <span id="ctNoun"></span>
+            <span>を</span>
+            <span id="ctNumeral">一</span>
+            <span class="ct-blank" id="ctPromptBlank">_</span>
+        </div>
+        <div class="ct-reading" id="ctReading" lang="ja"></div>
+        <div class="ct-gloss" id="ctGloss"></div>
+
+        <div class="ct-options" id="ctOptions" style="display:none;"></div>
+
+        <form id="ctTypedForm" style="display:none;" autocomplete="off">
+            <input id="ctTypedInput" type="text" class="ct-typed-input" maxlength="3"
+                   inputmode="text" autocapitalize="off" autocorrect="off" spellcheck="false" lang="ja"
+                   data-i18n-placeholder="counter_drill.typed_placeholder"
+                   aria-label="助数詞"
+                   placeholder="助数詞" />
+            <div class="ct-typed-hint" data-i18n="counter_drill.typed_hint">Press Enter to check</div>
+        </form>
+    </div>
+
+    <div id="ctResults" class="ct-results drill-results" style="display:none;">
+        <div class="drill-results__score">
+            <div class="ct-results-grade" id="ctResultsGrade" aria-hidden="true">🎯</div>
+            <div class="ct-results-pct"><span id="ctResultsPct">0</span>%</div>
+        </div>
+        <div class="ct-results-stats">
+            <div><strong id="ctResultsCorrect">0</strong> / <span id="ctResultsTotal">0</span> <span data-i18n="counter_drill.results_counters">counters</span></div>
+            <div><strong id="ctResultsTime">0</strong>s</div>
+        </div>
+        <div class="ct-results-elo-badge ld-tag ld-tag--info" id="ctResultsElo" style="display:none;"></div>
+    </div>
 </div>
 
-<div id="ctStage" class="ct-stage" style="display:none;">
-    <div class="ct-prompt" id="ctPromptWrap">
-        <span id="ctNoun"></span>
-        <span>を</span>
-        <span id="ctNumeral">一</span>
-        <span class="ct-blank" id="ctPromptBlank">_</span>
+<div class="ld-dock drill-dock">
+    <div id="ctFeedback" class="ct-feedback drill-feedback" role="region" aria-live="polite">
+        <div class="ct-feedback-card drill-feedback__card">
+            <div class="ct-feedback-canonical" id="ctFeedbackCanonical" lang="ja"></div>
+            <div class="ct-feedback-reading" id="ctFeedbackReading" lang="ja"></div>
+            <div class="ct-feedback-group" id="ctFeedbackGroup"></div>
+            <div class="ct-feedback-numerals" id="ctFeedbackNumerals" lang="ja"></div>
+            <div class="ct-feedback-alts" id="ctFeedbackAlts"></div>
+        </div>
+        <button type="button" class="ct-feedback-cta ld-btn" id="ctFeedbackContinue" data-i18n="counter_drill.feedback_continue">Continue</button>
     </div>
-    <div class="ct-reading" id="ctReading"></div>
-    <div class="ct-gloss" id="ctGloss"></div>
-
-    <div class="ct-options" id="ctOptions" style="display:none;"></div>
-
-    <form id="ctTypedForm" style="display:none;" autocomplete="off">
-        <input id="ctTypedInput" type="text" class="ct-typed-input" maxlength="3"
-               inputmode="text" autocapitalize="off" autocorrect="off" spellcheck="false"
-               data-i18n-placeholder="counter_drill.typed_placeholder"
-               placeholder="助数詞" />
-        <div class="ct-typed-hint" data-i18n="counter_drill.typed_hint">Press Enter to check</div>
-    </form>
-</div>
-
-<div id="ctFeedback" class="ct-feedback" role="dialog" aria-modal="true">
-    <div class="ct-feedback-card">
-        <div class="ct-feedback-canonical" id="ctFeedbackCanonical"></div>
-        <div class="ct-feedback-reading" id="ctFeedbackReading"></div>
-        <div class="ct-feedback-group" id="ctFeedbackGroup"></div>
-        <div class="ct-feedback-numerals" id="ctFeedbackNumerals"></div>
-        <div class="ct-feedback-alts" id="ctFeedbackAlts"></div>
-        <button class="ct-feedback-cta" id="ctFeedbackContinue" data-i18n="counter_drill.feedback_continue">Continue</button>
+    <button type="submit" form="ctTypedForm" class="ld-btn drill-check" id="ctCheck" hidden data-trk="trainers.check">Check</button>
+    <p class="ld-hint drill-hint" id="ctHint" data-trk="trainers.drill_tap_hint">Tap an answer.</p>
+    <div class="drill-results-actions">
+        <div class="ld-row ct-results-actions">
+            <button type="button" class="ct-feedback-cta ld-btn ld-btn--ghost" id="ctResultsNext" data-i18n="counter_drill.results_next">Next round</button>
+            <button type="button" class="ct-feedback-cta ld-btn" id="ctResultsExit" data-i18n="counter_drill.results_exit">Done</button>
+        </div>
     </div>
 </div>
-
-<div id="ctResults" class="ct-results" style="display:none;">
-    <div class="ct-results-grade" id="ctResultsGrade">🎯</div>
-    <div class="ct-results-pct"><span id="ctResultsPct">0</span>%</div>
-    <div class="ct-results-stats">
-        <div><strong id="ctResultsCorrect">0</strong> / <span id="ctResultsTotal">0</span> <span data-i18n="counter_drill.results_counters">counters</span></div>
-        <div><strong id="ctResultsTime">0</strong>s</div>
-    </div>
-    <div class="ct-results-elo-badge" id="ctResultsElo" style="display:none;"></div>
-    <div class="ct-results-actions">
-        <button class="ct-feedback-cta" id="ctResultsNext" data-i18n="counter_drill.results_next">Next round</button>
-        <button class="ct-feedback-cta" id="ctResultsExit" style="background: var(--bg-page); color: var(--text-primary);" data-i18n="counter_drill.results_exit">Done</button>
-    </div>
 </div>
 `,
 };

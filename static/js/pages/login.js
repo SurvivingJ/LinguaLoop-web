@@ -19,7 +19,14 @@
   function showError(message) {
     errorMessage.textContent = message;
     errorAlert.classList.remove('d-none');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // The auth shell scrolls <main>, not the window (css/redesign/auth.css).
+    const reduce =
+      window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const behavior = reduce ? 'auto' : 'smooth';
+    const scroller = document.getElementById('main-content');
+    if (scroller && typeof scroller.scrollTo === 'function')
+      scroller.scrollTo({ top: 0, behavior });
+    window.scrollTo({ top: 0, behavior });
   }
 
   function hideError() {
@@ -249,24 +256,32 @@
     }
   });
 
-  // Build standalone language switcher (no navbar on login page)
+  // Build standalone language switcher (no app bar on the login page):
+  // one flag chip per UI language; aria-pressed marks the current one.
   (function setupLoginLangSwitcher() {
     const container = document.getElementById('loginLangSwitcher');
     if (!container) return;
     const langs = LinguaI18n.SUPPORTED_LANGS;
     const current = LinguaI18n.currentLanguage();
+    function mark(active) {
+      container.querySelectorAll('button').forEach(function (b) {
+        const on = b === active;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
     Object.keys(langs).forEach(function (code) {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'btn btn-outline-secondary' + (code === current ? ' active' : '');
+      btn.className = 'ld-chip auth__flag' + (code === current ? ' active' : '');
+      btn.setAttribute('aria-pressed', code === current ? 'true' : 'false');
+      btn.lang = code;
       btn.textContent = langs[code].flag;
       btn.title = langs[code].nativeName;
+      btn.setAttribute('aria-label', langs[code].nativeName);
       btn.addEventListener('click', function () {
         LinguaI18n.setLanguage(code);
-        container.querySelectorAll('.btn').forEach(function (b) {
-          b.classList.remove('active');
-        });
-        btn.classList.add('active');
+        mark(btn);
       });
       container.appendChild(btn);
     });

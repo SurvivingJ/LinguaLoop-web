@@ -3,7 +3,7 @@ title: Test Prestudy (tests as teaching material)
 type: feature
 status: in-progress
 tech_page: ./test-prestudy.tech.md (not yet written — pending the open questions below)
-last_updated: 2026-11-09
+last_updated: 2026-11-17
 demo: ../demos/test-prestudy-demo.html
 open_questions:
   - "ANSWERED 2026-10-29: ELO for a first attempt made after prestudy = reduced K with factor 0.5 (`test_attempts.prestudied = true`, `elo_reduction_factor = 0.5`, existing badge)."
@@ -13,6 +13,7 @@ open_questions:
   - "OPEN: lesson content spend. Per-sentence L1 translations and answer explanations for ~305 active tests at test-generation prices is roughly $3–10 total; needs approval before Phase 2."
   - "OPEN: may lesson mode show the test's own questions before the attempt? Recommendation: never; use `questions.pool_source = 'lab_expansion'` items (Listening Lab) as teaching checks and keep the originals for the attempt."
   - "ANSWERED 2026-10-30: Chinese reading input = toneless pinyin typed, then a per-syllable tone picker; inline tone numbers or marks also accepted. Alternatives considered: tone marks required (hard to type), hanzi via IME (tests writing, not reading), audio recording (no grader). Open follow-up: whether the pinyin trainer's per-character tone game should replace the picker for multi-character words."
+  - "OPEN 2026-11-17: how the app decides a learner already knows basic words (one shared prior for preview and evidence, default ability for uncalibrated learners, re-basing old rows, one knowledge row per meaning) — [[decisions/ADR-047-basic-word-knowledge-prior]] (proposed, owner sign-off pending; TASK-1004)."
   - "OPEN: whether Azure TTS audio can be segmented per sentence (word timestamps are not stored today). Without it, sentence-by-sentence listening falls back to whole-clip audio plus the text."
 ---
 
@@ -412,6 +413,92 @@ Built (repo; the ELO migration is not yet applied live):
   tests: Automatically / Ask me / Off" on the Study Plan's Daily session card
   (`user_study_plans.prestudy_mode`).
 
+### Fixes (2026-11-16): Produce only when possible, one gloss language per item, one unknown share
+
+- **Produce availability signal.** Produce needs a 2–4 sentence window whose sentences all have
+  approved references in the learner's reference language and clear the tightness floor; few
+  tests have one (measured 2026-11-16 with English references: 20 of 274 active zh tests, 28 of
+  83 ja). `services/prestudy.produce_available(db, test, l1)` answers
+  `choose_produce_window(db, test, l1, [], []) is not None` — the same function the produce route
+  uses (primed/missed words only rank windows, never decide whether one exists); any read failure
+  answers false. The reference language comes from `resolve_produce_l1(test_language, preferred)`
+  (the learner's definition language, English when unset or equal to the test language; none for
+  an English test), shared with the produce route.
+  - The prestudy payload (`GET /api/tests/<slug>/prestudy`) now carries `produce_available` and
+    `produce_l1_language_id`; it also returns `plan` (below).
+  - New `GET /api/tests/<slug>/prestudy/produce-available` (login required, test-level read only)
+    → `{produce_available, produce_l1_language_id}`; 404 for an unknown test.
+  - On "Take the test" the page stores `{ok, at}` in sessionStorage under
+    `prestudy_produce_ok:<slug>` (kept 6 h, separate from the "prestudied" marker that submit
+    clears). `renderResultActions` uses `o.produceAvailable` if passed, else that stored flag, else
+    one call to the route above — so the normal flow (prestudy then test in the same tab) makes no
+    extra request.
+  - Results screen: wrong answers → "Review the words you missed"; no wrong answers on a
+    prestudied attempt → "Translate a passage from this test" **only when Produce is available**,
+    otherwise just the half-weight note.
+  - Follow-up page: when Produce is unavailable step 3 is labelled "Done"
+    (`prestudy.step_done`), the Produce box/button are hidden, the round summary reads
+    `prestudy.next_finish`, and a `#psDone` button saves the answers and goes to the test preview
+    (from the daily session, "Back to today's session" is the primary button instead and no Produce
+    request is queued).
+  - `choose_produce_window` keeps sentence rows built from an older transcript, and placeholders
+    for missing indices, in the list as window breakers (they never count as referenced), so a
+    window can never straddle them and name a range the passage route refuses (409
+    `SENTENCES_STALE` / 422 `SENTENCES_MISSING`). Dual translation's `/next` uses the same rule.
+- **Option-set rule (word prime).** All options of one meaning item come from **one gloss
+  language** (`meaningOptions()` in `static/js/prestudy/prestudy.js`): the learner's gloss
+  language when the target has a gloss in it, otherwise the study language's own definitions for
+  the whole item; if fewer than two acceptable distractors exist in the first language the next is
+  tried, and the item is skipped if neither works. (About half of test-linked zh senses — 3,804 of
+  7,708 — have no English gloss; ja 98 of 1,829.) A distractor is rejected
+  (`plausibleMeaning()`) when it is the same word or one word contains the other (坐 / 坐在), when
+  the glosses are identical or overlap, or when either gloss names the other word. The passage
+  cloze rejects candidate words that could also fill the blank (`wordConfusable()`: containment,
+  or a plausible meaning in any gloss language both words have; a missing gloss is not a reason to
+  reject). Study-language options carry a `lang` attribute. This is a heuristic: synonyms whose
+  glosses share no words are not caught.
+- **One unknown-share definition.** `share_plan()` / `_p_known_fn()` in `services/prestudy.py` are
+  used by both the daily-session card (`plan_for_tests`) and the prestudy payload (`plan`); the
+  page's starting figure is `plan.unknown_share`. A reported 29% (card) vs 53% (page) gap was a
+  timing difference (a batch of knowledge rows was written between the two reads), not two
+  definitions. 是 / 都 / 有 / 不 show as new because `dim_vocabulary.frequency_rank` is NULL for
+  them (flat 0.3 prior) — a content gap (TASK-994).
+
+### Fixes (2026-11-17): basic-word frequencies, gloss level, one-tap return, tone marks
+- **Frequencies filled (TASK-994, applied 2026-11-17).** `migrations/task994_vocab_frequency_fill.sql`
+  filled `dim_vocabulary.frequency_rank` (a wordfreq 3.1.1 **Zipf score**, not a rank, from
+  `services/vocabulary/frequency_service.get_zipf_score`) on 770 rows that were NULL (zh 229, en 422,
+  ja 119). 76 stay NULL on purpose: 64 wordfreq cannot score (chengyu, rare technical words,
+  lemmatiser debris) and 12 Japanese compounds wordfreq scores from their parts with no compound
+  penalty (色ごと 4.77, みず 5.53). 是/都/有/不/很/人 are now 7.17/6.59/6.83/6.76/6.27/6.74.
+  Effect on the test account's previews: zh-d6 "my favorite t-shirt" unknown 70→69 (没有 0.30→0.98),
+  zh-d7 37→35, cn-d9 122→88, cn-d6 "how should saas" 46→26 (plan full→light). 是 0.41, 有 0.31,
+  都 0.16, 很 0.48, 好 0.10 **stay new for that account** because its own knowledge rows hold them
+  there (its answers look automated); a learner with no history now gets the high prior. The rule
+  itself — two different priors in the preview and in SQL, the 5.0 default ability, re-basing —
+  is [[decisions/ADR-047-basic-word-knowledge-prior]] (proposed).
+- **Gloss at the linked sense's level (INT-1, 2026-11-17).** Each meaning exists once per definition
+  level ('simple', 'standard') per definition language, all with the same `sense_rank`.
+  `services/prestudy._load_senses` keyed the cross-language gloss on (vocab_id, sense_rank), so the
+  level PostgREST returned last won, and when a test linked both levels only one got a gloss. It now
+  takes the gloss at the linked sense's own level, else standard, then simple
+  (`tests/test_prestudy_gloss_level.py`). Seen on the real app: 是 (sense 19871, standard) shows
+  "to be; used to say something is true or exists". Senses with no gloss in the learner's language at
+  all (e.g. 小猫) still show the study-language definition — a content gap.
+- **"Take the test" opens the test in one tap (TASK-993).** From a daily-session prestudy block (and
+  the test card's "Study first"), "Take the test" / "Skip and take the test" go to
+  `/session?resume=<slug>`; the follow-up's "Back to today's session" goes to
+  `/session?resume_after=<slug>`. `static/js/session/controller.js` reads the marker once, removes it
+  from the address bar, and skips the Today card only when the item Resume would open is that test
+  (`resume`) or comes right after that finished test (`resume_after`); anything else, and practice
+  mode, shows the Today card. The Back pill still returns to the Today card. Verified 2026-11-17:
+  Take the test on step 3 → the listening test running, Today card hidden, in 4.6 s.
+- **Tone marks only (TASK-999).** Chinese readings in the prestudy word list, popover, typed-reading
+  reveal, readiness table and definition-match note are tone-marked only (`zhShown` via
+  `window.LinguaPinyin`); the numbered half of a stored "mù tou (mu4 tou5)" is kept for grading.
+  After a missed typed reading, the reveal and the readiness table show "Type it as: mu4 tou5"
+  (`typeAs`), only when the grader accepts exactly that input.
+
 Still not built: lesson walkthrough (mode 3) and study-then-retry answer explanations (need the
 content spend), sentence-level audio, the dictation-mode preview variant.
 
@@ -447,4 +534,6 @@ and task breakdown can now be written.
 - [[features/dictation]] — same passages, productive mode
 - [[features/vocabulary-knowledge]] — the BKT evidence prestudy writes
 - [[pages/study-session]] — where the prestudy block would sit
+- [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 prestudy fixes (TASK-992–995, TASK-1004)
+- [[decisions/ADR-047-basic-word-knowledge-prior]] — how basic words are judged known (proposed)
 - [[database/schema.tech]] — `tests.vocab_token_map`, `questions.sense_ids`, `test_attempts`

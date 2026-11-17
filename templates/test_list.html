@@ -3,115 +3,92 @@
 
 {% block title %}Browse Tests - LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50 test-list-page{% endblock %}
+{# 2026-11 redesign: a normal app page (app bar + Tests tab on phones). Layout
+   and styles: static/css/redesign/tests.css section 3 (.tl-page). #}
+{% block body_class %}bg-slate-50 tests-browse-page{% endblock %}
 
 {% block extra_css %}
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-3 px-md-4">
-    
+<div class="tl-page">
+
     <!-- Page Header -->
-    <div class="mb-4 d-flex flex-wrap align-items-start justify-content-between gap-3">
+    <div class="tl-title-row">
         <div>
-            <h1 class="mb-1" data-i18n="test_list.title">Browse Tests</h1>
-            <p class="text-slate-600 mb-0" data-i18n="test_list.subtitle">Select a test to practice and improve your language skills</p>
+            <h1 class="ld-h1 mb-0" data-i18n="test_list.title">Browse Tests</h1>
+            <p class="ld-small ld-muted" data-i18n="test_list.subtitle">Select a test to practice and improve your language skills</p>
         </div>
-        <!-- Daily session entry point (Phase 13) -->
-        <a href="/session" class="btn btn-primary btn-lg">
-            <i class="fa-solid fa-play me-2"></i><span data-i18n="session.cta">Start today's session</span>
+        <!-- Daily session entry point (Phase 13); phones have the Today tab. -->
+        <a href="/session" class="ld-btn ld-btn--sm ld-wide-only">
+            <i class="fa-solid fa-play me-1" aria-hidden="true"></i><span data-i18n="session.cta">Start today's session</span>
         </a>
     </div>
-    
-    <!-- Daily Test Load Section -->
-    <div class="daily-load-section mb-4" id="dailyLoadSection" style="display: none;">
-        <div class="daily-load-header">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h2 class="h5 mb-1">
-                        <i class="fa-solid fa-calendar-day me-2"></i>
-                        Today's Test Load
-                    </h2>
-                    <p class="text-slate-500 mb-0 small">Your personalized tests for today</p>
-                </div>
-                <div class="daily-progress" id="dailyProgress">
-                    <span class="progress-text" id="dailyProgressText">0/3</span>
-                    <div class="progress-bar-daily">
-                        <div class="progress-bar-fill" id="dailyProgressBar" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="daily-load-grid" id="dailyLoadGrid">
+    <!-- Daily Test Load Section -->
+    <section class="daily-load-section" id="dailyLoadSection" style="display: none;" aria-labelledby="dailyLoadTitle">
+        <div class="ld-sech daily-load-header">
+            <div>
+                <h2 class="ld-h2 mb-0" id="dailyLoadTitle" data-tl-t="test_list.daily_title">Today’s Test Load</h2>
+                <p class="ld-small ld-muted mb-0" data-tl-t="test_list.daily_subtitle">Your personalized tests for today</p>
+            </div>
+            <span class="ld-small ld-num tl-daily-count progress-text" id="dailyProgressText">0/3</span>
+        </div>
+        <div class="ld-bar daily-progress" id="dailyProgress" aria-hidden="true">
+            <i class="progress-bar-fill" id="dailyProgressBar" style="width: 0%"></i>
+        </div>
+        <div class="tl-hrow daily-load-grid" id="dailyLoadGrid">
             <!-- Populated by JavaScript -->
         </div>
-    </div>
+    </section>
 
-    <div class="suggested-section mb-4">
-        <div class="suggested-header">
-            <h2 class="h6 mb-3" data-i18n="test_list.recommended">Recommended for You</h2>
+    <section class="suggested-section" aria-labelledby="recommendedTitle">
+        <div class="ld-sech suggested-header">
+            <h2 class="ld-h2 mb-0" id="recommendedTitle" data-i18n="test_list.recommended">Recommended for You</h2>
         </div>
-        
-        <div class="suggested-grid">
-            <!-- 3 Suggested Test Cards (Placeholder) -->
-            <div class="suggested-card skeleton-card">
-                <div class="skeleton-badge"></div>
-                <div class="skeleton-title"></div>
-                <div class="skeleton-meta"></div>
-                <div class="skeleton-button"></div>
-            </div>
-            <div class="suggested-card skeleton-card">
-                <div class="skeleton-badge"></div>
-                <div class="skeleton-title"></div>
-                <div class="skeleton-meta"></div>
-                <div class="skeleton-button"></div>
-            </div>
-            <div class="suggested-card skeleton-card">
-                <div class="skeleton-badge"></div>
-                <div class="skeleton-title"></div>
-                <div class="skeleton-meta"></div>
-                <div class="skeleton-button"></div>
-            </div>
-            
+
+        <div class="tl-hrow suggested-grid">
+            <!-- Placeholders until the recommendations arrive -->
+            <div class="tl-pick tl-skel skeleton-card" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="tl-pick tl-skel skeleton-card" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="tl-pick tl-skel skeleton-card" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
             <!-- Random Test Button Card -->
-            <div class="suggested-card random-card">
-                <button type="button" 
-                        class="random-test-btn" 
-                        id="randomTestBtn"
-                        onclick="getRandomTest()">
-                    <div class="random-icon">
-                        <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855-.143.268-.276.56-.395.872.705.157 1.472.257 2.282.287V1.077zM4.249 3.539c.142-.384.304-.744.481-1.078a6.7 6.7 0 0 1 .597-.933A7.01 7.01 0 0 0 3.051 3.05c.362.184.763.349 1.198.49zM3.509 7.5c.036-1.07.188-2.087.436-3.008a9.124 9.124 0 0 1-1.565-.667A6.964 6.964 0 0 0 1.018 7.5h2.49zm1.4-2.741a12.344 12.344 0 0 0-.4 2.741H7.5V5.091c-.91-.03-1.783-.145-2.591-.332zM8.5 5.09V7.5h2.99a12.342 12.342 0 0 0-.399-2.741c-.808.187-1.681.301-2.591.332zM4.51 8.5c.035.987.176 1.914.399 2.741A13.612 13.612 0 0 1 7.5 10.91V8.5H4.51zm3.99 0v2.409c.91.03 1.783.145 2.591.332.223-.827.364-1.754.4-2.741H8.5zm-3.282 3.696c.12.312.252.604.395.872.552 1.035 1.218 1.65 1.887 1.855V11.91c-.81.03-1.577.13-2.282.287zm.11 2.276a6.696 6.696 0 0 1-.598-.933 8.853 8.853 0 0 1-.481-1.079 8.38 8.38 0 0 0-1.198.49 7.01 7.01 0 0 0 2.276 1.522zm-1.383-2.964A13.36 13.36 0 0 1 3.508 8.5h-2.49a6.963 6.963 0 0 0 1.362 3.675c.47-.258.995-.482 1.565-.667zm6.728 2.964a7.009 7.009 0 0 0 2.275-1.521 8.376 8.376 0 0 0-1.197-.49 8.853 8.853 0 0 1-.481 1.078 6.688 6.688 0 0 1-.597.933zM8.5 11.909v3.014c.67-.204 1.335-.82 1.887-1.855.143-.268.276-.56.395-.872A12.63 12.63 0 0 0 8.5 11.91zm3.555-.401c.57.185 1.095.409 1.565.667A6.963 6.963 0 0 0 14.982 8.5h-2.49a13.36 13.36 0 0 1-.437 3.008zM14.982 7.5a6.963 6.963 0 0 0-1.362-3.675c-.47.258-.995.482-1.565.667.248.92.4 1.938.437 3.008h2.49zM11.27 2.461c.177.334.339.694.482 1.078a8.368 8.368 0 0 0 1.196-.49 7.01 7.01 0 0 0-2.275-1.52c.218.283.418.597.597.932zm-.488 1.343a7.765 7.765 0 0 0-.395-.872C9.835 1.897 9.17 1.282 8.5 1.077V4.09c.81-.03 1.577-.13 2.282-.287z"/>
-                        </svg>
-                    </div>
-                    <span class="random-text" data-i18n="test_list.surprise">Surprise Me!</span>
-                    <span class="random-subtext" data-i18n="test_list.random_hint">Get a random test at your level</span>
-                </button>
-            </div>
+            <button type="button" class="tl-pick tl-surprise random-card random-test-btn" id="randomTestBtn">
+                <span class="random-icon" aria-hidden="true">
+                    <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855-.143.268-.276.56-.395.872.705.157 1.472.257 2.282.287V1.077zM4.249 3.539c.142-.384.304-.744.481-1.078a6.7 6.7 0 0 1 .597-.933A7.01 7.01 0 0 0 3.051 3.05c.362.184.763.349 1.198.49zM3.509 7.5c.036-1.07.188-2.087.436-3.008a9.124 9.124 0 0 1-1.565-.667A6.964 6.964 0 0 0 1.018 7.5h2.49zm1.4-2.741a12.344 12.344 0 0 0-.4 2.741H7.5V5.091c-.91-.03-1.783-.145-2.591-.332zM8.5 5.09V7.5h2.99a12.342 12.342 0 0 0-.399-2.741c-.808.187-1.681.301-2.591.332zM4.51 8.5c.035.987.176 1.914.399 2.741A13.612 13.612 0 0 1 7.5 10.91V8.5H4.51zm3.99 0v2.409c.91.03 1.783.145 2.591.332.223-.827.364-1.754.4-2.741H8.5zm-3.282 3.696c.12.312.252.604.395.872.552 1.035 1.218 1.65 1.887 1.855V11.91c-.81.03-1.577.13-2.282.287zm.11 2.276a6.696 6.696 0 0 1-.598-.933 8.853 8.853 0 0 1-.481-1.079 8.38 8.38 0 0 0-1.198.49 7.01 7.01 0 0 0 2.276 1.522zm-1.383-2.964A13.36 13.36 0 0 1 3.508 8.5h-2.49a6.963 6.963 0 0 0 1.362 3.675c.47-.258.995-.482 1.565-.667zm6.728 2.964a7.009 7.009 0 0 0 2.275-1.521 8.376 8.376 0 0 0-1.197-.49 8.853 8.853 0 0 1-.481 1.078 6.688 6.688 0 0 1-.597.933zM8.5 11.909v3.014c.67-.204 1.335-.82 1.887-1.855.143-.268.276-.56.395-.872A12.63 12.63 0 0 0 8.5 11.91zm3.555-.401c.57.185 1.095.409 1.565.667A6.963 6.963 0 0 0 14.982 8.5h-2.49a13.36 13.36 0 0 1-.437 3.008zM14.982 7.5a6.963 6.963 0 0 0-1.362-3.675c-.47.258-.995.482-1.565.667.248.92.4 1.938.437 3.008h2.49zM11.27 2.461c.177.334.339.694.482 1.078a8.368 8.368 0 0 0 1.196-.49 7.01 7.01 0 0 0-2.275-1.52c.218.283.418.597.597.932zm-.488 1.343a7.765 7.765 0 0 0-.395-.872C9.835 1.897 9.17 1.282 8.5 1.077V4.09c.81-.03 1.577-.13 2.282-.287z"/>
+                    </svg>
+                </span>
+                <span class="random-text" data-i18n="test_list.surprise">Surprise Me!</span>
+                <span class="random-subtext" data-i18n="test_list.random_hint">Get a random test at your level</span>
+            </button>
         </div>
-    </div>
+    </section>
 
     <!-- Filter Section -->
-    <div class="filter-section">
-        <h2 class="h6 mb-3" data-i18n="test_list.filter">Filter Tests</h2>
-        
-        <form id="filter-form" class="filter-row">
+    <section class="filter-section" aria-labelledby="filterTitle">
+        <div class="ld-sech">
+            <h2 class="ld-h2 mb-0" id="filterTitle" data-i18n="test_list.filter">Filter Tests</h2>
+            <button type="button" class="ld-link" data-tl-reset data-i18n="test_list.reset">Reset</button>
+        </div>
+
+        <form id="filter-form" class="tl-filters filter-row">
             <!-- Test Type Filter -->
             <div>
                 <label for="test-type" class="filter-label" data-i18n="test_list.test_type">Test Type</label>
-                <select id="test-type" name="test_type" class="form-select" onchange="applyFilters()">
+                <select id="test-type" name="test_type" class="form-select">
                     <option value="" data-i18n="test_list.all_types">All Types</option>
                     <option value="reading" data-i18n="test_list.reading">📖 Reading</option>
                     <option value="listening" data-i18n="test_list.listening">🎧 Listening</option>
                     <option value="dictation" data-i18n="test_list.dictation">⌨️ Dictation</option>
                 </select>
             </div>
-            
+
             <!-- Difficulty Filter -->
             <div>
                 <label for="difficulty" class="filter-label" data-i18n="test_list.difficulty">Difficulty</label>
-                <select id="difficulty" name="difficulty" class="form-select" onchange="applyFilters()">
+                <select id="difficulty" name="difficulty" class="form-select">
                     <option value="" data-i18n="test_list.all_levels">All Levels</option>
                     <option value="T1" data-i18n="difficulty.tier1">Toddler (4–5)</option>
                     <option value="T2" data-i18n="difficulty.tier2">Primary school (8–9)</option>
@@ -121,69 +98,48 @@
                     <option value="T6" data-i18n="difficulty.tier6">Professional (30+)</option>
                 </select>
             </div>
-            
-            <!-- Reset Button -->
-            <div>
-                <button type="button" class="btn btn-secondary" onclick="resetFilters()" data-i18n="test_list.reset">
-                    Reset
-                </button>
-            </div>
         </form>
-        
+
         <!-- Language Chip (if selected) -->
         {% if selected_language %}
-        <div class="mt-3 d-inline-block">
-            <span style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--selected-bg); color: var(--primary); padding: 0.5rem 0.75rem; border-radius: 20px; font-weight: 600; border: 1px solid var(--primary);">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
-                </svg>
-                {{ selected_language | upper }}
-            </span>
-        </div>
+        <span class="ld-chip tl-lang-chip">
+            <i class="fa-solid fa-play" aria-hidden="true"></i>
+            {{ selected_language | upper }}
+        </span>
         {% endif %}
-    </div>
-    
+    </section>
+
     <!-- Tests Grid/Loading/Error States -->
-    <div id="content-area">
+    <div id="content-area" aria-live="polite">
         <!-- Loading State -->
-        <div id="loading-state" class="loading-spinner d-none">
-            <div class="spinner"></div>
+        <div id="loading-state" class="tl-loading loading-spinner d-none">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden" data-i18n="common.loading">Loading...</span></div>
         </div>
-        
+
         <!-- Error State -->
         <div id="error-state" class="d-none">
-            <div class="alert alert-danger" role="alert">
-                <div class="d-flex align-items-center gap-3">
-                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0l-5.708 9.7a1.13 1.13 0 0 0 .98 1.733h11.396a1.13 1.13 0 0 0 .98-1.732L8.982 1.566zM8 5a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 5zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
-                    </svg>
-                    <div>
-                        <strong data-i18n="test_list.error_title">Error Loading Tests</strong>
-                        <p id="error-message" class="mb-0 mt-2" data-i18n="test_list.error_default">Failed to load tests. Please try again.</p>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-sm btn-danger mt-3" onclick="loadTests()">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                    </svg>
+            <div class="ld-note ld-note--bad ld-col" role="alert">
+                <b data-i18n="test_list.error_title">Error Loading Tests</b>
+                <p id="error-message" class="mb-0" data-i18n="test_list.error_default">Failed to load tests. Please try again.</p>
+                <button type="button" class="ld-btn ld-btn--sm align-self-start" data-tl-retry>
+                    <i class="fas fa-redo" aria-hidden="true"></i>
                     <span data-i18n="test_list.retry">Retry</span>
                 </button>
             </div>
         </div>
-        
+
         <!-- Empty State -->
         <div id="empty-state" class="d-none">
-            <div class="empty-state">
-                <div class="empty-state-icon">📚</div>
-                <h2 class="h5 text-slate-900" data-i18n="test_list.no_tests">No Tests Found</h2>
-                <p class="text-slate-600 mb-3" data-i18n="test_list.no_tests_hint">Try adjusting your filters or check back later for new tests.</p>
-                <button type="button" class="btn btn-secondary" onclick="resetFilters()" data-i18n="test_list.clear_filters">
+            <div class="ld-card tl-empty">
+                <div class="tl-empty__icon" aria-hidden="true">📚</div>
+                <h2 class="ld-h2 mb-0" data-i18n="test_list.no_tests">No Tests Found</h2>
+                <p class="ld-small ld-muted mb-1" data-i18n="test_list.no_tests_hint">Try adjusting your filters or check back later for new tests.</p>
+                <button type="button" class="ld-btn ld-btn--sm" data-tl-reset data-i18n="test_list.clear_filters">
                     Clear Filters
                 </button>
             </div>
         </div>
-        
+
         <!-- Tests Grid -->
         <div id="tests-grid" class="test-grid"></div>
     </div>

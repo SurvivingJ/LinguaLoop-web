@@ -2,107 +2,101 @@
 {% set defer_base_scripts = true %}
 
 {% set hide_navbar = true %}
+{% set hide_footer = true %}
 
 {% block title %}Welcome - LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50{% endblock %}
+{# ld-auth: one-screen shell (static/css/redesign/auth.css). <main> is the
+   scrolling stage; the Get Started dock below it stays pinned. #}
+{% block body_class %}bg-slate-50 ld-auth{% endblock %}
+{% block main_class %}ld-auth-main{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/onboarding.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="welcome-page">
-    <div class="welcome-container">
-        <!-- Header -->
-        <div class="welcome-header">
-            <span class="welcome-icon">🎓</span>
-            <h1 class="logo mb-2" data-i18n="onboarding.welcome">Welcome to LinguaDojo</h1>
-            <p class="text-muted mb-0" data-i18n="onboarding.tagline">Master any language with active practice</p>
-        </div>
+<div class="auth welcome-page">
+    <!-- Header -->
+    <div class="welcome-header">
+        <p class="ld-eyebrow"><span class="welcome-icon" aria-hidden="true">🎓</span> <span data-i18n="onboarding.welcome">Welcome to LinguaDojo</span></p>
+        <h1 class="ld-h1" data-i18n="onboarding.tagline">Master any language with active practice</h1>
+    </div>
 
-        <!-- What LinguaDojo Does -->
-        <div class="info-section">
-            <h3 data-i18n="onboarding.what_title">What LinguaDojo Does</h3>
-            <ul>
-                <li data-i18n="onboarding.what_1">Improve foreign language skills through short, active exercises instead of passive study</li>
-                <li data-i18n="onboarding.what_2">Answer focused comprehension tests designed for translators, exam preparation, and serious learners</li>
-                <li data-i18n="onboarding.what_3">Each test is calibrated with an ELO rating so you are matched with challenges that fit your level</li>
-            </ul>
-        </div>
+    <!-- What LinguaDojo Does -->
+    <section class="ld-card info-section">
+        <h2 class="welcome-card-title" data-i18n="onboarding.what_title">What LinguaDojo Does</h2>
+        <ul class="welcome-list">
+            <li data-i18n="onboarding.what_1">Improve foreign language skills through short, active exercises instead of passive study</li>
+            <li data-i18n="onboarding.what_2">Answer focused comprehension tests designed for translators, exam preparation, and serious learners</li>
+            <li data-i18n="onboarding.what_3">Each test is calibrated with an ELO rating so you are matched with challenges that fit your level</li>
+        </ul>
+    </section>
 
-        <!-- Feature Cards -->
-        <div class="row g-3 mt-2">
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon report">
-                        <i class="fas fa-flag"></i>
-                    </div>
-                    <h5 data-i18n="onboarding.report_title">Report Button</h5>
-                    <p class="text-muted mb-0" data-i18n="onboarding.report_desc">Use the flag icon to report issues, bad translations, or suggest improvements. Your feedback helps improve test quality for everyone.</p>
-                </div>
+    <!-- Native Language Picker -->
+    <section class="native-language-section">
+        <h2 class="welcome-card-title" id="nativeLanguageHeading" data-i18n="onboarding.native_title">What's your native language?</h2>
+        <p class="ld-small ld-muted native-language-desc" data-i18n="onboarding.native_desc">We'll use this to show translations in a language you already know. You can change it anytime from your profile.</p>
+        <div class="native-language-options ld-stats" role="radiogroup" aria-labelledby="nativeLanguageHeading">
+            <div class="native-language-card ld-stat" data-id="1" role="radio" tabindex="0" aria-checked="false">
+                <span class="nl-flag" aria-hidden="true">🇨🇳</span>
+                <span class="nl-name" lang="zh">中文</span>
+                <i class="fas fa-check-circle nl-check" aria-hidden="true"></i>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon profile">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <h5 data-i18n="onboarding.profile_title">Profile</h5>
-                    <p class="text-muted mb-0" data-i18n="onboarding.profile_desc">View your ELO rating, track progress over time, and see your test history. Watch how your skills improve with practice.</p>
-                </div>
+            <div class="native-language-card ld-stat" data-id="2" role="radio" tabindex="0" aria-checked="false">
+                <span class="nl-flag" aria-hidden="true">🇺🇸</span>
+                <span class="nl-name" lang="en">English</span>
+                <i class="fas fa-check-circle nl-check" aria-hidden="true"></i>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon language">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <h5 data-i18n="onboarding.lang_title">Language Selector</h5>
-                    <p class="text-muted mb-0" data-i18n="onboarding.lang_desc">Switch the site interface language to navigate in your preferred language. More interface languages coming soon.</p>
-                </div>
+            <div class="native-language-card ld-stat" data-id="3" role="radio" tabindex="0" aria-checked="false">
+                <span class="nl-flag" aria-hidden="true">🇯🇵</span>
+                <span class="nl-name" lang="ja">日本語</span>
+                <i class="fas fa-check-circle nl-check" aria-hidden="true"></i>
             </div>
         </div>
+    </section>
 
-        <!-- How Tests Work -->
-        <div class="info-section">
-            <h3 data-i18n="onboarding.how_title">How Tests Work</h3>
-            <ul>
-                <li data-i18n-html="onboarding.how_1_html">Choose between <strong>listening</strong> tests (audio first, transcript shown after) or <strong>reading</strong> tests (text on screen from the start)</li>
-                <li data-i18n="onboarding.how_2">Each test has 5 multiple-choice questions with 4 options, giving you clear, targeted feedback</li>
-                <li data-i18n="onboarding.how_3">As you complete tests, LinguaDojo adapts to your level and recommends material that fits your ability</li>
-            </ul>
+    <!-- Find your way around: Report, Profile, Language selector -->
+    <div class="ld-rowlist welcome-features">
+        <div class="ld-trow feature-card">
+            <span class="ld-trow__glyph feature-icon report" aria-hidden="true"><i class="fas fa-flag"></i></span>
+            <span class="ld-trow__mid">
+                <b data-i18n="onboarding.report_title">Report Button</b>
+                <small data-i18n="onboarding.report_desc">Use the flag icon to report issues, bad translations, or suggest improvements. Your feedback helps improve test quality for everyone.</small>
+            </span>
         </div>
-
-        <!-- Native Language Picker -->
-        <div class="info-section">
-            <h3 data-i18n="onboarding.native_title">What's your native language?</h3>
-            <p class="text-muted" data-i18n="onboarding.native_desc">We'll use this to show translations in a language you already know. You can change it anytime from your profile.</p>
-            <div class="native-language-options" role="radiogroup" aria-label="Native language">
-                <div class="native-language-card" data-id="1" role="radio" tabindex="0" aria-checked="false">
-                    <span class="nl-flag">🇨🇳</span>
-                    <span class="nl-name">中文</span>
-                    <i class="fas fa-check-circle nl-check"></i>
-                </div>
-                <div class="native-language-card" data-id="2" role="radio" tabindex="0" aria-checked="false">
-                    <span class="nl-flag">🇺🇸</span>
-                    <span class="nl-name">English</span>
-                    <i class="fas fa-check-circle nl-check"></i>
-                </div>
-                <div class="native-language-card" data-id="3" role="radio" tabindex="0" aria-checked="false">
-                    <span class="nl-flag">🇯🇵</span>
-                    <span class="nl-name">日本語</span>
-                    <i class="fas fa-check-circle nl-check"></i>
-                </div>
-            </div>
+        <div class="ld-trow feature-card">
+            <span class="ld-trow__glyph feature-icon profile" aria-hidden="true"><i class="fas fa-user"></i></span>
+            <span class="ld-trow__mid">
+                <b data-i18n="onboarding.profile_title">Profile</b>
+                <small data-i18n="onboarding.profile_desc">View your ELO rating, track progress over time, and see your test history. Watch how your skills improve with practice.</small>
+            </span>
         </div>
-
-        <!-- Get Started Button -->
-        <div class="text-center mt-4">
-            <a href="/language-selection" id="get-started-btn" class="btn btn-primary get-started-btn">
-                <span data-i18n="onboarding.get_started">Get Started</span> <i class="fas fa-arrow-right ms-2"></i>
-            </a>
+        <div class="ld-trow feature-card">
+            <span class="ld-trow__glyph feature-icon language" aria-hidden="true"><i class="fas fa-globe"></i></span>
+            <span class="ld-trow__mid">
+                <b data-i18n="onboarding.lang_title">Language Selector</b>
+                <small data-i18n="onboarding.lang_desc">Switch the site interface language to navigate in your preferred language. More interface languages coming soon.</small>
+            </span>
         </div>
     </div>
+
+    <!-- How Tests Work -->
+    <section class="ld-card info-section">
+        <h2 class="welcome-card-title" data-i18n="onboarding.how_title">How Tests Work</h2>
+        <ul class="welcome-list">
+            <li data-i18n-html="onboarding.how_1_html">Choose between <strong>listening</strong> tests (audio first, transcript shown after) or <strong>reading</strong> tests (text on screen from the start)</li>
+            <li data-i18n="onboarding.how_2">Each test has 5 multiple-choice questions with 4 options, giving you clear, targeted feedback</li>
+            <li data-i18n="onboarding.how_3">As you complete tests, LinguaDojo adapts to your level and recommends material that fits your ability</li>
+        </ul>
+    </section>
 </div>
+{% endblock %}
+
+{% block dock %}
+<a href="/language-selection" id="get-started-btn" class="ld-btn get-started-btn">
+    <span data-i18n="onboarding.get_started">Get Started</span> <span aria-hidden="true">→</span>
+</a>
 {% endblock %}
 
 {% block extra_js %}

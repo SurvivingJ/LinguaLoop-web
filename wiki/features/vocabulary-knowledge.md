@@ -58,6 +58,7 @@ As a learner takes tests and completes exercises, the system silently builds a m
 - When FSRS records a lapse (user forgot a word), BKT applies a 20% p_known penalty.
 
 ## Related Pages
+- [[decisions/ADR-047-basic-word-knowledge-prior]] — proposed 2026-11-17: one frequency-and-ability prior for the preview and for new rows; frequency gaps filled
 
 - [[features/vocabulary-knowledge.tech]] — Technical details
 - [[features/comprehension-tests]] — Source of comprehension evidence

@@ -1,0 +1,1821 @@
+/* Redesign 2026-11 — trainers area.
+   Loaded on every page by templates/base.html, after styles.css.
+   Use the design tokens (--bg, --surface, --ink, --brand, ...) and the shared
+   .ld-* components documented in FOUNDATION.md; scope rules to this area's
+   page or player root so they cannot leak into other pages.
+
+   Covers (mockup sections "pinyin tone trainer", "pitch accent trainer",
+   "measure words / counters", "calibration"):
+     .trainer-host            a standalone page's mount point (fills <main>)
+     .syl-trainer             pinyin + pitch-accent players (session and page)
+       --pinyin / --pitch
+     .drill-player            measure-word + counter drills (session and page)
+       --cd / --ct
+     .cal-page                /calibration
+   Each screen is .ld-screen > strip + .ld-stage (the only thing that scrolls)
+   + .ld-dock (answers / Continue, pinned in the thumb zone). */
+
+/* ==================================================================
+   Page host
+   ================================================================== */
+.trainer-host {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.trainer-host > .ld-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* ==================================================================
+   Shared strip (progress / mode row above the stage)
+   ================================================================== */
+.syl-trainer .trainer-strip,
+.drill-player .drill-strip,
+.cal-page .drill-strip {
+  flex: none;
+  padding: 2px var(--ld-pad-r) 8px var(--ld-pad-l);
+}
+
+.drill-player .drill-strip,
+.cal-page .drill-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.syl-trainer .trainer-strip__row,
+.drill-player .drill-strip__row,
+.cal-page .drill-strip__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+
+.syl-trainer .trainer-bar {
+  margin-top: 8px;
+}
+
+.syl-trainer .trainer-title {
+  flex: 1 1 100%;
+  min-width: 0;
+  margin: 0;
+  font: 700 0.95rem/1.25 var(--f-display);
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The task header already names the test: keep the title for screen readers. */
+.syl-trainer.is-framed .trainer-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.syl-trainer .trainer-clock {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Header shows the clock in its right-hand slot when framed. */
+.syl-trainer.is-framed .trainer-clock {
+  display: none;
+}
+
+/* .ld-seg answers to the legacy .active class the scripts toggle. */
+.syl-trainer .ld-seg > button.active,
+.drill-player .ld-seg > button.active,
+.cal-page .ld-seg > button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.drill-player .drill-modes,
+.cal-page .cal-mode-toggle {
+  flex: 1 1 auto;
+  max-width: 320px;
+}
+
+.drill-player .ld-seg > button,
+.cal-page .ld-seg > button,
+.syl-trainer .ld-seg > button {
+  min-height: 40px;
+}
+
+.drill-player .drill-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ==================================================================
+   Pinyin + pitch-accent trainers (.syl-trainer)
+   ================================================================== */
+.syl-trainer {
+  --tone-1: var(--t1);
+  --tone-2: var(--t2);
+  --tone-3: var(--t3);
+  --tone-4: var(--t4);
+  --tone-5: var(--t5);
+
+  /* Pitch classes take the tone hues (mockup: heiban 4, atamadaka 1,
+     nakadaka 2, odaka 3). The player's inline SVG and labels read these. */
+  --accent-heiban: var(--t4);
+  --accent-atamadaka: var(--t1);
+  --accent-nakadaka: var(--t2);
+  --accent-odaka: var(--t3);
+  --accent-unknown: var(--ink-3);
+  --pitch-h: var(--brand);
+  --pitch-l: var(--ink-2);
+
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.syl-trainer .trainer-error {
+  padding: 16px var(--ld-pad-r) 16px var(--ld-pad-l);
+}
+
+/* The passage stage, with the swipe surface lying over it. */
+.syl-trainer .trainer-swipe {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.syl-trainer .trainer-stage {
+  padding-top: 10px;
+}
+
+.syl-trainer .touch-area {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* A mouse can select and scroll the passage; only touch needs the overlay. */
+@media (hover: hover) and (pointer: fine) {
+  .syl-trainer .touch-area {
+    pointer-events: none;
+  }
+}
+
+.syl-trainer .passage-container {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.syl-trainer .passage-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  font: 500 1.65rem/1.9 var(--f-cjk);
+  color: var(--ink-2);
+  user-select: none;
+}
+
+.syl-trainer .trainer-hint {
+  margin: 14px 0 0;
+}
+
+/* ---------- Pinyin tokens ---------- */
+.syl-trainer .char-token {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 1px;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.syl-trainer .char-token .char-display {
+  position: relative;
+  z-index: 1;
+}
+
+.syl-trainer .char-token .char-pinyin {
+  margin-top: -2px;
+  font: 600 0.42em/1 var(--f-body);
+  color: var(--ink-2);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.syl-trainer .char-token.completed .char-pinyin {
+  opacity: 1;
+}
+
+.syl-trainer .char-token.upcoming {
+  color: var(--ink-3);
+}
+
+.syl-trainer .char-token.punctuation {
+  color: var(--ink-3);
+}
+
+.syl-trainer .char-token.current {
+  margin: 0 6px;
+  color: var(--ink);
+  transform: scale(1.3);
+}
+
+.syl-trainer .char-token.current .char-display {
+  padding-bottom: 1px;
+  border-bottom: 3px solid var(--glow);
+}
+
+.syl-trainer .char-token.tone-1 .char-display,
+.syl-trainer .char-token.tone-1 .char-pinyin {
+  color: var(--tone-1);
+}
+
+.syl-trainer .char-token.tone-2 .char-display,
+.syl-trainer .char-token.tone-2 .char-pinyin {
+  color: var(--tone-2);
+}
+
+.syl-trainer .char-token.tone-3 .char-display,
+.syl-trainer .char-token.tone-3 .char-pinyin {
+  color: var(--tone-3);
+}
+
+.syl-trainer .char-token.tone-4 .char-display,
+.syl-trainer .char-token.tone-4 .char-pinyin {
+  color: var(--tone-4);
+}
+
+.syl-trainer .char-token.tone-5 .char-display,
+.syl-trainer .char-token.tone-5 .char-pinyin {
+  color: var(--tone-5);
+}
+
+.syl-trainer .char-token.error-flash,
+.syl-trainer .word-token.error-flash {
+  animation: trainer-shake 0.3s ease;
+}
+
+.syl-trainer .char-token.correct-flash,
+.syl-trainer .word-token.correct-flash {
+  animation: trainer-pop 0.2s ease;
+}
+
+@keyframes trainer-shake {
+  0%,
+  100% {
+    translate: 0;
+  }
+
+  25% {
+    translate: -4px;
+  }
+
+  75% {
+    translate: 4px;
+  }
+}
+
+@keyframes trainer-pop {
+  50% {
+    scale: 1.12;
+  }
+}
+
+/* ---------- Pitch tokens ---------- */
+.syl-trainer--pitch .passage-grid {
+  gap: 4px 8px;
+  font-size: 1.4rem;
+  line-height: 1.7;
+}
+
+.syl-trainer .word-token {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 1px;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.syl-trainer .word-token.upcoming,
+.syl-trainer .word-token.punctuation {
+  color: var(--ink-3);
+}
+
+/* Punctuation hugs the word before it. */
+.syl-trainer .word-token.punctuation {
+  margin-left: -6px;
+}
+
+.syl-trainer .word-token.current {
+  margin: 0 6px;
+  color: var(--ink);
+  transform: scale(1.2);
+}
+
+.syl-trainer .word-token.current .word-surface {
+  padding-bottom: 1px;
+  border-bottom: 3px solid var(--glow);
+}
+
+.syl-trainer .word-surface {
+  position: relative;
+  z-index: 1;
+}
+
+.syl-trainer .word-surface rt {
+  font: 600 0.45em/1 var(--f-body);
+  color: var(--ink-2);
+}
+
+.syl-trainer .word-token.cls-heiban .word-surface {
+  color: var(--accent-heiban);
+}
+
+.syl-trainer .word-token.cls-atamadaka .word-surface {
+  color: var(--accent-atamadaka);
+}
+
+.syl-trainer .word-token.cls-nakadaka .word-surface {
+  color: var(--accent-nakadaka);
+}
+
+.syl-trainer .word-token.cls-odaka .word-surface {
+  color: var(--accent-odaka);
+}
+
+.syl-trainer .word-token.cls-unknown .word-surface {
+  color: var(--accent-unknown);
+}
+
+.syl-trainer .word-kana-mini {
+  margin-top: 2px;
+  font: 600 0.45em/1 var(--f-body);
+  color: var(--ink-2);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.syl-trainer .contour-mini {
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.syl-trainer .word-token.completed .word-kana-mini,
+.syl-trainer .word-token.completed .contour-mini {
+  opacity: 1;
+}
+
+/* Mode toggle + furigana switch share the strip row. */
+.syl-trainer--pitch .mode-toggle {
+  flex: 0 1 auto;
+}
+
+.syl-trainer--pitch .mode-toggle > button {
+  padding: 6px 12px;
+}
+
+.syl-trainer .furigana-toggle {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.syl-trainer .furigana-toggle.visible {
+  display: inline-flex;
+}
+
+.syl-trainer .furigana-toggle input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--brand);
+}
+
+/* ---------- Dock (answers in the thumb zone) ---------- */
+.syl-trainer .trainer-dock > * + * {
+  margin-top: 8px;
+}
+
+.syl-trainer .tonepad {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.syl-trainer .tone-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 58px;
+  padding: 4px 2px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    border-color 0.12s,
+    background-color 0.12s;
+}
+
+.syl-trainer .tone-btn b {
+  font: 700 1.2rem/1 var(--f-body);
+}
+
+.syl-trainer .tone-btn span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.syl-trainer .tone-btn kbd,
+.syl-trainer .pa-quick-btn kbd {
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  box-shadow: none;
+}
+
+.syl-trainer .tone-btn kbd {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  font-size: 0.65rem;
+  color: var(--ink-3);
+}
+
+.syl-trainer .tone-btn:active,
+.syl-trainer .pa-quick-btn:active {
+  background: var(--surface-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .syl-trainer .tone-btn:hover,
+  .syl-trainer .pa-quick-btn:hover {
+    border-color: var(--brand);
+  }
+}
+
+.syl-trainer .tone-c1 {
+  color: var(--tone-1);
+}
+
+.syl-trainer .tone-c2 {
+  color: var(--tone-2);
+}
+
+.syl-trainer .tone-c3 {
+  color: var(--tone-3);
+}
+
+.syl-trainer .tone-c4 {
+  color: var(--tone-4);
+}
+
+.syl-trainer .tone-c5 {
+  color: var(--tone-5);
+}
+
+/* Pitch Quick pad: four patterns, two by two (four in a row when wide). */
+.syl-trainer .pa-quickpad {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.syl-trainer .pa-quickpad[hidden] {
+  display: none;
+}
+
+.syl-trainer .pa-quick-btn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 8px;
+  min-height: 52px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.syl-trainer .pa-quick-shape {
+  grid-row: 1 / span 2;
+  width: 44px;
+  height: 22px;
+}
+
+.syl-trainer .pa-quick-shape path {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.syl-trainer .pa-quick-shape circle {
+  fill: currentcolor;
+}
+
+.syl-trainer .pa-quick-shape circle.is-particle {
+  fill: var(--surface);
+  stroke: currentcolor;
+  stroke-width: 1.5;
+}
+
+.syl-trainer .pa-quick-btn.cls-heiban .pa-quick-shape {
+  color: var(--accent-heiban);
+}
+
+.syl-trainer .pa-quick-btn.cls-atamadaka .pa-quick-shape {
+  color: var(--accent-atamadaka);
+}
+
+.syl-trainer .pa-quick-btn.cls-nakadaka .pa-quick-shape {
+  color: var(--accent-nakadaka);
+}
+
+.syl-trainer .pa-quick-btn.cls-odaka .pa-quick-shape {
+  color: var(--accent-odaka);
+}
+
+.syl-trainer .pa-quick-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.syl-trainer .pa-quick-name kbd {
+  color: var(--ink-3);
+}
+
+.syl-trainer .pa-quick-btn small {
+  font: 500 0.72rem/1.2 var(--f-cjk);
+  color: var(--ink-2);
+}
+
+/* Contour scratchpad: HIGH / LOW per mora, then Submit. */
+.syl-trainer .scratchpad {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.syl-trainer .scratch-word {
+  display: none;
+  text-align: center;
+  font: 700 1.6rem/1.2 var(--f-cjk);
+}
+
+.syl-trainer .scratch-instruction {
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.syl-trainer .scratch-track {
+  display: grid;
+  gap: 6px;
+}
+
+.syl-trainer .scratch-row {
+  display: grid;
+  align-items: center;
+  gap: 6px;
+}
+
+.syl-trainer .scratch-row-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+
+.syl-trainer .scratch-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.syl-trainer .scratch-cell.current {
+  border-style: dashed;
+  border-color: var(--brand);
+}
+
+.syl-trainer .scratch-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+
+.syl-trainer .scratch-cell.selected {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+
+.syl-trainer .scratch-cell.selected .scratch-dot {
+  background: var(--brand-ink);
+}
+
+.syl-trainer .scratch-cell.selected.row-low {
+  border-color: var(--ink-2);
+  background: var(--ink-2);
+}
+
+.syl-trainer .scratch-cell.selected.row-low .scratch-dot {
+  background: var(--surface);
+}
+
+.syl-trainer .scratch-mora-row {
+  font: 600 1rem/1.2 var(--f-cjk);
+  text-align: center;
+  color: var(--ink);
+}
+
+.syl-trainer .scratch-mora-row .particle {
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+.syl-trainer .scratch-mora-row .particle.phantom {
+  font-style: italic;
+}
+
+.syl-trainer .scratch-wrap {
+  position: relative;
+}
+
+.syl-trainer .scratch-submit {
+  width: 100%;
+}
+
+/* Keyboard legend (wide screens only; .ld-wide-only hides it on phones). */
+.syl-trainer .controls-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+}
+
+.syl-trainer .control-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+.syl-trainer .control-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 6px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.syl-trainer .tone-dot,
+.syl-trainer .class-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+/* ---------- Mistake sheet (bottom sheet on phones) ---------- */
+.syl-trainer .error-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  background: var(--scrim);
+  animation: trainer-fade 0.2s ease;
+}
+
+.syl-trainer .error-modal {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1061;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 88%;
+  max-height: 88dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px var(--ld-pad-r) calc(16px + var(--ld-safe-b)) var(--ld-pad-l);
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  animation: trainer-sheet-up 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.syl-trainer .error-modal::before {
+  content: '';
+  flex: none;
+  align-self: center;
+  width: 38px;
+  height: 4px;
+  border-radius: 9px;
+  background: var(--line);
+}
+
+@media (width >= 768px) {
+  .syl-trainer .error-modal {
+    inset: 50% auto auto 50%;
+    width: min(440px, calc(100% - 32px));
+    padding: 20px 24px;
+    border-radius: var(--r-card);
+    transform: translate(-50%, -50%);
+    animation: trainer-fade 0.2s ease;
+  }
+
+  .syl-trainer .error-modal::before {
+    display: none;
+  }
+}
+
+@keyframes trainer-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes trainer-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.syl-trainer .error-char,
+.syl-trainer .error-word {
+  font: 700 2.6rem/1.1 var(--f-cjk);
+  text-align: center;
+}
+
+.syl-trainer .error-pinyin,
+.syl-trainer .error-kana {
+  font-size: 1.05rem;
+  text-align: center;
+  color: var(--ink-2);
+}
+
+.syl-trainer .error-word-ctx {
+  margin-left: 4px;
+  color: var(--ink-3);
+  font-family: var(--f-cjk);
+}
+
+.syl-trainer .error-tones,
+.syl-trainer .error-classes {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.syl-trainer .tone-label,
+.syl-trainer .class-label {
+  text-align: center;
+}
+
+.syl-trainer .tone-label .tone-num {
+  font: 700 1.5rem/1.1 var(--f-display);
+}
+
+.syl-trainer .class-label .class-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.syl-trainer .tone-label .tone-desc,
+.syl-trainer .class-label .class-desc {
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+.syl-trainer .tone-arrow {
+  align-self: center;
+  font-size: 1.3rem;
+  color: var(--ink-3);
+}
+
+.syl-trainer .error-contour {
+  text-align: center;
+}
+
+.syl-trainer .sandhi-explanation,
+.syl-trainer .accent-explanation {
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--info-wash);
+  color: var(--ink);
+  font-size: 0.875rem;
+}
+
+.syl-trainer .accent-desc {
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+
+.syl-trainer .error-continue-btn {
+  width: 100%;
+}
+
+.syl-trainer .error-continue-key {
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.syl-trainer .error-again {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+/* ---------- Results (a screen over the trainer) ---------- */
+.syl-trainer .results-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  animation: trainer-fade 0.25s ease;
+}
+
+.syl-trainer .results-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.syl-trainer .results-body {
+  justify-content: center;
+  gap: 18px;
+  padding-top: 18px;
+}
+
+.syl-trainer .results-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.syl-trainer .results-accuracy {
+  font: 800 3.4rem/1 var(--f-display);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.syl-trainer .results-accuracy.excellent {
+  color: var(--good);
+}
+
+.syl-trainer .results-accuracy.good {
+  color: var(--brand);
+}
+
+.syl-trainer .results-accuracy.fair {
+  color: var(--warn);
+}
+
+.syl-trainer .results-accuracy.poor {
+  color: var(--bad);
+}
+
+.syl-trainer .results-grade {
+  margin: 0;
+  font: 700 1.15rem/1.2 var(--f-display);
+}
+
+.syl-trainer .results-label {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+
+.syl-trainer .results-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (width >= 480px) {
+  .syl-trainer .results-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.syl-trainer .stat-box {
+  min-width: 0;
+  padding: 10px 8px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.syl-trainer .stat-box .stat-value {
+  font: 700 1.25rem/1.2 var(--f-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.syl-trainer .stat-box .stat-value.text-success {
+  color: var(--good);
+}
+
+.syl-trainer .stat-box .stat-value.text-danger {
+  color: var(--bad);
+}
+
+.syl-trainer .stat-box .stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Loading ---------- */
+.syl-trainer .loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.syl-trainer .loading-spinner {
+  text-align: center;
+  color: var(--ink-2);
+}
+
+.syl-trainer .spinner-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 12px;
+  border: 4px solid var(--line);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: trainer-spin 0.8s linear infinite;
+}
+
+@keyframes trainer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (width >= 768px) {
+  .syl-trainer .passage-grid {
+    font-size: 2rem;
+  }
+
+  .syl-trainer--pitch .passage-grid {
+    font-size: 1.6rem;
+  }
+
+  .syl-trainer .pa-quickpad {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .syl-trainer .scratch-word {
+    display: block;
+  }
+}
+
+/* ==================================================================
+   Measure-word / counter drills (.drill-player)
+   ================================================================== */
+.drill-player {
+  position: relative;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.drill-player .drill-msg,
+.cal-page .cal-msg {
+  margin: auto 0;
+  padding: 32px 0;
+  text-align: center;
+  color: var(--ink-2);
+}
+
+.drill-player .drill-stage {
+  padding-top: 12px;
+}
+
+/* Prompt: 一 ＿ 书  /  鉛筆 を 一 ＿ */
+.drill-player .cd-stage,
+.drill-player .ct-stage {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.drill-player .cd-prompt,
+.drill-player .ct-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  margin: 8px 0 6px;
+  font: 600 2.5rem/1.2 var(--f-cjk);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.drill-player .cd-blank,
+.drill-player .ct-blank {
+  display: inline-block;
+  min-width: 1.2em;
+  border-bottom: 3px solid var(--brand);
+}
+
+.drill-player .cd-blank {
+  color: transparent;
+}
+
+.drill-player .ct-blank {
+  color: var(--brand);
+}
+
+.drill-player .ct-blank.correct {
+  border-color: var(--good);
+  color: var(--good);
+}
+
+.drill-player .ct-blank.wrong {
+  border-color: var(--bad);
+  color: var(--bad);
+}
+
+.drill-player .cd-pronunciation,
+.drill-player .ct-reading {
+  margin-bottom: 2px;
+  font-size: 1.05rem;
+  color: var(--ink-2);
+}
+
+.drill-player .cd-gloss,
+.drill-player .ct-gloss {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: var(--ink-2);
+}
+
+.drill-player .cd-reverse {
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.drill-player .cd-cloze-label {
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+
+.drill-player .cd-cloze {
+  font: 600 1.35rem/1.6 var(--f-cjk);
+  color: var(--ink);
+}
+
+.drill-player .cd-cloze-blank {
+  padding: 0 6px;
+  border-bottom: 3px solid var(--brand);
+  color: var(--brand);
+}
+
+/* Options: two by two (four in a row on wide screens for counters). */
+.drill-player .cd-options,
+.drill-player .ct-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.drill-player .cd-option,
+.drill-player .ct-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 72px;
+  padding: 10px 6px;
+  border: 1.5px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    border-color 0.12s,
+    background-color 0.12s;
+}
+
+.drill-player .cd-option-text,
+.drill-player .ct-option-text {
+  font: 600 1.75rem/1.1 var(--f-cjk);
+}
+
+.drill-player .cd-option-key,
+.drill-player .ct-option-key {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font: 700 0.7rem/1 var(--f-body);
+}
+
+.drill-player .cd-option-pinyin,
+.drill-player .ct-option-reading {
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .drill-player .cd-option:hover:not(:disabled),
+  .drill-player .ct-option:hover:not(:disabled) {
+    border-color: var(--brand);
+  }
+}
+
+.drill-player .cd-option:focus,
+.drill-player .ct-option:focus {
+  outline: none;
+}
+
+.drill-player .cd-option:focus-visible,
+.drill-player .ct-option:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.drill-player .cd-option:disabled,
+.drill-player .ct-option:disabled {
+  cursor: default;
+}
+
+.drill-player .cd-option.correct,
+.drill-player .ct-option.correct {
+  border-color: var(--good);
+  background: var(--good-wash);
+}
+
+.drill-player .cd-option.correct .cd-option-key,
+.drill-player .ct-option.correct .ct-option-key {
+  background: var(--good);
+  color: var(--surface);
+}
+
+.drill-player .cd-option.wrong,
+.drill-player .ct-option.wrong {
+  border-color: var(--bad);
+  background: var(--bad-wash);
+}
+
+.drill-player .cd-option.wrong .cd-option-key,
+.drill-player .ct-option.wrong .ct-option-key {
+  background: var(--bad);
+  color: var(--surface);
+}
+
+/* Typed answer */
+.drill-player .cd-typed-input,
+.drill-player .ct-typed-input {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 8px auto 0;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  color: var(--ink);
+  font: 600 2rem/1.2 var(--f-cjk);
+  text-align: center;
+}
+
+.drill-player .cd-typed-input::placeholder,
+.drill-player .ct-typed-input::placeholder {
+  font: 500 1.1rem/1.2 var(--f-body);
+  color: var(--ink-3);
+}
+
+.drill-player .cd-typed-input:focus,
+.drill-player .ct-typed-input:focus {
+  border-color: var(--brand);
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.drill-player .cd-typed-input.correct {
+  border-color: var(--good);
+  background: var(--good-wash);
+}
+
+.drill-player .cd-typed-input.wrong {
+  border-color: var(--bad);
+  background: var(--bad-wash);
+}
+
+.drill-player .ct-typed-hint {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+
+/* Feedback: a card in the dock above Continue (shown with .show). */
+.drill-player .drill-feedback {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drill-player .drill-feedback.show {
+  display: flex;
+  animation: ld-rise 0.22s ease-out;
+}
+
+.drill-player .drill-feedback__card {
+  max-height: 34dvh;
+  overflow-y: auto;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--bad-wash);
+  color: var(--ink);
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.drill-player .drill-feedback.is-ok .drill-feedback__card {
+  background: var(--good-wash);
+}
+
+.drill-player .cd-feedback-canonical,
+.drill-player .ct-feedback-canonical {
+  font: 700 1.4rem/1.3 var(--f-cjk);
+  color: var(--ink);
+}
+
+.drill-player .cd-feedback-canonical .hl {
+  color: var(--good);
+}
+
+.drill-player .cd-feedback-alt {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.drill-player .cd-feedback-group,
+.drill-player .ct-feedback-group,
+.drill-player .ct-feedback-reading,
+.drill-player .ct-feedback-alts,
+.drill-player .cd-feedback-examples {
+  margin-top: 2px;
+  color: var(--ink-2);
+}
+
+.drill-player .ct-feedback-numerals {
+  margin-top: 6px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.drill-player .ct-feedback-numerals b {
+  color: var(--ink);
+}
+
+.drill-player .drill-feedback .ld-btn,
+.drill-player .drill-check,
+.drill-player .drill-results-actions .ld-btn {
+  width: 100%;
+}
+
+.drill-player .drill-check[hidden],
+.drill-player .drill-hint[hidden],
+.drill-player .drill-feedback.show ~ .drill-check,
+.drill-player .drill-feedback.show ~ .drill-hint,
+.drill-player.is-results .drill-check,
+.drill-player.is-results .drill-hint,
+.drill-player.is-results .drill-feedback {
+  display: none;
+}
+
+.drill-player .drill-hint {
+  margin: 0;
+}
+
+.drill-player .drill-results-actions {
+  display: none;
+}
+
+.drill-player.is-results .drill-results-actions {
+  display: block;
+}
+
+/* Results */
+.drill-player .drill-results {
+  margin: auto 0;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.drill-player .drill-results__score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.drill-player .cd-results-grade,
+.drill-player .ct-results-grade {
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.drill-player .cd-results-pct,
+.drill-player .ct-results-pct {
+  font: 800 3.2rem/1 var(--f-display);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.drill-player .cd-results-stats,
+.drill-player .ct-results-stats {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.drill-player .drill-results__note {
+  margin-bottom: 10px;
+  color: var(--ink-2);
+}
+
+.drill-player .cd-results-elo-badge,
+.drill-player .ct-results-elo-badge {
+  font-size: 0.82rem;
+  padding: 4px 12px;
+}
+
+.drill-player .drill-mastery {
+  margin-top: 12px;
+  text-align: left;
+}
+
+@media (width >= 768px) {
+  .drill-player .cd-prompt,
+  .drill-player .ct-prompt {
+    font-size: 3.2rem;
+  }
+
+  .drill-player .ct-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ==================================================================
+   Calibration (.cal-page)
+   ================================================================== */
+.cal-page {
+  position: relative;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.cal-page .cal-finish {
+  margin-left: auto;
+}
+
+.ld-taskbar__text .cal-stat b {
+  display: inline;
+  font-size: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-page .cal-scroll {
+  padding-top: 12px;
+}
+
+.cal-page .cal-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+
+.cal-page .cal-prompt {
+  margin-top: 6px;
+  font: 600 2.4rem/1.2 var(--f-cjk);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.cal-page .cal-prompt:lang(en) {
+  font-family: var(--f-display);
+}
+
+.cal-page .cal-reading {
+  font-size: 1rem;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.cal-page .cal-instruction {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.cal-page .cal-options {
+  display: grid;
+  gap: 7px;
+  margin-top: 2px;
+}
+
+.cal-page .cal-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 40px 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s,
+    opacity 0.2s;
+}
+
+.cal-page .cal-key {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font: 700 0.75rem/1 var(--f-body);
+}
+
+.cal-page .cal-option-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cal-page .cal-option:hover:not(:disabled) {
+    border-color: var(--brand);
+  }
+}
+
+.cal-page .cal-option:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.cal-page .cal-option:disabled {
+  cursor: default;
+}
+
+.cal-page .cal-option.picked {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+}
+
+.cal-page .cal-option.correct {
+  border-color: var(--good);
+  background: var(--good-wash);
+}
+
+.cal-page .cal-option.correct .cal-key {
+  background: var(--good);
+  color: var(--surface);
+}
+
+.cal-page .cal-option.wrong {
+  border-color: var(--bad);
+  background: var(--bad-wash);
+}
+
+.cal-page .cal-option.wrong .cal-key {
+  background: var(--bad);
+  color: var(--surface);
+}
+
+.cal-page .cal-options.answered .cal-option:not(.picked, .correct, .wrong) {
+  opacity: 0.5;
+}
+
+/* Readings are short: two by two, centred, in the study language's face. */
+.cal-page .cal-options.pron {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cal-page .cal-options.pron .cal-option {
+  justify-content: center;
+  padding-left: 40px;
+  font: 500 1.25rem/1.3 var(--f-cjk);
+  text-align: center;
+}
+
+.cal-page .cal-options.pron .cal-key {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  margin-top: -13px;
+}
+
+/* Answer badge: spinner on click, then a drawn tick or cross. */
+.cal-page .cal-badge {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  pointer-events: none;
+}
+
+.cal-page .cal-badge svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cal-page .cal-badge circle {
+  stroke: var(--brand);
+}
+
+.cal-page .cal-badge path {
+  stroke: var(--good);
+}
+
+.cal-page .cal-option.wrong .cal-badge path {
+  stroke: var(--bad);
+}
+
+.cal-page .cal-badge .spin {
+  animation: cal-spin 0.7s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.cal-page .cal-badge .draw {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: cal-draw 0.3s ease-out forwards;
+}
+
+.cal-page .cal-badge .draw.second {
+  animation-delay: 0.12s;
+}
+
+@keyframes cal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes cal-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Dock */
+.cal-page .cal-dock[hidden],
+.cal-page .cal-dock [hidden] {
+  display: none !important;
+}
+
+.cal-page .cal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cal-page .cal-actions > .ld-btn {
+  flex: 1;
+}
+
+.cal-page .cal-next-hint {
+  flex: none;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+/* Results: the headline, then the knowledge curve as one column per band. */
+.cal-page .cal-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 6px 0 0;
+}
+
+.cal-page .cal-headline .cal-big {
+  font: 800 2.6rem/1.05 var(--f-display);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-page .cal-headline .cal-sub {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.cal-page .cal-chart {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--surface);
+}
+
+.cal-page .cal-curve {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.cal-page .cal-band {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr) 72px;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-page .cal-band-label {
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.cal-page .cal-band-track {
+  display: block;
+  height: 16px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.cal-page .cal-band-fill {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--brand);
+  transition: width 0.3s ease;
+}
+
+.cal-page .cal-band-fill.thin {
+  background: var(--line-strong);
+}
+
+.cal-page .cal-band-n {
+  color: var(--ink-2);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cal-page .cal-note {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.cal-page .cal-rating-title {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.cal-page .cal-rating[hidden] {
+  display: none;
+}
+
+@media (width >= 768px) {
+  .cal-page .cal-prompt {
+    font-size: 3rem;
+  }
+}
+
+/* ==================================================================
+   Reduced motion
+   ================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .syl-trainer *,
+  .drill-player *,
+  .cal-page * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .cal-page .cal-badge .draw {
+    stroke-dashoffset: 0;
+  }
+}

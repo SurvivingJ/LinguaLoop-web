@@ -1,0 +1,421 @@
+/* Redesign 2026-11 — settings area: the Me tab (/profile), Study Plan and
+   Word List. Loaded on every page by templates/base.html, after styles.css.
+   Every rule is scoped to .me-page, .sp-page or .wl-page (the body class each
+   template sets), so nothing leaks into other pages. Tokens only.
+   Mockup: wiki/demos/mobile-redesign-mockup.html screens.me, Profile(),
+   StudyPlan(), WordList(), A.paletteSheet. */
+
+/* ==================================================================
+   Me tab (/profile)
+   ================================================================== */
+.me-page .me-main {
+  max-width: var(--ld-max-w);
+  padding-top: 14px;
+  padding-bottom: 24px;
+}
+
+.me-page .me-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.me-page .me-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.me-page .me-hub,
+.me-page .me-profile,
+.me-page .me-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.me-page .me-section.d-none {
+  display: none;
+}
+
+@media (width >= 992px) {
+  .me-page .me-grid {
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  /* Not sticky: the hub is taller than a laptop viewport, so a sticky hub
+     hid Logout until the end of a long test history. */
+}
+
+/* Settings rows: seal + two-line label */
+.me-page .me-set__main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.me-page .ld-set b {
+  font-weight: 700;
+}
+
+.me-page .ld-set:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+.me-page .me-set--wrap {
+  flex-wrap: wrap;
+}
+
+.me-page .me-set--wrap [data-ld-mode-picker] {
+  flex: 1 1 210px;
+  max-width: 280px;
+  margin-left: auto;
+}
+
+.me-page .me-set--wrap.is-locked [data-ld-mode-picker] {
+  opacity: 0.6;
+}
+
+.me-page .me-set--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.me-page .me-logout b {
+  color: var(--bad);
+}
+
+/* Profile section */
+.me-page .me-profile__head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 6px;
+}
+
+.me-page .me-card__title {
+  margin: 0 0 2px;
+  font: 700 1rem/1.3 var(--f-body);
+  color: var(--ink);
+}
+
+.me-page .me-card p:last-child {
+  margin-bottom: 0;
+}
+
+.me-page .me-native {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 64px;
+  cursor: pointer;
+  font-family: var(--f-body);
+}
+
+.me-page .me-native:hover {
+  border-color: var(--line-strong);
+}
+
+.me-page .me-native[aria-pressed='true'] {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+}
+
+.me-page .me-native__flag {
+  font-size: 1.375rem;
+  line-height: 1.2;
+}
+
+.me-page .me-native__name {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.me-page .me-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding-left: 0;
+  min-height: 44px;
+}
+
+.me-page .me-switch .form-check-input {
+  flex: none;
+  margin: 0;
+}
+
+.me-page .me-switch .form-check-label {
+  cursor: pointer;
+}
+
+.me-page .me-loading {
+  padding: 32px 0;
+  text-align: center;
+}
+
+.me-page .me-empty {
+  text-align: center;
+}
+
+.me-page .me-chips {
+  margin-inline: 0;
+  padding-inline: 0;
+  padding-bottom: 2px;
+}
+
+@media (width < 768px) {
+  .me-page .me-chips {
+    margin-inline: calc(-1 * var(--ld-gutter));
+    padding-inline: var(--ld-gutter);
+  }
+}
+
+.me-page .me-chips .ld-chip:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.me-page .me-stat__date {
+  font-size: 1rem;
+  line-height: 1.375;
+}
+
+.me-page .me-hist__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.me-page .me-hist__title:lang(zh),
+.me-page .me-hist__title:lang(ja) {
+  font-family: var(--f-cjk);
+}
+
+.me-page .me-hist__score {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.me-page .me-hist small .ld-tag {
+  vertical-align: 1px;
+}
+
+/* Colour theme sheet */
+.me-page .me-theme-sheet .ld-theme-opt {
+  cursor: pointer;
+  min-height: 56px;
+}
+
+.me-page .me-theme-sheet .ld-theme-opt[aria-pressed='true'] {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+}
+
+.me-page .me-theme-sheet .ld-theme-opt:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* ==================================================================
+   Study Plan (/study-plan) — task screen: stage + dock
+   ================================================================== */
+.sp-page .sp-stage {
+  padding-top: 0;
+}
+
+/* Breathing room under the task header; the stage's 12px gap follows this
+   empty item, while the sticky tabs still pin flush to the stage top. */
+.sp-page .sp-stage::before {
+  content: '';
+  flex: none;
+  height: 0;
+}
+
+.sp-page .sp-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin-inline: calc(-1 * var(--ld-pad-l)) calc(-1 * var(--ld-pad-r));
+  padding: 6px var(--ld-pad-r) 8px var(--ld-pad-l);
+  background: var(--bg);
+}
+
+.sp-page .sp-tabs .ld-seg > button {
+  min-height: 44px;
+}
+
+.sp-page .sp-tabs .ld-seg > button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.sp-page .sp-panel,
+.sp-page .sp-editor,
+.sp-page .sp-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sp-page .sp-panel[hidden],
+.sp-page .sp-editor.d-none,
+.sp-page .sp-content.d-none {
+  display: none;
+}
+
+.sp-page .sp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sp-page .sp-card__title {
+  margin: 0;
+  font: 700 1rem/1.3 var(--f-body);
+  color: var(--ink);
+}
+
+.sp-page .sp-card p {
+  margin-bottom: 0;
+}
+
+.sp-page .sp-langs {
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+@media (width < 768px) {
+  .sp-page .sp-langs {
+    margin-inline: calc(-1 * var(--ld-pad-l)) calc(-1 * var(--ld-pad-r));
+    padding-inline: var(--ld-pad-l) var(--ld-pad-r);
+  }
+}
+
+.sp-page .sp-langs .ld-chip:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.sp-page .sp-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sp-page .form-range::-webkit-slider-thumb {
+  background-color: var(--brand);
+}
+
+.sp-page .form-range::-moz-range-thumb {
+  background-color: var(--brand);
+}
+
+.sp-page .form-range::-webkit-slider-runnable-track {
+  background-color: var(--surface-2);
+}
+
+.sp-page .form-range::-moz-range-track {
+  background-color: var(--surface-2);
+}
+
+.sp-page .form-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.sp-page .sp-minutes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-page .sp-minutes input[type='number'] {
+  width: 5.5rem;
+  text-align: center;
+}
+
+.sp-page .sp-advanced-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-weight: 700;
+  text-align: left;
+}
+
+.sp-page .sp-advanced-toggle:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+.sp-page .sp-advanced-toggle .sp-chev {
+  color: var(--ink-2);
+  transition: transform 0.2s;
+}
+
+.sp-page .sp-advanced-toggle[aria-expanded='true'] .sp-chev {
+  transform: rotate(180deg);
+}
+
+.sp-page .sp-dock .ld-row[hidden],
+.sp-page .sp-dock .ld-btn[hidden] {
+  display: none;
+}
+
+.sp-page .sp-dock .sp-banner {
+  max-height: 30svh;
+  margin: 0;
+  overflow-y: auto;
+  font-size: 0.875rem;
+}
+
+.sp-page .sp-week-table {
+  overflow-x: auto;
+}
+
+.sp-page .sp-week-table td:first-child {
+  text-transform: capitalize;
+}
+
+.sp-page .sp-week-table .ld-bar {
+  min-width: 60px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-page .sp-advanced-toggle .sp-chev {
+    transition: none;
+  }
+}
+
+/* ==================================================================
+   Word List (/word-list) — task screen: stage + dock
+   ================================================================== */
+.wl-page .wl-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.wl-page .wl-dock .wl-status:empty {
+  display: none;
+}
+
+.wl-page .wl-lang-chip:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}

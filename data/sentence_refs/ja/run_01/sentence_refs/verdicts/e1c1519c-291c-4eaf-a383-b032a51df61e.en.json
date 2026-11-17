@@ -1,0 +1,43 @@
+{
+  "test_id": "e1c1519c-291c-4eaf-a383-b032a51df61e",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9351,
+      "back_translation": "現代の高等教育において、画一的な知識伝達型モデルはもはやその有効性を維持できない。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9652,
+      "back_translation": "こうした中で、人工知能のアルゴリズムによるリアルタイムの習熟度分析を通じて、学習者の認知特性に最適化された教材の提示を可能にするアダプティブ・ラーニング・プラットフォームの導入は、教育学の観点から極めて示唆に富む。"
+    },
+    {
+      "idx": 2,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Gold 如何に設計し、運用するか is a plain 'how they design and operate'; ref 'should' added a deontic modal the gold lacks. Rewrote.",
+      "tightness": 0.6557,
+      "back_translation": "大学教育の現場で問われているのは、一人ひとりの学習到達度を最大化するために、教員がこのシステムをいかに設計し運用すべきかである。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7531,
+      "back_translation": "つまり、その本質的な教育的含意は、技術革新が単なる効率化の道具にとどまらず、教育の公平性と個別最適化を両立させる新たな認識論的枠組みを構築しうる点にあると言えよう。"
+    }
+  ]
+}

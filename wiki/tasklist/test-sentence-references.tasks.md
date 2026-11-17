@@ -3,8 +3,8 @@ title: "Test Sentence References — Task Breakdown"
 feature: test-sentence-references
 prose_page: ../features/test-sentence-references.md
 tech_page: ../features/test-sentence-references.tech.md
-total_tasks: 15
-done: 13
+total_tasks: 14
+done: 12
 ---
 
 # Test Sentence References — Task Breakdown
@@ -305,7 +305,7 @@ follow-on slice once a learner with that L1 exists.
 - Result, active tests: Japanese 388/388 sentences with an English reference (96.6% at the floor), Chinese 3,008/3,008 (94.3%), English→Chinese unchanged at 484/2,486 (94.8% of those at the floor). Servable `/next` windows: 850 Chinese, 81 Japanese.
 - 89 references of the 2026-11-14 batch are below the floor and have had one review only — candidates for the next `sentence_ref_recheck.py` pass. 110 earlier ones stay below the floor after two blind reviews that both called them faithful (open question on the prose page).
 - "`dt_passage` rows for fully covered tests are retired": no longer applies. `dt_passage_reference` had 0 rows and every `dt_passage` row was a range passage on 2026-11-17.
-- Later on 2026-11-17, after the developer's decisions: `recheck2-2026-11-17` second blind review of the 89 (4 Opus turns; 74 pass, 15 rewritten, 0 fail); `recheck-accepted-2026-11-17` activates the 8 references failed only for glossed/duplicated gold (7 pass, 1 rewritten), since the glosses are intended (TASK-977 Won't Do). With the ADR-047 override (TASK-978): at floor or agreed ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856, ja 83. Still gated: references rewritten by a second reviewer whose new text has one review (ja 2, zh 20, en→zh 11 below the floor).
+- Later on 2026-11-17, after the developer's decisions: `recheck2-2026-11-17` second blind review of the 89 (4 Opus turns; 74 pass, 15 rewritten, 0 fail); `recheck-accepted-2026-11-17` activates the 8 references failed only for glossed/duplicated gold (7 pass, 1 rewritten), since the glosses are intended (TASK-1008 Won't Do). With the ADR-049 override (TASK-1009): at floor or agreed ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856, ja 83. Still gated: references rewritten by a second reviewer whose new text has one review (ja 2, zh 20, en→zh 11 below the floor).
 - OpenRouter spend: none.
 - Harness fixes: `export` counts `rewritten` as covered (it re-exported tests already done); `assemble` takes `author_model`/`arm`/`prompt_version` from the authored document (reviewers never see `docs/`, so every row was `claude-subagent`). Known gap: the number check cannot match 万 amounts written with thousands separators (102万 → "1,020,000" fails `missing_number`), so one test writes "1020000 yuan".
 
@@ -400,42 +400,7 @@ vitest; open the preview on a test with sentence rows and on one without.
 
 ---
 
-## TASK-976: `GET /api/dual-translation/next` serves reviewed sentence windows
-
-**Status:** [x] Done (repo, 2026-11-17) — not deployed. 21 pytest + 2 vitest; selection run read-only against production for the main learner.
-**Feature:** test-sentence-references
-**Type:** bug
-**Complexity:** M
-**Depends On:** TASK-909
-
-**Description:**
-`/next` (standalone page and the daily-session DT slot) served only `dt_passage` rows with a
-stored `dt_passage_reference`; that table is empty in production, so every learner got 404 and
-the reviewed sentence references reached learners only through the prestudy Produce stage.
-`/next` now builds a 2–4 sentence window from the reviewed references of a test the learner
-attempted (most recent first, unpractised windows first, mean tightness at the Produce floor),
-optionally limited to `?language_id=`; the legacy path stays as the fallback.
-
-**Acceptance Criteria:**
-- [x] A learner with attempted tests that have references gets a window, never one in their L1, never a stale or below-floor window.
-- [x] Windows the learner submitted or skipped are not served again until every window has been done; then the least recently practised comes back.
-- [x] The session player sends `ctx.languageId`; the standalone page sends the selected language.
-- [x] No references → the legacy `dt_passage_reference` path, unchanged.
-
-**Files to Create / Modify:**
-- `routes/dual_translation.py` — `_select_next_passage` (+ `_select_next_sentence_window`, `_window_material`, `_practised_sentences`, `_select_next_legacy_passage`), `?language_id=`
-- `services/dual_translation/passage_builder.py` — `plan_sentence_windows`, `pick_next_window`
-- `static/js/session/players/dual_translation.js`, `static/js/dual_translation.js` — send the language
-- `tests/test_dt_next_sentence_windows.py`, `tests/unit/session-dt-player.test.js`, `tests/test_dual_translation_routes.py`
-
-**Verification:**
-`pytest tests/test_dt_next_sentence_windows.py tests/test_dual_translation_routes.py`;
-`npx vitest run tests/unit/session-dt-player.test.js`; after deploy, open Dual Translation as a
-learner with attempted tests and confirm a passage loads (it returned 404 before).
-
----
-
-## TASK-977: Clean English glosses out of Chinese transcripts
+## TASK-1008: Clean English glosses out of Chinese transcripts
 
 **Status:** Won't Do — developer, 2026-11-17: the glosses are intended content. The 8 references failed for this reason (and for 18a77687's intended "这件T恤的T恤") were activated in `recheck-accepted-2026-11-17`.
 **Feature:** test-sentence-references
@@ -462,13 +427,13 @@ Re-run the gloss query in the 2026-11-17 log entry; it returns only tests record
 
 ---
 
-## TASK-978: Two agreeing reviews override the tightness floor (ADR-047)
+## TASK-1009: Two agreeing reviews override the tightness floor (ADR-049)
 
 **Status:** [x] Done (repo + migration applied live 2026-11-17) — code not deployed. Deploy after the migration (already applied): the new code reads `faithful_reviews`.
 **Feature:** test-sentence-references
 **Type:** feature
 **Complexity:** S
-**Depends On:** TASK-976
+**Depends On:** TASK-909
 
 **Description:**
 Developer decision 2026-11-17: when two independent reviews agree a reference is faithful, its

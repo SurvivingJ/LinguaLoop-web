@@ -45,7 +45,7 @@ ARMS = ('sentencewise', 'aligned')
 VERDICTS = ('pending', 'pass', 'rewritten', 'fail')
 USABLE_VERDICTS = ('pass', 'rewritten')
 #: Independent reviews of the exact same text (distinct runs) at which a
-#: reference skips the tightness floor in window selection (ADR-047).
+#: reference skips the tightness floor in window selection (ADR-049).
 FLOOR_OVERRIDE_REVIEWS = 2
 LANG_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
 LANG_ID = {v: k for k, v in LANG_CODE.items()}
@@ -325,7 +325,7 @@ def faithful_reviews(new_row: dict, run_id: str, existing: Iterable[dict]) -> in
     """How many independent reviews (distinct run_id) passed or wrote this
     exact text for this (sentence, L1), counting the new row's own review.
     ``existing`` rows carry sentence_id, l1_language_id, l1_text, run_id,
-    review_verdict. A row whose verdict is not usable counts 0 (ADR-047)."""
+    review_verdict. A row whose verdict is not usable counts 0 (ADR-049)."""
     if new_row.get('review_verdict') not in USABLE_VERDICTS:
         return 0
     runs = {run_id}

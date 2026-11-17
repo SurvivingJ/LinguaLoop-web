@@ -3,7 +3,7 @@ title: Daily Session Runner (`/session`) — Technical Specification
 type: page-tech
 status: complete
 prose_page: study-session.md
-last_updated: 2026-08-07
+last_updated: 2026-11-16
 dependencies:
   - "route: app.py::study_session_page() → templates/study_session.html"
   - "blueprint: routes/study_session.py (study_session_bp, url_prefix /api/study-session)"
@@ -147,7 +147,7 @@ incomplete item (`_next_incomplete_index`).
 - **`loadSession()`** — `authFetch('/api/study-session?language_id=…')`; throws on
   `!res.ok`; hides the spinner; `showEmpty()` on an empty queue, else `renderStart()`.
 - **`runCurrent()`** — skips completed items, destroys the previous player, clears the
-  stage, mounts `getPlayer(item)` with `{item, languageId, onComplete, onSkip}`, then
+  stage, mounts `getPlayer(item)` with `{item, languageId, onComplete, onSkip, frame}`, then
   calls `LinguaI18n.applyToDOM(stage)` — required because `applyToDOM` normally runs
   once at page load, before the stage exists.
 - **`persistCompletion(item)`** — POSTs to `/api/tests/daily-load/complete` (tests) or
@@ -158,6 +158,24 @@ incomplete item (`_next_incomplete_index`).
   failure, then a toast that warns but still advances (the learner did the work).
 - **`onItemSkip()`** — sets `item.skipped = true` and advances **without** marking
   complete, so the item returns on resume.
+
+### Task-mode frame (mobile redesign, 2026-11-16)
+See [[pages/app-shell.tech]] and [[decisions/ADR-048-mobile-app-shell]].
+- While an item runs the controller calls `LinguaShell.setTaskMode(true)` and
+  `LinguaShell.setTaskHeader(headerFor(item))` (title = item type, subtitle = test title, glyph =
+  seal); on the start card and summary it calls `setTaskMode(false)` (tab page).
+- Layout: `body.ld-task` > `header#ldTaskbar` + `main.ld-main--task` > `#sessionProgress.ld-strip`
+  (dots `#sessionDots`, count `#sessionProgressCount`; the old fill bar is kept but `hidden`) +
+  `#sessionSaveStatus` + `#sessionStage.session-stage` (flex column filling the remaining height;
+  `overflow-y: auto` only as a fallback). The old `.session-stage { min-height: 50vh }` is gone.
+- `mount(container, ctx)` additionally receives optional `ctx.frame = { setHeader, onBack, stage }`;
+  players render `.ld-screen > .ld-stage + .ld-dock` and scroll the stage, never the page. `onBack`
+  handlers run before the runner's own Back and are removed at teardown.
+- Back (`#ldBack`) during a run returns in-page to the Today card (player destroyed, task mode off,
+  "Resume session"); during an optional round, to the summary. Href fallback `/session` or
+  `/session?mode=practice` (`session.practiceOnly`).
+- No runner-level Skip button; a player that allows skipping renders its own control and calls
+  `ctx.onSkip()`.
 
 ### Accessibility (TASK-709)
 - `#sessionProgress`: `aria-live="polite"`, `data-i18n-aria="session.progress_label"`.

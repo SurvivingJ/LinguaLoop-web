@@ -3,13 +3,15 @@ title: Measure Word Trainer — Technical Specification
 type: feature-tech
 status: complete
 prose_page: ./measure-word-trainer.md
-last_updated: 2026-06-07
+last_updated: 2026-11-17
 dependencies:
   - "dim_classifiers, dim_classifier_distractor_groups, dim_classifier_noun_pairs"
   - "dim_test_types row classifier_drill (id=14)"
   - "tests sentinel row slug='__classifier_drill_zh'"
   - "test_attempts / user_skill_ratings / test_skill_ratings"
-  - "get_classifier_drill_session() RPC"
+  - "get_classifier_drill_session() RPC (v1, 13 columns; kept for main)"
+  - "get_classifier_drill_session_v2() RPC (applied 2026-11-17, migrations/task998_classifier_drill_levels.sql)"
+  - "update_classifier_mastery() RPC (replaced 2026-11-17, same signature) + user_classifier_mastery.level_attempts"
   - "process_classifier_drill_submission() RPC"
   - "services/classifier_curation/ (offline LLM authoring pipeline, qwen via OpenRouter)"
 breaking_change_risk: low
@@ -182,6 +184,85 @@ LLM-assisted **authoring** tool; nothing here runs at request time.
   `approved_curation.json`. Existing classifiers keep curated group/tier (only nouns folded in);
   new/promoted classifiers contribute an LLM-classified meta block for human review.
 
+## Pinyin display and the Auto badge (2026-11-16)
+- `dim_classifiers.pinyin_display` holds numbered pinyin on 71 of 146 rows ("bi3", "lu:3"); noun
+  pronunciations can be "marked (numbered)". The drill payload (`services/drill_service.py`
+  `_classifier_item`, `_attach_correct_pinyin`) now passes `noun_pronunciation`,
+  `distractor_pinyin` and `correct_classifier_pinyin` through `services/pinyin_format.format_pinyin`
+  (tone marks only; ü as ü/v/u:, neutral tone 5/0, erhua, run-together syllables; already-marked
+  text, kana and English unchanged), and the player applies `formatPinyin` again as a backstop.
+  Python and JS share one case file, `tests/fixtures/pinyin_format/cases.json`. The Japanese
+  counter drill is untouched. The clean data fix — rewriting the 71 rows from `pinyin` — is
+  TASK-996 (needs a data write).
+- The Auto-mode level badge names what is on screen with translated labels and no "· " prefix:
+  Choose / Type (the mode-toggle keys `mode_mc` / `mode_type`), Reverse
+  (`classifier_drill.level_reverse`), Fill in (`classifier_drill.level_cloze`). A level-4 item
+  with no `cloze_blanked` is drawn as a choose item and badged "Choose".
+- ~~Known gap~~ **Fixed 2026-11-17 (TASK-998)** — see "Levels and mastery" below.
+
+## Levels and mastery (TASK-998, applied 2026-11-17)
+
+**Root cause.** The 2026-05-19 "Measure Word Trainer v2" work applied
+`get_classifier_drill_session` v2..v5 to the live database (live migrations `20260519082733` ..
+`20260519084411 get_classifier_drill_session_v5_cloze`) but never committed them. On 2026-06-06 live
+migration `20260606152415 classifier_drill_exclude_ge_and_improve_distractors` re-applied the repo's
+v1-shaped `migrations/get_classifier_drill_session.sql` with DROP + CREATE, replacing v5 with a
+13-column function: every item had level NULL (Auto showed only Choose) and
+`classifier_id_primary` NULL, so the player never filled `item_results` and mastery was never
+updated (no `user_classifier_mastery` row older than 2026-11-17 02:02 UTC). The cloze table v5 read
+(`dim_classifier_example_sentences`) was dropped on 2026-09-21. Second defect: the live
+`update_classifier_mastery` promoted on every correct answer once `attempts >= 5 AND ewma >= 0.80`,
+skipping levels.
+
+**Session (`services/drill_service.py`).** Reads `get_classifier_drill_session_v2` and falls back
+to v1 when v2 is missing (cached 5 minutes; on v1 the first correct id becomes
+`classifier_id_primary`). Item fields added: `level`, `mastery_level`, `classifier_id_primary`,
+`reverse_noun_options` (0 or 3 nouns), `cloze_sentence`, `cloze_blanked`, `max_tier`. Levels are
+clamped to the item's content (level 4 without a cloze → Reverse; without reverse nouns → Type).
+`noun_gloss` is masked: an accepted classifier that follows a numeral or demonstrative in the gloss
+is blanked ("一张纸" → "一＿纸"; 21 of 723 fallback glosses had this).
+
+**v2 RPC** `get_classifier_drill_session_v2(p_user_id uuid, p_language_id smallint, p_count integer)`
+— same arguments as v1, the 13 v1 columns first, then `out_level`, `out_mastery_level`,
+`out_classifier_id_primary`, `out_reverse_noun_options`, `out_cloze_sentence`, `out_cloze_blanked`,
+`out_max_tier`. Level lowered to what the content supports; pool restricted to tiers up to
+`max_unlocked_tier()` (a new learner sees the 11 drillable tier-1 classifiers until 80% of a tier is
+at level 2+; 个 counts in tier 1's total); classifiers sampled about equally; Fill in preferred at
+level 4; lemmas with no linked sense take the lemma's first monolingual sense for gloss and
+pronunciation. SECURITY DEFINER, `search_path=public, pg_temp`, EXECUTE for service_role only.
+EXPLAIN ANALYZE for 40 items: 129 ms. v1 is left unchanged for the code on main.
+
+**Mastery.** `update_classifier_mastery(p_user_id, p_classifier_id, p_is_correct)` (same signature,
+jsonb): promotion needs 5 answers **at the current level** (`level_attempts`) with EWMA ≥ 0.80, and
+`level_attempts` restarts at 0 on a level change; the row is read `FOR UPDATE`; the result gains
+`level_attempts`. Old rows have NULL `level_attempts`, which counts all past attempts, so they can
+promote once on their next correct answer. Submit runs one sequential chain per classifier and the
+chains concurrently (`services.concurrency.run_parallel`): a 20-answer submit went from about 5.3 s
+to 1.7 s. A replayed submit (`cached: true`, same idempotency key) applies no mastery
+(`mastery_updates: []`). `item_results` entries are validated (`classifier_id` int 1–32767) and
+capped at the item count and 40.
+
+**Cloze content.** `migrations/task998_classifier_cloze_sentences_fill.sql` filled
+`dim_classifier_noun_pairs.example_sentence` (NULL on all 2,664 rows before) for exactly 661 pairs,
+copied from judged `prompt1_core` ladder sentences, then active zh test sentences. Pairs / classifiers
+with a cloze by tier: 1: 176 / 11 of 11; 2: 306 / 31 of 31; 3: 128 / 27 of 28; 4: 51 / 22 of 75.
+`scripts/build_classifier_dictionary.py` re-inserts pairs and empties the column: re-run the fill
+after any rebuild.
+
+**Verified on the real app** (393x659, test account): reviewer 2026-11-17 — three rounds moved
+classifiers 1→2 and 2→3, all four levels rendered, an all-wrong round demoted 件 4→3, a replayed
+key added one attempt only; integration 2026-11-17 — one 20-item Auto round drew Choose 11, Reverse 7,
+Type 1, Fill in 1, sent 20 `item_results` at levels 1–4, got 20 `mastery_updates`, and the test
+account's mastery totals moved 205→225 attempts, 170→185 correct; the document never scrolled.
+
+**Open (owner):** answers drawn below the learner's level (manual Choose/Type mode) still count
+towards promotion — the client sends the drawn `level` but the server ignores it (TASK-1002);
+content gaps — noun sense links for 2,450 zh pairs, pronunciation for about 1,050 zh lemmas, cloze
+sentences for 1 tier-3 and 53 tier-4 classifiers, 31 pairs whose noun contains its own classifier
+(gives the answer away), `out_cloze_sentence` (with the answer) sent to the client though only
+`cloze_blanked` is shown (TASK-1002). The Japanese counter drill has no levels or mastery by design;
+0 of 837 ja pairs have `noun_sense_id` and 43 of 54 counters lack `numeral_readings`.
+
 ## Key Architectural Decisions
 
 1. **Infinite session via sentinel test row** — reuses `test_attempts`/RLS/ELO/profile rendering.
@@ -237,3 +318,5 @@ LLM-assisted **authoring** tool; nothing here runs at request time.
 - [[features/pitch-accent-trainer.tech]] — Sibling RPC layout
 - [[algorithms/elo-ranking.tech]] — K=32 formula shared by trainer
 - [[database/schema.tech]] — Schema for the three classifier tables
+- [[api/rpcs.tech]] — `get_classifier_drill_session_v2`, `update_classifier_mastery`
+- [[tasklist/fixes-2026-11-16.tasks]] — TASK-998 (done), TASK-1002 (open decisions)

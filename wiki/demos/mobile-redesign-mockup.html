@@ -1,0 +1,1241 @@
+<title>LinguaDojo Mobile Redesign</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=Noto+Serif+JP:wght@500;700&family=Noto+Serif+SC:wght@500;700&display=swap">
+<style>
+/* Layout: a one-screen app shell. Header and action dock never move; only the stage between them may scroll.
+   One task per screen, answer controls in the thumb zone, bottom tabs instead of a hamburger. */
+:root{
+  --bg:#edf3f1; --surface:#fff; --surface-2:#e1ebe8; --ink:#0b2326; --ink-2:#48605f; --line:#d2dfdb;
+  --brand:#0a6b60; --brand-ink:#fff; --brand-wash:#d4ebe5;
+  --glow:#ef6a35; --glow-text:#ad4212; --glow-wash:#fde5d9;
+  --good:#1c7648; --good-wash:#d9f0e2; --bad:#b93a30; --bad-wash:#f8e1de; --warn:#8a5d00; --warn-wash:#f8ecc9; --info:#2b5f9e; --info-wash:#dfe9f6;
+  --t1:#c2362c; --t2:#c46a0a; --t3:#1c7648; --t4:#2b5f9e; --t5:#6a7f80;
+  --hero-a:#07312f; --hero-b:#0b6157; --hero-ink:#eaf8f4; --hero-dim:#a9d3ca;
+  --shadow:0 10px 30px rgb(11 35 38 / 10%);
+  --f-display:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"PingFang SC","Hiragino Sans",sans-serif;
+  --f-cjk:"Noto Serif SC","Songti SC","STSong",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#061416; --surface:#0d2023; --surface-2:#152e2e; --ink:#e6f2ef; --ink-2:#94aeaa; --line:#1f3a3a;
+  --brand:#38c7b1; --brand-ink:#04211e; --brand-wash:#113835;
+  --glow:#ff8a57; --glow-text:#ffa77e; --glow-wash:#3a2015;
+  --good:#52cd8f; --good-wash:#103224; --bad:#ff8175; --bad-wash:#3b1b18; --warn:#e9be55; --warn-wash:#33290f; --info:#7fb2ee; --info-wash:#13273f;
+  --t1:#ff8175; --t2:#f0a04b; --t3:#52cd8f; --t4:#7fb2ee; --t5:#94aeaa;
+  --hero-a:#0b3a37; --hero-b:#0f6a5f; --hero-ink:#eaf8f4; --hero-dim:#a9d3ca;
+  --shadow:0 10px 30px rgb(0 0 0 / 40%); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#061416; --surface:#0d2023; --surface-2:#152e2e; --ink:#e6f2ef; --ink-2:#94aeaa; --line:#1f3a3a;
+  --brand:#38c7b1; --brand-ink:#04211e; --brand-wash:#113835;
+  --glow:#ff8a57; --glow-text:#ffa77e; --glow-wash:#3a2015;
+  --good:#52cd8f; --good-wash:#103224; --bad:#ff8175; --bad-wash:#3b1b18; --warn:#e9be55; --warn-wash:#33290f; --info:#7fb2ee; --info-wash:#13273f;
+  --t1:#ff8175; --t2:#f0a04b; --t3:#52cd8f; --t4:#7fb2ee; --t5:#94aeaa;
+  --hero-a:#0b3a37; --hero-b:#0f6a5f; --hero-ink:#eaf8f4; --hero-dim:#a9d3ca;
+  --shadow:0 10px 30px rgb(0 0 0 / 40%); color-scheme:dark}
+
+/* The app's existing named themes, selectable in Me → Colour theme. Values come from static/css/styles.css. */
+:root[data-palette="stillwater"]{--bg:#f6f9f8; --surface:#fff; --surface-2:#eaf1ef; --ink:#13282b; --ink-2:#51686a; --line:#dde7e5; --brand:#0e7569; --brand-ink:#fff; --brand-wash:#ddeeea;
+  --glow:#e8833a; --glow-text:#a35417; --glow-wash:#fbe9da; --hero-a:#0a574e; --hero-b:#0e7569; --hero-dim:#b9ddd6; --good:#2e7d4f; --good-wash:#ddefe4; --bad:#c24a3f; --bad-wash:#f6e2df; --warn:#7d5a10; --warn-wash:#f7ecd6; --info:#3b6ea8; --info-wash:#e1eaf5;
+  --t1:#c2362c; --t2:#c46a0a; --t3:#1c7648; --t4:#2b5f9e; --t5:#6a7f80; --hero-ink:#fff; --shadow:0 10px 30px rgb(19 40 43 / 10%); color-scheme:light}
+:root[data-palette="sakura"]{--bg:#fbf3f6; --surface:#fff; --surface-2:#f8e6ee; --ink:#2a1620; --ink-2:#7a5566; --line:#f0d5e0; --brand:#c0407c; --brand-ink:#fff; --brand-wash:#f8e6ee;
+  --glow:#e8833a; --glow-text:#a35417; --glow-wash:#fbe9da; --hero-a:#6e1f45; --hero-b:#c0407c; --hero-dim:#f3c9dc; --good:#2e7d4f; --good-wash:#ddefe4; --bad:#c24a3f; --bad-wash:#f6e2df; --warn:#7d5a10; --warn-wash:#f7ecd6; --info:#3b6ea8; --info-wash:#e1eaf5;
+  --t1:#c2362c; --t2:#c46a0a; --t3:#1c7648; --t4:#2b5f9e; --t5:#6a7f80; --hero-ink:#fff; --shadow:0 10px 30px rgb(19 40 43 / 10%); color-scheme:light}
+:root[data-palette="forest"]{--bg:#f4f8f4; --surface:#fdfefd; --surface-2:#e6eee6; --ink:#14241a; --ink-2:#566b5c; --line:#cfdccf; --brand:#2f7d46; --brand-ink:#fff; --brand-wash:#e1efe3;
+  --glow:#b08530; --glow-text:#7a5a17; --glow-wash:#f3e9cf; --hero-a:#17402a; --hero-b:#2f7d46; --hero-dim:#c3dcc8; --good:#2e7d4f; --good-wash:#ddefe4; --bad:#c24a3f; --bad-wash:#f6e2df; --warn:#7d5a10; --warn-wash:#f7ecd6; --info:#3b6ea8; --info-wash:#e1eaf5;
+  --t1:#c2362c; --t2:#c46a0a; --t3:#1c7648; --t4:#2b5f9e; --t5:#6a7f80; --hero-ink:#fff; --shadow:0 10px 30px rgb(19 40 43 / 10%); color-scheme:light}
+:root[data-palette="inkstone"]{--bg:#f5f1e8; --surface:#fff; --surface-2:#ece6d6; --ink:#0e1116; --ink-2:#4a4843; --line:#d9d2c2; --brand:#b5331e; --brand-ink:#fff; --brand-wash:#f4dcd4;
+  --glow:#b8862c; --glow-text:#6f5212; --glow-wash:#f2e5cc; --hero-a:#0e1116; --hero-b:#4a2a22; --hero-dim:#cfc6b3;
+  --good:#4a6b3a; --good-wash:#e2ead9; --bad:#7a2222; --bad-wash:#ead4d4; --warn:#6f5212; --warn-wash:#f2e5cc; --info:#2d4a6b; --info-wash:#dae0e9;
+  --t1:#b5331e; --t2:#b8862c; --t3:#4a6b3a; --t4:#2d4a6b; --t5:#6b695f; --hero-ink:#fff; --shadow:0 10px 30px rgb(14 17 22 / 12%); color-scheme:light}
+:root[data-palette="midnight"]{--bg:#0b1416; --surface:#122021; --surface-2:#18292a; --ink:#eef4f3; --ink-2:#a8bcb9; --line:#1f3335; --brand:#3db3a0; --brand-ink:#06201c; --brand-wash:#143432;
+  --glow:#f0975a; --glow-text:#f0975a; --glow-wash:#3a2616; --hero-a:#10302e; --hero-b:#1c5a52; --hero-dim:#a9d3ca; --hero-ink:#eef4f3;
+  --good:#57a877; --good-wash:#17302a; --bad:#e0796f; --bad-wash:#3a2423; --warn:#dcae54; --warn-wash:#34301f; --info:#7aa3d6; --info-wash:#1b2c3d;
+  --t1:#e0796f; --t2:#f0975a; --t3:#57a877; --t4:#7aa3d6; --t5:#93a6a4; --shadow:0 10px 30px rgb(0 0 0 / 45%); color-scheme:dark}
+.sws{display:flex;flex:none} .sws i{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);margin-left:-6px} .sws i:first-child{margin-left:0}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--f-body);overflow:hidden;
+  display:flex;justify-content:center;align-items:center;gap:48px;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[data-lang="ja"]{--f-cjk:"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif}
+.tl{font-family:var(--f-cjk);font-weight:500}
+
+/* shell */
+.app{position:relative;width:100%;height:var(--vvh,100%);display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+#view{flex:1;min-height:0;display:flex;flex-direction:column}
+.stage{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-block:6px 14px;overscroll-behavior:contain}
+.stage>*{flex:none}
+.dock{flex:none;display:flex;flex-direction:column;gap:8px;padding-block:10px 12px;background:var(--bg);border-top:1px solid var(--line)}
+.row{display:flex;gap:8px;align-items:center}
+.between{justify-content:space-between}
+.col{display:flex;flex-direction:column;gap:8px}
+.grow{flex:1;min-width:0}
+aside{display:none}
+@media (min-width:760px){
+  body{padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .app{width:var(--dw,393px);height:min(var(--dh,659px),100%);flex:none;border-radius:34px;border:1px solid var(--line);box-shadow:var(--shadow)}
+  aside{display:flex;flex-direction:column;gap:18px;width:320px;max-height:100%;overflow-y:auto}
+}
+#tabs{flex:none;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding-block:6px}
+#tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--ink-2);padding:4px 0;min-height:46px}
+#tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#tabs button.on{color:var(--brand)}
+
+/* type */
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2)}
+.h1{font:700 26px/1.1 var(--f-display);letter-spacing:-.02em;text-wrap:balance}
+.h2{font:700 18px/1.2 var(--f-display);letter-spacing:-.01em}
+.muted{color:var(--ink-2)} .small{font-size:12.5px} .center{text-align:center}
+.num{font-variant-numeric:tabular-nums}
+
+/* controls */
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 16px;border-radius:16px;background:var(--brand);color:var(--brand-ink);font-weight:700;font-size:16px;transition:transform .12s;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{background:var(--surface-2);color:var(--ink-2);cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ok{background:var(--good);color:var(--surface)}
+.btn.sm{min-height:40px;font-size:14px;flex:none;border-radius:13px}
+.btn.icon{flex:none;width:50px;padding:0}
+.link{font-size:13px;font-weight:700;color:var(--brand);padding:6px 0}
+.link.quiet{color:var(--ink-2)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+.chips::-webkit-scrollbar{display:none}
+.wrap{display:flex;flex-wrap:wrap;gap:6px}
+.seal{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--brand-wash);color:var(--brand);font:700 16px/1 var(--f-cjk);flex:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.tag.due,.tag.warn{background:var(--warn-wash);color:var(--warn)} .tag.ok{background:var(--good-wash);color:var(--good)}
+.tag.bad{background:var(--bad-wash);color:var(--bad)} .tag.info{background:var(--info-wash);color:var(--info)} .tag.brand{background:var(--brand-wash);color:var(--brand)}
+.note{padding:10px 12px;border-radius:14px;font-size:13.5px;background:var(--info-wash);color:var(--ink)}
+.note.warn{background:var(--warn-wash)} .note.ok{background:var(--good-wash)} .note.bad{background:var(--bad-wash)}
+.seg{display:flex;background:var(--surface-2);border-radius:11px;padding:3px}
+.seg button{flex:1;padding:6px 10px;border-radius:9px;font-size:12.5px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+.seg button.on{background:var(--surface);color:var(--ink)}
+.seg button[disabled]{opacity:.4}
+.sw{width:44px;height:26px;border-radius:99px;background:var(--surface-2);position:relative;flex:none;transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgb(0 0 0 / 25%);transition:transform .15s}
+.sw.on{background:var(--brand)} .sw.on::after{transform:translateX(18px)}
+textarea,input[type=email],input[type=text],input[type=number],select{width:100%;font:500 18px/1.5 var(--f-cjk);color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;resize:none}
+input[type=email],input[type=text],input[type=number],select{font:500 16px/1.4 var(--f-body);min-height:48px}
+input.okv{border-color:var(--good)} input.badv{border-color:var(--bad)} input.idkv{border-color:var(--warn)}
+input[type=range]{width:100%;accent-color:var(--brand)}
+
+/* top bars */
+.top{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:10px 6px}
+.langbtn{display:flex;align-items:center;gap:8px;font-weight:700}
+.langbtn .seal{background:var(--ink);color:var(--bg)}
+.ib{width:38px;height:38px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-size:16px;flex:none}
+.rhead{flex:none;display:flex;align-items:center;gap:10px;padding-block:8px 4px;min-height:50px}
+.rhead .back{display:flex;align-items:center;gap:4px;height:42px;padding:0 14px 0 9px;border-radius:99px;background:var(--surface);border:1.5px solid var(--ink);font-weight:700;font-size:14.5px;flex:none}
+.rhead .back i{font:400 26px/1 var(--f-body);font-style:normal;margin-top:-3px}
+.stage>.swipe{flex:1;display:flex;flex-direction:column;gap:12px;touch-action:none;user-select:none;-webkit-user-select:none}
+.btn.back2{flex:none;min-height:44px}
+.rhead .rt{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.rhead .rt b{display:block;font-size:14.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rhead .rt small{display:block;font-size:11.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rhead .rr{flex:none;font-size:12.5px;font-weight:700;color:var(--ink-2);text-align:right}
+.strip{flex:none;display:flex;align-items:center;gap:8px;padding-block:2px 4px;font-size:11.5px;font-weight:700;color:var(--ink-2)}
+.dots{flex:1;display:flex;gap:4px}
+.dots i{flex:1;height:5px;border-radius:9px;background:var(--surface-2)}
+.dots i.d{background:var(--good)} .dots i.c{background:var(--brand);box-shadow:0 0 0 2px var(--brand-wash)} .dots i.s{background:var(--warn);opacity:.5}
+.bar{height:6px;border-radius:9px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand);border-radius:9px}
+.pips{display:flex;gap:3px;flex-wrap:wrap}
+.pips i{width:14px;height:5px;border-radius:9px;background:var(--surface-2)}
+.pips i.c{background:var(--good)} .pips i.w{background:var(--bad)} .pips i.cur{background:var(--brand)}
+
+/* hero + lists */
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:16px;color:var(--hero-ink);background:linear-gradient(150deg,var(--hero-a),var(--hero-b));display:flex;flex-direction:column;gap:12px}
+.hero .wm{position:absolute;right:-14px;top:-34px;font:700 150px/1 var(--f-cjk);opacity:.1;pointer-events:none;white-space:nowrap}
+.hero .eyebrow,.hero .sub{color:var(--hero-dim)}
+.hero .sub{font-size:13px}
+.items{display:flex;gap:6px;position:relative;flex-wrap:wrap}
+.items .seal{width:36px;height:36px;border-radius:11px;font-size:18px;background:rgb(255 255 255 / 12%);color:var(--hero-ink)}
+.items .seal.done{background:var(--hero-ink);color:var(--hero-a)}
+.items .seal.now{box-shadow:0 0 0 2px var(--glow)}
+.hero .btn{background:var(--glow);color:#1c0a02;flex:none}
+.hero .link{color:var(--hero-ink);align-self:center;padding:0}
+.week{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--hero-dim)}
+.week .bar{flex:1;background:rgb(255 255 255 / 14%)} .week .bar i{background:var(--hero-ink)}
+.sech{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.hrow{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;scroll-snap-type:x proximity}
+.hrow::-webkit-scrollbar{display:none}
+.hrow>*{flex:none;scroll-snap-align:start}
+.pick{width:230px;text-align:left;display:flex;flex-direction:column;gap:5px}
+.pick .tl{font-size:18px;line-height:1.25}
+.meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-2);font-weight:600}
+.meta b{color:var(--brand)}
+.rowlist{display:flex;flex-direction:column;gap:8px}
+.trow{display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:11px 13px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.trow .gl{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--brand-wash);color:var(--brand);font:700 21px/1 var(--f-cjk);flex:none}
+.trow .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.trow .mid .tl{font-size:17px;line-height:1.25}
+.trow .mid small{color:var(--ink-2);font-size:12.5px}
+.trow .end{font-size:12px;font-weight:700;color:var(--ink-2);text-align:right;white-space:nowrap}
+.trow.faded{opacity:.55} .trow.faded b{text-decoration:line-through}
+.set{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line);min-height:52px;width:100%;text-align:left}
+.set:first-child{border-top:0}
+.set small{display:block;color:var(--ink-2);font-size:12.5px}
+.step{display:flex;align-items:center;gap:10px;font-weight:700}
+.step button{width:34px;height:34px;border-radius:50%;background:var(--surface-2);font-size:17px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stats.two{grid-template-columns:1fr 1fr} .stats.four{grid-template-columns:repeat(4,1fr)}
+.stat{padding:10px;border-radius:16px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.stat .n{font:700 22px/1.1 var(--f-display)}
+.stat small{display:block;font-size:11px;color:var(--ink-2);font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:6px;height:96px}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%;font-size:10px;color:var(--ink-2);font-weight:600;text-align:center}
+.bars i{width:100%;border-radius:6px 6px 2px 2px;background:var(--brand);min-height:2px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);padding:6px 6px 6px 0}
+.tbl td{padding:8px 6px 8px 0;border-top:1px solid var(--line);vertical-align:top}
+.scroll-x{overflow-x:auto}
+
+/* exercises + tests */
+.qtext{font:500 21px/1.4 var(--f-cjk);text-wrap:pretty}
+.prompt{font:500 23px/1.55 var(--f-cjk);text-wrap:pretty}
+.prompt.big{font-size:46px;line-height:1.15;text-align:center;padding-block:4px}
+.prompt u,.blank{display:inline-block;min-width:2.3em;text-align:center;text-decoration:none;border-bottom:2.5px solid var(--glow);line-height:1.2}
+.prompt u.fill{color:var(--brand);border-color:var(--brand)}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opts.two{display:grid;grid-template-columns:1fr 1fr}
+.opt{display:flex;align-items:center;gap:10px;text-align:left;min-height:48px;padding:7px 12px;border-radius:15px;background:var(--surface);border:1.5px solid var(--line);font-size:16px;transition:border-color .12s,background .12s}
+.opt .k{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--surface-2);font:700 12px/1 var(--f-body);color:var(--ink-2);flex:none}
+.opt small{display:block;font:500 11.5px/1.2 var(--f-body);color:var(--ink-2)}
+.opt.sel{border-color:var(--brand);background:var(--brand-wash)} .opt.sel .k{background:var(--brand);color:var(--brand-ink)}
+.opt.ok{border-color:var(--good);background:var(--good-wash)} .opt.ok .k{background:var(--good);color:var(--surface)}
+.opt.no{border-color:var(--bad);background:var(--bad-wash)} .opt.no .k{background:var(--bad);color:var(--surface)}
+.fb{display:flex;flex-direction:column;gap:2px;padding:9px 12px;border-radius:14px;font-size:13.5px;animation:rise .22s ease-out}
+.fb b{font-size:15px}
+.fb.ok{background:var(--good-wash)} .fb.ok>b{color:var(--good)} .fb.no{background:var(--bad-wash)} .fb.no>b{color:var(--bad)} .fb.idk{background:var(--warn-wash)} .fb.idk>b{color:var(--warn)}
+.hint{font-size:12.5px;color:var(--ink-2);text-align:center}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .25s 2}
+.ribbon{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;padding:8px 12px;border-radius:13px;background:var(--surface-2);font-size:13px}
+.ribbon b{font:700 17px/1.2 var(--f-cjk)}
+.qnav{display:flex;gap:6px}
+.qnav button{flex:1;height:32px;border-radius:10px;background:var(--surface);border:1.5px solid var(--line);font-weight:700;font-size:13px}
+.qnav button.ans{background:var(--brand-wash);border-color:var(--brand-wash);color:var(--brand)}
+.qnav button.cur{border-color:var(--brand)}
+.qnav button.good{background:var(--good-wash);color:var(--good);border-color:var(--good-wash)} .qnav button.bad{background:var(--bad-wash);color:var(--bad);border-color:var(--bad-wash)}
+.audio{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.audio .play{width:42px;height:42px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;flex:none;font-size:14px}
+.wave{flex:1;display:flex;align-items:center;gap:3px;height:30px;min-width:0}
+.wave i{flex:1;border-radius:3px;background:var(--line);height:calc(var(--h)*1%)}
+.audio.playing .wave i{background:var(--brand);animation:wv .9s ease-in-out infinite;animation-delay:calc(var(--h)*-11ms)}
+@keyframes wv{50%{transform:scaleY(.45)}}
+.audio .chip{min-height:28px;padding:0 9px}
+.passage{font:500 19px/1.9 var(--f-cjk);text-wrap:pretty}
+.passage.aids{line-height:2.35}
+.passage rt{font:500 10.5px/1 var(--f-body);color:var(--ink-2)}
+.passage .lk{cursor:pointer;border-radius:4px}
+.passage.tap .lk{border-bottom:1.5px dotted var(--brand)}
+.passage.hl .unknown{background:var(--glow-wash);box-shadow:inset 0 -2px 0 var(--glow)}
+.passage.hl .encountered{background:var(--warn-wash)}
+.passage.hl .learning{background:var(--brand-wash)}
+.passage .added{outline:1.5px dashed var(--glow);outline-offset:1px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--good);flex:none}
+.dot.unknown{background:var(--glow)} .dot.encountered{background:var(--warn)} .dot.learning{background:var(--brand)}
+.tiles{display:flex;flex-wrap:wrap;gap:7px}
+.slots{min-height:104px;align-content:flex-start;padding:10px;border-radius:16px;border:1.5px dashed var(--line);background:var(--surface)}
+.tile{min-height:44px;padding:0 13px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);font:500 18px/1 var(--f-cjk);box-shadow:0 2px 0 var(--line)}
+.slots .tile,.tile.sel{border-color:var(--brand);background:var(--brand-wash);box-shadow:none}
+.tile.ghosted{opacity:.25;pointer-events:none}
+.tile.ok{border-color:var(--good);background:var(--good-wash);box-shadow:none} .tile.no{border-color:var(--bad);background:var(--bad-wash);box-shadow:none}
+.syl{display:grid;grid-template-columns:auto repeat(5,1fr);gap:6px;align-items:center;font-weight:700}
+.syl button{min-height:44px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);font-weight:700}
+.syl button.sel{border-color:var(--brand);background:var(--brand-wash)}
+.fcard{flex:1;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;border-radius:24px;background:var(--surface);border:1px solid var(--line);padding:18px;width:100%}
+.fcard .tl{font-size:50px;line-height:1.1}
+.fcard .back{display:flex;flex-direction:column;gap:4px;animation:rise .25s ease-out;font-size:16px}
+.rate{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.rate.two{grid-template-columns:1fr 1fr}
+.rate button{min-height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:14px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rate small{font-weight:500;font-size:11px;color:var(--ink-2)}
+.rate .r0{color:var(--bad)} .rate .r1{color:var(--warn)} .rate .r2{color:var(--good)} .rate .r3{color:var(--info)}
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .n{font:800 54px/1 var(--f-display);letter-spacing:-.03em}
+.done-wm{font:700 96px/1 var(--f-cjk);color:var(--brand);opacity:.16;text-align:center;margin-bottom:-50px}
+.diff{font:500 20px/1.75 var(--f-cjk)}
+.diff .wrong{color:var(--bad);text-decoration:line-through} .diff .miss{color:var(--glow-text);border-bottom:2px dotted var(--glow)} .diff .extra{color:var(--ink-2);font-style:italic}
+.dcell{display:inline-flex;flex-direction:column;font:500 17px/1.5 var(--f-cjk);vertical-align:top;margin-right:2px}
+.dcell.chg span:first-child{color:var(--good);font-weight:700} .dcell.chg span:last-child{color:var(--bad);text-decoration:line-through}
+.band{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font:800 18px/1 var(--f-display);color:var(--surface);flex:none}
+.b1{background:var(--bad)} .b2{background:var(--warn)} .b3{background:var(--info)} .b4{background:var(--good)}
+.err{border-left:4px solid var(--warn);padding:10px 12px;border-radius:0 14px 14px 0;background:var(--surface);display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.err.Major{border-color:var(--glow)} .err.Critical{border-color:var(--bad)}
+.err .tl{font-size:17px} .err s{color:var(--bad)} .err .to{color:var(--good);font-weight:700}
+.err .app{border-left:3px solid var(--brand);padding-left:8px;color:var(--ink-2)}
+.fixbox{font:500 21px/1.6 var(--f-cjk)}
+.fixbox mark{background:none;color:inherit;border-bottom:3px solid var(--glow)}
+.fixbox .caret{color:var(--glow);font-weight:700}
+.tonepad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.tonepad button{min-height:58px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);font-weight:700;font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.tonepad button b{font-size:19px}
+.c1{color:var(--t1)} .c2{color:var(--t2)} .c3{color:var(--t3)} .c4{color:var(--t4)} .c5{color:var(--t5)}
+.trainer{font:500 26px/2.3 var(--f-cjk);color:var(--ink-2)}
+.trainer ruby rt{font:600 11px/1 var(--f-body)}
+.trainer .cur{color:var(--ink);font-size:40px;border-bottom:3px solid var(--glow)}
+.contour{flex-direction:column;align-items:stretch;gap:2px;padding:8px;font-size:13px;font-weight:700}
+.contour svg,.cv svg{width:100%;height:56px}
+.contour small{font-weight:500;color:var(--ink-2)}
+.ln{fill:none;stroke:var(--brand);stroke-width:2.5;stroke-linejoin:round}
+svg circle{fill:var(--brand)} svg circle.p{fill:var(--surface);stroke:var(--brand);stroke-width:2}
+svg text{fill:var(--ink-2);font:500 11px var(--f-body);text-anchor:middle}
+.hl-grid{display:grid;gap:6px;align-items:center;font-size:11.5px;font-weight:700;color:var(--ink-2)}
+.hl-grid button{min-height:44px;border-radius:11px;background:var(--surface);border:1.5px solid var(--line);font:500 15px var(--f-cjk)}
+.hl-grid button.sel{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+
+/* sheet + toast */
+#sheet{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end}
+.scrim{position:absolute;inset:0;background:rgb(3 14 15 / 55%);animation:fade .2s}
+#sheetc{position:relative;max-height:88%;overflow-y:auto;background:var(--bg);border-radius:26px 26px 0 0;padding-block:10px 18px;display:flex;flex-direction:column;gap:12px;animation:up .26s cubic-bezier(.2,.8,.2,1)}
+#sheetc::before{content:"";width:38px;height:4px;border-radius:9px;background:var(--line);align-self:center;flex:none}
+@keyframes up{from{transform:translateY(100%)}} @keyframes fade{from{opacity:0}}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mode{display:flex;align-items:center;gap:10px;padding:9px;border-radius:15px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;font-size:13.5px;text-align:left}
+.mode.on{border-color:var(--brand);background:var(--brand-wash)}
+#toast{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);z-index:9;max-width:86%;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:13.5px;font-weight:600;text-align:center;animation:rise .2s}
+aside h1{font:800 30px/1.05 var(--f-display);letter-spacing:-.02em}
+aside ul,.ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<aside>
+  <div><p class="eyebrow">Interactive mockup</p><h1>LinguaDojo, rebuilt for the thumb</h1></div>
+  <p class="muted">Step through it like the real app. Every flow runs on sample Chinese and Japanese content. Typed answers have a “Fill” helper so you can move quickly.</p>
+  <div><p class="eyebrow" style="margin-bottom:8px">Device</p><div class="wrap" id="devs"></div></div>
+  <div><p class="eyebrow" style="margin-bottom:8px">Jump to a screen</p><div class="wrap" id="jumpA"></div></div>
+  <div><p class="eyebrow" style="margin-bottom:8px">What changed</p><ul id="notesA"></ul></div>
+</aside>
+
+<div class="app" id="app" data-lang="zh">
+  <div id="view"></div>
+  <nav id="tabs" aria-label="Main">
+    <button data-act="tab" data-v="today"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>Today</button>
+    <button data-act="tab" data-v="practice"><svg viewBox="0 0 24 24"><path d="M3 12h3m12 0h3M6 7v10M18 7v10M9 12h6"/></svg>Practice</button>
+    <button data-act="tab" data-v="tests"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Tests</button>
+    <button data-act="tab" data-v="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-5 8-5s6.5 1 8 5"/></svg>Me</button>
+  </nav>
+  <div id="sheet" hidden><div class="scrim" data-act="closeSheet"></div><div id="sheetc" class="pad"></div></div>
+  <div id="toast" hidden role="status"></div>
+</div>
+
+<script>
+/* ---------- sample content (Chinese + Japanese) ---------- */
+// words: lemma -> [reading, part of speech, gloss, example, p_known, zipf]
+// zh reading = numbered pinyin; ja reading = kana ('' when the word is already kana)
+// test segs: plain string | [surface, ruby reading, lemma]; a token is "linked" when its lemma is in words
+const TIERS=['Toddler (4–5)','Primary school (8–9)','Young teen (13–14)','High school (16–17)','University (19–21)','Professional (30+)'];
+const D={
+zh:{name:'Chinese',native:'中文',flag:'🇨🇳',bcp:'zh-CN',mark:'中',aid:'Pinyin',
+ g:{listen:'听',read:'读',dict:'写',practice:'练',dt:'译',measure:'量',tone:'调',cards:'卡',study:'学',fix:'改',cal:'测'},
+ toneName:'Pinyin Tones',measureName:'Measure Words',unit:'classifiers',
+ words:{
+  '楼下':['lou2 xia4','n.','downstairs','我在楼下等你。',.1,4.4],'搬':['ban1','v.','to move (house)','他们上个月搬到了北京。',.12,4.6],
+  '老家':['lao3 jia1','n.','hometown','春节的时候我要回老家。',.6,4.3],'适合':['shi4 he2','v.','to suit; to be good for','这件衣服很适合你。',.15,4.8],
+  '几乎':['ji1 hu1','adv.','almost','我几乎每天都喝咖啡。',.3,5.0],'老板':['lao3 ban3','n.','owner; boss','老板今天不在店里。',.92,5.1],
+  '年轻':['nian2 qing1','adj.','young','她看起来很年轻。',.85,5.2],'安静':['an1 jing4','adj.','quiet','图书馆里很安静。',.95,4.9],
+  '拿铁':['na2 tie3','n.','latte','我要一杯热拿铁。',.8,3.4],'价格':['jia4 ge2','n.','price','这里的价格不贵。',.9,5.3],
+  '咖啡店':['ka1 fei1 dian4','n.','café','我们在咖啡店见面吧。',.97,4.2],'周末':['zhou1 mo4','n.','weekend','周末你有空吗？',.97,5.0],
+  '天气':['tian1 qi4','n.','weather','今天天气不错。',.95,5.2],'决定':['jue2 ding4','v.','to decide','我决定明年去中国。',.55,5.6],
+  '爬山':['pa2 shan1','v.','to hike; to climb a mountain','我们周末去爬山。',.9,4.1],'地铁站':['di4 tie3 zhan4','n.','subway station','地铁站离这儿不远。',.92,4.0],
+  '公交车':['gong1 jiao1 che1','n.','public bus','我每天坐公交车上班。',.88,4.2],'山脚':['shan1 jiao3','n.','foot of a mountain','山脚下有一家小店。',.15,3.2],
+  '山顶':['shan1 ding3','n.','summit','山顶上很冷。',.8,3.9],'虽然':['sui1 ran2','conj.','although','虽然下雨，他还是来了。',.9,5.5],
+  '风景':['feng1 jing3','n.','scenery','这里的风景很美。',.85,4.6],'热腾腾':['re4 teng2 teng2','adj.','steaming hot','桌上有一碗热腾腾的汤。',.8,2.9]},
+ tests:[
+  {id:'hike',title:'周末去爬山',en:'A weekend hike',topic:'Outdoors',tier:1,elo:{listen:1180,read:1140,dict:1210,tone:1160},attempts:14,mine:{dict:1},
+   segs:['这个',['周末'],['天气'],'很好，小李和朋友',['决定'],'去',['爬山'],'。他们早上七点在',['地铁站'],'见面，然后坐',['公交车'],'到',['山脚'],'下。爬到',['山顶'],'花了两个小时，',['虽然'],'很累，但是',['风景'],'特别美。下山以后，他们一起吃了一碗',['热腾腾'],'的牛肉面。'],
+   qs:[{q:'他们几点见面？',o:['早上六点','早上七点','上午九点','中午十二点'],a:1,why:'The passage says 早上七点在地铁站见面.',w:[]},
+       {q:'他们怎么去山脚下？',o:['坐地铁','坐公交车','骑自行车','开车'],a:1,why:'They meet at the subway station, then 坐公交车到山脚下.',w:['山脚']},
+       {q:'下山以后，他们做了什么？',o:['回家睡觉','去看电影','吃牛肉面','去喝咖啡'],a:2,why:'下山以后，他们一起吃了一碗热腾腾的牛肉面.',w:[]},
+       {q:'爬到山顶花了多长时间？',o:['一个小时','两个小时','三个小时','半天'],a:1,why:'爬到山顶花了两个小时.',w:[]},
+       {q:'他们觉得这次爬山怎么样？',o:['不累，也不好看','很累，但是风景很美','很无聊','太危险了'],a:1,why:'虽然很累，但是风景特别美.',w:['决定']}]},
+  {id:'cafe',title:'新开的咖啡店',en:'The new café downstairs',topic:'Daily life',tier:2,elo:{listen:1310,read:1265,dict:1340,tone:1290},attempts:9,mine:{},
+   segs:['我家',['楼下'],'新开了一家',['咖啡店'],'。',['老板'],'是一位',['年轻'],'的女士，她以前在上海工作，去年',['搬'],'回了',['老家'],'。店里不大，只有六张桌子，但是很',['安静'],'，',['适合'],'看书。我最喜欢他们的',['拿铁'],'，不太甜，',['价格'],'也不贵。现在我',['几乎'],'每个',['周末'],'都去那儿坐一会儿。'],
+   qs:[{q:'老板去年搬到了哪儿？',o:['北京','上海','广州','老家'],a:3,why:'她以前在上海工作，去年搬回了老家.',w:['老家','搬']},
+       {q:'这家咖啡店怎么样？',o:['又大又吵','不大，但是适合看书','价格很贵','桌子很多'],a:1,why:'店里不大…但是很安静，适合看书.',w:['适合']},
+       {q:'“我”多久去一次？',o:['每天都去','几乎每个周末','一个月一次','很少去'],a:1,why:'现在我几乎每个周末都去那儿.',w:['几乎']},
+       {q:'店里有几张桌子？',o:['四张','六张','八张','十张'],a:1,why:'只有六张桌子.',w:[]},
+       {q:'“我”为什么喜欢他们的拿铁？',o:['因为很甜','因为不太甜，也不贵','因为很大杯','因为是老板送的'],a:1,why:'不太甜，价格也不贵.',w:[]}]},
+  {id:'s1',title:'第一次坐高铁',en:'My first high-speed train',topic:'Travel',tier:2,elo:{listen:1330,read:1300,dict:1350,tone:1310},attempts:21,stub:1},
+  {id:'s2',title:'在菜市场买菜',en:'Shopping at the wet market',topic:'Food',tier:1,elo:{listen:1150,read:1120,dict:1190,tone:1140},attempts:33,stub:1},
+  {id:'s3',title:'我的手机坏了',en:'My phone broke',topic:'Daily life',tier:3,elo:{listen:1490,read:1470,dict:1520,tone:1480},attempts:6,stub:1},
+  {id:'s4',title:'中秋节的月饼',en:'Mooncakes at Mid-Autumn',topic:'Food',tier:3,elo:{listen:1545,read:1510,dict:1580,tone:1530},attempts:4,stub:1}],
+ near:{hike:'这个周末天气很好，小李和朋友决定去爬山。他们早上七点在地铁站见面，然后坐公交车到山下。爬到山顶花了两个小时，虽然很累，但是风景特别没。下山以后，他们一起吃了一碗热的牛肉面。',
+       cafe:'我家楼下新开了一家咖啡店。老板是一位年轻的女士，她以前在上海工作，去年回了老家。店里不大，只有六张桌子，但是很干净，适合看书。'},
+ newWords:['搬','山脚'],
+ practice:[
+  {w:'虽然',lv:[2,'Meaning'],t:'Cloze',ins:'Fill in the blank:',k:'mc',p:'虽然很累，<u>　　</u>风景特别美。',o:['所以','但是','因为','如果'],a:1,why:'虽然 pairs with 但是: “although …, (still) …”.'},
+  {w:'楼下',lv:[1,'Form'],t:'Type the Word',ins:'Type the missing word:',k:'typed',p:'我家<u>　　</u>新开了一家咖啡店。',hint:'downstairs',ans:['楼下'],why:'楼下 (lóuxià): downstairs.'},
+  {w:'适合',lv:[1,'Form'],t:'Hanzi → Pinyin',ins:'Choose the correct pinyin:',k:'mc',big:1,p:'适合',ctx:'这件衣服很<b>适合</b>你。',plain:1,o:['shíhé','shìhé','sìhé','shìhè'],a:1,why:'适合 is read shìhé (4th + 2nd tone).'},
+  {w:'老家',lv:[3,'Recall'],t:'Text Flashcard',k:'flash'},
+  {w:null,t:'Measure Word',ins:'Choose the correct measure word:',k:'mc',big:1,p:'一<u>　　</u>牛肉面',sub:'yì ___ niúròumiàn · a bowl of beef noodles',o:['本','张','碗','条'],a:2,why:'Group: bowls of food'},
+  {w:'地铁站',lv:[4,'Use'],t:'Word Order',ins:'Arrange the words in the correct order:',k:'jumble',tiles:['地铁站','他们','见面','早上七点','在'],accept:['他们早上七点在地铁站见面','早上七点他们在地铁站见面'],why:'Time comes before place, and both come before the verb.'},
+  {w:null,t:'Spot Incorrect Part',ins:'Tap the part of the sentence that contains an error:',k:'spot',chips:['店里','只有','六个','桌子'],a:2,fix:'六张',why:'Flat-topped furniture such as tables takes 张.'},
+  {w:'适合',lv:[5,'Judgement'],cp:[1,3],t:'Cloze',ins:'Fill in the blank:',k:'mc',p:'这家店很安静，很<u>　　</u>看书。',o:['几乎','适合','决定','虽然'],a:1,why:'适合 + verb: “good for doing”.'},
+  {w:'适合',lv:[5,'Judgement'],cp:[2,3],t:'Semantic',ins:'Which sentence uses <b>适合</b> correctly?',k:'mc',o:['我适合每天都喝咖啡了。','这个颜色很适合你。','他适合地跑回家。','适合我是学生。'],a:1,why:'适合 takes a person or an activity as its object.'},
+  {w:'适合',lv:[5,'Judgement'],cp:[3,3],t:'Translation',ins:'Choose the correct translation:',k:'mc',p:'这份工作不适合我。',plain:1,o:['I do not like this job.','This job does not suit me.','I cannot find this job.','This job is not mine.'],a:1,why:'不适合我: does not suit me.'}],
+ drill:[['书','shū','book','本','běn','bound volumes'],['纸','zhǐ','paper','张','zhāng','flat things'],['鱼','yú','fish','条','tiáo','long, flexible things'],['猫','māo','cat','只','zhī','small animals'],['衣服','yīfu','clothing','件','jiàn','clothing and matters'],['咖啡店','kāfēidiàn','café','家','jiā','businesses and households'],['牛肉面','niúròumiàn','beef noodles','碗','wǎn','bowls of food'],['桌子','zhuōzi','table','张','zhāng','flat things']],
+ tonePassage:[['他','ta',1],['们','men',5],['不','bu',2,'不 is read in the 2nd tone (bú) when the next syllable is 4th tone.'],['累','lei',4],'，',['风','feng',1],['景','jing',3],['特','te',4],['别','bie',2],['美','mei',3],'。',['我','wo',3],['们','men',5],['一','yi',4,'一 is read in the 4th tone (yì) before a 1st, 2nd or 3rd tone.'],['起','qi',3],['去','qu',4],['吧','ba',5],'。'],
+ dt:{ref:'A new café opened downstairs from my home. It is not big, but it is very quiet. I go there almost every weekend.',
+  sample:['我家楼下新开了一个咖啡店。','店里不大，但是很安静。','我几乎每个周末去那儿。'],
+  steps:[{i:0,where:'一个',kind:'Measure word',clue:'Shops, restaurants and companies have their own measure word. Which one counts businesses?',accept:['我家楼下新开了一家咖啡店。'],bad:'一<s>个</s>咖啡店',good:'一<b>家</b>咖啡店',why:'Shops and restaurants are counted with 家, not the general 个.'},
+         {i:2,where:null,after:'周末',kind:'Missing word',clue:'After 每 + a time word, Chinese expects a small adverb before the verb that means “in every case”.',accept:['我几乎每个周末都去那儿。'],bad:'每个周末<s>▢</s>去',good:'每个周末<b>都</b>去',why:'每… pairs with 都 before the verb.'}],
+  diff:[['我家楼下新开了一'],['家','个'],['咖啡店。店里不大，但是很安静。我几乎每个周末'],['都',''],['去那儿。']],
+  worked:[['不大，但是很安静','Structure'],['几乎','Word choice']],
+  errs:[{cat:'Grammar',sub:'Measure word',sev:'Minor',src:'Overgeneralization',from:'一个咖啡店',to:'一家咖啡店',rule:'Businesses such as shops, restaurants and companies are counted with 家.',app:'咖啡店 is a business, so it is 一家咖啡店.'},
+        {cat:'Grammar',sub:'Adverb 都 with 每',sev:'Major',src:'First-language influence',from:'每个周末去',to:'每个周末都去',rule:'每 + noun is normally followed by 都 before the verb.',app:'English “every weekend” has no matching word, so 都 is easy to drop.'}],
+  primed:[['楼下','我家楼下','我家楼下','produced'],['几乎','几乎每个周末','几乎每个周末','produced'],['适合','适合看书','—','omitted']]},
+ profile:[['Measure word','ZH → EN','Drilling','40% fewer this window'],['Adverb 都 with 每','ZH → EN','Watching','Same as last window'],['Aspect / negation','ZH → EN','Queued',''],['的 / 地 / 得','ZH → EN','Resolved','']]},
+
+ja:{name:'Japanese',native:'日本語',flag:'🇯🇵',bcp:'ja-JP',mark:'日',aid:'Furigana',
+ g:{listen:'聴',read:'読',dict:'書',practice:'練',dt:'訳',measure:'数',tone:'音',cards:'札',study:'学',fix:'直',cal:'測'},
+ toneName:'Pitch Accent',measureName:'Counters',unit:'counters',
+ words:{
+  '店長':['てんちょう','n.','shop manager','店長に聞いてみます。',.12,4.1],'以前':['いぜん','n./adv.','previously; before','以前、ここに住んでいました。',.3,4.9],
+  '地元':['じもと','n.','hometown; local area','夏休みに地元に帰ります。',.1,4.3],'戻る':['もどる','v.','to return; to go back','五時に会社に戻ります。',.6,5.0],
+  'ぴったり':['','adv.','a perfect fit; exactly right','この靴は私にぴったりです。',.15,4.2],'近く':['ちかく','n.','nearby; vicinity','駅の近くに住んでいます。',.9,5.2],
+  '若い':['わかい','adj.','young','父は若いころ、歌手でした。',.9,5.1],'働く':['はたらく','v.','to work','姉は銀行で働いています。',.93,5.2],
+  '静か':['しずか','adj.','quiet','この町は静かです。',.95,4.8],'値段':['ねだん','n.','price','この店は値段が安いです。',.85,4.5],
+  'ほとんど':['','adv.','almost; nearly all','宿題はほとんど終わりました。',.8,5.3],'のんびり':['','adv.','relaxed; at ease','休みの日は家でのんびりします。',.8,3.9],
+  '週末':['しゅうまつ','n.','weekend','週末は何をしますか。',.95,4.7],'天気':['てんき','n.','weather','今日は天気がいいです。',.95,5.0],
+  '友達':['ともだち','n.','friend','友達と映画を見ました。',.97,5.4],'登る':['のぼる','v.','to climb','来月、富士山に登ります。',.55,4.4],
+  '駅':['えき','n.','station','駅で待っています。',.97,5.3],'ふもと':['','n.','foot of a mountain','山のふもとに小さな村があります。',.1,3.3],
+  '頂上':['ちょうじょう','n.','summit','頂上は風が強いです。',.8,3.8],'疲れる':['つかれる','v.','to get tired','今日はとても疲れました。',.9,4.9],
+  '景色':['けしき','n.','scenery','窓からの景色がきれいです。',.85,4.4],'温かい':['あたたかい','adj.','warm','温かいお茶をください。',.9,4.5]},
+ tests:[
+  {id:'hike',title:'週末のハイキング',en:'A weekend hike',topic:'Outdoors',tier:1,elo:{listen:1180,read:1140,dict:1210,tone:1160},attempts:11,mine:{dict:1},
+   segs:[['今週','こんしゅう'],'の',['週末','しゅうまつ'],'は',['天気','てんき'],'がよかったので、',['田中','たなか'],'さんは',['友達','ともだち'],'と',['山','やま'],'に',['登る','のぼる'],'ことにしました。',['朝','あさ'],['七時','しちじ'],'に',['駅','えき'],'で',['会って','あって'],'、それからバスで',['山','やま'],'の',['ふもと'],'まで',['行きました','いきました'],'。',['頂上','ちょうじょう'],'まで',['二時間','にじかん'],'かかりました。とても',['疲れました','つかれました','疲れる'],'が、',['景色','けしき'],'は',['本当','ほんとう'],'にきれいでした。',['山','やま'],'を',['下りた','おりた'],'あと、',['二人','ふたり'],'で',['温かい','あたたかい'],'ラーメンを',['食べました','たべました'],'。'],
+   qs:[{q:'二人は何時に会いましたか。',o:['朝六時','朝七時','午前九時','昼の十二時'],a:1,why:'朝七時に駅で会って…',w:[]},
+       {q:'山のふもとまで何で行きましたか。',o:['電車','バス','自転車','車'],a:1,why:'それからバスで山のふもとまで行きました。',w:['ふもと']},
+       {q:'山を下りたあと、何をしましたか。',o:['家で寝ました','映画を見ました','ラーメンを食べました','コーヒーを飲みました'],a:2,why:'二人で温かいラーメンを食べました。',w:[]},
+       {q:'頂上までどのくらいかかりましたか。',o:['一時間','二時間','三時間','半日'],a:1,why:'頂上まで二時間かかりました。',w:[]},
+       {q:'景色はどうでしたか。',o:['あまりよくなかった','本当にきれいだった','何も見えなかった','普通だった'],a:1,why:'景色は本当にきれいでした。',w:['登る']}]},
+  {id:'cafe',title:'新しいカフェ',en:'The new café nearby',topic:'Daily life',tier:2,elo:{listen:1310,read:1265,dict:1340,tone:1290},attempts:7,mine:{},
+   segs:[['家','いえ'],'の',['近く','ちかく'],'に',['新しい','あたらしい'],'カフェができました。',['店長','てんちょう'],'は',['若い','わかい'],['女性','じょせい'],'で、',['以前','いぜん'],'は',['東京','とうきょう'],'で',['働いて','はたらいて','働く'],'いましたが、',['去年','きょねん'],['地元','じもと'],'に',['戻って','もどって','戻る'],'きたそうです。',['店','みせ'],'は',['広く','ひろく'],'ありませんが、とても',['静か','しずか'],'で、',['本','ほん'],'を',['読む','よむ'],'のに',['ぴったり'],'です。',['私','わたし'],'はここのカフェラテが',['一番','いちばん'],['好き','すき'],'です。あまり',['甘く','あまく'],'なくて、',['値段','ねだん'],'も',['高く','たかく'],'ありません。',['最近','さいきん'],'は',['ほとんど'],['毎週末','まいしゅうまつ'],'、ここで',['のんびり'],'しています。'],
+   qs:[{q:'店長は以前どこで働いていましたか。',o:['大阪','東京','京都','地元'],a:1,why:'以前は東京で働いていましたが…',w:['以前','地元']},
+       {q:'このカフェはどんな店ですか。',o:['広くてにぎやか','広くないが、本を読むのにぴったり','値段が高い','席が多い'],a:1,why:'店は広くありませんが、とても静かで、本を読むのにぴったりです。',w:['ぴったり']},
+       {q:'「私」はどのくらいここに来ますか。',o:['毎日','ほとんど毎週末','月に一回','あまり来ない'],a:1,why:'最近はほとんど毎週末、ここでのんびりしています。',w:[]},
+       {q:'店長はいつ地元に戻りましたか。',o:['今年','去年','二年前','先月'],a:1,why:'去年地元に戻ってきたそうです。',w:['戻る','地元']},
+       {q:'ここのカフェラテはどうですか。',o:['とても甘い','あまり甘くなくて、高くない','高いがおいしい','少し苦い'],a:1,why:'あまり甘くなくて、値段も高くありません。',w:[]}]},
+  {id:'s1',title:'はじめての新幹線',en:'My first bullet train',topic:'Travel',tier:2,elo:{listen:1330,read:1300,dict:1350,tone:1310},attempts:18,stub:1},
+  {id:'s2',title:'商店街で買い物',en:'Shopping on the high street',topic:'Food',tier:1,elo:{listen:1150,read:1120,dict:1190,tone:1140},attempts:25,stub:1},
+  {id:'s3',title:'スマホが壊れた',en:'My phone broke',topic:'Daily life',tier:3,elo:{listen:1490,read:1470,dict:1520,tone:1480},attempts:5,stub:1},
+  {id:'s4',title:'お花見の計画',en:'Planning a cherry-blossom picnic',topic:'Outdoors',tier:3,elo:{listen:1545,read:1510,dict:1580,tone:1530},attempts:3,stub:1}],
+ near:{hike:'今週の週末は天気がよかったので、田中さんは友達と山に登ることにしました。朝七時に駅で会って、それからバスで山のふもとまで行きました。頂上まで二時間かかりました。とても疲れましたが、景色が本当にきれいでした。山を下りたあと、二人で暖かいラーメンを食べました。',
+       cafe:'家の近くに新しいカフェができました。店長は若い女性で、以前は東京で働いていましたが、去年地元に戻ったそうです。店は広くありませんが、とても静かです。'},
+ newWords:['店長','以前'],
+ practice:[
+  {w:'疲れる',lv:[2,'Meaning'],t:'Cloze',ins:'Fill in the blank:',k:'mc',p:'とても疲れました<u>　　</u>、景色は本当にきれいでした。',o:['ので','が','から','なら'],a:1,why:'が joins two clauses that contrast: “…, but …”.'},
+  {w:'近く',lv:[1,'Form'],t:'Type the Word',ins:'Type the missing word:',k:'typed',p:'家の<u>　　</u>に新しいカフェができました。',hint:'nearby',ans:['近く','ちかく'],why:'近く (ちかく): nearby.'},
+  {w:'値段',lv:[1,'Form'],t:'Kanji → Reading',ins:'Choose the correct reading:',k:'mc',big:1,p:'値段',ctx:'この店は<b>値段</b>が安いです。',o:['ちだん','ねだん','ねたん','かだん'],a:1,why:'値段 is read ねだん.'},
+  {w:'地元',lv:[3,'Recall'],t:'Text Flashcard',k:'flash'},
+  {w:null,t:'Counter',ins:'Choose the correct counter:',k:'mc',big:1,p:'猫が一<u>　　</u>います',sub:'There is one cat',o:['台','枚','匹','本'],os:['いちだい','いちまい','いっぴき','いっぽん'],a:2,why:'Group: small animals'},
+  {w:null,t:'Particle Choice',ins:'Choose the correct particle:',k:'mc',big:1,p:'朝七時<u>　　</u>駅で会いました。',o:['を','が','に','へ'],a:2,why:'A specific clock time takes に.'},
+  {w:'ふもと',lv:[4,'Use'],t:'Word Order',ins:'Arrange the words in the correct order:',k:'jumble',tiles:['ふもとまで','バスで','行きました','山の'],accept:['バスで山のふもとまで行きました','山のふもとまでバスで行きました'],why:'The verb closes the sentence. バスで can sit before or after the destination.'},
+  {w:null,t:'Spot Incorrect Part',ins:'Tap the part of the sentence that contains an error:',k:'spot',chips:['店は','広い','ありませんが、','とても','静かです'],a:1,fix:'広く',why:'An い-adjective becomes 〜く before ありません.'},
+  {w:'ぴったり',lv:[5,'Judgement'],cp:[1,3],t:'Cloze',ins:'Fill in the blank:',k:'mc',p:'この靴は私に<u>　　</u>です。',o:['のんびり','ぴったり','ほとんど','ゆっくり'],a:1,why:'〜にぴったり: a perfect fit for someone.'},
+  {w:'ぴったり',lv:[5,'Judgement'],cp:[2,3],t:'Semantic',ins:'Which sentence uses <b>ぴったり</b> correctly?',k:'mc',o:['ぴったり雨が降っています。','この服はあなたにぴったりです。','私はぴったりを食べました。','駅までぴったり歩きます。'],a:1,why:'ぴったり describes something that fits or matches exactly.'},
+  {w:'ぴったり',lv:[5,'Judgement'],cp:[3,3],t:'Translation',ins:'Choose the correct translation:',k:'mc',p:'本を読むのにぴったりです。',plain:1,o:['I want to read a book.','It is perfect for reading books.','I read books slowly.','The book is exactly here.'],a:1,why:'〜のにぴったり: perfect for doing.'}],
+ drill:[['猫','ねこ','cat','匹','ひき','small animals','いっぴき にひき さんびき よんひき ごひき ろっぴき ななひき はっぴき きゅうひき じゅっぴき','いっぴき'],['本','ほん','book','冊','さつ','bound volumes','いっさつ にさつ さんさつ よんさつ ごさつ ろくさつ ななさつ はっさつ きゅうさつ じゅっさつ','いっさつ'],['鉛筆','えんぴつ','pencil','本','ほん','long, thin objects','いっぽん にほん さんぼん よんほん ごほん ろっぽん ななほん はっぽん きゅうほん じゅっぽん','いっぽん'],['紙','かみ','paper','枚','まい','flat, thin objects','いちまい にまい さんまい よんまい ごまい ろくまい ななまい はちまい きゅうまい じゅうまい','いちまい'],['車','くるま','car','台','だい','vehicles and machines','いちだい にだい さんだい よんだい ごだい ろくだい ななだい はちだい きゅうだい じゅうだい','いちだい'],['コーヒー','','coffee','杯','はい','cups and glasses','いっぱい にはい さんばい よんはい ごはい ろっぱい ななはい はっぱい きゅうはい じゅっぱい','いっぱい']],
+ pitchPassage:[['友達',['と','も','だ','ち'],'heiban'],'と',['日本',['に','ほ','ん'],'naka'],'の',['山',['や','ま'],'odaka'],'に登りました。',['景色',['け','し','き'],'atama'],'は',['きれい',['き','れ','い'],'atama'],'でした。'],
+ dt:{ref:'A new café opened near my house. The shop is not big, but it is very quiet. I relax there almost every weekend.',
+  sample:['家の近くで新しいカフェができました。','店は広くありませんが、とても静かです。','ほとんど毎週末に、そこでのんびりしています。'],
+  steps:[{i:0,where:'で',kind:'Case particle',clue:'できる describes something coming into existence at a place. Which particle marks where something exists or appears?',accept:['家の近くに新しいカフェができました。'],bad:'近く<s>で</s>',good:'近く<b>に</b>',why:'できる takes に for the place where something comes to exist. で marks where an action happens.'},
+         {i:2,where:'に',kind:'Particle',clue:'Time words built with 毎 behave like 毎日 and 毎週. Do those take a particle?',accept:['ほとんど毎週末、そこでのんびりしています。','ほとんど毎週末そこでのんびりしています。'],bad:'毎週末<s>に</s>',good:'毎週末',why:'Words with 毎 (毎日, 毎週末) are used without に.'}],
+  diff:[['家の近く'],['に','で'],['新しいカフェができました。店は広くありませんが、とても静かです。ほとんど毎週末'],['','に'],['、そこでのんびりしています。']],
+  worked:[['広くありませんが','Grammar'],['のんびりしています','Word choice']],
+  errs:[{cat:'Grammar',sub:'Case particle',sev:'Major',src:'Overgeneralization',from:'近くでカフェができました',to:'近くにカフェができました',rule:'Verbs of existence and appearance (ある, いる, できる) mark the place with に.',app:'The café came into existence there, so it is 近くに.'},
+        {cat:'Grammar',sub:'Particle',sev:'Minor',src:'First-language influence',from:'毎週末に',to:'毎週末',rule:'Time words with 毎 do not take に.',app:'English “on weekends” suggests a particle, but 毎週末 stands alone.'}],
+  primed:[['近く','家の近くに','家の近くで','variant'],['のんびり','のんびりしています','のんびりしています','produced'],['ぴったり','本を読むのにぴったり','—','omitted']]},
+ profile:[['Case particle','JA → EN','Drilling','25% fewer this window'],['Particle','JA → EN','Watching','Up this window'],['は / が','JA → EN','Queued',''],['Politeness level','JA → EN','Resolved','']]}
+};
+const RUBRIC=[['Accuracy','Grammar and word forms are correct throughout.'],['Understandability','A native reader follows it without effort.'],['Fidelity','Everything in the reference is carried over and nothing is added.'],['Range','Uses varied structures and precise vocabulary.']];
+const PITCH={heiban:['平板','Heiban','flat, no drop'],atama:['頭高','Atamadaka','drop after mora 1'],naka:['中高','Nakadaka','drop after mora 2'],odaka:['尾高','Odaka','drop on the following particle']};
+const INTRO={listen:['Listening Comprehension','Press play to hear the audio clip — you can replay it as many times as you need.','Then answer each multiple-choice question based on what you heard.'],
+ read:['Reading Comprehension','Read the passage, then answer the multiple-choice questions about it.','There’s no time limit, and you can go back to re-read the passage at any point.'],
+ dict:['Dictation','Listen to the audio, then type exactly what you hear into the box.','Submit your answer to see how closely it matches — you can replay the audio as many times as you like.'],
+ tone_zh:['Pinyin Tone Practice','The passage is shown one character at a time. Pick the tone you would say for the highlighted character.','A wrong tone shows the answer, then you answer that character again.'],
+ tone_ja:['Pitch Accent Practice','Pick the pitch pattern for each highlighted word. Quick mode is one tap per word; Contour mode has you set high or low for every mora.','A wrong pattern shows the answer, then you answer that word again.']};
+const NOTES=['One task per screen, sized to the visible viewport, so the action button is always on screen.','Answer and Continue controls sit in the thumb zone; only the middle of the screen can scroll.','Bottom tabs replace the hamburger menu: Today, Practice, Tests and Me.','Every flow follows the current app: prestudy stages and readiness check, test player and review, practice ladder, new-word drill, self-repair hints and the drills.','Light and dark themes, switchable from the top bar.'];
+
+/* ---------- state ---------- */
+const S={lang:'zh',screen:'login',otp:false,email:'',first:true,native:null,introSeen:{},know:{zh:{},ja:{}},
+  done:{zh:{},ja:{}},loadDone:{zh:{},ja:{}},watch:[],trad:false,filter:{type:'all',tier:'all'},practiceUI:{},
+  plan:{min:30,shape:[1,1,1,1,1,1,1],cover:'both',mods:{},newWords:5,prestudy:'auto',adv:false,weights:{}}};
+let P=null, RUN=null, toastT=0, speakT=0, sheetOwner=null;
+const stack=[];
+const hostTheme=document.documentElement.getAttribute('data-theme');
+const $=s=>document.querySelector(s), L=()=>D[S.lang];
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tl=(t,cls='')=>`<span class="tl ${cls}" lang="${L().bcp}">${t}</span>`;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+const mmss=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+
+/* ---------- words, readings, knowledge ---------- */
+const TM={a:'āáǎà',e:'ēéěè',i:'īíǐì',o:'ōóǒò',u:'ūúǔù'};
+function tone(s,t){if(t===5||!t)return s;let i=s.search(/[ae]/);if(i<0)i=s.indexOf('ou');if(i<0)for(let j=s.length-1;j>=0;j--)if(TM[s[j]]){i=j;break}return s.slice(0,i)+TM[s[i]][t-1]+s.slice(i+1)}
+const pyParts=n=>n.split(' ').map(x=>({s:x.slice(0,-1),t:+x.slice(-1)}));
+const KR={};'あa いi うu えe おo かka きki くku けke こko さsa しshi すsu せse そso たta ちchi つtsu てte とto なna にni ぬnu ねne のno はha ひhi ふfu へhe ほho まma みmi むmu めme もmo やya ゆyu よyo らra りri るru れre ろro わwa をo んn がga ぎgi ぐgu げge ごgo ざza じji ずzu ぜze ぞzo だda ぢji づzu でde どdo ばba びbi ぶbu べbe ぼbo ぱpa ぴpi ぷpu ぺpe ぽpo'.split(' ').forEach(x=>KR[x[0]]=x.slice(1));
+function romaji(k){let o='';for(let i=0;i<k.length;i++){const c=k[i],n=k[i+1];
+  if(c==='っ'){o+=(KR[n]||'')[0]||'';continue}
+  if(n&&'ゃゅょ'.includes(n)){const b=KR[c]||'',v={'ゃ':'a','ゅ':'u','ょ':'o'}[n];o+=(/^(sh|ch|j)/.test(b)?b.slice(0,-1):b.slice(0,-1)+'y')+v;i++;continue}
+  o+=KR[c]||c}return o}
+const normR=r=>r.toLowerCase().replace(/ō/g,'o').replace(/ū/g,'u').replace(/[^a-z]/g,'').replace(/si/g,'shi').replace(/ti/g,'chi').replace(/tu/g,'tsu').replace(/hu/g,'fu').replace(/zi/g,'ji').replace(/sy/g,'sh').replace(/ty/g,'ch').replace(/zy/g,'j').replace(/ou|oo/g,'o').replace(/uu/g,'u');
+const kataToHira=s=>s.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
+function W(lemma){const w=L().words[lemma];if(!w)return null;const zh=S.lang==='zh';
+  return{lemma,raw:w[0],pos:w[1],g:w[2],ex:w[3],z:w[5],read:zh?pyParts(w[0]).map(p=>tone(p.s,p.t)).join(''):w[0],
+    full:zh?pyParts(w[0]).map(p=>tone(p.s,p.t)).join('')+' ('+w[0]+')':w[0]?w[0]+' · '+romaji(w[0]):''}}
+const hasReading=lemma=>!!L().words[lemma][0];
+const pNow=lemma=>S.know[S.lang][lemma]??L().words[lemma][4];
+const status=p=>p<.2?'unknown':p<.5?'encountered':p<.75?'learning':p<.9?'probably_known':'known';
+const STATUS={unknown:['New','bad'],encountered:['Seen before','warn'],learning:['Learning','brand'],probably_known:['Probably known','ok'],known:['Known','ok']};
+function learn(lemma,ok,idk){const p=pNow(lemma);S.know[S.lang][lemma]=idk?p*.5:ok?p+(1-p)*.22:p*.7}
+function gradeZh(inp,num,tones){const ps=pyParts(num),u=inp.toLowerCase().replace(/[\s'’]/g,''),plain=ps.map(p=>p.s).join('');
+  if(tones){const ok=ps.every((p,i)=>tones[i]===p.t);return{ok,detail:ok?'':'Syllables right, tones wrong.'}}
+  if(/\d/.test(u)){const m=u.match(/[a-z]+\d?/g)||[];if(m.map(x=>x.replace(/\d/,'')).join('')!==plain)return{ok:false,detail:'The syllables are not right.'};
+    const ok=m.length===ps.length&&m.every((x,i)=>(+(x.match(/\d/)||[5])[0]||5)===ps[i].t);return{ok,detail:ok?'':'Syllables right, tones wrong.'}}
+  if(u===plain)return{need:1};
+  if(u===ps.map(p=>tone(p.s,p.t)).join(''))return{ok:true};
+  if(u.normalize('NFD').replace(/[̀-ͯ]/g,'')===plain)return{ok:false,detail:'Syllables right, tones wrong.'};
+  return{ok:false,detail:'The syllables are not right.'}}
+function gradeJa(inp,kana){const u=inp.trim();if(kataToHira(u)===kana)return{ok:true};
+  if(/^[a-zāīūēō\s'-]+$/i.test(u)&&normR(u)===normR(romaji(kana)))return{ok:true,detail:'Romaji accepted.'};return{ok:false}}
+
+/* ---------- tests ---------- */
+const toks=t=>t.segs.map(s=>typeof s==='string'?{s}:{s:s[0],r:S.lang==='zh'?(W(s[0])||{}).read:s[1],lemma:L().words[s[2]||s[0]]?(s[2]||s[0]):null});
+const text=t=>t.segs.map(s=>typeof s==='string'?s:s[0]).join('');
+const sentences=t=>text(t).split(/(?<=。)/).filter(Boolean);
+const linked=t=>[...new Set(toks(t).filter(x=>x.lemma).map(x=>x.lemma))];
+const inQ=(t,lemma)=>t.qs.some(q=>q.w.includes(lemma));
+function analyse(t,added=new Set()){const all=linked(t),study=all.filter(w=>pNow(w)<.75||added.has(w));
+  const share=all.filter(w=>pNow(w)<.75).length/all.length;
+  return{all,study,share,unknown:all.filter(w=>pNow(w)<.5).length,mode:share>.25?'full':share>=.05?'light':'none'}}
+const surfaceOf=(t,lemma)=>(toks(t).find(x=>x.lemma===lemma)||{}).s||lemma;
+function sentenceFor(lemma,t){const tt=t?[t]:L().tests.filter(x=>x.segs);for(const x of tt){const sf=surfaceOf(x,lemma),s=sentences(x).find(y=>y.includes(sf));if(s&&linked(x).includes(lemma))return{s,sf}}
+  const ex=L().words[lemma][3];return ex.includes(lemma)?{s:ex,sf:lemma}:null}
+function passageHTML(t,{aids='off',hl=false,tap=false,added=new Set()}={}){
+  return `<p class="passage ${aids!=='off'?'aids':''} ${hl?'hl':''} ${tap?'tap':''}" lang="${L().bcp}">${toks(t).map(x=>{
+    if(!x.lemma&&!x.r)return x.s;const p=x.lemma?pNow(x.lemma):1,show=x.r&&(aids==='all'||(aids==='unknown'&&x.lemma&&p<.5));
+    const inner=show?`<ruby>${x.s}<rt>${x.r}</rt></ruby>`:x.s;
+    return x.lemma?`<span class="lk ${status(p)} ${added.has(x.lemma)?'added':''}" ${tap?`data-act="word" data-v="${x.lemma}"`:''}>${inner}</span>`:inner}).join('')}</p>`}
+
+/* ---------- ui helpers ---------- */
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2600)}
+function sheet(html,owner){$('#sheetc').innerHTML=html;$('#sheet').hidden=false;sheetOwner=owner||null}
+function closeSheet(){$('#sheet').hidden=true;sheetOwner=null}
+function stopSpeech(){try{speechSynthesis.cancel()}catch(e){}clearTimeout(speakT);S.playing=0;syncAudio()}
+function syncAudio(){document.querySelectorAll('.audio').forEach(a=>{a.classList.toggle('playing',!!S.playing);a.querySelector('.play').textContent=S.playing?'❚❚':'▶'})}
+function speak(t,rate=1){if(S.playing){stopSpeech();return}
+  S.playing=1;syncAudio();const end=()=>{clearTimeout(speakT);S.playing=0;syncAudio()};
+  speakT=setTimeout(end,Math.max(2500,t.length*300/rate));
+  try{const u=new SpeechSynthesisUtterance(t);u.lang=L().bcp;u.rate=rate*.9;u.onend=end;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){toast('No speech voice here, so playback is simulated.')}}
+const wave=()=>Array.from({length:26},(_,i)=>`<i style="--h:${28+Math.round(Math.abs(Math.sin(i*1.7)+Math.sin(i*.6))*34)}"></i>`).join('');
+const audio=(speed,extra='')=>`<div class="audio ${S.playing?'playing':''}"><button class="play" data-act="play" aria-label="Play or pause audio">${S.playing?'❚❚':'▶'}</button><div class="wave">${wave()}</div>${extra}<button class="chip num" data-act="speed" aria-label="Playback speed">${speed.toFixed(2).replace(/0$/,'')}x</button></div>`;
+const opts=(o,cls,{plain,subs,act='pick'}={})=>`<div class="opts">${o.map((t,i)=>`<button class="opt ${cls(i)}" data-act="${act}" data-v="${i}"><span class="k">${'ABCD'[i]}</span><span>${plain?esc(t):tl(t)}${subs?`<small>${subs[i]}</small>`:''}</span></button>`).join('')}</div>`;
+const fill=`<button class="chip" data-act="fill" title="Mockup helper">Fill answer</button>`;
+function sessionStrip(){if(!RUN||RUN.over||RUN.mode!=='daily')return'';
+  return `<div class="strip pad"><span>Daily Session</span><div class="dots">${RUN.items.map((it,j)=>`<i class="${S.done[S.lang][it.key]||RUN.stat[j]==='done'?'d':RUN.stat[j]==='skip'?'s':j===RUN.i?'c':''}" title="${it.type}"></i>`).join('')}</div><span class="num">${RUN.items.filter(it=>S.done[S.lang][it.key]).length}/${RUN.items.length}</span>${P&&P.skippable?'<button class="link quiet" data-act="skipItem" style="padding:0">Skip for now</button>':''}</div>`}
+function frame({title,sub='',gl='',right='',stage,dock=''}){
+  return `<header class="rhead pad"><button class="back" data-act="x" aria-label="Back"><i>‹</i>Back</button><div class="rt">${gl?`<span class="seal" lang="${L().bcp}">${gl}</span>`:''}<div class="grow"><b>${title}</b>${sub?`<small>${sub}</small>`:''}</div></div><div class="rr num">${right}</div></header>${sessionStrip()}<div class="stage pad">${stage}</div>${dock?`<div class="dock pad">${dock}</div>`:''}`}
+function levels(type,n){const a=[];for(let i=0;i<=n;i++)a.push(type==='heiban'?+(i>0):type==='atama'?+(i===0):type==='naka'?+(i===1):+(i>0&&i<n));return a}
+function contour(lv,kana){const n=kana.length,xs=lv.map((_,i)=>16+i*(108/n)),ys=lv.map(h=>h?12:32);
+  return `<svg viewBox="0 0 140 58" aria-hidden="true"><polyline class="ln" points="${xs.map((x,i)=>x+','+ys[i]).join(' ')}"/>${xs.map((x,i)=>`<circle class="${i===n?'p':''}" cx="${x}" cy="${ys[i]}" r="4"/><text x="${x}" y="54">${i===n?'が':kana[i]}</text>`).join('')}</svg>`}
+
+/* ---------- player stack + session runner ---------- */
+function open(p){if(P)stack.push(P);P=p;stopSpeech();closeSheet();render()}
+function close(result){const p=P;stopSpeech();closeSheet();if(p&&p.cleanup)p.cleanup();P=stack.pop()||null;if(p&&p.onDone)p.onDone(result);render()}
+function unwind(){stopSpeech();closeSheet();[P,...stack].forEach(p=>p&&p.cleanup&&p.cleanup());stack.length=0;P=null}
+function sessionItems(){const l=L(),t=l.tests,m=S.plan.mods,on=k=>m[k]!==false,both=S.plan.cover==='both';
+  return[
+   on('listening')&&{key:'listen',type:'Listening',gl:l.g.listen,title:t[0].title,tlx:1,min:6,start:d=>openTest(t[0],'listen',{daily:1,onDone:d})},
+   both&&on('vocab')&&{key:'practice',type:'Practice',gl:l.g.practice,title:'Vocabulary practice',min:8,start:d=>open(Practice({drill:l.newWords,onDone:d}))},
+   on('reading')&&{key:'read',type:'Reading',gl:l.g.read,title:t[1].title,tlx:1,min:11,hard:1,start:d=>hardTest(t[1],'read',d)},
+   on('dictation')&&{key:'dict',type:'Dictation',gl:l.g.dict,title:t[0].title,tlx:1,min:4,start:d=>open(Dictation(t[0],{daily:1,onDone:d}))},
+   both&&on('flashcards')&&{key:'cards',type:'Flashcards',gl:l.g.cards,title:'6 cards due',min:2,start:d=>open(Flashcards({onDone:d}))},
+   both&&on('dt')&&{key:'dt',type:'Dual Translation',gl:l.g.dt,title:'Translate a short passage',min:5,start:d=>open(DT({onDone:d}))}].filter(Boolean)}
+function hardTest(t,type,d){const go=()=>open(Prestudy(t,type,{trigger:'auto',daily:1,onDone:d}));
+  if(S.plan.prestudy==='off'){openTest(t,type,{daily:1,onDone:d});return}
+  if(S.plan.prestudy==='auto'){go();return}
+  open({onDone:d,skippable:0,view:()=>frame({title:tl(t.title),sub:'Reading · New',gl:L().g.read,stage:`<div class="done-wm" lang="${L().bcp}">${L().g.study}</div><p class="eyebrow">This one is a stretch</p><h1 class="h1">${pct(analyse(t).study.length,analyse(t).all.length)}% of its key words are new to you</h1><p class="muted">Study first (about 6 min), then take it. Your first attempt after studying counts at half weight for your rating.</p>`,
+    dock:`<button class="btn" data-act="hs">Study first, then take it</button><button class="btn ghost" data-act="hc">Take it now</button>`}),
+    acts:{hs(){const cb=P.onDone;P.onDone=null;close();go()},hc(){const cb=P.onDone;P.onDone=null;close();openTest(t,type,{daily:1,onDone:cb})}}})}
+function startSession(){const items=sessionItems(),d=S.done[S.lang];if(!items.length){toast('No session items for today. Check your Study Plan.');return}
+  RUN={mode:'daily',items,i:Math.max(0,items.findIndex(it=>!d[it.key])),stat:{}};runItem()}
+function runItem(){const it=RUN.items[RUN.i];RUN.cb=r=>{RUN.stat[RUN.i]=r==='skip'?'skip':'done';if(r!=='skip')S.done[S.lang][it.key]=1;
+    const nx=RUN.items.findIndex((x,j)=>j>RUN.i&&!S.done[S.lang][x.key]&&!RUN.stat[j]);
+    if(nx<0){RUN.over=true;RUN.tail=true;unwind();S.screen='summary'}else{RUN.i=nx;runItem()}};
+  it.start(RUN.cb)}
+
+/* ---------- render + events ---------- */
+function render(){const app=$('#app');app.dataset.lang=S.lang;
+  const keep=$('.stage')&&P&&P.keepScroll?$('.stage').scrollTop:0;
+  $('#view').innerHTML=P?P.view():screens[S.screen]();
+  $('#tabs').hidden=!!P||!['today','practice','tests','me'].includes(S.screen);
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.screen));
+  const st=$('.stage');if(st)st.scrollTop=keep;
+  const af=$('[data-focus]');if(af&&window.matchMedia('(min-width:760px)').matches)af.focus()}
+function act(name,v,el){const f=(sheetOwner&&sheetOwner[name])||(P&&P.acts&&P.acts[name])||A[name];if(f)f(v,el)}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act]');if(!t||t.disabled)return;act(t.dataset.act,t.dataset.v,t)});
+document.addEventListener('input',e=>{const k=e.target.dataset.bind;if(!k)return;const tgt=P&&P.s?P.s:S;tgt[k]=e.target.value;if(P&&P.onInput)P.onInput(k,e.target)});
+document.addEventListener('change',e=>{const k=e.target.dataset.change;if(k)act(k,e.target.value,e.target)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing&&e.target.dataset&&e.target.dataset.enter){e.preventDefault();act(e.target.dataset.enter)}});
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>{const k=window.innerHeight-visualViewport.height>120;$('#app').style.setProperty('--vvh',k?visualViewport.height+'px':'100%')});
+let sw=null;
+document.addEventListener('pointerdown',e=>{sw=P&&P.swipe&&e.target.closest('.swipe')?[e.clientX,e.clientY]:null});
+document.addEventListener('pointerup',e=>{if(!sw)return;const dx=e.clientX-sw[0],dy=e.clientY-sw[1];sw=null;if(!P||!P.swipe||!$('#sheet').hidden)return;
+  P.swipe(Math.abs(dx)<22&&Math.abs(dy)<22?'tap':Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))});
+document.addEventListener('pointercancel',()=>{sw=null});
+setInterval(()=>{const c=$('[data-clock]');if(c&&P&&P.s&&P.s.t0&&!P.s.frozen)c.textContent=mmss((Date.now()-P.s.t0)/1000)},1000);
+
+/* ---------- word prime engine (shared by prestudy and the new-word drill) ---------- */
+function Prime(words,o){const drill=o.style==='drill',zh=S.lang==='zh';
+  const LAB={read:['Reading','Type the reading','info'],def:['Meaning',drill?'What does it mean?':'Choose the meaning','brand'],read2:['Reading','Type the reading again','info'],rev:['Meaning','Which word means this?','brand'],cloze:['Use',drill?'Which word fills the gap?':'Which word fits the passage?','warn']};
+  const pool=Object.keys(L().words),others=(w,n)=>shuffle(pool.filter(x=>x!==w)).slice(0,n);
+  function build(stage,w){
+    if(stage==='read'||stage==='read2')return hasReading(w)?{w,stage,kind:'typed'}:null;
+    if(stage==='def'){const c=W(w).g;return{w,stage,kind:'mc',opts:shuffle([c,...others(w,3).map(x=>W(x).g)]),correct:c,plain:1}}
+    if(stage==='rev')return{w,stage,kind:'mc',opts:shuffle([w,...others(w,3)]),correct:w};
+    if(stage==='cloze'){const sf=sentenceFor(w,o.test);if(!sf)return null;return{w,stage,kind:'mc',sent:sf.s.replace(sf.sf,'<span class="blank">　</span>'),full:sf.s,opts:shuffle([w,...others(w,3)]),correct:w}}}
+  const pr={queue:[],i:0,per:{},words:words.slice(),tones:null,done:false,build};
+  o.stages.forEach(st=>shuffle(words).forEach(w=>{const it=build(st,w);if(it)pr.queue.push(it)}));
+  words.forEach(w=>pr.per[w]={exp:0,ok:0,wrong:0,idk:0,boost:0});
+  if(!pr.queue.length)pr.done=true;
+  function answer(ok,given,x={}){const it=pr.queue[pr.i];if(it.answered!=null)return;const idk=!!x.idk;
+    Object.assign(it,{answered:idk?'':given,ok,idk,detail:x.detail||''});
+    const w=pr.per[it.w]||(pr.per[it.w]={exp:0,ok:0,wrong:0,idk:0,boost:0});w.exp++;ok?w.ok++:w.wrong++;if(idk)w.idk++;learn(it.w,ok,idk);
+    it.will=!ok&&(it.retries||0)<(idk?3:2);
+    if(it.will)pr.queue.splice(Math.min(pr.queue.length,pr.i+(idk?2:3)+Math.floor(Math.random()*3)),0,{...it,answered:null,ok:null,idk:false,retry:true,retries:(it.retries||0)+1,will:false,boosted:false,detail:''});
+    if(idk&&w.boost<2){const b=build(it.stage==='def'?'read':'def',it.w)||build('rev',it.w);if(b){b.retry=b.booster=true;pr.queue.push(b);w.boost++;it.boosted=true}}
+    render()}
+  function reveal(it){const w=W(it.w),isRead=it.kind==='typed',lines=[];
+    const head=it.ok?(drill?'✔ Right!':'Correct.'):it.idk?(drill?'💡 Here it is — it will come back soon.':'No problem, here it is.'):(drill?'✖ Not quite.':'Not quite.');
+    if(it.detail)lines.push(it.detail);
+    if(isRead&&!drill)lines.push('The meaning comes next. Say the word to yourself once more first.');
+    if(!isRead||drill)lines.push('Example: '+tl(w.ex));
+    if(it.stage==='cloze')lines.push('Full sentence: '+tl(it.full));
+    else if(!drill&&o.test){const sf=sentenceFor(it.w,o.test);if(sf)lines.push('In this passage: '+tl(sf.s.replace(sf.sf,'<b>'+sf.sf+'</b>')))}
+    let follow=it.will?'You’ll see this one again in a moment.':it.ok?'':'Moving on for now.';if(it.boosted)follow+=' One extra turn for this word was added at the end.';
+    if(follow)lines.push(follow);
+    return `<div class="fb ${it.ok?'ok':it.idk?'idk':'no'}"><b>${head}</b><span>${tl('<b>'+it.w+'</b>')}${w.full?' · '+w.full:''}${!isRead||it.idk||drill?' — '+w.g:''}</span>${lines.map(l=>`<span class="small">${l}</span>`).join('')}</div>`}
+  pr.pips=()=>`<div class="pips">${pr.queue.map((it,i)=>`<i class="${it.answered!=null?(it.ok?'c':'w'):i===pr.i?'cur':''}"></i>`).join('')}</div>`;
+  pr.body=()=>{const it=pr.queue[pr.i],w=W(it.w),lab=LAB[it.stage],done=it.answered!=null;
+    let h=`<div class="row between"><span class="small muted num">Item ${pr.i+1} of ${pr.queue.length}${it.retry?' · again':''}</span><span class="tag ${lab[2]}">${lab[0]}</span></div><p class="eyebrow">${lab[1]}</p>`;
+    if(it.kind==='typed'){h+=`<p class="prompt big" lang="${L().bcp}">${it.w}</p>`;
+      if(done)h+=`<input type="text" disabled class="${it.ok?'okv':it.idk?'idkv':'badv'}" value="${esc(it.answered)}" aria-label="Your answer">`;
+      else if(pr.tones)h+=`<p class="note">Syllables right. Now pick the tones:</p>${pyParts(w.raw).map((p,j)=>`<div class="syl"><span>${p.s}</span>${[1,2,3,4,5].map(t=>`<button class="${pr.tones[j]===t?'sel':''}" data-act="pmTone" data-v="${j},${t}" aria-label="Tone ${t}">${t===5?'·':t}</button>`).join('')}</div>`).join('')}<div>${fill}</div>`;
+      else h+=`<p class="hint">${zh?'Type the pinyin. Add tones as numbers or marks (mu4 tou5 / mù tou), or pick them next.':'Type the reading in kana or romaji.'}</p><input type="text" data-bind="inp" data-enter="pmCheck" data-focus value="${esc(P.s.inp||'')}" placeholder="${zh?'pinyin':'ひらがな / romaji'}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Reading"><div>${fill}</div>`}
+    else{h+=it.stage==='def'?`<p class="prompt big" lang="${L().bcp}">${it.w}</p><p class="center muted">${w.read}</p>`:it.stage==='rev'?`<p class="h1 center" style="padding-block:10px">${w.g}</p>`:`<p class="prompt" lang="${L().bcp}">${it.sent}</p>`;
+      h+=opts(it.opts,i=>!done?'':it.opts[i]===it.correct?'ok':it.opts[i]===it.answered?'no':'',{plain:it.plain})}
+    return h+(done?reveal(it):'')};
+  pr.dock=()=>{const it=pr.queue[pr.i];if(it.answered!=null)return `<button class="btn" data-act="pmNext" data-focus>${pr.i===pr.queue.length-1?'Finish':'Next'}</button>`;
+    return `<div class="row"><button class="btn ghost" data-act="pmIdk">I don’t know</button>${it.kind==='typed'?'<button class="btn" data-act="pmCheck">Check</button>':''}</div><p class="hint">“I don’t know” shows the answer, and this word comes back for extra practice.</p>`};
+  pr.acts={
+    pmCheck(){const it=pr.queue[pr.i];if(!it||it.kind!=='typed'||it.answered!=null)return;const v=(P.s.inp||'').trim(),raw=W(it.w).raw;
+      if(pr.tones){if(pr.tones.some(t=>!t)){toast('Pick a tone for each syllable.');return}const g=gradeZh('',raw,pr.tones),given=v+' '+pr.tones.join('');pr.tones=null;answer(g.ok,given,g);return}
+      if(!v){toast('Type the reading first.');return}
+      if(zh){const g=gradeZh(v,raw);if(g.need){pr.tones=pyParts(raw).map(()=>0);render();return}answer(g.ok,v,g)}else{const g=gradeJa(v,raw);answer(g.ok,v,g)}},
+    pmTone(v){const[j,t]=v.split(',').map(Number);pr.tones[j]=t;render()},
+    pmIdk(){pr.tones=null;answer(false,'',{idk:true})},
+    pick(v){const it=pr.queue[pr.i];if(!it||it.kind!=='mc'||it.answered!=null)return;const g=it.opts[+v];answer(g===it.correct,g)},
+    fill(){const it=pr.queue[pr.i],raw=W(it.w).raw;if(pr.tones)pr.tones=pyParts(raw).map(p=>p.t);else P.s.inp=raw;render()},
+    pmNext(){pr.i++;P.s.inp='';pr.tones=null;if(pr.i>=pr.queue.length)pr.done=true;render()}};
+  pr.stats=()=>{const first=pr.queue.filter(it=>!it.retry&&it.answered!=null),ans=pr.queue.filter(it=>it.answered!=null);
+    return{first:first.length,firstOk:first.filter(it=>it.ok).length,read:ans.filter(it=>it.kind==='typed').length,mean:ans.filter(it=>it.kind==='mc').length,idk:ans.filter(it=>it.idk).length}};
+  return pr}
+
+/* ---------- prestudy: Preview → Word prime (+ readiness check) → Ready; and the post-test follow-up ---------- */
+function Prestudy(test,type,o={}){const follow=o.mode==='followup',zh=S.lang==='zh';
+  const s={step:follow?2:1,hl:true,aids:'unknown',added:new Set(),tab:'passage',phase:'prime',pr:null,rd:null,inp:'',sum:false,over:null,first:null};
+  const an=()=>analyse(test,s.added);
+  const gradeR=(v,w)=>!v?false:zh?!!gradeZh(v,W(w).raw).ok:gradeJa(v,W(w).raw).ok;
+  function startPrime(){const a=an(),words=follow?o.words:a.study;
+    s.pr=Prime(words,{stages:follow?['read','def','cloze']:a.mode==='light'?['read','def']:['read','def','read2','rev','cloze'],test,style:'prestudy'});s.light=a.mode!=='full';s.phase='prime';s.step=2;s.sum=false;s.first=s.pr}
+  function readyWords(){const q=s.first,score=w=>(q.per[w].idk||0)*10+(q.per[w].wrong||0)-pNow(w);return q.words.filter(hasReading).sort((a,b)=>score(b)-score(a)).slice(0,5)}
+  function startReady(round){s.rd={round,words:readyWords(),i:0,ans:[],res:null};s.phase='ready';s.inp=''}
+  function finishReady(){const R=s.rd,rows=R.words.map((w,i)=>({w,u:R.ans[i],ok:gradeR(R.ans[i],w)})),score=rows.filter(r=>r.ok).length,need=Math.ceil(rows.length*.8);
+    rows.forEach(r=>learn(r.w,r.ok,!r.u));R.res={rows,score,n:rows.length,need,pass:score>=need,failed:rows.filter(r=>!r.ok).map(r=>r.w)}}
+  function toReady(){s.step=3;const n=s.first?s.first.words.length:0,room=Math.min(n,3);s.over=!follow&&n>room?{fits:room,over:n-room,state:'ask'}:null}
+  if(follow)startPrime();
+  const steps=()=>`<div class="seg">${(follow?['Follow-up','Produce']:['Preview','Word prime','Ready']).map((n,i)=>`<button class="${(follow?(s.step===3?1:0):s.step-1)===i?'on':''}" disabled style="opacity:1">${n}</button>`).join('')}</div>`;
+  const P0={s,onDone:o.onDone,skippable:!!o.daily,
+   view(){const a=an(),ttl=tl(test.title),sub=(follow?'Review the words you missed':'Study first')+' · '+(type==='read'?'Reading':'Listening');
+    if(s.step===1){const mode={full:['Full prestudy recommended','bad'],light:['A short prime is enough','ok'],none:['You know most of these words','ok']}[a.mode],k=a.study.length;
+      const mins=a.mode==='full'?Math.round((60+k*5*8+40)/60):Math.max(1,Math.round(k*2*8/60));
+      const list=a.study.map(w=>{const x=W(w),occ=toks(test).filter(t=>t.lemma===w).length;return `<button class="trow" data-act="word" data-v="${w}"><span class="dot ${status(pNow(w))}"></span><span class="mid">${tl(w)}<small>${x.read?x.read+' · ':''}${x.g}</small></span><span class="end">${s.added.has(w)?'<span class="tag warn">Added by you</span><br>':''}${inQ(test,w)?'<span class="tag brand">In a question</span><br>':''}×${occ}</span></button>`}).join('');
+      return frame({title:ttl,sub,gl:L().g.study,stage:`${steps()}
+        <div class="wrap"><span class="tag ${mode[1]}">${mode[0]}</span><span class="tag">${pct(a.all.filter(w=>pNow(w)<.75).length,a.all.length)}% of key words new to you</span><span class="tag">About ${mins} min</span></div>
+        ${audio(1)}
+        <div class="seg"><button class="${s.tab==='passage'?'on':''}" data-act="ptab" data-v="passage">Passage</button><button class="${s.tab==='words'?'on':''}" data-act="ptab" data-v="words">Key words · ${k}</button></div>
+        ${s.tab==='passage'?`<div class="row between"><button class="row small" data-act="hl"><span class="sw ${s.hl?'on':''}"></span>Highlight</button><div class="seg" title="Reading aids">${[['unknown','New words'],['all','Every word'],['off','Off']].map(([v,n])=>`<button class="${s.aids===v?'on':''}" data-act="aids" data-v="${v}">${n}</button>`).join('')}</div></div>
+          ${passageHTML(test,{aids:s.aids,hl:s.hl,tap:true,added:s.added})}
+          <p class="small muted">${a.all.length} linked words · ${a.unknown} new · ${a.all.filter(w=>inQ(test,w)&&pNow(w)<.5).length} of those appear in a question. ${L().aid} sits above ${s.aids==='off'?'no words':s.aids==='all'?'every word':'new words only'}.</p>`
+        :`<p class="small muted">${k} words to study. Tap a word in the passage to add one you don’t know.</p><div class="rowlist">${list||'<p class="note">No new words in this test for you. You can take it straight away.</p>'}</div>`}`,
+        dock:`<button class="btn" data-act="startPrime">${k?'Start the word prime':'Continue'}</button><button class="link quiet center" data-act="cold">Skip and take the test</button>`})}
+    if(s.step===2){let head,body,dock;const pr=s.pr;
+      if(s.phase==='ready'){const R=s.rd;head=`<div class="row between"><b>Readiness check · round ${R.round}</b><span class="tag info">No feedback yet</span></div><div class="pips">${R.words.map((_,i)=>`<i class="${i<R.i?'c':i===R.i?'cur':''}"></i>`).join('')}</div>`;
+        if(!R.res){const w=R.words[R.i];body=`<p class="eyebrow">Check ${R.i+1} of ${R.words.length} · Type the reading</p><p class="prompt big" lang="${L().bcp}">${w}</p><p class="hint">${zh?'Pinyin with tones (mu4 tou5 or mù tou)':'Kana or romaji'}</p><input type="text" data-bind="inp" data-enter="rdNext" data-focus value="${esc(s.inp)}" placeholder="${zh?'pinyin':'ひらがな / romaji'}" autocomplete="off" autocapitalize="off" aria-label="Reading"><div>${fill}</div>`;
+          dock=`<div class="row"><button class="btn ghost" data-act="rdIdk">I don’t know</button><button class="btn" data-act="rdNext">Next</button></div>`}
+        else{const r=R.res,msg=r.pass?'You’re ready for the test.':R.round===1?'One short extra round on the words you missed, then one more check.':'You can take the test anyway. Studying never blocks it.';
+          body=`<div class="stats two"><div class="stat"><div class="n num">${r.score} / ${r.n}</div><small>Round ${R.round} (need ${r.need})</small></div><div class="stat"><span class="tag ${r.pass?'ok':'warn'}">${r.pass?'Ready':'Not yet'}</span><small>${msg}</small></div></div>
+            <table class="tbl"><thead><tr><th>Word</th><th>You typed</th><th>Reading</th><th></th></tr></thead><tbody>${r.rows.map(x=>`<tr><td>${tl('<b>'+x.w+'</b>')}</td><td>${esc(x.u)||'—'}</td><td>${W(x.w).full}</td><td>${x.ok?'✓':'✕'}</td></tr>`).join('')}</tbody></table>`;
+          dock=`<button class="btn" data-act="rdDone">${r.pass||R.round>1?'Continue':'Extra round on missed words'}</button>`}}
+      else if(s.sum||pr.done){const st=pr.stats(),nx=follow?'Next: use these words yourself in a short translation.':s.phase==='boost'?'Next: one more readiness check.':s.light||!readyWords().length?'Next: you’re ready to take the test.':'Next: a quick readiness check, up to five typed readings with no feedback until the end.';
+        head=`<div class="row between"><b>${s.phase==='boost'?'Extra round':follow?'Follow-up':'Word prime'}</b><span class="tag brand">${pr.words.length} words · ${pr.queue.length} items</span></div>${pr.pips()}`;
+        body=pr.queue.length?`<div class="stats two"><div class="stat"><div class="n num">${st.firstOk} / ${st.first}</div><small>correct on the first try</small></div><div class="stat"><div class="n num">${st.read}</div><small>reading items</small></div><div class="stat"><div class="n num">${st.mean}</div><small>meaning and use items</small></div><div class="stat"><div class="n num">${st.idk}</div><small>“I don’t know” answers</small></div></div><p class="note">${nx}</p>`:'<p class="note">No words to prime for this test. Continue when you’re ready.</p>';
+        dock=`<button class="btn" data-act="primeDone">Continue</button>`}
+      else{head=`<div class="row between"><b>${s.phase==='boost'?`Extra round · ${pr.words.length} missed words`:follow?'Follow-up':'Word prime'}</b><span class="tag brand">${pr.words.length} words · ${pr.queue.length} items</span></div>${pr.pips()}`;body=pr.body();dock=pr.dock()}
+      return frame({title:ttl,sub,gl:L().g.study,stage:steps()+head+body,dock})}
+    const st=s.first?s.first.stats():{first:0,firstOk:0},R=s.rd&&s.rd.res,ov=s.over;
+    return frame({title:ttl,sub,gl:L().g.study,stage:`${steps()}<div class="done-wm" lang="${L().bcp}">${L().g.study}</div><h1 class="h1">${follow?'Follow-up done':'Ready for the test'}</h1>
+      <div class="stats"><div class="stat"><div class="n num">${s.first?s.first.words.length:0}</div><small>words studied</small></div><div class="stat"><div class="n num">${st.firstOk} / ${st.first}</div><small>correct on the first try</small></div>${R?`<div class="stat"><div class="n num">${R.score} / ${R.n}</div><small>readiness check</small></div>`:''}</div>
+      <p class="small muted">Your answers were saved to your word knowledge.</p>
+      ${ov?(ov.state==='ask'?`<div class="note warn col"><b>You drilled ${ov.fits+ov.over} words; today’s new-word limit has room for ${ov.fits}.</b><span>The other ${ov.over} can wait for the coming days, or start today (about +2 min a day for the next four days).</span><div class="row"><button class="btn sm ghost grow" data-act="ovQ">Queue the rest for later</button><button class="btn sm grow" data-act="ovA">Add all ${ov.over} now</button></div></div>`:`<p class="note">${ov.state==='queued'?`${ov.over} words queued for the coming days.`:`${ov.over} words added to today’s drill.`}</p>`):''}
+      ${follow?`<p class="note">Now produce them: translate two to four sentences of this passage back into the language you are learning, from a reference in your language. Each primed word you use is checked.</p>`:'<p class="small muted">Your first attempt after studying counts at half weight for your rating.</p>'}`,
+      dock:follow?`<button class="btn" data-act="produce">Translate a passage (about 5 min)</button><button class="btn ghost" data-act="back">${o.daily?'Back to today’s session':'Back to your results'}</button>`:`<button class="btn" data-act="take">▶ Take the test</button>`})},
+   acts:{
+    ptab(v){s.tab=v;render()},hl(){s.hl=!s.hl;render()},aids(v){s.aids=v;render()},
+    play(){speak(text(test))},speed(){toast('Playback speed stays at 1x while you study.')},
+    word(w){const x=W(w),p=pNow(w),occ=toks(test).filter(t=>t.lemma===w).length,auto=p<.75&&!s.added.has(w);
+      sheet(`<div class="row" style="align-items:baseline">${tl(x.lemma,'h1')}<span class="muted">${x.read?x.read+' · ':''}${x.pos}</span></div><p style="font-size:17px">${x.g}</p><p class="muted">${tl(x.ex)}</p>
+        <div class="wrap"><span class="tag ${STATUS[status(p)][1]}">${STATUS[status(p)][0]}</span><span class="tag">×${occ} in the passage</span>${inQ(test,w)?'<span class="tag brand">In a question</span>':''}${auto?'<span class="tag">In your study list</span>':''}</div>
+        <div class="row">${follow||auto?'':`<button class="btn sm grow ${s.added.has(w)?'ghost':''}" data-act="addWord" data-v="${w}">${s.added.has(w)?'Remove from study':'I don’t know this — add to study'}</button>`}<button class="btn sm ghost" data-act="closeSheet">Close</button></div>`,P0.acts)},
+    addWord(w){s.added.has(w)?s.added.delete(w):s.added.add(w);closeSheet();render()},
+    startPrime(){if(!an().study.length){toReady();render();return}startPrime();render()},
+    cold(){openTest(test,type,{daily:o.daily,onDone:r=>close(r)})},
+    primeDone(){if(s.phase==='boost'){startReady(2);render();return}
+      if(follow||s.light||!readyWords().length){toReady();render();return}startReady(1);render()},
+    rdNext(){s.rd.ans.push((s.inp||'').trim());s.inp='';s.rd.i++;if(s.rd.i>=s.rd.words.length)finishReady();render()},
+    rdIdk(){s.inp='';P0.acts.rdNext()},
+    rdDone(){const r=s.rd.res;if(r.pass||s.rd.round>1){toReady();render();return}
+      s.pr=Prime(r.failed,{stages:['read','def'],test,style:'prestudy'});s.phase='boost';render()},
+    fill(){if(s.phase==='ready'&&!s.rd.res){s.inp=W(s.rd.words[s.rd.i]).raw;render()}else s.pr.acts.fill()},
+    ovQ(){s.over.state='queued';render()},ovA(){s.over.state='added';render()},
+    take(){openTest(test,type,{prestudied:true,daily:o.daily,onDone:r=>close(r)})},
+    produce(){open(DT({produce:test,onDone:()=>close('done')}))},back(){close('done')}}};
+  ['pmCheck','pmTone','pmIdk','pick','pmNext'].forEach(k=>P0.acts[k]=v=>s.pr&&s.pr.acts[k](v));
+  return P0}
+
+/* ---------- comprehension test (listening / reading) ---------- */
+function introSheet(key){const x=INTRO[key];sheet(`<h2 class="h2">ⓘ ${x[0]}</h2><p>${x[1]}</p><p>${x[2]}</p><button class="btn" data-act="closeSheet">Got it, let’s go!</button>`)}
+function openTest(t,type,o={}){open(TestPlayer(t,type,o));if(!S.introSeen[type]){S.introSeen[type]=1;introSheet(type)}}
+function TestPlayer(t,type,o={}){const n=t.qs.length,SP=[1,1.25,1.5,.75],read=type==='read';
+  const s={q:0,ans:{},sub:false,tab:read?'passage':'q',furi:false,t0:Date.now(),sp:0,vc:null};
+  const right=()=>t.qs.filter((q,i)=>s.ans[i]===q.a).length;
+  const missed=()=>[...new Set(t.qs.flatMap((q,i)=>s.ans[i]!==q.a?q.w:[]))].slice(0,5);
+  function vcSheet(){const v=s.vc,w=v.words[v.i],x=W(w);
+    sheet(`<div><h2 class="h2">Quick Vocab Check</h2><p class="small muted">Help us track your vocabulary!</p></div><p class="prompt big" lang="${L().bcp}">${w}</p><p class="center muted">${x.read}</p><p class="eyebrow">What does this word mean?</p>
+      ${opts(v.opts,i=>v.pick==null?'':v.opts[i]===x.g?'ok':i===v.pick?'no':'',{plain:1,act:'vcPick'})}
+      <div class="row between"><span class="small muted num">${v.i+1} / ${v.words.length}</span>${v.pick!=null&&v.opts[v.pick]!==x.g?'<button class="btn sm" data-act="vcNext">Next →</button>':''}<button class="link quiet" data-act="closeSheet">Skip All</button></div>`,me.acts)}
+  function vcLoad(){const v=s.vc,w=v.words[v.i];v.pick=null;v.opts=shuffle([W(w).g,...shuffle(Object.keys(L().words).filter(x=>x!==w)).slice(0,3).map(x=>W(x).g)])}
+  const me={s,onDone:o.onDone,
+   view(){const q=t.qs[s.q],sel=s.ans[s.q],answered=Object.keys(s.ans).length,tabs=read?[['passage','Reading Passage'],['q','Questions']]:s.sub?[['q','Questions'],['passage','Transcript']]:null;
+    let st=`<div class="row between"><span class="small muted num">${answered}/${n} answered</span>${S.lang==='ja'?`<button class="row small" data-act="furi" title="Furigana over kanji (halves ELO change)"><span class="sw ${s.furi?'on':''}"></span>ふりがな</button>`:''}</div>`;
+    if(s.sub){const r=right(),ms=missed();st+=`<div class="note ok col"><span><b>Test submitted successfully!</b> Score: ${r}/${n} (${pct(r,n)}%)</span>${o.prestudied?'<span class="small">Prestudied: this attempt counted at half weight.</span>':''}
+      ${ms.length?'<button class="btn sm" data-act="followup">Review the words you missed (about 2 min)</button>':o.prestudied?'<button class="btn sm" data-act="produce">Translate a passage from this test (about 5 min)</button>':''}</div>`}
+    if(!read&&!s.sub)st+=audio(SP[s.sp]);
+    if(tabs)st+=`<div class="seg">${tabs.map(([v,l])=>`<button class="${s.tab===v?'on':''}" data-act="ttab" data-v="${v}">${l}</button>`).join('')}</div>`;
+    if(s.tab==='passage')st+=passageHTML(t,{aids:s.furi?'all':'off',tap:s.sub})+(s.sub?'<p class="hint">Tap any word for its definition</p>':read?'<p class="hint">Words become tappable after you submit.</p>':'');
+    else st+=`<div class="qnav">${t.qs.map((x,i)=>`<button class="${i===s.q?'cur ':''}${s.sub?(s.ans[i]===x.a?'good':'bad'):s.ans[i]!=null?'ans':''}" data-act="goq" data-v="${i}" aria-label="Question ${i+1}">${i+1}</button>`).join('')}</div>
+      <p class="eyebrow">Question ${s.q+1} of ${n}${sel!=null&&!s.sub?' · ✓ Answered':''}</p><h2 class="qtext" lang="${L().bcp}">${q.q}</h2>
+      ${opts(q.o,i=>s.sub?(i===q.a?'ok':i===sel?'no':''):i===sel?'sel':'')}${s.sub?`<p class="note">💡 <b>Explanation:</b> ${q.why}</p>`:''}`;
+    return frame({title:tl(t.title),sub:`${L().name} · ${TIERS[t.tier].split(' (')[0]} · ${read?'Reading':'Listening'}`,gl:L().g[read?'read':'listen'],
+      right:`<span data-clock>${mmss((s.frozen||Date.now()-s.t0)/1000)}</span> <button class="link" data-act="intro" aria-label="About this test">ⓘ</button>`,stage:st,
+      dock:`<div class="row"><button class="btn ghost icon" data-act="prev" aria-label="Previous question" ${s.tab!=='q'||s.q===0?'disabled':''}>←</button><button class="btn ghost icon" data-act="next" aria-label="Next question" ${s.tab!=='q'||s.q===n-1?'disabled':''}>→</button>${s.sub?`<button class="btn" data-act="finish">${o.daily?'→ Continue':'← Back to Test List'}</button>`:`<button class="btn ok" data-act="submit" ${answered<n?'disabled':''}>Submit Test</button>`}</div>`})},
+   acts:{
+    pick(v){if(s.sub)return;s.ans[s.q]=+v;render()},prev(){s.q--;render()},next(){s.q++;render()},goq(v){s.q=+v;render()},ttab(v){s.tab=v;render()},
+    furi(){s.furi=!s.furi;if(s.furi)toast('Furigana on: this attempt counts at half weight.');render()},
+    play(){speak(text(t),SP[s.sp])},speed(){s.sp=(s.sp+1)%SP.length;stopSpeech();render()},intro(){introSheet(type)},
+    submit(){stopSpeech();s.frozen=Date.now()-s.t0;s.sub=true;s.q=0;s.tab='q';render();
+      setTimeout(()=>{if(P!==me)return;s.vc={words:shuffle(linked(t)).slice(0,3),i:0};vcLoad();vcSheet()},700)},
+    vcPick(v){const x=s.vc;if(x.pick!=null)return;x.pick=+v;const ok=x.opts[x.pick]===W(x.words[x.i]).g;learn(x.words[x.i],ok);vcSheet();if(ok)setTimeout(()=>{if(s.vc===x&&sheetOwner)me.acts.vcNext()},800)},
+    vcNext(){const x=s.vc;x.i++;if(x.i>=x.words.length){closeSheet();toast('Thanks — your vocabulary was updated.');return}vcLoad();vcSheet()},
+    word(w){const x=W(w);sheet(`<div class="row" style="align-items:baseline">${tl(x.lemma,'h1')}<span class="muted">${x.read?x.read+' · ':''}${x.pos}</span></div><p style="font-size:17px">${x.g}</p><button class="btn ghost" data-act="closeSheet">Close</button>`)},
+    followup(){open(Prestudy(t,type,{mode:'followup',words:missed(),daily:o.daily}))},
+    produce(){open(DT({produce:t}))},
+    finish(){close('done')}}};
+  return me}
+
+/* ---------- dictation ---------- */
+function dictDiff(ref,typed){const norm=x=>[...x.replace(/[\s，。、．,.!?！？「」“”]/g,'')],a=norm(ref),b=norm(typed),m=a.length,n=b.length,dp=Array.from({length:m+1},()=>Array(n+1).fill(0));
+  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)dp[i][j]=a[i]===b[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  let i=0,j=0;const ops=[];while(i<m||j<n){if(i<m&&j<n&&a[i]===b[j]){ops.push(['ok',a[i]]);i++;j++}else if(j<n&&(i>=m||dp[i][j+1]>=dp[i+1][j])){ops.push(['extra',b[j]]);j++}else{ops.push(['miss',a[i]]);i++}}
+  const out=[];for(let k=0;k<ops.length;k++){const x=ops[k],y=ops[k+1];if(y&&x[0]!=='ok'&&y[0]!=='ok'&&x[0]!==y[0]){out.push(['wrong',x[0]==='miss'?x[1]:y[1],x[0]==='miss'?y[1]:x[1]]);k++}else out.push(x)}
+  const ok=out.filter(x=>x[0]==='ok').length;return{out,ok,total:m,pct:m?Math.round(ok/m*1000)/10:0}}
+function Dictation(t,o={}){const SP=[1,.75,.5],s={plays:0,text:'',sub:false,grading:false,sp:0,t0:Date.now(),res:null};
+  if(!S.introSeen.dict){S.introSeen.dict=1;setTimeout(()=>introSheet('dict'),0)}
+  const me={s,onDone:o.onDone,skippable:true,
+   onInput(){const b=$('#dsub'),c=$('#dcount');if(b)b.disabled=!(s.plays&&s.text.trim());if(c)c.textContent=s.text.length+' / 5000'},
+   view(){const plays=`<span class="small num" style="${s.plays>3?'color:var(--warn);font-weight:700':''}">Plays: ${s.plays}</span>`;
+    if(!s.sub)return frame({title:tl(t.title),sub:`${L().name} · Dictation`,gl:L().g.dict,right:'<button class="link" data-act="intro" aria-label="About this test">ⓘ</button>',
+      stage:`${audio(SP[s.sp],plays)}<p class="eyebrow">Type what you hear</p><textarea rows="6" data-bind="text" lang="${L().bcp}" placeholder="Start typing the text you hear from the audio..." aria-label="Your dictation">${esc(s.text)}</textarea><div class="row between">${fill}<span class="small muted num" id="dcount">${s.text.length} / 5000</span></div><p class="hint">Submit unlocks once the audio has played and you have typed something.</p>`,
+      dock:`<button class="btn" id="dsub" data-act="submit" ${s.plays&&s.text.trim()&&!s.grading?'':'disabled'}>${s.grading?'Grading...':'Submit'}</button>`});
+    const r=s.res,g=r.pct>=95?'Excellent!':r.pct>=80?'Great Job!':r.pct>=60?'Good Effort':'Keep Practicing',mult=Math.max(.5,1-.1*(s.plays-1)),elo=Math.round((r.pct>=80?12:r.pct>=60?4:-8)*mult);
+    return frame({title:tl(t.title),sub:`${L().name} · Dictation`,gl:L().g.dict,stage:`<div class="score"><span class="n num" style="color:var(--${r.pct>=80?'good':r.pct>=60?'warn':'bad'})">${r.pct}%</span><div><b>${g}</b><div class="small muted">Character Accuracy</div></div></div>
+      <div class="stats four"><div class="stat"><div class="n num" style="font-size:17px">${r.ok}/${r.total}</div><small>CHARS</small></div><div class="stat"><div class="n num" style="font-size:17px">${s.plays}</div><small>PLAYS</small></div><div class="stat"><div class="n num" style="font-size:17px">${mmss(s.time)}</div><small>TIME</small></div><div class="stat"><div class="n num" style="font-size:17px;color:var(--${elo<0?'bad':'good'})">${elo>0?'+':'−'}${Math.abs(elo)}</div><small>ELO${mult<1?` <span class="tag warn">${mult.toFixed(2)}× ELO</span>`:''}</small></div></div>
+      <div class="wrap small"><span>Correct</span><span class="diff" style="font-size:13px"><span class="wrong">Wrong</span></span><span class="diff" style="font-size:13px"><span class="miss">Missing</span></span><span class="diff" style="font-size:13px"><span class="extra">Extra</span></span></div>
+      <div class="card"><p class="diff" lang="${L().bcp}">${r.out.map(x=>x[0]==='ok'?x[1]:x[0]==='wrong'?`<span class="wrong" title="Your transcript: ${esc(x[2])}">${x[1]}</span>`:`<span class="${x[0]}">${esc(x[1])}</span>`).join('')}</p></div>`,
+      dock:`<div class="row"><button class="btn ghost" data-act="retry">Retry</button><button class="btn" data-act="finish">${o.daily?'→ Continue':'All Tests'}</button></div>`})},
+   acts:{play(){if(!S.playing)s.plays++;speak(text(t),SP[s.sp]);const p=$('.audio .small');if(p)p.textContent='Plays: '+s.plays;me.onInput()},speed(){s.sp=(s.sp+1)%SP.length;stopSpeech();render()},intro(){introSheet('dict')},
+    fill(){s.text=L().near[t.id];if(!s.plays)s.plays=1;render()},
+    submit(){s.grading=true;stopSpeech();render();setTimeout(()=>{if(P!==me)return;s.res=dictDiff(text(t),s.text);s.time=(Date.now()-s.t0)/1000;s.sub=true;render()},700)},
+    retry(){Object.assign(s,{plays:0,text:'',sub:false,grading:false,t0:Date.now()});render()},finish(){close('done')}}};
+  return me}
+
+/* ---------- practice player (new-word drill, then ladder exercises) ---------- */
+function Practice(o={}){const l=L(),zh=S.lang==='zh';
+  const s={phase:o.drill&&o.drill.length?'drill':'ex',q:o.drillOnly?[]:l.practice.map(x=>({...x})),i:0,right:0,total:0,sel:null,checked:false,ok:false,placed:[],inp:'',flip:false,cp:{},cpLine:'',saving:false};
+  const pr=s.phase==='drill'?Prime(o.drill,{stages:['read','def','read2','rev','cloze'],style:'drill'}):null;
+  const n0=s.q.length;
+  function mark(ok,x){s.checked=true;s.ok=ok;s.total++;if(ok)s.right++;if(x.w)learn(x.w,ok);s.cpLine='';
+    if(x.cp){const c=s.cp[x.w]=s.cp[x.w]||{ok:0};if(ok)c.ok++;if(x.cp[0]===x.cp[1])s.cpLine=c.ok===x.cp[1]?`Checkpoint passed (${c.ok}/${x.cp[1]}) — this word moves up a ring.`:`Checkpoint not passed (${c.ok}/${x.cp[1]}) — a little more practice first.`}
+    else if(!ok&&!x.retry)s.q.push({...x,retry:true});render()}
+  const me={s,onDone:o.onDone,
+   view(){const acc=s.total?pct(s.right,s.total)+'%':'';
+    if(s.phase==='drill'){if(s.saving)return frame({title:'Practice',sub:'New words',gl:l.g.practice,stage:'<p class="note center" style="margin-top:40px">Saving your new words…</p>'});
+      const it=pr.queue[pr.i],left=pr.words.filter(w=>pr.queue.some((x,j)=>x.w===w&&j>=pr.i)).length,need=5,got=Math.min(need,pr.per[it.w].ok);
+      return frame({title:'Practice',sub:`New words — ${left} of ${pr.words.length} to go`,gl:l.g.practice,right:`${pr.i+1} / ${pr.queue.length}`,
+        stage:`<div class="row between"><span class="tag ok">🌱 New word · session 1 of 4</span><span class="pips" title="Right answers needed">${Array.from({length:need},(_,k)=>`<i class="${k<got?'c':''}"></i>`).join('')}</span></div>${pr.body()}`,dock:pr.dock()})}
+    if(s.phase==='end')return frame({title:'Practice',sub:'Complete',gl:l.g.practice,stage:`<div class="done-wm" lang="${l.bcp}">${l.g.practice}</div><h1 class="h1">✅ Practice complete!</h1>${pr?`<p class="muted">New-word drill done: ${pr.words.length} words.</p>`:''}
+      <div class="stats two"><div class="stat"><div class="n num">${s.right}/${s.total}</div><small>Correct</small></div><div class="stat"><div class="n num">${pct(s.right,s.total)}%</div><small>Accuracy</small></div></div>`,dock:'<button class="btn" data-act="fin">Next →</button>'});
+    const x=s.q[s.i],w=x.w&&W(x.w),c=s.checked;let body='',dock='';
+    if(x.k==='mc'){body=`${x.p?`<p class="prompt ${x.big?'big':''}" lang="${l.bcp}">${c?x.p.replace('<u>　　</u>',`<u class="fill">${x.o[x.a]}</u>`):x.p}</p>`:''}${x.sub?`<p class="center muted small">${x.sub}</p>`:''}${x.ctx?`<p class="small muted">In this sentence: ${tl(x.ctx)}</p>`:''}${opts(x.o,i=>!c?'':i===x.a?'ok':i===s.sel?'no':'',{plain:x.plain,subs:x.os})}`}
+    else if(x.k==='typed'){body=`<p class="prompt" lang="${l.bcp}">${c?x.p.replace('<u>　　</u>',`<u class="fill">${x.ans[0]}</u>`):x.p}</p><p class="muted small"><i>${x.hint}</i></p><input type="text" data-bind="inp" data-enter="check" data-focus ${c?'disabled':''} class="${c?(s.ok?'okv':'badv'):''}" value="${esc(s.inp)}" placeholder="Type the word..." lang="${l.bcp}" aria-label="Missing word">${c&&!s.ok?`<p class="small">✓ ${tl(x.ans[0])}</p>`:''}${c?'':`<div>${fill}</div>`}`;
+      dock=c?'':'<button class="btn" data-act="check">Check</button>'}
+    else if(x.k==='jumble'){body=`<div class="tiles slots" lang="${l.bcp}">${s.placed.length?s.placed.map(i=>`<button class="tile" data-act="unplace" data-v="${i}">${x.tiles[i]} ×</button>`).join(''):'<span class="small muted">Tap words below to build the sentence</span>'}</div><div class="tiles" lang="${l.bcp}">${x.tiles.map((t,i)=>`<button class="tile ${s.placed.includes(i)?'ghosted':''}" data-act="place" data-v="${i}">${t}</button>`).join('')}</div>${c&&!s.ok?`<p class="small">Correct order: ${tl(x.accept[0])}</p>`:''}`;
+      dock=c?'':`<button class="btn" data-act="checkJ" ${s.placed.length<x.tiles.length?'disabled':''}>Check</button>`}
+    else if(x.k==='spot'){body=`<div class="tiles" lang="${l.bcp}" style="padding-block:10px">${x.chips.map((t,i)=>`<button class="tile ${!c?'':i===x.a?'ok':i===s.sel?'no':''}" data-act="pick" data-v="${i}">${t}</button>`).join('')}</div>${c?`<p class="small">✓ Correct form: ${tl('<b>'+x.fix+'</b>')}</p>`:''}`}
+    else if(x.k==='flash'){body=`<button class="fcard" data-act="reveal" aria-label="Reveal card">${tl(x.w)}<span class="muted">${w.read}</span>${s.flip?`<span class="back"><b>${w.g}</b><i class="muted">${tl(w.ex)}</i></span>`:''}</button>`;
+      dock=c?'':s.flip?'<p class="hint">How well did you know this?</p><div class="rate two"><button class="r0" data-act="rate" data-v="0">Didn’t know</button><button class="r2" data-act="rate" data-v="1">Knew it</button></div>':'<button class="btn" data-act="reveal">👁 Reveal</button>'}
+    if(c)dock=`${x.k==='flash'?'':`<div class="fb ${s.ok?'ok':'no'}"><b>${s.ok?'✔ Correct!':'✖ Incorrect'}</b><span>${x.why||''}</span>${s.cpLine?`<b class="small">${s.cpLine}</b>`:''}</div>`}<button class="btn" data-act="next" data-focus>Next →</button>`;
+    if(!dock)dock='<p class="hint">Tap an answer to check it.</p>';
+    return frame({title:'Practice',sub:o.extra?'Extra round':'Vocabulary practice',gl:l.g.practice,right:`${s.i+1} / ${s.q.length}${acc?' · '+acc:''}`,
+      stage:`<div class="bar"><i style="width:${s.i/s.q.length*100}%"></i></div>${x.cp?`<span class="tag warn" style="align-self:flex-start">🏁 Checkpoint · ${x.cp[0]} of ${x.cp[1]}</span>`:''}
+        ${w?`<div class="ribbon" lang="${l.bcp}">${!c&&(x.k==='typed'||(x.o&&x.o.includes(x.w)))?'<span class="muted">Word shown after you answer</span>':`<b>${x.w}</b><span>${!c&&x.t.includes('→')?'':w.read}</span><span class="muted">${x.k==='flash'&&!s.flip?'':w.g}</span>`}<span class="tag brand" style="margin-left:auto">L${x.lv[0]} ${x.lv[1]}</span></div>`:''}
+        <div class="row"><span class="tag">${x.t}${x.retry?' · again':''}</span></div>${x.ins?`<p style="font-weight:700">${x.ins}</p>`:''}${body}`,dock})},
+   acts:{
+    pick(v){if(s.phase==='drill'){pr.acts.pick(v);return}const x=s.q[s.i];if(s.checked||!['mc','spot'].includes(x.k))return;s.sel=+v;mark(+v===x.a,x)},
+    check(){const x=s.q[s.i],v=s.inp.trim();if(s.phase==='drill'){pr.acts.pmCheck();return}if(!v){toast('Type the word first.');return}mark(x.ans.includes(v),x)},
+    fill(){if(s.phase==='drill'){pr.acts.fill();return}s.inp=s.q[s.i].ans[0];render()},
+    place(v){if(!s.checked){s.placed.push(+v);render()}},unplace(v){if(!s.checked){s.placed=s.placed.filter(i=>i!==+v);render()}},
+    checkJ(){const x=s.q[s.i];mark(x.accept.includes(s.placed.map(i=>x.tiles[i]).join('')),x)},
+    reveal(){if(!s.flip){s.flip=true;render()}},rate(v){mark(v==='1',s.q[s.i])},
+    next(){Object.assign(s,{sel:null,checked:false,placed:[],inp:'',flip:false});s.i++;if(s.i>=s.q.length)s.phase='end';render()},
+    pmNext(){const last=pr.i>=pr.queue.length-1;if(last)s.saving=true;pr.acts.pmNext();if(last){setTimeout(()=>{if(P!==me)return;s.saving=false;s.phase=s.q.length?'ex':'end';s.right+=pr.stats().firstOk;s.total+=pr.stats().first;render()},800)}},
+    fin(){close('done')}}};
+  if(pr)['pmCheck','pmTone','pmIdk'].forEach(k=>me.acts[k]=v=>pr.acts[k](v));
+  return me}
+
+/* ---------- flashcards ---------- */
+function Flashcards(o={}){const l=L(),deck=()=>Object.keys(l.words).filter(w=>pNow(w)<.9).slice(0,6);
+  const s={tab:'reading',q:deck(),i:0,n:0,flip:false,counts:[0,0,0,0]};s.n=s.q.length;
+  const R=[['Again','< 1 min'],['Hard','~10 min'],['Good','~1 day'],['Easy','~4 days']];
+  const me={s,onDone:o.onDone,skippable:true,
+   view(){if(s.i>=s.q.length)return frame({title:'Flashcards',sub:'Session Complete!',gl:l.g.cards,stage:`<div class="done-wm" lang="${l.bcp}">${l.g.cards}</div><h1 class="h1">Session Complete!</h1><p class="muted">You reviewed all cards in this session.</p><div class="stats four">${R.map((r,i)=>`<div class="stat"><div class="n num">${s.counts[i]}</div><small>${r[0]}</small></div>`).join('')}</div>`,dock:`<button class="btn" data-act="fin">${RUN&&!RUN.over?'→ Continue':'Continue Practicing'}</button>`});
+    const w=W(s.q[s.i]),li=s.tab==='listening';
+    return frame({title:'Flashcards',sub:`Card ${Math.min(s.i+1,s.n)} of ${s.n}`,gl:l.g.cards,
+      stage:`<div class="bar"><i style="width:${Math.min(1,s.i/s.n)*100}%"></i></div><div class="seg"><button class="${li?'':'on'}" data-act="ftab" data-v="reading">📖 Reading</button><button class="${li?'on':''}" data-act="ftab" data-v="listening">🎧 Listening</button></div>
+        <button class="fcard" data-act="flip" aria-label="Flip card"><span class="tag">${s.flip?'💡 Answer':li?'Listening':'Reading'}</span>
+        ${s.flip?(li?`${tl(w.lemma)}<span class="muted">(${w.read||w.lemma})</span><span class="back"><b>${w.g}</b></span>`:`<span class="back"><b style="font-size:22px">${w.g}</b><i class="muted">${tl(w.ex)}</i></span>`)
+          :(li?`<span class="audio" style="border:0;background:none"><span class="play" data-act="say" role="button" aria-label="Play word">▶</span></span><span class="muted">Tap to listen</span>`:`${tl(w.lemma)}<span class="muted">${w.read}</span>`)}</button>`,
+      dock:s.flip?`<div class="rate">${R.map((r,i)=>`<button class="r${i}" data-act="rate" data-v="${i}">${r[0]}<small>${r[1]}</small></button>`).join('')}</div>`:'<button class="btn" data-act="flip">Flip</button>'})},
+   acts:{ftab(v){Object.assign(s,{tab:v,q:deck(),i:0,flip:false,counts:[0,0,0,0]});render()},flip(){s.flip=!s.flip;render()},
+    say(){stopSpeech();speak(s.q[s.i],.9)},
+    rate(v){s.counts[+v]++;learn(s.q[s.i],+v>0);if(v==='0')s.q.push(s.q[s.i]);s.i++;s.flip=false;render()},fin(){close('done')}}};
+  return me}
+
+/* ---------- dual translation, guided self-repair, full feedback ---------- */
+function DT(o={}){const l=L(),d=l.dt,norm=x=>x.replace(/[\s。、，,.]/g,'');
+  const s={phase:o.fixOnly?'repair':'write',self:null,text:'',rub:false,nat:false,grading:false,tab:'overview',
+    rp:{scr:o.fixOnly?'fix':'result',k:0,hint:o.fixOnly?1:0,checks:0,edit:o.fixOnly?d.sample[d.steps[0].i]:'',msg:'',shake:false,out:[],ans:''}};
+  const rp=s.rp,RUNGS=['where','kind','clue'],capChecks=o.fixOnly?3:4;
+  function toStep(k){if(k>=d.steps.length){rp.scr='summary';return}Object.assign(rp,{k,scr:'fix',hint:o.fixOnly?1:0,checks:0,edit:d.sample[d.steps[k].i],msg:'',shake:false})}
+  function toAnswer(kind){rp.ans=kind;rp.scr='answer';rp.out[rp.k]=kind==='fixed'?'self':kind==='fine'?'fine':'help'}
+  function repairView(){const st=d.steps[rp.k],dots=`<div class="dots" style="flex:none;width:${d.steps.length*26}px">${d.steps.map((_,i)=>`<i class="${i<rp.k||rp.scr==='summary'?'d':i===rp.k&&rp.scr!=='result'?'c':''}"></i>`).join('')}</div>`;
+    const fr=(stage,dock)=>frame({title:o.fixOnly?'Fix your sentences':'Fix your sentences',sub:o.fixOnly?'Daily practice':'Before your full feedback',gl:l.g.fix,right:dots,stage,dock});
+    if(rp.scr==='result')return fr(`<div style="margin-top:36px" class="center"><div class="score" style="justify-content:center"><span class="n num">${d.steps.length}</span></div><h1 class="h1">sentences to fix</h1><p class="muted" style="margin-top:8px">The other ${d.sample.length-d.steps.length} look${d.sample.length-d.steps.length===1?'s':''} fine.</p></div>`,'<button class="btn" data-act="rStart">Start</button>');
+    if(rp.scr==='summary'){const c=k=>rp.out.filter(x=>x===k).length;return fr(`<div class="done-wm" lang="${l.bcp}">${l.g.fix}</div><h1 class="h1">${o.fixOnly?'Practice done':'All done'}</h1><div class="stats"><div class="stat"><div class="n num">${c('self')}</div><small>Fixed yourself</small></div><div class="stat"><div class="n num">${c('help')+c('fine')}</div><small>Needed help</small></div><div class="stat"><div class="n num">${c('help')}</div><small>${o.fixOnly?'Back in practice later':'Saved to practice'}</small></div></div>`,'<button class="btn" data-act="rDone">Done</button>')}
+    if(rp.scr==='answer')return fr(`<h2 class="h2">${rp.ans==='fine'?'Noted. Compare:':'Compare'}</h2><div class="card col"><p class="eyebrow">You wrote</p><p class="fixbox" lang="${l.bcp}" style="--x:1">${st.bad.replace(/<s>/g,'<s style="color:var(--glow-text)">')}</p><p class="small muted">${tl(d.sample[st.i])}</p></div><div class="card col"><p class="eyebrow">Answer</p><p class="fixbox" lang="${l.bcp}">${st.good.replace(/<b>/g,'<b style="text-decoration:underline">')}</p><p class="small muted">${tl(st.accept[0])}</p></div><p>${st.why}</p>`,`<button class="btn" data-act="rNext" data-focus>${rp.k===d.steps.length-1?'Finish':'Next'}</button>`);
+    if(rp.scr==='fixed')return fr(`<div class="center" style="margin-top:60px"><div class="score" style="justify-content:center"><span class="n" style="color:var(--good)">✓</span></div><h1 class="h1">Fixed</h1><p class="muted" style="margin-top:6px">${o.fixOnly&&rp.hint<=1?'Without any more help':rp.hint===0?'On your own':rp.hint===1?'With 1 hint':`With ${rp.hint} hints`}</p><p class="tl" lang="${l.bcp}" style="font-size:19px;margin-top:14px">${esc(rp.edit)}</p></div>`,`<button class="btn" data-act="rNext" data-focus>${rp.k===d.steps.length-1?'Finish':'Next'}</button>`);
+    const orig=d.sample[st.i],shown=rp.hint>=1?(st.where?orig.replace(st.where,`<mark>${st.where}</mark>`):orig.replace(st.after,st.after+'<span class="caret">‸</span>')):orig,more=rp.hint<RUNGS.length;
+    const hintTxt=rp.hint===0?'':rp.hint===1?'Look at the underlined part.':rp.hint===2?st.kind:st.clue;
+    return fr(`${o.fixOnly?'<p class="eyebrow">From your translation on Thursday</p>':''}<button class="card small muted" style="text-align:left" data-act="rRef">${esc(d.ref.split('. ')[st.i])}${d.ref.split('. ')[st.i].endsWith('.')?'':'.'}</button>
+      <p class="eyebrow">✎ Fix your sentence</p><p class="fixbox" lang="${l.bcp}">${shown}</p>
+      <textarea rows="2" class="${rp.shake?'shake':''}" data-bind="edit" lang="${l.bcp}" aria-label="Your sentence">${esc(rp.edit)}</textarea>
+      ${hintTxt?`<div class="note"><span class="small muted">Hint ${rp.hint-(o.fixOnly?1:0)||1} of ${RUNGS.length-(o.fixOnly?1:0)}</span><br><b>${hintTxt}</b></div>`:''}${rp.msg?`<p class="note warn">${rp.msg}</p>`:''}<div>${fill.replace('Fill answer','Fill the fix')}</div>`,
+      `<div class="row between"><button class="link" data-act="rHint">${more?(rp.hint===(o.fixOnly?1:0)?'Need a hint?':'Another hint'):'Show answer'}</button><button class="link quiet" data-act="rFine">Mine is fine</button></div><button class="btn" data-act="rCheck">Check</button>`)}
+  const me={s,onDone:o.onDone,skippable:true,keepScroll:false,
+   onInput(k,el){if(k==='edit')rp.edit=el.value},
+   view(){if(s.phase==='repair')return repairView();
+    if(s.phase==='write')return frame({title:'Dual Translation',sub:o.produce?'Produce · '+o.produce.en:'English → '+l.name,gl:l.g.dt,
+      stage:`<div class="card"><p class="eyebrow" style="margin-bottom:4px">Reference (in your language)</p><p style="font-size:16.5px;font-weight:600">${d.ref}</p></div>
+        <button class="row between small" data-act="rub" style="font-weight:700"><span>What you’ll be graded on</span><span>${s.rub?'▴':'▾'}</span></button>${s.rub?`<div class="small col" style="gap:4px">${RUBRIC.map(r=>`<span><b>${r[0]}:</b> ${r[1]}</span>`).join('')}</div>`:''}
+        <div><p class="small" style="font-weight:700;margin-bottom:6px">How well do you think you’ll do?</p><div class="rate">${[1,2,3,4].map(n=>`<button class="${s.self===n?'sel':''}" style="${s.self===n?'border-color:var(--brand);background:var(--brand-wash)':''}" data-act="self" data-v="${n}">${n}</button>`).join('')}</div><p class="hint" style="margin-top:4px">Just for your own reflection — this isn’t graded.</p></div>
+        <textarea rows="4" data-bind="text" lang="${l.bcp}" placeholder="Type your translation here…" aria-label="Your translation">${esc(s.text)}</textarea><div>${fill}</div>`,
+      dock:`<button class="btn" data-act="submit" ${s.grading?'disabled':''}>${s.grading?'Grading…':'Submit for feedback'}</button>`});
+    const dims=[['Accuracy',3,'1 minor issue, 1 major issue'],['Understandability',4,'no issues affected this'],['Fidelity',4,'no issues affected this'],['Range',3,'judged from your whole translation']];
+    const tile=(n,b,why,opt)=>`<div class="trow" style="${opt?'border-style:dashed':''}"><span class="band b${b}">${b}</span><span class="mid"><b>${n}</b><small>${opt?'Optional — style, not correctness · ':''}${why}</small></span></div>`;
+    const tabs=[['overview','Scores'],['diff','Compare'],['points','Points to notice']];
+    let body=s.tab==='overview'?`<div class="score"><span class="n num">3</span><div><p class="eyebrow">Overall band</p>${s.self?`<p class="small muted">You predicted: ${s.self}/4</p>`:''}</div></div><p class="eyebrow">How it scored</p><div class="rowlist">${dims.map(x=>tile(...x)).join('')}${s.nat?tile('Naturalness',3,'judged from your whole translation',1):''}</div>${s.nat?'':'<button class="link" data-act="nat">Show naturalness (optional)</button>'}`
+      :s.tab==='diff'?`<p class="eyebrow">Reference vs. your translation</p><div class="card" lang="${l.bcp}">${d.diff.map(c=>c.length===1?`<span class="dcell"><span>${c[0]}</span><span>${c[0]}</span></span>`:`<span class="dcell chg"><span>${c[0]||'·'}</span><span>${c[1]||'∅'}</span></span>`).join('')}</div>
+        <div class="wrap small"><span style="color:var(--good);font-weight:700">■ Reference</span><span style="color:var(--bad);font-weight:700">■ What you wrote</span></div>
+        <p class="eyebrow">What worked</p><div class="wrap">${d.worked.map(w=>`<span class="tag ok">${tl(w[0])} · ${w[1].toUpperCase()}</span>`).join('')}</div>
+        ${o.produce?`<p class="eyebrow">Your primed words</p><div class="scroll-x"><table class="tbl"><thead><tr><th>Word</th><th>In the passage</th><th>In yours</th><th>Status</th></tr></thead><tbody>${d.primed.map(r=>`<tr><td>${tl(r[0])}</td><td>${tl(r[1])}</td><td>${tl(r[2])}</td><td><span class="tag ${r[3]==='produced'?'ok':r[3]==='variant'?'warn':'bad'}">${r[3]==='produced'?'Produced':r[3]==='variant'?'Different form':'Missing: back tomorrow'}</span></td></tr>`).join('')}</tbody></table></div>`:''}`
+      :`<div class="note"><b>Next focus: ${d.errs[1].sub}</b><br><span class="small">Targeted practice for this is coming soon.</span></div>${d.errs.map(e=>`<div class="err ${e.sev}"><div class="wrap"><span class="tag">${e.cat}</span><span class="tag brand">${e.sub}</span><span class="tag ${e.sev==='Minor'?'warn':'bad'}">${e.sev}</span><span class="tag info">${e.src}</span></div><span class="tl" lang="${l.bcp}"><s>${e.from}</s> → <span class="to">${e.to}</span></span><span>${e.rule}</span><span class="app">${e.app}</span><button class="btn sm ghost" disabled style="border-style:dashed;align-self:flex-start" title="Practice cards are coming soon">Drill this</button></div>`).join('')}`;
+    return frame({title:'Dual Translation',sub:'Your feedback',gl:l.g.dt,stage:`<div class="seg">${tabs.map(([v,n])=>`<button class="${s.tab===v?'on':''}" data-act="rtab" data-v="${v}">${n}</button>`).join('')}</div>${body}`,
+      dock:`<button class="btn" data-act="again">${o.onDone?'→ Continue':'Try another'}</button>`})},
+   acts:{rub(){s.rub=!s.rub;render()},self(v){s.self=+v;render()},nat(){s.nat=true;render()},rtab(v){s.tab=v;render()},
+    fill(){if(s.phase==='repair'){rp.edit=d.steps[rp.k].accept[0];render()}else{s.text=d.sample.join('');render()}},
+    submit(){if(!s.text.trim()){toast('Write your translation before submitting.');return}s.grading=true;render();setTimeout(()=>{if(P!==me)return;s.grading=false;s.phase='repair';rp.scr='result';render()},900)},
+    rStart(){toStep(0);render()},rRef(){sheet(`<p class="eyebrow">Reference</p><p style="font-size:17px">${d.ref}</p><button class="btn ghost" data-act="closeSheet">Tap to close</button>`)},
+    rHint(){rp.msg='';if(rp.hint>=RUNGS.length){toAnswer('help')}else rp.hint++;rp.shake=false;render()},
+    rFine(){toAnswer('fine');render()},
+    rCheck(){const st=d.steps[rp.k],v=rp.edit.trim();rp.shake=false;
+      if(norm(v)===norm(d.sample[st.i])){rp.msg='That’s the same sentence. Change something first.';render();return}
+      if(st.accept.some(a=>norm(a)===norm(v))){rp.out[rp.k]=rp.hint>(o.fixOnly?1:0)?'help':'self';if(rp.hint<=(o.fixOnly?1:0))rp.out[rp.k]='self';rp.scr='fixed';render();const k=rp.k;setTimeout(()=>{if(P===me&&rp.scr==='fixed'&&rp.k===k)me.acts.rNext()},1600);return}
+      rp.checks++;if(rp.checks>=capChecks){toAnswer('help');render();return}
+      rp.msg=rp.hint<RUNGS.length?'Still not quite. Try again, or take a hint.':'Still not quite. Try again.';rp.shake=true;render()},
+    rNext(){toStep(rp.k+1);render()},
+    rDone(){if(o.fixOnly){close('done');return}s.phase='result';render()},
+    again(){if(o.onDone){close('done');return}Object.assign(s,{phase:'write',self:null,text:'',tab:'overview',nat:false});rp.out=[];toast('Loaded another passage (same sample in this mockup).');render()}}};
+  // closing the repair sheet early goes to the full result, as in the app
+  me.softClose=()=>{if(s.phase==='repair'&&!o.fixOnly){s.phase='result';render();return true}return false};
+  return me}
+
+/* ---------- pinyin tone trainer (zh) ---------- */
+function resultCard(title,gl,pc,label,stats,elo){const g=pc>=95?'Excellent!':pc>=80?'Great Job!':pc>=60?'Good Effort':'Keep Practicing';
+  return frame({title,sub:'Results',gl,stage:`<div class="done-wm" lang="${L().bcp}">${gl}</div><div class="score"><span class="n num">${pc}%</span><div><b>${g}</b><div class="small muted">${label}</div></div></div><div class="stats four">${stats.map(x=>`<div class="stat"><div class="n num" style="font-size:17px">${x[1]}</div><small>${x[0]}</small></div>`).join('')}</div>`,
+    dock:`<div class="row"><button class="btn ghost" data-act="retry">Retry</button><button class="btn" data-act="fin">${RUN&&!RUN.over?'→ Continue':'All Tests'}</button></div>`})}
+function PinyinTrainer(t,o={}){const l=L(),items=l.tonePassage,idx=items.map((x,i)=>Array.isArray(x)?i:-1).filter(i=>i>=0);
+  const s={k:0,mist:0,t0:Date.now(),bad:-1};
+  if(!S.introSeen.tone){S.introSeen.tone=1;setTimeout(()=>introSheet('tone_zh'),0)}
+  const me={s,onDone:o.onDone,
+   view(){if(s.k>=idx.length){s.frozen=s.frozen||Date.now()-s.t0;const pc=pct(idx.length,idx.length+s.mist);return resultCard('Pinyin Tones',l.g.tone,pc,'Tone Accuracy',[['Characters',`${idx.length}/${idx.length}`],['Time',mmss(s.frozen/1000)],['Mistakes',s.mist],['ELO Change',pc>=80?'+9':'−5']])}
+    return frame({title:tl(t.title),sub:`${l.name} · Pinyin`,gl:l.g.tone,right:`<span data-clock>0:00</span> <button class="link" data-act="intro" aria-label="About this test">ⓘ</button>`,
+      stage:`<div class="bar"><i style="width:${s.k/idx.length*100}%"></i></div><div class="swipe"><p class="trainer" lang="zh-CN">${items.map((x,i)=>{if(!Array.isArray(x))return x;const pos=idx.indexOf(i);
+        return pos<s.k?`<ruby class="c${x[2]}">${x[0]}<rt class="c${x[2]}">${tone(x[1],x[2])}</rt></ruby>`:pos===s.k?`<span class="cur ${s.bad===pos?'shake':''}">${x[0]}</span>`:x[0]}).join('')}</p><p class="hint">Swipe anywhere here: → 1st · ↑ 2nd · ← 3rd · ↓ 4th. Tap for neutral.<br>The buttons below and the arrow keys work too.</p></div>`,
+      dock:`<div class="tonepad">${[['→','1st','ā'],['↑','2nd','á'],['←','3rd','ǎ'],['↓','4th','à'],['·','neutral','a']].map((b,i)=>`<button data-act="tone" data-v="${i+1}" aria-label="Tone ${b[1]}"><b class="c${i+1}">${b[2]}</b>${b[1]}</button>`).join('')}</div>`})},
+   key(e){const m={ArrowRight:1,ArrowUp:2,ArrowLeft:3,ArrowDown:4,' ':5}[e.key];if(m&&$('#sheet').hidden){e.preventDefault();me.acts.tone(m)}},
+   swipe(d){if(s.k<idx.length)me.acts.tone({right:1,up:2,left:3,down:4,tap:5}[d])},
+   acts:{tone(v){const x=items[idx[s.k]];if(!x)return;if(+v===x[2]){s.bad=-1;s.k++;render();return}
+      s.mist++;s.bad=s.k;render();sheet(`<p class="prompt big" lang="zh-CN">${x[0]}</p><p class="center muted">${tone(x[1],x[2])}</p><p class="center"><b class="c${v}">Your answer ${v==5?'neutral':v}</b> → <b class="c${x[2]}">Correct ${x[2]===5?'neutral':x[2]}</b></p>${x[3]?`<div class="note"><b>Tone Sandhi Rule:</b> ${x[3]}</div>`:''}<button class="btn" data-act="closeSheet">Continue</button><p class="hint">You’ll answer this character again.</p>`)},
+    intro(){introSheet('tone_zh')},retry(){Object.assign(s,{k:0,mist:0,t0:Date.now(),frozen:0,bad:-1});render()},fin(){close('done')}}};
+  return me}
+
+/* ---------- pitch accent trainer (ja) ---------- */
+function PitchTrainer(t,o={}){const l=L(),items=l.pitchPassage,idx=items.map((x,i)=>Array.isArray(x)?i:-1).filter(i=>i>=0);
+  const s={k:0,mist:0,t0:Date.now(),mode:'quick',furi:false,hl:[],msg:''};
+  if(!S.introSeen.tone){S.introSeen.tone=1;setTimeout(()=>introSheet('tone_ja'),0)}
+  const classify=(a,n)=>Object.keys(PITCH).filter(k=>k!=='naka'||n>2).find(k=>levels(k,n).join()===a.join());
+  function wrong(x,mine){s.mist++;const n=x[1].length;sheet(`<p class="prompt big" lang="ja">${x[0]}</p><p class="center muted">${x[1].join('')}</p><p class="center"><b>${mine?PITCH[mine][1]:'Your contour'}</b> → <b style="color:var(--good)">${PITCH[x[2]][1]}</b></p><div class="cv">${contour(levels(x[2],n),x[1])}</div><div class="note"><b>${PITCH[x[2]][1]} — ${PITCH[x[2]][2]}</b></div><button class="btn" data-act="closeSheet">Continue</button><p class="hint">You’ll answer this word again.</p>`)}
+  const me={s,onDone:o.onDone,
+   view(){if(s.k>=idx.length){s.frozen=s.frozen||Date.now()-s.t0;const pc=pct(idx.length,idx.length+s.mist);return resultCard('Pitch Accent',l.g.tone,pc,'Accent accuracy',[['Words',`${idx.length}/${idx.length}`],['Time',mmss(s.frozen/1000)],['Mistakes',s.mist],['ELO change',pc>=80?'+9':'−5']])}
+    const x=items[idx[s.k]],n=x[1].length,types=Object.keys(PITCH).filter(k=>k!=='naka'||n>2),full=s.hl.length===n+1&&s.hl.every(v=>v!=null);
+    const ctrl=s.mode==='quick'?`<div class="opts two">${types.map((k,i)=>`<button class="opt contour" data-act="quick" data-v="${k}">${contour(levels(k,n),x[1])}<span>${'←↑→↓'[['heiban','atama','naka','odaka'].indexOf(k)]} ${PITCH[k][1]} <small lang="ja">${PITCH[k][0]}</small></span></button>`).join('')}</div>`
+      :`<p class="small muted">Tap HIGH or LOW for each mora, then Submit.</p><div class="hl-grid" style="grid-template-columns:44px repeat(${n+1},1fr)">${['HIGH','LOW'].map((lab,r)=>`<span>${lab}</span>${Array.from({length:n+1},(_,i)=>`<button class="${s.hl[i]===1-r?'sel':''}" data-act="hl" data-v="${i},${1-r}" lang="ja">${i===n?'が':x[1][i]}</button>`).join('')}`).join('')}</div>${s.msg?`<p class="note warn">${s.msg}</p>`:''}`;
+    return frame({title:tl(t.title),sub:`${l.name} · Pitch Accent`,gl:l.g.tone,right:`<span data-clock>0:00</span> <button class="link" data-act="intro" aria-label="About this test">ⓘ</button>`,
+      stage:`<div class="row between"><div class="seg"><button class="${s.mode==='quick'?'on':''}" data-act="pmode" data-v="quick">⚡ Quick</button><button class="${s.mode==='contour'?'on':''}" data-act="pmode" data-v="contour">📈 Contour</button></div><button class="row small" data-act="furi" title="Halves the ELO change"><span class="sw ${s.furi?'on':''}"></span>ふりがな</button></div>
+        <div class="swipe" style="flex:none"><p class="trainer" lang="ja" style="font-size:22px;line-height:2.2">${items.map((y,i)=>{if(!Array.isArray(y))return y;const pos=idx.indexOf(i),ci={heiban:4,atama:1,naka:2,odaka:3}[y[2]];
+          return pos<s.k?`<ruby class="c${ci}">${y[0]}<rt class="c${ci}">${y[1].join('')}</rt></ruby>`:pos===s.k?`<ruby class="cur" style="font-size:30px">${y[0]}<rt>${s.furi?y[1].join(''):''}</rt></ruby>`:y[0]}).join('')}</p></div>${ctrl}`,
+      dock:s.mode==='contour'?`<button class="btn" data-act="subc" ${full?'':'disabled'}>Submit</button>`:'<p class="hint">Tap a pattern, or swipe on the sentence: ← Heiban · ↑ Atamadaka · → Nakadaka · ↓ Odaka.</p>'})},
+   swipe(d){const k={left:'heiban',up:'atama',right:'naka',down:'odaka'}[d],x=items[idx[s.k]];if(s.mode==='quick'&&k&&x&&(k!=='naka'||x[1].length>2))me.acts.quick(k)},
+   acts:{pmode(v){s.mode=v;s.hl=[];s.msg='';render()},furi(){s.furi=!s.furi;if(s.furi)toast('Furigana on: the ELO change is halved.');render()},
+    quick(v){const x=items[idx[s.k]];if(v===x[2]){s.k++;render()}else wrong(x,v)},
+    hl(v){const[i,h]=v.split(',').map(Number);s.hl[i]=h;s.msg='';render()},
+    subc(){const x=items[idx[s.k]],a=s.hl,n=x[1].length;let drops=0,fell=false,rise=false;for(let i=1;i<a.length;i++){if(a[i-1]===1&&a[i]===0){drops++;fell=true}if(a[i-1]===0&&a[i]===1&&fell)rise=true}
+      if(n>1&&a[0]===a[1]){s.msg='Mora 1 and mora 2 must differ in pitch.';render();return}
+      if(rise){s.msg='Pitch cannot rise again after it has fallen.';render();return}
+      if(drops>1){s.msg='A Japanese word has at most one H->L drop.';render();return}
+      const mine=classify(a,n);s.hl=[];if(mine===x[2]){s.k++;render();return}
+      if(!mine)toast('Close - your contour is valid, but the drop is in the wrong place.');render();wrong(x,mine)},
+    intro(){introSheet('tone_ja')},retry(){Object.assign(s,{k:0,mist:0,t0:Date.now(),frozen:0,hl:[]});render()},fin(){close('done')}}};
+  return me}
+
+/* ---------- measure words (zh) / counters (ja) ---------- */
+function CounterDrill(o={}){const l=L(),zh=S.lang==='zh',items=l.drill,LV=['MC','MC','Type','Reverse','MC','Type','MC','Reverse'];
+  const s={mode:zh?'auto':'choose',i:0,right:0,fb:null,inp:'',t0:Date.now(),opts:null,sel:null};
+  const kind=()=>s.mode==='type'?'Type':s.mode==='choose'?'MC':LV[s.i%LV.length];
+  function load(){const x=items[s.i],k=kind();s.sel=null;s.fb=null;s.inp='';
+    if(k==='Reverse'){const others=shuffle(items.filter(y=>y[3]!==x[3])).slice(0,3);s.opts=shuffle([x,...others]).map(y=>({t:y[0],sub:y[1],ok:y===x}))}
+    else{const cls=[...new Map(items.map(y=>[y[3],y])).values()].filter(y=>y[3]!==x[3]);s.opts=shuffle([x,...shuffle(cls).slice(0,3)]).map(y=>({t:y[3],sub:zh?y[4]:y[7]||y[4],ok:y[3]===x[3]}))}}
+  load();
+  function answer(ok,given){if(ok)s.right++;s.fb={ok,given};render();if(ok&&zh)setTimeout(()=>{if(P===me&&s.fb&&s.fb.ok)me.acts.next()},450)}
+  const me={s,onDone:o.onDone,
+   view(){if(s.i>=items.length){const pc=pct(s.right,items.length),sec=Math.round((s.frozen=s.frozen||Date.now()-s.t0)/1000);
+      return frame({title:l.measureName,sub:'Round complete',gl:l.g.measure,stage:`<div class="done-wm" lang="${l.bcp}">${l.g.measure}</div><div class="score"><span class="n num">${pc>=80?'🎉':pc>=50?'👍':'💪'} ${pc}%</span></div><p class="muted">${s.right} / ${items.length} ${l.unit} · ${sec}s</p><div class="wrap"><span class="tag ok">${zh?'ELO +5':'▲ +5 ELO'}</span>${zh?'<span class="tag brand">🎓 2 classifiers promoted!</span>':''}</div><p class="small muted">Rounds are 20 items in the app; this sample round is ${items.length}.</p>`,
+        dock:`<div class="row"><button class="btn ghost" data-act="again">Next round</button><button class="btn" data-act="fin">Done</button></div>`})}
+    const x=items[s.i],k=kind(),fbk=s.fb,rev=k==='Reverse';
+    const prompt=rev?`<p class="eyebrow">Which noun takes ${tl(x[3])}?</p>`:zh?`<p class="prompt big" lang="zh-CN" style="font-size:40px">一 <u>${fbk?x[3]:'　'}</u> ${x[0]}</p><p class="center muted">yī ___ ${x[1]} · ${x[2]}</p>`:`<p class="prompt big" lang="ja" style="font-size:36px">${x[0]} を 一 <u>${fbk?x[3]:'　'}</u></p><p class="center muted">${x[1]?x[1]+' · ':''}${x[2]}</p>`;
+    const body=k==='Type'?`<input type="text" data-bind="inp" data-enter="check" data-focus ${fbk?'disabled':''} value="${esc(s.inp)}" placeholder="${zh?'measure word':'counter'}" lang="${l.bcp}" aria-label="Your answer">${fbk?'':`<p class="hint">Press Enter to check</p><div>${fill}</div>`}`
+      :`<div class="opts two">${s.opts.map((op,i)=>`<button class="opt ${!fbk?'':op.ok?'ok':i===s.sel?'no':''}" data-act="pick" data-v="${i}"><span class="k">${i+1}</span><span>${tl(op.t)}<small>${op.sub||''}</small></span></button>`).join('')}</div>`;
+    const card=fbk&&(!zh||!fbk.ok)?`<div class="fb ${fbk.ok?'ok':'no'}"><b>${fbk.ok?'✓':'✕'} ${tl(zh?`一${x[3]}${x[0]}`:`${x[0]}を一${x[3]}`)}</b><span>${zh?x[4]:x[7]} · ${x[5]}</span>${fbk.ok?'':`<span>Your answer: ${tl(esc(fbk.given))}</span>`}${zh?'':`<span class="small"><b>Counting 1-10:</b> ${x[6]}</span>`}</div>`:'';
+    return frame({title:l.measureName,sub:`${s.i+1} / ${items.length}${s.mode==='auto'?' · '+k:''}`,gl:l.g.measure,right:`<span class="num">${s.right} ✓</span>`,
+      stage:`<div class="seg">${(zh?[['auto','Auto'],['choose','Choose'],['type','Type']]:[['choose','Choose'],['type','Type']]).map(([v,n])=>`<button class="${s.mode===v?'on':''}" data-act="dmode" data-v="${v}">${n}</button>`).join('')}</div>${prompt}${body}`,
+      dock:card?card+'<button class="btn" data-act="next" data-focus>Continue</button>':k==='Type'&&!fbk?'<button class="btn" data-act="check">Check</button>':'<p class="hint">Tap an answer.</p>'})},
+   acts:{dmode(v){s.mode=v;load();render()},
+    pick(v){if(s.fb)return;s.sel=+v;answer(s.opts[+v].ok,s.opts[+v].t)},
+    check(){const x=items[s.i],v=s.inp.trim();if(!v){toast('Type an answer first.');return}answer([x[3],x[4],x[7]].includes(v)||(!zh&&v===x[4].replace(/^ひ/,'ぴ')),v)},
+    fill(){s.inp=items[s.i][3];render()},
+    next(){s.i++;if(s.i<items.length)load();render()},
+    again(){Object.assign(s,{i:0,right:0,t0:Date.now(),frozen:0});load();render()},fin(){close('done')}}};
+  return me}
+
+/* ---------- calibration ---------- */
+function Calibration(){const l=L(),BANDS=['< 3.0','3.0–3.5','3.5–4.0','4.0–4.5','4.5–5.0','5.0–5.5','5.5+'];
+  const s={mode:'meanings',n:0,ok:0,log:[],pool:[],cur:null,opts:[],pick:null,idk:false,res:false,loading:true};
+  function nextWord(){if(!s.pool.length)s.pool=shuffle(Object.keys(l.words).filter(w=>s.mode==='meanings'||hasReading(w)));s.cur=s.pool.pop();s.pick=null;s.idk=false;
+    const f=w=>s.mode==='meanings'?W(w).g:W(w).read,cands=Object.keys(l.words).filter(w=>w!==s.cur&&(s.mode==='meanings'||hasReading(w)));s.opts=shuffle([f(s.cur),...shuffle(cands).slice(0,3).map(f)])}
+  const correct=()=>s.mode==='meanings'?W(s.cur).g:W(s.cur).read;
+  function record(ok){s.n++;if(ok)s.ok++;s.log.push([W(s.cur).z,ok]);learn(s.cur,ok,s.idk)}
+  setTimeout(()=>{s.loading=false;nextWord();if(P===me)render()},500);
+  const me={s,
+   view(){if(s.res){const few=s.n<8,est=(4.7-(s.ok/Math.max(1,s.n)-.5)*1.4).toFixed(2),pm=(1.1/Math.sqrt(Math.max(1,s.n))).toFixed(2);
+      const bands=BANDS.map((b,i)=>{const lo=i===0?-9:2.5+i*.5,hi=i===6?99:3+i*.5,xs=s.log.filter(x=>x[0]>=lo&&x[0]<hi);return{b,n:xs.length,p:pct(xs.filter(x=>x[1]).length,xs.length)}});
+      return frame({title:'Calibration',sub:'Your result',gl:l.g.cal,stage:`<div class="score"><span class="n num" style="font-size:44px">${few?pct(s.ok,s.n)+'%':est+' ± '+pm}</span></div>
+        <p class="muted">${few?'Answer more words to get a frequency level — right now this is just your score so far.':'Your vocabulary reaches down to this word-frequency level (Zipf). Lower is a larger vocabulary.'}</p>
+        <div class="card"><div class="bars num">${bands.map(x=>`<div><span>${x.n?x.p+'%':''}</span><i style="height:${x.n?Math.max(4,x.p*.6):2}%;${x.n?'':'background:var(--line)'}"></i><span>${x.b}<br>n=${x.n}</span></div>`).join('')}</div><p class="small muted" style="margin-top:8px">Share of words you knew in each frequency band. Rarer words are on the left.${s.n<20?' This is based on only a few answers, so treat it as a rough guide.':''}</p></div>
+        <div class="note"><b>Test difficulty</b><br>${s.n>=20?'Reading: adjusted 1200 → 1250':'Reading: unchanged — answer at least 20 words first'}</div>`,
+        dock:`<div class="row"><button class="btn ghost" data-act="restart">Start again</button><button class="btn" data-act="x">Back home</button></div>`})}
+    const done=s.pick!=null||s.idk,c=s.cur?correct():'';
+    return frame({title:'Calibration',sub:`${s.n} answered · ${pct(s.ok,s.n)}% correct`,gl:l.g.cal,right:'<button class="btn sm ghost" data-act="finish">Finish</button>',
+      stage:`<div class="seg"><button class="${s.mode==='meanings'?'on':''}" data-act="cmode" data-v="meanings">Meanings</button><button class="${s.mode==='readings'?'on':''}" data-act="cmode" data-v="readings">Readings</button></div>
+        ${s.loading?'<p class="note center" style="margin-top:40px">Preparing your calibration…</p>':`<p class="prompt big" lang="${l.bcp}">${s.cur}</p>${s.mode==='meanings'?`<p class="center muted">${W(s.cur).read}</p>`:''}<p class="eyebrow">${s.mode==='meanings'?'Which definition is correct?':'Which reading is correct?'}</p>
+        <div class="opts">${s.opts.map((t,i)=>`<button class="opt ${!done?'':t===c?'ok':i===s.pick?'no':''}" data-act="pick" data-v="${i}"><span class="k">${i+1}</span><span>${t}</span></button>`).join('')}</div>`}`,
+      dock:s.loading?'':done?'<button class="btn" data-act="next" data-focus>Next word</button>':'<button class="btn ghost" data-act="idk">I don’t know</button>'})},
+   acts:{cmode(v){Object.assign(s,{mode:v,n:0,ok:0,log:[],pool:[]});nextWord();render()},
+    pick(v){if(s.pick!=null||s.idk)return;s.pick=+v;const ok=s.opts[s.pick]===correct();record(ok);render();if(ok){const w=s.cur;setTimeout(()=>{if(P===me&&s.cur===w&&!s.res)me.acts.next()},450)}},
+    idk(){s.idk=true;record(false);render()},next(){nextWord();render()},finish(){s.res=true;render()},
+    restart(){Object.assign(s,{n:0,ok:0,log:[],pool:[],res:false});nextWord();render()}}};
+  return me}
+
+/* ---------- top-level screens ---------- */
+const isDark=()=>{const a=document.documentElement.getAttribute('data-theme');return a?a==='dark':matchMedia('(prefers-color-scheme:dark)').matches};
+const topbar=(left)=>`<header class="top pad">${left}<div class="row"><button class="ib" data-act="theme" aria-label="Switch between light and dark">${isDark()?'☀':'☾'}</button><button class="ib" data-act="report" aria-label="Report an issue">⚑</button></div></header>`;
+const NATIVES=[['zh','🇨🇳','中文'],['en','🇺🇸','English'],['ja','🇯🇵','日本語']];
+const pu=()=>S.practiceUI[S.lang]||(S.practiceUI[S.lang]={done:false,asked:false,panel:true,reviews:true,nw:3});
+const screens={
+login(){return `<div class="stage pad" style="justify-content:center;gap:14px">
+  <div class="done-wm" style="margin-bottom:-30px">道</div><div><p class="eyebrow">🎓 LinguaDojo</p><h1 class="h1">Master any language with active practice</h1></div>
+  ${S.otp?`<p class="note">We sent a 6-digit code to <b>${esc(S.email||'your@email.com')}</b></p><label class="small" style="font-weight:700">Verification Code<input type="text" inputmode="numeric" maxlength="6" placeholder="000000" data-bind="code" data-enter="verify" style="margin-top:4px"></label>
+      <button class="row small" data-act="remember"><span class="sw ${S.remember===false?'':'on'}"></span>Remember this device for 6 months</button><p class="small muted">Didn’t receive the code? <button class="link" data-act="resend">Resend</button> · any 6 digits work here.</p>`
+    :`<label class="small" style="font-weight:700">Email Address<input type="email" placeholder="your@email.com" data-bind="email" data-enter="sendCode" value="${esc(S.email)}" style="margin-top:4px"></label><p class="small muted">New here? Just enter your email to create an account.</p>`}
+  </div><div class="dock pad">${S.otp?'<button class="btn" data-act="verify">Verify &amp; Continue</button><button class="btn ghost back2" data-act="backEmail">‹ Back to Email</button>':'<button class="btn" data-act="sendCode">Send Verification Code</button>'}</div>`},
+welcome(){return `<div class="stage pad" style="padding-top:18px"><div><p class="eyebrow">Welcome to LinguaDojo</p><h1 class="h1">Short, active practice at your level</h1></div>
+  <div class="card col"><b>What LinguaDojo does</b><ul class="ul"><li>Short active exercises that build words up a ladder.</li><li>Focused comprehension tests: listening and reading, 5 questions with 4 options each.</li><li>ELO-calibrated matching, so tests adapt to your level.</li></ul></div>
+  <div class="wrap"><span class="chip">⚑ Report button</span><span class="chip">◔ Profile</span><span class="chip">${L().mark} Language selector</span></div>
+  <div><p style="font-weight:700;margin-bottom:6px">What’s your native language? <span class="muted small">(optional)</span></p><div class="stats">${NATIVES.map(n=>`<button class="stat center" style="${S.native===n[0]?'border-color:var(--brand);background:var(--brand-wash)':''}" data-act="native" data-v="${n[0]}"><div class="n">${n[1]}</div><small>${n[2]}${S.native===n[0]?' ✓':''}</small></button>`).join('')}</div></div>
+  </div><div class="dock pad"><button class="btn" data-act="go" data-v="langsel">Get Started →</button></div>`},
+langsel(){return `<div class="stage pad" style="padding-top:18px"><div><h1 class="h1">Choose your language to practice</h1><p class="muted">This will be used for all tests and content</p></div>
+  <div class="rowlist">${Object.entries(D).map(([k,l])=>`<button class="trow" style="${S.pickLang===k?'border-color:var(--brand);background:var(--brand-wash)':''}" data-act="pickLang" data-v="${k}"><span class="gl" style="font-family:'Noto Serif ${k==='ja'?'JP':'SC'}',serif">${l.mark}</span><span class="mid"><b>${l.flag} ${l.native}</b><small>${l.name}</small></span><span>${S.pickLang===k?'✓':''}</span></button>`).join('')}
+  <div class="trow faded"><span class="gl">E</span><span class="mid"><b style="text-decoration:none">🇺🇸 English</b><small>Not part of this mockup</small></span></div></div>
+  </div><div class="dock pad"><button class="btn" data-act="langGo" data-v="today" ${S.pickLang?'':'disabled'}>Start Daily Session</button><button class="link center ${S.pickLang?'':'quiet'}" data-act="langGo" data-v="tests">Browse tests</button></div>`},
+
+today(){const l=L(),it=sessionItems(),d=S.done[S.lang],left=it.filter(x=>!d[x.key]),first=left[0];
+  const tests=it.filter(x=>['listen','read','dict'].includes(x.key)).length,prac=it.length-tests,any=it.length>left.length;
+  return topbar(`<button class="langbtn" data-act="langSheet" aria-label="Change language"><span class="seal">${l.mark}</span>${l.name} ▾</button>`)+`<div class="stage pad">
+   <section class="hero"><span class="wm" lang="${l.bcp}">${S.lang==='zh'?'今天':'今日'}</span>
+    <div><p class="eyebrow">Today’s Study Session</p><h1 class="h1">${!it.length?'Nothing scheduled':left.length?`${tests} tests · ${prac} practice`:'Session complete!'}</h1><p class="sub">${!it.length?'No session items for today. Check your Study Plan or browse tests.':left.length?`${left.length} left today · about ${left.reduce((a,x)=>a+x.min,0)} min`:'Nice work — you finished today’s load.'}</p></div>
+    <div class="items">${it.map(x=>`<span class="seal ${d[x.key]?'done':x===first?'now':''}" lang="${l.bcp}" title="${x.type}">${x.gl}</span>`).join('')}</div>
+    ${first&&first.key==='practice'?`<p class="sub"><b>${l.practice.length} exercises · ${l.newWords.length} new words to learn · 2 words to review · about 8 min</b></p>`:''}
+    ${it.length?`<button class="btn" data-act="${left.length?'startSession':'go'}" data-v="summary">${!left.length?'See your results':any?'Resume session':'▶ Start session'}</button>`:''}
+    <button class="link" data-act="tab" data-v="tests">Browse tests instead</button>
+    <div class="week num"><span>Studied this week</span><span class="bar"><i style="width:41%"></i></span><span>86 / 210 min</span></div>
+   </section>
+   ${first?`<div class="sech"><h2 class="h2">Up next</h2><span class="small muted">${first.min} min</span></div><div class="trow"><span class="gl" lang="${l.bcp}">${first.gl}</span><span class="mid">${first.tlx?tl(first.title):`<b>${first.title}</b>`}<small>${first.type}${first.hard&&S.plan.prestudy!=='off'?' · Study first, then take it':''}</small></span>${first.hard?'<span class="tag warn">Stretch</span>':'<span class="tag brand">New</span>'}</div>`:''}
+   <div class="sech"><h2 class="h2">Quick access</h2></div>
+   <div class="hrow">${[['cards',l.g.cards,'Flashcards'],['dt',l.g.dt,'Dual Translation'],['drill',l.g.measure,l.measureName],['cal',l.g.cal,'Calibration']].map(([k,g,n])=>`<button class="chip" style="min-height:44px;padding-left:6px" data-act="jump" data-v="${k}"><span class="seal" lang="${l.bcp}">${g}</span>${n}</button>`).join('')}</div>
+  </div>`},
+
+practice(){const l=L(),u=pu();
+  return topbar('<h1 class="h1">Practice</h1>')+`<div class="stage pad">
+   <section class="hero"><span class="wm" lang="${l.bcp}">${l.g.practice}</span><div><p class="eyebrow">${u.done?'Exercises done!':'Today’s Practice'}</p><h1 class="h1">${u.done?'Nice work — you finished today’s exercises.':`${l.practice.length} exercises · 2 words to review`}</h1><p class="sub">${u.done?'':'1 practice · 1 left today · about 6 min. New-word chunks are held back for the daily session.'}</p></div>
+    ${u.done?'':'<button class="btn" data-act="startPractice">▶ Start session</button>'}<button class="btn ghost back2" style="color:var(--hero-ink);border-color:rgb(255 255 255 / 35%)" data-act="tab" data-v="today">‹ Back to daily session</button></section>
+   ${u.done&&!u.asked?`<div class="note col"><b>Exercises done — want to learn some new words?</b><div class="row"><button class="btn sm grow" data-act="learnNew">Learn new words</button><button class="btn sm ghost grow" data-act="notNow">Not now</button></div></div>`:''}
+   ${u.done&&u.asked&&u.panel?`<div class="card col"><b>Keep practising</b><button class="row small" data-act="puRev" style="text-align:left"><span class="sw ${u.reviews?'on':''}"></span>Reviews (no limit — due first, then ahead of schedule)</button>
+     <div class="row between"><span class="small">New words this round</span><div class="seg">${[0,3,5,10].map(n=>`<button class="${u.nw===n?'on':''}" data-act="puNw" data-v="${n}">${n}</button>`).join('')}</div></div>
+     ${u.nw>3?`<p class="small" style="color:var(--warn)">${u.nw-3} of these words go beyond today’s goal — they add to your future reviews.</p>`:''}
+     <div class="row"><button class="btn sm grow" data-act="extraRound" ${u.reviews||u.nw?'':'disabled'}>Start round</button><button class="btn sm ghost" data-act="puDone">Done</button></div></div>`:''}
+   <div class="sech"><h2 class="h2">More practice</h2></div>
+   <div class="rowlist">${[['fix',l.g.fix,'Fix your sentences','2 sentences from your translations','2 due'],['cards',l.g.cards,'Flashcards','Spaced review of words you have met','6 due'],['drill',l.g.measure,l.measureName,S.lang==='zh'?'Auto, Choose and Type modes':'Choose and Type modes',''],['dt',l.g.dt,'Dual Translation','Translate back from your own language','']].map(([k,g,n,sub,tag])=>`<button class="trow" data-act="jump" data-v="${k}"><span class="gl" lang="${l.bcp}">${g}</span><span class="mid"><b>${n}</b><small>${sub}</small></span>${tag?`<span class="tag due">${tag}</span>`:'<span>›</span>'}</button>`).join('')}</div>
+  </div>`},
+
+tests(){const l=L(),f=S.filter,ld=S.loadDone[S.lang],load=[['listen',0,'New',''],['read',1,'New',''],['dict',0,'Retry','Previously scored 62%']],nd=load.filter((_,i)=>ld[i]).length;
+  const TY={listen:['🎧','Listening'],read:['📖','Reading'],dict:['⌨️','Dictation']},ty=f.type==='all'?'listen':f.type;
+  const list=l.tests.filter(t=>f.tier==='all'||t.tier===+f.tier);
+  return topbar('<h1 class="h1">Browse Tests</h1>')+`<div class="stage pad">
+   <div class="sech"><div><h2 class="h2">Today’s Test Load</h2><p class="small muted">Your personalized tests for today</p></div><span class="small num" style="font-weight:700">${nd}/${load.length}</span></div><div class="bar"><i style="width:${nd/load.length*100}%"></i></div>
+   ${nd===load.length?'<p class="note ok">🎉 Great job! You’ve completed today’s test load!</p>':''}
+   <div class="hrow">${load.map(([k,ti,slot,prev],i)=>{const t=l.tests[ti];return `<div class="card pick" style="width:210px"><div class="wrap"><span class="tag ${ld[i]?'ok':'brand'}">${ld[i]?'✓':i+1}</span><span class="tag">${TY[k][0]} ${TY[k][1]}</span><span class="tag ${slot==='Retry'?'warn':'info'}">${slot}</span></div>${tl(t.title)}<span class="meta num"><span>${TIERS[t.tier]}</span><b>ELO ${t.elo[k]}</b></span>${prev?`<span class="small muted">${prev}</span>`:''}<button class="btn sm ${ld[i]?'ok':''}" data-act="loadStart" data-v="${i}" ${ld[i]?'disabled':''}>${ld[i]?'Completed':'Start Test'}</button></div>`}).join('')}</div>
+   <div class="sech"><h2 class="h2">Recommended for You</h2></div>
+   <div class="hrow">${l.tests.slice(0,3).map((t,i)=>`<button class="card pick" data-act="preview" data-v="${i}"><span class="wrap"><span class="tag">${TY[ty][0]} ${TY[ty][1]}</span></span>${tl(t.title)}<span class="meta num"><span>${TIERS[t.tier]}</span><b>ELO ${t.elo[ty]}</b></span></button>`).join('')}
+     <button class="card pick center" style="width:150px;align-items:center;justify-content:center" data-act="surprise"><span style="font-size:26px">🌐</span><b>Surprise Me!</b><span class="small muted">Get a random test at your level</span></button></div>
+   <div class="sech"><h2 class="h2">Filter Tests</h2><button class="link" data-act="resetFilter">Reset</button></div>
+   <div class="row"><select data-change="fType" aria-label="Test Type">${[['all','All Types'],['read','📖 Reading'],['listen','🎧 Listening'],['dict','⌨️ Dictation']].map(([v,n])=>`<option value="${v}" ${f.type===v?'selected':''}>${n}</option>`).join('')}</select>
+     <select data-change="fTier" aria-label="Difficulty"><option value="all">All Levels</option>${TIERS.map((n,i)=>`<option value="${i}" ${f.tier==i?'selected':''}>${n}</option>`).join('')}</select></div>
+   <div class="rowlist">${list.length?list.map(t=>`<button class="trow" data-act="preview" data-v="${l.tests.indexOf(t)}"><span class="gl" lang="${l.bcp}">${t.title[0]}</span><span class="mid">${tl(t.title)}<small>${t.topic} · ${TIERS[t.tier]}</small><small>${l.native} · ELO: ${t.elo[ty]} · ${t.attempts} attempts</small></span><span>›</span></button>`).join(''):'<div class="card center"><p style="font-size:26px">📚</p><b>No Tests Found</b><p class="small muted">Try adjusting your filters or check back later for new tests.</p><button class="btn sm" style="margin:8px auto 0" data-act="resetFilter">Clear Filters</button></div>'}</div>
+  </div>`},
+
+summary(){const l=L(),d=S.done[S.lang],items=RUN?RUN.items:sessionItems(),nd=items.filter(x=>d[x.key]).length;
+  return `<div class="stage pad" style="padding-top:14px"><div class="done-wm" lang="${l.bcp}">${S.lang==='zh'?'完成':'完了'}</div><div><p class="eyebrow">🎉 Session complete!</p><div class="score"><span class="n num">${nd} / ${items.length}</span></div><p class="muted">Nice work — you finished today’s load.</p></div>
+   ${RUN&&RUN.tail?`<div class="note col"><b>Session done — 6 reviews and 4 new words left today. Keep going?</b><span class="small">New words reduced — catching up on 18 reviews</span><div class="row"><button class="btn sm grow" data-act="keepGoing">Keep going</button><button class="btn sm ghost grow" data-act="doneToday">Done for today</button></div></div>`:''}
+   <p class="eyebrow">Your results</p><div class="rowlist" style="display:grid;grid-template-columns:1fr 1fr">${items.map((x,j)=>{const sk=!d[x.key];return `<div class="trow ${sk?'faded':''}" style="padding-block:7px"><span class="seal" lang="${l.bcp}">${x.gl}</span><span class="mid"><b>${x.type}</b><small style="color:var(--${sk?'warn':'good'})">${sk?'− Skipped':'✓ Done'}</small></span></div>`}).join('')}</div></div>
+  <div class="dock pad"><div class="row"><button class="btn ghost" data-act="tab" data-v="today">Home</button><button class="btn" data-act="tab" data-v="tests">Back to tests</button></div></div>`},
+
+me(){const l=L(),row=(v,g,n,sub)=>`<button class="set" data-act="jump" data-v="${v}"><span class="row"><span class="seal" lang="${l.bcp}">${g}</span><span><b>${n}</b><small>${sub}</small></span></span><span>›</span></button>`;
+  return topbar('<h1 class="h1">Me</h1>')+`<div class="stage pad">
+   <div class="card" style="padding-block:2px">${row('profile','◔','Profile','ELO by skill, test history, native language')}${row('plan','☰','Study Plan','Daily minutes, modules, new words, prestudy')}${row('cal',l.g.cal,'Calibration','Measure your vocabulary size')}${row('words','＋','Word List','Upload words to keep practising')}${row('errors','△','My Error Profile','Patterns from your translations')}${row('trainer',l.g.tone,l.toneName,'Trainer on a test passage')}</div>
+   <div class="card" style="padding-block:2px">
+    <button class="set" data-act="langSheet"><span><b>Learning</b><small>${l.flag} ${l.native} · explanations in ${(NATIVES.find(n=>n[0]===S.native)||NATIVES[1])[2]}</small></span><span>›</span></button>
+    <button class="set" data-act="paletteSheet"><span><b>Colour theme</b><small>${(PALETTES.find(x=>x[0]===(S.palette||''))||PALETTES[0])[1]}</small></span><span>›</span></button>
+    <div class="set" style="${S.palette?'opacity:.5':''}"><span><b>Appearance</b><small>${S.palette?'Set by the colour theme':'For the redesign palette'}</small></span><div class="seg">${['system','light','dark'].map(t=>`<button class="${(S.theme||'system')===t?'on':''}" data-act="setTheme" data-v="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div></div>
+    <button class="set" data-act="report"><b>⚑ Report an issue</b><span>›</span></button>
+    <button class="set" data-act="jumpSheet"><span><b>Jump to a screen</b><small>Mockup shortcut to any flow</small></span><span>›</span></button>
+    <button class="set" data-act="notesSheet"><b>What changed in this redesign</b><span>›</span></button>
+    <button class="set" data-act="logout"><b style="color:var(--bad)">Logout</b></button></div>
+  </div>`}
+};
+
+/* ---------- pages (opened as players) ---------- */
+function Preview(ti,type0){const l=L(),t=l.tests[ti],s={type:type0||'listen'};
+  const NAMES={listen:'Listening',read:'Reading',dict:'Dictation',tone:l.toneName},col=['good','good','info','warn','glow','bad'];
+  return{s,view(){const st=s.type==='listen'||s.type==='read',mine=(t.mine||{})[s.type];
+    return frame({title:'Test Preview',sub:'Tests › '+t.en,gl:t.title[0],stage:`<div>${tl(t.title,'h1')}<p class="muted">${t.en}</p></div>
+      <div class="wrap"><span class="tag">${l.native}</span><span class="tag">${t.topic}</span><span class="tag ok">🔊 Audio Available</span><span class="tag">${TIERS[t.tier]}</span><span class="tag">${t.attempts} attempts</span></div>
+      <p class="eyebrow">Select Test Type</p><div class="modes">${Object.keys(NAMES).map(k=>`<button class="mode ${s.type===k?'on':''}" data-act="ptype" data-v="${k}"><span class="seal" lang="${l.bcp}">${l.g[k]}</span>${NAMES[k]}</button>`).join('')}</div>
+      <div class="card row between"><span><span class="tag" style="color:var(--${col[t.tier]})">${TIERS[t.tier]}</span><br><span class="small">ELO Rating: <b class="num">${t.elo[s.type]}</b></span></span>${mine?`<span class="small muted">Your Attempts: ${mine}</span>`:''}</div>
+      ${t.stub?'<p class="note warn">Placeholder entry. The first two tests carry full sample content.</p>':''}
+      ${st?`<div class="col" style="gap:4px"><button class="btn ghost" data-act="study" ${t.stub?'disabled':''}>Study first</button><p class="hint">Learn the key words before you take the test. Your first attempt then counts at half weight for your rating.</p></div>`:''}`,
+      dock:`<button class="btn" data-act="start" ${t.stub?'disabled':''}>Start ${NAMES[s.type]} Test</button>`})},
+   acts:{ptype(v){s.type=v;render()},
+    start(){const ty=s.type;close();ty==='dict'?open(Dictation(t)):ty==='tone'?open(S.lang==='zh'?PinyinTrainer(t):PitchTrainer(t)):openTest(t,ty)},
+    study(){const ty=s.type;close();open(Prestudy(t,ty,{trigger:'opt_in'}))}}}}
+
+function Profile(){const l=L(),zh=S.lang==='zh',s={skill:0,more:false,nat:''};
+  const skills=[['🎧','Listening',1184,12,'Today'],['📖','Reading',1236,9,'Yesterday'],['✍️','Dictation',1102,6,'3 days ago'],zh?['🀄','Pinyin Tones',1160,4,'1 week ago']:['🎵','Pitch Accent',1160,4,'1 week ago'],['🧮',l.measureName,1215,5,'2 days ago']];
+  const hist=()=>{const k=s.skill,t=l.tests,u=['5','5','chars','chars',l.unit][k]||'5';
+    return[[t[0].title,'Nov 15, 2026',k<2?'4/5':k===4?'18/20 '+u:'40/52 chars',80,skills[k][2],''],[t[1].title,'Nov 13, 2026',k<2?'2/5':k===4?'14/20 '+u:'31/48 chars',40,skills[k][2]-8,'Review · 0.50× ELO'],[t[2].title,'Nov 11, 2026',k<2?'3/5':k===4?'16/20 '+u:'36/50 chars',60,skills[k][2]-14,''],[t[3].title,'Nov 9, 2026',k<2?'5/5':k===4?'20/20 '+u:'44/46 chars',100,skills[k][2]-26,'']].slice(0,s.more?4:2)};
+  return{s,view(){const k=skills[s.skill];return frame({title:'My Profile',sub:'Track your language learning progress',gl:'◔',stage:`
+    <div class="card col"><div><b>Native Language</b><p class="small muted">Used to show translations in a language you understand. Current: ${(NATIVES.find(n=>n[0]===S.native)||['','','Not set']).slice(1).join(' ')} ${s.nat}</p></div><div class="stats">${NATIVES.map(n=>`<button class="stat center" style="${S.native===n[0]?'border-color:var(--brand);background:var(--brand-wash)':''}" data-act="nat" data-v="${n[0]}"><div class="n">${n[1]}</div><small>${n[2]}</small></button>`).join('')}</div></div>
+    ${zh?`<button class="card row between" style="text-align:left" data-act="trad"><span><b>Chinese Script</b><small class="small muted" style="display:block">Use Traditional characters (繁體). Applies to practice sessions; tests are unaffected for now.</small></span><span class="sw ${S.trad?'on':''}"></span></button>`:''}
+    <p class="eyebrow">Select Language</p><div class="row">${Object.entries(D).map(([c,x])=>`<button class="chip ${S.lang===c?'on':''}" data-act="plang" data-v="${c}">${x.flag} ${x.native} · 5 skills</button>`).join('')}</div>
+    <p class="eyebrow">Statistics</p><div class="chips">${skills.map((x,i)=>`<button class="chip ${s.skill===i?'on':''}" data-act="skill" data-v="${i}">${x[0]} ${x[1]}</button>`).join('')}</div>
+    <div class="stats"><div class="stat"><div class="n num">${k[2]}</div><small>ELO Rating</small></div><div class="stat"><div class="n num">${k[3]}</div><small>Tests Taken</small></div><div class="stat"><div class="n" style="font-size:16px">${k[4]}</div><small>Last Test</small></div></div>
+    <div class="sech"><p class="eyebrow">Test History</p><span class="tag">${k[3]} tests</span></div>
+    <div class="rowlist">${hist().map(h=>`<div class="trow"><span class="mid">${tl(h[0])}<small>${h[1]}${h[5]?` · <span class="tag warn">${h[5]}</span>`:''}</small></span><span class="end num"><span style="color:var(--${h[3]>=80?'good':h[3]>=60?'warn':'bad'})">${h[2]}</span><br>ELO: ${h[4]}</span></div>`).join('')}</div>
+    ${s.more?'':'<button class="btn sm ghost" data-act="more">Load More</button>'}`})},
+   acts:{nat(v){S.native=v;s.nat='· Saving…';render();setTimeout(()=>{s.nat='· Saved';if(P&&P.s===s)render()},500)},trad(){S.trad=!S.trad;render()},
+    plang(v){A.setLang(v)},skill(v){s.skill=+v;s.more=false;render()},more(){s.more=true;render()}}}}
+
+function StudyPlan(){const l=L(),p=S.plan,zh=S.lang==='zh',s={tab:'plan',msg:''};
+  const MODS=[['reading','Reading'],['listening','Listening'],['dictation','Dictation'],zh?['pinyin','Pinyin tones']:['pitch','Pitch accent'],zh&&['measure','Measure words'],['flashcards','Flashcard review'],['dt','Dual translation'],['vocab','Vocabulary review']].filter(Boolean);
+  const on=k=>p.mods[k]!==false,DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  return{s,keepScroll:true,view(){const fit=Math.min(p.newWords,Math.max(0,Math.round(p.min/6))),sum=p.shape.reduce((a,b)=>a+b,0);
+    const body=s.tab==='plan'?`<div class="card col"><div class="row between"><b>Daily target</b><span class="num"><b>${p.min}</b> min/day</span></div><input type="range" min="10" max="180" step="5" value="${p.min}" data-change="pmin" aria-label="Daily target minutes"><p class="small muted">Total across languages: ${p.min} min/day</p></div>
+      <div class="card col"><b>Weekday shape</b><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">${DAYS.map((d,i)=>`<button class="stat center" style="padding:6px 2px" data-act="shape" data-v="${i}"><small>${d}</small><div class="n num" style="font-size:14px">${p.shape[i].toFixed(1)}</div></button>`).join('')}</div><p class="small muted">Tap a day to cycle 0 → 0.5 → 1 → 1.5 → 2. Currently summing to: ${sum.toFixed(2)} (will renormalize to 7 on save).</p></div>
+      <button class="card row between" data-act="adv"><b>Advanced</b><span>${p.adv?'▴':'▾'}</span></button>${p.adv?`<div class="card col"><b>Per-skill weight overrides</b>${['reading','listening','dictation'].map(k=>`<div class="row"><span class="small" style="width:76px">${k}</span><input type="range" min="0.5" max="2" step="0.05" value="${p.weights[k]||1}" data-change="w_${k}" aria-label="${k} weight"><span class="num small">${(+(p.weights[k]||1)).toFixed(2)}</span></div>`).join('')}<select data-change="tmpl" aria-label="Template"><option value="">— pick to reset daily_minutes —</option><option value="30">30 min/day (default)</option><option value="45">45 min/day</option><option value="60">60 min/day</option></select></div>`:''}`
+    :s.tab==='session'?`<div class="card col"><b>1. What your daily time covers</b>${[['both','Tests + vocabulary review','Tests, then practice, flashcards and translation inside the same budget.'],['tests','Tests only','Only comprehension tests and trainers; vocabulary work is optional afterwards.']].map(([v,n,dsc])=>`<button class="row" style="text-align:left;align-items:flex-start" data-act="cover" data-v="${v}"><span class="dot" style="margin-top:5px;${p.cover===v?'':'background:var(--line)'}"></span><span><b>${n}</b><small class="small muted" style="display:block">${dsc}</small></span></button>`).join('')}</div>
+      <div class="card"><b>2. Modules</b>${MODS.map(([k,n])=>`<button class="set" data-act="mod" data-v="${k}"><span>${n}</span><span class="sw ${on(k)?'on':''}"></span></button>`).join('')}</div>
+      <div class="card col"><div class="row between"><b>3. New words per day</b><div class="step num"><button data-act="nw" data-v="-1" aria-label="Fewer">−</button>${p.newWords}<button data-act="nw" data-v="1" aria-label="More">+</button></div></div><p class="small muted">~${fit} fit in your session, ~${p.newWords-fit} after (optional) · ≈ +${Math.round(p.newWords*1.6)} min/day of reviews in a month (estimate)</p>
+        <div class="row between"><b class="small">Study before hard tests</b><div class="seg">${[['auto','Automatically'],['ask','Ask me'],['off','Off']].map(([v,n])=>`<button class="${p.prestudy===v?'on':''}" data-act="pre" data-v="${v}">${n}</button>`).join('')}</div></div></div>
+      <p class="note"><b>4. Typical day:</b> ${p.min} min (about ${fit} new words and ~${Math.round(p.min*.27)} min of review inside it).</p>`
+    :`<div class="card col"><p class="small muted">Week starting Nov 9, 2026</p><b>Studied this week: 86 / ${p.min*7} min</b><div class="bar"><i style="width:${Math.min(100,86/(p.min*7)*100)}%"></i></div><p class="small muted" style="font-weight:700">By activity</p>${[['Tests',38],['Vocabulary practice',27],['Flashcards',8],['Dual translation',7],['Test prestudy',6]].map(a=>`<div class="row between small"><span>${a[0]}</span><span class="num">${a[1]} min</span></div>`).join('')}</div>
+      <div class="stats"><div class="stat"><div class="n num">86</div><small>min total this week</small></div><div class="stat"><div class="n num">90</div><small>practice min target</small></div><div class="stat"><div class="n num">12/${p.newWords*7}</div><small>New words</small></div></div>
+      <div class="card"><b>Per-skill targets vs completed</b><table class="tbl"><thead><tr><th>Skill</th><th>Done / target</th><th></th></tr></thead><tbody>${[['Reading',3,6],['Listening',4,5],['Dictation',1,2],[zh?'Pinyin tones':'Pitch accent',0,1]].map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]} / ${r[2]}</td><td style="width:40%"><div class="bar"><i style="width:${r[1]/r[2]*100}%"></i></div><span class="small muted num">${pct(r[1],r[2])}%</span></td></tr>`).join('')}</tbody></table></div>`;
+    return frame({title:'Study Plan',sub:'Set your weekly time targets — the system adapts the daily mix.',gl:'☰',
+      stage:`<div class="seg">${[['plan','Time'],['session','Daily session'],['week','This week so far']].map(([v,n])=>`<button class="${s.tab===v?'on':''}" data-act="stab" data-v="${v}">${n}</button>`).join('')}</div>${body}${s.msg?`<p class="note ok">${s.msg}</p>`:''}`,
+      dock:s.tab==='week'?'<button class="btn ghost" data-act="recompute">Recompute this week now</button>':'<button class="btn" data-act="save">Save changes</button>'})},
+   acts:{stab(v){s.tab=v;s.msg='';render()},pmin(v){p.min=+v;render()},tmpl(v){if(v){p.min=+v;s.msg='Plan created. Adjust below and save when ready.';render()}},
+    shape(v){p.shape[+v]=(p.shape[+v]+.5)%2.5;render()},adv(){p.adv=!p.adv;render()},cover(v){p.cover=v;render()},
+    mod(k){const onN=MODS.filter(([m])=>on(m)).length;if(on(k)&&onN===1){toast('At least one module stays on.');return}p.mods[k]=!on(k);render()},
+    nw(v){p.newWords=Math.min(50,Math.max(0,p.newWords+ +v));render()},pre(v){p.prestudy=v;render()},
+    save(){const t=p.shape.reduce((a,b)=>a+b,0)||1;p.shape=p.shape.map(x=>Math.round(x*7/t*100)/100);s.msg='Saved — today’s unfinished session was rebuilt.';render()},
+    recompute(){s.msg='This week’s targets were recomputed.';render()}}};
+  }
+document.addEventListener('change',e=>{const k=e.target.dataset.change;if(k&&k.startsWith('w_')){S.plan.weights[k.slice(2)]=+e.target.value;render()}});
+
+function WordList(){const l=L(),s={words:'',lang:S.lang,msg:'',busy:false};
+  if(!S.watch.length)S.watch=[['zh','几乎','Ladder ready','Match found','Nov 12'],['ja','地元','Ladder ready','Watching','Nov 10']];
+  return{s,keepScroll:true,view(){return frame({title:'Word List',sub:'Upload words you want to keep practicing',gl:'＋',stage:`<p class="small muted">Every word is added to your vocabulary ladder right away, and the app watches for matching tests as new ones are created.</p>
+    <label class="small" style="font-weight:700">Words<textarea rows="3" data-bind="words" placeholder="Enter one word per line" style="margin-top:4px">${esc(s.words)}</textarea></label>
+    <div class="row"><span class="small" style="font-weight:700">Language</span>${[['zh','🇨🇳 中文'],['en','🇺🇸 English'],['ja','🇯🇵 日本語']].map(([c,n])=>`<button class="chip ${s.lang===c?'on':''}" data-act="wl" data-v="${c}">${n}</button>`).join('')}</div>
+    ${s.msg?`<p class="note">${s.msg}</p>`:''}
+    <p class="eyebrow">Your Watchlist</p><div class="scroll-x"><table class="tbl"><thead><tr><th>Word</th><th>Language</th><th>Ladder</th><th>Matched Test</th><th>Uploaded</th></tr></thead><tbody>${S.watch.map(r=>`<tr style="${r[5]?'background:var(--brand-wash)':''}"><td class="tl">${esc(r[1])}</td><td>${{zh:'🇨🇳 中文',ja:'🇯🇵 日本語',en:'🇺🇸 English'}[r[0]]}</td><td><span class="tag ${r[2]==='Pending'?'warn':'ok'}">${r[2]}</span></td><td>${r[3]}${r[3]==='Match found'?' · <button class="link" data-act="view" style="padding:0">View test</button>':''}</td><td>${r[4]}</td></tr>`).join('')}</tbody></table></div>`,
+    dock:`<button class="btn" data-act="sub" ${s.busy?'disabled':''}>${s.busy?'Submitting…':'Submit'}</button>`})},
+   acts:{wl(v){s.lang=v;render()},view(){close();A.preview(1)},
+    sub(){const ws=s.words.split('\n').map(x=>x.trim()).filter(Boolean);if(!ws.length){s.msg='Enter at least one word.';render();return}
+      s.busy=true;s.msg='Processing your words — this can take a while for brand-new words.';render();
+      setTimeout(()=>{S.watch.forEach(r=>r[5]=0);const rows=ws.map(w=>[s.lang,w,'Pending','Watching','Nov 16',1]);S.watch.unshift(...rows);s.busy=false;s.words='';s.msg='';if(P&&P.s===s)render();
+        setTimeout(()=>{rows.forEach(r=>r[2]='Ladder ready');if(P&&P.s===s)render()},2500)},900)}}}}
+
+function ErrorProfile(){const rows=L().profile,card=r=>`<div class="trow"><span class="mid"><b>${r[0]}</b><small>${r[1]}${r[3]?' · '+r[3]:''}</small></span><span class="tag ${r[2]==='Resolved'?'ok':r[2]==='Drilling'?'brand':r[2]==='Queued'?'':'warn'}">${r[2]}</span></div>`;
+  return{view:()=>frame({title:'My Error Profile',sub:'Patterns from your translations',gl:'△',stage:`<p class="muted">Patterns from your translations, tracked so you can watch them shrink over time.</p><p class="note ok">🎉 1 patterns resolved</p><p class="eyebrow">Currently watching</p><div class="rowlist">${rows.filter(r=>r[2]!=='Resolved').map(card).join('')}</div><p class="eyebrow">Resolved</p><div class="rowlist">${rows.filter(r=>r[2]==='Resolved').map(card).join('')}</div>`}),acts:{}}}
+
+/* ---------- global actions ---------- */
+const PALETTES=[['','Redesign',['#edf3f1','#0a6b60','#ef6a35'],'New palette · follows light and dark'],['stillwater','Still Water',['#f6f9f8','#0e7569','#e8833a'],'Current default · light'],['midnight','Midnight',['#0b1416','#3db3a0','#f0975a'],'Dark'],['sakura','Sakura',['#fbf3f6','#c0407c','#e8833a'],'Warm rose · light'],['forest','Forest',['#f4f8f4','#2f7d46','#b08530'],'Earthy green · light'],['inkstone','Inkstone & Vermilion',['#f5f1e8','#b5331e','#b8862c'],'Parchment and red · light']];
+const JUMPS=[['today','Today'],['s-listen','Listening test'],['prestudy','Prestudy (full)'],['prestudy-light','Prestudy (light)'],['ready','Readiness check'],['s-read','Reading test'],['dictation','Dictation'],['newwords','New-word drill'],['practiceP','Practice player'],['cards','Flashcards'],['dt','Dual Translation'],['repair','Self-repair'],['fix','Fix your sentences'],['trainer','Tone / pitch trainer'],['drill','Measure words / counters'],['cal','Calibration'],['plan','Study Plan'],['profile','Profile'],['words','Word List'],['errors','Error Profile'],['summary','Session summary'],['login','Login'],['welcome','Welcome'],['langsel','Language selection']];
+const jumpHTML=()=>JUMPS.map(([v,n])=>`<button class="chip" data-act="jump" data-v="${v}">${n}</button>`).join('');
+const A={
+ tab(v){unwind();S.screen=v;render()},go(v){S.screen=v;render()},closeSheet,
+ x(){if(P&&P.softClose&&P.softClose())return;const inRun=RUN&&!RUN.over;unwind();if(inRun){RUN=null;S.screen='today'}render()},
+ skipItem(){const cb=RUN.cb;unwind();cb('skip');render()},
+ theme(){A.setPalette('',1);A.setTheme(isDark()?'light':'dark')},
+ paletteSheet(){sheet(`<h2 class="h2">Colour theme</h2><p class="small muted">The redesign palette follows light and dark. The five below are the app’s existing themes.</p><div class="rowlist">${PALETTES.map(x=>`<button class="trow" data-act="setPalette" data-v="${x[0]}"><span class="sws">${x[2].map(c=>`<i style="background:${c}"></i>`).join('')}</span><span class="mid"><b>${x[1]}</b><small>${x[3]}</small></span><span class="tag ${(S.palette||'')===x[0]?'ok':''}">${(S.palette||'')===x[0]?'Current':'Use'}</span></button>`).join('')}</div>`)},
+ setPalette(v,quiet){S.palette=v;const r=document.documentElement;try{localStorage.setItem('ld-palette',v)}catch(e){}
+   if(v){r.setAttribute('data-palette',v);r.setAttribute('data-theme',v==='midnight'?'dark':'light')}else{r.removeAttribute('data-palette');if(!quiet)A.setTheme(S.theme||'system')}
+   if(!quiet){if(!$('#sheet').hidden)A.paletteSheet();render()}},
+ setTheme(v){if(S.palette)A.setPalette('',1);S.theme=v;const r=document.documentElement;v==='system'?(hostTheme?r.setAttribute('data-theme',hostTheme):r.removeAttribute('data-theme')):r.setAttribute('data-theme',v);render()},
+ langSheet(){sheet(`<h2 class="h2">Choose your language to practice</h2><div class="rowlist">${Object.entries(D).map(([k,l])=>`<button class="trow" data-act="setLang" data-v="${k}"><span class="gl" style="font-family:'Noto Serif ${k==='ja'?'JP':'SC'}',serif">${l.mark}</span><span class="mid"><b>${l.flag} ${l.native}</b><small>${l.name}</small></span><span class="tag ${S.lang===k?'ok':''}">${S.lang===k?'Current':'Switch'}</span></button>`).join('')}</div>`)},
+ setLang(v){unwind();RUN=null;S.lang=v;try{localStorage.setItem('ld-lang',v)}catch(e){}if(!['today','practice','tests','me'].includes(S.screen))S.screen='today';fillAside();render()},
+ report(){sheet(`<h2 class="h2">⚑ Report Issue</h2><label class="small" style="font-weight:700">Issue Type<select id="repType" style="margin-top:4px"><option value="">Select</option><option>Test answer incorrect</option><option>Test won’t load</option><option>Website crashed</option><option>Improvement idea</option><option>Audio quality poor</option><option>Other</option></select></label><label class="small" style="font-weight:700">Description<textarea id="repDesc" rows="3" placeholder="Describe the issue..." style="margin-top:4px"></textarea></label><p class="small muted">Min 10 characters</p><div class="row"><button class="btn ghost" data-act="closeSheet">Cancel</button><button class="btn" data-act="repSend">Submit</button></div>`)},
+ repSend(v,el){if(!$('#repType').value||$('#repDesc').value.trim().length<10){toast('Pick an issue type and write at least 10 characters.');return}el.textContent='Submitting...';setTimeout(()=>{closeSheet();toast('Report submitted!')},700)},
+ jumpSheet(){sheet(`<h2 class="h2">Jump to a screen</h2><div class="wrap">${jumpHTML()}</div>`)},
+ notesSheet(){sheet(`<h2 class="h2">What changed</h2><ul class="ul">${NOTES.map(n=>`<li>${n}</li>`).join('')}</ul>`)},
+ dev(v){const[w,h]=v.split('x');$('#app').style.setProperty('--dw',w+'px');$('#app').style.setProperty('--dh',h+'px');document.querySelectorAll('#devs .chip').forEach(c=>c.classList.toggle('on',c.dataset.v===v))},
+ // auth + onboarding
+ sendCode(){if(!/^\S+@\S+\.\S+$/.test(S.email||'')){toast('Please enter a valid email address');return}S.otp=true;render()},
+ backEmail(){S.otp=false;render()},resend(){toast('Sending...')},remember(){S.remember=S.remember===false;render()},
+ verify(){if(!/^\d{6}$/.test(S.code||'')){toast('Please enter a valid 6-digit code');return}S.otp=false;S.code='';S.screen=S.first?'welcome':'langsel';S.first=false;render()},
+ logout(){unwind();RUN=null;S.screen='login';S.first=true;S.native=null;S.pickLang=null;render()},
+ native(v){S.native=S.native===v?null:v;render()},pickLang(v){S.pickLang=v;render()},
+ langGo(v){if(!S.pickLang)return;S.lang=S.pickLang;S.screen=v;fillAside();render();
+   if(!S.native)setTimeout(()=>{if(!P&&!S.native)sheet(`<h2 class="h2">Which language do you read best?</h2><p class="muted">We’ll explain new words in this language. You can change it any time in your profile.</p><div class="col">${[['en','English'],['zh','中文'],['ja','日本語']].map(n=>`<button class="btn ghost" data-act="natPick" data-v="${n[0]}">${n[1]}</button>`).join('')}</div><button class="link quiet center" data-act="natPick" data-v="en">Skip</button>`)},1200)},
+ natPick(v){S.native=v;closeSheet()},
+ // today / practice / tests
+ startSession,
+ keepGoing(){RUN.tail=false;open(Practice({extra:true,onDone:()=>{S.screen='summary'}}))},doneToday(){RUN.tail=false;render()},
+ startPractice(){open(Practice({onDone:()=>{pu().done=true}}))},
+ learnNew(){open(Practice({drill:L().newWords,drillOnly:true,onDone:()=>{pu().asked=true}}))},notNow(){pu().asked=true;render()},
+ puRev(){pu().reviews=!pu().reviews;render()},puNw(v){pu().nw=+v;render()},puDone(){pu().panel=false;render()},
+ extraRound(){const u=pu();open(Practice({extra:true,drill:u.nw?L().newWords:null,drillOnly:!u.reviews}))},
+ fType(v){S.filter.type=v;render()},fTier(v){S.filter.tier=v;render()},resetFilter(){S.filter={type:'all',tier:'all'};render()},
+ preview(v){open(Preview(+v,S.filter.type==='all'?'listen':S.filter.type))},
+ surprise(){const t=L().tests[Math.floor(Math.random()*2)],ty=S.filter.type==='all'?'listen':S.filter.type;ty==='dict'?open(Dictation(t)):openTest(t,ty)},
+ loadStart(v){const l=L(),i=+v,done=()=>{S.loadDone[S.lang][i]=1};
+   i===2?open(Dictation(l.tests[0],{daily:1,onDone:r=>r==='done'&&done()})):openTest(l.tests[i],i===0?'listen':'read',{daily:1,onDone:done})},
+ jump(v){unwind();closeSheet();RUN=null;const l=L(),t=l.tests;if(!['today','practice','tests','me'].includes(S.screen))S.screen='today';
+   const m={today:()=>{S.screen='today';render()},login:()=>A.logout(),welcome:()=>{S.screen='welcome';render()},langsel:()=>{S.screen='langsel';render()},
+    's-listen':()=>openTest(t[0],'listen'),'s-read':()=>openTest(t[1],'read'),prestudy:()=>open(Prestudy(t[1],'read',{trigger:'opt_in'})),'prestudy-light':()=>open(Prestudy(t[0],'listen',{trigger:'opt_in'})),
+    ready(){const p=Prestudy(t[1],'read',{});open(p);p.acts.startPrime();p.s.pr.queue.forEach(it=>{it.answered='';it.ok=true});p.s.pr.i=p.s.pr.queue.length;p.s.pr.done=true;p.acts.primeDone()},
+    dictation:()=>open(Dictation(t[0])),newwords:()=>open(Practice({drill:l.newWords,drillOnly:true})),practiceP:()=>open(Practice({})),cards:()=>open(Flashcards()),dt:()=>open(DT()),
+    repair(){const p=DT();open(p);p.s.text=l.dt.sample.join('');p.s.phase='repair';render()},fix:()=>open(DT({fixOnly:true})),
+    trainer:()=>open(S.lang==='zh'?PinyinTrainer(t[0]):PitchTrainer(t[0])),drill:()=>open(CounterDrill()),cal:()=>open(Calibration()),plan:()=>open(StudyPlan()),profile:()=>open(Profile()),words:()=>open(WordList()),errors:()=>open(ErrorProfile()),
+    summary(){const it=sessionItems();RUN={mode:'daily',items:it,i:0,stat:{},over:true,tail:true};it.forEach((x,j)=>{if(j!==3)S.done[S.lang][x.key]=1});S.screen='summary';render()}};
+   (m[v]||m.today)()}
+};
+document.addEventListener('keydown',e=>{if(P&&P.key&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))P.key(e)});
+function fillAside(){$('#jumpA').innerHTML=jumpHTML();$('#notesA').innerHTML=NOTES.map(n=>`<li>${n}</li>`).join('');
+  $('#devs').innerHTML=[['393x659','iPhone 15 · Safari'],['393x759','iPhone 15 · full screen'],['375x553','iPhone SE']].map(([v,n],i)=>`<button class="chip ${i?'':'on'}" data-act="dev" data-v="${v}">${n}</button>`).join('')}
+try{const x=localStorage.getItem('ld-lang');if(D[x])S.lang=x;const pl=localStorage.getItem('ld-palette');if(pl&&PALETTES.some(q=>q[0]===pl))A.setPalette(pl,1)}catch(e){}
+S.screen='today';S.first=true;S.native='en';
+fillAside();render();
+
+</script>

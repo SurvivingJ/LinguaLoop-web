@@ -108,6 +108,8 @@
   let CORRECTION_STYLE = 'direct_metalinguistic';
 
   const state = {
+    // TASK-989: true after "Translate an earlier passage again" (GET /next?reserve=1).
+    reserve: false,
     submissionId: null,
     ageTier: null,
     selfRating: null,
@@ -195,9 +197,22 @@
       CORRECTION_STYLE = wrap.dataset.correctionStyle;
     }
 
+    translateRedesignLabels();
+    applyStudyLanguage();
     bindSelfRate();
+    bindTabs();
     el.submit.addEventListener('click', onSubmit);
     el.tryAnother.addEventListener('click', loadNext);
+    if (el.skip) el.skip.addEventListener('click', onSkip);
+    // TASK-989: on the all-done screen the learner may translate an earlier
+    // passage again (least recently graded first); "Try another" then stays
+    // in that mode.
+    if (el.reserve) {
+      el.reserve.addEventListener('click', function () {
+        state.reserve = true;
+        loadNext();
+      });
+    }
     el.naturalnessToggle.addEventListener('click', function () {
       state.naturalnessShown = true;
       renderDims(state.lastContract.scores || {});
@@ -218,6 +233,7 @@
       'dtSelfRateCard',
       'dtSelfRate',
       'dtReproduction',
+      'dtUnavailableNotice',
       'dtSubmit',
       'dtResult',
       'dtProvisionalNotice',
@@ -232,6 +248,17 @@
       'dtNextFocus',
       'dtErrors',
       'dtTryAnother',
+      'dtScreen',
+      'dtStage',
+      'dtDock',
+      'dtErrorCardDock',
+      'dtTabs',
+      'dtEmpty',
+      'dtEmptyMsg',
+      'dtPassageNote',
+      'dtReserve',
+      'dtBrowseTests',
+      'dtSkip',
     ].forEach(function (id) {
       // strip the 'dt' prefix + lowercase first char for a tidy key
       const key = id.charAt(2).toLowerCase() + id.slice(3);
@@ -243,8 +270,110 @@
     el.loading.style.display = phase === 'loading' ? 'block' : 'none';
     el.error.style.display = phase === 'error' ? 'block' : 'none';
     el.errorCard.style.display = phase === 'errorCard' ? 'block' : 'none';
-    el.reproduce.style.display = phase === 'reproduce' ? 'block' : 'none';
-    el.result.style.display = phase === 'result' ? 'block' : 'none';
+    el.reproduce.style.display = phase === 'reproduce' ? 'flex' : 'none';
+    el.result.style.display = phase === 'result' ? 'flex' : 'none';
+    if (el.empty) el.empty.style.display = phase === 'empty' ? 'block' : 'none';
+    syncFrame(phase);
+  }
+
+  // ------------------------------------------------- redesign frame (2026-11)
+  // The page is one task screen: the shell's header (Back pill, title), a
+  // scrolling stage and a pinned dock. The dock shows only the action of the
+  // current phase (Submit / the error card's buttons / Try another).
+  function syncFrame(phase) {
+    if (el.screen) el.screen.dataset.dtPhase = phase;
+    if (el.dock) {
+      let any = false;
+      el.dock.querySelectorAll('[data-dt-dock]').forEach(function (node) {
+        const on = node.dataset.dtDock === phase && (phase !== 'errorCard' || !!node.firstChild);
+        node.hidden = !on;
+        if (on) any = true;
+      });
+      el.dock.hidden = !any;
+    }
+    if (el.stage) el.stage.scrollTop = 0;
+    setSubtitle(phase === 'result' ? label('dual_translation.your_feedback', 'Your feedback') : '');
+  }
+
+  function shell() {
+    return window.LinguaShell && typeof window.LinguaShell.setTaskHeader === 'function'
+      ? window.LinguaShell
+      : null;
+  }
+
+  function setSubtitle(text) {
+    const sh = shell();
+    if (sh) sh.setTaskHeader({ subtitle: text });
+  }
+
+  // Labels whose keys are not in the locale files yet (static/i18n/_redesign/
+  // translation.json): English fallback until they are merged.
+  function translateRedesignLabels() {
+    document.querySelectorAll('[data-dt-t]').forEach(function (node) {
+      node.textContent = label(node.dataset.dtT, node.textContent);
+    });
+  }
+
+  // Seal glyph (the mockup's 译 / 訳) and the textarea's lang, from the study
+  // language. Best effort: without metadata the header just has no seal.
+  const SEALS = { zh: '译', ja: '訳' };
+  function applyStudyLanguage() {
+    const id = parseInt(localStorage.getItem('selectedLanguageId'), 10);
+    if (!id || !window.LinguaMetadata || typeof window.LinguaMetadata.load !== 'function') return;
+    Promise.resolve(window.LinguaMetadata.load())
+      .then(function (meta) {
+        const row = ((meta && meta.languages) || []).find(function (l) {
+          return l.id === id;
+        });
+        const code = row && row.language_code;
+        if (!code) return;
+        if (el.reproduction) el.reproduction.lang = code;
+        if (el.diff) el.diff.lang = code;
+        if (el.errors) el.errors.dataset.l2 = code;
+        const sh = shell();
+        if (sh && SEALS[code]) sh.setTaskHeader({ glyph: SEALS[code] });
+      })
+      .catch(function () {
+        /* decorative only */
+      });
+  }
+
+  // Result tabs (Scores / Compare / Points to notice): a WAI-ARIA tablist.
+  function bindTabs() {
+    if (!el.tabs) return;
+    el.tabs.addEventListener('click', function (e) {
+      const btn = e.target.closest('[data-dt-tab]');
+      if (btn) selectTab(btn.dataset.dtTab, true);
+    });
+    el.tabs.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' && e.key !== 'Home' && e.key !== 'End')
+        return;
+      const tabs = Array.from(el.tabs.querySelectorAll('[data-dt-tab]'));
+      const i = tabs.indexOf(document.activeElement);
+      if (i < 0) return;
+      e.preventDefault();
+      const n = tabs.length;
+      const k =
+        e.key === 'Home'
+          ? 0
+          : e.key === 'End'
+            ? n - 1
+            : (i + (e.key === 'ArrowRight' ? 1 : n - 1)) % n;
+      selectTab(tabs[k].dataset.dtTab, true);
+    });
+  }
+
+  function selectTab(name, focus) {
+    if (!el.tabs) return;
+    el.tabs.querySelectorAll('[data-dt-tab]').forEach(function (btn) {
+      const on = btn.dataset.dtTab === name;
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      btn.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(btn.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !on;
+      if (on && focus) btn.focus();
+    });
+    if (el.stage) el.stage.scrollTop = 0;
   }
 
   // -------------------------------------------------------------- GET /next
@@ -300,15 +429,38 @@
     state.primedToken = null;
     let resp;
     try {
-      let langId = NaN;
-      try { langId = parseInt(localStorage.getItem('selectedLanguageId'), 10); } catch (e) { /* storage blocked */ }
-      const lang = Number.isInteger(langId) ? `?language_id=${langId}` : '';
-      resp = await window.authFetch(`/api/dual-translation/next${lang}`);
+      resp = await window.authFetch(nextUrl());
     } catch (e) {
       return showError(tr('dual_translation.error_load'));
     }
     if (resp.status === 404) {
-      return showError(tr('dual_translation.error_none'));
+      // ALL_DONE: every passage with a reviewed reference in this language is
+      // graded -> offer to translate an earlier one again (unless that is what
+      // was just asked for and nothing could be re-served).
+      // NO_PASSAGES (or an older backend): nothing with a reference yet.
+      const body = await resp.json().catch(() => ({}));
+      if (body && body.error_code === 'ALL_DONE') {
+        const scoped = !!pageTestId();
+        return showEmpty(
+          scoped
+            ? label(
+                'dual_translation.test_all_done',
+                "You've translated every passage from this test."
+              )
+            : label(
+                'dual_translation.all_done_any',
+                "You've translated every passage that has a reviewed translation in this language. You can translate an earlier one again, or come back when new passages are added."
+              ),
+          !state.reserve
+        );
+      }
+      return showEmpty(
+        label(
+          'dual_translation.none_available',
+          'No passage in this language has a reviewed translation into your language yet. Take a test in the meantime, and check back later.'
+        ),
+        false
+      );
     }
     if (!resp.ok) {
       return showError(tr('dual_translation.error_load') + ' (' + resp.status + ')');
@@ -332,6 +484,74 @@
     }
   }
 
+  // GET /next for the selected study language (localStorage selectedLanguageId,
+  // the same value the rest of the app reads). Without one the server falls back
+  // to the language of the learner's most recent test.
+  function nextUrl() {
+    let id = NaN;
+    try {
+      id = parseInt(window.localStorage.getItem('selectedLanguageId'), 10);
+    } catch {
+      /* storage blocked: let the server choose */
+    }
+    const params = [];
+    if (id > 0) params.push('language_id=' + encodeURIComponent(id));
+    if (state.reserve) params.push('reserve=1');
+    const testId = pageTestId();
+    if (testId) params.push('test_id=' + encodeURIComponent(testId));
+    return '/api/dual-translation/next' + (params.length ? '?' + params.join('&') : '');
+  }
+
+  // /dual-translation?test_id=<uuid>: the test preview page's "Translate a
+  // passage from this test" - every passage then comes from that test.
+  function pageTestId() {
+    try {
+      const v = new URLSearchParams(window.location.search).get('test_id') || '';
+      return /^[0-9a-fA-F-]{36}$/.test(v) ? v : '';
+    } catch {
+      return '';
+    }
+  }
+
+  function showEmpty(message, offerReserve) {
+    if (!el.empty) return showError(message);
+    el.emptyMsg.textContent = message;
+    showPhase('empty');
+    if (el.reserve) el.reserve.hidden = !offerReserve;
+    if (el.dock) el.dock.hidden = false;
+  }
+
+  // From a test not taken yet (it shows part of that test) / a passage
+  // translated before (re-served on request; not counted in the error profile).
+  function passageNote(data) {
+    const r = data && data.repeat_of;
+    if (r) {
+      const when = r.graded_at ? new Date(r.graded_at) : null;
+      if (when && !isNaN(when.getTime()) && r.band != null) {
+        const date = when.toLocaleDateString();
+        const fallback =
+          'You translated this passage on ' +
+          date +
+          ' (band ' +
+          r.band +
+          "). This try doesn't count towards your error profile.";
+        const v = tr('dual_translation.repeat_note', { date: date, band: r.band });
+        return v && v !== 'dual_translation.repeat_note' ? v : fallback;
+      }
+      return label(
+        'dual_translation.repeat_note_nodate',
+        "You've translated this passage before. This try doesn't count towards your error profile."
+      );
+    }
+    if (data && data.from_untaken_test) {
+      return label(
+        'dual_translation.untaken_note',
+        "This passage is from a test you haven't taken yet, so you'll see part of that test's text."
+      );
+    }
+    return '';
+  }
+
   function startPassage(data) {
     // TASK-617: the server assigns the correction-style A/B arm per user and
     // returns it here; it overrides the static `.dt-wrap` dataset default (which
@@ -352,6 +572,11 @@
     }
 
     el.reference.textContent = data.l1_text || '';
+    if (el.passageNote) {
+      const note = passageNote(data);
+      el.passageNote.textContent = note;
+      el.passageNote.hidden = !note;
+    }
     renderRubric(data.rubric_descriptors || {});
     showPhase('reproduce');
     el.reproduction.focus();
@@ -368,20 +593,26 @@
     if (state.errorCard) state.errorCard.destroy();
     showPhase('errorCard');
     state.errorCard = window.DTErrorCard.mount(el.errorCard, card, {
+      dock: el.errorCardDock || undefined,
       onDone: function () {
         loadNext();
       },
     });
+    syncFrame('errorCard');
   }
 
   function resetReproduceUI() {
+    showUnavailable(false);
     if (el.reproduction) el.reproduction.value = '';
     if (el.submit) {
       el.submit.disabled = false;
       el.submit.textContent = tr('dual_translation.submit');
     }
     if (el.selfRate) {
-      el.selfRate.querySelectorAll('button').forEach((b) => b.classList.remove('selected'));
+      el.selfRate.querySelectorAll('button').forEach((b) => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
     }
   }
 
@@ -417,8 +648,12 @@
       const btn = e.target.closest('button[data-rating]');
       if (!btn) return;
       state.selfRating = parseInt(btn.dataset.rating, 10);
-      el.selfRate.querySelectorAll('button').forEach((b) => b.classList.remove('selected'));
+      el.selfRate.querySelectorAll('button').forEach((b) => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
       btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
       // Client-only this pass (no schema change); keyed by submission so a
       // reload before submit keeps the prediction.
       try {
@@ -432,6 +667,37 @@
   }
 
   // ------------------------------------------------------------ POST /submit
+  // "Skip this passage": GET /next resumes the passage the learner was last
+  // shown until it is translated or skipped, so moving on is an explicit act.
+  // The skipped passage comes back after everything not seen yet.
+  async function onSkip() {
+    if (!state.submissionId || state.skipping) return;
+    state.skipping = true;
+    el.skip.disabled = true;
+    try {
+      const resp = await window.authFetch(
+        '/api/dual-translation/' + encodeURIComponent(state.submissionId) + '/skip',
+        { method: 'POST' }
+      );
+      // 409: already translated elsewhere - moving on is still right.
+      if (!resp.ok && resp.status !== 409) throw new Error('skip ' + resp.status);
+    } catch {
+      state.skipping = false;
+      el.skip.disabled = false;
+      if (typeof window.showToast === 'function') {
+        window.showToast(
+          label('dual_translation.skip_failed', "Couldn't skip this passage. Try again."),
+          'error'
+        );
+      }
+      return;
+    }
+    state.skipping = false;
+    el.skip.disabled = false;
+    if (state.timer && state.timer.stop) state.timer.stop();
+    loadNext();
+  }
+
   async function onSubmit() {
     if (state.submitting) return; // double-submit latch
     const reproduction = (el.reproduction.value || '').trim();
@@ -467,8 +733,11 @@
       return failSubmit();
     }
     if (!resp || !resp.ok) {
+      const body = resp ? await resp.json().catch(() => ({})) : {};
+      if (body && body.error_code === 'GRADING_UNAVAILABLE') return gradingUnavailable();
       return failSubmit(resp && resp.status);
     }
+    showUnavailable(false);
     const contract = await resp.json();
     state.reproduction = reproduction;
     state.submitting = false;
@@ -612,11 +881,11 @@
     el.error.innerHTML =
       '<p>' +
       escapeHtml(label('dt_repair.result_load_failed', 'Couldn’t load your full feedback.')) +
-      '</p><button class="dt-secondary" type="button" data-dt-result-retry>' +
+      '</p><div class="dt-error-actions"><button class="ld-btn dt-secondary" type="button" data-dt-result-retry>' +
       escapeHtml(label('dt_repair.retry', 'Try again')) +
-      '</button> <button class="dt-secondary" type="button" data-dt-result-other>' +
+      '</button> <button class="ld-btn ld-btn--ghost dt-secondary" type="button" data-dt-result-other>' +
       escapeHtml(label('dual_translation.try_another', 'Try another')) +
-      '</button>';
+      '</button></div>';
     el.error.querySelector('[data-dt-result-retry]').onclick = function () {
       showServerResult(repair);
     };
@@ -662,6 +931,31 @@
     }
   }
 
+  // The grading provider refused the call (quota / key limit): nothing was graded
+  // or saved and an immediate retry would fail the same way. Say so plainly and
+  // keep the learner's text; the submit button stays usable for later.
+  function gradingUnavailable() {
+    state.submitting = false;
+    el.submit.disabled = false;
+    el.submit.textContent = tr('dual_translation.submit');
+    showUnavailable(true);
+  }
+
+  function showUnavailable(on) {
+    if (!el.unavailableNotice) return;
+    if (on) {
+      el.unavailableNotice.textContent = label(
+        'dual_translation.grading_unavailable',
+        'Grading is temporarily unavailable. Your translation was not graded — please try again later.'
+      );
+    }
+    el.unavailableNotice.hidden = !on;
+    // On a phone the notice sits below the textarea, out of view: bring it in.
+    if (on && typeof el.unavailableNotice.scrollIntoView === 'function') {
+      el.unavailableNotice.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
   function failSubmit(status) {
     state.submitting = false;
     el.submit.disabled = false;
@@ -699,8 +993,8 @@
     renderNextFocus(contract.errors || []);
     renderErrors(contract.errors || []);
 
+    selectTab('scores', false);
     showPhase('result');
-    window.scrollTo(0, 0);
   }
 
   // The diff is the visual focus: one flex "cell" per opcode, reference (gold
@@ -929,25 +1223,26 @@
       if (!(dim in scores)) return;
       const band = scores[dim];
       const card = document.createElement('div');
-      card.className = 'dt-dim b' + band + (dim === 'naturalness' ? ' optional' : '');
+      card.className = 'dt-dim ld-trow b' + band + (dim === 'naturalness' ? ' optional' : '');
+      // Band square first, then name + reason (the mockup's score rows).
       let html =
-        '<div class="dt-dim-name">' +
-        escapeHtml(tr('dual_translation.dim.' + dim)) +
-        '</div>' +
-        '<div class="dt-dim-band">' +
+        '<span class="dt-dim-band">' +
         escapeHtml(band) +
-        '</div>';
+        '</span><span class="ld-trow__mid"><b class="dt-dim-name">' +
+        escapeHtml(tr('dual_translation.dim.' + dim)) +
+        '</b>';
+      if (dim === 'naturalness') {
+        html +=
+          '<small class="dt-dim-tag">' +
+          escapeHtml(tr('dual_translation.naturalness_optional')) +
+          '</small>';
+      }
       // TASK-631: computed "because" line — why this dim landed on this band.
       const because = becauseLineFor(dim, errors);
       if (because) {
-        html += '<div class="dt-dim-because">' + escapeHtml(because) + '</div>';
+        html += '<small class="dt-dim-because">' + escapeHtml(because) + '</small>';
       }
-      if (dim === 'naturalness') {
-        html +=
-          '<div class="dt-dim-tag">' +
-          escapeHtml(tr('dual_translation.naturalness_optional')) +
-          '</div>';
-      }
+      html += '</span>';
       card.innerHTML = html;
       el.dims.appendChild(card);
     });
@@ -960,9 +1255,9 @@
   function renderErrors(errors) {
     if (!errors.length) {
       el.errors.innerHTML =
-        '<div class="dt-hint" style="font-size:0.95rem;">' +
+        '<p class="ld-note ld-note--ok dt-no-errors">' +
         escapeHtml(tr('dual_translation.no_errors')) +
-        '</div>';
+        '</p>';
       return;
     }
     el.errors.innerHTML = '';
@@ -987,7 +1282,11 @@
       '</div>';
 
     const forms =
-      '<div class="dt-error-forms">' +
+      '<div class="dt-error-forms"' +
+      (el.errors && el.errors.dataset.l2
+        ? ' lang="' + escapeHtml(el.errors.dataset.l2) + '"'
+        : '') +
+      '>' +
       '<span class="dt-learner">' +
       escapeHtml(err.learner_form) +
       '</span>' +
@@ -1001,7 +1300,7 @@
     const expl = buildExplanation(err);
 
     const drill =
-      '<button class="dt-drill-btn" disabled title="' +
+      '<button type="button" class="dt-drill-btn ld-btn ld-btn--sm ld-btn--ghost" disabled title="' +
       escapeHtml(tr('dual_translation.drill_soon')) +
       '" ' +
       'data-subtype="' +
@@ -1014,7 +1313,7 @@
       // Flag-only: name the slip + location, reveal the correction on demand.
       card.innerHTML =
         chips +
-        '<button class="dt-reveal-btn" data-reveal="' +
+        '<button type="button" class="dt-reveal-btn ld-link" data-reveal="' +
         idx +
         '">' +
         escapeHtml(tr('dual_translation.reveal_correction')) +

@@ -198,7 +198,7 @@ range by primed senses covered ×10 + wrong-question senses ×3 − chars/100, r
 coverage and mean tightness ≥ floor, return the best. Pure function over `test_sentences` rows;
 unit-tested against the demo's five tests.
 
-### Floor override: two agreeing reviews (ADR-047, TASK-978, 2026-11-17)
+### Floor override: two agreeing reviews (ADR-049, TASK-1009, 2026-11-17)
 
 `test_sentence_references.faithful_reviews smallint NOT NULL DEFAULT 0 CHECK (>= 0)`
 (`migrations/test_sentence_references_faithful_reviews.sql`, applied live 2026-11-17 with a
@@ -206,49 +206,26 @@ backfill): the number of distinct `run_id`s whose row for the same (sentence, L1
 same `l1_text` and verdict `pass`/`rewritten`. `scripts/upload_sentence_references.py` sets it
 on insert (`sentence_refs.faithful_reviews(new_row, run_id, prior_rows)`; 0 for `fail`).
 
-Gate, shared by `plan_sentence_windows` and `select_window_for_primed`:
+Gate, used by `select_window_for_primed` (GET /next and Produce):
 `passage_builder.window_meets_floor(idxs, tightness, floor, agreed)`: mean tightness of the
 window ≥ floor, leaving out sentences in `agreed` (`faithful_reviews >= 2`,
 `sentence_refs.FLOOR_OVERRIDE_REVIEWS`) and sentences with no score; nothing left to average →
 passes if every sentence is agreed, else only a floor of 0. `/next` reads `faithful_reviews` in
-its embedded read; `services/prestudy.py` (Produce) reads it with the references.
+`dt_next_inputs` (`ag` per test) and its per-table fallback; `services/prestudy.py` (Produce) reads it
+with the references; `build_daily_session` mirrors the rule for its adjacent-pair availability count
+(`migrations/build_daily_session_dt_agreed.sql`, applied live 2026-11-17).
 
 Live after the decision: agreed rows ja 43, zh 391, en→zh 239; at floor or agreed ja 386/388,
-zh 2,985/3,008, en→zh 473/484; servable windows zh 856, ja 83.
+zh 2,985/3,008, en→zh 473/484; fixed 2–4 sentence packing gives zh 856 and ja 83 eligible windows (a lower bound on what `/next` can cut).
 
-### Changed: `GET /api/dual-translation/next` serves sentence windows (TASK-976, 2026-11-17)
+### `GET /api/dual-translation/next` serves sentence windows
 
-Before: `/next` served only `dt_passage` rows that had a stored `dt_passage_reference`. That
-table is empty in production (0 rows on 2026-11-17; every remaining `dt_passage` is a range
-passage made by Produce), so `/next` returned 404 to every learner.
-
-Now `_select_next_passage(db, user_id, l1_language_id, l2_language_id=None)`:
-
-1. Candidates: the user's most recently attempted tests (`test_attempts.created_at` desc,
-   distinct, at most `NEXT_WINDOW_MAX_TESTS = 30`), active, not in the L1, and in
-   `l2_language_id` when the client sends `?language_id=` (the session player sends
-   `ctx.languageId`; the standalone page sends `localStorage.selectedLanguageId`).
-2. Material: one embedded read, `test_sentence_references` (active, verdict `pass`/`rewritten`,
-   the L1) `!inner` `test_sentences` filtered by `test_id IN candidates`. Rows whose
-   `transcript_hash` differs from `tests.transcript_hash` are dropped.
-3. Windows: `passage_builder.plan_sentence_windows(idxs, refs_ok, tightness, floor)`: runs of
-   consecutive covered sentences, each packed into fixed 2–4 sentence windows by
-   `window_sentences`; a window is kept only when it passes `window_meets_floor` for the test
-   language's Produce floor (same gate as `select_window_for_primed`, with the ADR-047 override).
-4. Choice: `passage_builder.pick_next_window(candidates, practised)`: the first window, in
-   candidate then transcript order, none of whose sentences the user has practised; else the
-   window whose latest practice is oldest. "Practised" = any `dt_submission` (last 500) with a
-   non-empty reproduction or a `skipped_at`, on a range passage, sentence-level (so a Produce
-   window 2–3 also marks window 0–3 as practised). An opened but unanswered submission does not
-   count, so a reload gets the same window.
-5. The `dt_passage` for the range is found or created exactly as `passage-from-sentences` does
-   (`_find_or_create_range_passage`); a non-active range passage is not served. `l1_text` is the
-   joined references. Response shape unchanged.
-6. Nothing found → the legacy `dt_passage_reference` path (kept; currently finds nothing).
-
-Tests: `tests/test_dt_next_sentence_windows.py` (21), `tests/unit/session-dt-player.test.js`
-(+2). Live read-only check for the main learner on 2026-11-17: 30 candidate tests, 26 with
-references, 57 windows, 18 never practised.
+Since 2026-11-17 `/next` serves only 2–4 sentence windows built from these references (resume,
+attempted tests, then untaken tests, skip and reserve); the selection is specified in
+[[features/dual-translation.tech]] (`_choose_next`, `dt_next_inputs`). Its window gate is
+`select_window_for_primed` with the ADR-049 `agreed` set: `dt_next_inputs` returns `ag` per test,
+the per-table fallback reads `faithful_reviews`. The daily session's availability count
+(`migrations/build_daily_session_dt_agreed.sql`) applies the same override to adjacent pairs.
 
 ### Changed: grader target words (TASK-910)
 `grade(submission, target_sense_ids)`: after the cascade, for each target sense locate its

@@ -5,6 +5,10 @@ status: planned
 tech_page: ./dual-translation.tech.md
 last_updated: 2026-11-17
 open_questions:
+  - "RESOLVED 2026-11-17 (TASK-989): 'all done' screen first, with an explicit 'Translate an earlier passage again' action that re-serves the least recently graded passage; a repeat is graded but kept out of the error profile."
+  - "OPEN (2026-11-17): spoiler rule — should the first rated attempt of a test whose passage was translated beforehand count at half weight, as a prestudied attempt does? Needs a hook in routes/tests/submit.py (TASK-1001)."
+  - "OPEN (2026-11-17): confirm what a repeat counts towards — today study minutes, the daily token budget and prestudy Produce bookkeeping, but not the error profile, trends, error cards, guided repair or word-knowledge evidence (TASK-1001)."
+  - "OPEN (2026-11-17): skips — every fresh GET /next still creates a new empty submission; should /next resume the most recent never-started passage first? And should an old whole passage and the sentence windows of the same test count as repeats of each other? (TASK-991)"
   - "RESOLVED 2026-06-23: privacy — no special posture required; learner reproduction text is retained for analysis (an asset, not a risk)."
   - "RESOLVED 2026-06-23: embeddings not needed — cluster errors deterministically by taxonomy subtype; pgvector optional for later intra-subtype refinement."
 ---
@@ -33,11 +37,6 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
    they have **already completed** (via reading, listening, or dictation) so the content is
    already at their level — and asked to translate it into the L2 ("the reproduction"). *(MVP is
    L1→L2 only — see [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]].)*
-   *(Since 2026-11-17 the passage is a 2–4 sentence window cut from the test's own sentences,
-   each with a reviewed native-language translation ([[features/test-sentence-references]]).
-   The learner gets a window they have not translated before, from their most recently taken
-   tests first, in the language they are studying; once every window has been done, the one
-   done longest ago comes back.)*
 2. On submit, the system compares the reproduction against the **original L2 passage** (the
    gold reference). A free deterministic pass aligns the two texts and finds the differences
    before any AI model is involved.
@@ -53,6 +52,34 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
    *systematic* errors (recurring, not one-off slips) are promoted into a spaced-repetition
    queue and remediated with cloze cards and "isolate-and-re-translate" drills — always
    toward the **corrected** form, never the learner's wrong form.
+
+### Which passage comes next (updated 2026-11-17)
+- The passage is always in the language the learner is studying right now (the language picked
+  in the app). Older app versions that do not say which language get the language of the
+  learner's most recent test. A link opened for one test (from its preview page) uses that test's
+  own language, whatever language is selected.
+- Order: first the passage the learner was last shown and has neither translated nor skipped;
+  then a new short passage (2–4 sentences, built from the reviewed sentence-by-sentence
+  translations) from a test the learner has taken; then the same from tests they have **not taken
+  yet**, nearest their level first; then a passage they skipped, oldest first. The older
+  whole-passage pool is no longer served (retired and deleted 2026-11-17).
+  Only existing reviewed translations are used — nothing is generated on the spot.
+- A passage from a test the learner has not taken says so above the reference: "This passage is
+  from a test you haven't taken yet, so you'll see part of that test's text."
+- When everything has been graded, the learner sees an honest "all done" screen ("You've
+  translated every passage…") with two actions in the pinned bar: **Translate an earlier passage
+  again** (the passage graded longest ago) and **Browse tests**. A re-served passage says above the
+  reference when it was translated and what band it got, and that this try does not count towards
+  the error profile. The repeat is graded and shown as usual, but its errors do not feed the error
+  profile, error cards, guided repair or word-knowledge evidence; it still counts as study time.
+- Entry points: the Practice / Today "Quick access" chip, a "Dual Translation" row on the Me page,
+  and on a test's preview page a "Translate a passage from this test" link, shown only when a
+  passage for that test is ready.
+- If the grading service refuses to grade (for example because the account's credit has run out),
+  the learner sees "Grading is temporarily unavailable" and keeps what they wrote; nothing is
+  saved, so they can try again later.
+- What the learner writes is cleaned of invisible and control characters and limited to 2000
+  characters; text the model writes back is shown as plain text only (no HTML or formatting).
 
 ## Constraints & Edge Cases
 - **Reference-based, not open-ended.** Because every reproduction is graded against an existing
@@ -83,6 +110,9 @@ See [[business-rules/translation-error-taxonomy]] for the full taxonomy, severit
 error-vs-mistake gate, and promotion threshold.
 
 ## Open Questions
+- ANSWERED 2026-11-17: "all done" first, then an explicit re-serve of the least recently graded passage (TASK-989).
+- OPEN: spoiler rule for passages from untaken tests, and what a repeat counts towards (TASK-1001).
+- OPEN: no new row on a skip; overlap of old whole passages and windows (TASK-991).
 - ANSWERED: privacy → no special posture; retain learner text for analysis.
 - ANSWERED: embeddings → not needed; cluster errors by taxonomy subtype (pgvector optional later).
 - ANSWERED: grading is level-neutral; naturalness alone is level-dependent ([[decisions/ADR-018-level-neutral-grading]]).
@@ -95,10 +125,11 @@ error-vs-mistake gate, and promotion threshold.
 
 ## Related Pages
 - [[features/dual-translation.tech]] — architecture, data model, grading pipeline (Feature 1)
+- [[features/test-sentence-references]] — where the passages and their native-language references come from
 - [[features/dual-translation-remediation.tech]] — error synthesis + spaced remediation (Feature 2)
 - [[algorithms/translation-grading-cascade]] — Tier 0 deterministic + OpenRouter cascade
 - [[business-rules/translation-error-taxonomy]] — error taxonomy and promotion rules
 - [[features/dictation]] — reuses the same Levenshtein diff grader for Tier 0
-- [[features/test-sentence-references]] — where the passages and their native-language references come from (since 2026-11-17)
+- [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 fixes
 - [[features/flashcards]] — reuses FSRS-4 for remediation card scheduling
 - [[decisions/ADR-014-reference-first-grading]], [[decisions/ADR-015-eager-error-explanations]], [[decisions/ADR-016-per-pair-error-taxonomy]], [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]]

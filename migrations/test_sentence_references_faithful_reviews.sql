@@ -1,15 +1,16 @@
 -- ============================================================================
 -- test_sentence_references_faithful_reviews.sql — reviewer agreement overrides
--- the tightness floor (ADR-047, TASK-978)
+-- the tightness floor (ADR-049, TASK-1009)
 -- Date: 2026-11-17
 -- Spec: wiki/features/test-sentence-references.tech.md ("Floor override")
---       wiki/decisions/ADR-047-reviewer-agreement-overrides-tightness-floor.md
+--       wiki/decisions/ADR-049-reviewer-agreement-overrides-tightness-floor.md
 --
 -- Adds:
 --   * test_sentence_references.faithful_reviews — how many independent reviews
 --     (distinct run_id) gave this exact l1_text a `pass` or wrote it as their
---     `rewritten` text, for the same (sentence, L1). The window selectors
---     (passage_builder.plan_sentence_windows / select_window_for_primed) leave
+--     `rewritten` text, for the same (sentence, L1). The window gate
+--     (passage_builder.window_meets_floor, used by select_window_for_primed for
+--     GET /next and Produce; mirrored in build_daily_session_dt_agreed.sql) leaves
 --     a sentence with faithful_reviews >= 2 out of the window's mean tightness:
 --     two reviewers agreeing beats a noisy back-translation score. A second
 --     review (scripts/sentence_ref_recheck.py) is always blind-first, so any
@@ -19,7 +20,7 @@
 -- scripts/upload_sentence_references.py sets it on every new row.
 --
 -- Additive and idempotent. Rollback: ALTER TABLE ... DROP COLUMN faithful_reviews
--- (no code path needs it until the TASK-978 code is deployed; that code reads
+-- (no code path needs it until the TASK-1009 code is deployed; that code reads
 -- it, so deploy after this file is applied).
 -- RLS/privileges unchanged (table is service-role only, ADR-034).
 --
@@ -45,7 +46,7 @@ END $$;
 
 COMMENT ON COLUMN public.test_sentence_references.faithful_reviews IS
     'Independent reviews (distinct run_id) that passed or wrote this exact l1_text for this '
-    '(sentence, L1). >= 2 lets the sentence skip the tightness floor in window selection (ADR-047).';
+    '(sentence, L1). >= 2 lets the sentence skip the tightness floor in window selection (ADR-049).';
 
 UPDATE public.test_sentence_references r
 SET faithful_reviews = sub.n

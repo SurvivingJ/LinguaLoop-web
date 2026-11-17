@@ -1,0 +1,1232 @@
+{
+ "_comment": "Trainer area fixtures (pinyin /test/pz/pinyin, pitch /test/pj/pitch-accent, /classifier-drill, /counter-drill, /calibration). Pass after default.json.",
+ "GET /api/test-intros/seen": {
+  "seen": [
+   "pinyin",
+   "pitch_accent",
+   "classifier_drill",
+   "counter_drill"
+  ]
+ },
+ "POST /api/test-intros/seen": {
+  "status": "success"
+ },
+ "GET /api/tests/test/pz": {
+  "test_data": {
+   "id": "t1",
+   "title": "周末去爬山",
+   "language": "zh"
+  },
+  "pinyin_payload": [
+   {
+    "char": "我",
+    "word": "我",
+    "pinyin_text": "wo",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "们",
+    "word": "们",
+    "pinyin_text": "men",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "周",
+    "word": "周",
+    "pinyin_text": "zhou",
+    "context_tone": 3,
+    "is_sandhi": true,
+    "sandhi_rule": "不 is read in the 2nd tone (bú) before a 4th tone."
+   },
+   {
+    "char": "末",
+    "word": "末",
+    "pinyin_text": "mo",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "去",
+    "word": "去",
+    "pinyin_text": "qu",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "爬",
+    "word": "爬",
+    "pinyin_text": "pa",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "山",
+    "word": "山",
+    "pinyin_text": "shan",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "。",
+    "is_punctuation": true
+   },
+   {
+    "char": "他",
+    "word": "他",
+    "pinyin_text": "ta",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "们",
+    "word": "们",
+    "pinyin_text": "wo",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "不",
+    "word": "不",
+    "pinyin_text": "men",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "累",
+    "word": "累",
+    "pinyin_text": "zhou",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "，",
+    "is_punctuation": true
+   },
+   {
+    "char": "风",
+    "word": "风",
+    "pinyin_text": "mo",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "景",
+    "word": "景",
+    "pinyin_text": "qu",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "特",
+    "word": "特",
+    "pinyin_text": "pa",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "别",
+    "word": "别",
+    "pinyin_text": "shan",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "美",
+    "word": "美",
+    "pinyin_text": "ta",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "。",
+    "is_punctuation": true
+   },
+   {
+    "char": "我",
+    "word": "我",
+    "pinyin_text": "wo",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "们",
+    "word": "们",
+    "pinyin_text": "men",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "一",
+    "word": "一",
+    "pinyin_text": "zhou",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "起",
+    "word": "起",
+    "pinyin_text": "mo",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "去",
+    "word": "去",
+    "pinyin_text": "qu",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "吧",
+    "word": "吧",
+    "pinyin_text": "pa",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "！",
+    "is_punctuation": true
+   },
+   {
+    "char": "山",
+    "word": "山",
+    "pinyin_text": "shan",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "上",
+    "word": "上",
+    "pinyin_text": "ta",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "的",
+    "word": "的",
+    "pinyin_text": "wo",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "空",
+    "word": "空",
+    "pinyin_text": "men",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "气",
+    "word": "气",
+    "pinyin_text": "zhou",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "很",
+    "word": "很",
+    "pinyin_text": "mo",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "新",
+    "word": "新",
+    "pinyin_text": "qu",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "鲜",
+    "word": "鲜",
+    "pinyin_text": "pa",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "，",
+    "is_punctuation": true
+   },
+   {
+    "char": "我",
+    "word": "我",
+    "pinyin_text": "shan",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "们",
+    "word": "们",
+    "pinyin_text": "ta",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "走",
+    "word": "走",
+    "pinyin_text": "wo",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "了",
+    "word": "了",
+    "pinyin_text": "men",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "三",
+    "word": "三",
+    "pinyin_text": "zhou",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "个",
+    "word": "个",
+    "pinyin_text": "mo",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "小",
+    "word": "小",
+    "pinyin_text": "qu",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "时",
+    "word": "时",
+    "pinyin_text": "pa",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "，",
+    "is_punctuation": true
+   },
+   {
+    "char": "最",
+    "word": "最",
+    "pinyin_text": "shan",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "后",
+    "word": "后",
+    "pinyin_text": "ta",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "到",
+    "word": "到",
+    "pinyin_text": "wo",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "了",
+    "word": "了",
+    "pinyin_text": "men",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "山",
+    "word": "山",
+    "pinyin_text": "zhou",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "顶",
+    "word": "顶",
+    "pinyin_text": "mo",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "。",
+    "is_punctuation": true
+   },
+   {
+    "char": "大",
+    "word": "大",
+    "pinyin_text": "qu",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "家",
+    "word": "家",
+    "pinyin_text": "pa",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "都",
+    "word": "都",
+    "pinyin_text": "shan",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "很",
+    "word": "很",
+    "pinyin_text": "ta",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "高",
+    "word": "高",
+    "pinyin_text": "wo",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "兴",
+    "word": "兴",
+    "pinyin_text": "men",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "，",
+    "is_punctuation": true
+   },
+   {
+    "char": "拍",
+    "word": "拍",
+    "pinyin_text": "zhou",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "了",
+    "word": "了",
+    "pinyin_text": "mo",
+    "context_tone": 2,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "很",
+    "word": "很",
+    "pinyin_text": "qu",
+    "context_tone": 3,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "多",
+    "word": "多",
+    "pinyin_text": "pa",
+    "context_tone": 4,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "照",
+    "word": "照",
+    "pinyin_text": "shan",
+    "context_tone": 5,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "片",
+    "word": "片",
+    "pinyin_text": "ta",
+    "context_tone": 1,
+    "is_sandhi": false,
+    "sandhi_rule": null
+   },
+   {
+    "char": "。",
+    "is_punctuation": true
+   }
+  ]
+ },
+ "GET /api/tests/test/pj": {
+  "test_data": {
+   "id": "t2",
+   "title": "週末のハイキング",
+   "language": "ja"
+  },
+  "pitch_payload": [
+   {
+    "surface": "友達",
+    "kana": "ともだち",
+    "mora": [
+     "と",
+     "も",
+     "だ",
+     "ち"
+    ],
+    "mora_count": 4,
+    "accent": 0,
+    "pattern_class": "heiban",
+    "contour": [
+     "L",
+     "H",
+     "H",
+     "H"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "日本",
+    "kana": "にほん",
+    "mora": [
+     "に",
+     "ほ",
+     "ん"
+    ],
+    "mora_count": 3,
+    "accent": 2,
+    "pattern_class": "nakadaka",
+    "contour": [
+     "L",
+     "H",
+     "L"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "山",
+    "kana": "やま",
+    "mora": [
+     "や",
+     "ま"
+    ],
+    "mora_count": 2,
+    "accent": 2,
+    "pattern_class": "odaka",
+    "contour": [
+     "L",
+     "H"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "景色",
+    "kana": "けしき",
+    "mora": [
+     "け",
+     "し",
+     "き"
+    ],
+    "mora_count": 3,
+    "accent": 1,
+    "pattern_class": "atamadaka",
+    "contour": [
+     "H",
+     "L",
+     "L"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "きれい",
+    "kana": "きれい",
+    "mora": [
+     "き",
+     "れ",
+     "い"
+    ],
+    "mora_count": 3,
+    "accent": 1,
+    "pattern_class": "atamadaka",
+    "contour": [
+     "H",
+     "L",
+     "L"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "友達",
+    "kana": "ともだち",
+    "mora": [
+     "と",
+     "も",
+     "だ",
+     "ち"
+    ],
+    "mora_count": 4,
+    "accent": 0,
+    "pattern_class": "heiban",
+    "contour": [
+     "L",
+     "H",
+     "H",
+     "H"
+    ],
+    "trailing_particle": null
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "日本",
+    "kana": "にほん",
+    "mora": [
+     "に",
+     "ほ",
+     "ん"
+    ],
+    "mora_count": 3,
+    "accent": 2,
+    "pattern_class": "nakadaka",
+    "contour": [
+     "L",
+     "H",
+     "L"
+    ],
+    "trailing_particle": null
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "山",
+    "kana": "やま",
+    "mora": [
+     "や",
+     "ま"
+    ],
+    "mora_count": 2,
+    "accent": 2,
+    "pattern_class": "odaka",
+    "contour": [
+     "L",
+     "H"
+    ],
+    "trailing_particle": null
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "景色",
+    "kana": "けしき",
+    "mora": [
+     "け",
+     "し",
+     "き"
+    ],
+    "mora_count": 3,
+    "accent": 1,
+    "pattern_class": "atamadaka",
+    "contour": [
+     "H",
+     "L",
+     "L"
+    ],
+    "trailing_particle": null
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "きれい",
+    "kana": "きれい",
+    "mora": [
+     "き",
+     "れ",
+     "い"
+    ],
+    "mora_count": 3,
+    "accent": 1,
+    "pattern_class": "atamadaka",
+    "contour": [
+     "H",
+     "L",
+     "L"
+    ],
+    "trailing_particle": null
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "友達",
+    "kana": "ともだち",
+    "mora": [
+     "と",
+     "も",
+     "だ",
+     "ち"
+    ],
+    "mora_count": 4,
+    "accent": 0,
+    "pattern_class": "heiban",
+    "contour": [
+     "L",
+     "H",
+     "H",
+     "H"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "日本",
+    "kana": "にほん",
+    "mora": [
+     "に",
+     "ほ",
+     "ん"
+    ],
+    "mora_count": 3,
+    "accent": 2,
+    "pattern_class": "nakadaka",
+    "contour": [
+     "L",
+     "H",
+     "L"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "山",
+    "kana": "やま",
+    "mora": [
+     "や",
+     "ま"
+    ],
+    "mora_count": 2,
+    "accent": 2,
+    "pattern_class": "odaka",
+    "contour": [
+     "L",
+     "H"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "景色",
+    "kana": "けしき",
+    "mora": [
+     "け",
+     "し",
+     "き"
+    ],
+    "mora_count": 3,
+    "accent": 1,
+    "pattern_class": "atamadaka",
+    "contour": [
+     "H",
+     "L",
+     "L"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   },
+   {
+    "surface": "きれい",
+    "kana": "きれい",
+    "mora": [
+     "き",
+     "れ",
+     "い"
+    ],
+    "mora_count": 3,
+    "accent": 1,
+    "pattern_class": "atamadaka",
+    "contour": [
+     "H",
+     "L",
+     "L"
+    ],
+    "trailing_particle": "が"
+   },
+   {
+    "surface": "、",
+    "is_punctuation": true
+   }
+  ],
+  "furigana_payload": {
+   "transcript": [
+    {
+     "kind": "ruby",
+     "base": "友達",
+     "rt": "ともだち"
+    },
+    {
+     "kind": "ruby",
+     "base": "日本",
+     "rt": "にほん"
+    }
+   ]
+  }
+ },
+ "POST /api/tests/pz/submit-pinyin": {
+  "result": {
+   "user_elo_change": {
+    "change": 9
+   }
+  }
+ },
+ "POST /api/tests/pj/submit-pitch-accent": {
+  "result": {
+   "user_elo_change": {
+    "change": -5
+   }
+  }
+ },
+ "/api/classifier-drill/session*": {
+  "data": {
+   "items": [
+    {
+     "level": 1,
+     "noun_lemma": "牛肉面",
+     "noun_pronunciation": "niúròumiàn",
+     "noun_gloss": "beef noodles",
+     "classifier_id_primary": 10,
+     "correct_classifier_ids": [
+      10
+     ],
+     "correct_classifier_hanzi": [
+      "碗"
+     ],
+     "correct_classifier_pinyin": [
+      "wǎn"
+     ],
+     "distractor_ids": [
+      11,
+      12,
+      13
+     ],
+     "distractor_hanzi": [
+      "本",
+      "张",
+      "条"
+     ],
+     "distractor_pinyin": [
+      "běn",
+      "zhāng",
+      "tiáo"
+     ],
+     "semantic_label": "bowls of food"
+    },
+    {
+     "level": 2,
+     "noun_lemma": "咖啡店",
+     "noun_pronunciation": "kāfēidiàn",
+     "noun_gloss": "café",
+     "classifier_id_primary": 14,
+     "correct_classifier_ids": [
+      14
+     ],
+     "correct_classifier_hanzi": [
+      "家"
+     ],
+     "distractor_ids": [
+      10
+     ],
+     "distractor_hanzi": [
+      "本"
+     ],
+     "semantic_label": "businesses"
+    },
+    {
+     "level": 4,
+     "noun_lemma": "书",
+     "cloze_blanked": "我昨天买了一___很有意思的书。",
+     "classifier_id_primary": 15,
+     "correct_classifier_ids": [
+      15
+     ],
+     "correct_classifier_hanzi": [
+      "本"
+     ],
+     "correct_classifier_pinyin": [
+      "běn"
+     ],
+     "distractor_ids": [
+      11,
+      12,
+      13
+     ],
+     "distractor_hanzi": [
+      "张",
+      "条",
+      "个"
+     ],
+     "distractor_pinyin": [
+      "zhāng",
+      "tiáo",
+      "gè"
+     ]
+    },
+    {
+     "level": 3,
+     "noun_lemma": "桌子",
+     "reverse_noun_options": [
+      "书",
+      "鱼",
+      "车"
+     ],
+     "classifier_id_primary": 11,
+     "correct_classifier_ids": [
+      11
+     ],
+     "correct_classifier_hanzi": [
+      "张"
+     ]
+    }
+   ]
+  }
+ },
+ "POST /api/classifier-drill/submit": {
+  "data": {
+   "user_elo_change": {
+    "change": 5
+   },
+   "mastery_updates": [
+    {
+     "promoted": true
+    },
+    {
+     "promoted": true
+    }
+   ]
+  }
+ },
+ "/api/counter-drill/session*": {
+  "data": {
+   "items": [
+    {
+     "noun_lemma": "鉛筆",
+     "noun_pronunciation": "えんぴつ",
+     "noun_gloss": "pencil",
+     "correct_counter_text": [
+      "本"
+     ],
+     "correct_counter_reading": [
+      "ほん"
+     ],
+     "distractor_text": [
+      "枚",
+      "匹",
+      "台"
+     ],
+     "distractor_reading": [
+      "まい",
+      "ひき",
+      "だい"
+     ],
+     "semantic_label": "long thin things",
+     "numeral_readings": {
+      "1": "いっぽん",
+      "2": "にほん",
+      "3": "さんぼん",
+      "4": "よんほん",
+      "5": "ごほん",
+      "6": "ろっぽん",
+      "7": "ななほん",
+      "8": "はっぽん",
+      "9": "きゅうほん",
+      "10": "じゅっぽん"
+     }
+    },
+    {
+     "noun_lemma": "猫",
+     "noun_pronunciation": "ねこ",
+     "noun_gloss": "cat",
+     "correct_counter_text": [
+      "匹"
+     ],
+     "correct_counter_reading": [
+      "ひき"
+     ],
+     "distractor_text": [
+      "本",
+      "枚",
+      "台"
+     ],
+     "distractor_reading": [
+      "ほん",
+      "まい",
+      "だい"
+     ]
+    }
+   ]
+  }
+ },
+ "POST /api/counter-drill/submit": {
+  "data": {
+   "user_elo_change": {
+    "change": 5
+   }
+  }
+ },
+ "POST /api/calibration/start": {
+  "session_id": "cal1"
+ },
+ "/api/calibration/next*": {
+  "items": [
+   {
+    "response_id": "r0",
+    "lemma": "适合",
+    "pronunciation": "shìhé",
+    "mode": "definition",
+    "options": [
+     {
+      "position": 0,
+      "definition": "to suit; to fit"
+     },
+     {
+      "position": 1,
+      "definition": "to apologise for a mistake one has made earlier"
+     },
+     {
+      "position": 2,
+      "definition": "a small round fruit"
+     },
+     {
+      "position": 3,
+      "definition": "to travel by train across the country"
+     }
+    ]
+   },
+   {
+    "response_id": "r1",
+    "lemma": "风景",
+    "pronunciation": "fēngjǐng",
+    "mode": "definition",
+    "options": [
+     {
+      "position": 0,
+      "definition": "scenery; landscape"
+     },
+     {
+      "position": 1,
+      "definition": "a strong wind"
+     },
+     {
+      "position": 2,
+      "definition": "a kind of tea"
+     },
+     {
+      "position": 3,
+      "definition": "weather forecast"
+     }
+    ]
+   },
+   {
+    "response_id": "r2",
+    "lemma": "新鲜",
+    "pronunciation": "xīnxiān",
+    "mode": "definition",
+    "options": [
+     {
+      "position": 0,
+      "definition": "fresh"
+     },
+     {
+      "position": 1,
+      "definition": "new clothes"
+     },
+     {
+      "position": 2,
+      "definition": "a fresh start in life, figuratively speaking"
+     },
+     {
+      "position": 3,
+      "definition": "fish"
+     }
+    ]
+   },
+   {
+    "response_id": "r3",
+    "lemma": "照片",
+    "pronunciation": "zhàopiàn",
+    "mode": "definition",
+    "options": [
+     {
+      "position": 0,
+      "definition": "photograph"
+     },
+     {
+      "position": 1,
+      "definition": "a slice of bread"
+     },
+     {
+      "position": 2,
+      "definition": "to shine"
+     },
+     {
+      "position": 3,
+      "definition": "a film"
+     }
+    ]
+   }
+  ]
+ },
+ "POST /api/calibration/answer": {
+  "correct_position": 0,
+  "is_correct": false,
+  "answered": 3,
+  "correct": 2
+ },
+ "POST /api/calibration/end": {
+  "ability": {
+   "answered": 24,
+   "correct": 17,
+   "ability_zipf_85": 3.62,
+   "ability_zipf_85_sd": 0.27,
+   "confidence": "medium",
+   "bands": [
+    {
+     "band": 1,
+     "n": 3,
+     "known_share": 0.2
+    },
+    {
+     "band": 2,
+     "n": 4,
+     "known_share": 0.4
+    },
+    {
+     "band": 3,
+     "n": 5,
+     "known_share": 0.6
+    },
+    {
+     "band": 4,
+     "n": 4,
+     "known_share": 0.75
+    },
+    {
+     "band": 5,
+     "n": 4,
+     "known_share": 0.9
+    },
+    {
+     "band": 6,
+     "n": 3,
+     "known_share": 1.0
+    },
+    {
+     "band": 7,
+     "n": 1,
+     "known_share": 1.0
+    }
+   ],
+   "rating_decisions": [
+    {
+     "test_type": "reading",
+     "source": "calibration_correct",
+     "elo_before": 1200,
+     "elo_after": 1250
+    },
+    {
+     "test_type": "listening",
+     "source": "none",
+     "reason": "within_deadband"
+    }
+   ]
+  }
+ },
+ "PATCH /api/users/preferences": {
+  "status": "success"
+ }
+}

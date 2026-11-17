@@ -18,7 +18,15 @@
   'use strict';
 
   const IDLE_MS = 45000;
-  const ACTIVITY_EVENTS = ['pointerdown', 'pointermove', 'mousedown', 'keydown', 'touchstart', 'wheel', 'scroll'];
+  const ACTIVITY_EVENTS = [
+    'pointerdown',
+    'pointermove',
+    'mousedown',
+    'keydown',
+    'touchstart',
+    'wheel',
+    'scroll',
+  ];
 
   function uuidFallback() {
     const bytes = new Array(16);
@@ -35,8 +43,14 @@
       return (b + 0x100).toString(16).slice(1);
     });
     return (
-      hex.slice(0, 4).join('') + '-' + hex.slice(4, 6).join('') + '-' +
-      hex.slice(6, 8).join('') + '-' + hex.slice(8, 10).join('') + '-' +
+      hex.slice(0, 4).join('') +
+      '-' +
+      hex.slice(4, 6).join('') +
+      '-' +
+      hex.slice(6, 8).join('') +
+      '-' +
+      hex.slice(8, 10).join('') +
+      '-' +
       hex.slice(10, 16).join('')
     );
   }
