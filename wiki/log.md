@@ -6653,3 +6653,31 @@ uploads; compare-and-swap commit on (version, row-id set) under a per-sense advi
 db/shadow/storage, write db/dual) with `db` byte-identical to today; byte LRU (callers mutate content in place) and the
 store's own fetch pool (prestudy runs inside `run_parallel`); per-call cap 160 senses / 3 s. Open (owner, not
 blocking): prestudy fan-out; archive/drop of the semdisc leftovers.
+
+## [2026-11-17] update | Exercise content to Storage — Phase 1 integrated (TASK-976–993)
+Branch `claude/dreamy-brahmagupta-40a4gq` (not pushed). Merged with `--no-ff`, no conflicts (no file was touched by
+two packages): `ecs/a-store` (TASK-977/978/979: `58000de`, `cf007b5`, `8462de4`; merge `2b4b35d`), `ecs/b-writers`
+(TASK-980–983: `3b5d83d`, `1a602e7`, `5211684`, `24293da`; merge `57a7de9`), `ecs/c-sql` (TASK-984–986: `93c653b`,
+`ced9d87`, `b14f7b2`, `8c690fd`; merge `67ca70e`), `ecs/d1-session-readers` (TASK-987/988: `75fd2ac`, `5254a14`,
+`d95072d`; merge `a2b208c`), `ecs/d2-prestudy-routes` (TASK-989/990: `7d64886`, `00684e8`; merge `c8bb607`),
+`ecs/e-backfill` (TASK-991/992: `b9e174d`, `20e8071`, `ba132be`; merge `c4ef849`); TASK-976 was the foundation
+commit `c3cb106`. Integration fixes: `e508f1c` aligns `FakeContentDB` (package a's test fake) with package c's
+`exercise_content_commit` (static 22023 checks before the CAS, `source_type` required → 23502, update id also deleted →
+22023); no production file needed a fix. New test `tests/test_exercise_content_integration.py` (`5c98e43`): TASK-993
+scenarios 1–8, the serve paths in db/db, shadow/dual and storage/dual (cold and warm) equal the db payload; db mode
+issues the pre-ADR selects/RPC args with no Storage I/O; storage-mode prestudy reads only the drill senses' files and
+the speed round only the picked rows. Cross-check: the db-mode serve and write paths of `c3cb106` and of the merged
+branch over one fake DB give identical payloads and calls (session, extra round, speed round, `render_all`, scoped
+regen); prestudy differs only by the owner's drill-only change. Tests (all offline): every TASK-976–993 verification
+command passes in all three flag combinations; the 35-file cited set gives 554 passed / 2 failed (jieba) in each; full
+suite 5444 passed, 48 failed, 17 skipped, 1 collection error in each combination, failing ids identical to the
+foundation commit (4938 passed there; jieba ×36, MeCab/ipadic, Supabase credentials at import, DT v6 fixtures,
+auth/prompt-split environment tests); `npx vitest run` 518/518. One flake seen once under concurrent load:
+`test_budget_ceiling_cost_integration::test_real_llm_cost_reaches_spend_since_and_trips_the_ceiling` (timing race
+between the worker thread and the every-10 ceiling check; passed 15/15 alone and on the clean re-run). Pages created: 1
+([[features/test-prestudy.tech]]). Pages updated: 9 ([[decisions/ADR-047-exercise-content-in-storage]] "Implementation
+status", Appendix A status, §5 prestudy text, Consequences; [[tasklist/exercise-content-storage.tasks]] 18/24 done;
+[[tasklist/master]] Not Started 55→37, Done 250→268; [[features/test-prestudy]]; [[features/practice-engine.tech]];
+[[features/practice-extra-rounds.tech]]; [[database/schema.tech]] `exercises` columns `content_version` /
+`dedupe_key`, real index list, ADR-047 RPCs; [[api/rpcs.tech]]; index). Nothing applied live; flags stay `db`. Next:
+operator TASK-994 (apply the two Phase-1 migrations on staging first, smoke-test the real Storage API).

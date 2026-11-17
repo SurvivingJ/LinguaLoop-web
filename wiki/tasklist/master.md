@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 55 |
+| Not Started | 37 |
 | In Progress (`[~]`) | 13 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 27 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 1 |
-| Done (cumulative, not listed here) | 250 |
+| Done (cumulative, not listed here) | 268 |
+
+*2026-11-17 (Exercise Content in Storage Phase 1 built and integrated, TASK-976–993):* the six work-package branches (a store, b writers, c SQL, d1 session readers, d2 prestudy + route readers, e backfill + sweep) were merged into `claude/dreamy-brahmagupta-40a4gq` without conflicts; TASK-993 aligned `FakeContentDB` with the commit SQL, added `tests/test_exercise_content_integration.py` (scenarios 1–8 in db/db, shadow/dual, storage/dual) and checked that `db` mode issues exactly the pre-ADR calls. Prestudy now loads exercise content only for the words it drills, with an on-demand endpoint for words the learner adds (owner decision). Migrations are written, **not applied**; flags stay `db`. Offline suite: same 48 environmental failures + 1 collection error as the foundation commit. Next: operator tasks TASK-994–998. Counts: Not Started 55→37, Done 250→268. See [[tasklist/exercise-content-storage.tasks]], [[decisions/ADR-047-exercise-content-in-storage]] "Implementation status".
 
 *2026-11-17 (NEW — Exercise Content in Storage, ADR-047, TASK-976–999):* exercise `content` (119 MB of a 470 MB database on the 500 MB Free cap) moves to one immutable JSON file per sense in the private Storage bucket `exercise-content`. Phase 0 (architect) done: reader/writer inventory (ADR-047 Appendix A), design and contracts. 24 tasks added, all Not Started: package a store (976–979; 976 lands first), b writers (980–983), c migrations (984–986), d readers (987–990), e backfill + sweep (991–992), integration (993); TASK-994–998 are operator steps (live DB, deploy, flags, measurement) and not for agents; TASK-999 post-cut-over clean-up. Two owner questions in the ADR (prestudy fan-out, semdisc leftovers), neither blocking. Counts: Not Started 31→55. See [[tasklist/exercise-content-storage.tasks]].
 
@@ -1249,28 +1251,28 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
 
 ### Exercise Content in Storage (ADR-047) — NEW 2026-11-17
-Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-047-exercise-content-in-storage]]. Phase 0 done (inventory, design, contracts); nothing built or applied. TASK-994–998 are operator tasks, not for agents.
+Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-047-exercise-content-in-storage]]. Phase 0 done (inventory, design, contracts). Phase 1 built and integrated 2026-11-17 (TASK-976–993, repo only; migrations written, not applied; flags `db`). TASK-994–998 are operator tasks, not for agents.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-976 | exercise-content-storage | Store facade, flags, `db` mode, codec, in-memory backend (lands first) | [ ] | S | — |
-| TASK-977 | exercise-content-storage | Supabase Storage backend (httpx) and byte-bounded caches | [ ] | M | TASK-976 |
-| TASK-978 | exercise-content-storage | Read path: `storage` and `shadow` hydration, `fetch_sense` | [ ] | L | TASK-976, TASK-977 |
-| TASK-979 | exercise-content-storage | Write path: `dual` mode, file first then rows by compare-and-swap | [ ] | L | TASK-976 |
-| TASK-980 | exercise-content-storage | Renderer and stage-runner render through `store.write_sense` | [ ] | S | TASK-976 |
-| TASK-981 | exercise-content-storage | Regeneration writers (queue drain, generation batch) through the store | [ ] | S | TASK-976 |
-| TASK-982 | exercise-content-storage | Content fix scripts (audio URLs, Traditional mirrors) through the store | [ ] | S | TASK-976 |
-| TASK-983 | exercise-content-storage | Static guard: no content write outside the store | [ ] | XS | TASK-980, TASK-981, TASK-982 |
-| TASK-984 | exercise-content-storage | Migration: columns, sequence, write-side RPCs, bucket (written, not applied) | [ ] | M | — |
-| TASK-985 | exercise-content-storage | Migration: session RPCs `p_include_content`; drop dead content RPCs (written, not applied) | [ ] | M | — |
-| TASK-986 | exercise-content-storage | Cut-over migration file (drop column, dedupe_key index, VACUUM FULL runbook) | [ ] | M | TASK-984, TASK-985 |
-| TASK-987 | exercise-content-storage | Practice session and intro-drill readers hydrate content | [ ] | M | TASK-976 |
-| TASK-988 | exercise-content-storage | Battery readers (speed round, gate/stress) hydrate content | [ ] | S | TASK-976 |
-| TASK-989 | exercise-content-storage | Prestudy page reader hydrates content | [ ] | S | TASK-976 |
-| TASK-990 | exercise-content-storage | Route readers (typed grading, admin preview) and reference-set script | [ ] | S | TASK-976 |
-| TASK-991 | exercise-content-storage | Backfill, verify and archive script | [ ] | M | TASK-976 |
-| TASK-992 | exercise-content-storage | Orphan-file sweep script | [ ] | S | TASK-976 |
-| TASK-993 | exercise-content-storage | Phase-1 integration run (offline) and wiki update | [ ] | M | TASK-977..992 |
+| TASK-976 | exercise-content-storage | Store facade, flags, `db` mode, codec, in-memory backend (lands first) | Done | S | — |
+| TASK-977 | exercise-content-storage | Supabase Storage backend (httpx) and byte-bounded caches | Done | M | TASK-976 |
+| TASK-978 | exercise-content-storage | Read path: `storage` and `shadow` hydration, `fetch_sense` | Done | L | TASK-976, TASK-977 |
+| TASK-979 | exercise-content-storage | Write path: `dual` mode, file first then rows by compare-and-swap | Done | L | TASK-976 |
+| TASK-980 | exercise-content-storage | Renderer and stage-runner render through `store.write_sense` | Done | S | TASK-976 |
+| TASK-981 | exercise-content-storage | Regeneration writers (queue drain, generation batch) through the store | Done | S | TASK-976 |
+| TASK-982 | exercise-content-storage | Content fix scripts (audio URLs, Traditional mirrors) through the store | Done | S | TASK-976 |
+| TASK-983 | exercise-content-storage | Static guard: no content write outside the store | Done | XS | TASK-980, TASK-981, TASK-982 |
+| TASK-984 | exercise-content-storage | Migration: columns, sequence, write-side RPCs, bucket (written, not applied) | Done (repo) | M | — |
+| TASK-985 | exercise-content-storage | Migration: session RPCs `p_include_content`; drop dead content RPCs (written, not applied) | Done (repo) | M | — |
+| TASK-986 | exercise-content-storage | Cut-over migration file (drop column, dedupe_key index, VACUUM FULL runbook) | Done (repo) | M | TASK-984, TASK-985 |
+| TASK-987 | exercise-content-storage | Practice session and intro-drill readers hydrate content | Done | M | TASK-976 |
+| TASK-988 | exercise-content-storage | Battery readers (speed round, gate/stress) hydrate content | Done | S | TASK-976 |
+| TASK-989 | exercise-content-storage | Prestudy loads content only for the drill words (+ on-demand endpoint) | Done | M | TASK-976 |
+| TASK-990 | exercise-content-storage | Route readers (typed grading, admin preview) and reference-set script | Done | S | TASK-976 |
+| TASK-991 | exercise-content-storage | Backfill, verify and archive script | Done | M | TASK-976 |
+| TASK-992 | exercise-content-storage | Orphan-file sweep script | Done | S | TASK-976 |
+| TASK-993 | exercise-content-storage | Phase-1 integration run (offline) and wiki update | Done | M | TASK-977..992 |
 | TASK-994 | exercise-content-storage | OPERATOR: apply Phase-1 migrations, deploy with flags `db` (LIVE-DB, approval) | [ ] | S | TASK-984, TASK-985, TASK-993 |
 | TASK-995 | exercise-content-storage | OPERATOR: dual writes on, backfill and verify | [ ] | M | TASK-994 |
 | TASK-996 | exercise-content-storage | OPERATOR: shadow reads ≥ 7 days | [ ] | S | TASK-995 |

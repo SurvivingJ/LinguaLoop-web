@@ -165,9 +165,9 @@ leaves the server.
   verified, not assumed (TASK-997: warm median and p90 within +10% of the `db` baseline for
   `study-session`, `practice/session`, prestudy and speed round).
 - The speed round selects its ≤ 20 items **before** hydrating (it currently reads content for
-  every mastered sense). Prestudy hydrates every test sense that has exercises; at the default
-  cap a zh test with more than 160 such senses loses exercises for the excess senses once the
-  column is gone (Open question 1).
+  every mastered sense). Prestudy hydrates only the senses its word prime drills, plus words the
+  learner adds, fetched on demand (Open question 1, answered; built in TASK-989). The original
+  text here ("prestudy hydrates every test sense that has exercises") is superseded.
 
 ### 6. Flags
 
@@ -410,8 +410,144 @@ entirely in the database, so the judge tags and `v_ladder_judge_reject_rates` ar
 - Every environment that writes content must set `EXERCISE_CONTENT_WRITE=dual` before the
   backfill; a missed shell produces rows that only the DB fallback can serve. The backfill's
   verify pass and the shadow logs catch this before the column is dropped.
+- The §4 write rule is a test: `tests/test_exercise_content_write_paths.py` fails on any new
+  direct `INSERT` into `exercises` or content `UPDATE` outside `services/exercise_content/`
+  (anyone adding a writer, including contributor-facing notes, must route it through
+  `store.write_sense`).
 - Answer keys stay server-side exactly as now: the bucket is private, read only with the service
   key, and no signed URL is ever issued to a browser.
+
+## Implementation status (Phase 1, integrated 2026-11-17 — TASK-993)
+
+**Status stays `proposed`**: everything below is in the repo on branch
+`claude/dreamy-brahmagupta-40a4gq`, offline-tested; nothing is applied, deployed or flipped
+(operator tasks TASK-994–998). Both flags default to `db`, which issues exactly the pre-ADR
+PostgREST/RPC calls (checked by running the db-mode serve and write paths of the foundation
+commit `c3cb106` and of the integrated branch over the same fake database: payloads and recorded
+calls are identical for the session, extra round, speed round, `render_all` and scoped regen; the
+prestudy payload differs only by the owner's drill-only change).
+
+| Package | Tasks | What exists |
+|---|---|---|
+| a store | 976–979 | `services/exercise_content/` — `store.py` (§9 facade), `backends.py` (`InMemoryBackend`, `SupabaseStorageBackend` over httpx), `cache.py` (`ByteLRU`, `NegativeCache`), `reader.py` (storage/shadow hydration, `fetch_sense`), `shadow.py` (background comparer), `writer.py` (dual-mode CAS writer); `tests/exercise_content_fakes.py` (`FakeContentDB`) |
+| b writers | 980–983 | `render_all`, `exercise_stage_runner cmd_render`, `queue_drain._regenerate`, `run_generation_batch`, `backfill_exercise_audio.py`, `backfill_hant_mirrors.py` write through `store.write_sense`; static guard `tests/test_exercise_content_write_paths.py` |
+| c SQL | 984–986 | `migrations/exercise_content_storage.sql`, `…_session_rpcs.sql`, `…_drop_column.sql` (runbook, steps 0–5), each with a `_rollback.sql`; `tests/sql/test_exercise_content_storage.sql`; static tests |
+| d readers | 987–990 | session, extra round, prestudy follow-ups, intro block, speed round, gate/stress, prestudy (drill-only + on-demand endpoint), typed re-grade, admin preview, reference-set script |
+| e scripts | 991–992 | `scripts/backfill_exercise_content.py` (export / verify / repair / archive), `scripts/sweep_exercise_content.py` |
+| integration | 993 | `tests/test_exercise_content_integration.py` (scenarios 1–8 of TASK-993, three flag combinations) |
+
+### Implementation notes on §8 / §9 (where the contract was silent or was tightened)
+
+- **Backend.** `GET /object/{bucket}/{path}` (200 = bytes; 404, or 400 with `statusCode` "404" /
+  `error` "not_found" = missing); `POST /object/{bucket}/{path}` with `x-upsert: false`,
+  `content-type: application/json`, `cache-control: max-age=31536000, immutable` (any 2xx ok;
+  409, or 400 with `statusCode` "409" / `error` "Duplicate" = `AlreadyExists`); `DELETE
+  /object/{bucket}` with `{"prefixes": [...]}`, 100 per request; `POST /object/list/{bucket}`
+  (limit 1,000, offset paging, folder entries skipped, read eagerly and sorted by path). One
+  pooled `httpx.Client` per process per (timeout, concurrency) (`max_connections = concurrency +
+  4`), `trust_env` on, no HTTP/2. The service key never appears in repr, logs or exception text.
+  `SupabaseStorageBackend(transport=…)` and `close()` exist for tests.
+- **Caches.** `ByteLRU` holds raw file bytes, no TTL, refuses an entry larger than a quarter of the
+  budget; `NegativeCache` 60 s TTL; both keyed `(lang_code, sense_id, version)`. Fetches run on the
+  store's own pool (`exc-fetch_N` threads); the shadow worker is one daemon thread `exc-shadow`;
+  the package never imports `services.concurrency` (tested).
+- **Read path.** The per-call cap counts `(lang, sense, version)` groups in item order, before the
+  cache lookup, so a warm call serves the same items as a cold one. Groups past the cap and groups
+  still unfinished at the deadline both count in `over_cap` (and go to the DB fallback). GETs that
+  finish after the deadline still fill the caches. A corrupt file is logged at ERROR, evicted and
+  negative-cached; a fetch error is not negative-cached. The DB fallback (one `select('id,
+  content')` per 200 ids) switches itself off for the process on 42703 / PGRST204 (one ERROR);
+  `reset_state()` switches it back on. `HydrationReport.items` counts every item with an id;
+  `groups` counts groups that needed content; `fetched` counts files actually returned;
+  `missing_ids` is unique, in item order; `db_fallback` counts items.
+- **Write path (dual).** Before any upload (`ValueError`): update ids must be rows of the sense and
+  not deleted; insert ids must not be surviving rows (re-inserting a deleted id is allowed); every
+  `exercise_content_begin` row must have the call's `language_id` (a sense whose rows carry another
+  language cannot be dual-written until its data is fixed); rows must be JSON-safe (NaN refused).
+  The base is file V, then the `content` column (one `select('id, content')` per 200 ids). A write
+  that leaves the sense empty commits without uploading; a write that matches nothing commits
+  nothing and returns the current version. Retries pause `uniform(0, 0.02 × attempt)` s. A
+  malformed begin/commit response raises `ExerciseContentError`; backend exceptions are wrapped in
+  `ContentStorageError`; a commit that raises leaves the file for the sweep.
+- **SQL.** `exercise_content_commit` stamps the new version only on the rows it checked (plus the
+  inserts), and rejects more input with 22023 than §8 lists (listed in [[database/schema.tech]]);
+  static checks run before the lock, row checks after the compare-and-swap, so a lost race never
+  raises 22023. Insert rows must carry `source_type` (NOT NULL, no default; 23502 otherwise); keys
+  outside the insert column list are ignored. `get_practice_session` appends content with
+  `jsonb_set(v_items, '{-1,content}', …)` (a `v_items || obj || CASE …` chain would append the CASE
+  result as a separate array element); `p_include_content = NULL` behaves like false. The cut-over
+  runbook adds a precondition block (v2 index valid, no context-free row without `dedupe_key`) and
+  drops the old index explicitly. `FakeContentDB` was aligned with these checks in TASK-993.
+- **Readers.** One payload difference between modes: a prestudy follow-up item in a session
+  carries `content_version` in shadow/storage mode only (its select reads it there; db mode keeps
+  today's select string). `session_assembly._hydrate_items` sets `no_content_reason =
+  'content_unavailable'` when hydration empties a non-empty item list. The typed re-grade fails
+  open on missing content. The admin preview adds `word_sense_id` per exercise.
+- **Fix scripts (TASK-982).** In db mode their select strings now also read `word_sense_id,
+  language_id` (intended), and content updates are issued per sense after the sense is processed
+  (still one `update({'content': c}).eq('id', id)` per row). In dual mode each touched sense gets
+  one new version per run. Rows without a sense are counted `skipped_no_sense`.
+- **Backfill (TASK-991).** Archives are split into deterministic gzip parts of at most 1 MiB (the
+  bucket limit), listed with sha256 in `manifest.json`; all `--archive-*` flags need `--language
+  all`; archives are never overwritten (identical bytes = already archived). `--repair` needs
+  `EXERCISE_CONTENT_WRITE=dual` (exit 2 otherwise). Exit codes 0 clean / 1 findings / 2 refused.
+- **Sweep (TASK-992).** Dry run by default; files with no `created_at` or an unknown name are kept
+  and reported; an empty live set next to deletable files deletes nothing unless
+  `--allow-empty-live-set`.
+
+### Log lines operators will see (logger `services.exercise_content` unless noted)
+
+- Read: `exercise_content.db_fallback n= senses=` (WARNING), `.db_fallback_error`,
+  `.db_fallback_disabled` (ERROR), `.db_fallback_unavailable`, `.missing n= dropped= ids=`,
+  `.fetch_error n= first=`, `.corrupt_file` (ERROR), `.missing_file`, `.fetch_sense_error`;
+  `services.practice.session_assembly`: `exercise content hydrated (lang= mode=): items= groups=
+  cache_hits= fetched= db_fallback= over_cap= dropped= elapsed_ms=` (INFO) and `exercise content
+  unavailable: all N session item(s) dropped` (ERROR).
+- Shadow: `.shadow_mismatch kind= sense= version= exercise=<id>|* [n=] [error=]` (WARNING);
+  `.shadow_summary compared= ok= missing_file= missing_exercise= content_diff= dropped=
+  fetch_error=` (INFO, every 500 comparisons).
+- Write: `.write sense= version= attempts= inserted= deleted= updated=` (INFO), `.write_conflict`
+  (INFO), `.commit_failed … (file left for the sweep)` (ERROR), `.orphan_file` (WARNING).
+- Config: `.config unknown …`, `.config … needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY; using
+  db`, storage-with-db-writes (ERROR, once per process).
+
+### Operational notes for TASK-994–998
+
+- Apply order: `exercise_content_storage.sql`, then `exercise_content_session_rpcs.sql`. Roll back
+  in reverse (`…_session_rpcs_rollback.sql` only with `SOURCE=db`; `…_storage_rollback.sql` only
+  before any dual write); the rollback files refuse otherwise.
+- Every shell that runs content writers (stage runner render, `run_generation_batch`, the nightly
+  queue drain, the fix scripts, upload/fat-seed) needs `EXERCISE_CONTENT_WRITE=dual` before the
+  backfill.
+- Smoke-test the real Storage API (get / put / list / delete, the not-found and duplicate
+  status shapes, and one archive put of a `.jsonl.gz` part labelled `application/json`) on the
+  real bucket before `WRITE=dual`; none of it was exercised against the live service.
+- `exercises.pattern_code` is in the commit's insert list; confirm the column exists live (no repo
+  migration adds it). `tests/sql/test_exercise_content_storage.sql` on staging exercises the INSERT.
+- The cut-over runbook (`exercise_content_drop_column.sql`) runs one step at a time (`psql -f` or
+  one statement per SQL-editor run; step 1 repeats until 0 rows, about 16 times). Set
+  `EXERCISE_CONTENT_DB_FALLBACK=0` and restart right after step 3. Its rollback's data refill
+  (R2) has no script yet.
+- Backfill / sweep commands: `python scripts/backfill_exercise_content.py --language {zh,ja,en,all}
+  [--dry-run] [--verify [--repair]]`; archives (TASK-998): `--language all --archive-all <YYYYMMDD>
+  --archive-sense-less`, then `--language all --archive-semdisc --semdisc-function-file <file>`
+  (export the function first with `select pg_get_functiondef('public.apply_semdisc_notes(jsonb)'::regprocedure);`).
+  Sweep: `python scripts/sweep_exercise_content.py --language all` (dry run), then `--apply`; run
+  after every bulk edit. Reports default to `data/exercise_content_backfill/` and
+  `data/exercise_content_sweep/` (not git-ignored).
+
+### Known risks carried forward
+
+- Shadow uses one worker with sequential GETs and a 256-job queue: at high request rates with
+  `EXERCISE_CONTENT_SHADOW_SAMPLE=1.0` comparisons are dropped (counted in `dropped`); lower the
+  sample rate if it grows.
+- After a deadline hit, late GETs keep fetch threads busy; a Storage slowdown longer than the
+  deadline queues later calls behind them (each still bounded by its own deadline and the
+  fallback). Fetch-pool threads are non-daemon: interpreter exit can wait up to the 2 s GET timeout.
+- Mixed-language senses (rows of one sense in two languages) cannot be dual-written (the writer
+  refuses); the backfill writes such a sense's file under each language that lists it.
+- `--repair` rewrites from DB content; run it while no bulk writer is active.
+- The static write guard matches literal table names only (`table(SOME_CONSTANT)` is not seen).
 
 ## Open Questions
 
@@ -423,7 +559,7 @@ entirely in the database, so the judge tags and `v_ladder_judge_reject_rates` ar
    adds a word to the drill set, e.g. wrong-question follow-ups), the client fetches that word's
    exercises on demand from a new endpoint restricted to the test's senses. Fan-out per request
    drops from all linked senses (zh p90 126, max 306) to the drill set, under the 160-sense cap.
-   Built in TASK-989 (revised).
+   Built in TASK-989 (revised); spec in [[features/test-prestudy.tech]].
 2. **ANSWERED 2026-11-17 (owner) — archive the semantic-discrimination leftovers.**
    `backup_semdisc_content_20261115`, `semdisc_rewrite_work` and the definition of
    `apply_semdisc_notes(jsonb)` are archived to `_archive/` by the backfill script
@@ -495,6 +631,19 @@ operator step, **—** no change.
 | 25 | `tests/sql/test_session_budget_settings.sql:96` | W | SQL test fixture | inserts rows with content | TASK-999 |
 | 26 | Python tests with fake DBs (`tests/test_speed_round.py`, `test_level_scoped_regen.py`, session tests, …) | R/W fakes | tests | | owning package, only if a `db`-mode call changes |
 
+**Status 2026-11-17 (TASK-993):** rows 3–12 hydrate through `store.select_columns` / `store.hydrate`
+/ `store.rpc_content_args` (row 9: drill-only payload + `GET /api/tests/<id>/prestudy/exercises`,
+see [[features/test-prestudy.tech]]); rows 14–19 write through `store.write_sense` (row 15:
+`DeleteWhere(require_word_asset=True, ladder_levels=<sorted levels> or None)`, new queue detail
+codes `content_write_conflict` / `content_storage_error` plus `error_detail`; row 16:
+`DeleteWhere(require_word_asset=True)`, a write error fails the sense and queues it for regen;
+row 17: a write error blocks the sense; rows 18–19: `select_columns` + `hydrate` in chunks of at
+most 100 senses, one `update_contents` write per sense); rows 1, 2, 21, 22, 23 are in the
+written-not-applied migrations. The §4 write rule is enforced by
+`tests/test_exercise_content_write_paths.py` (token-based scan of `services/`, `routes/`,
+`scripts/`, `utils/`, `web/`, excluding `services/exercise_content/`; `ALLOWLIST` empty; a
+stale entry fails).
+
 Metadata-only (no change): `services/practice/attempt_recording.py:86/233/242/579`,
 `services/practice/new_word_admission.py:789`, `services/prestudy.py:408`,
 `routes/tests/prestudy.py:111`, `services/intro_drill.py:426/488`, `services/irt/calibrator.py:151`,
@@ -514,6 +663,6 @@ live `record_exercise_attempt`, `ladder_record_attempt`, `ladder_apply_progress`
 - [[database/schema.tech]] — `exercises` table
 - [[features/practice-engine.tech]] — `get_practice_session` return shape
 - [[features/practice-extra-rounds.tech]] — `get_review_ahead_items`
-- [[features/test-prestudy]] — the prestudy page (largest fan-out)
+- [[features/test-prestudy]] / [[features/test-prestudy.tech]] — the prestudy page (largest fan-out; drill-only loading)
 - [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]] — latency baseline and the per-request cache
 - [[evaluations/latency-2026-11-11]] — benchmark harness reused by TASK-997
