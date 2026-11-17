@@ -22,11 +22,11 @@ function markDailyLoadComplete(testId) {
 function resultActions(actions, _response, info) {
   if (daily) markDailyLoadComplete(info.testData && info.testData.id);
   actions.innerHTML = `
-    <a href="/test/${escapeHtml(slug)}/preview" class="btn btn-outline-primary">
-        <i class="bi bi-arrow-repeat me-1"></i>${escapeHtml(T('dictation.retry', null, 'Retry'))}
+    <a href="/test/${escapeHtml(slug)}/preview" class="ld-btn ld-btn--ghost">
+        <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>${escapeHtml(T('dictation.retry', null, 'Retry'))}
     </a>
-    <a href="/tests" class="btn btn-primary">
-        <i class="bi bi-list-ul me-1"></i>${escapeHtml(T('dictation.all_tests', null, 'All Tests'))}
+    <a href="/tests" class="ld-btn">
+        <i class="bi bi-list-ul me-1" aria-hidden="true"></i>${escapeHtml(T('dictation.all_tests', null, 'All Tests'))}
     </a>`;
 }
 
@@ -34,6 +34,15 @@ if (window.LinguaTestIntro) window.LinguaTestIntro.init({ testType: 'dictation' 
 
 const stage = document.getElementById('testStage');
 const ready = window.LinguaMetadata.load();
+// The task header (templates/base.html), as the session runner's ctx.frame.
+const shell = window.LinguaShell;
+const frame = shell
+  ? {
+      stage,
+      setHeader: (opts) => shell.setTaskHeader(opts || {}),
+      onBack: (fn) => shell.onBack(fn),
+    }
+  : null;
 mount(stage, {
   item: { slug },
   languageId: parseInt(localStorage.getItem('selectedLanguageId')) || 0,
@@ -41,6 +50,8 @@ mount(stage, {
   audioPreload: 'metadata',
   backHref: '/tests',
   resultActions,
+  frame,
+  pageHeader: true,
   onComplete() {},
 });
 ready.then(() => applyI18n(stage));

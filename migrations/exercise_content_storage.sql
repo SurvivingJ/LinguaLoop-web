@@ -1,11 +1,11 @@
 -- =============================================================================
--- exercise_content_storage.sql — ADR-047 Phase 1: content versions, the version sequence,
+-- exercise_content_storage.sql — ADR-049 Phase 1: content versions, the version sequence,
 -- the write-side RPCs and the private Storage bucket for exercise content.
--- Date: 2026-11-17   Task: TASK-984
--- Spec: wiki/decisions/ADR-047-exercise-content-in-storage.md
+-- Date: 2026-11-17   Task: TASK-1016
+-- Spec: wiki/decisions/ADR-049-exercise-content-in-storage.md
 --       (§3 versions, §4 concurrency rule, §7 schema changes, §8 RPC contract — normative)
 --
--- STATUS: applied live 2026-11-17 (TASK-994, Supabase migration `exercise_content_storage`);
+-- STATUS: applied live 2026-11-17 (TASK-1026, Supabase migration `exercise_content_storage`);
 -- function bodies and comments md5-checked against this file after the apply.
 --
 -- Apply order (staging first if one exists):
@@ -32,6 +32,9 @@
 -- EXERCISE_CONTENT_WRITE=dual was ever set in any environment: after that, rows carry versions
 -- whose files exist only in Storage. Roll back exercise_content_session_rpcs.sql first (its
 -- functions read exercises.content_version).
+-- Renumbered 2026-11-17 when merged with main: ADR-047 -> ADR-049 and TASK-976..999 ->
+-- TASK-1008..1031 (main already used those ids). Function bodies and COMMENT strings keep
+-- the old ids: they are (or will be) the live text, md5-compared against the database.
 -- =============================================================================
 
 BEGIN;

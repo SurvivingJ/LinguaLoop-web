@@ -90,7 +90,10 @@
     model.kinds.forEach(function (k) {
       const li = doc.createElement('li');
       li.dataset.kind = k.kind;
-      li.textContent = t('study_plan.studied.kind.' + k.kind) + ': ' + t('study_plan.studied.minutes', { n: k.minutes });
+      li.textContent =
+        t('study_plan.studied.kind.' + k.kind) +
+        ': ' +
+        t('study_plan.studied.minutes', { n: k.minutes });
       list.appendChild(li);
     });
     container.appendChild(list);

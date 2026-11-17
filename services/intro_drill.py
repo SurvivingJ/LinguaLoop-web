@@ -329,7 +329,7 @@ def build_block(db, user_id: str, language_id: int, rows: List[dict]) -> Optiona
         .select(store.select_columns('id, word_sense_id, exercise_type, {content}, ladder_level'))
         .eq('is_active', True).in_('word_sense_id', sids).in_('exercise_type', list(EX_GROUPS))
         .limit(400).execute().data or [])
-    # ADR-047: the block's own hydrate call (the session's item list has its
+    # ADR-049: the block's own hydrate call (the session's item list has its
     # own). No-op in db mode; an exercise whose content cannot be found is
     # dropped here, so the word is drilled with the formats it still has.
     store.hydrate(ex_rows, language_id=int(language_id), db=db)

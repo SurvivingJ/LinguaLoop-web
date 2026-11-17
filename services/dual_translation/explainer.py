@@ -37,7 +37,7 @@ import logging
 import re
 from typing import Optional
 
-from services.llm_output_cleaner import clean_json_response
+from services.dual_translation import output_sanitizer
 from services.model_arena.llm_runner import call_model_with_usage
 from services.dual_translation import prompts
 from services.dual_translation.router import resolve_tier
@@ -126,7 +126,7 @@ def _run(
         return errors, 0, 0, "call failed"
 
     try:
-        payload = json.loads(clean_json_response(content))
+        payload = output_sanitizer.parse_model_json(content)
     except (ValueError, json.JSONDecodeError) as exc:
         logger.warning(
             "dual_translation.explainer: response from %r was not valid JSON (%s), Rule-only: %.200r",

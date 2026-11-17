@@ -1,8 +1,8 @@
-"""Static checks for migrations/exercise_content_storage.sql and its rollback (TASK-984).
+"""Static checks for migrations/exercise_content_storage.sql and its rollback (TASK-1016).
 
-ADR-047 §7 (schema changes) and §8 (the RPC contract the dual writer codes against). No
+ADR-049 §7 (schema changes) and §8 (the RPC contract the dual writer codes against). No
 database: the SQL is parsed. The behaviour itself is covered by
-tests/sql/test_exercise_content_storage.sql, which the operator runs on staging (TASK-994).
+tests/sql/test_exercise_content_storage.sql, which the operator runs on staging (TASK-1026).
 
 The SQL helpers at the top (statements, function_defs, body_lines, code_without_strings) are
 also used by test_exercise_content_migration_rpcs.py and test_exercise_content_migration_cutover.py.
@@ -26,7 +26,7 @@ SQL_TEST = ROOT / 'tests' / 'sql' / 'test_exercise_content_storage.sql'
 
 
 # --------------------------------------------------------------------------------------
-# SQL helpers (shared with the other ADR-047 migration tests)
+# SQL helpers (shared with the other ADR-049 migration tests)
 # --------------------------------------------------------------------------------------
 def read(name: str) -> str:
     return (MIGRATIONS / name).read_text(encoding='utf-8')
@@ -255,7 +255,7 @@ def test_header_documents_status_order_and_rollback_rule():
     header = raw[:raw.index('BEGIN;')]
     assert re.search(r'STATUS: (NOT applied|applied live \d{4}-\d{2}-\d{2})', header), \
         'the header must say whether the file is applied live'
-    assert 'ADR-047' in header and 'TASK-994' in header
+    assert 'ADR-049' in header and 'TASK-1026' in header
     assert header.index('exercise_content_storage.sql') < header.index('exercise_content_session_rpcs.sql'), \
         'the header must give the apply order: this file, then exercise_content_session_rpcs.sql'
     assert 'exercise_content_storage_rollback.sql' in header
@@ -326,8 +326,9 @@ def test_every_function_is_service_role_only_and_commented(sql):
     for fn in function_defs(sql):
         problems += revoke_grant_problems(sql, fn)
         sig = signature_re(fn.name, fn.arg_types)
+        # COMMENT strings keep the pre-renumbering id (ADR-047 = ADR-049): the applied, live text.
         if not has_statement(sql, rf"COMMENT ON FUNCTION {sig} IS .*ADR-047.*"):
-            problems.append(f'{fn.name}: no COMMENT ON FUNCTION citing ADR-047')
+            problems.append(f'{fn.name}: no COMMENT ON FUNCTION citing ADR-047 (= ADR-049)')
     assert not problems, problems
 
 

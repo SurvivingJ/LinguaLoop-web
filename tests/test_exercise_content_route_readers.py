@@ -1,4 +1,4 @@
-"""TASK-990 (ADR-047): the route readers and the reference-set script read
+"""TASK-1022 (ADR-049): the route readers and the reference-set script read
 exercise content through the store.
 
 Appendix A rows 10-12: the server-side ``cloze_typed`` re-grade on
@@ -6,7 +6,7 @@ Appendix A rows 10-12: the server-side ``cloze_typed`` re-grade on
 preview (``preview_word``) and the offline reference-set snapshot
 (``scripts/build_exercise_gen_reference_set.fetch_exercise_snapshot``), each in
 ``db`` and ``storage`` mode. ``store.read_mode`` / ``store.hydrate`` are
-monkeypatched (the storage reader is TASK-978); no network, no Supabase.
+monkeypatched (the storage reader is TASK-1010); no network, no Supabase.
 """
 
 from __future__ import annotations
@@ -95,7 +95,7 @@ class FakeDB:
 
 
 class FakeHydrate:
-    """``store.hydrate`` stand-in (ADR-047 section 9): content from
+    """``store.hydrate`` stand-in (ADR-049 section 9): content from
     ``contents[item[id_key]]``; anything else is missing (dropped, or None
     with drop_missing=False). Records every call."""
 

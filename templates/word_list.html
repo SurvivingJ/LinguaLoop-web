@@ -1,78 +1,90 @@
 {% extends "base.html" %}
+{#- Redesign 2026-11: the mockup's WordList() screen — Back-pill header, the
+    form and watchlist in one scrolling stage, Submit pinned in the dock.
+    The <form> is the screen root so the dock's submit button stays inside it.
+    Element ids are the contract with static/js/word_list.js.
+    Styles: static/css/pages/word-list.css + static/css/redesign/settings.css (.wl-page). -#}
 {% set defer_base_scripts = true %}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
 
 {% block title %}Word List | LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50{% endblock %}
+{% block body_class %}bg-slate-50 wl-page{% endblock %}
 
-{% block main_class %}container py-4{% endblock %}
+{% block task_back_href %}{{ url_for('profile') }}{% endblock %}
+{% block task_title %}<span data-i18n="word_list.title">Word List</span>{% endblock %}
+{% block task_subtitle %}<span data-wl-t="word_list.subtitle">Upload words you want to keep practicing</span>{% endblock %}
+{% block task_glyph %}＋{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/word-list.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="wl-wrap">
-    <div class="wl-header">
-        <h1 data-i18n="word_list.title">Word List</h1>
-    </div>
-    <p class="wl-intro" data-i18n="word_list.intro">
-        Upload words you want to keep practicing. Every word is added to your vocabulary
-        ladder right away, and the app watches for matching tests as new ones are created.
-    </p>
+<form id="wlForm" class="ld-screen wl-screen wl-wrap">
+    <div class="ld-stage wl-stage">
+        <h1 class="visually-hidden" data-i18n="word_list.title">Word List</h1>
+        <p class="wl-intro ld-small ld-muted" data-i18n="word_list.intro">
+            Upload words you want to keep practicing. Every word is added to your vocabulary
+            ladder right away, and the app watches for matching tests as new ones are created.
+        </p>
 
-    <form id="wlForm">
         <div class="wl-form-group">
             <label for="wlWords" data-i18n="word_list.textarea_label">Words</label>
-            <textarea id="wlWords" data-i18n-placeholder="word_list.textarea_placeholder"
+            <textarea id="wlWords" class="form-control" rows="3" data-i18n-placeholder="word_list.textarea_placeholder"
                       placeholder="Enter one word per line"></textarea>
         </div>
 
         <div class="wl-form-group">
-            <label data-i18n="word_list.language_label">Language</label>
-            <div class="wl-lang-options" id="wlLangOptions">
-                <div class="wl-lang-chip" data-lang="zh">
-                    <span class="flag">🇨🇳</span>
-                    <span class="native">中文</span>
-                </div>
-                <div class="wl-lang-chip" data-lang="en">
-                    <span class="flag">🇺🇸</span>
-                    <span class="native">English</span>
-                </div>
-                <div class="wl-lang-chip" data-lang="ja">
-                    <span class="flag">🇯🇵</span>
-                    <span class="native">日本語</span>
-                </div>
+            <span class="wl-label" id="wlLangLabel" data-i18n="word_list.language_label">Language</span>
+            <div class="wl-lang-options" id="wlLangOptions" role="group" aria-labelledby="wlLangLabel">
+                <button type="button" class="ld-chip wl-lang-chip" data-lang="zh" aria-pressed="false">
+                    <span class="flag" aria-hidden="true">🇨🇳</span>
+                    <span class="native" lang="zh">中文</span>
+                </button>
+                <button type="button" class="ld-chip wl-lang-chip" data-lang="en" aria-pressed="false">
+                    <span class="flag" aria-hidden="true">🇺🇸</span>
+                    <span class="native" lang="en">English</span>
+                </button>
+                <button type="button" class="ld-chip wl-lang-chip" data-lang="ja" aria-pressed="false">
+                    <span class="flag" aria-hidden="true">🇯🇵</span>
+                    <span class="native" lang="ja">日本語</span>
+                </button>
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" id="wlSubmitBtn" data-i18n="word_list.submit">Submit</button>
-        <div class="wl-status" id="wlStatus" role="status" aria-live="polite"></div>
-    </form>
+        <div class="wl-table-wrap">
+            <h2 class="ld-eyebrow" data-i18n="word_list.watchlist_title">Your Watchlist</h2>
 
-    <div class="wl-table-wrap">
-        <h2 class="h6" data-i18n="word_list.watchlist_title">Your Watchlist</h2>
+            <div id="wlLoading" class="wl-loading" data-i18n="word_list.loading">Loading…</div>
+            <div id="wlError" class="wl-error ld-note ld-note--bad" style="display:none;"></div>
+            <div id="wlEmpty" class="wl-empty" style="display:none;" data-i18n="word_list.watchlist_empty">
+                No words yet — submit a list above to get started.
+            </div>
 
-        <div id="wlLoading" class="wl-loading" data-i18n="word_list.loading">Loading…</div>
-        <div id="wlError" class="wl-error" style="display:none;"></div>
-        <div id="wlEmpty" class="wl-empty" style="display:none;" data-i18n="word_list.watchlist_empty">
-            No words yet — submit a list above to get started.
+            <div class="wl-table-scroll">
+                <table class="wl-table" id="wlTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th scope="col" data-i18n="word_list.col_word">Word</th>
+                            <th scope="col" data-i18n="word_list.col_language">Language</th>
+                            <th scope="col" data-i18n="word_list.col_ladder">Ladder</th>
+                            <th scope="col" data-i18n="word_list.col_match">Matched Test</th>
+                            <th scope="col" data-i18n="word_list.col_uploaded">Uploaded</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wlTableBody"></tbody>
+                </table>
+            </div>
         </div>
-
-        <table class="wl-table" id="wlTable" style="display:none;">
-            <thead>
-                <tr>
-                    <th data-i18n="word_list.col_word">Word</th>
-                    <th data-i18n="word_list.col_language">Language</th>
-                    <th data-i18n="word_list.col_ladder">Ladder</th>
-                    <th data-i18n="word_list.col_match">Matched Test</th>
-                    <th data-i18n="word_list.col_uploaded">Uploaded</th>
-                </tr>
-            </thead>
-            <tbody id="wlTableBody"></tbody>
-        </table>
     </div>
-</div>
+
+    <div class="ld-dock wl-dock">
+        <div class="wl-status" id="wlStatus" role="status" aria-live="polite"></div>
+        <button type="submit" class="ld-btn" id="wlSubmitBtn" data-i18n="word_list.submit">Submit</button>
+    </div>
+</form>
 {% endblock %}
 
 {% block extra_js %}

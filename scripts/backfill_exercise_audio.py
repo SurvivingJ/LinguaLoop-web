@@ -26,7 +26,7 @@ about a failed synthesis is the thing to avoid (§6.10).
 CLI flag with an environment default, and the run stops cleanly when it is
 reached rather than dying mid-item.
 
-**Content goes through the content store (ADR-047, TASK-982).** Rows are read
+**Content goes through the content store (ADR-049, TASK-1014).** Rows are read
 with ``store.select_columns(...)`` (paged as before) and their content filled
 by ``store.hydrate(...)``, one call per at most 100 senses, so the sweep works
 whether content is served from ``exercises.content`` or from the Storage
@@ -116,12 +116,12 @@ COVERAGE_TARGET = 0.95
 _PAGE = 500
 
 #: Columns read for every pass; ``{content}`` is filled per read mode by
-#: ``store.select_columns`` (ADR-047 §9).
+#: ``store.select_columns`` (ADR-049 §9).
 EXERCISE_COLUMNS = 'id, exercise_type, word_sense_id, language_id, {content}'
 
 #: Most senses one ``store.hydrate`` call may cover (one content file per sense).
 HYDRATE_MAX_SENSES = 100
-# An offline bulk run, not a request: no 3 s deadline and no 160-sense cap (ADR-047 §5
+# An offline bulk run, not a request: no 3 s deadline and no 160-sense cap (ADR-049 §5
 # request limits). A chunk is fetched in full; only a real miss leaves a row out.
 HYDRATE_DEADLINE_S = 300.0
 

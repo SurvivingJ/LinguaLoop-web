@@ -1,6 +1,6 @@
 -- =============================================================================
 -- exercise_content_session_rpcs_rollback.sql — undo migrations/exercise_content_session_rpcs.sql
--- Date: 2026-11-17   Task: TASK-985   Spec: wiki/decisions/ADR-047-exercise-content-in-storage.md
+-- Date: 2026-11-17   Task: TASK-1017   Spec: wiki/decisions/ADR-049-exercise-content-in-storage.md
 --
 -- STATUS: NOT applied. Roll back ONLY with EXERCISE_CONTENT_SOURCE=db on every web worker
 -- (shadow/storage pass p_include_content, which the restored 5-argument functions do not
@@ -13,6 +13,9 @@
 -- migrations/practice_review_ahead.sql (tests/test_exercise_content_migration_rpcs.py checks
 -- the bodies are identical), with explicit service_role-only grants. The three dead
 -- content-returning functions are NOT recreated.
+-- Renumbered 2026-11-17 when merged with main: ADR-047 -> ADR-049 and TASK-976..999 ->
+-- TASK-1008..1031 (main already used those ids). Function bodies and COMMENT strings keep
+-- the old ids: they are (or will be) the live text, md5-compared against the database.
 -- =============================================================================
 
 BEGIN;

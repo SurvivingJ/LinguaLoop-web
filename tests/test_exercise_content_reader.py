@@ -1,4 +1,4 @@
-"""TASK-978 — the ``storage`` / ``shadow`` read path and ``fetch_sense`` (ADR-047 §5, §9).
+"""TASK-1010 — the ``storage`` / ``shadow`` read path and ``fetch_sense`` (ADR-049 §5, §9).
 
 Runs through the public facade (``store.hydrate`` / ``store.fetch_sense``)
 with an ``InMemoryBackend`` installed by ``store.set_backend`` and a local fake

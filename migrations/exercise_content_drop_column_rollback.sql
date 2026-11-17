@@ -1,7 +1,7 @@
 -- =============================================================================
--- exercise_content_drop_column_rollback.sql — undo the ADR-047 cut-over
+-- exercise_content_drop_column_rollback.sql — undo the ADR-049 cut-over
 -- (migrations/exercise_content_drop_column.sql, step 3)
--- Date: 2026-11-17   Task: TASK-986   Spec: wiki/decisions/ADR-047-exercise-content-in-storage.md
+-- Date: 2026-11-17   Task: TASK-1018   Spec: wiki/decisions/ADR-049-exercise-content-in-storage.md
 --
 -- STATUS: NOT applied. A runbook: run the steps in order, each on its own.
 --
@@ -16,7 +16,10 @@
 --   * backup_semdisc_content_20261115, semdisc_rewrite_work and apply_semdisc_notes(jsonb)
 --     (_archive/semdisc-20261115/: {table}.jsonl.gz and apply_semdisc_notes.sql).
 -- uq_exercises_context_free_variant_v2 and dedupe_key stay: the pre-drop commit RPC keeps
--- maintaining them, exactly as between TASK-994 and the cut-over.
+-- maintaining them, exactly as between TASK-1026 and the cut-over.
+-- Renumbered 2026-11-17 when merged with main: ADR-047 -> ADR-049 and TASK-976..999 ->
+-- TASK-1008..1031 (main already used those ids). Function bodies and COMMENT strings keep
+-- the old ids: they are (or will be) the live text, md5-compared against the database.
 -- =============================================================================
 
 
@@ -743,7 +746,7 @@ COMMIT;
 -- content_version) — store.fetch_sense(language_id, word_sense_id, content_version) — which
 -- includes every write made after the cut-over; rows whose file is missing come from the
 -- _archive/exercises-content-<TAG>/ export taken on cut-over day. No script does this yet
--- (TASK-991's backfill only exports and verifies): write one before relying on this rollback.
+-- (TASK-1023's backfill only exports and verifies): write one before relying on this rollback.
 -- It must update in batches of <= 2,000 rows with a plain VACUUM public.exercises between
 -- batches (the same reasoning as step 1 of the cut-over).
 

@@ -1,17 +1,17 @@
 -- =============================================================================
--- exercise_content_storage — SQL tests (TASK-984, ADR-047 §8)
+-- exercise_content_storage — SQL tests (TASK-1016, ADR-049 §8)
 -- =============================================================================
 -- Rollback-only SQL test, same harness as tests/sql/test_session_budget_settings.sql:
 -- assertions RAISE EXCEPTION, a clean run prints PASS notices, everything is rolled back.
 -- Requires migrations/exercise_content_storage.sql applied. Run by the operator on staging
--- (TASK-994), or on production only because it ends in ROLLBACK:
+-- (TASK-1026), or on production only because it ends in ROLLBACK:
 --
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/sql/test_exercise_content_storage.sql
 --
 -- Fixture: the lowest-id sense with no exercises that is not on calibration_anchor_blocklist
 -- (the quarantine trigger would deactivate its rows). Every row it creates is rolled back;
 -- exercise_content_version_seq still advances (sequences are not transactional), which only
--- leaves a gap — gaps are allowed (ADR-047 §3).
+-- leaves a gap — gaps are allowed (ADR-049 §3).
 -- =============================================================================
 
 BEGIN;

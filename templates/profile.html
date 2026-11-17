@@ -1,91 +1,204 @@
 {% extends "base.html" %}
+{#- Redesign 2026-11: the Me tab (mockup screens.me + Profile()). A hub of
+    links and settings (study tools, colour theme, appearance, interface
+    language, report, logout), followed by the existing profile content.
+    Styles: static/css/redesign/settings.css (+ css/pages/profile.css).
+    Element ids are the contract with static/js/pages/profile.js.
+    data-me-t marks strings whose keys live in static/i18n/_redesign/settings.json:
+    profile.js translates them when the key exists, else keeps the English. -#}
 {% set defer_base_scripts = true %}
 
 {% block title %}Profile - LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 me-page{% endblock %}
+
+{% block main_class %}container me-main{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/profile.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 1200px;">
-    <!-- Header -->
-    <div class="profile-header">
-        <h1 class="mb-2"><i class="fas fa-user-circle me-2"></i><span data-i18n="profile.title">My Profile</span></h1>
-        <p class="mb-0 opacity-90" data-i18n="profile.subtitle">Track your language learning progress</p>
-    </div>
+<div class="me-wrap">
+    <h1 class="ld-h1 me-title" data-i18n="common.nav.tab_me">Me</h1>
 
-    <!-- Native Language (settings) — always shown, independent of test history -->
-    <div class="card p-4 mb-4" id="nativeLanguageSection">
-        <h5 class="mb-1"><i class="fas fa-language me-2"></i><span data-i18n="profile.native_title">Native Language</span></h5>
-        <p class="text-muted mb-3" data-i18n="profile.native_desc">Used to show translations in a language you understand.</p>
-        <p class="mb-3">
-            <span data-i18n="profile.native_current">Current:</span>
-            <strong id="nativeLanguageCurrent" data-i18n="profile.native_loading">Loading…</strong>
-        </p>
-        <div class="row g-2" id="nativeLanguageCards"></div>
-        <div id="nativeLanguageStatus" class="small mt-2" role="status" aria-live="polite"></div>
-    </div>
+    <div class="me-grid">
+        <!-- Hub: study tools + settings (the phone app bar has no menus) -->
+        <div class="me-hub">
+            <nav class="ld-card ld-card--list me-links" aria-label="Study tools" data-me-t-aria="me.study_tools">
+                <a class="ld-set" href="{{ url_for('study_plan_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" aria-hidden="true">☰</span>
+                        <span><b data-i18n="common.nav.study_plan">Study Plan</b><small data-me-t="me.study_plan_sub">Daily minutes, modules, new words, prestudy</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set" href="{{ url_for('calibration_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" aria-hidden="true">◎</span>
+                        <span><b data-i18n="common.nav.calibration">Calibration</b><small data-me-t="me.calibration_sub">Measure your vocabulary size</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set" href="{{ url_for('word_list_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" aria-hidden="true">＋</span>
+                        <span><b data-i18n="common.nav.word_list">Word List</b><small data-me-t="me.word_list_sub">Upload words to keep practising</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set" href="{{ url_for('dual_translation_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" aria-hidden="true">译</span>
+                        <span><b data-i18n="dual_translation.title">Dual Translation</b><small data-i18n="dual_translation.me_sub">Translate a passage into the language you're studying</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set" href="{{ url_for('dual_translation_profile_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" aria-hidden="true">△</span>
+                        <span><b data-i18n="dual_translation.profile.title">My Error Profile</b><small data-me-t="me.error_profile_sub">Patterns from your translations</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set lang-gate d-none" data-lang-gate="zh" href="{{ url_for('classifier_drill_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" lang="zh" aria-hidden="true">量</span>
+                        <span><b data-i18n="common.nav.classifier_drill">Measure Words</b><small data-me-t="me.classifier_drill_sub">Practise Chinese measure words</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set lang-gate d-none" data-lang-gate="ja" href="{{ url_for('counter_drill_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" lang="ja" aria-hidden="true">個</span>
+                        <span><b data-i18n="common.nav.counter_drill">Counters</b><small data-me-t="me.counter_drill_sub">Practise Japanese counters</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set lang-gate d-none" data-lang-gate="zh" href="{{ url_for('tests') }}">
+                    <span class="me-set__main"><span class="ld-seal" lang="zh" aria-hidden="true">声</span>
+                        <span><b data-me-t="me.pinyin_trainer">Pinyin tone trainer</b><small data-me-t="me.trainer_sub">Runs on a test passage: pick a test, then choose this mode</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set lang-gate d-none" data-lang-gate="ja" href="{{ url_for('tests') }}">
+                    <span class="me-set__main"><span class="ld-seal" lang="ja" aria-hidden="true">音</span>
+                        <span><b data-me-t="me.pitch_trainer">Pitch accent trainer</b><small data-me-t="me.trainer_sub">Runs on a test passage: pick a test, then choose this mode</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set" href="{{ url_for('language_selection') }}">
+                    <span class="me-set__main"><span class="ld-seal" aria-hidden="true">文</span>
+                        <span><b data-i18n="common.nav.language_selection">Language Selection</b><small data-me-t="me.language_selection_sub">Change the language you are studying</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+            </nav>
 
-    <!-- Chinese script variant (TASK-526). Practice/vocab surfaces only:
-         tests and mysteries are a later epic, so the copy says so rather than
-         promising a site-wide switch. -->
-    <div class="card p-4 mb-4" id="scriptVariantSection">
-        <h5 class="mb-1"><i class="fas fa-font me-2"></i><span data-i18n="profile.script_title">Chinese Script</span></h5>
-        <p class="text-muted mb-3" data-i18n="profile.script_desc">Choose the script used in Chinese practice sessions. Tests are unaffected for now.</p>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" id="scriptVariantToggle">
-            <label class="form-check-label" for="scriptVariantToggle" data-i18n="profile.script_traditional">Use Traditional characters (繁體)</label>
+            <section class="ld-card ld-card--list me-settings" aria-label="Settings" data-me-t-aria="me.settings">
+                <button type="button" class="ld-set" id="meThemeRow" data-bs-toggle="modal" data-bs-target="#meThemeSheet" aria-haspopup="dialog">
+                    <span><b data-i18n="theme.picker_title">Colour theme</b><small id="meThemeCurrent"></small></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </button>
+                <div class="ld-set me-set--wrap" id="meModeRow">
+                    <span><b data-i18n="theme.mode_label">Appearance</b><small id="meModeNote" data-me-t="me.appearance_sub">For the default palette</small></span>
+                    <div data-ld-mode-picker></div>
+                </div>
+                <div class="ld-set me-set--stack">
+                    <b data-i18n="common.ui_language">Interface language</b>
+                    <div data-ld-ui-lang-picker></div>
+                </div>
+                <button type="button" class="ld-set" data-bs-toggle="modal" data-bs-target="#reportModal" aria-haspopup="dialog">
+                    <b><span aria-hidden="true">⚑ </span><span data-me-t="me.report_issue">Report an issue</span></b>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </button>
+                <button type="button" class="ld-set me-logout" data-ld-logout>
+                    <b data-i18n="common.nav.logout">Logout</b>
+                </button>
+            </section>
         </div>
-        <div id="scriptVariantStatus" class="small mt-2" role="status" aria-live="polite"></div>
-    </div>
 
-    <!-- Loading -->
-    <div id="loadingState" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-3 text-muted" data-i18n="profile.loading">Loading profile...</p>
-    </div>
+        <!-- Profile content -->
+        <section class="me-profile" aria-labelledby="meProfileTitle">
+            <div class="me-profile__head">
+                <h2 class="ld-h2" id="meProfileTitle" data-i18n="profile.title">My Profile</h2>
+                <p class="ld-muted ld-small mb-0" data-i18n="profile.subtitle">Track your language learning progress</p>
+            </div>
 
-    <!-- Empty State -->
-    <div id="emptyState" class="text-center py-5 d-none">
-        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-        <h4 data-i18n="profile.no_history">No Test History</h4>
-        <p class="text-muted" data-i18n="profile.no_history_hint">Start taking tests to track your progress!</p>
-        <a href="/tests" class="btn btn-primary mt-3">
-            <i class="fas fa-book-reader me-2"></i><span data-i18n="profile.browse_tests">Browse Tests</span>
-        </a>
-    </div>
+            <!-- Native Language (settings) — always shown, independent of test history -->
+            <div class="ld-card me-card" id="nativeLanguageSection">
+                <h3 class="me-card__title" data-i18n="profile.native_title">Native Language</h3>
+                <p class="ld-small ld-muted mb-2" data-i18n="profile.native_desc">Used to show translations in a language you understand.</p>
+                <p class="ld-small mb-2">
+                    <span data-i18n="profile.native_current">Current:</span>
+                    <strong id="nativeLanguageCurrent" data-i18n="profile.native_loading">Loading…</strong>
+                    <span id="nativeLanguageStatus" class="ld-muted" role="status" aria-live="polite"></span>
+                </p>
+                <div class="ld-stats" id="nativeLanguageCards" role="group" aria-labelledby="meNativeLabel"></div>
+                <span id="meNativeLabel" class="visually-hidden" data-i18n="profile.native_title">Native Language</span>
+            </div>
 
-    <!-- Profile Content -->
-    <div id="profileContent" class="d-none">
-        <!-- Language Selection -->
-        <h5 class="mb-3"><i class="fas fa-globe me-2"></i><span data-i18n="profile.select_language">Select Language</span></h5>
-        <div id="languageList" class="row g-3 mb-4"></div>
-
-        <!-- Stats Section with Skill Tabs -->
-        <div id="statsSection" class="d-none">
-            <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i><span data-i18n="profile.statistics">Statistics</span></h5>
-
-            <!-- Skill Type Tabs -->
-            <ul class="nav nav-tabs mb-3" id="skillTabs" role="tablist">
-                <!-- Dynamically generated by renderSkillTabs() -->
-            </ul>
-
-            <!-- Stats Grid (now shows ONE skill at a time) -->
-            <div id="statsGrid" class="row g-3 mb-4"></div>
-
-            <!-- Test History Section -->
-            <div id="historySection" class="d-none mt-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0"><i class="fas fa-history me-2"></i><span data-i18n="profile.test_history">Test History</span></h5>
-                    <span id="historyCount" class="badge bg-secondary"></span>
+            <!-- Chinese script variant (TASK-526). Practice/vocab surfaces only:
+                 tests and mysteries are a later epic, so the copy says so rather than
+                 promising a site-wide switch. -->
+            <div class="ld-card me-card" id="scriptVariantSection">
+                <div class="form-check form-switch me-switch">
+                    <label class="form-check-label" for="scriptVariantToggle">
+                        <span class="me-card__title d-block" data-i18n="profile.script_title">Chinese Script</span>
+                        <span class="d-block" data-i18n="profile.script_traditional">Use Traditional characters (繁體)</span>
+                        <small class="d-block ld-muted" data-i18n="profile.script_desc">Choose the script used in Chinese practice sessions. Tests are unaffected for now.</small>
+                    </label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="scriptVariantToggle">
                 </div>
-                <div id="historyList"></div>
-                <div id="loadMoreContainer" class="text-center mt-3 d-none">
-                    <button id="loadMoreBtn" class="btn btn-outline-primary" data-i18n="profile.load_more">
-                        Load More
-                    </button>
+                <div id="scriptVariantStatus" class="ld-small ld-muted mt-1" role="status" aria-live="polite"></div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingState" class="me-loading">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3 text-muted" data-i18n="profile.loading">Loading profile...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="ld-card me-empty d-none">
+                <h3 class="me-card__title" data-i18n="profile.no_history">No Test History</h3>
+                <p class="ld-muted ld-small" data-i18n="profile.no_history_hint">Start taking tests to track your progress!</p>
+                <a href="/tests" class="ld-btn ld-btn--ghost ld-btn--sm">
+                    <span data-i18n="profile.browse_tests">Browse Tests</span>
+                </a>
+            </div>
+
+            <!-- Profile Content -->
+            <div id="profileContent" class="me-section d-none">
+                <!-- Language Selection -->
+                <p class="ld-eyebrow" id="meLangLabel" data-i18n="profile.select_language">Select Language</p>
+                <div id="languageList" class="ld-chips me-chips me-langs" role="group" aria-labelledby="meLangLabel"></div>
+
+                <!-- Stats Section with Skill Tabs -->
+                <div id="statsSection" class="me-section d-none">
+                    <p class="ld-eyebrow" id="meStatsLabel" data-i18n="profile.statistics">Statistics</p>
+
+                    <!-- Skill Type Tabs -->
+                    <div class="ld-chips me-chips" id="skillTabs" role="tablist" aria-labelledby="meStatsLabel">
+                        <!-- Dynamically generated by renderSkillTabs() -->
+                    </div>
+
+                    <!-- Stats Grid (shows ONE skill at a time) -->
+                    <div id="statsGrid" role="tabpanel"></div>
+
+                    <!-- Test History Section -->
+                    <div id="historySection" class="me-section d-none">
+                        <div class="ld-sech">
+                            <h3 class="ld-eyebrow" data-i18n="profile.test_history">Test History</h3>
+                            <span id="historyCount" class="ld-tag"></span>
+                        </div>
+                        <div id="historyList" class="ld-rowlist"></div>
+                        <div id="loadMoreContainer" class="d-none">
+                            <button id="loadMoreBtn" type="button" class="ld-btn ld-btn--ghost ld-btn--sm ld-btn--block" data-i18n="profile.load_more">
+                                Load More
+                            </button>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Colour theme sheet (bottom sheet on phones) -->
+<div class="modal fade me-theme-sheet" id="meThemeSheet" tabindex="-1" aria-labelledby="meThemeSheetTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title ld-h2" id="meThemeSheetTitle" data-i18n="theme.picker_title">Colour theme</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria="common.close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="ld-small ld-muted" data-me-t="me.theme_sheet_hint">The default palette follows light and dark. The others are fixed colour themes.</p>
+                <div data-ld-theme-picker></div>
             </div>
         </div>
     </div>

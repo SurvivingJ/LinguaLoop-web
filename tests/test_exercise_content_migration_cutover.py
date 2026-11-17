@@ -1,9 +1,9 @@
-"""Static checks for the ADR-047 cut-over runbook (TASK-986).
+"""Static checks for the ADR-049 cut-over runbook (TASK-1018).
 
-migrations/exercise_content_drop_column.sql is run step by step by the operator (TASK-998);
+migrations/exercise_content_drop_column.sql is run step by step by the operator (TASK-1030);
 migrations/exercise_content_drop_column_rollback.sql undoes its schema part. No database: the
 SQL is parsed. The step-3 functions are checked against the pre-drop versions of
-exercise_content_storage.sql (TASK-984) and exercise_content_session_rpcs.sql (TASK-985).
+exercise_content_storage.sql (TASK-1016) and exercise_content_session_rpcs.sql (TASK-1017).
 """
 from __future__ import annotations
 
@@ -109,7 +109,7 @@ def predecessors() -> dict[str, object]:
 # --------------------------------------------------------------------------------------
 def test_header(text):
     header = text[:STEP_RE.search(text).start()]
-    assert 'NOT applied' in header and 'TASK-998' in header and 'ADR-047' in header
+    assert 'NOT applied' in header and 'TASK-1030' in header and 'ADR-049' in header
     assert 'never run this whole file at once' in header
     assert 'EXERCISE_CONTENT_DB_FALLBACK=0' in header
     assert 'exercise_content_drop_column_rollback.sql' in header
@@ -265,7 +265,7 @@ def test_step3_preconditions_enforce_the_archives_verify_and_session_rpcs(step3)
 
 def test_step3_comments_name_the_archives(by_step):
     chunk = by_step['3']
-    assert '--archive-sense-less' in chunk and 'TASK-991' in chunk
+    assert '--archive-sense-less' in chunk and 'TASK-1023' in chunk
     assert '--archive-semdisc' in chunk and 'Owner decision 2026-11-17' in chunk
 
 
@@ -287,6 +287,7 @@ def test_step3_functions_keep_their_signatures_grants_and_get_comments(text):
         assert after.header == before.header, name
         assert revoke_grant_problems(text, after) == [], name
         sig = signature_re(name, after.arg_types)
+        # COMMENT strings keep the pre-renumbering ids (TASK-986 = TASK-1018): applied/live text.
         assert any(re.fullmatch(rf'COMMENT ON FUNCTION {sig} IS .*TASK-986.*', norm(s))
                    for s in statements(text)), name
 

@@ -1,4 +1,4 @@
-"""Exercise content storage (ADR-047).
+"""Exercise content storage (ADR-049).
 
 Exercise ``content`` moves out of ``exercises.content`` into one immutable JSON
 file per sense and version in the private Supabase Storage bucket
@@ -6,7 +6,7 @@ file per sense and version in the private Supabase Storage bucket
 
     from services.exercise_content import store
 
-``store`` is the public facade (ADR-047 §9). ``backends``, ``reader``,
+``store`` is the public facade (ADR-049 §9). ``backends``, ``reader``,
 ``writer`` and the other modules in this package are internal: they implement
 the ``storage`` / ``shadow`` reads and ``dual`` writes behind the facade.
 """

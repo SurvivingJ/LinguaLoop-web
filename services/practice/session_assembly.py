@@ -217,7 +217,7 @@ class SessionAssemblyMixin:
         if cold_subscribed:
             payload['cold_subscribed'] = cold_subscribed
 
-        # ADR-047: item content comes from the exercise-content store. One
+        # ADR-049: item content comes from the exercise-content store. One
         # hydrate call for the final item list, after every step that picks,
         # drops or orders items (none of them reads content, so fewer files
         # are fetched) and before the steps that rewrite content in place
@@ -335,7 +335,7 @@ class SessionAssemblyMixin:
                     'mode':             'maintenance',
                     'prestudy_followup': True,
                 }
-                # ADR-047: the version the content is hydrated from (absent in
+                # ADR-049: the version the content is hydrated from (absent in
                 # db mode, where the row carries its content).
                 if 'content_version' in r:
                     picked[sid]['content_version'] = r['content_version']
@@ -474,7 +474,7 @@ class SessionAssemblyMixin:
                         payload['no_content_reason'] = None
             except Exception as e:
                 logger.warning('extra round: intro block failed (non-fatal): %s', e)
-        # ADR-047: fill item content (see get_session), before the steps that
+        # ADR-049: fill item content (see get_session), before the steps that
         # rewrite it in place.
         self._hydrate_items(payload, language_id)
         try:
@@ -758,7 +758,7 @@ class SessionAssemblyMixin:
     ) -> Optional[store.HydrationReport]:
         """Fill ``payload['items']`` content from the exercise-content store, in place.
 
-        ADR-047 §5: with ``EXERCISE_CONTENT_SOURCE=storage`` the session RPCs
+        ADR-049 §5: with ``EXERCISE_CONTENT_SOURCE=storage`` the session RPCs
         return items without content; this is the one hydrate call for a
         session's item list (the intro block hydrates its own rows in
         ``intro_drill.build_block``). ``db`` mode: no I/O and no change.
@@ -780,7 +780,7 @@ class SessionAssemblyMixin:
                 items, language_id=language_id, id_key='exercise_id',
                 sense_key='sense_id', db=self.db)
         except Exception:
-            # hydrate never raises for storage or network problems (ADR-047
+            # hydrate never raises for storage or network problems (ADR-049
             # §9), so this is a bug. Serve what has content rather than fail
             # the session; in db / shadow mode the items carry their content.
             logger.exception(

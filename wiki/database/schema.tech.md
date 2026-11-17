@@ -283,7 +283,7 @@ Master vocabulary lemma registry. Each lemma is unique per language.
 | `phrase_type` | text | YES | 'single_word' | |
 | `component_lemmas` | text[] | YES | | For multi-word entries |
 | `part_of_speech` | text | YES | | |
-| `frequency_rank` | real | YES | | |
+| `frequency_rank` | real | YES | | A wordfreq 3.1.1 **Zipf score** (0–8, higher = more common), not a rank. 770 NULL rows filled 2026-11-17 (TASK-994, `migrations/task994_vocab_frequency_fill.sql`); 76 stay NULL by design (zh 12, en 20, ja 44). |
 | `level_tag` | text | YES | | |
 | `semantic_class` | text | YES | | |
 | `created_at` | timestamptz | YES | now() | |
@@ -1132,19 +1132,19 @@ Tables for vocabulary knowledge tracking, flashcards, exercises, and the word la
 
 Generated exercises sourced from grammar patterns, vocabulary senses, collocations, conversations, or style pack items.
 
-> **Content moves to Storage (ADR-047, proposed 2026-11-17).** Phase-1 code and migrations are in
-> the repo (TASK-976–993, integrated 2026-11-17); **nothing is applied live** (operator steps
-> TASK-994–998). `content` (119 MB of the 200 MB table) moves to one immutable JSON file per sense
+> **Content moves to Storage (ADR-049, proposed 2026-11-17).** Phase-1 code and migrations are in
+> the repo (TASK-1008–1025, integrated 2026-11-17); **nothing is applied live** (operator steps
+> TASK-1026–1030). `content` (119 MB of the 200 MB table) moves to one immutable JSON file per sense
 > in the private Storage bucket `exercise-content` (`{lang}/{word_sense_id}.v{content_version}.json`,
 > lang = zh/en/ja for language 1/2/3). The table keeps selection metadata, `tags` and the
-> IRT/attempt columns. Columns marked *(ADR-047)* below are added by
+> IRT/attempt columns. Columns marked *(ADR-049)* below are added by
 > `migrations/exercise_content_storage.sql`; `content` is dropped and the content-expression
 > unique index replaced by `uq_exercises_context_free_variant_v2` in the operator-run cut-over
 > `migrations/exercise_content_drop_column.sql`. Every `INSERT` into `exercises` and every content
 > change must go through `services/exercise_content/store.write_sense` (enforced by
 > `tests/test_exercise_content_write_paths.py`); `DELETE`s and metadata-only `UPDATE`s
 > (`is_active`, `irt_*`, counts, `tags`) may stay direct. See
-> [[decisions/ADR-047-exercise-content-in-storage]], [[tasklist/exercise-content-storage.tasks]].
+> [[decisions/ADR-049-exercise-content-in-storage]], [[tasklist/exercise-content-storage.tasks]].
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
@@ -1158,9 +1158,9 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 | ~~`conversation_id`~~ | uuid | YES | | **Dropping 2026-09-21** with the 7,352 conversation exercises (never servable: no word_sense_id) |
 | ~~`style_pack_item_id`~~ | bigint | YES | | **Dropping 2026-09-21** (packs archived; 0 non-null) |
 | `word_asset_id` | bigint | YES | | FK -> word_assets |
-| `content` | jsonb | NO | | Exercise content (questions, answers, etc.). **ADR-047:** copied to the sense's Storage file; dropped at the cut-over (`exercise_content_drop_column.sql` step 3). Written only through `store.write_sense`. |
-| `content_version` *(ADR-047)* | integer | NO | 0 | Version of the sense's content file this row's content is in. 0 = the backfill export (catalog-only `ADD COLUMN`, no row rewrite); later versions come from `exercise_content_version_seq` and are set by `exercise_content_commit` on every row of the sense. Applied live 2026-11-17 (TASK-994). |
-| `dedupe_key` *(ADR-047)* | text | YES | | `md5(coalesce(content->>'context_sentence',''))` for the 8 context-free types (`tone_id_word`, `hanzi_to_pinyin`, `pinyin_to_hanzi`, `kanji_to_reading`, `reading_to_kanji`, `phonetic_recognition`, `classifier_match`, `counter_match`), NULL otherwise. Set by `exercise_content_commit` from the JSON passed in; existing rows back-filled in cut-over step 1. Applied live 2026-11-17 (all NULL until dual writes / cut-over step 1). |
+| `content` | jsonb | NO | | Exercise content (questions, answers, etc.). **ADR-049:** copied to the sense's Storage file; dropped at the cut-over (`exercise_content_drop_column.sql` step 3). Written only through `store.write_sense`. |
+| `content_version` *(ADR-049)* | integer | NO | 0 | Version of the sense's content file this row's content is in. 0 = the backfill export (catalog-only `ADD COLUMN`, no row rewrite); later versions come from `exercise_content_version_seq` and are set by `exercise_content_commit` on every row of the sense. Applied live 2026-11-17 (TASK-1026). |
+| `dedupe_key` *(ADR-049)* | text | YES | | `md5(coalesce(content->>'context_sentence',''))` for the 8 context-free types (`tone_id_word`, `hanzi_to_pinyin`, `pinyin_to_hanzi`, `kanji_to_reading`, `reading_to_kanji`, `phonetic_recognition`, `classifier_match`, `counter_match`), NULL otherwise. Set by `exercise_content_commit` from the JSON passed in; existing rows back-filled in cut-over step 1. Applied live 2026-11-17 (all NULL until dual writes / cut-over step 1). |
 | `tags` | jsonb | NO | '{}' | |
 | `difficulty_static` | numeric | YES | | |
 | `irt_difficulty` | numeric | NO | 0.0 | Item Response Theory difficulty (tier-seeded; nightly-fitted once `irt_n_attempts ≥ 20`) |
@@ -1179,8 +1179,8 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 
 - **Primary Key:** `exercises_pkey (id)`
 - **Indexes (live check 2026-11-17):** `exercises_pkey (id)`, `idx_exercises_ladder (word_sense_id, ladder_level WHERE ladder_level NOT NULL)`, `uq_exercises_context_free_variant` UNIQUE `(word_sense_id, exercise_type, md5(coalesce(content->>'context_sentence','')))` WHERE `is_active` and `exercise_type` is one of the 8 context-free types (`migrations/task743_context_free_exercise_caps.sql`), `idx_exercises_sense (word_sense_id WHERE NOT NULL)`, `idx_exercises_word_asset_id (word_asset_id)` (`latency_2026_11_db.sql`), `idx_exercises_type (exercise_type)`, `idx_exercises_tier (complexity_tier)`, `idx_exercises_source (source_type)`, `idx_exercises_language (language_id)`, `idx_exercises_active (is_active WHERE is_active=true)`, `idx_exercises_collocation (corpus_collocation_id WHERE NOT NULL)`, `idx_exercises_irt_calibrated (irt_calibrated_at WHERE NOT NULL)`. **Not live** (listed here before 2026-11-17 in error): `idx_exercises_content_gin`, `idx_exercises_tags_gin`, `idx_exercises_conversation`, `idx_exercises_grammar`, `idx_exercises_style_item`.
-- **After the ADR-047 cut-over (not applied):** `uq_exercises_context_free_variant_v2` UNIQUE `(word_sense_id, exercise_type, dedupe_key)` WHERE `is_active AND word_sense_id IS NOT NULL AND exercise_type IN (<the 8 types>)`, created `CONCURRENTLY` in step 2; the old content-expression index goes with `DROP COLUMN content` in step 3.
-- **ADR-047 objects (applied live 2026-11-17, TASK-994):** sequence `public.exercise_content_version_seq` (integer, START 1, gaps allowed; USAGE/SELECT to `service_role` only); Storage bucket `exercise-content` (private, 1 MB file limit, `application/json`; one file per sense and version, `_archive/` for cut-over exports, never swept); RPCs `exercise_content_begin`, `exercise_content_commit`, `exercise_content_live_versions` (see Key Database Functions). The cut-over also deletes the 10 zh collocation rows with no `word_sense_id` (after `--archive-sense-less`) and drops the live-only semdisc leftovers `apply_semdisc_notes(jsonb)`, `backup_semdisc_content_20261115` and `semdisc_rewrite_work` (after `--archive-semdisc`).
+- **After the ADR-049 cut-over (not applied):** `uq_exercises_context_free_variant_v2` UNIQUE `(word_sense_id, exercise_type, dedupe_key)` WHERE `is_active AND word_sense_id IS NOT NULL AND exercise_type IN (<the 8 types>)`, created `CONCURRENTLY` in step 2; the old content-expression index goes with `DROP COLUMN content` in step 3.
+- **ADR-049 objects (applied live 2026-11-17, TASK-1026):** sequence `public.exercise_content_version_seq` (integer, START 1, gaps allowed; USAGE/SELECT to `service_role` only); Storage bucket `exercise-content` (private, 1 MB file limit, `application/json`; one file per sense and version, `_archive/` for cut-over exports, never swept); RPCs `exercise_content_begin`, `exercise_content_commit`, `exercise_content_live_versions` (see Key Database Functions). The cut-over also deletes the 10 zh collocation rows with no `word_sense_id` (after `--archive-sense-less`) and drops the live-only semdisc leftovers `apply_semdisc_notes(jsonb)`, `backup_semdisc_content_20261115` and `semdisc_rewrite_work` (after `--archive-semdisc`).
 - **Foreign Keys:** `language_id` -> `dim_languages.id`, `grammar_pattern_id` -> `dim_grammar_patterns.id`, `word_sense_id` -> `dim_word_senses.id`, `word_asset_id` -> `word_assets.id`, `conversation_id` -> `conversations.id`, `style_pack_item_id` -> `style_pack_items.id`
 - **Constraints:** `chk_source_fk` — at least one of `grammar_pattern_id`, `word_sense_id`, `corpus_collocation_id`, `conversation_id`, `style_pack_item_id` must be non-null. **After the 2026-09-21 archive migration:** rebuilt as at least one of `word_sense_id`, `corpus_collocation_id`.
 - **RLS:** Disabled
@@ -2094,7 +2094,7 @@ L1 reference translations per sentence, with authoring/review provenance. At mos
 
 | Column | Type | Nullable | Default | Notes |
 |--------|------|----------|---------|-------|
-| `sentence_start` | smallint | YES | | Inclusive first `test_sentences.idx` of the passage within `source_ref_id`. NULL on pre-existing rows |
+| `sentence_start` | smallint | YES | | Inclusive first `test_sentences.idx` of the passage within `source_ref_id`. NULL only on the old whole-passage rows (all deleted 2026-11-17; GET /next never serves a row without a range) |
 | `sentence_end` | smallint | YES | | Inclusive last index. CHECK `dt_passage_sentence_range_chk`: both NULL, or both set with 0 <= sentence_start <= sentence_end (added NOT VALID, then validated) |
 
 - **Unique:** `uq_dt_passage_sentence_range (source_ref_id, sentence_start, sentence_end) WHERE both NOT NULL` — a sentence range of a test is extracted once and reused.
@@ -2239,7 +2239,7 @@ Exercise accuracy percentages grouped by exercise type, complexity tier, and lan
 - `ladder_graduate(p_user_id, p_sense_id, p_stress_test_score, p_language_id)` -> jsonb -- FSRS handoff (seeds stability/difficulty/due_date) on stress test pass
 - Helpers: `ladder_get_family`, `ladder_get_ring`, `ladder_ring_families`, `ladder_compute_p_known`, `fsrs_schedule_review` (FSRS-4.5 port to PostgreSQL)
 
-### Exercise content in Storage (ADR-047; `migrations/exercise_content_storage.sql` and `…_session_rpcs.sql`, applied live 2026-11-17)
+### Exercise content in Storage (ADR-049; `migrations/exercise_content_storage.sql` and `…_session_rpcs.sql`, applied live 2026-11-17)
 All three are `SECURITY INVOKER`, `SET search_path = public, pg_temp`, EXECUTE for `service_role` only.
 - `exercise_content_begin(p_sense_id integer)` -> jsonb -- `{sense_id, current_version (max content_version, 0 when no rows), new_version (nextval of exercise_content_version_seq), rows: [{id, language_id, exercise_type, ladder_level, word_asset_id, is_active, content_version}] ordered by id}`. No lock. NULL sense -> 22023.
 - `exercise_content_commit(p_sense_id integer, p_expected_version integer, p_expected_ids uuid[], p_new_version integer, p_delete_ids uuid[] DEFAULT '{}', p_insert_rows jsonb DEFAULT '[]', p_update_contents jsonb DEFAULT '{}')` -> jsonb -- compare-and-swap commit under `pg_advisory_xact_lock(47047, p_sense_id)`. Lost race: `{ok:false, reason: 'version_conflict' | 'rows_changed', current_version}`, nothing changed (version checked first, then the row-id set). Success: deletes, inserts (`content_version := p_new_version`, `dedupe_key` from `row->'content'`, `tags` default `{}`, `is_active` default true, unknown keys ignored, `source_type` required), content updates (recompute `dedupe_key`), then stamps `p_new_version` on the rows it checked; returns `{ok:true, version, deleted, inserted, updated}`. Bad input raises 22023: NULL required args or NULL array elements, malformed JSON shapes, an insert row without `id`, for another sense or without an object `content`, a delete/update id not in the sense, an update id also deleted, `p_new_version <= current` (malformed uuid/int strings raise 22P02). Static checks run before the lock, row checks after the compare-and-swap, so a lost race never raises 22023. The cut-over replaces it with a version that never touches `content` (same contract).
@@ -2293,6 +2293,21 @@ RLS policies now call `(select auth.uid())` / `(select auth.role())` (evaluated 
 
 ### Triggers
 - `sync_exercise_history()` -> trigger -- copy exercise_attempts to user_exercise_history (Phase 4)
+
+### Live changes applied 2026-11-17 (reviewed migrations, all backward compatible)
+
+| Migration (repo file = applied name) | Applied version | Effect | Rollback |
+|---|---|---|---|
+| `migrations/dt_next_inputs.sql` | 20261117030308 | New function `dt_next_inputs(uuid, integer, integer) RETURNS jsonb` (STABLE, SECURITY INVOKER, `search_path = public, pg_temp`, EXECUTE service_role only). Nothing existing changed. Revised in the repo 2026-11-17 (no `legacy` key; same signature and grants), re-apply pending. | `migrations/dt_next_inputs_rollback.sql` (DROP FUNCTION) |
+| `migrations/task998_classifier_drill_levels.sql` | 20261117034255 | `ALTER TABLE user_classifier_mastery ADD COLUMN IF NOT EXISTS level_attempts integer` (nullable, catalog-only; 44 rows, all NULL at apply). `CREATE OR REPLACE update_classifier_mastery` (same signature; promotion after 5 answers at the current level). New `get_classifier_drill_session_v2` (DEFINER, service_role only). v1 untouched. | `migrations/task998_classifier_drill_levels_rollback.sql` (exact previous mastery function; drops v2 and the column — loses `level_attempts`) |
+| `migrations/task998_classifier_cloze_sentences_fill.sql` | 20261117034512 | Guarded DO-block UPDATE: `dim_classifier_noun_pairs.example_sentence` filled on exactly 661 language-1 rows that were NULL (copied from judged ladder sentences, then active zh test sentences). Re-run after any `scripts/build_classifier_dictionary.py` rebuild. | `migrations/task998_classifier_cloze_sentences_fill_rollback.sql` (NULL on the 661 rows) |
+| `migrations/task994_vocab_frequency_fill.sql` | 20261117035509 | Guarded DO-block UPDATE: `dim_vocabulary.frequency_rank` filled on exactly 770 rows that were NULL (zh 229, en 422, ja 119), only where id, lemma and language are unchanged; `updated_at` bumped by `update_vocab_timestamp`. No `user_vocabulary_knowledge` row changed. | `migrations/task994_vocab_frequency_fill_rollback.sql` (resets a row only if it still holds the filled value) |
+
+Integration check 2026-11-17: the four entries are the only migrations applied since 2026-11-14, and
+each one's stored statement equals its repo file once comments and whitespace are removed (md5
+compared). Readers of the filled `frequency_rank`: `selection_vocab_ability` (moves by ≤ 0.02 Zipf),
+`bkt_infer_from_frequency` (can raise low-evidence rows upward), `calibration_anchor_pool` (picks the
+words up on its next manual refresh). See [[decisions/ADR-047-basic-word-knowledge-prior]].
 
 ---
 

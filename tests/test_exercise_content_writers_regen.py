@@ -1,6 +1,6 @@
-"""TASK-981 — the regeneration writers replace a sense's rows through ``store.write_sense``.
+"""TASK-1013 — the regeneration writers replace a sense's rows through ``store.write_sense``.
 
-``queue_drain._regenerate`` (ADR-047 Appendix A row 15) and
+``queue_drain._regenerate`` (ADR-049 Appendix A row 15) and
 ``scripts/run_generation_batch.py`` (row 16) used to delete a sense's
 asset-linked ladder rows (optionally only some levels) and insert the new
 set with two direct PostgREST calls. Both are now one ``store.write_sense``
@@ -21,7 +21,7 @@ Pinned here:
   before insert.
 
 The store is monkeypatched where the call shape is asserted; the db-mode tests
-run the real TASK-976 facade against a recording fake. Fully offline.
+run the real TASK-1008 facade against a recording fake. Fully offline.
 """
 
 from __future__ import annotations

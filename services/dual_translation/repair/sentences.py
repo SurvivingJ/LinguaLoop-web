@@ -84,8 +84,8 @@ def l1_prompts(db, *, passage: dict, gold_l2: str, l1_language_id: int, l1_code:
 def l1_context(db, *, passage: dict, gold_l2: str, l1_language_id: int, l1_code: str,
                model: list[PairModel], l1_passage_text: Optional[str]):
     """-> (per-pair L1 prompts, whole L1 passage text or None). The whole text is
-    ``dt_passage_reference.l1_text`` when there is one, else the joined range
-    references (range passages have no passage-level reference)."""
+    ``l1_passage_text`` when the caller has one, else the joined sentence-window
+    references (the normal case: every passage is a sentence window)."""
     gold_sentences = split_sentences(gold_l2 or "")
     l1_texts: Optional[list[str]] = None
     range_texts: Optional[list[str]] = None

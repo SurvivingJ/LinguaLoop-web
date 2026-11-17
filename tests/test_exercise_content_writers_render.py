@@ -1,9 +1,9 @@
-"""TASK-980 — the render insert funnels go through ``store.write_sense`` (ADR-047 §4).
+"""TASK-1012 — the render insert funnels go through ``store.write_sense`` (ADR-049 §4).
 
 ``LadderExerciseRenderer.render_all`` is the insert path of the admin
 upload/render routes, word-list import, ``run_exercise_generation``,
 ``scripts/upload_exercises.py``, ``scripts/run_content_build.py`` and
-``scripts/render_existing_assets.py`` (ADR-047 Appendix A row 14), and
+``scripts/render_existing_assets.py`` (ADR-049 Appendix A row 14), and
 ``scripts/exercise_stage_runner.py cmd_render`` is the staged-CSV / fat-seed
 render step (row 17). Both now make one ``store.write_sense`` call per sense.
 
@@ -20,7 +20,7 @@ Pinned here:
   ``--dry-run``, and blocks a sense whose write fails, then carries on.
 
 The store is monkeypatched (package a is not needed); the db-mode tests run
-the real TASK-976 facade against a recording fake. Fully offline.
+the real TASK-1008 facade against a recording fake. Fully offline.
 """
 
 from __future__ import annotations

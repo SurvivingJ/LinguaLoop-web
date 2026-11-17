@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Delete exercise content files that no row points at (ADR-047, TASK-992).
+"""Delete exercise content files that no row points at (ADR-049, TASK-1024).
 
 Exercise content lives in one immutable file per sense and version,
 ``{lang}/{sense_id}.v{version}.json`` in the private bucket ``exercise-content``
-(ADR-047 §1-§3). Files nothing points at any more pile up: the version a later
+(ADR-049 §1-§3). Files nothing points at any more pile up: the version a later
 write superseded, the file of a writer that lost a race or crashed between upload
 and commit, and every file of a sense the admin wiped. Each one also costs about
 0.6 KB of ``storage.objects`` in the database, so run this after every bulk edit.
@@ -104,7 +104,7 @@ def default_report_path(language: str, moment: datetime) -> str:
 
 
 def live_versions(db, language_id: int) -> dict[int, set[int]]:
-    """``{sense_id: {version, ...}}``; raises on anything but the ADR-047 §8 shape."""
+    """``{sense_id: {version, ...}}``; raises on anything but the ADR-049 §8 shape."""
     data = db.rpc(LIVE_VERSIONS_RPC, {'p_language_id': language_id}).execute().data
     if isinstance(data, str):
         data = json.loads(data)
@@ -234,7 +234,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='sweep_exercise_content.py',
         description='Delete exercise content files no exercises row points at, after a grace '
-                    'period (ADR-047, TASK-992). Dry run unless --apply.',
+                    'period (ADR-049, TASK-1024). Dry run unless --apply.',
         epilog='Exit codes: 0 done; 1 errors (see the report); 2 refused.')
     parser.add_argument('--language', required=True, choices=('zh', 'ja', 'en', 'all'))
     parser.add_argument('--apply', action='store_true',

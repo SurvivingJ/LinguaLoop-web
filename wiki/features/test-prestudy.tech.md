@@ -8,15 +8,15 @@ dependencies:
   - "services/prestudy.py (payload, drill rule, on-demand exercises, evidence, follow-ups, daily-session plan)"
   - "routes/tests/prestudy.py (GET payload, GET exercises on demand, POST session / evidence / admit-overflow / produce)"
   - "static/js/prestudy/prestudy.js (page, drill rule twin, on-demand exercise loader)"
-  - "services/exercise_content/store.py (select_columns, hydrate; ADR-047)"
+  - "services/exercise_content/store.py (select_columns, hydrate; ADR-049)"
   - "exercises, tests, questions, dim_word_senses, user_vocabulary_knowledge, user_calibration_state, prestudy_sessions, prestudy_followups"
 breaking_change_risk: medium
 ---
 
 # Test Prestudy — Technical Specification
 
-This page started with the ADR-047 change to how the page loads ladder exercises (2026-11-17,
-TASK-989/993). The other endpoints are summarised from the prose page's "Implementation"
+This page started with the ADR-049 change to how the page loads ladder exercises (2026-11-17,
+TASK-1021/1025). The other endpoints are summarised from the prose page's "Implementation"
 sections; their full behaviour is documented there and in the code docstrings.
 
 ## Architecture Overview
@@ -33,7 +33,7 @@ GET /test/<slug>/prestudy                       templates/test_prestudy.html + p
 ```
 
 Exercise content is loaded **only for the senses the word prime drills** (owner decision
-2026-11-17, ADR-047 open question 1). This is a product change and applies in every
+2026-11-17, ADR-049 open question 1). This is a product change and applies in every
 `EXERCISE_CONTENT_SOURCE` mode, `db` included. It cuts the request's content fan-out from every
 linked sense (zh p90 126, max 306) to the drill set, which stays under the store's 160-sense
 per-call cap.
@@ -70,7 +70,7 @@ question-only senses calls `_load_senses` / `_load_knowledge` twice (once per ba
 - **Errors:** 404 unknown/inactive test; 400 follow-up mode without an attempt.
 - **Never returns** question text, choices or answers.
 
-### `GET /api/tests/<identifier>/prestudy/exercises?sense_ids=11,12,…` (new, TASK-989)
+### `GET /api/tests/<identifier>/prestudy/exercises?sense_ids=11,12,…` (new, TASK-1021)
 - **Purpose:** exercises of words that joined the drill set on the page ("I don't know this"),
   or of drill words the payload lacked.
 - **Arguments:** `sense_ids` — comma-separated, deduplicated in order. 400 unless 1–20 distinct
@@ -85,7 +85,7 @@ question-only senses calls `_load_senses` / `_load_knowledge` twice (once per ba
 - **Service:** `prestudy.on_demand_exercises(db, test, ids) -> (served, exercises)`, which uses the
   same `_load_exercises` (select + one hydrate) as the payload.
 
-### Other prestudy endpoints (unchanged by ADR-047)
+### Other prestudy endpoints (unchanged by ADR-049)
 `POST …/prestudy/session` (opens a `prestudy_sessions` row), `POST …/prestudy/evidence` (word-test
 evidence, exercise attempts with `source='prestudy'`, follow-ups, generation requests),
 `POST …/prestudy/admit-overflow`, `POST …/prestudy/produce`. See [[features/test-prestudy]]
@@ -138,7 +138,7 @@ or a word whose exercises were never loaded on the page, therefore never queues 
 
 1. **Decision:** load content for the drill set only, plus `has_exercises` for every linked
    sense, with an on-demand endpoint for words added later (owner, 2026-11-17).
-   - **Rationale:** prestudy was the largest content fan-out (all linked senses); after ADR-047
+   - **Rationale:** prestudy was the largest content fan-out (all linked senses); after ADR-049
      each sense is a Storage file, and the zh p90 test would hit the 160-sense per-call cap.
    - **Alternatives rejected:** hydrate every linked sense and raise the cap (slow cold page,
      still capped); paginate the word list (the prime needs exercises for words the learner
@@ -148,7 +148,7 @@ or a word whose exercises were never loaded on the page, therefore never queues 
    - **Rationale:** a drift between the two would leave drill words without exercises (the page
      then fetches them on demand, so the failure is slow, not broken).
 
-See [[decisions/ADR-047-exercise-content-in-storage]] (open question 1).
+See [[decisions/ADR-049-exercise-content-in-storage]] (open question 1).
 
 ## Security Considerations
 
@@ -171,11 +171,11 @@ See [[decisions/ADR-047-exercise-content-in-storage]] (open question 1).
   files are read.
 - Existing: `tests/test_prestudy.py`, `test_prestudy_session.py`, `test_pagination.py`,
   `test_latency_caching.py` (unchanged).
-- TASK-997 measures the prestudy latency (a zh test with ≥ 100 linked senses) on `storage`.
+- TASK-1029 measures the prestudy latency (a zh test with ≥ 100 linked senses) on `storage`.
 
 ## Related Pages
 
 - [[features/test-prestudy]] — prose page
-- [[decisions/ADR-047-exercise-content-in-storage]] — content in Storage; open question 1
-- [[tasklist/exercise-content-storage.tasks]] — TASK-989, TASK-993
+- [[decisions/ADR-049-exercise-content-in-storage]] — content in Storage; open question 1
+- [[tasklist/exercise-content-storage.tasks]] — TASK-1021, TASK-1025
 - [[api/rpcs.tech]] · [[database/schema.tech]]

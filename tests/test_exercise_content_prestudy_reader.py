@@ -1,4 +1,4 @@
-"""TASK-989 (ADR-047 open question 1): prestudy loads exercise content only for
+"""TASK-1021 (ADR-049 open question 1): prestudy loads exercise content only for
 the words it will drill, plus an on-demand endpoint for words added later.
 
 Covers the server drill rule (shared fixture with the page's JS twin), the
@@ -7,7 +7,7 @@ sense with exercises), the ``GET /api/tests/<id>/prestudy/exercises`` endpoint,
 the exercise-content store calls (select string per mode, one ``hydrate`` with
 the test's language) and that a hydration miss or an unloaded sense never
 queues generation. ``store.read_mode`` / ``store.hydrate`` are monkeypatched
-(the storage reader is TASK-978); no network, no Supabase.
+(the storage reader is TASK-1010); no network, no Supabase.
 """
 
 from __future__ import annotations
@@ -114,7 +114,7 @@ class FakeDB:
 
 
 class FakeHydrate:
-    """``store.hydrate`` stand-in following ADR-047 section 9: fills content from
+    """``store.hydrate`` stand-in following ADR-049 section 9: fills content from
     ``contents[item[id_key]]``; ``missing`` ids are dropped (or None)."""
 
     def __init__(self, contents, missing=()):

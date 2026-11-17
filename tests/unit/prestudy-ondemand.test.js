@@ -1,5 +1,5 @@
 /**
- * TASK-989 (ADR-047 open question 1): the prestudy page gets exercise content
+ * TASK-1021 (ADR-049 open question 1): the prestudy page gets exercise content
  * only for the words the prime drills and loads the rest on demand.
  *
  * - drillSenseIds / isDrilled replay tests/unit/fixtures/prestudy-drill-rule.json,

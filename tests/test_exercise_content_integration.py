@@ -1,13 +1,13 @@
-"""TASK-993 (ADR-047): the exercise-content store end to end, offline.
+"""TASK-1025 (ADR-049): the exercise-content store end to end, offline.
 
 The real store, reader, writer, shadow comparer, backfill and sweep run
-together over ``FakeContentDB`` (the ``exercises`` table and the ADR-047 §8
+together over ``FakeContentDB`` (the ``exercises`` table and the ADR-049 §8
 RPCs, tests/exercise_content_fakes.py) and an ``InMemoryBackend``. Nothing
 here touches the network: every non-db mode runs with
 ``store.set_backend(InMemoryBackend())`` installed, which is also what lets a
 non-db mode resolve without Supabase credentials.
 
-Scenarios (wiki/tasklist/exercise-content-storage.tasks.md, TASK-993):
+Scenarios (wiki/tasklist/exercise-content-storage.tasks.md, TASK-1025):
 
 1. ``WRITE=dual``: ``render_all`` on a new sense writes one file; the rows sit
    at that version; the column content equals the file.
@@ -21,7 +21,7 @@ Scenarios (wiki/tasklist/exercise-content-storage.tasks.md, TASK-993):
    ``get_extra_round`` (fake ``get_practice_session`` / ``get_review_ahead_items``
    that honour ``p_include_content``), the prestudy payload and on-demand
    endpoint, and the speed round. Every payload equals the ``db``-mode payload
-   on the same data, and ``db`` mode issues exactly the pre-ADR-047 calls.
+   on the same data, and ``db`` mode issues exactly the pre-ADR-049 calls.
 5. ``SOURCE=shadow`` with one tampered file: exactly one ``content_diff``
    WARNING; the payload equals ``db`` mode.
 6. Two threads updating different exercises of one sense: the final file holds
@@ -60,7 +60,7 @@ ZH = 1
 USER = 'user-1'
 NOW = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
 
-# The flag combinations TASK-993 runs: (EXERCISE_CONTENT_SOURCE, EXERCISE_CONTENT_WRITE).
+# The flag combinations TASK-1025 runs: (EXERCISE_CONTENT_SOURCE, EXERCISE_CONTENT_WRITE).
 COMBOS = [('db', 'db'), ('shadow', 'dual'), ('storage', 'dual')]
 
 # Senses of the serving fixture.
@@ -69,7 +69,7 @@ FOLLOWUP_SENSE = 103             # prestudy next-day review (injected follow-up)
 AHEAD_SENSE = 104                # get_review_ahead_items
 SPEED_SENSES = tuple(range(401, 413))   # 12 mastered senses, one L1 row each
 
-# Pre-ADR-047 calls (c3cb106 and before), which db mode must keep issuing.
+# Pre-ADR-049 calls (c3cb106 and before), which db mode must keep issuing.
 TODAYS_SESSION_PARAMS = {'p_user_id', 'p_language_id', 'p_mode', 'p_target_minutes',
                          'p_user_theta'}
 TODAYS_AHEAD_PARAMS = {'p_user_id', 'p_language_id', 'p_limit', 'p_exclude_recent_minutes',
@@ -135,7 +135,7 @@ def serving_rows() -> dict[int, list[dict]]:
 
 
 # ---------------------------------------------------------------------------
-# Fake session RPCs (the TASK-985 shape: content_version always, content only
+# Fake session RPCs (the TASK-1017 shape: content_version always, content only
 # when p_include_content, which defaults to true)
 # ---------------------------------------------------------------------------
 
@@ -320,8 +320,8 @@ def without_followup_versions(served: dict) -> dict:
     The one intended difference between modes: a follow-up item is built from an
     ``exercises`` select, and only the shadow / storage select reads
     ``content_version`` (db mode keeps today's select string), so only those
-    modes copy it onto the item (TASK-987). Session RPC items carry it in every
-    mode once TASK-985's migration is applied.
+    modes copy it onto the item (TASK-1019). Session RPC items carry it in every
+    mode once TASK-1017's migration is applied.
     """
     served = copy.deepcopy(served)
     for key in ('session', 'extra'):
@@ -422,7 +422,7 @@ def test_written_senses_serve_the_same_payloads_in_every_mode(source, write, bac
         # The speed round picks before it hydrates: 10 of the 12 mastered senses' files.
         speed_paths = {p for p in first_gets if int(p.split('/')[1].split('.')[0]) in SPEED_SENSES}
         assert len(speed_paths) == 10
-        # Prestudy reads the drill senses' files only (ADR-047 open question 1);
+        # Prestudy reads the drill senses' files only (ADR-049 open question 1);
         # the on-demand endpoint reads the one it was asked for.
         version = {s: db.versions(s)[0] for s in (101, 102, 103, 104)}
         assert store.content_path(ZH, 104, version[104]) in first_gets      # review-ahead item

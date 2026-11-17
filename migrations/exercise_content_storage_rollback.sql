@@ -1,6 +1,6 @@
 -- =============================================================================
 -- exercise_content_storage_rollback.sql — undo migrations/exercise_content_storage.sql
--- Date: 2026-11-17   Task: TASK-984   Spec: wiki/decisions/ADR-047-exercise-content-in-storage.md
+-- Date: 2026-11-17   Task: TASK-1016   Spec: wiki/decisions/ADR-049-exercise-content-in-storage.md
 --
 -- STATUS: NOT applied. Run only to undo exercise_content_storage.sql.
 --
@@ -18,6 +18,9 @@
 -- (content_version, dedupe_key: catalog-only drops). It never deletes bucket objects: the
 -- bucket row exercise-content and any files in it are left in place (delete them from the
 -- Storage dashboard if wanted; Storage refuses to drop a non-empty bucket).
+-- Renumbered 2026-11-17 when merged with main: ADR-047 -> ADR-049 and TASK-976..999 ->
+-- TASK-1008..1031 (main already used those ids). Function bodies and COMMENT strings keep
+-- the old ids: they are (or will be) the live text, md5-compared against the database.
 -- =============================================================================
 
 BEGIN;

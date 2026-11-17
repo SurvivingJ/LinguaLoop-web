@@ -28,6 +28,10 @@
     finishBtn: document.getElementById('calFinishBtn'),
     restartBtn: document.getElementById('calRestartBtn'),
     modeToggle: document.getElementById('calModeToggle'),
+    // The pinned dock: the item's actions, or the results' (one at a time).
+    dock: document.getElementById('calDock'),
+    stageActions: document.getElementById('calStageActions'),
+    resultsActions: document.getElementById('calResultsActions'),
   };
 
   // TASK-771. Items are fetched ahead and rendered from a queue, so answering
@@ -71,10 +75,10 @@
   }
 
   const BADGE_SVG = {
-    spin: '<svg viewBox="0 0 24 24"><circle class="spin" cx="12" cy="12" r="9" fill="none" stroke="var(--brand-primary, #4f46e5)" stroke-width="3" stroke-linecap="round" stroke-dasharray="40 60"/></svg>',
-    tick: '<svg viewBox="0 0 24 24"><path class="draw" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="var(--success, #16a34a)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    spin: '<svg viewBox="0 0 24 24"><circle class="spin" cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="40 60"/></svg>',
+    tick: '<svg viewBox="0 0 24 24"><path class="draw" d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     cross:
-      '<svg viewBox="0 0 24 24"><path class="draw" d="M6 6l12 12" fill="none" stroke="var(--danger, #dc2626)" stroke-width="3" stroke-linecap="round"/><path class="draw second" d="M18 6L6 18" fill="none" stroke="var(--danger, #dc2626)" stroke-width="3" stroke-linecap="round"/></svg>',
+      '<svg viewBox="0 0 24 24"><path class="draw" d="M6 6l12 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path class="draw second" d="M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
   };
 
   function setBadge(btn, svg) {
@@ -100,6 +104,13 @@
       n.style.display = 'none';
     });
     if (node) node.style.display = '';
+    // The dock carries the actions of what is on screen, and nothing else.
+    if (el.stageActions) el.stageActions.hidden = node !== el.stage;
+    if (el.resultsActions) el.resultsActions.hidden = node !== el.results;
+    if (el.dock) el.dock.hidden = node !== el.stage && node !== el.results;
+    // A new item or the results start at the top of the stage.
+    const scroller = node && node.closest ? node.closest('.ld-stage') : null;
+    if (scroller) scroller.scrollTop = 0;
   }
 
   async function api(path, opts) {
@@ -225,6 +236,10 @@
 
   function renderItem(item) {
     el.prompt.textContent = item.lemma || '';
+    // The word (and its reading) in the study language's font.
+    const wordLang = { 1: 'zh', 2: 'en', 3: 'ja' }[wordLanguageId()];
+    el.prompt.lang = wordLang;
+    el.reading.lang = wordLang;
     el.reading.textContent = item.pronunciation || '';
     el.reading.style.display = item.pronunciation ? '' : 'none';
 
@@ -235,13 +250,18 @@
     );
 
     el.options.innerHTML = '';
-    (item.options || []).forEach(function (opt) {
+    (item.options || []).forEach(function (opt, i) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'cal-option';
       btn.dataset.position = String(opt.position);
+      // The key badge names the number key that picks this option.
       btn.innerHTML =
-        escapeHtml(opt.definition) + '<span class="cal-badge" aria-hidden="true"></span>';
+        '<span class="cal-key" aria-hidden="true">' +
+        (i + 1) +
+        '</span><span class="cal-option-text">' +
+        escapeHtml(opt.definition) +
+        '</span><span class="cal-badge" aria-hidden="true"></span>';
       btn.addEventListener('click', function () {
         answer(opt.position);
       });
@@ -408,16 +428,20 @@
       row.className = 'cal-band';
       const pct = Math.round((b.known_share || 0) * 100);
       const thin = (b.n || 0) < 3 ? ' thin' : '';
+      // One row per band (the note under the chart describes them as a
+      // list: common words at the bottom, rare at the top).
+      row.setAttribute('role', 'img');
+      row.setAttribute('aria-label', bandLabel(b.band) + ': ' + pct + '% · n=' + (b.n || 0));
       row.innerHTML =
-        '<span class="cal-band-label">' +
+        '<span class="cal-band-label" aria-hidden="true">' +
         escapeHtml(bandLabel(b.band)) +
         '</span>' +
-        '<span class="cal-band-track"><span class="cal-band-fill' +
+        '<span class="cal-band-track" aria-hidden="true"><span class="cal-band-fill' +
         thin +
         '" style="width:' +
         pct +
         '%"></span></span>' +
-        '<span class="cal-band-n">' +
+        '<span class="cal-band-n" aria-hidden="true">' +
         pct +
         '% · n=' +
         (b.n || 0) +
@@ -430,6 +454,8 @@
       notes.push(tr('calibration.note_low_confidence'));
     }
     el.resultNote.textContent = notes.join(' ');
+    // The header's running counts show the final figures.
+    if (a.answered != null) updateStats(a);
     renderRating(a.rating_decisions);
 
     el.header.style.display = 'none';
@@ -523,6 +549,7 @@
     }
     el.modeToggle.querySelectorAll('button[data-mode]').forEach(function (b) {
       b.classList.toggle('active', b.dataset.mode === state.mode);
+      b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode));
     });
   }
 
@@ -558,6 +585,10 @@
 
   function boot() {
     syncModeToggle();
+    // The header seal in the study language's script (測 for Japanese).
+    if (window.LinguaShell && window.LinguaShell.setTaskHeader) {
+      window.LinguaShell.setTaskHeader({ glyph: wordLanguageId() === 3 ? '測' : '测' });
+    }
     startSession();
   }
   // Exactly once, whether this runs before DOMContentLoaded (deferred or

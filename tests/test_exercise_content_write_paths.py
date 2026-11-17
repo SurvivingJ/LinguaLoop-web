@@ -1,6 +1,6 @@
-"""TASK-983 — static guard: no exercise insert or content change outside the store.
+"""TASK-1015 — static guard: no exercise insert or content change outside the store.
 
-ADR-047 §4: **all INSERTs into ``exercises`` and all changes to ``content`` go
+ADR-049 §4: **all INSERTs into ``exercises`` and all changes to ``content`` go
 through ``store.write_sense``** (in ``dual`` mode it writes the content file
 first and commits the rows by compare-and-swap; a direct write would leave rows
 whose content no file holds). DELETEs and metadata-only UPDATEs (``is_active``,
@@ -273,7 +273,7 @@ def scan_repo(root: Path = ROOT) -> list[Finding]:
 def test_no_exercise_content_write_outside_the_store():
     offending = [f for f in scan_repo() if f.path not in ALLOWLIST]
     assert offending == [], (
-        'ADR-047 §4: inserts into exercises and content changes go through '
+        'ADR-049 §4: inserts into exercises and content changes go through '
         'services.exercise_content.store.write_sense:\n'
         + '\n'.join(str(f) for f in offending))
 
@@ -434,7 +434,7 @@ def test_scanner_reports_the_line_of_the_offending_call():
 
 
 def test_scanner_flags_the_pre_store_writers():
-    """The calls TASK-980/981/982 replaced would all have been caught."""
+    """The calls TASK-1012/1013/1014 replaced would all have been caught."""
     old = {
         'renderer': "        self.db.table('exercises').insert(rows).execute()\n",
         'queue_drain': (

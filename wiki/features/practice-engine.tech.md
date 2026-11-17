@@ -15,8 +15,8 @@ dependencies:
   - "user_vocabulary_knowledge, user_flashcards tables"
   - "exercises table (sense_id, irt_difficulty, irt_discrimination, irt_n_attempts)"
   - "dim_practice_modes, dim_exercise_types (new dim tables)"
-  - "services/exercise_content/store.py (ADR-047: rpc_content_args, select_columns, hydrate)"
-  - "migrations/exercise_content_session_rpcs.sql (ADR-047, TASK-985: p_include_content; applied live 2026-11-17)"
+  - "services/exercise_content/store.py (ADR-049: rpc_content_args, select_columns, hydrate)"
+  - "migrations/exercise_content_session_rpcs.sql (ADR-049, TASK-1017: p_include_content; applied live 2026-11-17)"
 breaking_change_risk: medium
 ---
 
@@ -68,7 +68,7 @@ CREATE OR REPLACE FUNCTION public.get_practice_session(
 ) RETURNS jsonb
 ```
 
-> **ADR-047 (applied live 2026-11-17; TASK-985 / TASK-994).**
+> **ADR-049 (applied live 2026-11-17; TASK-1017 / TASK-1026).**
 > `migrations/exercise_content_session_rpcs.sql` drops the 5-argument function and creates
 > `get_practice_session(p_user_id uuid, p_language_id smallint, p_mode text DEFAULT 'auto',
 > p_target_minutes smallint DEFAULT 15, p_user_theta numeric DEFAULT NULL, p_include_content
@@ -299,8 +299,8 @@ Python wraps this and accumulates items until `elapsed_seconds >= target_minutes
       "sense_id": 1234,
       "exercise_type": "mcq_meaning",
       "family": "form_recognition",
-      "content": { "...": "..." },   // only when p_include_content (ADR-047); filled in Python in storage mode
-      "content_version": 0,          // ADR-047 (after TASK-985 is applied): the content file version
+      "content": { "...": "..." },   // only when p_include_content (ADR-049); filled in Python in storage mode
+      "content_version": 0,          // ADR-049 (after TASK-1017 is applied): the content file version
       "ladder_level": 3,
       "p_known": 0.42,
       "expected_seconds": 40,
@@ -399,10 +399,10 @@ Service-layer `expected_seconds(exercise_type)` returns `det.expected_seconds_p5
 > standalone pages were retired. The SQL below is kept as historical record of
 > the wrapper bodies (see `migrations/archive/phase12_deprecation_wrappers.sql`).
 >
-> **Drift found 2026-11-17 (ADR-047 Context finding 6):** the drop never took effect live.
+> **Drift found 2026-11-17 (ADR-049 Context finding 6):** the drop never took effect live.
 > `get_exercise_session(uuid,smallint,integer)`, `get_exercise_session(uuid,smallint,integer,numeric)`
 > and `get_ladder_session(uuid,smallint,integer)` existed live (service_role only, no Python
-> caller) until `migrations/exercise_content_session_rpcs.sql` (TASK-985) dropped all three on 2026-11-17.
+> caller) until `migrations/exercise_content_session_rpcs.sql` (TASK-1017) dropped all three on 2026-11-17.
 
 ```sql
 -- get_exercise_session — wraps get_practice_session('auto', ...)
@@ -453,12 +453,12 @@ Equivalent wrapper for `get_ladder_session` calls `get_practice_session('acquisi
 | `services/irt/calibrator.py` | Nightly `_refresh_exercise_time_estimates` step added (04:05 UTC). |
 | `app.py:227-251` | Add `exercise_time_estimate_refresh` cron entry. |
 
-## Exercise content hydration (ADR-047, TASK-987)
+## Exercise content hydration (ADR-049, TASK-1019)
 
 Exercise content is moving to one immutable file per sense in Storage
-([[decisions/ADR-047-exercise-content-in-storage]]). The session code reads it through
+([[decisions/ADR-049-exercise-content-in-storage]]). The session code reads it through
 `services/exercise_content/store.py`; with both flags at their default `db`, every call below is
-byte-identical to the pre-ADR call (verified against the foundation commit, TASK-993).
+byte-identical to the pre-ADR call (verified against the foundation commit, TASK-1025).
 
 - `_practice_session_rpc` and the `get_review_ahead_items` call pass `**store.rpc_content_args()`:
   `db` → no extra argument; `shadow` → `p_include_content: true`; `storage` →

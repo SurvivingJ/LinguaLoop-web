@@ -1,0 +1,825 @@
+/* Redesign 2026-11 — prestudy area.
+   Loaded on every page by templates/base.html, after styles.css.
+   Use the design tokens (--bg, --surface, --ink, --brand, ...) and the shared
+   .ld-* components documented in FOUNDATION.md; scope rules to this area's
+   page or player root so they cannot leak into other pages.
+
+   Two roots:
+     .prestudy-page   /test/<slug>/prestudy (templates/test_prestudy.html,
+                      static/js/prestudy/prestudy.js), in task mode: Back-pill
+                      header, one scrolling stage (#psStage), the dock (#psActionBar).
+     .ps-block        the "Study first" card the daily session shows before a
+                      hard test (static/js/session/players/prestudy.js). */
+
+/* ==================================================================
+   Page layout
+   ================================================================== */
+.prestudy-page .ps-main,
+.prestudy-page .ps-section,
+.prestudy-page .ps-pane,
+.prestudy-page .ps-qbody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prestudy-page .ps-qbody:empty {
+  display: none;
+}
+
+.prestudy-page .ps-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  text-align: center;
+}
+
+.prestudy-page .ps-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-steps > button,
+.prestudy-page .ps-tabs > button,
+.prestudy-page .ps-aids .ld-seg > button {
+  min-height: 44px;
+}
+
+.prestudy-page .ps-steps > button:focus-visible,
+.prestudy-page .ps-tabs > button:focus-visible,
+.prestudy-page .ps-aids .ld-seg > button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+/* ==================================================================
+   Step 1 — preview
+   ================================================================== */
+
+/* Audio: play button, waveform progress (the range input sits on top of it) */
+.prestudy-page .ps-audio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.prestudy-page .ps-play {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.prestudy-page .ps-play:disabled {
+  background: var(--surface-2);
+  color: var(--ink-3);
+  cursor: default;
+}
+
+.prestudy-page .ps-play:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.prestudy-page .ps-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  height: 44px; /* the seek input over it is the touch target */
+  border-radius: 8px;
+}
+
+.prestudy-page .ps-track:has(.ps-seek:focus-visible) {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.prestudy-page .ps-wave {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 3px;
+  height: 32px;
+}
+
+.prestudy-page .ps-wave > i {
+  flex: 1;
+  height: calc(var(--h, 50) * 1%);
+  border-radius: 3px;
+  background: var(--line);
+}
+
+.prestudy-page .ps-wave > i.on {
+  background: var(--brand);
+}
+
+.prestudy-page .ps-seek {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.prestudy-page .ps-time {
+  flex: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-audio.is-broken .ps-track {
+  opacity: 0.4;
+}
+
+/* Highlight switch and reading-aid segments */
+.prestudy-page .ps-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.prestudy-page .ps-hl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin: 0;
+  padding-left: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.prestudy-page .ps-hl .form-check-input {
+  float: none;
+  flex: none;
+  margin: 0;
+}
+
+.prestudy-page .ps-aids {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.prestudy-page .ps-aids-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.prestudy-page .ps-aids .ld-seg > button {
+  padding-inline: 8px;
+}
+
+/* Passage: tappable words, three highlight strengths, ruby reading aids */
+.prestudy-page .ps-passage {
+  margin: 0;
+  font: 500 1.1875rem/1.9 var(--f-cjk);
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.prestudy-page .ps-passage.aids {
+  line-height: 2.35;
+}
+
+.prestudy-page .ps-passage:lang(en) {
+  font-family: var(--f-body);
+  line-height: 1.7;
+}
+
+.prestudy-page .ps-passage rt {
+  font: 500 0.66rem/1 var(--f-body);
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-tok.linked {
+  border-radius: 4px;
+  border-bottom: 1.5px dotted var(--brand);
+  cursor: pointer;
+}
+
+.prestudy-page .ps-tok.linked:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.prestudy-page .ps-passage.hl .ps-tok.unknown {
+  background: var(--glow-wash);
+  box-shadow: inset 0 -2px 0 var(--glow);
+}
+
+.prestudy-page .ps-passage.hl .ps-tok.encountered {
+  background: var(--warn-wash);
+}
+
+.prestudy-page .ps-passage.hl .ps-tok.learning {
+  background: var(--brand-wash);
+}
+
+.prestudy-page .ps-tok.added {
+  outline: 1.5px dashed var(--glow);
+  outline-offset: 1px;
+}
+
+.prestudy-page .ps-tok.quizzed {
+  font-weight: 700;
+}
+
+/* Key words list */
+.prestudy-page .ps-word {
+  cursor: pointer;
+}
+
+.prestudy-page .ps-word:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.prestudy-page .ps-dot {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--good);
+}
+
+.prestudy-page .ps-dot.unknown {
+  background: var(--glow);
+}
+
+.prestudy-page .ps-dot.encountered {
+  background: var(--warn-core);
+}
+
+.prestudy-page .ps-dot.learning {
+  background: var(--brand);
+}
+
+.prestudy-page .ps-lem {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.prestudy-page .ps-rd {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-tags {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  max-width: 45%;
+}
+
+.prestudy-page .ps-occ {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+/* Word popover: a bottom sheet on phones, an anchored card on wide screens */
+.prestudy-page .ps-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: transparent;
+}
+
+.prestudy-page .ps-scrim.is-dim {
+  background: var(--scrim);
+}
+
+.prestudy-page .ps-pop {
+  position: fixed;
+  z-index: 1060;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: max-content;
+  max-width: min(360px, calc(100% - 16px));
+  padding: 14px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.prestudy-page .ps-pop:focus {
+  outline: none;
+}
+
+.prestudy-page .ps-pop-handle {
+  display: none;
+}
+
+.prestudy-page .ps-pop--sheet {
+  inset: auto 0 0;
+  width: auto;
+  max-width: none;
+  max-height: 88dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px var(--ld-pad-r) calc(16px + var(--ld-safe-b)) var(--ld-pad-l);
+  border-width: 1px 0 0;
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  animation: ps-sheet-up 0.22s ease-out;
+}
+
+.prestudy-page .ps-pop--sheet .ps-pop-handle {
+  display: block;
+  align-self: center;
+  width: 38px;
+  height: 5px;
+  margin-bottom: 4px;
+  border-radius: 9px;
+  background: var(--line-strong);
+}
+
+@keyframes ps-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+.prestudy-page .ps-pop-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.prestudy-page .ps-pop-w {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.prestudy-page .ps-pop-r {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-pop-d {
+  font-size: 1.0625rem;
+}
+
+.prestudy-page .ps-pop-ex {
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-pop-actions {
+  margin-top: 4px;
+}
+
+.prestudy-page .ps-pop-actions .ld-btn {
+  flex: 1 1 auto;
+}
+
+/* ==================================================================
+   Step 2 — word prime, readiness check, extra round
+   ================================================================== */
+.prestudy-page .ps-s2head {
+  align-items: center;
+}
+
+.prestudy-page .ps-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+
+  /* three rows at most: a long round must not push the answers under the dock */
+  max-height: 21px;
+  overflow: hidden;
+}
+
+.prestudy-page .ps-progress:empty {
+  display: none;
+}
+
+.prestudy-page .ps-progress > i {
+  flex: none;
+  width: 9px;
+  height: 5px;
+  border-radius: 9px;
+  background: var(--surface-2);
+}
+
+.prestudy-page .ps-progress > i.c {
+  background: var(--good);
+}
+
+.prestudy-page .ps-progress > i.w {
+  background: var(--bad);
+}
+
+.prestudy-page .ps-progress > i.k {
+  background: var(--warn-core);
+}
+
+.prestudy-page .ps-progress > i.cur {
+  background: var(--brand);
+}
+
+.prestudy-page .ps-qhead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prestudy-page .ps-ask {
+  margin-top: -6px;
+}
+
+.prestudy-page .ps-qword {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.prestudy-page .ps-gloss-prompt {
+  padding-block: 8px;
+  text-align: center;
+  font-size: 1.375rem;
+  line-height: 1.35;
+}
+
+.prestudy-page .ps-qread {
+  margin: -6px 0 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-ctx {
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-size: 1.125rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+.prestudy-page .ps-ctx mark {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: var(--glow-wash);
+  color: inherit;
+}
+
+.prestudy-page .ps-opts--tl .ps-opt-t {
+  font-size: 1.1875rem;
+}
+
+@media (width >= 640px) {
+  .prestudy-page .ps-opts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.prestudy-page .ps-opt:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.prestudy-page .ps-input {
+  min-height: 52px;
+  font-size: 1.125rem;
+}
+
+.prestudy-page .ps-input.is-valid {
+  border-color: var(--good);
+  background-image: none;
+}
+
+.prestudy-page .ps-input.is-invalid {
+  border-color: var(--bad);
+  background-image: none;
+}
+
+.prestudy-page .ps-input.ps-idk-input {
+  border-color: var(--warn-core);
+}
+
+/* Tone picker: a row of five per syllable */
+.prestudy-page .ps-tonenote {
+  margin: 0 0 8px;
+}
+
+.prestudy-page .ps-tonegrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prestudy-page .ps-tonesyl {
+  display: grid;
+  grid-template-columns: minmax(3.2em, auto) 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.prestudy-page .ps-syl {
+  font-weight: 700;
+}
+
+.prestudy-page .ps-tonebtns {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.prestudy-page .ps-tone {
+  min-height: 44px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.prestudy-page .ps-tone[data-t='1'] {
+  color: var(--t1);
+}
+
+.prestudy-page .ps-tone[data-t='2'] {
+  color: var(--t2);
+}
+
+.prestudy-page .ps-tone[data-t='3'] {
+  color: var(--t3);
+}
+
+.prestudy-page .ps-tone[data-t='4'] {
+  color: var(--t4);
+}
+
+.prestudy-page .ps-tone[data-t='5'] {
+  color: var(--t5);
+}
+
+.prestudy-page .ps-tone.picked {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+}
+
+.prestudy-page .ps-tone.correct {
+  border-color: var(--good);
+  background: var(--good-wash);
+}
+
+.prestudy-page .ps-tone.wrong {
+  border-color: var(--bad);
+  background: var(--bad-wash);
+}
+
+.prestudy-page .ps-tone:disabled {
+  cursor: default;
+}
+
+.prestudy-page .ps-tone:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Sentence-order exercise */
+.prestudy-page .ps-built {
+  min-height: 3.2em;
+}
+
+.prestudy-page .ps-built .ps-note {
+  font-family: var(--f-body);
+}
+
+.prestudy-page .ps-chunks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prestudy-page .ps-chunk {
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.0625rem;
+  cursor: pointer;
+}
+
+.prestudy-page .ps-chunk.on {
+  display: inline-block;
+  min-height: 0;
+  margin: 2px;
+  padding: 2px 10px;
+  border-color: var(--brand);
+  background: var(--brand-wash);
+  cursor: default;
+}
+
+.prestudy-page .ps-chunk:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.prestudy-page .ps-jrow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Feedback after an answer (.ld-feedback) */
+.prestudy-page .ps-revealwrap:empty {
+  display: none;
+}
+
+.prestudy-page .ps-reveal .ps-note {
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-reveal .ps-ctx {
+  padding: 0;
+  background: none;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* Round results */
+.prestudy-page .ps-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.prestudy-page .ps-chip-lg {
+  font-size: 0.8125rem;
+  padding: 3px 10px;
+}
+
+.prestudy-page .ps-tablewrap {
+  overflow-x: auto;
+}
+
+.prestudy-page .ps-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  color: var(--ink);
+}
+
+.prestudy-page .ps-table th {
+  padding: 6px 6px 6px 0;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.prestudy-page .ps-table td {
+  padding: 8px 6px 8px 0;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.prestudy-page .ps-table code {
+  font-family: var(--f-mono);
+  font-size: 0.8125rem;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* ==================================================================
+   Step 3 — ready / follow-up done
+   ================================================================== */
+.prestudy-page .ps-wm {
+  margin-bottom: -56px;
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  color: var(--brand);
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.prestudy-page .ps-overflow-actions {
+  flex-wrap: wrap;
+}
+
+/* ==================================================================
+   Dock (#psActionBar)
+   ================================================================== */
+.prestudy-page .ps-dock .ps-dockrow > .ld-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.prestudy-page .ps-dockmsg {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.prestudy-page .ps-dockmsg:empty,
+.prestudy-page .ps-dockhint:empty {
+  display: none;
+}
+
+.prestudy-page .ps-dockhint {
+  margin: 0;
+}
+
+.prestudy-page .ps-skip {
+  align-self: center;
+}
+
+@media (width < 768px) {
+  .prestudy-page .ps-dockhint--wide {
+    display: none;
+  }
+}
+
+/* ==================================================================
+   Daily-session "Study first" card (.ps-block)
+   ================================================================== */
+.ps-block .ps-block-wm {
+  margin-bottom: -48px;
+  font: 700 88px/1 var(--f-cjk);
+  text-align: center;
+  color: var(--brand);
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.ps-block .ps-block-eyebrow {
+  position: relative;
+  margin: 0;
+}
+
+.ps-block .ps-block-title {
+  margin: 0;
+  font-family: var(--f-cjk);
+}
+
+.ps-block .ps-block-title:lang(en) {
+  font-family: var(--f-display);
+}
+
+.ps-block .ps-block-why {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+/* ==================================================================
+   Motion
+   ================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .prestudy-page .ps-pop--sheet {
+    animation: none;
+  }
+}
+
+.prestudy-page .ps-table b.ld-tl {
+  font-weight: 700;
+}

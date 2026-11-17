@@ -1,4 +1,4 @@
-"""TASK-979 — the ``dual`` write path (ADR-047 §4, §8, §9) and the shared FakeContentDB.
+"""TASK-1011 — the ``dual`` write path (ADR-049 §4, §8, §9) and the shared FakeContentDB.
 
 Runs ``store.write_sense`` in ``dual`` mode against ``FakeContentDB`` (the
 §8 RPCs + an in-memory ``exercises`` table) and an ``InMemoryBackend``.
@@ -636,7 +636,7 @@ def test_db_mode_on_the_fake_is_todays_calls(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# FakeContentDB itself (shared with TASK-993)
+# FakeContentDB itself (shared with TASK-1025)
 # ---------------------------------------------------------------------------
 
 def test_fake_begin_shape():

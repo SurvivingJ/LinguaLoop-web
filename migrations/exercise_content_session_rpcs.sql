@@ -1,10 +1,10 @@
 -- =============================================================================
--- exercise_content_session_rpcs.sql — ADR-047 Phase 1: the two session RPCs return exercise
+-- exercise_content_session_rpcs.sql — ADR-049 Phase 1: the two session RPCs return exercise
 -- content only when asked, and the dead content-returning functions go.
--- Date: 2026-11-17   Task: TASK-985
--- Spec: wiki/decisions/ADR-047-exercise-content-in-storage.md (§5 read path, §7 schema changes)
+-- Date: 2026-11-17   Task: TASK-1017
+-- Spec: wiki/decisions/ADR-049-exercise-content-in-storage.md (§5 read path, §7 schema changes)
 --
--- STATUS: applied live 2026-11-17 (TASK-994, run by the owner in the SQL editor, after
+-- STATUS: applied live 2026-11-17 (TASK-1026, run by the owner in the SQL editor, after
 -- migrations/exercise_content_storage.sql). The live bodies carry CRLF line endings from the
 -- editor paste; with \r removed they are md5-identical to this file.
 --
@@ -26,14 +26,17 @@
 --     p_include_content, because `v_items || a || b` would append b as a separate element).
 --   Sources: migrations/get_practice_session_language_scope.sql and
 --   migrations/practice_review_ahead.sql (both match live, md5-checked 2026-11-17). Those files
---   stay where they are until the live apply; TASK-999 archives them.
+--   stay where they are until the live apply; TASK-1031 archives them.
 --
--- Also drops the three dead live functions that return exercises.content (ADR-047 Appendix A
+-- Also drops the three dead live functions that return exercises.content (ADR-049 Appendix A
 -- row 22; repo/live drift: phase17_drop_deprecation_wrappers.sql never took effect live). No
 -- Python caller; service_role only.
 --
 -- Rollback: migrations/exercise_content_session_rpcs_rollback.sql (only with
 -- EXERCISE_CONTENT_SOURCE=db, and only while exercises.content exists).
+-- Renumbered 2026-11-17 when merged with main: ADR-047 -> ADR-049 and TASK-976..999 ->
+-- TASK-1008..1031 (main already used those ids). Function bodies and COMMENT strings keep
+-- the old ids: they are (or will be) the live text, md5-compared against the database.
 -- =============================================================================
 
 BEGIN;

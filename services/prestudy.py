@@ -15,11 +15,13 @@ Spec: wiki/features/test-prestudy.md (modes 1 and 2, readiness check).
       knowledge:  {sense_id: {p, status, n}},    # the learner's BKT rows
       exercises:  {sense_id: [{id, type, group, level, c}]},   # drill senses only
       has_exercises: [sense_id, ...],            # every linked sense with prime-renderable exercises
-      gloss_language_id, ability_zipf
+      gloss_language_id, ability_zipf,
+      plan:       {unknown_share, unknown, n, plan_mode},   # share_plan()
+      produce_available, produce_l1_language_id
     }
 
 Exercise content is loaded only for the senses the word prime drills
-(``drill_sense_ids``, the same rule as the page; ADR-047 open question 1).
+(``drill_sense_ids``, the same rule as the page; ADR-049 open question 1).
 ``has_exercises`` lists every linked sense that has active exercises of a type
 the prime renders, from row ids only. A word that joins the drill set later
 ("I don't know this") fetches its exercises from
@@ -167,11 +169,12 @@ def _load_senses(db, sense_ids: list[int], gloss_language_id: Optional[int]) -> 
     rows: list[dict] = []
     for part in _chunks(sense_ids):
         rows += db.table('dim_word_senses').select(
-            'id, vocab_id, sense_rank, definition, definition_language_id, example_sentence, pronunciation, '
-            'dim_vocabulary(lemma, part_of_speech, frequency_rank, reading, language_id)'
+            'id, vocab_id, sense_rank, definition_level, definition, definition_language_id, example_sentence, '
+            'pronunciation, dim_vocabulary(lemma, part_of_speech, frequency_rank, reading, language_id)'
         ).in_('id', part).execute().data or []
     senses: dict[str, dict] = {}
-    wanted: dict[tuple, int] = {}
+    # (vocab_id, sense_rank) -> [(linked sense id, its definition_level)]
+    wanted: dict[tuple, list[tuple[int, Optional[str]]]] = {}
     for r in rows:
         v = r.get('dim_vocabulary') or {}
         sid = str(r['id'])
@@ -183,16 +186,34 @@ def _load_senses(db, sense_ids: list[int], gloss_language_id: Optional[int]) -> 
             'glosses': {str(r.get('definition_language_id')): {'def': r.get('definition'), 'ex': r.get('example_sentence')}},
         }
         if gloss_language_id and gloss_language_id != r.get('definition_language_id'):
-            wanted[(r['vocab_id'], r.get('sense_rank'))] = r['id']
+            wanted.setdefault((r['vocab_id'], r.get('sense_rank')), []).append(
+                (r['id'], r.get('definition_level')))
     if wanted:
+        # Each meaning exists once per definition level ('simple' and
+        # 'standard' are both sense_rank 1, and a test may link either), so a
+        # linked sense takes the gloss at its own level; keying on rank alone
+        # kept whichever level PostgREST returned last (TASK-994 / INT-1).
+        # Only when no gloss exists at that level: the standard one, then the
+        # simple one, then any other.
+        found: dict[tuple, dict[Optional[str], dict]] = {}
         vocab_ids = sorted({k[0] for k in wanted})
         for part in _chunks(vocab_ids):
             for g in db.table('dim_word_senses').select(
-                'vocab_id, sense_rank, definition, example_sentence, definition_language_id'
+                'vocab_id, sense_rank, definition_level, definition, example_sentence, definition_language_id'
             ).in_('vocab_id', part).eq('definition_language_id', gloss_language_id).execute().data or []:
-                sid = wanted.get((g['vocab_id'], g.get('sense_rank')))
-                if sid is not None and g.get('definition'):
-                    senses[str(sid)]['glosses'][str(gloss_language_id)] = {'def': g['definition'], 'ex': g.get('example_sentence')}
+                key = (g['vocab_id'], g.get('sense_rank'))
+                if key in wanted and g.get('definition'):
+                    found.setdefault(key, {}).setdefault(
+                        g.get('definition_level'),
+                        {'def': g['definition'], 'ex': g.get('example_sentence')})
+        for key, linked in wanted.items():
+            by_level = found.get(key)
+            if not by_level:
+                continue
+            for sid, level in linked:
+                gloss = (by_level.get(level) or by_level.get('standard') or by_level.get('simple')
+                         or next(iter(by_level.values())))
+                senses[str(sid)]['glosses'][str(gloss_language_id)] = gloss
     return senses
 
 
@@ -273,13 +294,17 @@ def build_prestudy_payload(db, test: dict, user_id: str, gloss_language_id: Opti
     q_sense_ids = sorted({int(s) for q in questions for s in (q.get('sense_ids') or []) if s})
     extra_ids = sorted(set(q_sense_ids) - set(sense_ids))
     drill = [s for s in drill_sense_ids(sense_ids, senses, knowledge, ability) if s in with_exercises]
-    extra_senses, extra_knowledge, exercises = run_parallel(
+    produce_l1 = resolve_produce_l1(language_id, gloss_language_id)
+    extra_senses, extra_knowledge, exercises, can_produce = run_parallel(
         lambda: _load_senses(db, extra_ids, gloss_language_id) if extra_ids else {},
         lambda: _load_knowledge(db, user_id, extra_ids) if extra_ids else {},
         lambda: _load_exercises(db, drill, language_id=language_id or None) if drill else {},
+        lambda: produce_available(db, test, produce_l1),
     )
     senses.update(extra_senses)
     knowledge.update(extra_knowledge)
+    freq = {int(sid): s.get('freq') for sid, s in senses.items()}
+    plan = share_plan(sense_ids, _p_known_fn(knowledge, freq, ability))
     return {
         'test': {k: test.get(k) for k in (
             'id', 'slug', 'title', 'language_id', 'transcript', 'audio_url', 'difficulty',
@@ -291,6 +316,14 @@ def build_prestudy_payload(db, test: dict, user_id: str, gloss_language_id: Opti
         'has_exercises': sorted(with_exercises),
         'gloss_language_id': gloss_language_id or language_id,
         'ability_zipf': ability,
+        # The same unknown share the daily session's prestudy card shows
+        # (plan_for_tests): one definition, so the two figures agree.
+        'plan': plan,
+        # Whether POST .../prestudy/produce can find a window for this learner
+        # (same rule: choose_produce_window); the page and the result screen
+        # offer Produce only when true.
+        'produce_available': can_produce,
+        'produce_l1_language_id': produce_l1,
     }
 
 
@@ -686,9 +719,20 @@ def choose_produce_window(db, test: dict, l1_language_id: int, primed: list[int]
     from services.dual_translation.passage_builder import select_window_for_primed
     rows = db.table('test_sentences').select('id, idx, l2_text, token_start, token_end, transcript_hash') \
         .eq('test_id', test['id']).order('idx').execute().data or []
-    if not rows:
+    # Rows built from an older transcript cannot be opened (the passage route
+    # answers 409 SENTENCES_STALE), so they never make a window eligible. They
+    # stay in the list (as do placeholders for missing indices): the window
+    # chooser walks list positions, so dropping a row would let a window
+    # straddle it and name a range the passage route then refuses.
+    stored_hash = test.get('transcript_hash')
+    fresh = [r for r in rows if not stored_hash or r.get('transcript_hash') == stored_hash]
+    if not fresh:
         return None
-    by_id = {r['id']: r for r in rows}
+    present = {int(r['idx']) for r in rows}
+    rows = sorted(rows + [{'id': None, 'idx': i, 'l2_text': ''}
+                          for i in range(min(present), max(present) + 1) if i not in present],
+                  key=lambda r: int(r['idx']))
+    by_id = {r['id']: r for r in fresh}
     refs = []
     for part in _chunks(list(by_id)):
         refs += db.table('test_sentence_references').select('sentence_id, tightness, review_verdict') \
@@ -705,6 +749,38 @@ def choose_produce_window(db, test: dict, l1_language_id: int, primed: list[int]
     floor = PRODUCE_TIGHTNESS_FLOOR.get(int(test['language_id']), 0.6)
     return select_window_for_primed(rows, primed, wrong, refs_ok, tight, floor,
                                     token_map=test.get('vocab_token_map'))
+
+
+def resolve_produce_l1(test_language_id, preferred) -> Optional[int]:
+    """The reference language Produce uses: the learner's definition language
+    (English when unset), never the test's own language (then English, or
+    nothing for an English test)."""
+    try:
+        l1 = int(preferred or 2)
+    except (TypeError, ValueError):
+        l1 = 2
+    if l1 == int(test_language_id or 0):
+        return 2 if int(test_language_id) != 2 else None
+    return l1
+
+
+def produce_available(db, test: dict, l1_language_id: Optional[int]) -> bool:
+    """Can Produce open a passage on this test in ``l1_language_id``?
+
+    The same rule as POST /api/tests/<id>/prestudy/produce: a window exists
+    (choose_produce_window). Window eligibility does not depend on the primed
+    or wrong-question senses (they only rank eligible windows), so asking with
+    none answers for every learner. The attempt requirement is not checked:
+    callers show this only where an attempt exists or is about to. Never
+    raises; False on any read failure, so nothing is offered that may fail.
+    """
+    if not l1_language_id or not test or not test.get('id'):
+        return False
+    try:
+        return choose_produce_window(db, test, int(l1_language_id), [], []) is not None
+    except Exception as e:
+        logger.info("produce availability unknown for %s: %s", test.get('id'), e)
+        return False
 
 
 def record_produce(db, user_id: str, test_id: str, language_id: int, submission_id,
@@ -777,6 +853,32 @@ AUTO_THRESHOLD = 0.25          # unknown share above which a new test gets a ful
 LIGHT_THRESHOLD = 0.05         # 5-25%: light prime (three words)
 PRESTUDY_TEST_TYPES = ('reading', 'listening')
 PRESTUDY_MODES = ('auto', 'ask', 'off')
+#: p_known below which a key word counts as new ("N% of key words new to you").
+UNKNOWN_MAX_P = 0.5
+
+
+def plan_mode_for_share(share: float) -> str:
+    return 'full' if share > AUTO_THRESHOLD else ('light' if share >= LIGHT_THRESHOLD else 'none')
+
+
+def _p_known_fn(knowledge: dict, freq: dict, ability: float):
+    """p(sense): the learner's BKT row, else the zipf prior on frequency."""
+    def p(sid: int) -> float:
+        k = knowledge.get(str(sid))
+        return float(k['p']) if k else prior_p_known(freq.get(int(sid)), ability)
+    return p
+
+
+def share_plan(sense_ids, p_of) -> dict:
+    """The one definition of a test's "share of key words that are new":
+    the test's linked senses (``tests.vocab_sense_ids``, deduplicated) with
+    p_known < 0.5, over all of them. Used by the daily session's prestudy card
+    (plan_for_tests) and the prestudy page (build_prestudy_payload)."""
+    ids = sorted({int(s) for s in (sense_ids or []) if s})
+    unknown = [s for s in ids if p_of(s) < UNKNOWN_MAX_P]
+    share = len(unknown) / len(ids) if ids else 0.0
+    return {'unknown_share': round(share, 3), 'unknown': len(unknown), 'n': len(ids),
+            'plan_mode': plan_mode_for_share(share)}
 MAX_EST_MINUTES = 30
 
 
@@ -849,13 +951,9 @@ def plan_for_tests(db, user_id: str, language_id: int, tests: list[dict]) -> dic
                 freq[int(r['id'])] = (r.get('dim_vocabulary') or {}).get('frequency_rank')
         ability = _ability_zipf(db, user_id, language_id)
 
-    def p(sid: int) -> float:
-        k = knowledge.get(str(sid))
-        return float(k['p']) if k else prior_p_known(freq.get(sid), ability)
-
-    unknown_by_test = {tid: [s for s in ids if p(s) < 0.5] for tid, ids in senses_by_test.items()}
-    # The page's drill rule; every linked sense counts here (no senses map is
-    # loaded for the plan, so a sense without frequency gets the 0.3 prior).
+    p = _p_known_fn(knowledge, freq, ability)
+    # The page's drill rule (drill_sense_ids); every linked sense counts here (no
+    # senses map is loaded for the plan, so a sense without frequency gets the 0.3 prior).
     described = {str(s): {'freq': freq.get(s)} for s in all_ids}
     drill_by_test = {tid: drill_sense_ids(ids, described, knowledge, ability)
                      for tid, ids in senses_by_test.items()}
@@ -868,14 +966,8 @@ def plan_for_tests(db, user_id: str, language_id: int, tests: list[dict]) -> dic
     for tid, ids in senses_by_test.items():
         if not ids:
             continue
-        unknown = unknown_by_test[tid]
-        share = len(unknown) / len(ids)
-        plan_mode = 'full' if share > AUTO_THRESHOLD else ('light' if share >= LIGHT_THRESHOLD else 'none')
-        plans[tid] = {
-            'unknown_share': round(share, 3),
-            'unknown': len(unknown),
-            'n': len(ids),
-            'plan_mode': plan_mode,
-            'minutes_est': estimate_minutes(len(drill_by_test[tid]), len([s for s in drill_by_test[tid] if s in have_ex]), plan_mode),
-        }
+        plan = share_plan(ids, p)
+        plan['minutes_est'] = estimate_minutes(
+            len(drill_by_test[tid]), len([s for s in drill_by_test[tid] if s in have_ex]), plan['plan_mode'])
+        plans[tid] = plan
     return plans

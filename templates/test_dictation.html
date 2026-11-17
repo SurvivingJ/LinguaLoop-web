@@ -1,10 +1,17 @@
 {% extends "base.html" %}
 {% set load_test_intro = true %}
 {% set defer_base_scripts = true %}
+{# One task per screen (FOUNDATION.md): Back pill header, scrolling stage,
+   pinned dock. The player fills the header (title, subtitle, seal). #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
 
 {% block title %}Dictation | LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50{% endblock %}
+{% block body_class %}bg-slate-50 test-dictation-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('tests') }}{% endblock %}
+{% block task_title %}<span data-i18n="dictation.badge">Dictation</span>{% endblock %}
 
 {% block extra_css %}
 {# The page script and the player it mounts are ES modules: the import map
@@ -17,9 +24,11 @@
 
 {% block content %}
 {# static/js/pages/test-dictation.js mounts the dictation player (markup and styles) here. #}
-<div id="testStage">
-    <div class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
+<div id="testStage" class="ld-screen">
+    <div class="ld-stage">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden" data-i18n="common.loading">Loading...</span></div>
+        </div>
     </div>
 </div>
 {% endblock %}

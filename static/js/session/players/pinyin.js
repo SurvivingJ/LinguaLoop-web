@@ -6,7 +6,7 @@
 // it finishes through ctx.onComplete(); the page links to Retry / All tests.
 
 import { T, nativeName, escapeHtml } from '../dom.js';
-import { createTrainer, prefetchTest } from './_syllable_trainer.js';
+import { createTrainer, prefetchTest, applyLocalKeys } from './_syllable_trainer.js';
 
 export const prefetch = prefetchTest;
 
@@ -40,8 +40,10 @@ export function mount(container, ctx) {
   const { state, on, q, showLoading, showError, startTimer, updateProgress, flashError } = trainer;
   const dismissErrorModal = trainer.dismissErrorModal;
 
-  // The standalone page brings its own stylesheet (static/css/pages/test-pinyin.css).
-  container.innerHTML = trainer.standalone ? MARKUP : STYLES + trainer.compact(MARKUP);
+  // Styles: static/css/redesign/trainers.css (loaded on every page), scoped
+  // to .syl-trainer--pinyin, so the session and the page share them.
+  container.innerHTML = trainer.standalone ? MARKUP : trainer.compact(MARKUP);
+  if (trainer.frame) q('pinyinRootScreen').classList.add('is-framed');
   trainer.addBackLink();
   init();
 
@@ -52,8 +54,10 @@ export function mount(container, ctx) {
       showLoading(true);
       if (!state.slug) throw new Error('No test slug');
       if (trainer.standalone) await trainer.prepare();
+      applyLocalKeys(container);
       await loadTestData();
       renderPassage();
+      renderTonePad();
       setupInputHandlers();
       startTimer();
       q('pinyinHeader').style.display = 'block';
@@ -84,6 +88,29 @@ export function mount(container, ctx) {
     q('testTitle').textContent =
       state.testData.title || T('pinyin.title', null, 'Pinyin Tone Trainer');
     q('testLanguage').textContent = nativeName(state.testData.language) || 'Chinese';
+    if (state.testData.title) trainer.setHeader({ subtitle: state.testData.title });
+  }
+
+  /**
+   * The on-screen tone buttons in the dock: the same five answers as the
+   * arrow keys, swipes and tap (1-4 and neutral).
+   */
+  function renderTonePad() {
+    const pad = q('tonePad');
+    if (!pad) return;
+    const neutral = T('pinyin.neutral', null, 'Neutral');
+    pad.setAttribute('aria-label', T('trainers.tone_pad', null, 'Tones'));
+    pad.innerHTML = TONE_PAD.map(
+      ([tone, mark, key]) =>
+        `<button type="button" class="tone-btn" data-tone="${tone}" aria-label="${escapeHtml(
+          tone === 5 ? neutral : T('trainers.tone_n', { n: tone }, `Tone ${tone}`)
+        )}"><b class="tone-c${tone}" lang="zh-Latn">${mark}</b><span>${
+          tone === 5 ? escapeHtml(neutral) : tone
+        }</span><kbd aria-hidden="true">${key}</kbd></button>`
+    ).join('');
+    pad.querySelectorAll('button[data-tone]').forEach((btn) => {
+      on(btn, 'click', () => handleToneInput(parseInt(btn.dataset.tone, 10)));
+    });
   }
 
   function renderPassage() {
@@ -150,12 +177,22 @@ export function mount(container, ctx) {
 
   function setupInputHandlers() {
     on(document, 'keydown', (e) => {
+      // Space is "neutral", as it always was. The one exception: a tone
+      // button reached with the keyboard (:focus-visible) is pressed by Space
+      // like any button. A button that merely kept focus after a tap or click
+      // does not steal Space.
+      if (e.key === ' ' && isKeyboardFocusedToneButton(e.target)) return;
       const map = { ArrowRight: 1, ArrowUp: 2, ArrowLeft: 3, ArrowDown: 4, ' ': 5 };
       if (map[e.key] !== undefined) {
         e.preventDefault();
         handleToneInput(map[e.key]);
       }
-      if (e.key === 'Enter' && state.isPaused) dismissErrorModal();
+      if (e.key === 'Enter' && state.isPaused) {
+        // Without this the browser also "clicks" whatever has focus (a dock
+        // tone button), answering again the moment the sheet closes.
+        e.preventDefault();
+        dismissErrorModal();
+      }
     });
 
     const SWIPE_TONE = { right: 1, up: 2, left: 3, down: 4 };
@@ -166,6 +203,15 @@ export function mount(container, ctx) {
     );
   }
 
+  function isKeyboardFocusedToneButton(target) {
+    if (!target || !target.closest || !target.closest('#tonePad button')) return false;
+    try {
+      return target.matches(':focus-visible');
+    } catch {
+      return false;
+    }
+  }
+
   function showErrorModal(token, guessedTone) {
     const toneColor = (tn) => `var(--tone-${tn})`;
     let sandhiHtml = '';
@@ -174,22 +220,26 @@ export function mount(container, ctx) {
     }
     const html = `
             <div class="error-backdrop" data-pinyin-dismiss></div>
-            <div class="error-modal">
-                <div class="error-char" style="color: ${toneColor(token.context_tone)}">${escapeHtml(token.char)}</div>
-                <div class="error-pinyin">${escapeHtml(applyToneMark(token.pinyin_text, token.context_tone))}${trainer.standalone ? ' ' : ''}<span style="color: var(--text-muted); margin-left: 4px;">(${escapeHtml(token.word)})</span></div>
+            <div class="error-modal" role="dialog" aria-modal="true">
+                <div class="error-char" lang="zh" style="color: ${toneColor(token.context_tone)}">${escapeHtml(token.char)}</div>
+                <div class="error-pinyin">${escapeHtml(applyToneMark(token.pinyin_text, token.context_tone))}${trainer.standalone ? ' ' : ''}<span class="error-word-ctx">(${escapeHtml(token.word)})</span></div>
                 <div class="error-tones">
                     <div class="tone-label"><div class="tone-num" style="color: ${toneColor(guessedTone)}">${guessedTone}</div><div class="tone-desc">${T('pinyin.your_answer', null, 'Your answer')}</div></div>
-                    <div style="font-size: 1.5rem; color: var(--text-muted); align-self: center;"><i class="bi bi-arrow-right"></i></div>
+                    <div class="tone-arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></div>
                     <div class="tone-label"><div class="tone-num" style="color: ${toneColor(token.context_tone)}">${token.context_tone}</div><div class="tone-desc">${T('pinyin.correct', null, 'Correct')}</div></div>
                 </div>
                 ${sandhiHtml}
-                <button class="error-continue-btn" type="button" data-pinyin-dismiss>${T('pinyin.continue', null, 'Continue')} <span style="font-size: 0.8em; opacity: 0.7;">(Enter)</span></button>
+                <button class="error-continue-btn ld-btn" type="button" data-pinyin-dismiss>${T('pinyin.continue', null, 'Continue')} <span class="error-continue-key" aria-hidden="true">(Enter)</span></button>
+                <p class="error-again">${T('trainers.answer_again_char', null, 'You’ll answer this character again.')}</p>
             </div>`;
     trainer.showErrorModal(html, 'data-pinyin-dismiss');
   }
 
   function completeGame() {
     state.isComplete = true;
+    if (document.activeElement && container.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
     q('touchArea').style.display = 'none';
     q('controlsHint').style.display = 'none';
     const gradeLabels = {
@@ -223,124 +273,65 @@ export function mount(container, ctx) {
   }
 }
 
-// ========================================================================
-// STYLES — scoped styles so the player is self-contained in /session
-// ========================================================================
-const STYLES = `
-<style>
-    .session-stage { --tone-1:#E53935; --tone-2:#F57C00; --tone-3:#43A047; --tone-4:#1E88E5; --tone-5:#9E9E9E; }
-    .pinyin-header { background: var(--bg-surface); border-bottom: 2px solid var(--border-default); position: sticky; top: 0; z-index: 40; box-shadow: var(--shadow-sm); }
-    .pinyin-progress-bar { height: 6px; background: var(--border-default); position: absolute; bottom: 0; left: 0; right: 0; }
-    .pinyin-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--info) 100%); transition: width .3s ease; }
-    .passage-container { max-width: 720px; margin: 0 auto; padding: 32px 20px; }
-    .passage-grid { display: flex; flex-wrap: wrap; font-size: 2rem; line-height: 2.2; justify-content: flex-start; user-select: none; -webkit-user-select: none; }
-    .char-token { display: inline-flex; flex-direction: column; align-items: center; transition: all .2s ease; padding: 2px 1px; position: relative; cursor: default; }
-    .char-token .char-display { position: relative; z-index: 1; }
-    .char-token .char-pinyin { font-size: .4em; color: var(--text-muted); line-height: 1; margin-top: -4px; opacity: 0; transition: opacity .2s ease; }
-    .char-token.completed .char-pinyin { opacity: 1; }
-    .char-token.upcoming { color: var(--slate-400); }
-    .char-token.current { transform: scale(1.25); margin: 0 6px; }
-    .char-token.current .char-display { border-bottom: 3px solid var(--primary); padding-bottom: 2px; }
-    .char-token.completed { opacity: 1; }
-    .char-token.error-flash { animation: shake .3s ease; }
-    .char-token.correct-flash { animation: pop .2s ease; }
-    .char-token.tone-1 .char-display, .char-token.tone-1 .char-pinyin { color: var(--tone-1); }
-    .char-token.tone-2 .char-display, .char-token.tone-2 .char-pinyin { color: var(--tone-2); }
-    .char-token.tone-3 .char-display, .char-token.tone-3 .char-pinyin { color: var(--tone-3); }
-    .char-token.tone-4 .char-display, .char-token.tone-4 .char-pinyin { color: var(--tone-4); }
-    .char-token.tone-5 .char-display, .char-token.tone-5 .char-pinyin { color: var(--tone-5); }
-    .char-token.punctuation { color: var(--slate-500); }
-    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-    @keyframes pop { 0% { transform: scale(1.25); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
-    .controls-hint { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-surface); border-top: 1px solid var(--border-default); padding: 12px 20px; z-index: 50; }
-    .controls-grid { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; max-width: 600px; margin: 0 auto; }
-    .control-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
-    .control-key { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 28px; padding: 0 8px; border: 2px solid var(--border-strong); border-radius: 6px; font-size: 12px; font-weight: 700; background: var(--bg-surface); color: var(--text-primary); }
-    .tone-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-    .error-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.4); z-index: 200; }
-    .error-modal { position: fixed; z-index: 201; background: var(--bg-surface); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 28px 24px; width: 90%; max-width: 420px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-    @media (max-width: 480px) { .error-modal { top: auto; bottom: 0; left: 0; right: 0; transform: none; width: 100%; max-width: 100%; border-radius: 16px 16px 0 0; } }
-    .error-char { font-size: 3rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
-    .error-pinyin { text-align: center; font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 16px; }
-    .error-tones { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; }
-    .tone-label { text-align: center; }
-    .tone-label .tone-num { font-size: 1.5rem; font-weight: 700; }
-    .tone-label .tone-desc { font-size: .8rem; color: var(--text-muted); }
-    .sandhi-explanation { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 8px; padding: 12px; font-size: .9rem; color: var(--slate-700); margin-bottom: 16px; }
-    .error-continue-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--primary); color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; }
-    .error-continue-btn:hover { background: var(--primary-hover); }
-    .results-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-body); z-index: 300; display: flex; align-items: center; justify-content: center; }
-    .results-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 32px; width: 90%; max-width: 480px; text-align: center; }
-    .results-accuracy { font-size: 4rem; font-weight: 800; margin: 16px 0 8px; }
-    .results-accuracy.excellent { color: var(--success); }
-    .results-accuracy.good { color: var(--tone-2); }
-    .results-accuracy.fair { color: var(--warning); }
-    .results-accuracy.poor { color: var(--danger); }
-    .results-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-    .stat-box { padding: 12px; background: var(--bg-muted); border-radius: 8px; }
-    .stat-box .stat-value { font-size: 1.4rem; font-weight: 700; }
-    .stat-box .stat-label { font-size: .8rem; color: var(--text-muted); }
-    .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-    .loading-spinner { background: var(--bg-surface); padding: 32px; border-radius: 12px; box-shadow: var(--shadow-lg); text-align: center; }
-    .spinner-icon { border: 4px solid var(--border-default); border-top-color: var(--primary); border-radius: 50%; width: 48px; height: 48px; animation: spin .8s linear infinite; margin: 0 auto 16px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .touch-area { position: fixed; top: 60px; left: 0; right: 0; bottom: 70px; z-index: 10; touch-action: none; -webkit-touch-callout: none; }
-    @media (max-width: 768px) { .passage-grid { font-size: 1.6rem; line-height: 2; } .char-token.current { transform: scale(1.15); margin: 0 4px; } }
-</style>
-`;
+// The dock's tone buttons: [tone, marked vowel, key].
+const TONE_PAD = [
+  [1, 'ā', '→'],
+  [2, 'á', '↑'],
+  [3, 'ǎ', '←'],
+  [4, 'à', '↓'],
+  [5, 'a', '␣'],
+];
 
+// ========================================================================
+// MARKUP — one task screen (FOUNDATION.md): a progress strip, the passage in
+// the scrolling stage (the swipe surface lies over it), the tone buttons in
+// the pinned dock. Styles: static/css/redesign/trainers.css.
+// ========================================================================
 const MARKUP = `
+<div class="ld-screen syl-trainer syl-trainer--pinyin" id="pinyinRootScreen">
 <!-- Loading Overlay -->
 <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-    <div class="loading-spinner">
-        <div class="spinner-icon"></div>
-        <p class="mb-0 text-slate-600" data-i18n="pinyin.loading">Loading pinyin data...</p>
+    <div class="loading-spinner" role="status">
+        <div class="spinner-icon" aria-hidden="true"></div>
+        <p class="mb-0" data-i18n="pinyin.loading">Loading pinyin data...</p>
     </div>
 </div>
 
 <!-- Error State -->
-<div id="errorState" class="container py-5" style="display: none;">
+<div id="errorState" class="trainer-error" style="display: none;">
     <div class="alert alert-danger">
-        <h2 class="h5"><i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="pinyin.error.title">Error</span></h2>
+        <h2 class="h5"><i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i><span data-i18n="pinyin.error.title">Error</span></h2>
         <p id="errorMessage" class="mb-2"></p>
     </div>
 </div>
 
-<!-- Header -->
-<div class="pinyin-header" id="pinyinHeader" style="display: none;">
-    <div class="container py-3">
-        <div class="row align-items-center">
-            <div class="col">
-                <h1 class="mb-0 h5">
-                    <i class="bi bi-translate text-primary me-2"></i>
-                    <span id="testTitle" data-i18n="pinyin.title">Pinyin Tone Trainer</span>
-                </h1>
-            </div>
-            <div class="col-auto">
-                <span class="badge bg-primary me-2" id="testLanguage"></span>
-                <span class="badge bg-info" data-i18n="pinyin.badge">Pinyin</span>
-                <span class="ms-2 text-slate-500">
-                    <i class="far fa-clock me-1"></i><span id="elapsedTime">00:00</span>
-                </span>
-            </div>
+<!-- Progress strip -->
+<div class="trainer-strip" id="pinyinHeader" style="display: none;">
+    <div class="trainer-strip__row">
+        <h1 class="trainer-title"><span id="testTitle" data-i18n="pinyin.title">Pinyin Tone Trainer</span></h1>
+        <span class="ld-tag ld-tag--brand" id="testLanguage"></span>
+        <span class="ld-tag ld-tag--info" data-i18n="pinyin.badge">Pinyin</span>
+        <span class="trainer-clock"><i class="far fa-clock" aria-hidden="true"></i> <span id="elapsedTime">00:00</span></span>
+    </div>
+    <div class="ld-bar trainer-bar"><i class="pinyin-progress-fill" id="progressFill" style="width: 0%"></i></div>
+</div>
+
+<div class="trainer-swipe">
+    <div class="ld-stage trainer-stage">
+        <!-- Passage Display -->
+        <div class="passage-container" id="passageContainer" style="display: none;" lang="zh">
+            <div class="passage-grid" id="passageGrid"></div>
+            <p class="ld-hint trainer-hint" data-trk="trainers.pinyin_swipe_hint">Swipe on the passage: → 1st · ↑ 2nd · ← 3rd · ↓ 4th. Tap for neutral. The buttons below and the arrow keys work too.</p>
         </div>
     </div>
-    <div class="pinyin-progress-bar">
-        <div class="pinyin-progress-fill" id="progressFill" style="width: 0%"></div>
-    </div>
+    <!-- Touch Area (for swipe detection): covers the passage, not the dock -->
+    <div class="touch-area" id="touchArea" style="display: none;"></div>
 </div>
 
-<!-- Touch Area (for swipe detection) -->
-<div class="touch-area" id="touchArea" style="display: none;"></div>
-
-<!-- Passage Display -->
-<div class="passage-container" id="passageContainer" style="display: none;">
-    <div class="passage-grid" id="passageGrid"></div>
-</div>
-
-<!-- Controls Hint Bar -->
-<div class="controls-hint" id="controlsHint" style="display: none;">
-    <div class="controls-grid">
+<!-- Dock: tone buttons (+ the keyboard legend on wide screens) -->
+<div class="ld-dock trainer-dock" id="controlsHint" style="display: none;">
+    <div class="tonepad" id="tonePad" role="group"></div>
+    <div class="controls-grid ld-wide-only" aria-hidden="true">
         <div class="control-item">
             <span class="control-key"><i class="bi bi-arrow-right"></i></span>
             <span class="tone-dot" style="background: var(--tone-1);"></span>
@@ -374,4 +365,5 @@ const MARKUP = `
 
 <!-- Results Screen (injected dynamically) -->
 <div id="resultsContainer"></div>
+</div>
 `;

@@ -339,7 +339,7 @@ def _regenerate(db, row: dict) -> tuple[bool, dict]:
             detail['error'] = 'render produced no rows'
             return False, detail
 
-        # One store call replaces the asset-linked rows (ADR-047 §4): with
+        # One store call replaces the asset-linked rows (ADR-049 §4): with
         # EXERCISE_CONTENT_WRITE=db exactly the old delete-then-insert, with
         # `dual` one new content version for the sense. Scoped regen: only
         # the levels being replaced are cleared. `new_rows` is already scoped

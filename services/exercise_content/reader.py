@@ -1,6 +1,6 @@
 """``storage`` / ``shadow`` read path behind ``store.hydrate`` and ``store.fetch_sense``.
 
-TASK-978 (ADR-047 §5 and §9). ``store`` imports this module lazily, only in a
+TASK-1010 (ADR-049 §5 and §9). ``store`` imports this module lazily, only in a
 non-``db`` read mode or from ``fetch_sense``.
 
 Contract with ``store``:
@@ -29,7 +29,7 @@ Contract with ``store``:
 3. Byte LRU (``cache_hits``) -> negative cache (a file known to be missing in
    the last 60 s is not fetched) -> parallel ``backend.get`` on this module's
    own ``ThreadPoolExecutor`` (``thread_name_prefix='exc-fetch'``, never
-   ``services.concurrency``'s pool, ADR-047 Context finding 7). The call waits
+   ``services.concurrency``'s pool, ADR-049 Context finding 7). The call waits
    at most until ``deadline_s`` after it started; groups still in flight count
    in ``over_cap`` and are treated as missing (the fetch keeps running and
    warms the cache for the next call). ``fetched`` counts GETs that returned a
@@ -159,7 +159,7 @@ def _resolve_limits(max_senses: Any, deadline_s: Any) -> tuple[int, float]:
 def hydrate(items: list[dict], *, language_id: int | None, id_key: str, sense_key: str,
             db, drop_missing: bool, max_senses: int | None, deadline_s: float | None,
             mode: str) -> HydrationReport:
-    """``storage`` / ``shadow`` hydration of ``items`` in place (ADR-047 §9 ``hydrate``)."""
+    """``storage`` / ``shadow`` hydration of ``items`` in place (ADR-049 §9 ``hydrate``)."""
     if not isinstance(items, list):
         raise ValueError(f'hydrate: items must be a list, got {type(items).__name__}')
     if language_id is not None and store._as_int(language_id) is None:

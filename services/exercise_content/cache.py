@@ -1,4 +1,4 @@
-"""Process-wide caches of the exercise-content read path (ADR-047 §5). Internal.
+"""Process-wide caches of the exercise-content read path (ADR-049 §5). Internal.
 
 ``store._content_cache()`` builds one ``ByteLRU(EXERCISE_CONTENT_CACHE_MB MiB)``
 and ``store._negative_cache()`` one ``NegativeCache(ttl_s=60.0)`` per process,
@@ -7,7 +7,7 @@ both keyed by ``store._cache_key(language_id, sense_id, version)``.
 * ``ByteLRU`` holds the raw bytes of content files. Files are immutable and
   versioned, so there is no TTL and nothing to invalidate. Bytes, not parsed
   dicts: every reader parses its own copy, so no two callers ever share a
-  mutable object (ADR-047 Context finding 3), and bytes are ~4x smaller.
+  mutable object (ADR-049 Context finding 3), and bytes are ~4x smaller.
 * ``NegativeCache`` remembers that a file was missing so it is not fetched
   again for ``ttl_s`` seconds.
 

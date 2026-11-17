@@ -1,4 +1,4 @@
-"""Background comparer for ``EXERCISE_CONTENT_SOURCE=shadow`` (ADR-047 §5-§6, TASK-978).
+"""Background comparer for ``EXERCISE_CONTENT_SOURCE=shadow`` (ADR-049 §5-§6, TASK-1010).
 
 In shadow mode the response is still served from the database. ``reader``
 snapshots ``store.canonical(content)`` per exercise for a sampled share of

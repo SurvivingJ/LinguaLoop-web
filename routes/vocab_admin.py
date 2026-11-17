@@ -6,6 +6,7 @@ import logging
 
 from middleware.auth import admin_required
 from routes.common import get_db
+from services.pinyin_format import display_pronunciation
 from utils.responses import api_errors, ApiResponse, api_success, bad_request
 from utils.validation import json_body, require_language_id
 
@@ -309,7 +310,7 @@ def preview_word(sense_id: int, language_id: int) -> ApiResponse:
     )
     assets = {row['asset_type']: row for row in (assets_resp.data or [])}
 
-    # Fetch exercises; content through the exercise-content store (ADR-047),
+    # Fetch exercises; content through the exercise-content store (ADR-049),
     # filled before the jumbled preparation below reads it.
     from services.exercise_content import store
     ex_resp = (
@@ -348,7 +349,10 @@ def preview_word(sense_id: int, language_id: int) -> ApiResponse:
             'pos': vocab.get('part_of_speech', ''),
             'semantic_class': vocab.get('semantic_class', ''),
             'definition': sense_data.get('definition', ''),
-            'pronunciation': sense_data.get('pronunciation', ''),
+            # as a learner sees it: Chinese tone-marked only (TASK-999); the
+            # stored form stays visible in the raw asset JSON below
+            'pronunciation': display_pronunciation(
+                sense_data.get('pronunciation'), language_id=language_id),
             'ipa': sense_data.get('ipa_pronunciation', ''),
             'complexity_tier': vocab.get('level_tag', 'T3'),
             'morphological_forms': sense_data.get('morphological_forms'),

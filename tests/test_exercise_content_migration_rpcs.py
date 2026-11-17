@@ -1,6 +1,6 @@
-"""Static checks for migrations/exercise_content_session_rpcs.sql and its rollback (TASK-985).
+"""Static checks for migrations/exercise_content_session_rpcs.sql and its rollback (TASK-1017).
 
-ADR-047 §7: get_practice_session and get_review_ahead_items gain p_include_content boolean
+ADR-049 §7: get_practice_session and get_review_ahead_items gain p_include_content boolean
 DEFAULT true. The new bodies are the canonical bodies with only content edits, which is
 checked by diffing them line by line (whitespace-normalised) against
 migrations/get_practice_session_language_scope.sql and migrations/practice_review_ahead.sql.
@@ -141,7 +141,7 @@ def test_one_transaction_with_grants_comments_and_reload(sql, gps, rai):
     assert revoke_grant_problems(sql, gps) + revoke_grant_problems(sql, rai) == []
     for fn in (gps, rai):
         assert has_statement(sql, rf"COMMENT ON FUNCTION {signature_re(fn.name, fn.arg_types)} IS "
-                                  r".*ADR-047.*p_include_content.*"), fn.name
+                                  r".*ADR-047.*p_include_content.*"), fn.name  # live COMMENT text: old id (= ADR-049)
     assert has_statement(sql, r"NOTIFY pgrst, 'reload schema'")
 
 

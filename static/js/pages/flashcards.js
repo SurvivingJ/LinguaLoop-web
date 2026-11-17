@@ -41,7 +41,49 @@
     tabListening: document.getElementById('tabListening'),
     loading: document.getElementById('flashcardLoading'),
     empty: document.getElementById('flashcardEmpty'),
+    screen: document.getElementById('fcScreen'),
+    progressText: document.getElementById('fcProgressText'),
+    doneMark: document.getElementById('fcDoneMark'),
   };
+
+  // Redesign 2026-11: the screen's state drives what the pinned dock shows
+  // (Flip / the four ratings / Browse Tests / Continue Practicing) and whether
+  // the header shows "Card n of N".
+  // loading | card | flipped | empty | done | error
+  function setView(view) {
+    if (els.screen) els.screen.dataset.fcState = view;
+    if (els.progressText) els.progressText.hidden = view !== 'card' && view !== 'flipped';
+  }
+
+  // Seal glyph and target-language text, from the study language (卡 / 札, as
+  // in the mockup). Decorative: without metadata there is simply no seal.
+  const SEALS = { zh: '卡', ja: '札' };
+  function applyStudyLanguage() {
+    if (!window.LinguaMetadata || typeof window.LinguaMetadata.load !== 'function') return;
+    Promise.resolve(window.LinguaMetadata.load())
+      .then(function (meta) {
+        const row = ((meta && meta.languages) || []).find(function (l) {
+          return l.id === languageId;
+        });
+        const code = row && row.language_code;
+        if (!code) return;
+        [els.frontWord, els.backContext].forEach(function (node) {
+          if (node) node.lang = code;
+        });
+        if (SEALS[code]) {
+          if (els.doneMark) {
+            els.doneMark.textContent = SEALS[code];
+            els.doneMark.lang = code;
+          }
+          if (window.LinguaShell && window.LinguaShell.setTaskHeader) {
+            window.LinguaShell.setTaskHeader({ glyph: SEALS[code] });
+          }
+        }
+      })
+      .catch(function () {
+        /* decorative only */
+      });
+  }
 
   async function loadCards() {
     try {
@@ -86,11 +128,13 @@
 
       if (state.allCards.length === 0) {
         els.empty.style.display = 'block';
+        setView('empty');
       } else {
         filterCards('reading');
       }
     } catch (e) {
       console.error('Flashcard load error:', e);
+      setView('error');
       els.loading.innerHTML =
         '<p class="text-danger"><i class="fas fa-exclamation-circle me-2"></i>Failed to load flashcards</p>';
     }
@@ -109,12 +153,15 @@
     // Update tabs
     els.tabReading.classList.toggle('active', type === 'reading');
     els.tabListening.classList.toggle('active', type === 'listening');
+    els.tabReading.setAttribute('aria-pressed', type === 'reading' ? 'true' : 'false');
+    els.tabListening.setAttribute('aria-pressed', type === 'listening' ? 'true' : 'false');
 
     if (state.filteredCards.length === 0) {
       els.flashcardArea.style.display = 'none';
       els.keyboardHint.style.display = 'none';
       els.sessionComplete.style.display = 'none';
       els.empty.style.display = 'block';
+      setView('empty');
       return;
     }
 
@@ -138,6 +185,7 @@
     // Reset flip
     state.isFlipped = false;
     els.flashcard.classList.remove('is-flipped');
+    setView('card');
     if (cardTimer) {
       cardEventId = window.ActiveTimer.newEventId();
       cardTimer.start();
@@ -182,6 +230,12 @@
   function flipCard() {
     state.isFlipped = !state.isFlipped;
     els.flashcard.classList.toggle('is-flipped', state.isFlipped);
+    setView(state.isFlipped ? 'flipped' : 'card');
+    // Move focus into the dock's ratings so keyboard / switch users land on them.
+    if (state.isFlipped && document.activeElement === els.flipBtn) {
+      const first = document.querySelector('.flashcard-rating-btn');
+      if (first) first.focus({ preventScroll: true });
+    }
   }
 
   function rateCard(rating) {
@@ -236,30 +290,26 @@
   function showSessionComplete() {
     els.flashcardArea.style.display = 'none';
     els.keyboardHint.style.display = 'none';
-    els.sessionComplete.style.display = 'block';
+    els.sessionComplete.style.display = 'flex';
+    setView('done');
 
     const i18n = window.LinguaI18n;
+    const stat = function (rating, cls, key, fallback) {
+      return (
+        '<div class="flashcard-stat ld-stat ' +
+        cls +
+        '"><div class="flashcard-stat-value ld-stat__n">' +
+        (state.ratings[rating] || 0) +
+        '</div><small class="flashcard-stat-label">' +
+        (i18n ? i18n.t(key) : fallback) +
+        '</small></div>'
+      );
+    };
     els.sessionStats.innerHTML =
-      '<div class="flashcard-stat"><div class="flashcard-stat-value" style="color:var(--danger)">' +
-      (state.ratings[1] || 0) +
-      '</div><div class="flashcard-stat-label">' +
-      (i18n ? i18n.t('flashcards.again') : 'Again') +
-      '</div></div>' +
-      '<div class="flashcard-stat"><div class="flashcard-stat-value" style="color:var(--warning)">' +
-      (state.ratings[2] || 0) +
-      '</div><div class="flashcard-stat-label">' +
-      (i18n ? i18n.t('flashcards.hard') : 'Hard') +
-      '</div></div>' +
-      '<div class="flashcard-stat"><div class="flashcard-stat-value" style="color:var(--success)">' +
-      (state.ratings[3] || 0) +
-      '</div><div class="flashcard-stat-label">' +
-      (i18n ? i18n.t('flashcards.good') : 'Good') +
-      '</div></div>' +
-      '<div class="flashcard-stat"><div class="flashcard-stat-value" style="color:var(--primary)">' +
-      (state.ratings[4] || 0) +
-      '</div><div class="flashcard-stat-label">' +
-      (i18n ? i18n.t('flashcards.easy') : 'Easy') +
-      '</div></div>';
+      stat(1, 'fc-stat-again', 'flashcards.again', 'Again') +
+      stat(2, 'fc-stat-hard', 'flashcards.hard', 'Hard') +
+      stat(3, 'fc-stat-good', 'flashcards.good', 'Good') +
+      stat(4, 'fc-stat-easy', 'flashcards.easy', 'Easy');
   }
 
   // Play audio for listening cards
@@ -328,5 +378,7 @@
   });
 
   // Init — load cards from API
+  setView('loading');
+  applyStudyLanguage();
   loadCards();
 })();

@@ -1,0 +1,280 @@
+/* Redesign 2026-11 — auth area.
+   Loaded on every page by templates/base.html, after styles.css.
+   Use the design tokens (--bg, --surface, --ink, --brand, ...) and the shared
+   .ld-* components documented in FOUNDATION.md; scope rules to this area's
+   page or player root so they cannot leak into other pages.
+
+   Pages: /login (login.html), /welcome (onboarding.html),
+   /language-selection (language_selection.html, task mode), error.html. */
+
+/* ==================================================================
+   One-screen auth shell: body.ld-auth (login, welcome — no app bar, tabs
+   or footer). The body is exactly one visual viewport tall and never
+   scrolls; <main> is the stage (scrolls only when content is taller than
+   the screen) and the action dock stays pinned at the bottom: either the
+   page dock block (.ld-dock--page, a sibling of main) or a form's own
+   .auth__dock, which sticks to the bottom of main.
+   ================================================================== */
+html:has(> body.ld-auth) {
+  overflow: hidden;
+}
+
+body.ld-auth {
+  height: 100%;
+  height: var(--ld-vvh, 100dvh);
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 0;
+  background: var(--bg);
+}
+
+body.ld-auth > .ld-main.ld-auth-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+body.ld-auth > .ld-flash {
+  flex: none;
+  max-width: 480px;
+}
+
+body.ld-auth > .ld-dock--page {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.auth {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: calc(var(--ld-safe-t) + 14px);
+}
+
+/* Gutters for everything except a form's dock, which runs edge to edge. */
+.auth.login-page > :not(.auth__step, .alert),
+.auth__fields {
+  padding-left: var(--ld-pad-l);
+  padding-right: var(--ld-pad-r);
+}
+
+.auth > .alert {
+  margin: 0 var(--ld-pad-r) 0 var(--ld-pad-l);
+  padding-inline: 14px;
+}
+
+/* Welcome: plain scrolling stage, its dock is the page dock block. */
+.auth.welcome-page {
+  gap: 12px;
+  padding: calc(var(--ld-safe-t) + 18px) var(--ld-pad-r) 14px var(--ld-pad-l);
+}
+
+/* ---------- Login ---------- */
+.auth__top {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.auth__langs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.auth__langs .auth__flag {
+  min-width: 44px;
+  justify-content: center;
+  padding: 0 8px;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.auth__langs .auth__flag[aria-pressed='true'] {
+  background: var(--brand-wash);
+  color: var(--ink);
+  border-color: var(--brand);
+}
+
+/* Brand block: big seal watermark behind the eyebrow and headline. The brand
+   and the step share the spare height equally (brand content sits at its
+   bottom, the fields at the step's top), which centres brand + fields
+   between the top of the screen and the dock, as the mockup. */
+.auth__brand {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.auth__wm {
+  font: 700 6rem/1 var(--f-cjk);
+  color: var(--brand);
+  opacity: 0.16;
+  text-align: center;
+  margin-bottom: -40px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.auth__name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.auth__step,
+.auth__form {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth__fields {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth__fields .form-label {
+  margin-bottom: 4px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.auth__sent {
+  font-size: 0.875rem;
+}
+
+.auth__sent strong {
+  overflow-wrap: anywhere;
+}
+
+.auth__remember {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding-left: 0;
+}
+
+.auth__remember .form-check-input {
+  flex: none;
+  float: none;
+  margin: 0;
+}
+
+.auth__remember .form-check-label {
+  font-size: 0.875rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.auth__resend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+}
+
+.auth__resend .ld-link {
+  min-height: 44px;
+  font-size: inherit;
+}
+
+/* A form's own dock: pinned to the bottom of the scrolling main. */
+.auth__dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-top: auto;
+}
+
+.auth__form .auth__fields {
+  padding-bottom: 14px;
+}
+
+.auth__loading {
+  flex: 1 0 auto;
+  padding-block: 24px;
+  text-align: center;
+}
+
+/* Short screens (iPhone SE, landscape, keyboard up): drop the watermark so
+   the fields keep their room; main still scrolls if it must. */
+@media (height < 600px) {
+  .auth__wm {
+    display: none;
+  }
+
+  .auth {
+    padding-top: calc(var(--ld-safe-t) + 8px);
+    gap: 10px;
+  }
+}
+
+/* ---------- Wide screens: a calm centred column, no dock hairline ---------- */
+@media (width >= 768px) {
+  body.ld-auth > .ld-dock--page,
+  .auth__dock {
+    border-top: 0;
+  }
+
+  .auth {
+    padding-top: 28px;
+  }
+
+  /* Login on a tall desktop window: a compact, vertically centred column
+     instead of a form stretched over the full height. */
+  body.ld-auth > .ld-main.ld-auth-main:has(> .login-page) {
+    flex: 0 1 auto;
+    max-height: min(100%, 680px);
+    margin-block: auto;
+  }
+
+  .auth__wm {
+    font-size: 7.5rem;
+    margin-bottom: -52px;
+  }
+}
+
+/* ==================================================================
+   Error page (error.html — normal app page with tabs)
+   ================================================================== */
+.ld-error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.ld-error-page .auth__wm {
+  margin-bottom: -36px;
+}
+
+.ld-error-page__action {
+  margin-top: 10px;
+  align-self: stretch;
+}
+
+@media (width >= 576px) {
+  .ld-error-page__action {
+    align-self: center;
+    min-width: 220px;
+  }
+}

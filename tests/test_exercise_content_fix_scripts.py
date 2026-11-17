@@ -1,6 +1,6 @@
-"""TASK-982 — the content fix scripts read and write through the content store.
+"""TASK-1014 — the content fix scripts read and write through the content store.
 
-``scripts/backfill_exercise_audio.py`` (ADR-047 Appendix A row 18) and
+``scripts/backfill_exercise_audio.py`` (ADR-049 Appendix A row 18) and
 ``scripts/backfill_hant_mirrors.py`` (row 19) read exercise content and rewrite
 it. They now:
 
@@ -15,7 +15,7 @@ it. They now:
 
 The store is monkeypatched with fakes that behave like ``storage`` mode (the
 select has no content; ``hydrate`` fills it from "files" and drops what is
-missing). The db-mode tests run the real TASK-976 facade and pin today's
+missing). The db-mode tests run the real TASK-1008 facade and pin today's
 PostgREST calls. Fully offline: no Supabase, no TTS, no OpenCC overrides table.
 """
 

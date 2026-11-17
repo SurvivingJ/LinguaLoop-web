@@ -1,10 +1,10 @@
-"""Shared fakes for the ADR-047 exercise-content tests (TASK-979; used by TASK-993).
+"""Shared fakes for the ADR-049 exercise-content tests (TASK-1011; used by TASK-1025).
 
 ``FakeContentDB`` emulates, in memory, the slice of Supabase the exercise
 content store talks to:
 
 * ``rpc(name, params).execute().data`` for the three write-side RPCs of
-  ADR-047 §8 — ``exercise_content_begin``, ``exercise_content_commit`` (the
+  ADR-049 §8 — ``exercise_content_begin``, ``exercise_content_commit`` (the
   version / row-id-set compare-and-swap, deletes -> inserts -> content
   updates -> version stamp, all or nothing) and
   ``exercise_content_live_versions`` — plus any handler a test registers in
@@ -20,7 +20,7 @@ content store talks to:
   the JSON passed in).
 
 Errors are raised as ``FakeDBError`` (a ``ValueError`` carrying a PostgreSQL /
-PostgREST ``code``): ``22023`` for bad commit input (ADR-047 §8), ``23505`` for
+PostgREST ``code``): ``22023`` for bad commit input (ADR-049 §8), ``23505`` for
 a duplicate id or a duplicate context-free variant
 (``uq_exercises_context_free_variant``; ``enforce_unique=False`` turns that
 check off), ``42703`` / ``PGRST204`` for the dropped column.
@@ -61,7 +61,7 @@ CONTEXT_FREE_TYPES = frozenset({
     'classifier_match', 'counter_match',
 })
 
-# Columns and defaults of public.exercises (wiki/database/schema.tech.md + ADR-047 §7).
+# Columns and defaults of public.exercises (wiki/database/schema.tech.md + ADR-049 §7).
 EXERCISE_COLUMNS: dict[str, Any] = {
     'id': None, 'language_id': None, 'exercise_type': None, 'source_type': None,
     'word_sense_id': None, 'corpus_collocation_id': None, 'word_asset_id': None,
@@ -72,7 +72,7 @@ EXERCISE_COLUMNS: dict[str, Any] = {
     'generation_batch_id': None, 'created_at': None, 'content_version': 0, 'dedupe_key': None,
 }
 
-# exercise_content_commit insert column list (ADR-047 §8); everything else takes its default.
+# exercise_content_commit insert column list (ADR-049 §8); everything else takes its default.
 COMMIT_INSERT_COLUMNS = (
     'id', 'language_id', 'exercise_type', 'source_type', 'word_sense_id',
     'corpus_collocation_id', 'word_asset_id', 'content', 'tags', 'difficulty_static',
@@ -198,7 +198,7 @@ class _Query:
         return self._set_op('delete')
 
     def upsert(self, *args: Any, **kwargs: Any) -> '_Query':
-        raise AssertionError('exercises must never be upserted (ADR-047 §4)')
+        raise AssertionError('exercises must never be upserted (ADR-049 §4)')
 
     # -- filters ------------------------------------------------------------
 
@@ -288,7 +288,7 @@ class _RpcCall:
 
 
 class FakeContentDB:
-    """In-memory ``exercises`` table + the ADR-047 §8 RPCs (see the module docstring)."""
+    """In-memory ``exercises`` table + the ADR-049 §8 RPCs (see the module docstring)."""
 
     def __init__(self, rows: Iterable[Mapping] = (), *, has_content_column: bool = True,
                  enforce_unique: bool = True, next_version: int = 1):
@@ -597,7 +597,7 @@ class FakeContentDB:
         if not isinstance(insert_rows, list) or not isinstance(updates, Mapping):
             raise FakeDBError('22023', 'p_insert_rows must be an array, p_update_contents an object')
         # Static input checks, before the compare-and-swap, as in
-        # migrations/exercise_content_storage.sql (TASK-993 alignment): bad input
+        # migrations/exercise_content_storage.sql (TASK-1025 alignment): bad input
         # raises 22023 whatever the table holds; a missing source_type is the
         # NOT NULL violation (23502) the real INSERT raises.
         for row in insert_rows:

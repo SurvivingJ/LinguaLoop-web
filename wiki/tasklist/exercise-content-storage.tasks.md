@@ -1,15 +1,15 @@
 ---
 title: "Exercise Content in Storage — Task Breakdown"
 feature: exercise-content-storage
-prose_page: ../decisions/ADR-047-exercise-content-in-storage.md  # no feature page; the ADR is the spec
-tech_page: ../decisions/ADR-047-exercise-content-in-storage.md
+prose_page: ../decisions/ADR-049-exercise-content-in-storage.md  # no feature page; the ADR is the spec
+tech_page: ../decisions/ADR-049-exercise-content-in-storage.md
 total_tasks: 24
 done: 18
 ---
 
 # Exercise Content in Storage — Task Breakdown
 
-Source: [[decisions/ADR-047-exercise-content-in-storage]] (proposed 2026-11-17). Exercise
+Source: [[decisions/ADR-049-exercise-content-in-storage]] (proposed 2026-11-17). Exercise
 `content` (119 MB of a 470 MB database on the 500 MB Free cap) moves to one immutable JSON file
 per sense in the private Storage bucket `exercise-content`. The ADR holds the normative
 contracts every task codes against: **§8 RPC contract**, **§9 `store.py` interface**, **§2 file
@@ -17,13 +17,13 @@ format**, and **Appendix A** (the reader/writer inventory that these tasks cover
 
 ## How Phase 1 runs
 
-1. **TASK-976 lands first** (S, ≤ 3 h): the `store.py` facade with the full public interface,
+1. **TASK-1008 lands first** (S, ≤ 3 h): the `store.py` facade with the full public interface,
    `db`-mode behaviour working, codec, `InMemoryBackend`, flags. Everything else imports it.
-2. Then in parallel: **a** (977 → 978, and 979), **b** (980, 981, 982 → 983), **c** (984, 985 →
-   986), **d** (987, 988, 989, 990), **e** (991, 992).
-3. **TASK-993** integrates and runs everything together offline, then updates the wiki.
-4. **TASK-994–998 are operator tasks** (live database, deploy, flags, measurement). Not for
-   agents. TASK-999 (agent) cleans up after the column drop.
+2. Then in parallel: **a** (1009 → 1010, and 1011), **b** (1012, 1013, 1014 → 1015), **c** (1016, 1017 →
+   1018), **d** (1019, 1020, 1021, 1022), **e** (1023, 1024).
+3. **TASK-1025** integrates and runs everything together offline, then updates the wiki.
+4. **TASK-1026–1030 are operator tasks** (live database, deploy, flags, measurement). Not for
+   agents. TASK-1031 (agent) cleans up after the column drop.
 
 **Offline rule for every agent task.** No Supabase, OpenRouter or Storage access. Verification
 commands are written as `OFFLINE pytest …`, meaning:
@@ -38,7 +38,7 @@ Baseline 2026-11-17 on this branch: the 35 existing test files named in this fil
 and `::test_chinese_mining_recovers_a_verb_object_merge` (`jieba` not installed). Those two may
 keep failing; nothing else may start failing.
 
-**Integration result 2026-11-17 (TASK-993).** TASK-976–993 are done; TASK-994–999 remain (operator
+**Integration result 2026-11-17 (TASK-1025).** TASK-1008–1025 are done; TASK-1026–1031 remain (operator
 steps, then the clean-up). The cited set still gives 554 passed, 2 failed (the same two) in all
 three flag combinations (db/db, shadow/dual, storage/dual). The whole offline suite (`OFFLINE
 pytest -q tests`) fails 48 tests and has 1 collection error both on the foundation commit `c3cb106`
@@ -55,30 +55,30 @@ call order). Existing tests must pass without edits; a task may edit an existing
 where this file says so.
 
 **Tests in b, d and e do not wait for a.** They monkeypatch `store.read_mode` /
-`store.write_mode` / `store.hydrate` / `store.write_sense` (all exist after TASK-976) with simple
-fakes and assert on the calls. The real store runs end to end only in TASK-993.
+`store.write_mode` / `store.hydrate` / `store.write_sense` (all exist after TASK-1008) with simple
+fakes and assert on the calls. The real store runs end to end only in TASK-1025.
 
 ## File ownership (shared-file conflicts and how they are resolved)
 
 | File | Owner | Others rely on |
 |---|---|---|
-| `config.py` (the `EXERCISE_CONTENT_*` flags) | TASK-976 | flags are read only through `store.read_mode()` / `store.write_mode()` / store internals |
-| `tests/conftest.py` (autouse fixture pinning both flags to `db` + `store.reset_state()`) | TASK-976 | every package's tests |
-| `services/exercise_content/store.py` | TASK-976 only | ADR §9; 978 and 979 implement `reader.py` / `writer.py` behind it, never edit `store.py` |
-| `services/exercise_content/backends.py` | TASK-976 creates (Protocol, `StoredObject`, `InMemoryBackend`, `SupabaseStorageBackend` stub); TASK-977 fills `SupabaseStorageBackend` | sequential inside package a |
-| `tests/exercise_content_fakes.py` (`FakeContentDB`) | TASK-979 | TASK-993 only; b/d/e tests build their own local fakes |
-| `services/vocabulary_ladder/exercise_renderer.py` | TASK-980 (`render_all` only) | `build_rows` stays pure — `scripts/run_exercise_gen_eval.py` and stage-8 replay call it |
-| `routes/vocab_admin.py` | TASK-990 (`preview_word`) | `wipe_word` (DELETE) and `remove_level` (`is_active`) stay direct — allowed by the write rule (ADR §4), so package b does not touch this file |
-| `services/practice/session_assembly.py`, `services/intro_drill.py` | TASK-987 (one task, both files) | — |
-| `migrations/exercise_content_storage.sql` / `…_session_rpcs.sql` / `…_drop_column.sql` | TASK-984 / 985 / 986 | 986 redefines 984/985 functions in its own file |
-| Wiki pages | TASK-993, TASK-999 | — |
+| `config.py` (the `EXERCISE_CONTENT_*` flags) | TASK-1008 | flags are read only through `store.read_mode()` / `store.write_mode()` / store internals |
+| `tests/conftest.py` (autouse fixture pinning both flags to `db` + `store.reset_state()`) | TASK-1008 | every package's tests |
+| `services/exercise_content/store.py` | TASK-1008 only | ADR §9; 1010 and 1011 implement `reader.py` / `writer.py` behind it, never edit `store.py` |
+| `services/exercise_content/backends.py` | TASK-1008 creates (Protocol, `StoredObject`, `InMemoryBackend`, `SupabaseStorageBackend` stub); TASK-1009 fills `SupabaseStorageBackend` | sequential inside package a |
+| `tests/exercise_content_fakes.py` (`FakeContentDB`) | TASK-1011 | TASK-1025 only; b/d/e tests build their own local fakes |
+| `services/vocabulary_ladder/exercise_renderer.py` | TASK-1012 (`render_all` only) | `build_rows` stays pure — `scripts/run_exercise_gen_eval.py` and stage-8 replay call it |
+| `routes/vocab_admin.py` | TASK-1022 (`preview_word`) | `wipe_word` (DELETE) and `remove_level` (`is_active`) stay direct — allowed by the write rule (ADR §4), so package b does not touch this file |
+| `services/practice/session_assembly.py`, `services/intro_drill.py` | TASK-1019 (one task, both files) | — |
+| `migrations/exercise_content_storage.sql` / `…_session_rpcs.sql` / `…_drop_column.sql` | TASK-1016 / 1017 / 1018 | 1018 redefines 1016/1017 functions in its own file |
+| Wiki pages | TASK-1025, TASK-1031 | — |
 
-Interfaces between packages: ADR-047 §8 (c ↔ a: RPC names, parameters, JSON shapes, error
+Interfaces between packages: ADR-049 §8 (c ↔ a: RPC names, parameters, JSON shapes, error
 codes), §9 (a ↔ b, d, e: Python API), §2 (a ↔ e: file bytes via `store.encode_sense_file`).
 
 ---
 
-## TASK-976: Store facade, flags, `db` mode, codec and in-memory backend (lands first)
+## TASK-1008: Store facade, flags, `db` mode, codec and in-memory backend (lands first)
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
@@ -88,10 +88,10 @@ codes), §9 (a ↔ b, d, e: Python API), §2 (a ↔ e: file bytes via `store.enc
 **Built:** foundation commit `c3cb106` (on `claude/dreamy-brahmagupta-40a4gq`). As specified. Internal plumbing (settings, warn-once, reset hooks, cache slots) lives in `store.py` for packages a's reader/writer/cache.
 
 **Description:**
-Create the package every other task imports, with the exact public interface of ADR-047 §9.
+Create the package every other task imports, with the exact public interface of ADR-049 §9.
 `db` read and write modes are fully implemented (they reproduce today's calls); `storage` /
 `shadow` reads delegate to `reader.py` and `dual` writes to `writer.py`, which are stubs here
-raising `NotImplementedError('TASK-978')` / `('TASK-979')`. Also the pure helpers (paths, codec,
+raising `NotImplementedError('TASK-1010')` / `('TASK-1011')`. Also the pure helpers (paths, codec,
 `canonical`) and a thread-safe `InMemoryBackend` that all later tests use.
 
 **Acceptance Criteria:**
@@ -115,8 +115,8 @@ import time. Keep `store.py` the only module callers import; everything else is 
 **Files to Create / Modify:**
 - `services/exercise_content/__init__.py` — new, docstring only.
 - `services/exercise_content/store.py` — new: ADR §9 facade, db mode, codec, backend singleton.
-- `services/exercise_content/backends.py` — new: `StoredObject`, `StorageBackend` Protocol, `InMemoryBackend`, `SupabaseStorageBackend` (constructor stores config; methods raise `NotImplementedError('TASK-977')`).
-- `services/exercise_content/reader.py`, `services/exercise_content/writer.py` — new stubs with the signatures 978/979 implement: `reader.hydrate(items, *, language_id, id_key, sense_key, db, drop_missing, max_senses, deadline_s, mode) -> HydrationReport`, `reader.fetch_sense(language_id, sense_id, version)`, `writer.write_sense_dual(db, sense_id, language_id, *, insert_rows, delete_where, update_contents, max_retries) -> WriteResult`.
+- `services/exercise_content/backends.py` — new: `StoredObject`, `StorageBackend` Protocol, `InMemoryBackend`, `SupabaseStorageBackend` (constructor stores config; methods raise `NotImplementedError('TASK-1009')`).
+- `services/exercise_content/reader.py`, `services/exercise_content/writer.py` — new stubs with the signatures 1010/1011 implement: `reader.hydrate(items, *, language_id, id_key, sense_key, db, drop_missing, max_senses, deadline_s, mode) -> HydrationReport`, `reader.fetch_sense(language_id, sense_id, version)`, `writer.write_sense_dual(db, sense_id, language_id, *, insert_rows, delete_where, update_contents, max_retries) -> WriteResult`.
 - `config.py` — the ten flags.
 - `tests/conftest.py` — autouse pin fixture.
 - `tests/test_exercise_content_store_db_mode.py` — new.
@@ -126,13 +126,13 @@ import time. Keep `store.py` the only module callers import; everything else is 
 
 ---
 
-## TASK-977: Supabase Storage backend (httpx) and byte-bounded caches
+## TASK-1009: Supabase Storage backend (httpx) and byte-bounded caches
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** M (3-8h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/a-store`, commit `58000de` (merged `2b4b35d`). Additive: `SupabaseStorageBackend(..., transport=None)` keyword and `close()`; the module-level client is one pooled client per (timeout, concurrency) setting; `put` accepts any 2xx, `get` only 200; `list` reads every page eagerly, sorts by path, stops on a short page or a page that adds no new path. `ByteLRU.put` returns bool, plus `discard`, `__contains__`, `__len__`; `clear()` resets the counters; `NegativeCache(max_entries=100_000)` prunes expired keys first.
 
 **Description:**
@@ -155,7 +155,7 @@ The service key must never appear in logs or exception text. `httpx` honours the
 environment by default (`trust_env=True`); keep that. Do not add `http2` (no `h2` dependency).
 
 **Files to Create / Modify:**
-- `services/exercise_content/backends.py` — implement `SupabaseStorageBackend` (created by TASK-976).
+- `services/exercise_content/backends.py` — implement `SupabaseStorageBackend` (created by TASK-1008).
 - `services/exercise_content/cache.py` — new.
 - `tests/test_exercise_content_backend.py`, `tests/test_exercise_content_cache.py` — new.
 
@@ -164,17 +164,17 @@ environment by default (`trust_env=True`); keep that. Do not add `http2` (no `h2
 
 ---
 
-## TASK-978: Read path — `storage` and `shadow` hydration, `fetch_sense`
+## TASK-1010: Read path — `storage` and `shadow` hydration, `fetch_sense`
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-976, TASK-977
+**Depends On:** TASK-1008, TASK-1009
 **Built:** branch `ecs/a-store`, commit `cf007b5` (merged `2b4b35d`). The per-call cap counts groups in item order before the cache lookup (warm and cold calls serve the same items); `over_cap` includes groups unfinished at the deadline; late GETs still fill the caches; a corrupt file is logged at ERROR, evicted and negative-cached; a fetch error is not negative-cached (one WARNING per call). Shadow: group-level mismatches log `exercise=* n=<count>`, fetch errors add `error=<type>`, the summary adds `fetch_error=`; `shadow.stats()` helper. `reader.hydrate` raises `ValueError` for an unknown mode.
 
 **Description:**
-Implement `reader.hydrate` and `reader.fetch_sense` exactly as ADR-047 §5 and §9 describe:
+Implement `reader.hydrate` and `reader.fetch_sense` exactly as ADR-049 §5 and §9 describe:
 grouping by `(language, sense, version)`, byte LRU, negative cache, parallel fetch on the
 store's own pool, per-call cap and deadline, DB fallback, drop/None for misses, fresh objects per
 item; and `shadow.py`, the background comparer.
@@ -198,7 +198,7 @@ to the fallback. Language: the `language_id` argument, else `int(item['language_
 missing. The shadow worker is one daemon thread.
 
 **Files to Create / Modify:**
-- `services/exercise_content/reader.py` — implement (stub from 976).
+- `services/exercise_content/reader.py` — implement (stub from 1008).
 - `services/exercise_content/shadow.py` — new.
 - `tests/test_exercise_content_reader.py` — new.
 
@@ -207,17 +207,17 @@ missing. The shadow worker is one daemon thread.
 
 ---
 
-## TASK-979: Write path — `dual` mode (file first, then rows by compare-and-swap)
+## TASK-1011: Write path — `dual` mode (file first, then rows by compare-and-swap)
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-976
-**Built:** branch `ecs/a-store`, commit `8462de4` (merged `2b4b35d`). Extra `ValueError`s before any upload: an insert id that is a surviving row, a begin row in another language, rows that are not JSON-safe. A write that matches nothing commits nothing and returns the current version; a write that leaves the sense empty commits without a file. Retries pause `uniform(0, 0.02 × attempt)` s. `FakeContentDB` was aligned with the SQL's validation in TASK-993 (`e508f1c`).
+**Depends On:** TASK-1008
+**Built:** branch `ecs/a-store`, commit `8462de4` (merged `2b4b35d`). Extra `ValueError`s before any upload: an insert id that is a surviving row, a begin row in another language, rows that are not JSON-safe. A write that matches nothing commits nothing and returns the current version; a write that leaves the sense empty commits without a file. Retries pause `uniform(0, 0.02 × attempt)` s. `FakeContentDB` was aligned with the SQL's validation in TASK-1025 (`e508f1c`).
 
 **Description:**
-Implement `writer.write_sense_dual` (ADR-047 §4 and §9) against the RPC contract of §8, and the
+Implement `writer.write_sense_dual` (ADR-049 §4 and §9) against the RPC contract of §8, and the
 shared `FakeContentDB` that emulates those RPCs and the `exercises` table for tests.
 
 **Acceptance Criteria:**
@@ -228,17 +228,17 @@ shared `FakeContentDB` that emulates those RPCs and the `exercises` table for te
 - [x] Race: a commit injected between `begin` and `commit` makes the first attempt return `version_conflict`; the writer deletes its own file and succeeds on attempt 2 with the injected change preserved in the final file. A row deleted outside the store gives `rows_changed` and the same retry. After `max_retries` conflicts: `ContentWriteConflict`, no rows changed by this writer.
 - [x] Two threads updating different exercises of one sense concurrently both end up in the final file (no lost update).
 - [x] Commit call raising (network/APIError): the uploaded file is not deleted and the exception propagates. `AlreadyExists` on upload → `ContentStorageError` (sequence numbers must make it impossible).
-- [x] After success the new file's bytes are put in the read cache when TASK-977's cache is present (feature-detect; no hard dependency).
+- [x] After success the new file's bytes are put in the read cache when TASK-1009's cache is present (feature-detect; no hard dependency).
 - [x] `FakeContentDB` (in `tests/exercise_content_fakes.py`) implements `rpc('exercise_content_begin'|'exercise_content_commit'|'exercise_content_live_versions', params).execute().data` with ADR §8 semantics (a lock, version/row-set CAS, 22023-style errors as raised `ValueError`s, `dedupe_key` for the 8 context-free types), and `table('exercises')` with `select/insert/delete/update/eq/in_/not_.is_/order/range/limit/execute`, rows in memory, a `has_content_column` switch, and hooks to inject a concurrent change between calls.
 
 **Technical Notes:**
 Read the base file with `store.backend().get` + `store.decode_sense_file` (not the reader), so
-this task does not depend on TASK-978. Pass `p_insert_rows` as the row dicts (JSON-safe) and
+this task does not depend on TASK-1010. Pass `p_insert_rows` as the row dicts (JSON-safe) and
 `p_update_contents` as `{id: content}`. Sort id arrays. Log one INFO
 `exercise_content.write sense=… version=… attempts=… inserted=… deleted=… updated=…`.
 
 **Files to Create / Modify:**
-- `services/exercise_content/writer.py` — implement (stub from 976).
+- `services/exercise_content/writer.py` — implement (stub from 1008).
 - `tests/exercise_content_fakes.py` — new (`FakeContentDB`; re-export `InMemoryBackend`).
 - `tests/test_exercise_content_writer.py` — new.
 
@@ -247,13 +247,13 @@ this task does not depend on TASK-978. Pass `p_insert_rows` as the row dicts (JS
 
 ---
 
-## TASK-980: Renderer and stage-runner render through `store.write_sense`
+## TASK-1012: Renderer and stage-runner render through `store.write_sense`
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** refactor
 **Complexity:** S (1-3h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/b-writers`, commit `3b5d83d` (merged `57a7de9`). As specified.
 
 **Description:**
@@ -285,13 +285,13 @@ merges into the existing file.
 
 ---
 
-## TASK-981: Regeneration writers (queue drain, generation batch) through `store.write_sense`
+## TASK-1013: Regeneration writers (queue drain, generation batch) through `store.write_sense`
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** refactor
 **Complexity:** S (1-3h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/b-writers`, commit `1a602e7` (merged `57a7de9`). Additive: `detail['error_detail'] = str(exc)[:500]` next to the `content_write_conflict` / `content_storage_error` code.
 
 **Description:**
@@ -314,13 +314,13 @@ levels) and insert the new set. Both become one `store.write_sense` call with a 
 
 ---
 
-## TASK-982: Content fix scripts (audio URLs, Traditional mirrors) through the store
+## TASK-1014: Content fix scripts (audio URLs, Traditional mirrors) through the store
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** refactor
 **Complexity:** S (1-3h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/b-writers`, commit `5211684` (merged `57a7de9`). Both scripts page the DB as before, then group rows by sense and call `store.hydrate` once per chunk of at most 100 senses (hydrating per id-ordered page would fetch each sense's file many times). A failed sense write counts the rows it carried as failed. New counters `unavailable` / `content_unavailable` for rows hydrate could not fill. In db mode the select strings now also read `word_sense_id, language_id` and updates are issued per sense after the sense is processed (still one update per row).
 
 **Description:**
@@ -345,17 +345,17 @@ version instead of one per row.
 
 ---
 
-## TASK-983: Static guard — no content write outside the store
+## TASK-1015: Static guard — no content write outside the store
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** test
 **Complexity:** XS (<1h)
-**Depends On:** TASK-980, TASK-981, TASK-982
+**Depends On:** TASK-1012, TASK-1013, TASK-1014
 **Built:** branch `ecs/b-writers`, commit `24293da` (merged `57a7de9`). Also catches the calls on a name the bare builder was assigned to, adjacent string literals and f-string text. Re-run after all merges: the repo scan is clean.
 
 **Description:**
-Enforce ADR-047 §4: inserts into `exercises` and changes to `content` only through
+Enforce ADR-049 §4: inserts into `exercises` and changes to `content` only through
 `store.write_sense`.
 
 **Acceptance Criteria:**
@@ -370,7 +370,7 @@ Enforce ADR-047 §4: inserts into `exercises` and changes to `content` only thro
 
 ---
 
-## TASK-984: Migration — columns, sequence, write-side RPCs, bucket
+## TASK-1016: Migration — columns, sequence, write-side RPCs, bucket
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
@@ -380,13 +380,13 @@ Enforce ADR-047 §4: inserts into `exercises` and changes to `content` only thro
 **Built:** branch `ecs/c-sql`, commits `93c653b`, `8c690fd` (merged `67ca70e`). `exercise_content_commit` stamps the new version only on the rows it checked (plus the inserts); more input is rejected with 22023 than ADR §8 lists; `source_type` is required (23502); unknown insert keys are ignored. The SQL scenarios and the full apply/rollback chain were run on a throwaway local PostgreSQL 16 cluster with a stub schema (never the live DB).
 
 **Description:**
-`migrations/exercise_content_storage.sql`, written per ADR-047 §7–8 and `migrations/CLAUDE.md`,
-**not applied** (TASK-994 applies it). Additive only: no `UPDATE` of `exercises` (the database is
+`migrations/exercise_content_storage.sql`, written per ADR-049 §7–8 and `migrations/CLAUDE.md`,
+**not applied** (TASK-1026 applies it). Additive only: no `UPDATE` of `exercises` (the database is
 30 MB under its cap).
 
 **Acceptance Criteria:**
 - [x] One transaction: `ALTER TABLE public.exercises ADD COLUMN IF NOT EXISTS content_version integer NOT NULL DEFAULT 0, ADD COLUMN IF NOT EXISTS dedupe_key text;` `CREATE SEQUENCE IF NOT EXISTS public.exercise_content_version_seq AS integer START WITH 1;` with `REVOKE ALL … FROM PUBLIC, anon, authenticated` and `GRANT USAGE, SELECT … TO service_role`.
-- [x] `exercise_content_begin`, `exercise_content_commit`, `exercise_content_live_versions` exactly as ADR §8 (signatures, JSON shapes, `pg_advisory_xact_lock(47047, p_sense_id)`, version and row-id-set CAS, `ERRCODE = '22023'` cases, insert column list with defaults, `dedupe_key = md5(coalesce(<row JSON>->'content'->>'context_sentence',''))` (from the JSON passed in, never the column) for exactly the 8 types of `uq_exercises_context_free_variant`, final version stamp). Each: `SECURITY INVOKER`, `SET search_path = public, pg_temp`, REVOKE/GRANT, `COMMENT ON FUNCTION` citing ADR-047.
+- [x] `exercise_content_begin`, `exercise_content_commit`, `exercise_content_live_versions` exactly as ADR §8 (signatures, JSON shapes, `pg_advisory_xact_lock(47047, p_sense_id)`, version and row-id-set CAS, `ERRCODE = '22023'` cases, insert column list with defaults, `dedupe_key = md5(coalesce(<row JSON>->'content'->>'context_sentence',''))` (from the JSON passed in, never the column) for exactly the 8 types of `uq_exercises_context_free_variant`, final version stamp). Each: `SECURITY INVOKER`, `SET search_path = public, pg_temp`, REVOKE/GRANT, `COMMENT ON FUNCTION` citing ADR-049.
 - [x] `INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types) VALUES ('exercise-content', 'exercise-content', false, 1048576, ARRAY['application/json']) ON CONFLICT (id) DO NOTHING;` and `NOTIFY pgrst, 'reload schema';`.
 - [x] Header: purpose, ADR link, "NOT applied", apply order (this file, then `exercise_content_session_rpcs.sql`), the rule that rollback is valid only before `EXERCISE_CONTENT_WRITE=dual` was ever set.
 - [x] `migrations/exercise_content_storage_rollback.sql`: drops the three functions, the sequence and both columns (never deletes bucket objects; says so).
@@ -402,13 +402,13 @@ Enforce ADR-047 §4: inserts into `exercises` and changes to `content` only thro
 
 ---
 
-## TASK-985: Migration — session RPCs return ids only on request; drop dead content RPCs
+## TASK-1017: Migration — session RPCs return ids only on request; drop dead content RPCs
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** M (3-8h)
-**Depends On:** none (applied after TASK-984's file)
+**Depends On:** none (applied after TASK-1016's file)
 **Built:** branch `ecs/c-sql`, commit `ced9d87` (merged `67ca70e`). `get_practice_session` appends content with `jsonb_set(v_items, '{-1,content}', …)` instead of `|| CASE …` (left-associative `||` would append a separate array element); the strict line rule still holds. `p_include_content = NULL` behaves like false. The rollback refuses once `exercises.content` is gone.
 
 **Description:**
@@ -424,7 +424,7 @@ that return content (Appendix A row 22; repo/live drift).
 - [x] `DROP FUNCTION IF EXISTS public.get_exercise_session(uuid, smallint, integer); … (uuid, smallint, integer, numeric); public.get_ladder_session(uuid, smallint, integer);` and `NOTIFY pgrst, 'reload schema';`.
 - [x] `migrations/exercise_content_session_rpcs_rollback.sql`: drops the 6-arg functions and recreates the 5-arg ones verbatim from the canonical files (does not recreate the dead functions). Header: roll back only with `EXERCISE_CONTENT_SOURCE=db`.
 - [x] `tests/test_exercise_content_migration_rpcs.py` (static): extracts old and new bodies and diffs them line by line (whitespace-normalised); every removed line contains `content`; every added line contains `content` or `p_include_content`; the three DROPs and the grants are present; `p_include_content boolean DEFAULT true` on both; security lint passes.
-- [x] Old migration files are **not** archived here (they stay canonical until the live apply; TASK-999 archives).
+- [x] Old migration files are **not** archived here (they stay canonical until the live apply; TASK-1031 archives).
 
 **Files to Create / Modify:**
 - `migrations/exercise_content_session_rpcs.sql`, `migrations/exercise_content_session_rpcs_rollback.sql` — new.
@@ -435,25 +435,25 @@ that return content (Appendix A row 22; repo/live drift).
 
 ---
 
-## TASK-986: Cut-over migration file (written now, run by the operator in TASK-998)
+## TASK-1018: Cut-over migration file (written now, run by the operator in TASK-1030)
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** M (3-8h)
-**Depends On:** TASK-984, TASK-985
+**Depends On:** TASK-1016, TASK-1017
 **Built:** branch `ecs/c-sql`, commit `b14f7b2` (merged `67ca70e`). Step 3 starts with a precondition block (v2 index valid, no context-free row without `dedupe_key`) and drops the old index explicitly. Added `migrations/exercise_content_drop_column_rollback.sql` (R1–R5; the data refill R2 has no script yet — follow-up).
 
 **Description:**
 `migrations/exercise_content_drop_column.sql`: a step-by-step runbook file (each step runnable
 on its own in the SQL editor; `VACUUM` and `CREATE INDEX CONCURRENTLY` steps outside any
-transaction) per ADR-047 §7.
+transaction) per ADR-049 §7.
 
 **Acceptance Criteria:**
 - [x] Step 0 (read-only checks): rows of the 8 types with `dedupe_key IS NULL`; rows with `word_sense_id IS NULL` (expect 10); `pg_database_size`; `pg_total_relation_size('public.exercises')`.
 - [x] Step 1 (repeat until 0 rows): `UPDATE public.exercises SET dedupe_key = md5(coalesce(content->>'context_sentence','')) WHERE id IN (SELECT id FROM public.exercises WHERE dedupe_key IS NULL AND exercise_type IN (<8 types>) LIMIT 2000);` then `VACUUM public.exercises;`.
 - [x] Step 2: `CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS uq_exercises_context_free_variant_v2 ON public.exercises (word_sense_id, exercise_type, dedupe_key) WHERE is_active AND word_sense_id IS NOT NULL AND exercise_type IN (<8 types>);` + a check that it is valid.
-- [x] Step 3 (one transaction): `DELETE FROM public.exercises WHERE word_sense_id IS NULL` (comment: only after `--archive-sense-less`, TASK-991); `CREATE OR REPLACE` of `exercise_content_commit` (no longer writes a `content` column; still computes `dedupe_key` from the `'content'` JSON key of `p_insert_rows` / `p_update_contents`), `get_practice_session` and `get_review_ahead_items` (never return content; `p_include_content` kept for signature compatibility and ignored); `ALTER TABLE public.exercises DROP COLUMN content;`; `NOTIFY pgrst, 'reload schema';`. `DROP FUNCTION IF EXISTS public.apply_semdisc_notes(jsonb); DROP TABLE IF EXISTS public.backup_semdisc_content_20261115, public.semdisc_rewrite_work;` (owner decision 2026-11-17: archived first by `--archive-semdisc`, TASK-991; the comment says so).
+- [x] Step 3 (one transaction): `DELETE FROM public.exercises WHERE word_sense_id IS NULL` (comment: only after `--archive-sense-less`, TASK-1023); `CREATE OR REPLACE` of `exercise_content_commit` (no longer writes a `content` column; still computes `dedupe_key` from the `'content'` JSON key of `p_insert_rows` / `p_update_contents`), `get_practice_session` and `get_review_ahead_items` (never return content; `p_include_content` kept for signature compatibility and ignored); `ALTER TABLE public.exercises DROP COLUMN content;`; `NOTIFY pgrst, 'reload schema';`. `DROP FUNCTION IF EXISTS public.apply_semdisc_notes(jsonb); DROP TABLE IF EXISTS public.backup_semdisc_content_20261115, public.semdisc_rewrite_work;` (owner decision 2026-11-17: archived first by `--archive-semdisc`, TASK-1023; the comment says so).
 - [x] Step 4: `VACUUM (FULL, ANALYZE) public.exercises;` with a comment on peak space (old + new copy, ~80 MB) and the 2026-11-17 precedent. Step 5: size queries.
 - [x] `tests/test_exercise_content_migration_cutover.py` (static): step order (index v2 before DROP COLUMN; DELETE and DROP in one transaction block), no unquoted `\bcontent\b` token inside the step-3 function bodies (quoted JSON keys like `'content'` are allowed; `p_include_content`, `p_update_contents` and `content_version` do not match the word boundary), the v2 predicate's type list equals the old index's, step 1 has `LIMIT` and `dedupe_key IS NULL`, security lint passes.
 
@@ -466,13 +466,13 @@ transaction) per ADR-047 §7.
 
 ---
 
-## TASK-987: Practice session and intro-drill readers hydrate content
+## TASK-1019: Practice session and intro-drill readers hydrate content
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/d1-session-readers`, commit `75fd2ac` (merged `a2b208c`). `_hydrate_items` and the speed round catch an unexpected `hydrate` exception (contract breach): logged; in storage mode content-less items are dropped. Prestudy follow-up items carry `content_version` in shadow/storage mode only (the one payload difference between modes).
 
 **Description:**
@@ -503,13 +503,13 @@ content, and hydrating after them fetches fewer files. Do not run `build_block` 
 
 ---
 
-## TASK-988: Battery readers (speed round, gate/stress) hydrate content
+## TASK-1020: Battery readers (speed round, gate/stress) hydrate content
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** feature
 **Complexity:** S (1-3h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/d1-session-readers`, commits `5254a14`, `d95072d` (merged `a2b208c`). As specified.
 
 **Description:**
@@ -532,14 +532,14 @@ Appendix A rows 7–8. The speed round today reads content for every mastered se
 
 ---
 
-## TASK-989: Prestudy loads content only for the words it will drill (+ on-demand fetch)
+## TASK-1021: Prestudy loads content only for the words it will drill (+ on-demand fetch)
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** TASK-976
-**Built:** branch `ecs/d2-prestudy-routes`, commit `7d64886` (merged `c8bb607`); wiki by TASK-993. The word-list chip shows only for `has_exercises` words and counts the exercises actually loaded. Spec: [[features/test-prestudy.tech]].
+**Depends On:** TASK-1008
+**Built:** branch `ecs/d2-prestudy-routes`, commit `7d64886` (merged `c8bb607`); wiki by TASK-1025. The word-list chip shows only for `has_exercises` words and counts the exercises actually loaded. Spec: [[features/test-prestudy.tech]].
 
 **Description:**
 Appendix A row 9, the largest fan-out. Owner decision 2026-11-17 (ADR open question 1): the
@@ -577,7 +577,7 @@ product change: it applies in every `EXERCISE_CONTENT_SOURCE` mode, not only `st
 - [x] Existing tests pass: `tests/test_prestudy.py test_prestudy_session.py test_pagination.py
   test_latency_caching.py` (update fixtures only where the payload shape intentionally changed,
   and say which).
-- [x] [[features/test-prestudy.tech]] updated by the integrator (TASK-993) from this task's notes.
+- [x] [[features/test-prestudy.tech]] updated by the integrator (TASK-1025) from this task's notes.
 
 **Files to Create / Modify:**
 - `services/prestudy.py` — drill rule, `_load_exercises`, `build_prestudy_payload`.
@@ -590,13 +590,13 @@ product change: it applies in every `EXERCISE_CONTENT_SOURCE` mode, not only `st
 
 ---
 
-## TASK-990: Route readers (typed grading, admin preview) and the reference-set script
+## TASK-1022: Route readers (typed grading, admin preview) and the reference-set script
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** feature
 **Complexity:** S (1-3h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/d2-prestudy-routes`, commit `00684e8` (merged `c8bb607`). The typed re-grade hydrates after the `cloze_typed` type check and fails open on any error. The reference-set script imports the store after `bootstrap()`.
 
 **Description:**
@@ -620,13 +620,13 @@ the admin word preview, and the offline reference-set snapshot.
 
 ---
 
-## TASK-991: Backfill, verify and archive script
+## TASK-1023: Backfill, verify and archive script
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** M (3-8h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/e-backfill`, commits `b9e174d`, `20e8071` (merged `c4ef849`). Archives are deterministic gzip parts of at most 1 MiB (the bucket limit) listed with sha256 in `manifest.json`; every `--archive-*` flag needs `--language all`; `--archive-semdisc` takes `--semdisc-function-file` or `--semdisc-function-rpc` (no RPC was added) and `--semdisc-order`; exit codes 0 / 1 / 2; the state file is used in export mode only.
 
 **Description:**
@@ -656,13 +656,13 @@ It never updates `exercises` except in `--repair` (≈ 13 rows per repaired sens
 
 ---
 
-## TASK-992: Orphan-file sweep script
+## TASK-1024: Orphan-file sweep script
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h)
-**Depends On:** TASK-976
+**Depends On:** TASK-1008
 **Built:** branch `ecs/e-backfill`, commit `ba132be` (merged `c4ef849`). Added `--allow-empty-live-set` (an empty live set next to deletable files deletes nothing otherwise); default report `data/exercise_content_sweep/report-{lang}-{UTC}.json`.
 
 **Description:**
@@ -687,20 +687,20 @@ database.
 
 ---
 
-## TASK-993: Phase-1 integration run (offline) and wiki update
+## TASK-1025: Phase-1 integration run (offline) and wiki update
 
 **Status:** [x] Done (2026-11-17)
 **Feature:** exercise-content-storage
 **Type:** test
 **Complexity:** M (3-8h)
-**Depends On:** TASK-977, TASK-978, TASK-979, TASK-980, TASK-981, TASK-982, TASK-983, TASK-984, TASK-985, TASK-986, TASK-987, TASK-988, TASK-989, TASK-990, TASK-991, TASK-992
+**Depends On:** TASK-1009, TASK-1010, TASK-1011, TASK-1012, TASK-1013, TASK-1014, TASK-1015, TASK-1016, TASK-1017, TASK-1018, TASK-1019, TASK-1020, TASK-1021, TASK-1022, TASK-1023, TASK-1024
 **Built:** `claude/dreamy-brahmagupta-40a4gq`, commits `e508f1c`, `5c98e43` and the wiki commit. Six `--no-ff` merges, no conflicts. Contract fix: `FakeContentDB` aligned with the commit SQL. `tests/test_exercise_content_integration.py` covers scenarios 1–8 in db/db, shadow/dual and storage/dual. The db-mode serve and write paths of `c3cb106` and of the integrated branch were run over the same fake DB: identical payloads and calls (prestudy differs only by the owner's drill-only change). Full suite: the same 48 failures + 1 collection error as `c3cb106` in every flag combination (environment: jieba, MeCab/ipadic, Supabase credentials at import).
-**Review fixes (2026-11-17):** the independent review's verdict was *needs fixes* (1 major, 3 minor), all fixed after the integration with tests (see ADR-047, "Review fixes"):
-(1) TASK-986: cut-over step 3a enforces in SQL that the session RPC migration is applied and that the archives plus a verify marker from the last 24 hours are in Storage; step 0e shows the same checks read-only.
-(1, cont.) TASK-991: a clean full `--verify` writes `_archive/verify-ok/<UTC>.json`.
-(2) TASK-990: db mode again sends the pre-ADR select string for the typed re-grade and the reference-set script.
-(3) TASK-979/982/991: `write_sense(expected_version=...)` and `store.base_version`. The audio and hant fix scripts and `--repair` refuse a stale read-modify-write instead of overwriting.
-(4) TASK-982: the fix scripts hydrate with offline limits (whole chunk, 300 s).
+**Review fixes (2026-11-17):** the independent review's verdict was *needs fixes* (1 major, 3 minor), all fixed after the integration with tests (see ADR-049, "Review fixes"):
+(1) TASK-1018: cut-over step 3a enforces in SQL that the session RPC migration is applied and that the archives plus a verify marker from the last 24 hours are in Storage; step 0e shows the same checks read-only.
+(1, cont.) TASK-1023: a clean full `--verify` writes `_archive/verify-ok/<UTC>.json`.
+(2) TASK-1022: db mode again sends the pre-ADR select string for the typed re-grade and the reference-set script.
+(3) TASK-1011/1014/1023: `write_sense(expected_version=...)` and `store.base_version`. The audio and hant fix scripts and `--repair` refuse a stale read-modify-write instead of overwriting.
+(4) TASK-1014: the fix scripts hydrate with offline limits (whole chunk, 300 s).
 Full suite after the fixes: 5466 passed, with the same 48 environment failures.
 
 **Description:**
@@ -730,13 +730,13 @@ Run the real store, writers, readers, backfill and sweep together over `FakeCont
 
 ---
 
-## TASK-994: Apply the Phase-1 migrations and deploy with both flags at `db` (OPERATOR)
+## TASK-1026: Apply the Phase-1 migrations and deploy with both flags at `db` (OPERATOR)
 
 **Status:** [~] In Progress (both migrations live 2026-11-17; deploy of the Phase-1 code and the app walkthrough pending)
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h)
-**Depends On:** TASK-984, TASK-985, TASK-993
+**Depends On:** TASK-1016, TASK-1017, TASK-1025
 
 **Description:**
 Operator task, not for agents (LIVE-DB, owner approval). Deploy the Phase-1 code with
@@ -751,7 +751,7 @@ code works before the migrations). Then apply `migrations/exercise_content_stora
   - No staging project exists.
   - Before applying, the live 5-argument bodies were md5-checked: identical to `get_practice_session_language_scope.sql` and `practice_review_ahead.sql`.
 - [ ] `tests/sql/test_exercise_content_storage.sql` inside its own `ROLLBACK` on production: not run yet. It writes, then rolls back, and needs owner approval.
-- [x] `tests/sql/check_function_acls.sql` passes for the ADR-047 objects: none of the five functions is executable by `anon` or `authenticated`. Pre-existing violations elsewhere, untouched by these migrations:
+- [x] `tests/sql/check_function_acls.sql` passes for the ADR-049 objects: none of the five functions is executable by `anon` or `authenticated`. Pre-existing violations elsewhere, untouched by these migrations:
   - `anon` holds SELECT on 28 public tables, including `users`, `user_tokens`, `token_transactions` and `trusted_devices`. RLS is on for all of them.
   - RLS is off on `backup_semdisc_content_20261115` and `semdisc_rewrite_work`, which are dropped at the cut-over.
 - [x] Live functions:
@@ -773,13 +773,13 @@ The catalog queries above, a practice session in the app, `SELECT pg_size_pretty
 
 ---
 
-## TASK-995: Turn on dual writes, backfill and verify (OPERATOR)
+## TASK-1027: Turn on dual writes, backfill and verify (OPERATOR)
 
 **Status:** [ ] Not Started
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** M (3-8h)
-**Depends On:** TASK-994
+**Depends On:** TASK-1026
 
 **Description:**
 Operator task. Set `EXERCISE_CONTENT_WRITE=dual` on Railway **and in every shell or `.env` that
@@ -796,13 +796,13 @@ The verify report; `SELECT count(*), pg_size_pretty(pg_total_relation_size('stor
 
 ---
 
-## TASK-996: Shadow reads for at least 7 days (OPERATOR)
+## TASK-1028: Shadow reads for at least 7 days (OPERATOR)
 
 **Status:** [ ] Not Started
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h, spread over ≥ 7 days)
-**Depends On:** TASK-995
+**Depends On:** TASK-1027
 
 **Description:**
 Operator task. `EXERCISE_CONTENT_SOURCE=shadow`, restart. Learners still get DB content; files are
@@ -818,13 +818,13 @@ Railway logs filtered on `exercise_content.shadow_`; the verify report.
 
 ---
 
-## TASK-997: Serve from Storage and measure latency (OPERATOR)
+## TASK-1029: Serve from Storage and measure latency (OPERATOR)
 
 **Status:** [ ] Not Started
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h)
-**Depends On:** TASK-996
+**Depends On:** TASK-1028
 
 **Description:**
 Operator task. Measure, flip, measure. Rollback at any time: `EXERCISE_CONTENT_SOURCE=db`.
@@ -839,13 +839,13 @@ The bench output and the evaluation page.
 
 ---
 
-## TASK-998: Cut-over — archive, drop the column, VACUUM FULL, sweep (OPERATOR)
+## TASK-1030: Cut-over — archive, drop the column, VACUUM FULL, sweep (OPERATOR)
 
 **Status:** [ ] Not Started
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** M (3-8h)
-**Depends On:** TASK-997, TASK-986
+**Depends On:** TASK-1029, TASK-1018
 
 **Description:**
 Operator task (LIVE-DB, owner approval). Only after ≥ 7 days on `storage` without fallback
@@ -866,13 +866,13 @@ Size queries in step 5; an app walkthrough; `wiki/log.md` entry.
 
 ---
 
-## TASK-999: Post-cut-over clean-up
+## TASK-1031: Post-cut-over clean-up
 
 **Status:** [ ] Not Started
 **Feature:** exercise-content-storage
 **Type:** refactor
 **Complexity:** M (3-8h)
-**Depends On:** TASK-998
+**Depends On:** TASK-1030
 
 **Description:**
 Remove the transition code once the column is gone, and make the repo match the live database.
@@ -881,7 +881,7 @@ Remove the transition code once the column is gone, and make the repo match the 
 - [ ] `read_mode()` accepts only `storage` (any other value logs one ERROR and is treated as `storage`); `select_columns` maps `{content}` to `content_version`; `rpc_content_args()` always returns `{'p_include_content': False}`; the DB fallback and `EXERCISE_CONTENT_DB_FALLBACK` are removed; `write_mode` `db` removed (writes always file + commit RPC); the `tests/conftest.py` pin updated; tests adjusted.
 - [ ] `tests/sql/test_session_budget_settings.sql` no longer inserts `content`; `scripts/sql/check_jumbled_and_definition_match.sql` deleted or replaced by a Python check over `store.fetch_sense`.
 - [ ] Per `migrations/CLAUDE.md`: `git mv` the files fully superseded by the applied migrations (at least `get_practice_session_language_scope.sql`, `practice_review_ahead.sql`; check `phase17_drop_deprecation_wrappers.sql`, `task743_context_free_exercise_caps.sql`, `phase9_get_exercise_session.sql` object by object and keep any multi-object file still canonical for a live object) with rows in `migrations/archive/README.md` and the markers checked.
-- [ ] Wiki: `wiki/database/schema.tech.md` (no `content`; `uq_exercises_context_free_variant_v2`), ADR-047 status → accepted with the measured numbers, this file and `master.md` statuses, `wiki/log.md`.
+- [ ] Wiki: `wiki/database/schema.tech.md` (no `content`; `uq_exercises_context_free_variant_v2`), ADR-049 status → accepted with the measured numbers, this file and `master.md` statuses, `wiki/log.md`.
 
 **Files to Create / Modify:**
 - `services/exercise_content/*`, `config.py`, `tests/conftest.py`, `tests/test_exercise_content_*.py`, `tests/sql/test_session_budget_settings.sql`, `scripts/sql/check_jumbled_and_definition_match.sql`, `migrations/` (archive moves), `migrations/archive/README.md`, the wiki pages above.

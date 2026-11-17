@@ -332,7 +332,7 @@ def _process_sense(db, language_id: int, sense: dict, pipeline, renderer) -> _Se
                 return outcome
 
             # Replace only once the new set exists (non-destructive regen), in
-            # one store call (ADR-047 §4): with EXERCISE_CONTENT_WRITE=db the
+            # one store call (ADR-049 §4): with EXERCISE_CONTENT_WRITE=db the
             # old delete-then-insert, with `dual` one new content version. A
             # write error (ContentWriteConflict / ContentStorageError /
             # PostgREST) falls through to the handler below: logged, the

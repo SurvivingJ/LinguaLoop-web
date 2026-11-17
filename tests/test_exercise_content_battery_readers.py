@@ -1,10 +1,10 @@
-"""TASK-988 (ADR-047): the battery readers hydrate exercise content.
+"""TASK-1020 (ADR-049): the battery readers hydrate exercise content.
 
 Appendix A rows 7-8. The speed round picks its <= 20 rows first and hydrates
 only those (it used to read content for every mastered sense); the gate /
 stress-test batteries hydrate their one sense's rows before picking.
 ``store.read_mode`` and ``store.hydrate`` are monkeypatched (the storage
-reader lands in TASK-978); the fake hydrate follows the ADR-047 section 9
+reader lands in TASK-1010); the fake hydrate follows the ADR-049 section 9
 contract and records its calls. No network, no Supabase.
 """
 
@@ -216,7 +216,7 @@ def test_a_failing_hydrate_in_db_mode_changes_nothing(monkeypatch):
 
 
 def _todays_select(candidates, size):
-    """The pre-ADR-047 ``SpeedRoundComposer._select``, verbatim."""
+    """The pre-ADR-049 ``SpeedRoundComposer._select``, verbatim."""
     by_sense: dict = {}
     for item in candidates:
         by_sense.setdefault(item.get('word_sense_id'), []).append(item)

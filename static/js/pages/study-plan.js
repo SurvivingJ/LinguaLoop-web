@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const FLAGS = { cn: '🇨🇳', en: '🇺🇸', jp: '🇯🇵' };
+  const FLAGS = { cn: '🇨🇳', zh: '🇨🇳', en: '🇺🇸', jp: '🇯🇵', ja: '🇯🇵' };
   const flagFor = (code) => FLAGS[code?.toLowerCase()] || '🌐';
 
   // i18n helpers — fall through to the data-i18n default text if the i18n
@@ -113,17 +113,10 @@
     container.innerHTML = state.languages
       .map(
         (lang) => `
-            <div class="col-md-4">
-                <div class="card language-card h-100 p-3" data-lang-id="${lang.id}">
-                    <div class="d-flex align-items-center">
-                        <span class="fs-1 me-3">${flagFor(lang.code)}</span>
-                        <div>
-                            <h6 class="mb-1">${lang.name}</h6>
-                            <small class="text-muted lang-summary" data-lang-id="${lang.id}">—</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <button type="button" class="ld-chip language-card" data-lang-id="${lang.id}" aria-pressed="false">
+                <span aria-hidden="true">${flagFor(lang.code)}</span>
+                <span>${escapeText(lang.name)}</span>
+            </button>
         `
       )
       .join('');
@@ -135,7 +128,10 @@
   async function selectLanguage(langId) {
     state.selectedLangId = langId;
     document.querySelectorAll('.language-card').forEach((c) => {
-      c.classList.toggle('active', parseInt(c.dataset.langId) === langId);
+      const on = parseInt(c.dataset.langId) === langId;
+      c.classList.toggle('active', on);
+      c.classList.toggle('is-on', on);
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
 
     document.getElementById('loadingState').classList.add('d-none');
@@ -173,6 +169,7 @@
   function showNoPlanState(langId) {
     document.getElementById('noPlanState').classList.remove('d-none');
     document.getElementById('planEditor').classList.add('d-none');
+    setPlanActions(false);
     const picker = document.getElementById('templatePicker');
     const templates = state.templatesByLang[langId] || [];
     const defaultSuffix = T('study_plan.template.default_suffix');
@@ -210,6 +207,7 @@
   function showPlanEditor(langId) {
     document.getElementById('noPlanState').classList.add('d-none');
     document.getElementById('planEditor').classList.remove('d-none');
+    setPlanActions(true);
 
     const { plan, current_week } = state.plansByLang[langId];
 
@@ -490,10 +488,10 @@
 
     startLabel.textContent = T('study_plan.week_starting', { date: weekState.week_start_date });
     statsEl.innerHTML = `
-            <div class="stat-tile"><h4>${weekState.total_weekly_minutes}</h4><small>${T('study_plan.stat.total_min')}</small></div>
-            <div class="stat-tile"><h4>${weekState.practice_target_minutes}</h4><small>${T('study_plan.stat.practice_target')}</small></div>
-            <div class="stat-tile"><h4>${(weekState.maintenance_share * 100).toFixed(0)}%</h4><small>${T('study_plan.stat.maint_share')}</small></div>
-            <div class="stat-tile"><h4>${(weekState.acquisition_share * 100).toFixed(0)}%</h4><small>${T('study_plan.stat.acq_share')}</small></div>
+            <div class="ld-stat stat-tile"><div class="ld-stat__n">${weekState.total_weekly_minutes}</div><small>${T('study_plan.stat.total_min')}</small></div>
+            <div class="ld-stat stat-tile"><div class="ld-stat__n">${weekState.practice_target_minutes}</div><small>${T('study_plan.stat.practice_target')}</small></div>
+            <div class="ld-stat stat-tile"><div class="ld-stat__n">${(weekState.maintenance_share * 100).toFixed(0)}%</div><small>${T('study_plan.stat.maint_share')}</small></div>
+            <div class="ld-stat stat-tile"><div class="ld-stat__n">${(weekState.acquisition_share * 100).toFixed(0)}%</div><small>${T('study_plan.stat.acq_share')}</small></div>
             ${newWordsTile(weekState)}
         `;
     window.WeeklyStudy.render(
@@ -513,13 +511,11 @@
         return `
                 <tr>
                     <td>${skill.replace(/_/g, ' ')}</td>
-                    <td>${done} / ${total}</td>
+                    <td class="ld-num">${done} / ${total}</td>
                     <td style="width: 40%;">
-                        <div class="progress" style="height: .6rem;">
-                            <div class="progress-bar" role="progressbar" style="width: ${pct}%"></div>
-                        </div>
+                        <div class="ld-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width: ${pct}%"></i></div>
                     </td>
-                    <td>${pct}%</td>
+                    <td class="ld-num">${pct}%</td>
                 </tr>
             `;
       })
@@ -543,7 +539,7 @@
       tail > 0
         ? `<br><small>${T('study_plan.stats.optional_rounds', { minutes: tail })}</small>`
         : '';
-    return `<div class="stat-tile" id="newWordsTile"><h4>${done} / ${target}</h4><small>${T('study_plan.stats.new_words')}</small>${sub}</div>`;
+    return `<div class="ld-stat stat-tile" id="newWordsTile"><div class="ld-stat__n">${done} / ${target}</div><small>${T('study_plan.stats.new_words')}</small>${sub}</div>`;
   }
 
   function renderShortfallNote(payload) {
@@ -585,9 +581,89 @@
       .classList.toggle('d-none', state.studyPlanEnabled);
   }
 
+  // ---------------------------------------------------------------------
+  // Redesign: Time / Daily session / This week tabs, and the dock actions.
+  // Save shows on the first two tabs, Recompute on "This week" (mockup).
+  // ---------------------------------------------------------------------
+  let activeTab = 'time';
+
+  function setPlanActions(show) {
+    const actions = document.getElementById('planActions');
+    if (actions) actions.hidden = !show;
+  }
+
+  function showTab(name) {
+    activeTab = name;
+    document.querySelectorAll('[data-sp-tab]').forEach((tab) => {
+      const on = tab.dataset.spTab === name;
+      tab.setAttribute('aria-selected', on ? 'true' : 'false');
+      tab.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(tab.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !on;
+    });
+    const save = document.getElementById('saveBtn');
+    const recompute = document.getElementById('recomputeBtn');
+    if (save) save.hidden = name === 'week';
+    if (recompute) recompute.hidden = name !== 'week';
+    const stage = document.getElementById('spStage');
+    if (stage) stage.scrollTop = 0;
+  }
+
+  function wireTabs() {
+    const tabs = Array.from(document.querySelectorAll('[data-sp-tab]'));
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => showTab(tab.dataset.spTab));
+      tab.addEventListener('keydown', (e) => {
+        let next = null;
+        if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+        else if (e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+        else if (e.key === 'Home') next = tabs[0];
+        else if (e.key === 'End') next = tabs[tabs.length - 1];
+        if (!next) return;
+        e.preventDefault();
+        next.focus();
+        showTab(next.dataset.spTab);
+      });
+    });
+    if (tabs.length) showTab(activeTab);
+  }
+
+  // [data-sp-t] / [data-sp-t-aria]: strings whose keys are not in the locale
+  // files yet (static/i18n/_redesign/settings.json); the English stays until then.
+  function localizeNewStrings() {
+    const tr = (key, fallback) => {
+      const v = T(key);
+      return v && v !== key ? v : fallback;
+    };
+    document.querySelectorAll('[data-sp-t]').forEach((el) => {
+      if (el.dataset.spEn === undefined) el.dataset.spEn = el.textContent;
+      el.textContent = tr(el.dataset.spT, el.dataset.spEn);
+    });
+    document.querySelectorAll('[data-sp-t-aria]').forEach((el) => {
+      if (el.dataset.spEnAria === undefined) {
+        el.dataset.spEnAria = el.getAttribute('aria-label') || '';
+      }
+      el.setAttribute('aria-label', tr(el.dataset.spTAria, el.dataset.spEnAria));
+    });
+  }
+
+  function escapeText(value) {
+    return String(value == null ? '' : value).replace(
+      /[&<>"']/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+    );
+  }
+
+  wireTabs();
+  localizeNewStrings();
+  if (window.LinguaI18n && typeof window.LinguaI18n.init === 'function') {
+    Promise.resolve(window.LinguaI18n.init()).then(localizeNewStrings, () => {});
+  }
+
   function showSaveBanner(ok, msg) {
     const el = document.getElementById('saveBanner');
-    el.className = 'alert ' + (ok ? 'alert-success' : 'alert-danger');
+    el.className =
+      'alert sp-banner ld-note ' + (ok ? 'alert-success ld-note--ok' : 'alert-danger ld-note--bad');
     el.textContent = msg;
     el.classList.remove('d-none');
   }
@@ -648,6 +724,7 @@
 
   // Dynamic text is built with T(); rebuild when the UI language changes.
   document.addEventListener('languageChanged', () => {
+    localizeNewStrings();
     const payload = currentPayload();
     if (!payload) return;
     renderDailySession(state.selectedLangId);

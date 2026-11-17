@@ -1,95 +1,131 @@
 {% extends "base.html" %}
+{#- Redesign 2026-11: the mockup's StudyPlan() screen — Back-pill header, one
+    scrolling stage split into Time / Daily session / This week, and Save /
+    Recompute pinned in the dock. Every control and message of the previous page
+    is kept; element ids are the contract with static/js/pages/study-plan.js.
+    Styles: static/css/redesign/settings.css (.sp-page) + css/pages/study-plan.css.
+    Backed by /api/study-plan and /api/study-plan/templates.
+    See [[features/study-plans.tech]] and ADR-008. -#}
 {% set defer_base_scripts = true %}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
 
 {% block title %}Study Plan - LinguaDojo{% endblock %}
 
-{# Phase 13 — Study Plan editor. Backed by /api/study-plan and /api/study-plan/templates.
-   See [[features/study-plans.tech]] and ADR-008. #}
+{% block body_class %}bg-slate-50 sp-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('profile') }}{% endblock %}
+{% block task_title %}<span data-i18n="study_plan.title">Study Plan</span>{% endblock %}
+{% block task_subtitle %}<span data-i18n="study_plan.subtitle">Set your weekly time targets — the system adapts the daily mix.</span>{% endblock %}
+{% block task_glyph %}☰{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/study-plan.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 1100px;">
+<div class="ld-screen sp-screen">
+  <div class="ld-stage sp-stage" id="spStage">
 
-    <div class="plan-header">
-        <h1 class="mb-2"><i class="fas fa-calendar-week me-2"></i><span data-i18n="study_plan.title">Study Plan</span></h1>
-        <p class="mb-0 opacity-90" data-i18n="study_plan.subtitle">Set your weekly time targets — the system adapts the daily mix.</p>
-    </div>
-
-    <div id="flagDisabledBanner" class="flag-disabled-banner d-none"
+    <div id="flagDisabledBanner" class="flag-disabled-banner ld-note ld-note--warn d-none"
          data-i18n="study_plan.flag_disabled.banner">
         Preview mode. The Study Plan orchestrator is currently disabled.
     </div>
 
-    <div id="loadingState" class="text-center py-5">
+    <div id="loadingState" class="sp-loading">
         <div class="spinner-border text-primary" role="status"></div>
         <p class="mt-3 text-muted" data-i18n="study_plan.loading">Loading your plan…</p>
     </div>
 
-    <div id="errorState" class="alert alert-danger d-none"></div>
+    <div id="errorState" class="ld-note ld-note--bad d-none" role="alert"></div>
 
-    <div id="planContent" class="d-none">
+    <div id="planContent" class="sp-content d-none">
 
         <!-- Language picker -->
-        <h5 class="mb-3"><i class="fas fa-globe me-2"></i><span data-i18n="study_plan.language_heading">Language</span></h5>
-        <div id="languageList" class="row g-3 mb-2"></div>
-        <p class="text-muted small mb-4">
-            <span class="total-tally" id="totalTally">—</span>
-        </p>
+        <div class="sp-card">
+            <p class="ld-eyebrow mb-0" id="spLangLabel" data-i18n="study_plan.language_heading">Language</p>
+            <div id="languageList" class="ld-chips sp-langs" role="group" aria-labelledby="spLangLabel"></div>
+            <p class="ld-small ld-muted mb-0"><span class="total-tally" id="totalTally">—</span></p>
+        </div>
 
         <!-- No-plan-yet onboarding -->
-        <div id="noPlanState" class="alert alert-info d-none">
-            <p class="mb-2" data-i18n="study_plan.no_plan.intro">You don't have a Study Plan for this language yet.</p>
-            <p class="mb-3 small text-muted" data-i18n="study_plan.no_plan.hint">Pick a starting bucket — you can fine-tune everything below afterwards.</p>
+        <div id="noPlanState" class="ld-card sp-card d-none">
+            <p class="mb-0" data-i18n="study_plan.no_plan.intro">You don't have a Study Plan for this language yet.</p>
+            <p class="ld-small ld-muted" data-i18n="study_plan.no_plan.hint">Pick a starting bucket — you can fine-tune everything below afterwards.</p>
             <div id="templatePicker" class="d-flex gap-2 flex-wrap"></div>
         </div>
 
         <!-- Plan editor (shown when a plan exists) -->
-        <div id="planEditor" class="d-none">
+        <div id="planEditor" class="sp-editor d-none">
 
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title" data-i18n="study_plan.daily_target.title">Daily target</h5>
-                    <p class="text-muted small mb-2" data-i18n="study_plan.daily_target.hint">How much time per day you want to commit to this language.</p>
-                    <div class="d-flex align-items-center gap-3">
-                        <input type="range" id="dailyMinutesRange" min="10" max="180" step="5" class="form-range flex-grow-1">
-                        <input type="number" id="dailyMinutesNumber" min="10" max="180" step="1" class="form-control" style="width: 6rem;">
-                        <span class="text-muted" data-i18n="study_plan.daily_target.unit">min/day</span>
-                    </div>
+            <div class="sp-tabs">
+                <div class="ld-seg" role="tablist" id="spTabs" aria-label="Study plan sections" data-sp-t-aria="study_plan.tabs_label">
+                    <button type="button" role="tab" id="spTabTime" data-sp-tab="time" aria-controls="spPanelTime" aria-selected="true"><span data-sp-t="study_plan.tab_time">Time</span></button>
+                    <button type="button" role="tab" id="spTabSession" data-sp-tab="session" aria-controls="spPanelSession" aria-selected="false" tabindex="-1"><span data-i18n="study_plan.daily_session.title">Daily session</span></button>
+                    <button type="button" role="tab" id="spTabWeek" data-sp-tab="week" aria-controls="spPanelWeek" aria-selected="false" tabindex="-1"><span data-i18n="study_plan.week_summary_title">This week so far</span></button>
                 </div>
             </div>
 
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title" data-i18n="study_plan.weekday_shape.title">Weekday shape</h5>
-                    <p class="text-muted small mb-2" data-i18n="study_plan.weekday_shape.hint">
+            <!-- ============ Time ============ -->
+            <div class="sp-panel" id="spPanelTime" role="tabpanel" aria-labelledby="spTabTime">
+                <div class="ld-card sp-card">
+                    <div class="sp-between">
+                        <label class="sp-card__title" for="dailyMinutesNumber" data-i18n="study_plan.daily_target.title">Daily target</label>
+                        <span class="sp-minutes">
+                            <input type="number" id="dailyMinutesNumber" min="10" max="180" step="1" class="form-control" inputmode="numeric">
+                            <span class="ld-small ld-muted" data-i18n="study_plan.daily_target.unit">min/day</span>
+                        </span>
+                    </div>
+                    <input type="range" id="dailyMinutesRange" min="10" max="180" step="5" class="form-range" aria-describedby="spDailyHint" data-i18n-aria="study_plan.daily_target.title" aria-label="Daily target">
+                    <p class="ld-small ld-muted" id="spDailyHint" data-i18n="study_plan.daily_target.hint">How much time per day you want to commit to this language.</p>
+                </div>
+
+                <div class="ld-card sp-card">
+                    <h2 class="sp-card__title" id="spShapeTitle" data-i18n="study_plan.weekday_shape.title">Weekday shape</h2>
+                    <p class="ld-small ld-muted" data-i18n="study_plan.weekday_shape.hint">
                         Lighter on weekdays, heavier on weekends? Adjust the multipliers.
                     </p>
-                    <div class="weekday-grid">
-                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.mon">Mon</label><input type="number" min="0" max="3" step="0.05" id="ws0" class="form-control"></div>
-                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.tue">Tue</label><input type="number" min="0" max="3" step="0.05" id="ws1" class="form-control"></div>
-                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.wed">Wed</label><input type="number" min="0" max="3" step="0.05" id="ws2" class="form-control"></div>
-                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.thu">Thu</label><input type="number" min="0" max="3" step="0.05" id="ws3" class="form-control"></div>
-                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.fri">Fri</label><input type="number" min="0" max="3" step="0.05" id="ws4" class="form-control"></div>
-                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.sat">Sat</label><input type="number" min="0" max="3" step="0.05" id="ws5" class="form-control"></div>
-                        <div class="weekday-cell"><label data-i18n="study_plan.weekday.sun">Sun</label><input type="number" min="0" max="3" step="0.05" id="ws6" class="form-control"></div>
+                    <div class="weekday-grid" role="group" aria-labelledby="spShapeTitle">
+                        <div class="weekday-cell"><label for="ws0" data-i18n="study_plan.weekday.mon">Mon</label><input type="number" min="0" max="3" step="0.05" id="ws0" class="form-control" inputmode="decimal"></div>
+                        <div class="weekday-cell"><label for="ws1" data-i18n="study_plan.weekday.tue">Tue</label><input type="number" min="0" max="3" step="0.05" id="ws1" class="form-control" inputmode="decimal"></div>
+                        <div class="weekday-cell"><label for="ws2" data-i18n="study_plan.weekday.wed">Wed</label><input type="number" min="0" max="3" step="0.05" id="ws2" class="form-control" inputmode="decimal"></div>
+                        <div class="weekday-cell"><label for="ws3" data-i18n="study_plan.weekday.thu">Thu</label><input type="number" min="0" max="3" step="0.05" id="ws3" class="form-control" inputmode="decimal"></div>
+                        <div class="weekday-cell"><label for="ws4" data-i18n="study_plan.weekday.fri">Fri</label><input type="number" min="0" max="3" step="0.05" id="ws4" class="form-control" inputmode="decimal"></div>
+                        <div class="weekday-cell"><label for="ws5" data-i18n="study_plan.weekday.sat">Sat</label><input type="number" min="0" max="3" step="0.05" id="ws5" class="form-control" inputmode="decimal"></div>
+                        <div class="weekday-cell"><label for="ws6" data-i18n="study_plan.weekday.sun">Sun</label><input type="number" min="0" max="3" step="0.05" id="ws6" class="form-control" inputmode="decimal"></div>
                     </div>
-                    <p class="text-muted small mt-2 mb-0" id="weekdaySumLabel">—</p>
+                    <p class="ld-small ld-muted" id="weekdaySumLabel">—</p>
+                </div>
+
+                <div class="ld-card sp-card">
+                    <button class="sp-advanced-toggle" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#advancedSection"
+                            aria-expanded="false" aria-controls="advancedSection">
+                        <span data-i18n="study_plan.advanced">Advanced</span><span class="sp-chev" aria-hidden="true">▾</span>
+                    </button>
+                    <div id="advancedSection" class="collapse advanced-section">
+                        <h3 class="sp-card__title mb-1" data-i18n="study_plan.overrides.title">Per-skill weight overrides</h3>
+                        <p class="ld-small ld-muted mb-2" data-i18n="study_plan.overrides.hint">
+                            Multiply the value of each skill in the weekly allocator. Default 1.00; range 0.5–2.0.
+                        </p>
+                        <div id="skillOverrides"></div>
+                        <label class="sp-card__title mb-1 mt-3 d-block" for="templateSelect" data-i18n="study_plan.template.title">Template</label>
+                        <select id="templateSelect" class="form-select"></select>
+                        <p class="ld-small ld-muted mt-1 mb-0" data-i18n="study_plan.template.hint">Changing the template resets daily_minutes; weekday shape and overrides are preserved.</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="card mb-3" id="dailySessionCard">
-                <div class="card-body">
-                    <h5 class="card-title" data-i18n="study_plan.daily_session.title">Daily session</h5>
-                    <p class="text-muted small mb-3" data-i18n="study_plan.daily_session.intro">
-                        Choose what your daily time covers and which parts make up your session.
-                    </p>
+            <!-- ============ Daily session ============ -->
+            <div class="sp-panel" id="spPanelSession" role="tabpanel" aria-labelledby="spTabSession" hidden>
+                <p class="ld-small ld-muted mb-0" data-i18n="study_plan.daily_session.intro">
+                    Choose what your daily time covers and which parts make up your session.
+                </p>
+                <div id="dailySessionCard" class="sp-panel">
 
                     <!-- 1. What the daily time covers -->
-                    <section class="ds-section" aria-labelledby="dsScopeHeading">
-                        <h6 id="dsScopeHeading"><span class="ds-num" aria-hidden="true">1</span><span data-i18n="study_plan.daily_session.scope.heading">What your daily time covers</span></h6>
+                    <section class="ld-card sp-card ds-section" aria-labelledby="dsScopeHeading">
+                        <h3 id="dsScopeHeading" class="sp-card__title"><span class="ds-num" aria-hidden="true">1</span><span data-i18n="study_plan.daily_session.scope.heading">What your daily time covers</span></h3>
                         <div role="radiogroup" aria-labelledby="dsScopeHeading">
                             <div class="form-check ds-scope-opt">
                                 <input class="form-check-input" type="radio" name="budgetScope" id="scopeTestsAndReview" value="tests_and_review">
@@ -109,45 +145,39 @@
                         <p class="form-text mb-0" data-i18n="study_plan.daily_session.scope.hint">Flashcards and dual translation count as tests. “Tests only” needs at least one test module switched on.</p>
                     </section>
 
-                    <hr>
-
                     <!-- 2. Modules -->
-                    <section class="ds-section" aria-labelledby="dsModulesHeading">
-                        <h6 id="dsModulesHeading"><span class="ds-num" aria-hidden="true">2</span><span data-i18n="study_plan.modules.title">Modules</span></h6>
-                        <p class="text-muted small mb-2" data-i18n="study_plan.modules.hint">Turned-off modules are only left out of your daily session — you can still use them any time from the rest of the app.</p>
+                    <section class="ld-card sp-card ds-section" aria-labelledby="dsModulesHeading">
+                        <h3 id="dsModulesHeading" class="sp-card__title"><span class="ds-num" aria-hidden="true">2</span><span data-i18n="study_plan.modules.title">Modules</span></h3>
+                        <p class="ld-small ld-muted" data-i18n="study_plan.modules.hint">Turned-off modules are only left out of your daily session — you can still use them any time from the rest of the app.</p>
                         <div id="moduleToggles" class="module-grid" role="group" aria-labelledby="dsModulesHeading"></div>
                         <p id="moduleLockHint" class="form-text d-none mb-0" role="status" data-i18n="study_plan.daily_session.last_module_hint">At least one module (or new words) must stay on.</p>
                         <p id="moduleShortHint" class="form-text text-warning d-none mb-0" role="status" data-i18n="study_plan.modules.flashcards_only_hint">Only Flashcard review is on, so your daily session will be short.</p>
                     </section>
 
-                    <hr>
-
                     <!-- 3. New words -->
-                    <section class="ds-section" aria-labelledby="dsNewWordsHeading">
-                        <h6 id="dsNewWordsHeading"><span class="ds-num" aria-hidden="true">3</span><span data-i18n="study_plan.daily_session.new_words.label">New words per day</span></h6>
+                    <section class="ld-card sp-card ds-section" aria-labelledby="dsNewWordsHeading">
+                        <h3 id="dsNewWordsHeading" class="sp-card__title"><span class="ds-num" aria-hidden="true">3</span><span data-i18n="study_plan.daily_session.new_words.label">New words per day</span></h3>
                         <div class="nw-row">
                             <div class="input-group" role="group" aria-labelledby="dsNewWordsHeading">
                                 <button type="button" class="btn btn-outline-secondary" id="newWordsDec" data-i18n-aria="study_plan.daily_session.new_words.decrease" aria-label="Fewer new words">−</button>
-                                <input type="number" id="newWordsInput" class="form-control" min="0" max="50" step="1" aria-labelledby="dsNewWordsHeading">
+                                <input type="number" id="newWordsInput" class="form-control" min="0" max="50" step="1" inputmode="numeric" aria-labelledby="dsNewWordsHeading">
                                 <button type="button" class="btn btn-outline-secondary" id="newWordsInc" data-i18n-aria="study_plan.daily_session.new_words.increase" aria-label="More new words">+</button>
                             </div>
-                            <span class="text-muted" data-i18n="study_plan.daily_session.new_words.unit">words per day</span>
-                            <span id="reviewForecast" class="text-muted small"></span>
+                            <span class="ld-small ld-muted" data-i18n="study_plan.daily_session.new_words.unit">words per day</span>
+                            <span id="reviewForecast" class="ld-small ld-muted"></span>
                         </div>
                         <p id="newWordsNoReviewWarning" class="form-text text-warning d-none mb-1" role="status" data-i18n="study_plan.session.new_words_no_review_warning">Vocabulary review is off — words you learn won't be reviewed.</p>
-                        <p id="newWordsEstimate" class="mb-1 mt-2" aria-live="polite"></p>
+                        <p id="newWordsEstimate" class="mb-1" aria-live="polite"></p>
                         <p id="newWordsHint" class="form-text mt-0 mb-1"></p>
-                        <div id="governorNote" class="ds-note small d-none" role="status"></div>
+                        <div id="governorNote" class="ds-note ld-note ld-note--warn small d-none" role="status"></div>
                         <p id="newWordsHelp" class="form-text mb-0"></p>
                         <p id="newWordsMsg" class="form-text text-danger d-none mb-0" role="status"></p>
                     </section>
 
-                    <hr>
-
-                    <!-- 4. Typical day -->
-                    <section class="ds-section" aria-labelledby="dsPrestudyHeading">
-                        <h6 id="dsPrestudyHeading"><span class="ds-num" aria-hidden="true">&#9670;</span><span data-i18n="study_plan.daily_session.prestudy.heading">Study before hard tests</span></h6>
-                        <select class="form-select form-select-sm w-auto" id="prestudyModeSelect" aria-describedby="prestudyModeHint">
+                    <!-- Study before hard tests -->
+                    <section class="ld-card sp-card ds-section" aria-labelledby="dsPrestudyHeading">
+                        <h3 id="dsPrestudyHeading" class="sp-card__title"><span class="ds-num" aria-hidden="true">&#9670;</span><label for="prestudyModeSelect" class="mb-0" data-i18n="study_plan.daily_session.prestudy.heading">Study before hard tests</label></h3>
+                        <select class="form-select" id="prestudyModeSelect" aria-describedby="prestudyModeHint">
                             <option value="auto" data-i18n="study_plan.daily_session.prestudy.auto">Automatically</option>
                             <option value="ask" data-i18n="study_plan.daily_session.prestudy.ask">Ask me</option>
                             <option value="off" data-i18n="study_plan.daily_session.prestudy.off">Off</option>
@@ -155,60 +185,42 @@
                         <p class="form-text mb-0" id="prestudyModeHint" data-i18n="study_plan.daily_session.prestudy.hint">Before a new test where more than a quarter of the key words are new to you, and before every retry, the session adds a short word study. It uses test time, so a day may have one fewer test. "Study first" stays available on every test.</p>
                     </section>
 
-                    <hr>
-
-                    <section class="ds-section" aria-labelledby="dsTypicalHeading">
-                        <h6 id="dsTypicalHeading"><span class="ds-num" aria-hidden="true">4</span><span data-i18n="study_plan.daily_session.typical_heading">Typical day</span></h6>
+                    <!-- 4. Typical day -->
+                    <section class="ld-note sp-card ds-section" aria-labelledby="dsTypicalHeading">
+                        <h3 id="dsTypicalHeading" class="sp-card__title"><span class="ds-num" aria-hidden="true">4</span><span data-i18n="study_plan.daily_session.typical_heading">Typical day</span></h3>
                         <p id="typicalDaySummary" aria-live="polite"></p>
                     </section>
                 </div>
             </div>
 
-            <div class="card mb-3">
-                <div class="card-body">
-                    <button class="btn btn-link p-0 text-decoration-none" type="button"
-                            data-bs-toggle="collapse" data-bs-target="#advancedSection">
-                        <i class="fas fa-chevron-right me-1"></i><span data-i18n="study_plan.advanced">Advanced</span>
-                    </button>
-                    <div id="advancedSection" class="collapse advanced-section">
-                        <h6 class="mb-2" data-i18n="study_plan.overrides.title">Per-skill weight overrides</h6>
-                        <p class="text-muted small mb-3" data-i18n="study_plan.overrides.hint">
-                            Multiply the value of each skill in the weekly allocator. Default 1.00; range 0.5–2.0.
-                        </p>
-                        <div id="skillOverrides"></div>
-                        <h6 class="mb-2 mt-3" data-i18n="study_plan.template.title">Template</h6>
-                        <select id="templateSelect" class="form-select"></select>
-                        <p class="text-muted small mt-1 mb-0" data-i18n="study_plan.template.hint">Changing the template resets daily_minutes; weekday shape and overrides are preserved.</p>
-                    </div>
+            <!-- ============ This week so far ============ -->
+            <div class="sp-panel" id="spPanelWeek" role="tabpanel" aria-labelledby="spTabWeek" hidden>
+                <div class="ld-card sp-card">
+                    <p class="ld-small ld-muted" id="weekStartLabel">—</p>
+                    <div id="weeklyStudied" hidden></div>
                 </div>
-            </div>
-
-            <div class="d-flex gap-2 mb-4">
-                <button id="saveBtn" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i><span data-i18n="study_plan.save_button">Save changes</span>
-                </button>
-                <button id="recomputeBtn" class="btn btn-outline-secondary">
-                    <i class="fas fa-sync me-2"></i><span data-i18n="study_plan.recompute_button">Recompute this week now</span>
-                </button>
-            </div>
-
-            <div id="saveBanner" class="alert d-none"></div>
-
-            <!-- Current week summary -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title" data-i18n="study_plan.week_summary_title">This week so far</h5>
-                    <p class="text-muted small mb-3" id="weekStartLabel">—</p>
-                    <div id="weeklyStudied" class="mb-3" hidden></div>
-                    <div id="weekStats" class="week-stats"></div>
-                    <h6 class="mt-4 mb-2" data-i18n="study_plan.targets.heading">Per-skill targets vs completed</h6>
-                    <div id="weekTargetsTable"></div>
+                <div id="weekStats" class="week-stats"></div>
+                <div class="ld-card sp-card">
+                    <h3 class="sp-card__title" data-i18n="study_plan.targets.heading">Per-skill targets vs completed</h3>
+                    <div id="weekTargetsTable" class="sp-week-table"></div>
                 </div>
             </div>
 
         </div>
     </div>
+  </div>
 
+  <div class="ld-dock sp-dock">
+    <div id="saveBanner" class="alert sp-banner d-none" role="status"></div>
+    <div class="ld-row sp-actions" id="planActions" hidden>
+        <button id="saveBtn" type="button" class="ld-btn">
+            <span data-i18n="study_plan.save_button">Save changes</span>
+        </button>
+        <button id="recomputeBtn" type="button" class="ld-btn ld-btn--ghost" hidden>
+            <span data-i18n="study_plan.recompute_button">Recompute this week now</span>
+        </button>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

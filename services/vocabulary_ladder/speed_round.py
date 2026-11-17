@@ -134,14 +134,14 @@ class SpeedRoundComposer:
                 reason='no_recognition_items_for_mastered_words',
             )
 
-        # Pick first, then hydrate only the picked rows (ADR-047): content is
+        # Pick first, then hydrate only the picked rows (ADR-049): content is
         # fetched for at most ``size`` senses, not for every mastered one. A
         # row whose content cannot be found is dropped by hydrate.
         picked = self._pick(candidates, size)
         try:
             store.hydrate(picked, language_id=language_id, db=self.db)
         except Exception as exc:
-            # hydrate never raises for storage or network problems (ADR-047
+            # hydrate never raises for storage or network problems (ADR-049
             # §9). In db / shadow mode the rows carry their content; in
             # storage mode serve only the rows that have it.
             logger.error('speed-round content hydration failed: %s', exc)

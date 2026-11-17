@@ -1,4 +1,4 @@
-"""Storage backends for exercise content files (ADR-047 §9). Internal.
+"""Storage backends for exercise content files (ADR-049 §9). Internal.
 
 Callers use ``store.backend()``; tests install an ``InMemoryBackend`` with
 ``store.set_backend(...)``.
@@ -14,11 +14,11 @@ Callers use ``store.backend()``; tests install an ``InMemoryBackend`` with
 * ``InMemoryBackend`` — dict-backed, thread-safe, records every call; used by
   every package's tests.
 * ``SupabaseStorageBackend`` — httpx against ``{SUPABASE_URL}/storage/v1`` with
-  the service key (TASK-977). Constructing it does no I/O. Requests go
+  the service key (TASK-1009). Constructing it does no I/O. Requests go
   through a module-level pooled ``httpx.Client`` (one per (timeout,
   concurrency) setting, in practice one per process), created lazily and
   shared by every instance, so connections stay alive across the fetch pool
-  and across backend rebuilds. ``storage3`` is not used (ADR-047 §9 note).
+  and across backend rebuilds. ``storage3`` is not used (ADR-049 §9 note).
   The service key never appears in ``repr``, log lines or exception text.
 """
 
@@ -231,7 +231,7 @@ class InMemoryBackend:
 
 
 # ---------------------------------------------------------------------------
-# Supabase Storage over httpx (TASK-977)
+# Supabase Storage over httpx (TASK-1009)
 # ---------------------------------------------------------------------------
 
 _clients_lock = threading.Lock()
@@ -355,7 +355,7 @@ def _parse_timestamp(value: Any) -> datetime | None:
 
 
 class SupabaseStorageBackend:
-    """Supabase Storage REST backend (httpx, service key; ADR-047 §9, TASK-977).
+    """Supabase Storage REST backend (httpx, service key; ADR-049 §9, TASK-1009).
 
     * ``get``    ``GET  /object/{bucket}/{path}`` -> bytes; None when not found.
     * ``put``    ``POST /object/{bucket}/{path}`` with ``x-upsert: false``; ``AlreadyExists``.

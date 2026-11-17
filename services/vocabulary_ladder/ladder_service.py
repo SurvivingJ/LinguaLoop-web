@@ -395,7 +395,7 @@ class LadderService:
                 .execute()
             )
             rows = list(resp.data or [])
-            # ADR-047: fill content from the exercise-content store before
+            # ADR-049: fill content from the exercise-content store before
             # picking (no-op in db mode). A row whose content cannot be found
             # is dropped, so the battery picks among the rows it can serve.
             store.hydrate(rows, language_id=language_id, db=self.db)

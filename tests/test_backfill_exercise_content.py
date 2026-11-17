@@ -1,9 +1,9 @@
-"""TASK-991 — scripts/backfill_exercise_content.py (ADR-047 export, verify, repair, archives).
+"""TASK-1023 — scripts/backfill_exercise_content.py (ADR-049 export, verify, repair, archives).
 
 Fully offline: a local fake PostgREST client (tables in memory, the
 ``exercise_content_live_versions`` RPC computed from them, the 1,000-row cap) and
 ``InMemoryBackend`` installed with ``store.set_backend``. ``store.write_sense`` is
-monkeypatched where a repair is exercised (the dual writer is TASK-979's).
+monkeypatched where a repair is exercised (the dual writer is TASK-1011's).
 """
 
 from __future__ import annotations

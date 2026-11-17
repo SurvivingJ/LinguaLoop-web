@@ -1,4 +1,4 @@
-"""TASK-977 — SupabaseStorageBackend over httpx (ADR-047 §9).
+"""TASK-1009 — SupabaseStorageBackend over httpx (ADR-049 §9).
 
 Every request goes to an ``httpx.MockTransport``: no network, no Supabase.
 Covers the four protocol methods (URLs, headers, bodies, status mapping,

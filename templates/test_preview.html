@@ -1,198 +1,146 @@
 {% extends "base.html" %}
 {% set defer_base_scripts = true %}
+{# 2026-11 redesign: one screen (FOUNDATION.md task mode) — Back pill header,
+   the details and type tiles in the stage, Start pinned in the dock. Styles:
+   static/css/pages/test-preview.css. #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
 
 {% block title %}Test Preview | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 test-preview-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('tests') }}{% endblock %}
+{% block task_title %}<span data-i18n="test_preview.breadcrumb_preview">Test Preview</span>{% endblock %}
+{% block task_subtitle %}<span data-i18n="test_preview.breadcrumb_tests">Tests</span>{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/test-preview.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-8">
+<div class="ld-stage tp-stage" id="tpStage">
 
-            <!-- Breadcrumb Navigation -->
-            <nav aria-label="breadcrumb" class="mb-3">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/" data-i18n="test_preview.breadcrumb_home">Home</a></li>
-                    <li class="breadcrumb-item"><a href="/tests" data-i18n="test_preview.breadcrumb_tests">Tests</a></li>
-                    <li class="breadcrumb-item active" id="breadcrumbTitle" data-i18n="test_preview.breadcrumb_preview">Test Preview</li>
-                </ol>
-            </nav>
+    <!-- Loading State -->
+    <div id="pageLoading" class="tp-loading" role="status">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="ld-small ld-muted mb-0" data-i18n="test_preview.loading">Loading test details...</p>
+    </div>
 
-            <!-- Loading State -->
-            <div id="pageLoading" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-3 text-slate-600" data-i18n="test_preview.loading">Loading test details...</p>
-            </div>
-
-            <!-- Error State -->
-            <div id="pageError" class="d-none">
-                <div class="alert alert-danger">
-                    <h2 class="h4" data-i18n="test_preview.error_title">Error Loading Test</h2>
-                    <p id="errorMessage" data-i18n="test_preview.error_default">Failed to load test details. Please try again.</p>
-                    <a class="btn btn-danger" href="/tests" data-i18n="test_preview.back_to_tests">Back to Tests</a>
-                </div>
-            </div>
-
-            <!-- Main Content (hidden until loaded) -->
-            <div id="mainContent" class="d-none">
-                <!-- SECTION 1: Test Info Card -->
-                <div class="card mb-4 animate-slide-up">
-                    <div class="card-body p-4">
-                        <!-- Title Row -->
-                        <div class="d-flex align-items-start justify-content-between mb-3">
-                            <h1 class="mb-0 h2" id="testTitle">Loading...</h1>
-                            <span class="custom-badge d-none" id="customBadge">Custom</span>
-                        </div>
-
-                        <!-- Metadata Row 1: Language, Topic, Audio -->
-                        <div class="metadata-row mb-2">
-                            <div class="metadata-item">
-                                <i class="bi bi-translate"></i>
-                                <span id="testLanguage">-</span>
-                            </div>
-                            <div class="metadata-item">
-                                <i class="bi bi-tag"></i>
-                                <span id="testTopic">-</span>
-                            </div>
-                            <div class="metadata-item d-none" id="audioAvailable">
-                                <i class="bi bi-volume-up text-primary"></i>
-                                <span class="text-primary" data-i18n="test_preview.audio_available">Audio Available</span>
-                            </div>
-                        </div>
-
-                        <!-- Metadata Row 2: Difficulty, Attempts -->
-                        <div class="metadata-row">
-                            <div class="metadata-item">
-                                <i class="bi bi-speedometer2"></i>
-                                <span id="testDifficulty">–</span>
-                            </div>
-                            <div class="metadata-item d-none" id="attemptsMeta">
-                                <i class="bi bi-people"></i>
-                                <span id="testAttempts">0 attempts</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION 2: Test Type Selection -->
-                <div class="card mb-4 animate-slide-up" style="animation-delay: 0.1s;">
-                    <div class="card-body p-4">
-                        <h2 class="mb-3 h3" data-i18n="test_preview.select_type">Select Test Type</h2>
-
-                        <div class="test-type-selector">
-                            <div class="test-type-option">
-                                <input type="radio"
-                                       name="testType"
-                                       id="listeningOption"
-                                       value="listening">
-                                <label for="listeningOption" class="test-type-label">
-                                    <i class="bi bi-headphones"></i>
-                                    <span data-i18n="test_preview.listening">Listening</span>
-                                </label>
-                            </div>
-
-                            <div class="test-type-option">
-                                <input type="radio"
-                                       name="testType"
-                                       id="readingOption"
-                                       value="reading">
-                                <label for="readingOption" class="test-type-label">
-                                    <i class="bi bi-book"></i>
-                                    <span data-i18n="test_preview.reading">Reading</span>
-                                </label>
-                            </div>
-
-                            <div class="test-type-option">
-                                <input type="radio"
-                                       name="testType"
-                                       id="dictationOption"
-                                       value="dictation">
-                                <label for="dictationOption" class="test-type-label">
-                                    <i class="bi bi-keyboard"></i>
-                                    <span data-i18n="test_preview.dictation">Dictation</span>
-                                </label>
-                            </div>
-
-                            <div class="test-type-option" id="pinyinOptionWrapper" style="display: none;">
-                                <input type="radio"
-                                       name="testType"
-                                       id="pinyinOption"
-                                       value="pinyin">
-                                <label for="pinyinOption" class="test-type-label">
-                                    <i class="bi bi-translate"></i>
-                                    <span data-i18n="test_preview.pinyin">Pinyin Tones</span>
-                                </label>
-                            </div>
-
-                            <div class="test-type-option" id="pitchAccentOptionWrapper" style="display: none;">
-                                <input type="radio"
-                                       name="testType"
-                                       id="pitchAccentOption"
-                                       value="pitch_accent">
-                                <label for="pitchAccentOption" class="test-type-label">
-                                    <i class="bi bi-music-note-beamed"></i>
-                                    <span data-i18n="test_preview.pitch_accent">Pitch Accent</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION 3: Difficulty Display -->
-                <div class="card mb-4 animate-slide-up" style="animation-delay: 0.2s;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="difficulty-badge" id="difficultyBadge">
-                                    <span id="difficultyLabel">Intermediate</span>
-                                </span>
-                                <span class="text-slate-600" id="eloRating">
-                                    ELO Rating: <strong>1400</strong>
-                                </span>
-                            </div>
-                            <div>
-                                <i class="bi bi-bar-chart-fill" id="difficultyIcon" style="font-size: 32px;"></i>
-                            </div>
-                        </div>
-
-                        <!-- Stats Row (if available) -->
-                        <div class="mt-3 text-slate-500" id="statsRow" style="font-size: 14px; display: none;">
-                            <span id="attemptsText"></span><span id="volatilitySep"> • </span><span id="volatilityText"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION 4: Start Test Button -->
-                <div class="mb-4 animate-slide-up" style="animation-delay: 0.3s;">
-                    <button type="button"
-                            class="btn btn-primary w-100 start-test-btn"
-                            id="startTestBtn">
-                        <i class="bi bi-play-circle-fill"></i>
-                        <span id="buttonText" data-i18n="test_preview.start_test">Start Test</span>
-                    </button>
-                    <!-- Test prestudy (wiki/features/test-prestudy.md): comprehension modes only -->
-                    <div id="studyFirstBlock" class="mt-3">
-                        <button type="button"
-                                class="btn btn-outline-primary w-100 study-first-btn"
-                                id="studyFirstBtn">
-                            <i class="bi bi-book-half"></i>
-                            <span data-i18n="test_preview.study_first">Study first</span>
-                        </button>
-                        <p class="text-slate-500 small mt-2 mb-0 text-center" data-i18n="test_preview.study_first_hint">Learn the key words before you take the test. Your first attempt then counts at half weight for your rating.</p>
-                    </div>
-                </div>
-            </div>
-
+    <!-- Error State -->
+    <div id="pageError" class="d-none">
+        <div class="ld-note ld-note--bad ld-col" role="alert">
+            <h2 class="ld-h2 mb-0" data-i18n="test_preview.error_title">Error Loading Test</h2>
+            <p id="errorMessage" class="mb-0" data-i18n="test_preview.error_default">Failed to load test details. Please try again.</p>
+            <a class="ld-btn ld-btn--sm align-self-start" href="/tests" data-i18n="test_preview.back_to_tests">Back to Tests</a>
         </div>
+    </div>
+
+    <!-- Main Content (hidden until loaded) -->
+    <div id="mainContent" class="d-none tp-main">
+        <!-- Test info -->
+        <div class="tp-info">
+            <div class="tp-title-row">
+                <h1 class="ld-h1 tp-title mb-0" id="testTitle">Loading...</h1>
+                <span class="ld-tag ld-tag--info custom-badge d-none" id="customBadge" data-i18n="test_preview.custom">Custom</span>
+            </div>
+        </div>
+
+        <div class="ld-wrap tp-tags metadata-row">
+            <span class="ld-tag metadata-item"><i class="bi bi-translate" aria-hidden="true"></i> <span id="testLanguage">-</span></span>
+            <span class="ld-tag metadata-item"><i class="bi bi-tag" aria-hidden="true"></i> <span id="testTopic">-</span></span>
+            <span class="ld-tag ld-tag--ok metadata-item d-none" id="audioAvailable"><i class="bi bi-volume-up" aria-hidden="true"></i> <span data-i18n="test_preview.audio_available">Audio Available</span></span>
+            <span class="ld-tag metadata-item"><i class="bi bi-speedometer2" aria-hidden="true"></i> <span id="testDifficulty">–</span></span>
+            <span class="ld-tag metadata-item d-none" id="attemptsMeta"><i class="bi bi-people" aria-hidden="true"></i> <span id="testAttempts">0 attempts</span></span>
+        </div>
+
+        <!-- Test type selection -->
+        <fieldset class="tp-types">
+            <legend class="ld-eyebrow" data-i18n="test_preview.select_type">Select Test Type</legend>
+
+            <div class="test-type-selector">
+                <div class="test-type-option">
+                    <input type="radio" name="testType" id="listeningOption" value="listening">
+                    <label for="listeningOption" class="test-type-label">
+                        <span class="ld-seal tp-seal" data-tp-seal="listening" aria-hidden="true"><i class="bi bi-headphones"></i></span>
+                        <span data-i18n="test_preview.listening">Listening</span>
+                    </label>
+                </div>
+
+                <div class="test-type-option">
+                    <input type="radio" name="testType" id="readingOption" value="reading">
+                    <label for="readingOption" class="test-type-label">
+                        <span class="ld-seal tp-seal" data-tp-seal="reading" aria-hidden="true"><i class="bi bi-book"></i></span>
+                        <span data-i18n="test_preview.reading">Reading</span>
+                    </label>
+                </div>
+
+                <div class="test-type-option">
+                    <input type="radio" name="testType" id="dictationOption" value="dictation">
+                    <label for="dictationOption" class="test-type-label">
+                        <span class="ld-seal tp-seal" data-tp-seal="dictation" aria-hidden="true"><i class="bi bi-keyboard"></i></span>
+                        <span data-i18n="test_preview.dictation">Dictation</span>
+                    </label>
+                </div>
+
+                <div class="test-type-option" id="pinyinOptionWrapper" style="display: none;">
+                    <input type="radio" name="testType" id="pinyinOption" value="pinyin">
+                    <label for="pinyinOption" class="test-type-label">
+                        <span class="ld-seal tp-seal" data-tp-seal="pinyin" aria-hidden="true"><i class="bi bi-translate"></i></span>
+                        <span data-i18n="test_preview.pinyin">Pinyin Tones</span>
+                    </label>
+                </div>
+
+                <div class="test-type-option" id="pitchAccentOptionWrapper" style="display: none;">
+                    <input type="radio" name="testType" id="pitchAccentOption" value="pitch_accent">
+                    <label for="pitchAccentOption" class="test-type-label">
+                        <span class="ld-seal tp-seal" data-tp-seal="pitch_accent" aria-hidden="true"><i class="bi bi-music-note-beamed"></i></span>
+                        <span data-i18n="test_preview.pitch_accent">Pitch Accent</span>
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Difficulty for the selected type -->
+        <div class="ld-card tp-rating">
+            <div class="tp-rating__main">
+                <span class="difficulty-badge" id="difficultyBadge">
+                    <span id="difficultyLabel">Intermediate</span>
+                </span>
+                <span class="ld-small" id="eloRating">
+                    ELO Rating: <strong>1400</strong>
+                </span>
+            </div>
+
+            <!-- Stats Row (if available) -->
+            <div class="ld-small ld-muted tp-rating__stats" id="statsRow" style="display: none;">
+                <span id="attemptsText"></span><span id="volatilitySep"> • </span><span id="volatilityText"></span>
+            </div>
+        </div>
+
+        <!-- Test prestudy (wiki/features/test-prestudy.md): comprehension modes only -->
+        <div id="studyFirstBlock" class="ld-col tp-study">
+            <button type="button" class="ld-btn ld-btn--ghost study-first-btn" id="studyFirstBtn">
+                <i class="bi bi-book-half" aria-hidden="true"></i>
+                <span data-i18n="test_preview.study_first">Study first</span>
+            </button>
+            <p class="ld-hint mb-0" data-i18n="test_preview.study_first_hint">Learn the key words before you take the test. Your first attempt then counts at half weight for your rating.</p>
+        </div>
+
+        <!-- Dual translation from this test: shown by js/dt-test-entry.js only when a passage is ready -->
+        <a class="ld-btn ld-btn--ghost d-none" id="dtFromTest" href="/dual-translation"><i class="bi bi-translate" aria-hidden="true"></i> <span data-i18n="dual_translation.test_cta">Translate a passage from this test</span></a>
     </div>
 </div>
 {% endblock %}
 
+{% block dock %}
+<button type="button" class="ld-btn start-test-btn" id="startTestBtn" disabled>
+    <i class="bi bi-play-circle-fill" aria-hidden="true"></i>
+    <span id="buttonText" data-i18n="test_preview.start_test">Start Test</span>
+</button>
+{% endblock %}
+
 {% block extra_js %}
 <script defer src="{{ url_for('static', filename='js/pages/test-preview.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/dt-test-entry.js') }}"></script>
 {% endblock %}

@@ -5,8 +5,8 @@
  * test_pitch_accent.html, classifier_drill.html, counter_drill.html) calls
  * LinguaTestIntro.init({testType}) once it knows which test type it's
  * rendering. That:
- *   - injects a small floating "i" button (top-right) that reopens the
- *     explainer modal on demand, and
+ *   - injects a small "i" button that reopens the explainer modal on demand
+ *     (in the task header on one-task pages, floating elsewhere), and
  *   - auto-opens the modal once, the first time this user reaches that
  *     test type, using GET/POST /api/test-intros/seen (see
  *     routes/test_intros.py) so the "seen" flag persists across devices —
@@ -29,21 +29,9 @@
     return window.LinguaI18n && window.LinguaI18n.t ? window.LinguaI18n.t(key, params) : key;
   }
 
-  function ensureStyles() {
-    if (document.getElementById('testIntroStyles')) return;
-    const style = document.createElement('style');
-    style.id = 'testIntroStyles';
-    style.textContent =
-      '.test-intro-btn{position:fixed;top:76px;right:16px;z-index:1040;' +
-      'width:36px;height:36px;border-radius:50%;' +
-      'border:2px solid var(--border-strong,#cbd5e1);background:var(--bg-surface,#fff);' +
-      'color:var(--primary,#4f46e5);display:flex;align-items:center;justify-content:center;' +
-      'font-size:18px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.15);' +
-      'transition:transform .15s ease,background .15s ease;padding:0;}' +
-      '.test-intro-btn:hover{transform:scale(1.08);background:var(--bg-surface-hover,#f1f5f9);}' +
-      '@media (max-width:576px){.test-intro-btn{top:auto;bottom:16px;}}';
-    document.head.appendChild(style);
-  }
+  // Styles live in static/css/redesign/tests.css (section 4), which base.html
+  // loads on every page; kept as a no-op hook for existing callers.
+  function ensureStyles() {}
 
   function ensureModal() {
     if (modalEl) return;
@@ -52,17 +40,18 @@
     modalEl.id = 'testIntroModal';
     modalEl.tabIndex = -1;
     modalEl.setAttribute('aria-hidden', 'true');
+    modalEl.setAttribute('aria-labelledby', 'testIntroHeading');
     modalEl.innerHTML =
       '<div class="modal-dialog modal-dialog-centered">' +
       '<div class="modal-content">' +
       '<div class="modal-header border-0">' +
-      '<h5 class="modal-title"><i class="fas fa-circle-info text-primary me-2"></i>' +
-      '<span id="testIntroTitle"></span></h5>' +
+      '<h2 class="modal-title ld-h2" id="testIntroHeading"><i class="fas fa-circle-info text-primary me-2" aria-hidden="true"></i>' +
+      '<span id="testIntroTitle"></span></h2>' +
       '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>' +
       '</div>' +
       '<div class="modal-body" id="testIntroBody"></div>' +
       '<div class="modal-footer border-0">' +
-      '<button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="testIntroCloseBtn"></button>' +
+      '<button type="button" class="ld-btn ld-btn--block" data-bs-dismiss="modal" id="testIntroCloseBtn"></button>' +
       '</div>' +
       '</div>' +
       '</div>';
@@ -82,12 +71,20 @@
     btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'test-intro-btn';
-    btn.setAttribute('aria-label', t('test_intro.info_aria'));
+    // Before the bundle loads t() returns the key itself: start from English;
+    // LinguaI18n.applyToDOM re-labels [data-i18n-aria] on load and on a switch.
+    const label = t('test_intro.info_aria');
+    btn.setAttribute('aria-label', label !== 'test_intro.info_aria' ? label : 'About this test');
+    btn.setAttribute('data-i18n-aria', 'test_intro.info_aria');
     btn.innerHTML = '<i class="fas fa-info" aria-hidden="true"></i>';
     btn.addEventListener('click', function () {
       show(currentTestType, { auto: false });
     });
-    document.body.appendChild(btn);
+    // One-task pages (body.ld-task) have a task header: the button sits at its
+    // right end, after the clock. Elsewhere it floats (tests.css section 4).
+    const taskbar = document.getElementById('ldTaskbar');
+    if (taskbar && document.body.classList.contains('ld-task')) taskbar.appendChild(btn);
+    else document.body.appendChild(btn);
     return btn;
   }
 

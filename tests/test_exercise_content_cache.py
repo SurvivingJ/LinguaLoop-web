@@ -1,4 +1,4 @@
-"""TASK-977 — the read path's byte LRU and negative cache (ADR-047 §5)."""
+"""TASK-1009 — the read path's byte LRU and negative cache (ADR-049 §5)."""
 
 from __future__ import annotations
 

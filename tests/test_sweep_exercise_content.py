@@ -1,4 +1,4 @@
-"""TASK-992 — scripts/sweep_exercise_content.py (ADR-047 orphan-file sweep).
+"""TASK-1024 — scripts/sweep_exercise_content.py (ADR-049 orphan-file sweep).
 
 Fully offline: ``InMemoryBackend`` (settable ``created_at``) installed with
 ``store.set_backend`` and a fake client that only answers

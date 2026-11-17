@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Export, verify, repair and archive exercise content files (ADR-047, TASK-991).
+"""Export, verify, repair and archive exercise content files (ADR-049, TASK-1023).
 
-ADR-047 moves exercise ``content`` out of ``exercises.content`` into one immutable
+ADR-049 moves exercise ``content`` out of ``exercises.content`` into one immutable
 JSON file per sense and version in the private Storage bucket ``exercise-content``
 (``{lang}/{sense_id}.v{content_version}.json``, written with
 ``store.encode_sense_file``). Every row written before the move carries
@@ -12,7 +12,7 @@ changes ``exercises`` except through ``store.write_sense`` in ``--repair``.
 
 Needs the Phase-1 migrations (``exercise_content_live_versions``,
 ``content_version``) and, before the export, ``EXERCISE_CONTENT_WRITE=dual`` in
-every environment that writes exercises (ADR-047 section 10).
+every environment that writes exercises (ADR-049 section 10).
 
 Modes (one per run)
 -------------------
@@ -114,7 +114,7 @@ from services.pagination import fetch_all
 logger = logging.getLogger('scripts.backfill_exercise_content')
 
 LANGUAGE_IDS = {code: language_id for language_id, code in store.LANGUAGE_CODES.items()}
-LANGUAGE_ORDER = ('en', 'ja', 'zh')          # smallest first, as in TASK-995
+LANGUAGE_ORDER = ('en', 'ja', 'zh')          # smallest first, as in TASK-1027
 LIVE_VERSIONS_RPC = 'exercise_content_live_versions'
 ROW_COLUMNS = 'id, word_sense_id, language_id, exercise_type, is_active, content_version, content'
 ARCHIVE_FIELDS = ('id', 'word_sense_id', 'language_id', 'exercise_type', 'is_active',
@@ -224,7 +224,7 @@ def default_report_path(language: str, moment: datetime) -> str:
 # ---------------------------------------------------------------------------
 
 def live_versions(db, language_id: int) -> dict[int, list[int]]:
-    """``{sense_id: [version, ...]}`` from ``exercise_content_live_versions`` (ADR-047 §8)."""
+    """``{sense_id: [version, ...]}`` from ``exercise_content_live_versions`` (ADR-049 §8)."""
     data = db.rpc(LIVE_VERSIONS_RPC, {'p_language_id': language_id}).execute().data
     if data is None:
         return {}
@@ -991,7 +991,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog='backfill_exercise_content.py',
         description='Export exercises.content as version-0 Storage files, verify every row '
                     'against its file, repair through the store, and write the pre-cut-over '
-                    'archives (ADR-047, TASK-991).',
+                    'archives (ADR-049, TASK-1023).',
         epilog='Exit codes: 0 clean; 1 mismatches left or errors (see the report); '
                '2 refused. See the module docstring for details.')
     parser.add_argument('--language', required=True, choices=('zh', 'ja', 'en', 'all'))
@@ -1099,7 +1099,7 @@ def _make_context(args: argparse.Namespace, mode: str, db: Any,
                       f'EXERCISE_CONTENT_WRITE=dual (it is {store.write_mode()!r})')
     if mode == 'export' and not args.dry_run and store.write_mode() != 'dual':
         logger.warning('EXERCISE_CONTENT_WRITE is not dual in this shell. Every environment '
-                       'that writes exercises must run dual before the backfill (ADR-047 §10), '
+                       'that writes exercises must run dual before the backfill (ADR-049 §10), '
                        'or rows written there are served only by the DB fallback.')
     semdisc_sql = None
     if args.archive_semdisc and args.semdisc_function_file:

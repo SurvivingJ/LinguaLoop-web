@@ -58,7 +58,7 @@ class LadderExerciseRenderer:
         """Render exercises for all active ladder levels and insert them.
 
         Builds the rows in memory (see :meth:`build_rows`) then inserts them
-        with one ``store.write_sense`` call (ADR-047 §4: every insert into
+        with one ``store.write_sense`` call (ADR-049 §4: every insert into
         ``exercises`` goes through the content store). With
         ``EXERCISE_CONTENT_WRITE=db`` that is exactly the old single
         ``exercises`` insert; with ``dual`` the rows' content is merged into a

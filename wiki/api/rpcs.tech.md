@@ -133,8 +133,8 @@ The comprehension-test surface: list, fetch, submit. (`/generate_test` and `/cus
 | POST | `/moderate` | `@jwt_required` | OpenAI content moderation passthrough |
 | POST | `/<slug>/submit` | `@jwt_required` | MC test submission — full grading + ELO + BKT pipeline |
 | POST | `/<slug>/submit-pinyin` | `@jwt_required` | Pinyin tone trainer submission |
-| GET | `/<identifier>/prestudy` | `@jwt_required` | Prestudy payload (`routes/tests/prestudy.py`). ADR-047: ladder exercises only for the drill senses, plus `has_exercises` for every linked sense. See [[features/test-prestudy.tech]] |
-| GET | `/<identifier>/prestudy/exercises?sense_ids=…` | `@jwt_required` | NEW 2026-11-17 (TASK-989): exercises of words added to the drill set; 1–20 ids (400 otherwise), only the test's linked senses served, never queues generation |
+| GET | `/<identifier>/prestudy` | `@jwt_required` | Prestudy payload (`routes/tests/prestudy.py`). ADR-049: ladder exercises only for the drill senses, plus `has_exercises` for every linked sense. See [[features/test-prestudy.tech]] |
+| GET | `/<identifier>/prestudy/exercises?sense_ids=…` | `@jwt_required` | NEW 2026-11-17 (TASK-1021): exercises of words added to the drill set; 1–20 ids (400 otherwise), only the test's linked senses served, never queues generation |
 
 ### POST `/<slug>/submit` — submission contract
 
@@ -396,12 +396,84 @@ Url-prefix `/admin/arena` (mounted by `admin_app.py`). ⚠ No auth decorators.
 - `ladder_new_word_state` — counts intro rows (`migrations/new_word_drill.sql`).
 - HTTP: `POST /api/practice/intro/complete`, `POST /api/tests/<id>/prestudy/admit-overflow`; `POST /api/practice/attempt` accepts `exercise_context`.
 
+### Route contract changes (2026-11-16): dual translation, prestudy, pinyin display
+
+Full detail in the feature specs; summary of what callers see:
+
+- `GET /api/dual-translation/next?language_id=<1|2|3>` — new optional query parameter (400 when not
+  an integer in `Config.VALID_LANGUAGE_IDS`; absent → language of the latest test attempt). New
+  response field `source: 'passage' | 'sentence_refs'` (sentence windows also return
+  `passage_id`, `n_sentences`, `primed_token`, `status`). 404 now carries `error_code`
+  `ALL_DONE` or `NO_PASSAGES`. A graded passage is never served again. See
+  [[features/dual-translation.tech]] "GET /api/dual-translation/next".
+- `POST /api/dual-translation/<submission_id>/submit` — new **503 `GRADING_UNAVAILABLE`** when the
+  grading provider refused every call that was made (401/402/403, quota 429) and no model
+  answered; nothing is saved. A non-object or malformed JSON body is now 400 (was 500).
+- `GET /api/tests/<slug>/prestudy` — payload adds `produce_available` (bool),
+  `produce_l1_language_id` and `plan` (the same unknown-share plan as the daily-session card).
+- **New** `GET /api/tests/<slug>/prestudy/produce-available` — login required →
+  `{produce_available, produce_l1_language_id}`; 404 for an unknown test. Same rule as
+  `POST /api/tests/<id>/prestudy/produce` (which answers 422 `NO_WINDOW` exactly when this is false).
+  See [[features/test-prestudy]] "Fixes (2026-11-16)".
+- Classifier drill session items (`noun_pronunciation`, `distractor_pinyin`,
+  `correct_classifier_pinyin`) and the post-test vocab check (`pronunciation`, Chinese only) now
+  return **tone-marked pinyin only** (`services/pinyin_format.format_pinyin`; numbered "bi3" and
+  "marked (numbered)" stored forms are converted). `noun_pronunciation` is `''` rather than `null`
+  when none is stored. Japanese readings are unchanged. Grading inputs (`reading.numbered` in the
+  new-word drill) are unchanged.
+
+### Route contract changes (2026-11-17): dual translation, measure-word drill, pinyin, session
+
+All additive; callers deployed from main keep working. Detail in the feature specs.
+
+- `GET /api/dual-translation/next` — new optional `reserve=1` (serve a graded passage again once
+  nothing new is left) and `test_id=<uuid>` (only that test's passages, in the test's own language;
+  400 when not a UUID, 404 `NO_PASSAGES` for an unknown test). New response fields
+  `from_untaken_test` (bool) and `repeat_of {graded_at, band}`. (Legacy whole passages, which
+  returned `source:'passage'`, are no longer served: retired and deleted 2026-11-17; every answer
+  is `source:'sentence_refs'`.) Passages from tests the learner has not taken are served after those from attempted
+  tests. Reads come from the new RPC `dt_next_inputs` (fallback: per-table reads). See
+  [[features/dual-translation.tech]].
+- **New** `GET /api/dual-translation/test-available?test_id=|slug=` → `{available, test_id,
+  l1_language_id}` (login required; 400 without an id or slug, 404 unknown test, read errors answer
+  `available: false`).
+- `POST /api/dual-translation/<id>/submit` — new **400 `REPRODUCTION_TOO_LONG`** (> 2000 characters
+  after removing invisible/control characters); response adds `repeat_of` for a repeat.
+  `POST /api/dual-translation/passage-from-sentences` — new **409 `PASSAGE_RETIRED`** for a retired
+  window, before any submission is created.
+- `GET /api/classifier-drill/session` — items add `level`, `mastery_level`,
+  `classifier_id_primary`, `reverse_noun_options`, `cloze_sentence`, `cloze_blanked`, `max_tier`;
+  `noun_gloss` has the answer classifier blanked after a numeral/demonstrative.
+  `POST /api/classifier-drill/submit` — `item_results [{classifier_id, is_correct, level}]` drive
+  `update_classifier_mastery` (one call per answer, chains per classifier run concurrently);
+  response `mastery_updates` is `[]` for a replayed (cached) submission. See
+  [[features/measure-word-trainer.tech]] "Levels and mastery".
+- Tone-marked pinyin only (display fields, Chinese only, via
+  `services.pinyin_format.display_pronunciation`, which uses the word's own `language_id` and falls
+  back to the language code): `GET /api/tests/<slug>` `definitions[*].reading` (tap-a-word popover),
+  `GET /api/flashcards/due/<language_id>` `pronunciation`, `GET /api/admin/vocab/preview/...`
+  `word.pronunciation` (now also shown as a "Reading" badge). Japanese/English unchanged; nothing
+  grades against these fields.
+- `/session?resume=<slug>` and `/session?resume_after=<slug>` (page URL markers, not API): one-shot,
+  removed by `static/js/session/controller.js` on load; see [[features/test-prestudy]]
+  "Fixes (2026-11-17)".
+
+### RPCs added or changed on the live database (2026-11-17)
+
+| RPC | Change | Migration (rollback) |
+|---|---|---|
+| `dt_next_inputs(p_user_id uuid, p_l2 integer, p_l1 integer) RETURNS jsonb` | **New.** STABLE, SECURITY INVOKER, `search_path = public, pg_temp`, EXECUTE service_role only. One read bundle for `GET /api/dual-translation/next` (attempts, served/graded history, eligible tests with ELO, window sentence references; the `legacy` whole-passage array was removed from the file 2026-11-17 — re-apply needed). Called from `routes/dual_translation.py` (`_next_inputs`). | `migrations/dt_next_inputs.sql` (`migrations/dt_next_inputs_rollback.sql`: DROP; no earlier definition) |
+| `get_classifier_drill_session_v2(p_user_id uuid, p_language_id smallint, p_count integer)` | **New.** The 13 v1 columns + `out_level`, `out_mastery_level`, `out_classifier_id_primary`, `out_reverse_noun_options`, `out_cloze_sentence`, `out_cloze_blanked`, `out_max_tier`. SECURITY DEFINER, `search_path=public, pg_temp`, service_role only. Called from `services/drill_service.py` (v1 fallback). `get_classifier_drill_session` (v1) unchanged. | `migrations/task998_classifier_drill_levels.sql` (`…_rollback.sql`: restores the exact previous `update_classifier_mastery`, drops v2 and the column) |
+| `update_classifier_mastery(p_user_id, p_classifier_id, p_is_correct) RETURNS jsonb` | **Replaced, same signature.** Promotion after 5 answers at the current level (`level_attempts`) with EWMA ≥ 0.80; row read FOR UPDATE; result adds `level_attempts`. | same as above |
+
 ## RPC Call Site Map
 
 Every Supabase RPC currently invoked from Python, with its caller. See [database/rpcs.tech.md](../database/rpcs.tech.md) for the full RPC signatures.
 
 | RPC | Called from | Note |
 |---|---|---|
+| `dt_next_inputs` | `routes/dual_translation.py: _next_inputs` (GET /next) | INVOKER, STABLE, service_role only. New 2026-11-17. |
+| `get_classifier_drill_session_v2` / `update_classifier_mastery` | `services/drill_service.py` | DEFINER, service_role only. v2 new 2026-11-17 (v1 fallback); mastery replaced same signature. |
 | `process_test_submission` | `routes/tests.py: _call_submission_rpc` | DEFINER. Atomic test grading + ELO + token charge + idempotency. |
 | `process_mystery_submission` | `services/mystery_service.py` | DEFINER. Mystery finale grading. |
 | `process_stripe_payment` | (intended for webhook — handler missing) | DEFINER. Atomic token grant. |
@@ -419,9 +491,9 @@ Every Supabase RPC currently invoked from Python, with its caller. See [database
 | `ladder_graduate` | `LadderService.graduate` | INVOKER. FSRS handoff. |
 | `ladder_compute_p_known` | (helper, inlined into other RPCs) | IMMUTABLE. |
 | `fsrs_schedule_review` | Pure-SQL FSRS scheduler used inside `ladder_*` and `services/vocabulary/fsrs.py` mirror | STABLE. |
-| `exercise_content_begin` / `exercise_content_commit` | `services/exercise_content/writer.py` (`store.write_sense`, `EXERCISE_CONTENT_WRITE=dual`) | INVOKER, service_role only. ADR-047 §8; `migrations/exercise_content_storage.sql`, applied live 2026-11-17 (TASK-994). Compare-and-swap per sense under `pg_advisory_xact_lock(47047, sense)`. See [[database/schema.tech]] "Exercise content in Storage". |
-| `exercise_content_live_versions` | `scripts/backfill_exercise_content.py`, `scripts/sweep_exercise_content.py` | INVOKER, service_role only. ADR-047; applied live 2026-11-17. `{sense: [versions]}` per language. |
-| `get_practice_session` / `get_review_ahead_items` (ADR-047 change) | `services/practice/session_assembly.py` | Callers pass `**store.rpc_content_args()`: nothing in `db` mode (today's call), `p_include_content` true/false in shadow/storage; the 6-argument functions (`migrations/exercise_content_session_rpcs.sql`) are live since 2026-11-17; the 5-argument ones are gone. |
+| `exercise_content_begin` / `exercise_content_commit` | `services/exercise_content/writer.py` (`store.write_sense`, `EXERCISE_CONTENT_WRITE=dual`) | INVOKER, service_role only. ADR-049 §8; `migrations/exercise_content_storage.sql`, applied live 2026-11-17 (TASK-1026). Compare-and-swap per sense under `pg_advisory_xact_lock(47047, sense)`. See [[database/schema.tech]] "Exercise content in Storage". |
+| `exercise_content_live_versions` | `scripts/backfill_exercise_content.py`, `scripts/sweep_exercise_content.py` | INVOKER, service_role only. ADR-049; applied live 2026-11-17. `{sense: [versions]}` per language. |
+| `get_practice_session` / `get_review_ahead_items` (ADR-049 change) | `services/practice/session_assembly.py` | Callers pass `**store.rpc_content_args()`: nothing in `db` mode (today's call), `p_include_content` true/false in shadow/storage; the 6-argument functions (`migrations/exercise_content_session_rpcs.sql`) are live since 2026-11-17; the 5-argument ones are gone. |
 | `get_exercise_session` | `services/exercise_session_service.py:_compute_session` | INVOKER. Phase 9 + Phase 11. Two overloads: 3-arg legacy and 4-arg with `p_user_theta`. |
 | `get_session_senses` | Inlined into `get_exercise_session` CTE | INVOKER. |
 | `bkt_update_comprehension` | `VocabularyKnowledgeService.update_from_comprehension` | IMMUTABLE. |

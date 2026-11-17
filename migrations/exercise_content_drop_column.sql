@@ -1,19 +1,19 @@
 -- =============================================================================
--- exercise_content_drop_column.sql — ADR-047 cut-over: dedupe_key backfill, the v2 unique
+-- exercise_content_drop_column.sql — ADR-049 cut-over: dedupe_key backfill, the v2 unique
 -- index, the content-free RPCs, DROP COLUMN exercises.content, VACUUM FULL.
--- Date: 2026-11-17   Task: TASK-986 (written now; run by the operator in TASK-998)
--- Spec: wiki/decisions/ADR-047-exercise-content-in-storage.md (§7 cut-over, §10 roll-out)
+-- Date: 2026-11-17   Task: TASK-1018 (written now; run by the operator in TASK-1030)
+-- Spec: wiki/decisions/ADR-049-exercise-content-in-storage.md (§7 cut-over, §10 roll-out)
 --
 -- STATUS: NOT applied. A RUNBOOK, not a single script: run the steps IN ORDER, each on its
 -- own in the SQL editor (or psql). Steps 1 (the VACUUM), 2 and 4 cannot run inside a
 -- transaction block, so never run this whole file at once.
 --
--- Preconditions (TASK-998), all on the same day:
+-- Preconditions (TASK-1030), all on the same day:
 --   * >= 7 days on EXERCISE_CONTENT_SOURCE=storage without an exercise_content.db_fallback
 --     WARNING; EXERCISE_CONTENT_WRITE=dual in every environment that writes.
 --   * python scripts/backfill_exercise_content.py --verify --language all   exits 0.
 --   * --archive-all <YYYYMMDD>, --archive-sense-less and --archive-semdisc written to
---     exercise-content/_archive/ and their manifests checked (TASK-991).
+--     exercise-content/_archive/ and their manifests checked (TASK-1023).
 --   * migrations/exercise_content_session_rpcs.sql applied.
 --   Step 3a enforces all of these except the 7 days (step 0e shows them read-only): it
 --   aborts unless storage.objects holds the three archives, a verify-ok marker and the
@@ -24,6 +24,9 @@
 -- After step 3, EXERCISE_CONTENT_SOURCE=db is no longer a rollback (the column is gone); the
 -- rollback is migrations/exercise_content_drop_column_rollback.sql plus a refill of the
 -- column from Storage / the _archive/ export.
+-- Renumbered 2026-11-17 when merged with main: ADR-047 -> ADR-049 and TASK-976..999 ->
+-- TASK-1008..1031 (main already used those ids). Function bodies and COMMENT strings keep
+-- the old ids: they are (or will be) the live text, md5-compared against the database.
 -- =============================================================================
 
 
@@ -132,7 +135,7 @@ SELECT c.relname, i.indisvalid, i.indisready
 BEGIN;
 
 -- 3a. Preconditions: abort the whole transaction unless steps 1 and 2 are complete, the
---     session RPC migration is in place, and the TASK-991 archives and a clean full --verify
+--     session RPC migration is in place, and the TASK-1023 archives and a clean full --verify
 --     are in Storage. Everything below 3a deletes or drops for good, so these are enforced
 --     here, not only listed in the header. now() is the transaction start.
 DO $pre$
@@ -206,14 +209,14 @@ BEGIN
 END
 $pre$;
 
--- 3b. The rows with no sense cannot be keyed by sense, so they have no file (ADR-047 Open
+-- 3b. The rows with no sense cannot be keyed by sense, so they have no file (ADR-049 Open
 --     question 3). Only after `scripts/backfill_exercise_content.py --archive-sense-less`
---     (TASK-991) wrote _archive/exercises-no-sense-<YYYYMMDD>.json with the count of step 0b.
+--     (TASK-1023) wrote _archive/exercises-no-sense-<YYYYMMDD>.json with the count of step 0b.
 DELETE FROM public.exercises WHERE word_sense_id IS NULL;
 
--- 3c. Owner decision 2026-11-17 (ADR-047 Open question 2): the semantic-discrimination
+-- 3c. Owner decision 2026-11-17 (ADR-049 Open question 2): the semantic-discrimination
 --     leftovers (live only, not in the repo) go. Only after
---     `scripts/backfill_exercise_content.py --archive-semdisc` (TASK-991) archived both tables
+--     `scripts/backfill_exercise_content.py --archive-semdisc` (TASK-1023) archived both tables
 --     and the apply_semdisc_notes definition to _archive/semdisc-20261115/ and the manifest
 --     was checked. apply_semdisc_notes rewrites exercises.content, which is about to go.
 DROP FUNCTION IF EXISTS public.apply_semdisc_notes(jsonb);

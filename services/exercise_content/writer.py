@@ -1,4 +1,4 @@
-"""``dual`` write path behind ``store.write_sense`` (ADR-047 §4, §8, §9). TASK-979.
+"""``dual`` write path behind ``store.write_sense`` (ADR-049 §4, §8, §9). TASK-1011.
 
 ``store`` imports this module lazily, only when ``write_mode() == 'dual'``.
 
@@ -15,7 +15,7 @@ Contract with ``store``: ``store.write_sense`` has already
   ``update_contents`` a ``dict`` (possibly empty);
 * returned early, without calling this module, when there is nothing to do.
 
-One attempt (ADR-047 §4), repeated up to ``max_retries`` times:
+One attempt (ADR-049 §4), repeated up to ``max_retries`` times:
 
 1. ``exercise_content_begin(p_sense_id)`` -> current version ``V``, a fresh
    version ``N`` and the sense's rows (ids + metadata).
@@ -52,7 +52,7 @@ commits without uploading a file: no row will ever point at it.
 Errors: ``ValueError`` (bad input, including rows that are not JSON-safe);
 ``ContentWriteConflict``; ``ContentStorageError`` (backend failure, missing
 or corrupt base content); ``ExerciseContentError`` for an RPC response that
-breaks the ADR-047 §8 contract; PostgREST errors from the RPCs propagate.
+breaks the ADR-049 §8 contract; PostgREST errors from the RPCs propagate.
 """
 
 from __future__ import annotations
@@ -126,7 +126,7 @@ def _begin(db, sense_id: int) -> tuple[int, int, list[dict]]:
 
 
 def _matching_ids(rows: list[dict], where: DeleteWhere | None) -> list[str]:
-    """Ids of ``rows`` the db-mode delete chain would remove (ADR-047 §9 ``DeleteWhere``)."""
+    """Ids of ``rows`` the db-mode delete chain would remove (ADR-049 §9 ``DeleteWhere``)."""
     if where is None:
         return []
     levels = where.ladder_levels
@@ -245,7 +245,7 @@ def _warm_cache(language_id: int, sense_id: int, version: int, data: bytes) -> N
 def write_sense_dual(db, sense_id: int, language_id: int, *, insert_rows: Sequence[dict],
                      delete_where: DeleteWhere | None, update_contents: Mapping[str, dict],
                      max_retries: int, expected_version: int | None = None) -> WriteResult:
-    """File first, then the rows by compare-and-swap (ADR-047 §4).
+    """File first, then the rows by compare-and-swap (ADR-049 §4).
 
     ``expected_version``: the version the caller read the content it edited at. When begin
     reports another version, the caller's base is stale; retrying here would only rewrite the

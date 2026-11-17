@@ -37,7 +37,7 @@ def _dt_single_call_off(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def _exercise_content_db_mode(monkeypatch):
-    """Pin both ADR-047 exercise-content flags to 'db' and reset the store.
+    """Pin both ADR-049 exercise-content flags to 'db' and reset the store.
 
     With EXERCISE_CONTENT_SOURCE / EXERCISE_CONTENT_WRITE at 'db' every reader
     and writer issues exactly today's PostgREST calls, whatever the shell

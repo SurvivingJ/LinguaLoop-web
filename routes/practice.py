@@ -269,7 +269,7 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
 
     from services.exercise_content import store
     # word_sense_id is hydrate's sense key outside db mode; db mode keeps today's select
-    # byte-for-byte (ADR-047 §6).
+    # byte-for-byte (ADR-049 §6).
     columns = 'exercise_type, {content}, language_id'
     if store.read_mode() != 'db':
         columns += ', word_sense_id'
@@ -291,7 +291,7 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
     if not item or item.get('exercise_type') not in _SERVER_GRADED_TYPES:
         return None
 
-    # Content through the exercise-content store (ADR-047; a no-op in db
+    # Content through the exercise-content store (ADR-049; a no-op in db
     # mode). Content that cannot be found fails open, like a failed lookup.
     item['id'] = exercise_id
     try:

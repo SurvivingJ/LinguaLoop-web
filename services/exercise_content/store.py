@@ -1,14 +1,14 @@
-"""Exercise content store: the one module callers import (ADR-047 §9).
+"""Exercise content store: the one module callers import (ADR-049 §9).
 
     from services.exercise_content import store
 
 Exercise ``content`` moves from ``exercises.content`` to one immutable JSON file
 per sense and version in the private Storage bucket ``exercise-content``
-(``{lang_code}/{sense_id}.v{version}.json``, ADR-047 §1-§2). Readers select
+(``{lang_code}/{sense_id}.v{version}.json``, ADR-049 §1-§2). Readers select
 ``store.select_columns(...)`` / pass ``**store.rpc_content_args()`` and call
 ``store.hydrate(items)`` just before the payload leaves the server; writers call
 ``store.write_sense(...)`` for every insert into ``exercises`` and every content
-change (ADR-047 §4).
+change (ADR-049 §4).
 
 Modes are read from ``config.Config`` at call time:
 
@@ -18,10 +18,10 @@ Modes are read from ``config.Config`` at call time:
 ``db`` read and write modes are implemented here and reproduce today's
 PostgREST calls exactly; they never import ``reader`` / ``writer`` /
 ``backends``, create a client or touch the network. ``shadow`` / ``storage``
-reads delegate to ``reader.py`` (TASK-978) and ``dual`` writes to ``writer.py``
-(TASK-979); both are imported lazily, inside the delegating branch.
+reads delegate to ``reader.py`` (TASK-1010) and ``dual`` writes to ``writer.py``
+(TASK-1011); both are imported lazily, inside the delegating branch.
 
-Choices made where ADR-047 §9 is silent or ambiguous (TASK-976)
+Choices made where ADR-049 §9 is silent or ambiguous (TASK-1008)
 ----------------------------------------------------------------
 1. ``write_sense`` validation is strict in ``dual`` mode and lenient in ``db``
    mode. Both modes reject (``ValueError``, before any call) a ``db`` of None,
@@ -35,7 +35,7 @@ Choices made where ADR-047 §9 is silent or ambiguous (TASK-976)
    ``language_id`` must be positive ints. In ``db`` mode a row may omit ``id``,
    ``language_id`` or ``content`` and is sent as today: the "db mode must not
    change behaviour" rule wins, and existing tests insert such rows through
-   the writers that TASK-980/981 route through this function
+   the writers that TASK-1012/1013 route through this function
    (``tests/test_generation_batch_workers.py``, ``tests/test_level_scoped_regen.py``).
    Ids and sense/language values compare as ints when both sides are
    int-like (``5 == '5'``); bools never match.
@@ -50,7 +50,7 @@ Choices made where ADR-047 §9 is silent or ambiguous (TASK-976)
 4. ``DeleteWhere.ladder_levels`` is normalised to a sorted tuple of unique
    ints (a list or set is accepted; a non-int level raises ``ValueError``).
    An empty tuple is kept and means "no level" (``.in_('ladder_level', [])``).
-5. The credential check of ADR-047 §6 (a non-``db`` mode without
+5. The credential check of ADR-049 §6 (a non-``db`` mode without
    ``SUPABASE_URL`` / ``SUPABASE_SERVICE_ROLE_KEY`` behaves as ``db`` with one
    ERROR) applies to both flags, and is skipped while a backend installed with
    ``set_backend()`` is in place (tests run ``storage`` / ``dual`` offline that
@@ -83,11 +83,11 @@ Internal plumbing for reader.py / writer.py / cache.py / shadow.py (not for call
   shadow queue and worker).
 * ``_content_cache()`` / ``_negative_cache()``: the process-wide
   ``cache.ByteLRU(EXERCISE_CONTENT_CACHE_MB MiB)`` and
-  ``cache.NegativeCache(ttl_s=60.0)`` from TASK-977, built lazily; ``None``
+  ``cache.NegativeCache(ttl_s=60.0)`` from TASK-1009, built lazily; ``None``
   while ``services/exercise_content/cache.py`` does not exist. ``reset_state()``
   and ``set_backend()`` drop them.
 * ``_cache_key(language_id, sense_id, version)`` -> ``(lang_code, sense_id, version)``,
-  the key both caches use (ADR-047 §5).
+  the key both caches use (ADR-049 §5).
 * ``_lang_code(language_id)``: ``LANGUAGE_CODES`` lookup, ``str(language_id)``
   for an unknown id.
 """
@@ -129,7 +129,7 @@ _SELECT_REPLACEMENTS = {
 
 
 # ---------------------------------------------------------------------------
-# Errors and value types (ADR-047 §9)
+# Errors and value types (ADR-049 §9)
 # ---------------------------------------------------------------------------
 
 class ExerciseContentError(Exception):
@@ -696,7 +696,7 @@ def canonical(content) -> str:
 
 def encode_sense_file(sense_id: int, language_id: int, version: int,
                       exercises: Mapping[str, dict]) -> bytes:
-    """The ADR-047 §2 document as UTF-8 bytes:
+    """The ADR-049 §2 document as UTF-8 bytes:
     {"exercises": {<id>: <content>}, "format": 1, "language_id": L, "sense_id": S, "version": V}."""
     _check_non_negative_ints('encode_sense_file', sense_id=sense_id, language_id=language_id,
                              version=version)

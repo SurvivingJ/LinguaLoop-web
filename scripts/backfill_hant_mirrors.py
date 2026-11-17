@@ -14,7 +14,7 @@ written ONLY when it differs from what is stored. So a plain re-run is a no-op,
 but correcting an override row and re-running updates exactly the affected
 mirrors (and only the `hant` key — the Simplified content is never touched).
 
-Exercise content goes through the content store (ADR-047, TASK-982). Rows are
+Exercise content goes through the content store (ADR-049, TASK-1014). Rows are
 read with `store.select_columns(...)` and their content filled by
 `store.hydrate(...)`, one call per at most 100 senses, so the same code works
 whether content is served from `exercises.content` or from the Storage files.
@@ -57,12 +57,12 @@ ZH = 1
 PAGE_SIZE = 1000
 
 #: Exercise columns read for the mirror pass; `{content}` is filled per read mode
-#: by `store.select_columns` (ADR-047 §9).
+#: by `store.select_columns` (ADR-049 §9).
 EXERCISE_COLUMNS = 'id, exercise_type, word_sense_id, language_id, {content}'
 
 #: Most senses one `store.hydrate` call may cover (one content file per sense).
 HYDRATE_MAX_SENSES = 100
-# An offline bulk run, not a request: no 3 s deadline and no 160-sense cap (ADR-047 §5
+# An offline bulk run, not a request: no 3 s deadline and no 160-sense cap (ADR-049 §5
 # request limits). A chunk is fetched in full; only a real miss leaves a row out.
 HYDRATE_DEADLINE_S = 300.0
 

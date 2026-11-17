@@ -9,6 +9,7 @@ from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
 from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.vocabulary.fsrs import CardState, schedule_review
+from services.pinyin_format import display_pronunciation
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from utils.responses import api_errors, ApiResponse, api_success, bad_request, not_found
 from utils.validation import json_body, require_language_id
@@ -88,7 +89,10 @@ def get_due_cards(language_id: int) -> ApiResponse:
             'definition': gloss_row['definition'],
             'definition_language_id': gloss_row['definition_language_id'],
             'definition_is_gloss': gloss_row['definition_is_gloss'],
-            'pronunciation': sense.get('pronunciation', ''),
+            # Chinese in tone-marked pinyin only (TASK-999); display field,
+            # nothing grades against it. Other languages as stored.
+            'pronunciation': display_pronunciation(
+                sense.get('pronunciation'), language_id=vocab.get('language_id') or language_id),
             'example_sentence': row.get('example_sentence') or sense.get('example_sentence', ''),
             'audio_url': row.get('audio_url'),
             'state': row['state'],

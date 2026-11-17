@@ -1,10 +1,10 @@
-"""TASK-987 (ADR-047): the daily-session readers hydrate exercise content.
+"""TASK-1019 (ADR-049): the daily-session readers hydrate exercise content.
 
 Appendix A rows 3-6: ``get_practice_session`` / ``get_review_ahead_items``
 callers, the prestudy follow-up select, the serve-time content rewrites and
 the intro-drill block. ``store.read_mode`` and ``store.hydrate`` are
-monkeypatched (the real storage reader lands in TASK-978): the fake hydrate
-follows the ADR-047 section 9 contract (only dicts with a truthy ``id_key``,
+monkeypatched (the real storage reader lands in TASK-1010): the fake hydrate
+follows the ADR-049 section 9 contract (only dicts with a truthy ``id_key``,
 content already present is kept, a missing one is dropped in place) and
 records every call. No network, no Supabase.
 """

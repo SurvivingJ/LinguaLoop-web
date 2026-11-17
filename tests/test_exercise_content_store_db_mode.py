@@ -1,4 +1,4 @@
-"""TASK-976 — the exercise-content store facade (ADR-047 §9), db mode and plumbing.
+"""TASK-1008 — the exercise-content store facade (ADR-049 §9), db mode and plumbing.
 
 Covers the public interface every other package codes against (names,
 signatures, dataclass fields, exception hierarchy), the ten config flags, mode
@@ -8,8 +8,8 @@ PostgREST calls exactly and touch nothing else), the pure codec, the
 plumbing behind `store.backend()` and `store.reset_state()`.
 
 Fully offline: no Supabase client, no network. Nothing here depends on the
-TASK-976 stubs (`reader.py`, `writer.py`, `SupabaseStorageBackend` methods), so
-it keeps passing once TASK-977/978/979 replace them.
+TASK-1008 stubs (`reader.py`, `writer.py`, `SupabaseStorageBackend` methods), so
+it keeps passing once TASK-1009/1010/1011 replace them.
 """
 
 from __future__ import annotations
@@ -153,7 +153,7 @@ def _row(sense_id=7, language_id=1, **overrides):
 
 
 # ---------------------------------------------------------------------------
-# 1. Public interface (ADR-047 §9)
+# 1. Public interface (ADR-049 §9)
 # ---------------------------------------------------------------------------
 
 def test_store_exposes_the_adr_constants():
