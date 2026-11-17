@@ -14,6 +14,10 @@
 --   * python scripts/backfill_exercise_content.py --verify --language all   exits 0.
 --   * --archive-all <YYYYMMDD>, --archive-sense-less and --archive-semdisc written to
 --     exercise-content/_archive/ and their manifests checked (TASK-991).
+--   * migrations/exercise_content_session_rpcs.sql applied.
+--   Step 3a enforces all of these except the 7 days (step 0e shows them read-only): it
+--   aborts unless storage.objects holds the three archives, a verify-ok marker and the
+--   archive-all manifest from the last 24 hours, and the 6-argument session RPCs.
 -- Right after step 3: set EXERCISE_CONTENT_DB_FALLBACK=0 and restart the web workers.
 -- After step 5: scripts/sweep_exercise_content.py --language all (dry run, then --apply).
 --
@@ -45,6 +49,26 @@ SELECT count(*) AS rows_without_sense
 -- 0c/0d. Sizes before (expected ~470 MB database, ~200 MB exercises on 2026-11-17).
 SELECT pg_size_pretty(pg_database_size(current_database()))         AS database_size,
        pg_size_pretty(pg_total_relation_size('public.exercises'))   AS exercises_total_size;
+
+-- 0e. What step 3a will demand, read-only (all true right before step 3).
+SELECT to_regprocedure('public.get_practice_session(uuid, smallint, text, smallint, numeric, boolean)') IS NOT NULL
+       AND to_regprocedure('public.get_practice_session(uuid, smallint, text, smallint, numeric)') IS NULL
+                                                                         AS session_rpcs_applied,
+       EXISTS (SELECT 1 FROM storage.objects
+                WHERE bucket_id = 'exercise-content'
+                  AND starts_with(name, '_archive/exercises-content-')
+                  AND right(name, 14) = '/manifest.json'
+                  AND created_at >= now() - interval '24 hours')         AS archive_all_today,
+       EXISTS (SELECT 1 FROM storage.objects
+                WHERE bucket_id = 'exercise-content'
+                  AND starts_with(name, '_archive/exercises-no-sense-')) AS sense_less_archived,
+       EXISTS (SELECT 1 FROM storage.objects
+                WHERE bucket_id = 'exercise-content'
+                  AND name = '_archive/semdisc-20261115/manifest.json')  AS semdisc_archived,
+       EXISTS (SELECT 1 FROM storage.objects
+                WHERE bucket_id = 'exercise-content'
+                  AND starts_with(name, '_archive/verify-ok/')
+                  AND created_at >= now() - interval '24 hours')         AS verify_ok_today;
 
 
 -- =============================================================================
@@ -107,7 +131,10 @@ SELECT c.relname, i.indisvalid, i.indisready
 -- =============================================================================
 BEGIN;
 
--- 3a. Preconditions: abort the whole transaction unless steps 1 and 2 are complete.
+-- 3a. Preconditions: abort the whole transaction unless steps 1 and 2 are complete, the
+--     session RPC migration is in place, and the TASK-991 archives and a clean full --verify
+--     are in Storage. Everything below 3a deletes or drops for good, so these are enforced
+--     here, not only listed in the header. now() is the transaction start.
 DO $pre$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_index i
@@ -122,6 +149,59 @@ BEGIN
                       'kanji_to_reading', 'reading_to_kanji', 'phonetic_recognition',
                       'classifier_match', 'counter_match')) THEN
         RAISE EXCEPTION 'cut-over: context-free rows without dedupe_key remain; repeat step 1';
+    END IF;
+
+    -- migrations/exercise_content_session_rpcs.sql applied: the 6-argument session RPCs exist
+    -- and no 5-argument overload does. Without this, 3e would add a 6-argument function next
+    -- to a 5-argument body that still reads e.content (PGRST203 on today's calls).
+    IF to_regprocedure('public.get_practice_session(uuid, smallint, text, smallint, numeric, boolean)') IS NULL
+       OR to_regprocedure('public.get_review_ahead_items(uuid, smallint, integer, integer, integer[], boolean)') IS NULL THEN
+        RAISE EXCEPTION 'cut-over: migrations/exercise_content_session_rpcs.sql is not applied';
+    END IF;
+    IF to_regprocedure('public.get_practice_session(uuid, smallint, text, smallint, numeric)') IS NOT NULL
+       OR to_regprocedure('public.get_review_ahead_items(uuid, smallint, integer, integer, integer[])') IS NOT NULL THEN
+        RAISE EXCEPTION 'cut-over: a 5-argument get_practice_session / get_review_ahead_items exists (an older migration was re-applied); drop it first';
+    END IF;
+
+    -- --archive-all <YYYYMMDD>: a manifest (written last) from the last 24 hours.
+    IF NOT EXISTS (SELECT 1 FROM storage.objects
+                    WHERE bucket_id = 'exercise-content'
+                      AND starts_with(name, '_archive/exercises-content-')
+                      AND right(name, 14) = '/manifest.json'
+                      AND created_at >= now() - interval '24 hours') THEN
+        RAISE EXCEPTION 'cut-over: no _archive/exercises-content-<TAG>/manifest.json from the last 24 hours; run backfill_exercise_content.py --language all --archive-all <YYYYMMDD>';
+    END IF;
+
+    -- --archive-sense-less: 3b deletes these rows. The archive must exist and be newer than
+    -- every row it has to hold.
+    IF EXISTS (SELECT 1 FROM public.exercises WHERE word_sense_id IS NULL)
+       AND NOT EXISTS (
+           SELECT 1 FROM storage.objects o
+            WHERE o.bucket_id = 'exercise-content'
+              AND starts_with(o.name, '_archive/exercises-no-sense-')
+              AND NOT EXISTS (SELECT 1 FROM public.exercises e
+                               WHERE e.word_sense_id IS NULL
+                                 AND e.created_at > o.created_at)) THEN
+        RAISE EXCEPTION 'cut-over: the rows without a sense are not archived (or were added after the archive); run backfill_exercise_content.py --language all --archive-sense-less';
+    END IF;
+
+    -- --archive-semdisc: 3c drops these for good (owner decision 2026-11-17).
+    IF (to_regclass('public.backup_semdisc_content_20261115') IS NOT NULL
+        OR to_regclass('public.semdisc_rewrite_work') IS NOT NULL
+        OR to_regprocedure('public.apply_semdisc_notes(jsonb)') IS NOT NULL)
+       AND NOT EXISTS (SELECT 1 FROM storage.objects
+                        WHERE bucket_id = 'exercise-content'
+                          AND name = '_archive/semdisc-20261115/manifest.json') THEN
+        RAISE EXCEPTION 'cut-over: _archive/semdisc-20261115/manifest.json is missing; run backfill_exercise_content.py --language all --archive-semdisc';
+    END IF;
+
+    -- A clean full --verify (--language all, no --senses / --limit / --dry-run, exit 0) writes
+    -- _archive/verify-ok/<UTC>.json; one from the last 24 hours is required.
+    IF NOT EXISTS (SELECT 1 FROM storage.objects
+                    WHERE bucket_id = 'exercise-content'
+                      AND starts_with(name, '_archive/verify-ok/')
+                      AND created_at >= now() - interval '24 hours') THEN
+        RAISE EXCEPTION 'cut-over: no clean full --verify in the last 24 hours; run backfill_exercise_content.py --language all --verify until it exits 0';
     END IF;
 END
 $pre$;

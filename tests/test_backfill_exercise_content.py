@@ -560,6 +560,58 @@ def test_verify_passes_after_an_export(mem, paths, tmp_path):
     assert mem.calls_for('put') == [] and db.writes == []
 
 
+def _exported_all(mem, paths, tmp_path):
+    db = FakeDB([row(101), row(102), row(201, lang=EN), row(301, lang=JA)])
+    assert run(db, paths, '--language', 'all') == 0
+    mem.clear_calls()
+    paths['report'] = tmp_path / 'verify.json'
+    return db
+
+
+def test_a_clean_full_verify_writes_the_cutover_marker(mem, paths, tmp_path):
+    db = _exported_all(mem, paths, tmp_path)
+    assert run(db, paths, '--language', 'all', '--verify') == 0
+    marker = '_archive/verify-ok/20261201T093000Z.json'
+    assert mem.calls_for('put') == [marker] and db.writes == []
+    doc = json.loads(mem.objects()[marker])
+    assert doc['kind'] == 'verify-ok' and doc['format'] == bf.MANIFEST_FORMAT
+    assert doc['languages'] == ['en', 'ja', 'zh'] and doc['files_verified'] == 4
+    assert doc['started_at'] == doc['finished_at'] == '2026-12-01T09:30:00Z'
+    rep = report(paths)
+    assert rep['verify_marker'] == marker and rep['exit_code'] == 0
+    # A second clean run in the same second finds the marker already there: still exit 0.
+    assert run(db, paths, '--language', 'all', '--verify') == 0
+
+
+@pytest.mark.parametrize('extra', [
+    ('--senses', '101'),
+    ('--limit', '1'),
+    ('--dry-run',),
+])
+def test_a_scoped_verify_writes_no_marker(mem, paths, tmp_path, extra):
+    db = _exported_all(mem, paths, tmp_path)
+    assert run(db, paths, '--language', 'all', '--verify', *extra) == 0
+    assert mem.calls_for('put') == []
+    assert 'verify_marker' not in report(paths)
+
+
+def test_a_verify_with_mismatches_writes_no_marker(mem, paths, tmp_path):
+    db = _exported_all(mem, paths, tmp_path)
+    db.rows(101)[0]['content'] = _content('edited in place by a WRITE=db shell')
+    assert run(db, paths, '--language', 'all', '--verify') == 1
+    assert mem.calls_for('put') == []
+
+
+def test_a_failed_marker_write_is_an_error(mem, paths, tmp_path):
+    db = _exported_all(mem, paths, tmp_path)
+    mem.fail_next('put', store.ContentStorageError('storage returned 503'))
+    assert run(db, paths, '--language', 'all', '--verify') == 1
+    rep = report(paths)
+    [anomaly] = [a for a in rep['anomalies'] if a['kind'] == 'verify_marker']
+    assert anomaly['severity'] == 'error' and 'verify_marker' not in rep
+    assert rep['exit_code'] == 1
+
+
 def test_verify_finds_tampered_content_a_missing_exercise_and_a_missing_file(
         mem, paths, tmp_path):
     db = _exported(mem, paths, tmp_path)
@@ -637,7 +689,8 @@ def test_repair_rewrites_each_mismatched_sense_from_db_content(mem, paths, tmp_p
     assert len(calls) == 1
     sense_id, language_id, kwargs = calls[0]
     assert (sense_id, language_id) == (101, ZH)
-    assert kwargs == {'update_contents': {r['id']: r['content'] for r in db.rows(101)}}
+    assert kwargs == {'update_contents': {r['id']: r['content'] for r in db.rows(101)},
+                      'expected_version': 0}               # the version the rows were re-read at
     rep = report(paths)
     assert rep['mode'] == 'repair'
     assert rep['repaired'] == [{'language': 'zh', 'sense_id': 101, 'version': 4711,

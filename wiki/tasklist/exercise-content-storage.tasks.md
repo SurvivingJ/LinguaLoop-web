@@ -695,6 +695,13 @@ database.
 **Complexity:** M (3-8h)
 **Depends On:** TASK-977, TASK-978, TASK-979, TASK-980, TASK-981, TASK-982, TASK-983, TASK-984, TASK-985, TASK-986, TASK-987, TASK-988, TASK-989, TASK-990, TASK-991, TASK-992
 **Built:** `claude/dreamy-brahmagupta-40a4gq`, commits `e508f1c`, `5c98e43` and the wiki commit. Six `--no-ff` merges, no conflicts. Contract fix: `FakeContentDB` aligned with the commit SQL. `tests/test_exercise_content_integration.py` covers scenarios 1–8 in db/db, shadow/dual and storage/dual. The db-mode serve and write paths of `c3cb106` and of the integrated branch were run over the same fake DB: identical payloads and calls (prestudy differs only by the owner's drill-only change). Full suite: the same 48 failures + 1 collection error as `c3cb106` in every flag combination (environment: jieba, MeCab/ipadic, Supabase credentials at import).
+**Review fixes (2026-11-17):** the independent review's verdict was *needs fixes* (1 major, 3 minor), all fixed after the integration with tests (see ADR-047, "Review fixes"):
+(1) TASK-986: cut-over step 3a enforces in SQL that the session RPC migration is applied and that the archives plus a verify marker from the last 24 hours are in Storage; step 0e shows the same checks read-only.
+(1, cont.) TASK-991: a clean full `--verify` writes `_archive/verify-ok/<UTC>.json`.
+(2) TASK-990: db mode again sends the pre-ADR select string for the typed re-grade and the reference-set script.
+(3) TASK-979/982/991: `write_sense(expected_version=...)` and `store.base_version`. The audio and hant fix scripts and `--repair` refuse a stale read-modify-write instead of overwriting.
+(4) TASK-982: the fix scripts hydrate with offline limits (whole chunk, 300 s).
+Full suite after the fixes: 5466 passed, with the same 48 environment failures.
 
 **Description:**
 Run the real store, writers, readers, backfill and sweep together over `FakeContentDB` +
@@ -827,7 +834,10 @@ Operator task (LIVE-DB, owner approval). Only after ≥ 7 days on `storage` with
 warnings.
 
 **Acceptance Criteria:**
-- [ ] Same day: `--verify --language all` exits 0; `--archive-all <YYYYMMDD>` and `--archive-sense-less` written and the manifest checked.
+- [ ] Same day (step 3a refuses otherwise):
+  - `--archive-all <YYYYMMDD>`, `--archive-sense-less` and `--archive-semdisc` written, and the manifests checked;
+  - then `--verify --language all` exits 0, which writes `_archive/verify-ok/<UTC>.json`;
+  - cut-over step 0e shows every column true.
 - [ ] `migrations/exercise_content_drop_column.sql` steps 0–5 run in order; `EXERCISE_CONTENT_DB_FALLBACK=0` set and workers restarted right after step 3.
 - [ ] Sessions, prestudy, speed round, gate/stress and typed grading work in the app; `v_ladder_judge_reject_rates` still returns rows.
 - [ ] Database size recorded before/after (expected ≈ 470 → ~355 MB); `python scripts/sweep_exercise_content.py --language all` dry run reviewed, then `--apply`.

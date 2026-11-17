@@ -331,7 +331,7 @@ def fetch_sense(language_id: int, sense_id: int, version: int) -> dict[str, dict
 def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[dict] = (),
                 delete_where: DeleteWhere | None = None,
                 update_contents: Mapping[str, dict] | None = None,
-                max_retries: int = 3) -> WriteResult:
+                max_retries: int = 3, expected_version: int | None = None) -> WriteResult:
     """Validates first (ValueError, no I/O): every insert row has 'id' (uuid str),
     word_sense_id == sense_id, language_id == language_id and a dict 'content'.
     db mode emits exactly today's calls, in this order, and nothing else:
@@ -340,7 +340,15 @@ def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[di
       insert: db.table('exercises').insert(list(insert_rows)).execute()
       update: per id, db.table('exercises').update({'content': c}).eq('id', id).execute()
     dual mode: Decision 4. update ids must belong to the sense and not be deleted (ValueError).
+    expected_version (added after review, 2026-11-17): the version a read-modify-write caller
+    read the content it edits at (base_version(rows)). dual mode refuses the write with
+    ContentWriteConflict, before any upload and without a retry, when begin reports another
+    version. Ignored in db mode. None: no check (blind update, as before).
     Errors: ValueError; ContentWriteConflict; ContentStorageError; PostgREST APIError propagates."""
+
+def base_version(rows: Sequence[dict]) -> int | None:
+    """Highest content_version of one sense's rows as read; None when any row has none
+    (db read mode selects no version)."""
 
 # Codec / plumbing (pure; used by the backfill, sweep and tests)
 def content_path(language_id: int, sense_id: int, version: int) -> str: ...  # 'zh/123.v0.json'
@@ -511,6 +519,45 @@ prestudy payload differs only by the owner's drill-only change).
 - Config: `.config unknown …`, `.config … needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY; using
   db`, storage-with-db-writes (ERROR, once per process).
 
+### Review fixes (independent review of the integrated branch, 2026-11-17)
+
+The reviewer's verdict was *needs fixes*: one major and three minor findings. All four are fixed
+on the same branch, with tests:
+
+1. **Major: the cut-over SQL did not enforce its own preconditions.** Step 3 deletes the
+   sense-less rows, drops the semdisc leftovers and drops the column. Before the fix, the
+   precondition block only checked the v2 index and `dedupe_key`; the archive and verify steps
+   were listed in comments only. Step 3a now aborts unless all of these hold:
+   - the 6-argument session RPCs exist and no 5-argument overload does;
+   - `storage.objects` (bucket `exercise-content`) holds an `_archive/exercises-content-<TAG>/manifest.json`
+     from the last 24 hours;
+   - `_archive/exercises-no-sense-*.json` exists and is newer than every sense-less row (only
+     checked while such rows exist);
+   - `_archive/semdisc-20261115/manifest.json` exists (only checked while a semdisc object
+     remains);
+   - an `_archive/verify-ok/<UTC>.json` from the last 24 hours exists.
+
+   `backfill_exercise_content.py --verify` writes that marker only on a clean full run:
+   `--language all`, none of `--senses`, `--limit` or `--dry-run`, and exit 0. Step 0e shows the
+   same checks read-only. All eight raise paths and the pass path were run on a scratch
+   PostgreSQL 16 instance.
+2. **db-mode select drift.** The typed re-grade (`routes/practice.py`) and the reference-set
+   script again send exactly the pre-ADR select string in db mode. They add `word_sense_id`, or
+   `id, word_sense_id, language_id`, only outside db mode.
+3. **Lost updates in read-modify-write scripts.** `write_sense(expected_version=...)` and
+   `store.base_version(rows)` are new, see §9. `backfill_exercise_audio`, `backfill_hant_mirrors`
+   and `--repair` pass the version they read. A sense written by someone else in the meantime
+   is refused rather than overwritten:
+   - audio counts it under `failed`;
+   - hant counts it under `conflicts`;
+   - `--repair` records `repair_failed` and exits 1.
+
+   A re-run picks it up, because all three scripts are idempotent. While reads are `db`, the
+   rows carry no version, so the check is off and these scripts behave as before.
+4. **The bulk scripts used request-path hydration limits.** The two fix scripts now hydrate each
+   100-sense chunk with `max_senses=len(chunk)` and `deadline_s=300`, instead of 160 senses and
+   3 s.
+
 ### Operational notes for TASK-994–998
 
 - Apply order: `exercise_content_storage.sql`, then `exercise_content_session_rpcs.sql`. Roll back
@@ -532,6 +579,8 @@ prestudy payload differs only by the owner's drill-only change).
   [--dry-run] [--verify [--repair]]`; archives (TASK-998): `--language all --archive-all <YYYYMMDD>
   --archive-sense-less`, then `--language all --archive-semdisc --semdisc-function-file <file>`
   (export the function first with `select pg_get_functiondef('public.apply_semdisc_notes(jsonb)'::regprocedure);`).
+  Then, the same day, run `--language all --verify` until it exits 0; that run writes the
+  `_archive/verify-ok/` marker. Run cut-over step 0e: every column must be true before step 3.
   Sweep: `python scripts/sweep_exercise_content.py --language all` (dry run), then `--apply`; run
   after every bulk edit. Reports default to `data/exercise_content_backfill/` and
   `data/exercise_content_sweep/` (not git-ignored).
@@ -546,7 +595,9 @@ prestudy payload differs only by the owner's drill-only change).
   fallback). Fetch-pool threads are non-daemon: interpreter exit can wait up to the 2 s GET timeout.
 - Mixed-language senses (rows of one sense in two languages) cannot be dual-written (the writer
   refuses); the backfill writes such a sense's file under each language that lists it.
-- `--repair` rewrites from DB content; run it while no bulk writer is active.
+- `--repair` rewrites from DB content. It refuses a sense written by someone else between its
+  re-read and its commit (`expected_version`). It is still best run while no bulk writer is
+  active.
 - The static write guard matches literal table names only (`table(SOME_CONSTANT)` is not seen).
 
 ## Open Questions

@@ -346,6 +346,93 @@ def test_max_retries_conflicts_raise_and_change_nothing(mem):
     assert all(not mem.exists(p) for p in puts)
 
 
+# ---------------------------------------------------------------------------
+# expected_version: read-modify-write callers (review finding 2026-11-17)
+# ---------------------------------------------------------------------------
+
+def test_expected_version_matching_writes_normally(mem):
+    db = FakeContentDB()
+    a = _row(level=1)
+    _seed_sense(db, mem, [a], version=4)
+    result = store.write_sense(db, SENSE, 1, update_contents={a['id']: _content('mine')},
+                               expected_version=4)
+    assert result.version == 5 and _file(mem, 5) == {a['id']: _content('mine')}
+
+
+def test_a_stale_read_modify_write_is_refused_before_any_upload(mem, caplog):
+    """The fix scripts read content at version N, edit it for a while, then write it back.
+    If another writer committed N+1 meanwhile, writing would silently drop that edit, and
+    file and column would still agree (neither --verify nor shadow would notice)."""
+    caplog.set_level(logging.INFO, logger=LOGGER)
+    db = FakeContentDB()
+    a, b = _row(level=1), _row(level=2)
+    _seed_sense(db, mem, [a, b])
+    read_at = store.base_version([{**r, 'content_version': 0} for r in (a, b)])
+    stale_a = {**a['content'], 'audio_url': 'https://r2.example/a.mp3'}
+
+    other = store.write_sense(db, SENSE, 1, update_contents={a['id']: _content('mirror')})
+    mem.clear_calls()
+    db.calls.clear()
+
+    with pytest.raises(ContentWriteConflict, match='read at version 0, now at 1'):
+        store.write_sense(db, SENSE, 1, update_contents={a['id']: stale_a},
+                          expected_version=read_at)
+
+    assert len(db.rpc_calls('exercise_content_begin')) == 1, 'no retry: the base is stale'
+    assert db.rpc_calls('exercise_content_commit') == []
+    assert mem.calls_for('put') == []
+    assert db.content_of(SENSE)[a['id']] == _content('mirror')
+    assert db.versions(SENSE) == [other.version]
+    assert any('write_stale' in r.getMessage() for r in caplog.records)
+
+
+def test_a_commit_racing_a_read_modify_write_is_not_retried_over(mem):
+    db = FakeContentDB()
+    a, b = _row(level=1), _row(level=2)
+    _seed_sense(db, mem, [a, b])
+
+    def other_writer(db_, params):
+        store.write_sense(db_, SENSE, 1, update_contents={b['id']: _content('other')})
+
+    db.on('before:exercise_content_commit', other_writer)
+    with pytest.raises(ContentWriteConflict, match='now at 2'):
+        store.write_sense(db, SENSE, 1, update_contents={a['id']: _content('mine')},
+                          expected_version=0)
+    assert db.content_of(SENSE) == {a['id']: a['content'], b['id']: _content('other')}
+    assert not mem.exists('zh/5.v1.json'), 'the lost attempt\'s file is removed'
+
+
+@pytest.mark.parametrize('bad', [-1, 1.0, '0', True])
+def test_expected_version_must_be_a_non_negative_int(mem, bad):
+    db = FakeContentDB()
+    with pytest.raises(ValueError, match='expected_version'):
+        store.write_sense(db, SENSE, 1, update_contents={_uuid(): _content('x')},
+                          expected_version=bad)
+    assert db.calls == []
+
+
+def test_expected_version_is_ignored_in_db_mode(monkeypatch):
+    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', 'db')
+    db = FakeContentDB()
+    a = _row(level=1)
+    db.seed([a])
+    store.write_sense(db, SENSE, 1, update_contents={a['id']: _content('db')},
+                      expected_version=12)
+    assert db.rpc_calls() == [] and db.row(a['id'])['content'] == _content('db')
+
+
+@pytest.mark.parametrize('rows, expected', [
+    ([{'content_version': 3}, {'content_version': '5'}], 5),
+    ([{'content_version': 0}], 0),
+    ([{'content_version': 3}, {}], None),          # db read mode selects no version
+    ([{'content_version': None}], None),
+    ([], None),
+    ([{'content_version': -1}], None),
+])
+def test_base_version(rows, expected):
+    assert store.base_version(rows) == expected
+
+
 def test_two_threads_updating_different_exercises_lose_nothing(mem):
     db = FakeContentDB()
     a, b = _row(level=1), _row(level=2)

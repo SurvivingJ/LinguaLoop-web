@@ -187,7 +187,9 @@ def test_hant_reads_through_select_columns_and_writes_once_per_sense(monkeypatch
     assert [(w['sense_id'], w['language_id']) for w in fake.writes] == [(1, ZH), (2, ZH)]
     for write in fake.writes:
         assert write['db'] is db
-        assert set(write) == {'db', 'sense_id', 'language_id', 'update_contents'}
+        assert set(write) == {'db', 'sense_id', 'language_id', 'update_contents',
+                              'expected_version'}
+        assert write['expected_version'] is None      # these rows were read with no version
     assert fake.writes[0]['update_contents'] == {
         'a1': {'s': '书', 'hant': {'s': 'T(书)'}},
         'a2': {'s': '本', 'hant': {'s': 'T(本)'}},
@@ -197,7 +199,7 @@ def test_hant_reads_through_select_columns_and_writes_once_per_sense(monkeypatch
         'b2': {'s': '习', 'hant': {'s': 'T(习)'}},
     }
     assert stats == {'updated': 4, 'skipped': 1, 'failed': 0, 'skipped_no_sense': 1,
-                     'unavailable': 0}
+                     'unavailable': 0, 'conflicts': 0}
     assert db.writes() == [], 'no direct exercises write'
 
 
@@ -222,8 +224,12 @@ def test_hant_hydrates_at_most_100_senses_per_call(monkeypatch):
 
     assert [len(c['senses']) for c in fake.hydrate_calls] == [100, 100, 50]
     assert all(c['db'] is db for c in fake.hydrate_calls)
-    assert all(set(c) == {'senses', 'ids', 'db'} for c in fake.hydrate_calls), (
-        'store.hydrate(rows, db=db): language comes from each row')
+    assert all(set(c) == {'senses', 'ids', 'db', 'max_senses', 'deadline_s'}
+               for c in fake.hydrate_calls), (
+        'store.hydrate(rows, db=db, ...): language comes from each row')
+    # Offline limits, not the request path's 3 s / 160 senses (review finding 2026-11-17).
+    assert all(c['max_senses'] == len(c['ids']) and c['deadline_s'] == hant.HYDRATE_DEADLINE_S
+               for c in fake.hydrate_calls)
     assert len(fake.writes) == 250
     assert stats['updated'] == 250
 
@@ -254,7 +260,7 @@ def test_hant_dry_run_makes_no_write_call(monkeypatch):
 
 def test_hant_write_error_fails_that_senses_rows_and_continues(monkeypatch, caplog):
     rows, files = _hant_fixture()
-    fake = _FakeStore(files, raise_for={1: store.ContentWriteConflict('lost 3 times')})
+    fake = _FakeStore(files, raise_for={1: store.ContentStorageError('storage returned 503')})
     fake.install(monkeypatch)
 
     with caplog.at_level(logging.WARNING, logger=hant.logger.name):
@@ -262,8 +268,25 @@ def test_hant_write_error_fails_that_senses_rows_and_continues(monkeypatch, capl
 
     assert [w['sense_id'] for w in fake.writes] == [1, 2], 'the run goes on'
     assert stats['failed'] == 2, 'both rows the sense-1 write carried'
-    assert stats['updated'] == 2
+    assert stats['updated'] == 2 and stats['conflicts'] == 0
     assert any('content write failed for sense 1' in r.getMessage() for r in caplog.records)
+
+
+def test_hant_passes_the_read_version_and_counts_a_conflict(monkeypatch, caplog):
+    """Review finding 2026-11-17: a read-modify-write must not overwrite a newer version."""
+    rows, files = _hant_fixture()
+    for r in rows:
+        r['content_version'] = 7 if r['word_sense_id'] == 1 else 5
+    rows[2]['content_version'] = 6                           # a2: mixed versions, max wins
+    fake = _FakeStore(files, raise_for={1: store.ContentWriteConflict('now at 9')})
+    fake.install(monkeypatch)
+
+    with caplog.at_level(logging.WARNING, logger=hant.logger.name):
+        stats = hant.backfill_exercises(_FakeDB(rows), _FakeConverter(), False, 0, False)
+
+    assert [(w['sense_id'], w['expected_version']) for w in fake.writes] == [(1, 7), (2, 5)]
+    assert stats['conflicts'] == 2 and stats['failed'] == 0 and stats['updated'] == 2
+    assert any('re-run to apply' in r.getMessage() for r in caplog.records)
 
 
 def test_hant_convert_failure_and_unavailable_content(monkeypatch):
@@ -388,7 +411,9 @@ def test_audio_reads_through_select_columns_and_writes_once_per_sense(monkeypatc
     assert [(w['sense_id'], w['language_id']) for w in fake.writes] == [(10, 3), (12, 3)]
     for write in fake.writes:
         assert write['db'] is db
-        assert set(write) == {'db', 'sense_id', 'language_id', 'update_contents'}
+        assert set(write) == {'db', 'sense_id', 'language_id', 'update_contents',
+                              'expected_version'}
+        assert write['expected_version'] is None      # these rows were read with no version
     sense10 = fake.writes[0]['update_contents']
     assert list(sense10) == ['p10a', 'f10', 'p10b']
     assert sense10['p10a'] == {'word': 'ねこ', 'audio_url': 'https://r2.example/l1_10_3/ねこ.mp3'}
@@ -411,7 +436,10 @@ def test_audio_hydrates_at_most_100_senses_per_call(monkeypatch, audio_env):
 
     assert len(pending) == 230
     assert [len(c['senses']) for c in fake.hydrate_calls] == [100, 100, 30]
-    assert all(c['db'] is db and set(c) == {'senses', 'ids', 'db'} for c in fake.hydrate_calls)
+    assert all(c['db'] is db and set(c) == {'senses', 'ids', 'db', 'max_senses', 'deadline_s'}
+               for c in fake.hydrate_calls)
+    assert all(c['max_senses'] == len(c['ids']) and c['deadline_s'] == audio.HYDRATE_DEADLINE_S
+               for c in fake.hydrate_calls)
 
 
 def test_audio_dry_run_synthesises_and_writes_nothing(monkeypatch, audio_env):

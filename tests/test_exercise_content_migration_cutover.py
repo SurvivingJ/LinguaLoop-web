@@ -244,6 +244,25 @@ def test_step3_preconditions(step3):
     assert 'dedupe_key IS NULL' in pre and 'RAISE EXCEPTION' in pre
 
 
+def test_step3_preconditions_enforce_the_archives_verify_and_session_rpcs(step3):
+    """Review finding (2026-11-17): what 3b-3f destroy must be archived first, in SQL."""
+    pre = re.sub(r'\s+', '', next(s for s in step3 if s.startswith('DO $pre$')))
+    # Session RPC migration: the 6-argument forms exist, no 5-argument overload does.
+    for sig in ('get_practice_session(uuid,smallint,text,smallint,numeric',
+                'get_review_ahead_items(uuid,smallint,integer,integer,integer[]'):
+        assert f"to_regprocedure('public.{sig},boolean)')ISNULL" in pre
+        assert f"to_regprocedure('public.{sig})')ISNOTNULL" in pre
+    assert pre.count("bucket_id='exercise-content'") == 4
+    assert "starts_with(name,'_archive/exercises-content-')" in pre
+    assert "right(name,14)='/manifest.json'" in pre
+    assert "starts_with(o.name,'_archive/exercises-no-sense-')" in pre
+    assert 'e.created_at>o.created_at' in pre
+    assert "name='_archive/semdisc-20261115/manifest.json'" in pre
+    assert "starts_with(name,'_archive/verify-ok/')" in pre
+    assert pre.count("created_at>=now()-interval'24hours'") == 2
+    assert pre.count('RAISEEXCEPTION') == 8
+
+
 def test_step3_comments_name_the_archives(by_step):
     chunk = by_step['3']
     assert '--archive-sense-less' in chunk and 'TASK-991' in chunk

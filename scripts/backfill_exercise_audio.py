@@ -121,6 +121,9 @@ EXERCISE_COLUMNS = 'id, exercise_type, word_sense_id, language_id, {content}'
 
 #: Most senses one ``store.hydrate`` call may cover (one content file per sense).
 HYDRATE_MAX_SENSES = 100
+# An offline bulk run, not a request: no 3 s deadline and no 160-sense cap (ADR-047 §5
+# request limits). A chunk is fetched in full; only a real miss leaves a row out.
+HYDRATE_DEADLINE_S = 300.0
 
 
 def audio_text(content: dict, exercise_type: str) -> str:
@@ -180,7 +183,7 @@ def hydrate_by_sense(db, rows: list[dict], max_senses: int = HYDRATE_MAX_SENSES
         chunk_ids = sense_ids[start:start + max_senses]
         chunk = [row for sid in chunk_ids for row in groups[sid]]
         before = len(chunk)
-        store.hydrate(chunk, db=db)
+        store.hydrate(chunk, db=db, max_senses=len(chunk), deadline_s=HYDRATE_DEADLINE_S)
         unavailable += before - len(chunk)
         kept = {id(row) for row in chunk}
         for sid in chunk_ids:
@@ -252,7 +255,7 @@ class AudioBackfillRun:
                 content = self._synthesise_one(row, voice, speed)
                 if content is not None:
                     updates[row['id']] = content
-            self._write_sense(sense_id, updates)
+            self._write_sense(sense_id, updates, store.base_version(rows))
             if capped:
                 logger.warning(
                     'cap of %d reached — stopping cleanly with %d item(s) still '
@@ -372,12 +375,19 @@ class AudioBackfillRun:
         content[audio_url_field(exercise_type)] = url
         return content
 
-    def _write_sense(self, sense_id, updates: dict[str, dict]) -> None:
-        """One content write for every new URL of a sense. Never raises."""
+    def _write_sense(self, sense_id, updates: dict[str, dict],
+                     expected_version: int | None = None) -> None:
+        """One content write for every new URL of a sense. Never raises.
+
+        ``expected_version`` is the version the edited content was read at (fetch_pending):
+        a sense written by someone else during synthesis is refused, not overwritten with the
+        stale content, and counted as failed; a re-run picks it up.
+        """
         if not updates:
             return
         try:
-            store.write_sense(self.db, sense_id, self.language_id, update_contents=updates)
+            store.write_sense(self.db, sense_id, self.language_id, update_contents=updates,
+                              expected_version=expected_version)
         except Exception as exc:
             # The audio exists in R2 but no row points at it. Count every item
             # of the write as failed: from a learner's side, each is still silent.

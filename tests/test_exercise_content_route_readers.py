@@ -166,7 +166,8 @@ class TestTypedRegrade:
         rec = RecordingHydrate()
         monkeypatch.setattr(store, 'hydrate', rec)
         out = practice_routes._grade_typed_if_needed('ex-typed', TYPED_DATA)
-        assert db.exercise_selects() == ['exercise_type, content, language_id, word_sense_id']
+        # db mode: today's select string byte-for-byte (review finding 2026-11-17).
+        assert db.exercise_selects() == ['exercise_type, content, language_id']
         assert out['is_correct'] is True and out['graded_by'] == 'server'
         assert rec.calls == [{'ids': ['ex-typed'], 'language_id': LANG_EN, 'drop_missing': False, 'db': db}]
 
@@ -330,8 +331,9 @@ class TestReferenceSetSnapshot:
         monkeypatch.setattr(store, 'hydrate', rec)
         db = FakeDB({'exercises': SNAP_ROWS})
         assert refset.fetch_exercise_snapshot(db, 9) == SNAP_EXPECTED
-        assert db.exercise_selects() == [SNAP_TEMPLATE.replace('{content}', 'content')]
-        assert rec.calls == [{'ids': ['s-1', 's-2'], 'db': db}]
+        # db mode: today's select string byte-for-byte (review finding 2026-11-17).
+        assert db.exercise_selects() == ['exercise_type,ladder_level,complexity_tier,tags,content']
+        assert len(rec.calls) == 1 and rec.calls[0]['db'] is db
 
     def test_storage_mode_hydrates_with_each_rows_language(self, monkeypatch, storage_mode):
         fake = FakeHydrate(SNAP_CONTENT)

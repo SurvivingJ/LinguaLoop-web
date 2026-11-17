@@ -224,8 +224,9 @@ def test_function_signatures():
     assert _params(store.write_sense) == [
         ('db', POS, E), ('sense_id', POS, E), ('language_id', POS, E),
         ('insert_rows', KW, ()), ('delete_where', KW, None), ('update_contents', KW, None),
-        ('max_retries', KW, 3),
+        ('max_retries', KW, 3), ('expected_version', KW, None),
     ]
+    assert _params(store.base_version) == [('rows', POS, E)]
     assert _params(store.content_path) == [
         ('language_id', POS, E), ('sense_id', POS, E), ('version', POS, E)]
     assert _params(store.encode_sense_file) == [
@@ -251,6 +252,7 @@ def test_reader_and_writer_stub_signatures():
     assert _params(writer.write_sense_dual) == [
         ('db', POS, E), ('sense_id', POS, E), ('language_id', POS, E), ('insert_rows', KW, E),
         ('delete_where', KW, E), ('update_contents', KW, E), ('max_retries', KW, E),
+        ('expected_version', KW, None),
     ]
 
 

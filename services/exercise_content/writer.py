@@ -244,8 +244,12 @@ def _warm_cache(language_id: int, sense_id: int, version: int, data: bytes) -> N
 
 def write_sense_dual(db, sense_id: int, language_id: int, *, insert_rows: Sequence[dict],
                      delete_where: DeleteWhere | None, update_contents: Mapping[str, dict],
-                     max_retries: int) -> WriteResult:
-    """File first, then the rows by compare-and-swap (ADR-047 §4)."""
+                     max_retries: int, expected_version: int | None = None) -> WriteResult:
+    """File first, then the rows by compare-and-swap (ADR-047 §4).
+
+    ``expected_version``: the version the caller read the content it edited at. When begin
+    reports another version, the caller's base is stale; retrying here would only rewrite the
+    stale edit, so ContentWriteConflict is raised at once, before any upload."""
     rows = list(insert_rows)
     updates = {exercise_id: update_contents[exercise_id]
                for exercise_id in sorted(update_contents or {})}
@@ -261,6 +265,14 @@ def write_sense_dual(db, sense_id: int, language_id: int, *, insert_rows: Sequen
             time.sleep(random.uniform(0.0, RETRY_BACKOFF_S * attempts))
         attempts += 1
         current, new, current_rows = _begin(db, sense_id)
+        if expected_version is not None and current != expected_version:
+            logger.info('exercise_content.write_stale sense=%s expected_version=%s '
+                        'current_version=%s attempt=%d', sense_id, expected_version, current,
+                        attempts)
+            raise ContentWriteConflict(
+                f'sense {sense_id}: written by someone else since it was read (read at version '
+                f'{expected_version}, now at {current}); re-read the sense and apply the change '
+                f'again. No rows were changed by this write.')
         current_ids = sorted(row['id'] for row in current_rows)
         delete_ids = _matching_ids(current_rows, delete_where)
         _check_against_rows(sense_id, language_id, current_rows, delete_ids, insert_ids, updates)

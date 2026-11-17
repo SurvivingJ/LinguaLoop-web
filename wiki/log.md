@@ -6681,3 +6681,26 @@ status", Appendix A status, §5 prestudy text, Consequences; [[tasklist/exercise
 [[features/practice-extra-rounds.tech]]; [[database/schema.tech]] `exercises` columns `content_version` /
 `dedupe_key`, real index list, ADR-047 RPCs; [[api/rpcs.tech]]; index). Nothing applied live; flags stay `db`. Next:
 operator TASK-994 (apply the two Phase-1 migrations on staging first, smoke-test the real Storage API).
+
+## [2026-11-17] update | Exercise content to Storage — review fixes (TASK-993 follow-up)
+The independent review of the integrated branch said *needs fixes*: 1 major and 3 minor findings. All four are fixed on `claude/dreamy-brahmagupta-40a4gq`, with tests:
+1. **Major.** Cut-over step 3a (`migrations/exercise_content_drop_column.sql`) now aborts unless:
+   - the 6-argument session RPCs are applied and no 5-argument overload exists;
+   - `storage.objects` holds the `--archive-all` manifest from the last 24 hours;
+   - the sense-less archive exists and is newer than every sense-less row;
+   - the semdisc manifest exists (while semdisc objects remain);
+   - a `--verify` marker from the last 24 hours exists.
+
+   A clean full `--verify` now writes `_archive/verify-ok/<UTC>.json`. A new step 0e shows these checks read-only. All eight raise paths and the pass path were exercised on a scratch PostgreSQL 16.
+2. db mode again sends the pre-ADR select string for the typed re-grade (`routes/practice.py`) and `build_exercise_gen_reference_set.py`.
+3. New `write_sense(expected_version=...)` and `store.base_version(rows)`. `backfill_exercise_audio`, `backfill_hant_mirrors` and `--repair` refuse a stale read-modify-write (`ContentWriteConflict`, no upload, no retry) instead of overwriting a newer version.
+4. The two fix scripts hydrate with offline limits: the whole chunk, 300 s.
+
+Tests, all offline:
+- exercise-content suites: 680 passed (+22);
+- full suite: 5466 passed, 48 failed, 17 skipped, 1 collection error. The failures are the same pre-existing environment ones;
+- vitest prestudy on-demand: 17/17.
+
+Pages updated: 3 ([[decisions/ADR-047-exercise-content-in-storage]] §9 and "Review fixes", ops notes and risks; [[tasklist/exercise-content-storage.tasks]] TASK-993 and TASK-998; this log).
+
+Nothing was applied live, and the flags stay `db`.

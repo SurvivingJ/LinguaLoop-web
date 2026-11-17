@@ -268,12 +268,17 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
         return None
 
     from services.exercise_content import store
+    # word_sense_id is hydrate's sense key outside db mode; db mode keeps today's select
+    # byte-for-byte (ADR-047 §6).
+    columns = 'exercise_type, {content}, language_id'
+    if store.read_mode() != 'db':
+        columns += ', word_sense_id'
     try:
         db = get_db()
         row = (
             db
             .table('exercises')
-            .select(store.select_columns('exercise_type, {content}, language_id, word_sense_id'))
+            .select(store.select_columns(columns))
             .eq('id', exercise_id)
             .limit(1)
             .execute()

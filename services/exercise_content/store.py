@@ -624,10 +624,21 @@ def _write_sense_db(db, sense_id, rows: list[dict], delete_where: DeleteWhere | 
                        updated_ids=list(updates), attempts=1)
 
 
+def base_version(rows: Sequence[dict]) -> int | None:
+    """The content version ``rows`` (one sense's rows, as read and hydrated) were read at:
+    the highest ``content_version``, or None when any row lacks one (db read mode selects no
+    version). Pass it to ``write_sense(expected_version=...)`` for a read-modify-write."""
+    versions = [_as_int(row.get('content_version')) if isinstance(row, dict) else None
+                for row in rows]
+    if not versions or any(v is None or v < 0 for v in versions):
+        return None
+    return max(versions)
+
+
 def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[dict] = (),
                 delete_where: DeleteWhere | None = None,
                 update_contents: Mapping[str, dict] | None = None,
-                max_retries: int = 3) -> WriteResult:
+                max_retries: int = 3, expected_version: int | None = None) -> WriteResult:
     """Validates first (ValueError, no I/O): every insert row has 'id' (uuid str),
     word_sense_id == sense_id, language_id == language_id and a dict 'content'.
     db mode emits exactly today's calls, in this order, and nothing else:
@@ -636,20 +647,28 @@ def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[di
       insert: db.table('exercises').insert(list(insert_rows)).execute()
       update: per id, db.table('exercises').update({'content': c}).eq('id', id).execute()
     dual mode: Decision 4. update ids must belong to the sense and not be deleted (ValueError).
+    expected_version (read-modify-write callers, e.g. ``base_version(rows)``): in dual mode the
+    write is refused with ContentWriteConflict, before any upload or row change and without a
+    retry, when the sense is no longer at that version, i.e. someone wrote it after the caller
+    read the content it edited. Ignored in db mode (no versions). None: no check.
     Errors: ValueError; ContentWriteConflict; ContentStorageError; PostgREST APIError propagates.
 
     See the module docstring (choices 1-3) for what db mode accepts and returns."""
     mode = write_mode()
     rows, updates = _validate_write(db, sense_id, language_id, insert_rows, delete_where,
                                     update_contents, max_retries, strict=(mode == 'dual'))
+    if expected_version is not None and (not _is_int(expected_version) or expected_version < 0):
+        raise ValueError(f'write_sense: expected_version must be an int >= 0 or None, '
+                         f'got {expected_version!r}')
     if not rows and delete_where is None and not updates:
         return WriteResult(sense_id=sense_id, mode=mode, version=None, inserted_ids=[],
                            deleted_count=0, updated_ids=[], attempts=0)
     if mode == 'dual':
         from services.exercise_content import writer
+        extra = {} if expected_version is None else {'expected_version': expected_version}
         return writer.write_sense_dual(db, sense_id, language_id, insert_rows=rows,
                                        delete_where=delete_where, update_contents=updates,
-                                       max_retries=max_retries)
+                                       max_retries=max_retries, **extra)
     return _write_sense_db(db, sense_id, rows, delete_where, updates)
 
 

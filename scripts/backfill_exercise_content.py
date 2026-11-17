@@ -26,11 +26,16 @@ export (default)
     version is verified only. Senses that end clean are added to the state file
     after each batch, and a re-run skips them.
 --verify
-    No writes and no state file. Every row of every sense in scope must satisfy
+    No content writes and no state file. Every row of every sense in scope must satisfy
     canonical(DB content) == canonical(file[(sense, row content_version)][id]).
     Mismatch kinds: ``missing_file`` (one per sense and version; ``reason`` is
     ``not_found`` or ``corrupt``), ``missing_exercise`` and ``content_diff`` (one
     per row), ``mixed_versions`` (one per sense whose rows disagree).
+    A clean full run (``--language all``, no ``--senses`` / ``--limit`` /
+    ``--dry-run``, exit 0) then writes one marker object,
+    ``_archive/verify-ok/{YYYYMMDDTHHMMSSZ}.json``. Step 3a of
+    migrations/exercise_content_drop_column.sql refuses to run without one
+    from the last 24 hours. A failed marker write is an error (exit 1).
 --verify --repair
     After each batch every mismatched sense is read again and, if it still
     mismatches, rewritten with ``store.write_sense(db, sense, lang,
@@ -120,6 +125,7 @@ DEFAULT_ARCHIVE_MAX_BYTES = 1_048_576        # file_size_limit of the exercise-c
 MIN_ARCHIVE_MAX_BYTES = 65_536
 ARCHIVE_ROOT = '_archive'
 SEMDISC_TAG = 'semdisc-20261115'
+VERIFY_MARKER_FOLDER = f'{ARCHIVE_ROOT}/verify-ok'
 SEMDISC_TABLES = ('backup_semdisc_content_20261115', 'semdisc_rewrite_work')
 SEMDISC_FUNCTION = 'public.apply_semdisc_notes(jsonb)'
 SEMDISC_FUNCTION_NAME = 'apply_semdisc_notes'
@@ -354,6 +360,35 @@ def _exit_code(ctx: Context) -> int:
     return EXIT_FINDINGS if unresolved or errors else EXIT_OK
 
 
+def _full_verify_scope(args: argparse.Namespace) -> bool:
+    return (args.language == 'all' and not args.senses and not args.limit
+            and not args.dry_run)
+
+
+def write_verify_marker(ctx: Context, started: datetime, finished: datetime) -> int:
+    """After a clean full --verify: put ``_archive/verify-ok/<UTC>.json``.
+
+    The cut-over (migrations/exercise_content_drop_column.sql, step 3a) aborts unless
+    storage.objects holds one of these from the last 24 hours. ``_archive/`` is never swept.
+    """
+    stamp = finished.astimezone(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    path = f'{VERIFY_MARKER_FOLDER}/{stamp}.json'
+    doc = {'format': MANIFEST_FORMAT, 'kind': 'verify-ok', 'languages': list(ctx.languages),
+           'started_at': _iso(started), 'finished_at': _iso(finished),
+           'senses': ctx.report['senses'], 'rows': ctx.report['rows'],
+           'files_verified': ctx.report['files_verified']}
+    try:
+        ctx.backend.put(path, _json_doc(doc))
+    except store.AlreadyExists:
+        pass                                     # a second clean run in the same second
+    except Exception as exc:                     # noqa: BLE001 - reported, exit 1
+        ctx.report['anomalies'].append(_anomaly('verify_marker', 'error', None, path=path,
+                                                error=_error_text(exc)))
+        return EXIT_FINDINGS
+    ctx.report['verify_marker'] = path
+    return EXIT_OK
+
+
 def _write_report(path: str, report: dict) -> None:
     directory = os.path.dirname(os.path.abspath(path))
     os.makedirs(directory, exist_ok=True)
@@ -518,7 +553,10 @@ def _repair(ctx: Context, language: str, language_id: int, sense_ids: list[int])
                                                'rows': len(updates)})
             continue
         try:
-            result = store.write_sense(ctx.db, sense_id, language_id, update_contents=updates)
+            # The rows were just re-read with their content_version: if anyone writes the sense
+            # before this commit, the write is refused (repair_failed, exit 1; re-run --verify).
+            result = store.write_sense(ctx.db, sense_id, language_id, update_contents=updates,
+                                       expected_version=store.base_version(rows))
         except Exception as exc:
             ctx.report['anomalies'].append(_anomaly('repair_failed', 'error', language,
                                                     sense_id=sense_id, error=_error_text(exc)))
@@ -1120,7 +1158,10 @@ def main(argv: Sequence[str] | None = None, *, db: Any = None,
         ctx.pool.shutdown(wait=True)
 
     code = _exit_code(ctx)
-    report['finished_at'] = _iso(clock())
+    finished = clock()
+    if code == EXIT_OK and mode == 'verify' and _full_verify_scope(args):
+        code = write_verify_marker(ctx, started, finished)
+    report['finished_at'] = _iso(finished)
     report['exit_code'] = code
     _write_report(report_path, report)
     errors = sum(1 for a in report['anomalies'] if a.get('severity') == 'error')

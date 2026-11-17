@@ -62,6 +62,9 @@ EXERCISE_COLUMNS = 'id, exercise_type, word_sense_id, language_id, {content}'
 
 #: Most senses one `store.hydrate` call may cover (one content file per sense).
 HYDRATE_MAX_SENSES = 100
+# An offline bulk run, not a request: no 3 s deadline and no 160-sense cap (ADR-047 §5
+# request limits). A chunk is fetched in full; only a real miss leaves a row out.
+HYDRATE_DEADLINE_S = 300.0
 
 
 def backfill_lemmas(db, conv: ScriptConverter, dry_run: bool, limit: int, force: bool) -> dict:
@@ -131,18 +134,29 @@ def _hydrated_sense_chunks(db, by_sense: dict[int, list[dict]],
         chunk_ids = sense_ids[start:start + max_senses]
         chunk = [row for sid in chunk_ids for row in by_sense[sid]]
         before = len(chunk)
-        store.hydrate(chunk, db=db)
+        store.hydrate(chunk, db=db, max_senses=len(chunk), deadline_s=HYDRATE_DEADLINE_S)
         kept: dict[int, list[dict]] = {}
         for row in chunk:
             kept.setdefault(row['word_sense_id'], []).append(row)
         yield kept, before - len(chunk)
 
 
-def _write_sense_mirrors(db, sense_id: int, updates: dict[str, dict], stats: dict) -> None:
-    """One content write for the sense; a failure counts every row it carried."""
+def _write_sense_mirrors(db, sense_id: int, updates: dict[str, dict], stats: dict,
+                         expected_version: int | None = None) -> None:
+    """One content write for the sense; a failure counts every row it carried.
+
+    ``expected_version`` is the version the edited content was read at: a sense written by
+    someone else meanwhile is refused (counted as ``conflicts``) instead of overwritten with
+    the stale base. A re-run picks it up (rows whose mirror already matches are skipped).
+    """
     try:
-        store.write_sense(db, sense_id, ZH, update_contents=updates)
+        store.write_sense(db, sense_id, ZH, update_contents=updates,
+                          expected_version=expected_version)
         stats['updated'] += len(updates)
+    except store.ContentWriteConflict as e:
+        logger.warning("sense %s changed while its mirrors were built; %d exercise(s) not "
+                       "written, re-run to apply: %s", sense_id, len(updates), e)
+        stats['conflicts'] += len(updates)
     except Exception as e:
         logger.warning("content write failed for sense %s (%d exercise(s)): %s",
                        sense_id, len(updates), e)
@@ -150,7 +164,8 @@ def _write_sense_mirrors(db, sense_id: int, updates: dict[str, dict], stats: dic
 
 
 def backfill_exercises(db, conv: ScriptConverter, dry_run: bool, limit: int, force: bool) -> dict:
-    stats = {'updated': 0, 'skipped': 0, 'failed': 0, 'skipped_no_sense': 0, 'unavailable': 0}
+    stats = {'updated': 0, 'skipped': 0, 'failed': 0, 'skipped_no_sense': 0, 'unavailable': 0,
+             'conflicts': 0}
     rows = _load_exercise_rows(db, limit)
 
     by_sense: dict[int, list[dict]] = {}
@@ -193,12 +208,14 @@ def backfill_exercises(db, conv: ScriptConverter, dry_run: bool, limit: int, for
                 new_content['hant'] = mirror
                 updates[r['id']] = new_content
             if updates:
-                _write_sense_mirrors(db, sense_id, updates, stats)
+                _write_sense_mirrors(db, sense_id, updates, stats,
+                                     store.base_version(sense_rows))
             for r in sense_rows:   # done with this sense: let its content go
                 r.pop('content', None)
     logger.info("exercises DONE. updated=%d skipped=%d failed=%d skipped_no_sense=%d "
-                "unavailable=%d", stats['updated'], stats['skipped'], stats['failed'],
-                stats['skipped_no_sense'], stats['unavailable'])
+                "unavailable=%d conflicts=%d", stats['updated'], stats['skipped'],
+                stats['failed'], stats['skipped_no_sense'], stats['unavailable'],
+                stats['conflicts'])
     return stats
 
 
