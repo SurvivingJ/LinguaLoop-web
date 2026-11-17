@@ -431,7 +431,7 @@ transaction) per ADR-047 §7.
 - [ ] Step 0 (read-only checks): rows of the 8 types with `dedupe_key IS NULL`; rows with `word_sense_id IS NULL` (expect 10); `pg_database_size`; `pg_total_relation_size('public.exercises')`.
 - [ ] Step 1 (repeat until 0 rows): `UPDATE public.exercises SET dedupe_key = md5(coalesce(content->>'context_sentence','')) WHERE id IN (SELECT id FROM public.exercises WHERE dedupe_key IS NULL AND exercise_type IN (<8 types>) LIMIT 2000);` then `VACUUM public.exercises;`.
 - [ ] Step 2: `CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS uq_exercises_context_free_variant_v2 ON public.exercises (word_sense_id, exercise_type, dedupe_key) WHERE is_active AND word_sense_id IS NOT NULL AND exercise_type IN (<8 types>);` + a check that it is valid.
-- [ ] Step 3 (one transaction): `DELETE FROM public.exercises WHERE word_sense_id IS NULL` (comment: only after `--archive-sense-less`, TASK-991); `CREATE OR REPLACE` of `exercise_content_commit` (no longer writes a `content` column; still computes `dedupe_key` from the `'content'` JSON key of `p_insert_rows` / `p_update_contents`), `get_practice_session` and `get_review_ahead_items` (never return content; `p_include_content` kept for signature compatibility and ignored); `ALTER TABLE public.exercises DROP COLUMN content;`; `NOTIFY pgrst, 'reload schema';`. `DROP FUNCTION IF EXISTS public.apply_semdisc_notes(jsonb);` is present but commented out with "owner decision (TASK-998)".
+- [ ] Step 3 (one transaction): `DELETE FROM public.exercises WHERE word_sense_id IS NULL` (comment: only after `--archive-sense-less`, TASK-991); `CREATE OR REPLACE` of `exercise_content_commit` (no longer writes a `content` column; still computes `dedupe_key` from the `'content'` JSON key of `p_insert_rows` / `p_update_contents`), `get_practice_session` and `get_review_ahead_items` (never return content; `p_include_content` kept for signature compatibility and ignored); `ALTER TABLE public.exercises DROP COLUMN content;`; `NOTIFY pgrst, 'reload schema';`. `DROP FUNCTION IF EXISTS public.apply_semdisc_notes(jsonb); DROP TABLE IF EXISTS public.backup_semdisc_content_20261115, public.semdisc_rewrite_work;` (owner decision 2026-11-17: archived first by `--archive-semdisc`, TASK-991; the comment says so).
 - [ ] Step 4: `VACUUM (FULL, ANALYZE) public.exercises;` with a comment on peak space (old + new copy, ~80 MB) and the 2026-11-17 precedent. Step 5: size queries.
 - [ ] `tests/test_exercise_content_migration_cutover.py` (static): step order (index v2 before DROP COLUMN; DELETE and DROP in one transaction block), no unquoted `\bcontent\b` token inside the step-3 function bodies (quoted JSON keys like `'content'` are allowed; `p_include_content`, `p_update_contents` and `content_version` do not match the word boundary), the v2 predicate's type list equals the old index's, step 1 has `LIMIT` and `dedupe_key IS NULL`, security lint passes.
 
@@ -508,35 +508,60 @@ Appendix A rows 7–8. The speed round today reads content for every mastered se
 
 ---
 
-## TASK-989: Prestudy page reader hydrates content
+## TASK-989: Prestudy loads content only for the words it will drill (+ on-demand fetch)
 
 **Status:** [ ] Not Started
 **Feature:** exercise-content-storage
 **Type:** feature
-**Complexity:** S (1-3h)
+**Complexity:** M (3-8h)
 **Depends On:** TASK-976
 
 **Description:**
-Appendix A row 9, the largest fan-out (every test sense with exercises; zh p90 126). Behaviour is
-unchanged apart from where content comes from; the cap/deadline defaults of ADR §5 apply (see
-open question 1 in the ADR).
+Appendix A row 9, the largest fan-out. Owner decision 2026-11-17 (ADR open question 1): the
+prestudy payload carries exercise content only for the senses the prime will drill, plus a
+`has_exercises` flag for every linked sense; words the learner adds to the drill set ("I don't
+know this", and any other client path that adds words) fetch their exercises on demand. This is a
+product change: it applies in every `EXERCISE_CONTENT_SOURCE` mode, not only `storage`.
 
 **Acceptance Criteria:**
-- [ ] `_load_exercises(db, sense_ids, language_id=None)` selects `store.select_columns('id, word_sense_id, exercise_type, {content}, ladder_level')` (db string unchanged), pages as today, then calls `store.hydrate(rows, language_id=language_id, db=db)` once before `group_exercises`; `build_prestudy_payload` passes the test's `language_id`.
-- [ ] `senses_with_exercises` and generation requests keep using row ids from the DB, so a hydration miss never queues generation (test asserts).
-- [ ] Tests: storage mode hydrates once with every row and the language; dropped rows absent from `exercises`; db mode unchanged.
-- [ ] Existing tests pass unchanged: `tests/test_prestudy.py test_prestudy_session.py test_pagination.py test_latency_caching.py`.
-
-**Technical Notes:**
-`_load_exercises` runs inside `run_parallel`; the store uses its own pool (TASK-978), so nothing
-special is needed here.
+- [ ] The drill rule is computed server-side and matches the client rule in
+  `static/js/prestudy/prestudy.js` exactly (find it: the prime drills unknown/encountered/learning
+  words by p_known, see the comments near the stage lists and `status()`); one Python function,
+  unit-tested at its boundaries, with a comment pointing at the JS rule and vice versa.
+- [ ] `build_prestudy_payload` loads content only for drill senses: `_load_exercises(db,
+  drill_sense_ids, language_id=...)` selects `store.select_columns('id, word_sense_id,
+  exercise_type, {content}, ladder_level')` (db string unchanged), pages as today, then calls
+  `store.hydrate(rows, language_id=language_id, db=db)` once before `group_exercises`. The payload
+  adds `has_exercises: [sense_id, …]` for all linked senses (from `senses_with_exercises`, row ids
+  only).
+- [ ] New endpoint (in `routes/tests/prestudy.py`, same auth/ownership checks as the payload route)
+  returns grouped, trimmed exercises for a list of sense ids; ids outside the test's linked senses
+  are ignored; at most 20 senses per call; same `group_exercises`/`trim_exercise` shape as the
+  payload.
+- [ ] `prestudy.js`: `exercisesFor` reads the loaded map; adding a word to the drill set triggers
+  one fetch for senses not yet loaded (batched, no duplicate in-flight requests) before that
+  word's exercises are needed; per-word counts, minute estimates and "has ladder exercises"
+  checks use `has_exercises` instead of the content map; a failed fetch degrades to the
+  no-exercise path for that word (no crash, no generation request).
+- [ ] `request_generation` / `senses_with_exercises` keep using DB row ids, so neither a hydration
+  miss nor an unloaded (non-drill) sense ever queues generation (test asserts).
+- [ ] Tests: drill-rule boundaries; payload contains content only for drill senses and
+  `has_exercises` for all; endpoint filters foreign ids and caps at 20; storage mode hydrates
+  once with the language; db mode select string unchanged; a JS unit test (vitest, see
+  `vitest.config.js`, `tests/unit/`) for the on-demand fetch (dedupe, failure path).
+- [ ] Existing tests pass: `tests/test_prestudy.py test_prestudy_session.py test_pagination.py
+  test_latency_caching.py` (update fixtures only where the payload shape intentionally changed,
+  and say which).
+- [ ] [[features/test-prestudy.tech]] updated by the integrator (TASK-993) from this task's notes.
 
 **Files to Create / Modify:**
-- `services/prestudy.py` — `_load_exercises`, `build_prestudy_payload` call site.
-- `tests/test_exercise_content_prestudy_reader.py` — new.
+- `services/prestudy.py` — drill rule, `_load_exercises`, `build_prestudy_payload`.
+- `routes/tests/prestudy.py` — on-demand exercises endpoint.
+- `static/js/prestudy/prestudy.js` — on-demand fetch, `has_exercises`.
+- `tests/test_exercise_content_prestudy_reader.py` — new; `tests/unit/prestudy-ondemand.test.js` — new.
 
 **Verification:**
-`OFFLINE pytest tests/test_exercise_content_prestudy_reader.py tests/test_prestudy.py tests/test_prestudy_session.py tests/test_pagination.py tests/test_latency_caching.py -q`.
+`OFFLINE pytest tests/test_exercise_content_prestudy_reader.py tests/test_prestudy.py tests/test_prestudy_session.py tests/test_pagination.py tests/test_latency_caching.py -q`; `npx vitest run tests/unit/prestudy-ondemand.test.js`.
 
 ---
 
@@ -590,6 +615,7 @@ It never updates `exercises` except in `--repair` (≈ 13 rows per repaired sens
 - [ ] `--repair`: for each sense with a mismatch, `store.write_sense(db, sid, lang, update_contents={id: DB content for every row of the sense})`; refuses (exit 2, message) unless `store.write_mode() == 'dual'`.
 - [ ] `--archive-all TAG`: per language one gzip JSONL object `_archive/exercises-content-{TAG}/{lang}.jsonl.gz` (one line per row: id, word_sense_id, language_id, exercise_type, is_active, content_version, content) plus `_archive/exercises-content-{TAG}/manifest.json` (row counts and sha256 per object); no overwrite.
 - [ ] `--archive-sense-less`: the rows with `word_sense_id IS NULL` to `_archive/exercises-no-sense-{YYYYMMDD}.json`.
+- [ ] `--archive-semdisc` (owner decision 2026-11-17): gzip JSONL of every row of `backup_semdisc_content_20261115` and `semdisc_rewrite_work` to `_archive/semdisc-20261115/{table}.jsonl.gz`, plus `apply_semdisc_notes.sql` (the function definition, read with `pg_get_functiondef` through a read-only RPC or passed in from a file the operator exports — the script must not need SQL-editor access) and a `manifest.json` (row counts, sha256); no overwrite; test with a fake db.
 - [ ] Resumable: completed sense ids recorded in the state file after each batch; a re-run skips them; `--dry-run` writes nothing (no files, no state) except the report.
 - [ ] Report JSON: `{language, mode, senses, rows, files_written, files_verified, skipped_from_state, mismatches: [...], anomalies: [...], started_at, finished_at}`.
 - [ ] Tests with a local fake db and `InMemoryBackend`: export writes one file per sense equal to `encode_sense_file`; a re-run writes nothing; verify finds a tampered content, a missing exercise and a missing file; sense-less rows never enter sense files; dry-run writes nothing; state resume; archive manifest sha256 matches; `--repair` refuses in `db` write mode.
@@ -776,7 +802,7 @@ warnings.
 - [ ] `migrations/exercise_content_drop_column.sql` steps 0–5 run in order; `EXERCISE_CONTENT_DB_FALLBACK=0` set and workers restarted right after step 3.
 - [ ] Sessions, prestudy, speed round, gate/stress and typed grading work in the app; `v_ladder_judge_reject_rates` still returns rows.
 - [ ] Database size recorded before/after (expected ≈ 470 → ~355 MB); `python scripts/sweep_exercise_content.py --language all` dry run reviewed, then `--apply`.
-- [ ] [?] Owner decision (ADR open question 2): archive `backup_semdisc_content_20261115` and `semdisc_rewrite_work` to `_archive/` and drop them with `apply_semdisc_notes(jsonb)` (−~21 MB), or keep them.
+- [ ] Owner decision 2026-11-17: archive `backup_semdisc_content_20261115`, `semdisc_rewrite_work` and the `apply_semdisc_notes(jsonb)` definition (`backfill_exercise_content.py --archive-semdisc`), verify the manifest, then the cut-over migration drops them (−~21 MB).
 
 **Verification:**
 Size queries in step 5; an app walkthrough; `wiki/log.md` entry.

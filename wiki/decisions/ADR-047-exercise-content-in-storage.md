@@ -415,18 +415,20 @@ entirely in the database, so the judge tags and `v_ladder_judge_reject_rates` ar
 
 ## Open Questions
 
-1. **OPEN — prestudy fan-out.** The prestudy page needs the content of every linked sense that
-   has exercises (zh p90 126, max 306). The default per-call cap of 160 senses and 3 s deadline
-   keep it bounded; until the cut-over, senses over the cap are served from the column, after it
-   they show no ladder exercises. Accept this and measure in TASK-997 (default, built in
-   TASK-989), or change the page to request exercises only for the words it will drill (a
-   product change to `static/js/prestudy/prestudy.js`, which counts exercises per word for every
-   sense)? Phase 1 is not blocked.
-2. **OPEN — semantic-discrimination rewrite leftovers.** `backup_semdisc_content_20261115`
-   (19 MB, the only rollback copy of the 2026-11-15 rewrite), `semdisc_rewrite_work` (1.3 MB) and
-   the live-only `apply_semdisc_notes(jsonb)` were kept on 2026-11-17 because no Storage archive
-   was possible. With the bucket in place: archive to `_archive/` and drop at the cut-over
-   (TASK-998), or keep? Not blocking.
+1. **ANSWERED 2026-11-17 (owner) — prestudy loads only the words it will drill.** The prestudy
+   payload carries exercise content only for the senses the prime will drill (the same rule
+   `static/js/prestudy/prestudy.js` uses to pick drill words, computed server-side from the
+   learner's knowledge), plus a per-sense `has_exercises` flag for every other sense (row ids
+   only, no content). When the learner marks a word "I don't know this" (and any other path that
+   adds a word to the drill set, e.g. wrong-question follow-ups), the client fetches that word's
+   exercises on demand from a new endpoint restricted to the test's senses. Fan-out per request
+   drops from all linked senses (zh p90 126, max 306) to the drill set, under the 160-sense cap.
+   Built in TASK-989 (revised).
+2. **ANSWERED 2026-11-17 (owner) — archive the semantic-discrimination leftovers.**
+   `backup_semdisc_content_20261115`, `semdisc_rewrite_work` and the definition of
+   `apply_semdisc_notes(jsonb)` are archived to `_archive/` by the backfill script
+   (`--archive-semdisc`, TASK-991) and dropped in the cut-over migration (TASK-986), run by the
+   operator in TASK-998.
 3. **ANSWERED (decided here, reversible from the archive)** — the 10 zh collocation rows with no
    `word_sense_id` (never served, 0 attempts) cannot be keyed by sense; they are archived to
    `_archive/exercises-no-sense-<date>.json` and deleted at the cut-over.
