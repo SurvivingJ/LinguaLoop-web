@@ -41,7 +41,7 @@ open_questions:
   - "OQ34 OPEN: Show an estimated percentage per exam level after validation? Default: no."
   - "OQ35 OPEN: The goal-path layout needs a stored goal per study language (exam level, optional exam date). Where is it stored (user_languages columns or a small settings row), and is it shared with the study plan? Default: two nullable columns on user_languages."
   - "OQ36 OPEN: Show '+N rated known in the last 30 days' per exam level? It needs per-level counts in the nightly snapshot (ADR-053), a few bytes per list level per row. Default: yes, once 30 days of snapshots exist."
-  - "OQ37 PARTLY ANSWERED (owner, 2026-11-18): build the placement test as an adaptive version of the vocabulary check; no fake words or Yes/No self-report; for Chinese and Japanese test both the meaning and the pronunciation of words to tell real knowledge from partial knowledge. Design research running (TASK-1073)."
+  - "OQ37 ANSWERED (owner, 2026-11-18): build the placement test as an adaptive version of the vocabulary check; no fake words or Yes/No self-report; for Chinese and Japanese test both the meaning and the pronunciation. Design filed as features/vocab-placement (ADR-057–059 proposed; tasks TASK-1074–1095); its own owner questions are PQ1–PQ21 there."
 ---
 
 # Knowledge Report ("My vocabulary")
@@ -180,6 +180,7 @@ All OPEN; see frontmatter. Full table with defaults and affected tasks:
 
 ## Related Pages
 - [[features/knowledge-report.tech]] — technical specification
+- [[features/vocab-placement]] — the short adaptive placement test whose ranges feed this report
 - Mockups: `wiki/demos/knowledge-report-pro-mockups.html` — five interactive Pro-view options on real and demo data
 - Mockups: `wiki/demos/knowledge-report-full-mockups.html` — three complete learner-facing reports (scrolling report, tabbed workspace, exam-goal path)
 - Mockup: `wiki/demos/knowledge-report-goal-path.html` — **preferred layout**: the goal path, fleshed out, Pro and Core, Japanese and Chinese

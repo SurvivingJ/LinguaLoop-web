@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 91 |
-| In Progress (`[~]`) | 17 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 52 |
+| Not Started | 104 |
+| In Progress (`[~]`) | 16 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 61 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 4 |
-| Done (cumulative, not listed here) | 277 |
+| Done (cumulative, not listed here) | 278 |
+
+*2026-11-18 (Vocabulary placement specced, no code changed):* research workflow (literature, products, code and data audit, simulation → draft → 2 challengers → synthesis) → [[features/vocab-placement]], [[features/vocab-placement.tech]], ADR-057–059 (proposed), [[evaluations/vocab-placement-research-2026-11-18]], [[tasklist/vocab-placement.tasks]] TASK-1074–1095 (22: 13 Not Started, 9 Blocked [?]). TASK-1073 done. TASK-1063 now depends on TASK-1074. Counts: Not Started 91→104, In Progress 17→16, Blocked 52→61, Done 277→278.
 
 *2026-11-18 (Knowledge Report: goal-path layout preferred, placement test proposed):* TASK-1072 (goal-path layout, [?] OQ35/OQ36) and TASK-1073 (vocabulary placement test research and design, [?] OQ37) added. Counts: Blocked 51→53.
 
@@ -1409,7 +1411,7 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 | TASK-1060 | knowledge-report | Import not-in-dictionary words with credits | [?] billing's credit spend path (`spend_credits(8, 'sense_import')`, `w… | L | TASK-1051 |
 | TASK-1061 | knowledge-report | Calibration forced-choice probe items [?] (LIVE-DB) | [?] OQ5 (owner approval of a Calibration change) | M | none |
 | TASK-1062 | knowledge-report | Calibration selector — one lemma, rank-1 sense [?] (LIVE-DB) | [?] OQ9 (owner approval of a live Calibration function change) | M | none |
-| TASK-1063 | knowledge-report | Refresh the zh calibration anchor pool [?] (LIVE-DB data) | [?] OQ29 and the size gate (≈ 5–7 MB, ESTIMATE from 369 B per pool row… | S | none |
+| TASK-1063 | knowledge-report | Refresh the zh calibration anchor pool [?] (LIVE-DB data) | [?] OQ29 and the size gate (≈ 5–7 MB, ESTIMATE from 369 B per pool row… | S | TASK-1074 |
 | TASK-1064 | knowledge-report | Targeted practice of an explicit word set | [?] OQ15 (scope with the Practice owner) | L | TASK-1046, TASK-1050 |
 | TASK-1065 | knowledge-report | Evidence-kind counters or an evidence log [?] (LIVE-DB) | [?] OQ16 (worth changing the seven writer functions?) and the size gate | L | none |
 | TASK-1066 | knowledge-report | Decay function clean-ups [?] (LIVE-DB) | [?] OQ14 (owner approval for a live change with no staging) | S | none |
@@ -1419,7 +1421,35 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 | TASK-1070 | knowledge-report | "Upcoming tests" coverage card (Pro) | [?] OQ32 | M | TASK-1041, TASK-1046 |
 | TASK-1071 | knowledge-report | Estimated percentage per exam level | [?] OQ34 and TASK-1056 | M | TASK-1050, TASK-1056 |
 | TASK-1072 | knowledge-report | Goal-path layout (mockup C) in the spec and the page | [?] OQ35, OQ36 | L | TASK-1040, TASK-1046, TASK-1050, TASK-1037 |
-| TASK-1073 | knowledge-report | Vocabulary placement test — research and design | [~] research running; owner chose the adaptive check, meaning + pronunciation for zh/ja, no fake words | M | — |
+| TASK-1073 | knowledge-report | Vocabulary placement test — research and design | [x] Done (2026-11-18) → [[tasklist/vocab-placement.tasks]] | M | — |
+
+### Vocabulary placement — NEW 2026-11-18
+Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] · [[features/vocab-placement.tech]] · [[decisions/ADR-057-adaptive-placement-with-conditional-reading]] – [[decisions/ADR-059-placement-evidence-kind]] · [[evaluations/vocab-placement-research-2026-11-18]]. Planning only; no code changed. LIVE-DB tasks are written by the agent and applied by the owner. Launch needs TASK-1081 (blocked on PQ5) and, for zh, TASK-1082; ja also TASK-1075.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | [ ] | S | — |
+| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [ ] | M | TASK-1077 (gate) |
+| TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | [ ] | M | — |
+| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | [ ] | L | TASK-1076 |
+| TASK-1078 | vocab-placement | Pure placement design and estimator functions | [ ] | M | TASK-1035 |
+| TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | [ ] | M | TASK-1076, TASK-1034 |
+| TASK-1080 | vocab-placement | Placement service and routes | [ ] | L | TASK-1077, TASK-1078, TASK-1079 |
+| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | [?] PQ5 | L | TASK-1076, TASK-1080 |
+| TASK-1082 | vocab-placement | Intro drill shows zh pinyin for diacritic-only readings | [ ] | S | — |
+| TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
+| TASK-1084 | vocab-placement | Placement page and i18n | [ ] | L | TASK-1080 |
+| TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
+| TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
+| TASK-1087 | vocab-placement | Simulation regression harness (V0) | [ ] | M | TASK-1078 |
+| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [ ] | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087 (ja: TASK-1075) |
+| TASK-1089 | vocab-placement | Validation study V1–V10 | [?] learners | M | TASK-1088 |
+| TASK-1090 | vocab-placement | Exam-level output — redesign and gate | [?] PQ2, V5 | L | TASK-1089, TASK-1049 |
+| TASK-1091 | vocab-placement | Check meaning items become the bare instrument (LIVE-DB, owner) | [?] PQ11 | M | TASK-1076, TASK-1077 |
+| TASK-1092 | vocab-placement | Generated reading foils (tone, special morae) | [?] PQ3 | M | — |
+| TASK-1093 | vocab-placement | IRT scoring v2 | [?] data | XL | TASK-1089 |
+| TASK-1094 | vocab-placement | Goal-path placement segment and hero copy | [?] TASK-1072 | S | TASK-1081, TASK-1086, TASK-1072 |
+| TASK-1095 | vocab-placement | Documentation reconciliation | [ ] | S | TASK-1086 |
 
 ### Language Packs (existing — unchanged)
 

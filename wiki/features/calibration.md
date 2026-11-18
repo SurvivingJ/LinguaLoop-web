@@ -160,6 +160,7 @@ abilities.
 ## Related Pages
 
 - [[features/calibration.tech]] — technical specification
+- [[features/vocab-placement]] — planned adaptive placement mode of this check (meaning, then reading for zh/ja; fixed end)
 - [[decisions/ADR-025-semantic-distractor-selection]] — why distractors are chosen this way
 - [[tasklist/calibration.tasks]] — task breakdown
 - [[features/flashcards]] — uses the older random-distractor picker, unchanged

@@ -4,7 +4,7 @@ feature: knowledge-report
 prose_page: ../features/knowledge-report.md
 tech_page: ../features/knowledge-report.tech.md
 total_tasks: 40
-done: 0
+done: 1
 ---
 
 # Knowledge Report — Task Breakdown
@@ -173,6 +173,8 @@ home of the estimator (ADR-051).
 **Type:** feature
 **Complexity:** L (1-2d)
 **Depends On:** TASK-1034
+
+**Note (2026-11-18):** the calibration block should come from `knowledge_calibration_inputs` (TASK-1079, [[tasklist/vocab-placement.tasks]]) rather than its own query, so the placement result and the report always agree.
 
 **Description:**
 Write `migrations/knowledge_report_summary.sql` with `knowledge_report_summary(p_user_id, p_language_id,
@@ -970,7 +972,7 @@ definition-mode answer counts toward the estimate (S9; today 38% of en/en pool i
 **Feature:** knowledge-report
 **Type:** infra
 **Complexity:** S (1-3h)
-**Depends On:** none
+**Depends On:** TASK-1074 (the zh reading normaliser must be fixed before the pool and its reading cache are refreshed; [[tasklist/vocab-placement.tasks]])
 
 **Description:**
 The zh pool covers 3,643 of 12,802 zh lemmas because it was not refreshed after the October–November
@@ -1137,6 +1139,8 @@ writer; "I know this" would be new, shown as self-reported and never counted as 
 **Complexity:** M (3-8h)
 **Depends On:** TASK-1050, TASK-1056
 
+**Note (2026-11-18):** the placement simulation found the band-share level estimate misplaces most mid-level learners (lower bound always 0); any level estimate must pass the gates of TASK-1090 ([[tasklist/vocab-placement.tasks]]) first.
+
 **Description:** If approved after validation, add the estimate of tech §2.8a (frame items only, no double
 counting, item-level variance, pooled per band for cumulative levels), shown beside — never added to — the
 rated-known count, with the copy "If these words are like other words of the same frequency, you would know
@@ -1183,9 +1187,9 @@ a layout reference only, not production code.
 
 ---
 
-## TASK-1073: Vocabulary placement test — research and design [?]
+## TASK-1073: Vocabulary placement test — research and design
 
-**Status:** [~] In Progress — research and design workflow running (2026-11-18)
+**Status:** [x] Done (2026-11-18) — design filed as [[features/vocab-placement]]; ADR-057–059 proposed, awaiting owner review
 **Feature:** knowledge-report
 **Type:** docs
 **Complexity:** M (3-8h)
@@ -1197,8 +1201,8 @@ Research approaches to a short, adaptive vocabulary placement test built on the 
 write a feature spec and ADR. Candidate designs and the research brief are below.
 
 **Acceptance Criteria:**
-- [ ] A comparison of at least five designs against the owner's criteria (minutes, honesty of the result, exam-level output, item-bank cost, cold start for new learners).
-- [ ] A recommended design with stopping rule, scoring model, item bank, validation plan, and how its result feeds the report and practice.
+- [x] A comparison of at least five designs against the owner's criteria (minutes, honesty of the result, exam-level output, item-bank cost, cold start for new learners).
+- [x] A recommended design with stopping rule, scoring model, item bank, validation plan, and how its result feeds the report and practice.
 
 **Owner decisions (2026-11-18):** build on candidate 1, the adaptive check; candidates 3 and 4 (fake words, Yes/No) are rejected; for Chinese and Japanese test both meaning and pronunciation to distinguish real from partial knowledge.
 
@@ -1253,5 +1257,7 @@ Deliverables:
 **Files to Create / Modify:** `wiki/features/vocab-placement.md`, `wiki/features/vocab-placement.tech.md`, an ADR.
 
 **Verification:** owner review.
+
+**Outcome (2026-11-18):** an 8-agent research workflow (literature, products, code and data audit, 4,000-learner simulation → draft → psychometric and learner challenges → synthesis) produced [[features/vocab-placement]], [[features/vocab-placement.tech]], [[decisions/ADR-057-adaptive-placement-with-conditional-reading]], [[decisions/ADR-058-meaning-and-reading-recognition-pair-estimator]], [[decisions/ADR-059-placement-evidence-kind]] (all proposed), the record [[evaluations/vocab-placement-research-2026-11-18]] and the build tasks [[tasklist/vocab-placement.tasks]] (TASK-1074–1095). Owner questions PQ1–PQ21 are in the feature's frontmatter.
 
 ---
