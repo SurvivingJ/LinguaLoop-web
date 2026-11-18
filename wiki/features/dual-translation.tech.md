@@ -273,7 +273,10 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   that the model did not flag is scored as an `addition` error, and a naturalness/range judgment
   whose evidence lies inside one is rejected; an explanation that repeats a grading instruction is
   rejected (`instruction_echo`). Free models get a data-boundary guard paragraph (prompt variant
-  `v2_guard`) and line breaks in the learner's text are collapsed; the validated paid pair keeps its
+  `v2_guard`; since 2026-11-18 `v2_guard2`, which adds `JOINED_SENTENCES_PARAGRAPH`: two REF
+  sentences joined with a correct connective — Japanese te/de form, a Chinese comma or conjunction,
+  English "and"/"so" — or one split into two is not an error, and the connective is not a
+  conjugation error) and line breaks in the learner's text are collapsed; the validated paid pair keeps its
   prompt byte for byte (tested). Injection detection (`output_sanitizer.injection_segments`) needs
   "you are **now** a/an/the …" for the role pattern and flags nothing when the reference itself
   matches an injection pattern (an exam story about scores); a scan of every live test sentence and
@@ -376,10 +379,14 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   only in the host log. Found while diagnosing submission 128 (2026-11-17 21:50 UTC): both free
   single-call models raised before answering, and the v2 fallback's paid models are refused while
   the OpenRouter key is at its $10 limit.
-- Clients: `/dual-translation` shows `#dtUnavailableNotice` (`dual_translation.grading_unavailable`),
-  scrolled into view, and keeps the learner's text; the session player shows the message with
-  "Skip for now" only (no "Try again"). A refused submission stays ungraded, so its passage can
-  come back through step 3 of `/next`.
+- Clients (retry since 2026-11-18): when no model graded the translation — 503
+  `GRADING_UNAVAILABLE`, or a 200 contract with `overall_band: null` (nothing stored) — the learner
+  keeps their text and gets **"Try again"**, which submits the same text again. `/dual-translation`
+  shows `#dtUnavailableNotice` (`dual_translation.grading_unavailable`, or
+  `session.dt_grading_incomplete` for a band-less grade; before, that opened an empty result) and
+  relabels Submit "Try again"; the session player keeps its submit button visible as "Try again"
+  next to "Skip for now" (before, Skip only). A refused submission stays ungraded, so its passage
+  can also come back through step 3 of `/next`.
 
 ### `POST /api/dual-translation/passages/build` (admin/batch)
 - **Purpose:** extract L2 passages from corpus + batch-generate L1 references (async batch).
@@ -440,7 +447,7 @@ single_call on? ── no ───> configured flow (v2 if DT_FRAMEWORK_V2, els
       │ yes (default)
 primary model ──ok──> decode ──> contract            (grader_trace.single_call.path = "primary")
       │ call error / not a JSON object with an `errors` list
-fallback model (once) ──ok──> decode ──> contract    (path = "fallback_model")
+fallback model (once) ──ok──> decode ──> contract    (path = "fallback_model"; none by default since 2026-11-18)
       │ fails too, or the taxonomy's type list is not the hardcoded one, or any unexpected exception
 configured flow ──> its contract + grader_trace.single_call{used:false, path:"fallback_flow:v2|v1", reason}
 ```
@@ -470,7 +477,11 @@ configured flow ──> its contract + grader_trace.single_call{used:false, path
    number in [0, 1] is accepted and bucketed. Unusable → 0.5, label null, counted
    (`defaulted.confidence`). An entry marked `low` is withheld: not in `errors`, not scored, counted
    (`dropped.low_confidence`) and listed in `withheld_low_confidence`, unless
-   `DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE` is on.
+   `DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE` is on. **Since 2026-11-18, for a model outside
+   `VALIDATED_MODELS`** (the free stand-ins) only `high` entries are kept: `medium` and unlabelled
+   ones are withheld the same way, counted in `dropped.not_high_confidence`, and listed with their
+   `confidence` ([[evaluations/dt-free-models-2026-11-18]]). The validated pair is unchanged.
+   `DT_SINGLE_CALL_FALLBACK_MODEL` defaults to blank (no model fallback) since the same date.
 4. **Source** interlingual / intralingual from the model. Unusable → `intralingual`, counted
    (`defaulted.source`).
 5. **Learner span** (`_locate_learner`), first hit wins; the path is `span_source`:
