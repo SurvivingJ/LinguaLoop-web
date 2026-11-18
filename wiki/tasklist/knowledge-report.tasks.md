@@ -1185,7 +1185,7 @@ a layout reference only, not production code.
 
 ## TASK-1073: Vocabulary placement test — research and design [?]
 
-**Status:** [?] Blocked — OQ37 (owner: run the research brief first)
+**Status:** [~] In Progress — research and design workflow running (2026-11-18)
 **Feature:** knowledge-report
 **Type:** docs
 **Complexity:** M (3-8h)
@@ -1199,6 +1199,8 @@ write a feature spec and ADR. Candidate designs and the research brief are below
 **Acceptance Criteria:**
 - [ ] A comparison of at least five designs against the owner's criteria (minutes, honesty of the result, exam-level output, item-bank cost, cold start for new learners).
 - [ ] A recommended design with stopping rule, scoring model, item bank, validation plan, and how its result feeds the report and practice.
+
+**Owner decisions (2026-11-18):** build on candidate 1, the adaptive check; candidates 3 and 4 (fake words, Yes/No) are rejected; for Chinese and Japanese test both meaning and pronunciation to distinguish real from partial knowledge.
 
 **Technical Notes — candidate designs (2026-11-18, not evaluated):**
 1. *Adaptive vocabulary check:* the existing four-option meaning items, chosen adaptively at the learner's edge with an

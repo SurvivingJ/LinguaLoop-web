@@ -20,8 +20,8 @@ below.
 | Status | Count |
 |--------|-------|
 | Not Started | 91 |
-| In Progress (`[~]`) | 16 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 53 |
+| In Progress (`[~]`) | 17 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 52 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 4 |
 | Done (cumulative, not listed here) | 277 |
@@ -1419,7 +1419,7 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 | TASK-1070 | knowledge-report | "Upcoming tests" coverage card (Pro) | [?] OQ32 | M | TASK-1041, TASK-1046 |
 | TASK-1071 | knowledge-report | Estimated percentage per exam level | [?] OQ34 and TASK-1056 | M | TASK-1050, TASK-1056 |
 | TASK-1072 | knowledge-report | Goal-path layout (mockup C) in the spec and the page | [?] OQ35, OQ36 | L | TASK-1040, TASK-1046, TASK-1050, TASK-1037 |
-| TASK-1073 | knowledge-report | Vocabulary placement test — research and design | [?] OQ37 (research brief first) | M | — |
+| TASK-1073 | knowledge-report | Vocabulary placement test — research and design | [~] research running; owner chose the adaptive check, meaning + pronunciation for zh/ja, no fake words | M | — |
 
 ### Language Packs (existing — unchanged)
 
