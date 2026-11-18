@@ -165,6 +165,10 @@ REQUEST_EXTRAS: dict[str, dict] = {
     # whole completion budget on it, returning an empty answer.
     "particle-ai/particle-1:free": {"reasoning": {"enabled": False}},
     "nvidia/nemotron-3.5-super-vl:free": {"reasoning": {"enabled": False}},
+    # Reasoning cannot be disabled on this endpoint (400 "Reasoning is mandatory").
+    # At default effort it hit the 1,400-token cap with no answer on 73 of 200
+    # eval calls (2026-11-18); low effort leaves room for the answer.
+    "baidu/ernie-5.5-flash-preview:free": {"reasoning": {"effort": "low"}},
 }
 
 CALL_TIMEOUT_S = 30
