@@ -238,6 +238,10 @@ _clients_lock = threading.Lock()
 _clients: dict[tuple[float, int], httpx.Client] = {}
 
 
+#: Seconds an idle pooled connection is kept (httpx default: 5).
+KEEPALIVE_EXPIRY_S = 60.0
+
+
 def _new_client(timeout_s: float, concurrency: int,
                 transport: httpx.BaseTransport | None = None) -> httpx.Client:
     """A pooled client: ``max_connections = concurrency + 4``, ``concurrency`` kept alive.
@@ -247,8 +251,11 @@ def _new_client(timeout_s: float, concurrency: int,
     """
     return httpx.Client(
         timeout=timeout_s,
+        # Idle connections are kept for 60 s, not httpx's default 5 s. With little
+        # traffic, nearly every request otherwise opens fresh TLS connections.
         limits=httpx.Limits(max_connections=concurrency + 4,
-                            max_keepalive_connections=concurrency),
+                            max_keepalive_connections=concurrency,
+                            keepalive_expiry=KEEPALIVE_EXPIRY_S),
         transport=transport,
     )
 
