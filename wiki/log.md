@@ -7035,3 +7035,18 @@ one `call_failed` row per failed configured-flow call (`flow` v1/v2, `prompt_ver
 Owner actions: top up / raise the OpenRouter key limit (the paid fallback is dead until then); check the host
 log at 21:50 UTC for `single_call_grader: call to … failed`; submission 128 is still open and can be resubmitted.
 Pages: [[features/dual-translation.tech]], [[index]].
+
+## [2026-11-18] query + fix + eval | Kanji in DT grades; free grader models measured
+Developer: "If I'd done kanji instead of hiragana, would it still say I'm correct? See if the grading it gave was
+correct", then "do the first one" (diff) and "think about how we can improve the second. Maybe we just use the
+baidu model for free models?"
+Findings: kanji answers get full marks (3/3 runs; the prompt lists kana/kanji spellings as not errors), but the
+shown character diff marked 私/熊/好 as changes. Submission 128's one error ("conjugation, major" on 一番好きで,
+high confidence, 3/3 re-runs) is wrong: で is the connective form of です.
+Done: (1) Japanese display diff (`services/dual_translation/display_diff.py`, wired in `grade_submission`): word
+cells, kana/kanji spellings of the same word match; grading unchanged ([[features/dual-translation.tech]]; 11 tests).
+(2) Free-model eval, 805 free calls: [[evaluations/dt-free-models-2026-11-18]]. Particle false-flags rephrasings,
+Nemotron worse, Baidu Ernie (`baidu/ernie-5.5-flash-preview:free`) cannot disable reasoning and returns no answer on
+38% of calls (low effort ignored; its `REQUEST_EXTRAS` entry and comment record this). Simulated "high confidence
+only" for Particle: 0 rephrasing false flags, gold recall .88 → .79. No production setting changed.
+Pages: created [[evaluations/dt-free-models-2026-11-18]]; updated [[features/dual-translation.tech]], [[index]].

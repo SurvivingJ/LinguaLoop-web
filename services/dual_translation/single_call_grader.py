@@ -166,8 +166,10 @@ REQUEST_EXTRAS: dict[str, dict] = {
     "particle-ai/particle-1:free": {"reasoning": {"enabled": False}},
     "nvidia/nemotron-3.5-super-vl:free": {"reasoning": {"enabled": False}},
     # Reasoning cannot be disabled on this endpoint (400 "Reasoning is mandatory").
-    # At default effort it hit the 1,400-token cap with no answer on 73 of 200
-    # eval calls (2026-11-18); low effort leaves room for the answer.
+    # It hit the 1,400-token cap with no answer on 73 of 200 eval calls at default
+    # effort and 76 of 200 at low effort: low is accepted but ignored (p50 ~660
+    # reasoning tokens either way). Not usable as a grader at this budget; see
+    # wiki/evaluations/dt-free-models-2026-11-18.md.
     "baidu/ernie-5.5-flash-preview:free": {"reasoning": {"effort": "low"}},
 }
 
