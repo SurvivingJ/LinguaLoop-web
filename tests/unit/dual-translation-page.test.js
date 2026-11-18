@@ -191,15 +191,34 @@ describe('standalone DT page: grading unavailable', () => {
     await submit('今日は晴れです。');
     const notice = document.getElementById('dtUnavailableNotice');
     expect(notice.hidden).toBe(false);
-    expect(notice.textContent).toContain('temporarily unavailable');
-    expect(notice.textContent).toContain('not graded');
+    expect(notice.textContent).toContain('wasn’t graded or saved');
+    expect(notice.textContent).toContain('try again');
     // still on the reproduce phase with the text, not on a (provisional) result
     expect(document.getElementById('dtReproduce').style.display).toBe('flex');
     expect(document.getElementById('dtResult').style.display).toBe('none');
     expect(document.getElementById('dtProvisionalNotice').style.display).toBe('none');
     expect(document.getElementById('dtReproduction').value).toBe('今日は晴れです。');
     expect(document.getElementById('dtSubmit').disabled).toBe(false);
+    expect(document.getElementById('dtSubmit').textContent).toBe('Try again');
     expect(window.showToast).not.toHaveBeenCalled();
+  });
+
+  it('a grade with no band keeps the text and offers a retry instead of an empty result', async () => {
+    await boot();
+    responses.submit = [
+      respond(200, { status: 'success', overall_band: null, provisional: true, diff: [], errors: [] }),
+      respond(200, { status: 'success', overall_band: 3, scores: { accuracy: 3 }, diff: [], errors: [] }),
+    ];
+    await submit('今日は晴れです。');
+    const notice = document.getElementById('dtUnavailableNotice');
+    expect(notice.hidden).toBe(false);
+    expect(notice.textContent).toContain('nothing was saved');
+    expect(document.getElementById('dtResult').style.display).toBe('none');
+    expect(document.getElementById('dtReproduction').value).toBe('今日は晴れです。');
+    expect(document.getElementById('dtSubmit').textContent).toBe('Try again');
+    await submit('今日は晴れです。');
+    expect(notice.hidden).toBe(true);
+    expect(document.getElementById('dtResult').style.display).toBe('flex');
   });
 
   it('a later successful submit clears the notice', async () => {

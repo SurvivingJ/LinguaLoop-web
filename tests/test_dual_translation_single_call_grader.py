@@ -858,7 +858,8 @@ class TestSpanLocation:
         sc = contract['grader_trace']['single_call']
         assert sc['errors_raw'] == 2 and sc['errors_kept'] == 1
         assert sc['dropped'] == {'invalid_entry': 0, 'unknown_type': 0, 'low_confidence': 0,
-                                 'span_unlocatable': 1, 'decode_rejected': 0}
+                                 'not_high_confidence': 0, 'span_unlocatable': 1,
+                                 'decode_rejected': 0}
         assert sc['dropped_total'] == 1
         assert contract['scores']['accuracy'] == 3  # only the kept error is scored
 
@@ -1622,10 +1623,12 @@ class TestDefaultsOnAndMissingMigration:
             'DT_SINGLE_CALL_GRADER': True, 'DT_GRADING_ASSET_COLUMNS': True,
             'DT_SINGLE_CALL_FREE_TRANSLATION': False, 'DT_SINGLE_CALL_EXPLAINER': False,
             'DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE': False,
-            # Temporary free-tier defaults while the OpenRouter key is over its
+            # Temporary free-tier default while the OpenRouter key is over its
             # limit (see config.py); the validated pair is PRIMARY / FALLBACK.
+            # No model fallback by default since 2026-11-18 (free fallbacks measured
+            # poorly, wiki/evaluations/dt-free-models-2026-11-18.md).
             'DT_SINGLE_CALL_MODEL': 'particle-ai/particle-1:free',
-            'DT_SINGLE_CALL_FALLBACK_MODEL': 'nvidia/nemotron-3.5-super-vl:free',
+            'DT_SINGLE_CALL_FALLBACK_MODEL': '',
         }
 
     def test_env_vars_still_override_the_defaults(self):

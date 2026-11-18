@@ -121,13 +121,16 @@ def test_free_models_get_the_guard_and_the_validated_pair_does_not(monkeypatch, 
     free_call, paid_call = model.calls
     assert sc_prompts.DATA_BOUNDARY_PARAGRAPH.strip() in free_call['system']
     assert sc_prompts.DATA_BOUNDARY_PARAGRAPH.strip() not in paid_call['system']
+    # 2026-11-18: the joined-sentences paragraph also goes to free models only.
+    assert sc_prompts.JOINED_SENTENCES_PARAGRAPH.strip() in free_call['system']
+    assert sc_prompts.JOINED_SENTENCES_PARAGRAPH.strip() not in paid_call['system']
     # The validated prompt is byte-identical to what build_system_prompt gave before.
     assert paid_call['system'] == sc_prompts.build_system_prompt(
         'en', band_descriptors=scg._band_descriptors(
             __import__('tests.test_dual_translation_single_call_grader', fromlist=['RUBRIC_V6']).RUBRIC_V6,
             3, 'en'))
     variants = [a['prompt_variant'] for a in contract['grading_assets']]
-    assert variants == ['v2_guard', 'v2']
+    assert variants == ['v2_guard2', 'v2']
     assert contract['grader_trace']['single_call']['prompt_variant'] == 'v2'
 
 
@@ -257,3 +260,40 @@ class TestHelpers:
     ])
     def test_contract_problems(self, contract, problem):
         assert any(problem in p for p in osan.contract_problems(contract))
+
+
+# ---------------------------------------------------------------------------
+# 2026-11-18: an unvalidated model's flags count only when marked high
+# (wiki/evaluations/dt-free-models-2026-11-18.md)
+# ---------------------------------------------------------------------------
+
+_TWO_FLAGS = {'errors': [
+    _entry(2, 'was', 'verb_form_tense', 'major', ref='is', confidence='high'),
+    _entry(1, 'First', 'word_choice', 'minor', ref='First', confidence='medium'),
+]}
+
+
+def test_free_model_shows_only_high_confidence_flags(monkeypatch, free_primary):
+    _use_model(monkeypatch, {FREE: _TWO_FLAGS})
+    contract = _grade(EN_GOLD, EN_TENSE, 'en', l1='zh')
+    assert [e['learner_form'] for e in contract['errors']] == ['was']
+    sc = contract['grader_trace']['single_call']
+    assert sc['dropped']['not_high_confidence'] == 1 and sc['dropped']['low_confidence'] == 0
+    assert sc['withheld_low_confidence'][0]['confidence'] == 'medium'
+    assert sc['errors_raw'] == 2 and sc['errors_kept'] == 1
+
+
+def test_validated_model_still_shows_medium_flags(monkeypatch):
+    from tests.test_dual_translation_single_call_grader import PRIMARY
+    monkeypatch.setattr(Config, 'DT_SINGLE_CALL_MODEL', PRIMARY)
+    _use_model(monkeypatch, {PRIMARY: _TWO_FLAGS})
+    contract = _grade(EN_GOLD, EN_TENSE, 'en', l1='zh')
+    assert sorted(e['learner_form'] for e in contract['errors']) == ['First', 'was']
+    assert contract['grader_trace']['single_call']['dropped']['not_high_confidence'] == 0
+
+
+def test_show_low_confidence_flag_also_keeps_a_free_models_medium_flags(monkeypatch, free_primary):
+    monkeypatch.setattr(Config, 'DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE', True)
+    _use_model(monkeypatch, {FREE: _TWO_FLAGS})
+    contract = _grade(EN_GOLD, EN_TENSE, 'en', l1='zh')
+    assert len(contract['errors']) == 2

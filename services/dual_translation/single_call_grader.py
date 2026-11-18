@@ -183,6 +183,12 @@ DEFAULT_CONFIDENCE = 0.5
 # Entries the model marks with this confidence are withheld from the grade unless
 # Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE is on.
 WITHHELD_CONFIDENCE = "low"
+# 2026-11-18: a model outside VALIDATED_MODELS has only its "high" entries shown
+# and scored; "medium" (and a missing label) are withheld too. On the Track E
+# stress set Particle's false flags on correct rephrasings were almost all medium
+# (precision of medium flags .08-.17, of high .97-.98); see
+# wiki/evaluations/dt-free-models-2026-11-18.md. The validated pair is unchanged.
+UNVALIDATED_SHOWN_CONFIDENCE = "high"
 
 # Below this token-level similarity a learner sentence is treated as a free
 # rewrite of its reference: no local alignment is attempted and the correction
@@ -470,6 +476,7 @@ def _grade(
                 gc, parsed["errors"], pairs=pairs, type_ids=type_ids, subtypes=subtypes,
                 taxonomy_cfg=taxonomy_cfg, subtype_meta=subtype_meta, severity_rule=severity_rule,
                 l1_code=l1_code, l2_code=l2_code, gold_l2=gold_l2, reproduction=reproduction,
+                high_only=guard,
             )
             unusable = _unusable_answer(parsed["errors"], result[2])
             if unusable:
@@ -802,7 +809,7 @@ def _sum_cost(attempts: list) -> Optional[float]:
 
 def _decode(
     gc, raw_errors: list, *, pairs: list[SentencePair], type_ids, subtypes, taxonomy_cfg,
-    subtype_meta, severity_rule, l1_code, l2_code, gold_l2, reproduction,
+    subtype_meta, severity_rule, l1_code, l2_code, gold_l2, reproduction, high_only: bool = False,
 ) -> tuple[list[dict], list[dict], dict]:
     """Model entries -> (decoded errors, per-error trace rows, counts).
 
@@ -814,12 +821,14 @@ def _decode(
     located AND it names no usable sentence (``span_unlocatable``), or when the
     shared ``_decode_error`` validation rejects it (``decode_rejected``). An entry
     the model itself marked confidence = low is withheld (``low_confidence``;
-    ``Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE`` keeps it)."""
+    ``Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE`` keeps it). With ``high_only``
+    (a model outside VALIDATED_MODELS) an entry not marked high is withheld too
+    (``not_high_confidence``; the same config flag keeps it)."""
     errors: list[dict] = []
     per_error: list[dict] = []
     counts = {
         "dropped": {"invalid_entry": 0, "unknown_type": 0, "low_confidence": 0,
-                    "span_unlocatable": 0, "decode_rejected": 0},
+                    "not_high_confidence": 0, "span_unlocatable": 0, "decode_rejected": 0},
         "duplicates": 0,
         "over_cap": 0,
         "withheld": [],
@@ -859,16 +868,25 @@ def _decode(
         if confidence is None:
             confidence, confidence_label = DEFAULT_CONFIDENCE, None
             counts["defaulted"]["confidence"] += 1
-        if confidence_label == WITHHELD_CONFIDENCE and not Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE:
-            # The model's own "this could well be acceptable". On gold every such
-            # entry was a false alarm on a correct sentence, so it is neither shown
-            # nor scored - but it is counted and kept in the trace for review.
-            dropped["low_confidence"] += 1
-            counts["withheld"].append({
+        withhold = None
+        if confidence_label == WITHHELD_CONFIDENCE:
+            withhold = "low_confidence"
+        elif high_only and confidence_label != UNVALIDATED_SHOWN_CONFIDENCE:
+            withhold = "not_high_confidence"
+        if withhold and not Config.DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE:
+            # The model's own "this could well be acceptable" (low; for an
+            # unvalidated model, anything short of high). On gold every low entry was
+            # a false alarm on a correct sentence, so it is neither shown nor scored -
+            # but it is counted and kept in the trace for review.
+            dropped[withhold] += 1
+            record = {
                 key: (value[:RAW_FIELD_CAP] if isinstance(value, str) else value)
                 for key, value in entry.items()
                 if key in ("sentence", "learner_quote", "reference_quote", "type", "severity")
-            })
+            }
+            if withhold == "not_high_confidence":
+                record["confidence"] = confidence_label
+            counts["withheld"].append(record)
             continue
         source = entry.get("source")
         if source not in sc_prompts.SOURCES:

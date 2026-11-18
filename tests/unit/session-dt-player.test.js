@@ -408,7 +408,7 @@ describe('session DT player: study language, all done, grading unavailable', () 
     expect(nextUrl(3, false)).toBe('/api/dual-translation/next?language_id=3');
   });
 
-  it('shows "grading unavailable" without a retry when the provider refused', async () => {
+  it('shows "grading unavailable" with a retry of the same text when no model graded it', async () => {
     submitResponses.push({
       status: 503,
       body: {
@@ -417,19 +417,34 @@ describe('session DT player: study language, all done, grading unavailable', () 
         error: 'Grading is temporarily unavailable.',
       },
     });
+    submitResponses.push({ status: 200, body: { status: 'success', overall_band: 3, scores: {} } });
     await mountAndType('猫がマットに座った。');
     const box = container.querySelector('[data-dt-submit-error]');
     expect(box.hidden).toBe(false);
-    expect(box.textContent).toContain('temporarily unavailable');
-    expect(box.textContent).toContain('not graded');
+    expect(box.textContent).toContain('wasn’t graded or saved');
+    expect(box.textContent).toContain('try again');
     expect(box.textContent).not.toContain('503');
-    expect(container.querySelector('[data-dt-submit]').hidden).toBe(true);
-    expect(container.querySelector('[data-dt-retry]')).toBeNull();
     expect(container.textContent).not.toContain('Grading didn’t finish');
     expect(container.querySelector('#dtInput').value).toBe('猫がマットに座った。');
     const skip = container.querySelector('[data-dt-skip]');
     expect(skip.hidden).toBe(false);
-    skip.click();
+    const retry = container.querySelector('[data-dt-submit]');
+    expect(retry.hidden).toBe(false);
+    expect(retry.disabled).toBe(false);
+    expect(retry.textContent).toBe('Try again');
+    retry.click();
+    await flush();
+    await flush();
+    expect(submitBodies).toHaveLength(2);
+    expect(submitBodies[1].reproduction).toBe('猫がマットに座った。');
+    expect(container.querySelector('[data-dt-continue]')).not.toBeNull();
+    expect(ctx.onSkip).not.toHaveBeenCalled();
+  });
+
+  it('skip is still offered when grading is unavailable', async () => {
+    submitResponses.push({ status: 503, body: { status: 'error', error_code: 'GRADING_UNAVAILABLE' } });
+    await mountAndType('猫がマットに座った。');
+    container.querySelector('[data-dt-skip]').click();
     expect(ctx.onSkip).toHaveBeenCalled();
     expect(ctx.onComplete).not.toHaveBeenCalled();
   });

@@ -737,8 +737,11 @@
       if (body && body.error_code === 'GRADING_UNAVAILABLE') return gradingUnavailable();
       return failSubmit(resp && resp.status);
     }
-    showUnavailable(false);
     const contract = await resp.json();
+    // No model produced a grade (no band): the server saved nothing, so keep the
+    // learner on the form with their text and let them submit it again.
+    if (!contract || contract.overall_band == null) return gradingUnavailable('incomplete');
+    showUnavailable(false);
     state.reproduction = reproduction;
     state.submitting = false;
     handleGrade(contract);
@@ -931,23 +934,30 @@
     }
   }
 
-  // The grading provider refused the call (quota / key limit): nothing was graded
-  // or saved and an immediate retry would fail the same way. Say so plainly and
-  // keep the learner's text; the submit button stays usable for later.
-  function gradingUnavailable() {
+  // No model could grade the translation: the provider refused or failed
+  // (GRADING_UNAVAILABLE) or the grade came back with no band ('incomplete').
+  // Nothing was graded or saved, so keep the learner's text and turn the submit
+  // button into "Try again": submitting the same text grades it afresh.
+  function gradingUnavailable(kind) {
     state.submitting = false;
     el.submit.disabled = false;
-    el.submit.textContent = tr('dual_translation.submit');
-    showUnavailable(true);
+    el.submit.textContent = label('session.dt_retry', 'Try again');
+    showUnavailable(true, kind);
   }
 
-  function showUnavailable(on) {
+  function showUnavailable(on, kind) {
     if (!el.unavailableNotice) return;
     if (on) {
-      el.unavailableNotice.textContent = label(
-        'dual_translation.grading_unavailable',
-        'Grading is temporarily unavailable. Your translation was not graded — please try again later.'
-      );
+      el.unavailableNotice.textContent =
+        kind === 'incomplete'
+          ? label(
+              'session.dt_grading_incomplete',
+              'Grading didn’t finish, so nothing was saved. Try again to get your grade.'
+            )
+          : label(
+              'dual_translation.grading_unavailable',
+              'Grading didn’t work this time, so your translation wasn’t graded or saved. Please try again.'
+            );
     }
     el.unavailableNotice.hidden = !on;
     // On a phone the notice sits below the textarea, out of view: bring it in.

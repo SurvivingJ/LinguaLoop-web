@@ -304,8 +304,12 @@ class Config:
     # pair, ADR-044), or restore them as the defaults here.
     DT_SINGLE_CALL_MODEL = os.environ.get('DT_SINGLE_CALL_MODEL', 'particle-ai/particle-1:free')
     # Tried once when the primary call fails. Blank disables the model fallback.
-    DT_SINGLE_CALL_FALLBACK_MODEL = os.environ.get(
-        'DT_SINGLE_CALL_FALLBACK_MODEL', 'nvidia/nemotron-3.5-super-vl:free')
+    # Default blank since 2026-11-18: the free stand-in nvidia/nemotron-3.5-super-vl:free
+    # flagged 46 of 152 correct rephrased sentences on the stress set and Baidu Ernie
+    # returned no answer on 38% of calls (wiki/evaluations/dt-free-models-2026-11-18.md).
+    # With no model fallback a failed primary call goes to the configured flow, and a
+    # refused or failed grade is not saved, so the learner can submit again.
+    DT_SINGLE_CALL_FALLBACK_MODEL = os.environ.get('DT_SINGLE_CALL_FALLBACK_MODEL', '')
     # Track E's "free translations are expected" prompt paragraph. Default OFF:
     # with prompt v1 it removed false flags on rephrased sentences but lowered
     # recall on near-verbatim answers (gpt-6-luna .88 -> .80). Not re-measured

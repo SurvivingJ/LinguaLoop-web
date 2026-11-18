@@ -479,9 +479,9 @@ export function mount(container, ctx) {
     return undefined;
   }
 
-  // The grading provider refused the call (quota / key limit). Nothing was
-  // graded or saved and an immediate retry would be refused again, so there is
-  // no "Try again" here: the learner can skip and come back later.
+  // No model could grade the translation (provider refused or failed). Nothing
+  // was graded or saved, so the same text can be submitted again: offer "Try
+  // again" (the learner's text stays in the box) next to "Skip for now".
   function showGradingUnavailable() {
     const box = $('[data-dt-submit-error]');
     const button = $('[data-dt-submit], [data-dt-retry]');
@@ -489,7 +489,7 @@ export function mount(container, ctx) {
     const message = T(
       'dual_translation.grading_unavailable',
       null,
-      'Grading is temporarily unavailable. Your translation was not graded — please try again later.'
+      'Grading didn’t work this time, so your translation wasn’t graded or saved. Please try again.'
     );
     if (box) {
       box.textContent = message;
@@ -498,7 +498,11 @@ export function mount(container, ctx) {
     } else if (typeof window.showToast === 'function') {
       window.showToast(message, 'error');
     }
-    if (button) button.hidden = true;
+    if (button) {
+      button.hidden = false;
+      button.disabled = false;
+      button.textContent = T('session.dt_retry', null, 'Try again');
+    }
     if (skip) {
       skip.hidden = false;
       skip.onclick = () => ctx.onSkip && ctx.onSkip();
