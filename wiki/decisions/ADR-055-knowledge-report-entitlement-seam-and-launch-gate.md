@@ -43,9 +43,10 @@ Two challenge-stage findings shape the rest:
 ## Consequences
 - Easier: the report ships and can be demoed before billing; one paywall payload for TASK-995;
   demand is measured by actions, not page views.
-- Harder: until the gate passes, Pro must be sold on its other differences; because the HSK load waits
-  for the size gate (DB ≤ 490,000,000 B or a confirmed MiB cap) and the licence answers, the gate
-  cannot pass while the database is at 513.5 MB.
+- Harder: until the gate passes, Pro must be sold on its other differences; the HSK list upload waits
+  for the edition and licence answers (OQ2, OQ3). Since 2026-11-18 the list is a versioned file in
+  Storage ([[decisions/ADR-054-exam-word-lists-in-storage]]), so the gate no longer depends on the
+  database size question (OQ13).
 - Constrained: enforcement is switched only by billing's rollout (TASK-997), never by this feature.
 
 ## Alternatives Considered

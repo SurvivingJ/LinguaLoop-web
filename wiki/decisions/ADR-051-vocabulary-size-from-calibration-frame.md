@@ -61,7 +61,8 @@ to survive scrutiny. Measured on 2026-11-17 ([[features/knowledge-report.tech]] 
   count in ≥ 93.7% of runs at 10, 20 and 30 answers per band, with no zero-width output and no
   dead-end state for beginners (ESTIMATE).
 - Harder: Chinese figures are "of the 3,623 words the check draws from" until the zh pool is refreshed
-  (≈ 5–7 MB, after the size gate — OQ29); a refresh changes the denominator, which the growth card
+  (≈ 5–7 MB of database rows, after the database size gate of OQ13 — OQ29; the exam lists no longer
+  share that gate, ADR-054); a refresh changes the denominator, which the growth card
   announces (ADR-053). English needs more answers because only rank-1 items count (or a selector
   change — TASK-1062).
 - Constrained: the claim is recognition of the pool's words in a four-option test; the skip rule makes

@@ -645,7 +645,7 @@ these, the reconciliation report (TASK-986) cannot compare credits with cost.
 **Status:** Superseded (2026-11-17) by [[tasklist/knowledge-report.tasks]] (TASK-1034 – TASK-1071)
 **Feature:** billing → knowledge-report
 **Type:** feature
-**Complexity:** — (see the new breakdown: 38 tasks, 3 XS, 11 S, 17 M, 6 L, 1 XL)
+**Complexity:** — (see the new breakdown: 38 tasks, 3 XS, 11 S, 16 M, 7 L, 1 XL; TASK-1049 became L on 2026-11-18)
 **Depends On:** —
 
 **Description:**
@@ -844,7 +844,7 @@ with a due date, and a results view. The same tables (`classes`, `assignments`,
 
 | # | Question | Why it matters | Default if unanswered |
 |---|---|---|---|
-| Q1 | Are the knowledge report (TASK-993) and user custom tests (TASK-994) in launch scope? | Without them, Pro differs from Core only by DT volume (25 vs 5 a day) and 300 credits that can only be spent on new-word imports and DT over the cap. Pro at A$14.99 may be hard to sell. | Build the knowledge report (L) before launch. Launch custom tests after, and say so on the pricing page. **2026-11-17:** the report is now specced ([[features/knowledge-report]], TASK-1034–1071). Its summary can be ready for launch; its Pro view cannot be enforced until the TASK-1059 gate passes, which waits on the database size limit and the HSK list decisions. Launch scope is still the founder's call. |
+| Q1 | Are the knowledge report (TASK-993) and user custom tests (TASK-994) in launch scope? | Without them, Pro differs from Core only by DT volume (25 vs 5 a day) and 300 credits that can only be spent on new-word imports and DT over the cap. Pro at A$14.99 may be hard to sell. | Build the knowledge report (L) before launch. Launch custom tests after, and say so on the pricing page. **2026-11-17:** the report is now specced ([[features/knowledge-report]], TASK-1034–1071). Its summary can be ready for launch; its Pro view cannot be enforced until the TASK-1059 gate passes, which waits on the HSK list decisions (edition and licences, OQ2/OQ3). Since 2026-11-18 the exam lists are files in Storage ([[decisions/ADR-054-exam-word-lists-in-storage]]), so the gate no longer waits on the database size limit. Launch scope is still the founder's call. |
 | Q2 | D4: which payment provider handles global consumers? | Decides whether TASK-985 exists and which webhook family is primary. | **ANSWERED: Stripe everywhere.** TASK-985 Won't Do. |
 | Q3 | Keep the trainer level cap for Free (TASK-991)? | The trainers aren't levelled products today, so this cap means little to users. | **ANSWERED: drop it.** TASK-991 Won't Do; remove `trainer_level_max` from the TASK-978 seed. |
 | Q4 | Refund over-cap DT credits on a *provisional* grade? | A provisional grade is shown but incomplete. | **ANSWERED: no refund on provisional;** refund on an error or no band. |

@@ -3,16 +3,17 @@ title: Knowledge Report ("My vocabulary") — Technical Specification
 type: feature-tech
 status: planned
 prose_page: ./knowledge-report.md
-last_updated: 2026-11-17
+last_updated: 2026-11-18
 dependencies:
   - "user_vocabulary_knowledge, user_flashcards, user_word_ladder, user_word_watchlist (read)"
   - "dim_word_senses, dim_vocabulary, dim_exercise_types, exercises (exercise_type only, by PK) (read)"
   - "calibration_sessions, calibration_responses, calibration_anchor_pool, calibration_anchor_blocklist (read; definition mode)"
   - "exercise_attempts, word_quiz_results, question_attempt_results, questions, tests (read)"
-  - "NEW tables: user_knowledge_snapshots, dim_word_lists, dim_word_list_items"
-  - "NEW RPCs: knowledge_frame_bands, knowledge_active_pairs, knowledge_snapshots_prune, knowledge_report_summary, knowledge_report_words, knowledge_report_word_detail, knowledge_report_list_words"
-  - "NEW code: routes/knowledge.py, services/vocabulary/knowledge_report.py, services/vocabulary/knowledge_estimate.py, services/knowledge_snapshots.py, utils/csv_export.py, templates/knowledge.html, static/js/pages/knowledge.js, static/css/pages/knowledge.css"
-  - "EXISTING: POST /api/word-list/submit, GET /api/practice/extra, get_recommended_tests, services/prestudy.share_plan, services/optional_rpc.py, services/request_cache.py, services/vocabulary/gloss_lookup.py, services/pinyin_format.py, web/scheduler.py"
+  - "NEW table: user_knowledge_snapshots"
+  - "NEW Storage bucket: reference-data (private; exam-list files word-lists/<list_code>/v<N>.json; ADR-054)"
+  - "NEW RPCs: knowledge_frame_bands, knowledge_active_pairs, knowledge_snapshots_prune, knowledge_report_summary, knowledge_report_words, knowledge_report_word_detail, knowledge_list_buckets, knowledge_report_list_words"
+  - "NEW code: routes/knowledge.py, services/vocabulary/knowledge_report.py, services/vocabulary/knowledge_estimate.py, services/vocabulary/word_lists.py, services/knowledge_snapshots.py, utils/csv_export.py, scripts/build_word_lists.py, templates/knowledge.html, static/js/pages/knowledge.js, static/css/pages/knowledge.css"
+  - "EXISTING: POST /api/word-list/submit, GET /api/practice/extra, get_recommended_tests, services/prestudy.share_plan, services/optional_rpc.py, services/request_cache.py, services/vocabulary/gloss_lookup.py, services/pinyin_format.py, web/scheduler.py, services/exercise_content/backends.py (SupabaseStorageBackend, InMemoryBackend)"
   - "billing TASK-980 get_entitlements / bkt_report_detail (a stub seam is used until it exists)"
 breaking_change_risk: medium
 ---
@@ -23,6 +24,18 @@ breaking_change_risk: medium
 > production (the only Supabase project; no staging). Every change is additive: no existing table,
 > column, index or function is altered by the core tasks. The live decay functions are **not used**
 > by this feature in v1 (see §2.5 and [[decisions/ADR-052-report-leads-with-measured-evidence]]).
+
+> **Revision 2026-11-18 — exam lists moved from tables to Storage
+> ([[decisions/ADR-054-exam-word-lists-in-storage]]).** The HSK/JLPT lists are no longer the tables
+> `dim_word_lists` / `dim_word_list_items`: they are immutable, versioned JSON files
+> (`word-lists/<list_code>/v<N>.json`) in a new private Storage bucket `reference-data`, built and
+> uploaded by `scripts/build_word_lists.py` with lemmas resolved to `vocab_id` at build time, and read
+> by `services/vocabulary/word_lists.py` (per-process cache, fail-soft). SQL functions take the list's
+> `vocab_id`s as arrays from Python (`knowledge_list_buckets`, `knowledge_report_list_words`, the
+> `vocab_ids` filter of `knowledge_report_words`). Database cost falls from ~1.8–2.0 MB to ~1.2 KB of
+> `storage.objects` rows, so the list upload and the Pro launch gate (TASK-1059) no longer wait for the
+> database size question (OQ13). Changed: §1, §2.8, §3.1, §4, §5.2, §5.3, §6.1–§6.3, §6.6, §8, §9,
+> §10 (i18n), §11 (5), §12, §13, §14, §15 (OQ3, OQ13).
 
 **Labels used on this page.** **MEASURED** = read from code (file:line) or the live database
 (read-only SQL, quoted in Appendix B or in the research reports named). **ESTIMATE** = arithmetic or
@@ -74,11 +87,14 @@ routes/knowledge.py  (knowledge_bp, url_prefix /api/knowledge)
   │                                ├─ optional_rpc.call_bundle('knowledge_report_summary', …)   one round trip
   │                                ├─ knowledge_frame_bands() (process TTL cache, 3,600 s)
   │                                ├─ knowledge_estimate.* (pure Python: range, label, groups, skills, growth)
+  │                                ├─ zh/ja: word_lists.WordListStore (Storage bucket reference-data,
+  │                                │    per-process cache, fail-soft) → arrays → knowledge_list_buckets
   │                                └─ report_detail_level() (entitlement seam, ADR-055)
   ├─ GET /prestudy-suggestion ─► get_recommended_tests + prestudy.plan_for_tests (top reading/listening test)
-  ├─ GET /words ─────(Pro)─────► knowledge_report_words  (keyset, filters, sort, gloss on page rows)
+  ├─ GET /words ─────(Pro)─────► knowledge_report_words  (keyset, filters, sort, gloss on page rows;
+  │                                a list filter arrives as vocab_ids from WordListStore)
   ├─ GET /words/<vocab_id>/<sense_rank> ─(Pro)─► knowledge_report_word_detail
-  ├─ GET /lists/<list_code>/words ─(Pro)─► knowledge_report_list_words
+  ├─ GET /lists/<list_code>/words ─(Pro)─► WordListStore → knowledge_report_list_words (arrays)
   └─ GET /export ────(Pro)─────► words or list-words RPC in 1,000-row chunks → utils/csv_export
                                   (format=csv | anki)
 Page actions that reuse existing endpoints (ADR-056):
@@ -89,6 +105,9 @@ Page actions that reuse existing endpoints (ADR-056):
 APScheduler 04:25 UTC (web/scheduler.py) → services/knowledge_snapshots.run_nightly()
   knowledge_active_pairs → per pair: knowledge_report_summary + knowledge_estimate → upsert
   user_knowledge_snapshots (idempotent on PK) → knowledge_snapshots_prune(120)
+
+Owner, offline (ADR-054): scripts/build_word_lists.py — pinned source + read-only dim_vocabulary →
+  word-lists/<list_code>/v<N>.json (dry run locally; --upload = new immutable version in Storage)
 ```
 
 **DECISION:** per-row data work runs in SQL (no 1,000-row cap, one round trip, one copy of every
@@ -313,8 +332,9 @@ answers, 1,002 words).
 ### 2.8 Exam-list coverage (measured buckets only; ADR-054)
 
 Lists: `hsk30_2025` (zh; levels `1`,`2`,`3`,`4`,`5`,`6`,`7-9`) and `jlpt_waller` (ja; `N5`…`N1`,
-unofficial). One item per distinct headword per list, at its lowest level (§8). For item i with
-`vocab_id` v (may be NULL):
+unofficial). One item per distinct headword per list, at its lowest level (§8). Items are the
+`entries` of the list's **latest file in Storage** (§5.2); each item's `vocab_id` was resolved when the
+file was built (§8), not at request time. For item i with `vocab_id` v (may be NULL):
 
 | Bucket code | en label | Rule |
 |---|---|---|
@@ -325,12 +345,33 @@ unofficial). One item per distinct headword per list, at its lowest level (§8).
 
 Per level the summary shows the four counts and `in_dictionary = items − not_in_dictionary`. The
 "cumulative" toggle sums counts over levels ≤ the chosen one (counts add; no variance is involved).
+
+**Where each count is computed (revised 2026-11-18).** Python, from the file: `items` (entries per
+`level_idx`), `not_in_dictionary` (entries with `vocab_id = null`) and `in_dictionary`. SQL,
+`knowledge_list_buckets` (§6.1): `rated_known`, `seen_not_rated`, `no_evidence` and
+`other_meaning_only`, from two parallel arrays Python passes — `p_vocab_ids` and `p_level_idx`, one
+element per in-dictionary entry (an id shared by two entries is passed twice and counted twice, like
+the entries). Exact rules, with `m` = the learner's rank-1 meaning of v aggregated as §2.2 and
+`rated_known(m)` = the §2.4 expression `wc > ww AND p_last ≥ 0.75 AND NOT marked_unknown` (the same
+text as `knowledge_report_summary`'s `f.rated_known`):
+
+```
+rated_known        = #{elements e : m(e.vocab_id) exists AND rated_known(m)}
+seen_not_rated     = #{elements e : m(e.vocab_id) exists AND NOT rated_known(m)}
+no_evidence        = #{elements e : m(e.vocab_id) does not exist}
+other_meaning_only = #{elements e in no_evidence : the learner has a row on a meaning of e.vocab_id with sense_rank ≥ 2}
+```
+
+Invariant per level: `rated_known + seen_not_rated + no_evidence = in_dictionary`. A lemma added to the
+dictionary after the file's `built_at` stays in `not_in_dictionary` until the list is rebuilt (§8); the
+card says "List matched to the dictionary on {built_at date}". If the file cannot be read, no counts
+are shown and the card says "Word lists are unavailable right now" (E4c, §4).
 **No estimated percentage in v1** (S8): the formula for a later estimate is fixed in §2.8a and
 gated by TASK-1071. **JLPT card:** the not-in-LinguaDojo share is printed first ("{x} of {items} N5
 words are not yet in LinguaDojo"), with the import action of §2.13 (P10).
 
 **Next level** (P13): for the language's active list, the lowest level whose `rated_known /
-in_dictionary < 0.80`; omitted when no list is loaded or every level passes.
+in_dictionary < 0.80`; omitted when no list file is available (E4, E4c) or every level passes.
 
 May claim: coverage of the list's words as defined. May not claim: exam readiness or pass chance,
 anything about `not_in_dictionary` words, or that a community JLPT list is official.
@@ -475,10 +516,11 @@ Cards in order:
    your answers · Tracked: {t} words"; the disagreement line when it applies; "How this works" sheet.
 2. **By word frequency** — four groups (§2.7): name, frame size, share range or "not enough", and
    measured tracked / rated-known counts.
-3. **Exam word lists** (zh and ja, when loaded) — edition and attribution; per level a 4-segment bar
+3. **Exam word lists** (zh and ja, when a list file is uploaded) — edition and attribution; "List
+   matched to the dictionary on {date}" (the file's `built_at`); per level a 4-segment bar
    (rated known / seen not rated / no evidence / not in LinguaDojo) with counts; cumulative toggle;
    footnote "Knowing a level's words is not the same as passing its exam."; JLPT not-in-LinguaDojo
-   line first (§2.8).
+   line first (§2.8). When Storage cannot be read: "Word lists are unavailable right now" (E4c).
 4. **My word list** (only with active watchlist items) — 3-segment bar.
 5. **Last 30 / 90 days** — `.ld-seg` toggle; words practised, direct checks, words met in texts,
    rated-known change (with its check count) or "First trend on {date}", estimate comparison when
@@ -553,8 +595,9 @@ level 1 (`wiki/business/pricing-plan.tech.md:128`).
 | **E1b too uncertain** | §2.6 row 8 | "Your answers so far don't pin the number down yet. About {k} more answers at each level would." + check button. |
 | **E2 few tracked words** | tracked words < 50 | Note in card 1: "Most of what we know comes from {t} words." |
 | **E3 stale** | no `last_seen_at` in 30 days and tracked > 0 | "Last practice {d} days ago." Next-step rule 3 promoted to first. No "fading"/"due" copy. |
-| **E4 no list for language** | en, or list data not loaded | Exam card hidden. |
+| **E4 no list for language** | en, or no list file uploaded yet for the language's list code (§8) | Exam card hidden. |
 | **E4b level without matches** | `in_dictionary = 0` | "None of this level's words are in LinguaDojo yet ({items} words)." |
+| **E4c lists unavailable** | summary `lists_unavailable = true` (Storage unreadable and nothing cached, or `knowledge_list_buckets` failed — §8) | Exam card shows only "Word lists are unavailable right now."; the Lists tab shows the same line; every other card renders normally (HTTP 200, never E8/E9). |
 | **E5 filter empty** (Pro) | `matching = 0` | "No words match." + "Clear filters". |
 | **E6 no imported list** | 0 active watchlist items | Summary hides card 4; Lists tab shows "Add a word list (textbook, class, exam) to see your coverage" → `/word-list`. |
 | **E7 no history** | no snapshot ≥ 14 days old | Growth shows history-free figures and "First trend on {date}". |
@@ -625,62 +668,120 @@ days, then Mondays) ≈ 155 rows (≈ 46 KB) in year one and ≈ 52 rows (≈ 16
 pairs: ≈ 0.23 MB in year one (≤ 0.55 MB unpruned); 50 pairs ≈ 2.3 MB; 1,000 pairs ≈ 46 MB in year one
 (a paid-plan scale).
 
-### 5.2 Exam-list reference tables (same file; created empty, loaded by TASK-1053)
+### 5.2 Exam-list files in Storage (bucket file `migrations/reference_data_bucket.sql`; files uploaded by TASK-1053)
+
+No list table is created ([[decisions/ADR-054-exam-word-lists-in-storage]], revised 2026-11-18). The
+lists are JSON files in a new private bucket, created by a separate small migration in TASK-1034
+(pattern: the `exercise-content` bucket, `migrations/exercise_content_storage.sql:376-378`):
 
 ```sql
-CREATE TABLE public.dim_word_lists (
-  id            smallint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  list_code     text     NOT NULL UNIQUE CHECK (list_code ~ '^[a-z0-9_]{3,40}$'),
-  language_id   smallint NOT NULL REFERENCES public.dim_languages(id),
-  title         text     NOT NULL,          -- 'HSK 3.0 (2025 syllabus)'
-  edition       text     NOT NULL,          -- '2025-11 CLEC syllabus'
-  is_official   boolean  NOT NULL,          -- false for community JLPT lists
-  level_codes   text[]   NOT NULL,          -- display order: {1,2,3,4,5,6,7-9} | {N5,N4,N3,N2,N1}
-  source_url    text     NOT NULL,
-  source_sha256 text     NOT NULL,
-  licence       text     NOT NULL,
-  attribution   text     NOT NULL,          -- shown verbatim in the UI and in list exports
-  allow_export  boolean  NOT NULL DEFAULT false,   -- list-subset export permitted (OQ3)
-  item_count    integer  NOT NULL,
-  is_active     boolean  NOT NULL DEFAULT true,
-  loaded_at     timestamptz NOT NULL DEFAULT now()
-);
-CREATE TABLE public.dim_word_list_items (
-  list_id       smallint NOT NULL REFERENCES public.dim_word_lists(id) ON DELETE CASCADE,
-  item_no       integer  NOT NULL,          -- stable order within the list (source line order)
-  level_idx     smallint NOT NULL,          -- 1-based index into dim_word_lists.level_codes (lowest level)
-  headword      text     NOT NULL,
-  reading       text,                       -- kana for JLPT; NULL for HSK
-  vocab_id      integer  REFERENCES public.dim_vocabulary(id) ON DELETE SET NULL,
-  match_method  smallint CHECK (match_method BETWEEN 1 AND 6),
-     -- 1 lemma exact, 2 kana-only = lemma, 3 kana-only = reading, 4 reading + shared kanji,
-     -- 5 kanji word whose kana form is a lemma, 6 erhua (儿) stripped
-  PRIMARY KEY (list_id, item_no)
-);
-CREATE INDEX idx_word_list_items_vocab ON public.dim_word_list_items (vocab_id) WHERE vocab_id IS NOT NULL;
-ALTER TABLE public.dim_word_lists ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.dim_word_list_items ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.dim_word_lists, public.dim_word_list_items FROM PUBLIC, anon, authenticated;
+-- migrations/reference_data_bucket.sql  (owner applies)
+BEGIN;
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('reference-data', 'reference-data', false, 5242880, ARRAY['application/json'])   -- 5 MiB per file
+ON CONFLICT (id) DO NOTHING;
+COMMIT;
+-- No storage.objects policy for this bucket: only the service role (which bypasses RLS) reads or writes it.
+
+-- migrations/reference_data_bucket_rollback.sql
+BEGIN;
+DO $guard$
+BEGIN
+  IF EXISTS (SELECT 1 FROM storage.objects WHERE bucket_id = 'reference-data') THEN
+    RAISE EXCEPTION 'reference_data_bucket rollback: delete the bucket''s files first (Storage dashboard or API)';
+  END IF;
+END
+$guard$;
+DELETE FROM storage.buckets WHERE id = 'reference-data';
+COMMIT;
 ```
 
-Size: empty ≈ 50–100 KB; loaded with HSK 2025 (≤ 10,896 items) + JLPT (≤ 8,293) ≈ **1.8–2.0 MB**
-(ESTIMATE, level-lists §6.2, from a measured 52 B tuple).
+If the project refuses a direct `DELETE` on `storage.buckets` (unverified here), the owner removes the
+empty bucket in the Storage dashboard instead. ADR-049's rollback goes further and never deletes its
+bucket, pointing to the dashboard (`migrations/exercise_content_storage_rollback.sql:18-20`).
+
+**Paths and versions.** One folder per list: `word-lists/<list_code>/v<N>.json`, `N` = 1, 2, 3, …
+Files are immutable (`SupabaseStorageBackend.put` sends `x-upsert: false` and raises `AlreadyExists`,
+`services/exercise_content/backends.py:485-496`); a change is a new version. There is no manifest:
+the reader lists `word-lists/<list_code>/` and takes the highest `N` **as a number** (`list()` returns
+paths sorted as text, `backends.py:548`, so `v10` sorts before `v9`). Only names matching `^v([1-9][0-9]*)\.json$` count.
+
+**File schema, version 1** (UTF-8, compact JSON: `separators=(',', ':')`, `ensure_ascii=False`):
+
+```json
+{"schema": 1,
+ "list_code": "hsk30_2025",
+ "name": "HSK 3.0 (2025 syllabus)",
+ "edition": "2025-11 CLEC syllabus",
+ "is_official": true,
+ "language_id": 1,
+ "level_codes": ["1", "2", "3", "4", "5", "6", "7-9"],
+ "source_url": "https://github.com/krmanik/HSK-3.0/…/<commit>/…",
+ "source_sha256": "<64 hex>",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "<shown verbatim in the UI and in list exports>",
+ "allow_export": false,
+ "built_at": "2026-…T…Z",
+ "built_from": {"dictionary_max_vocab_id": 0, "dictionary_lemma_count": 0},
+ "entries": [[1, "爱", null, 1234, 1], [7, "…", null, null, null]]}
+```
+
+| Field | Type | Rule |
+|---|---|---|
+| `schema` | integer | `1`. A reader rejects any other value (§8). |
+| `list_code` | text | `^[a-z0-9_]{3,40}$`; equals the folder name. |
+| `name`, `edition` | text | Shown in the UI. |
+| `is_official` | boolean | `false` for community JLPT lists (drives the "unofficial" label). Added to the 2026-11-18 brief's field list because the UI needs it. |
+| `language_id` | smallint | 1 (zh) or 3 (ja); must equal the language the list code is registered for (§8 `LIST_CODES_BY_LANGUAGE`). |
+| `level_codes` | text[] | Display order; `{1,2,3,4,5,6,7-9}` or `{N5,N4,N3,N2,N1}`. |
+| `source_url`, `source_sha256` | text | Provenance of the source file (pinned URL with commit; sha256 of the file read). `source_sha256` added for the same reason as `is_official`. |
+| `licence`, `attribution` | text | Attribution is rendered from here in the UI and in list exports. |
+| `allow_export` | boolean | List-subset export permitted (OQ3). Changing it means a new version. |
+| `built_at` | text (ISO-8601 UTC) | When the builder matched the list to the dictionary; shown as "List matched to the dictionary on {date}". |
+| `built_from` | object | `dictionary_max_vocab_id` = `max(id)` and `dictionary_lemma_count` = `count(*)` of the `dim_vocabulary` rows read for `language_id`. |
+| `entries[i]` | `[level_idx, form, reading, vocab_id, match_kind]` | `level_idx` smallint, 1-based index into `level_codes` (the headword's lowest level); `form` = headword; `reading` = kana for JLPT, `null` for HSK; `vocab_id` = integer or `null` (= "not yet in LinguaDojo"); `match_kind` = 1–6 (§8 methods: 1 lemma exact, 2 kana-only = lemma, 3 kana-only = reading, 4 reading + shared kanji, 5 kanji word whose kana form is a lemma, 6 erhua stripped), `null` exactly when `vocab_id` is `null`. |
+
+`item_no` = i + 1 (the entry's 1-based position in `entries`, source line order); stable within one
+file version only.
+
+**Size** (ESTIMATE, 2026-11-18): entries parsed from the krmanik `New HSK (2025)` `.txt` files and the
+jamsinclair `n5…n1.csv` files with a simplified version of the §8 normalisation, `vocab_id`s replaced by
+random 5-digit integers at the measured per-level match rates (F12), and the header above filled with
+realistic text:
+
+| List | Entries | Matched (ESTIMATE) | Raw JSON | Per entry | gzip -9 | Parsed in Python (per process) |
+|---|---|---|---|---|---|---|
+| `hsk30_2025` | 10,902 (research: 10,896) | ~6.6k | ≈ 292 KB | ≈ 27 B | ≈ 80 KB (27%) | ≈ 2.3 MB |
+| `jlpt_waller` | 7,997 (research: ≤ 8,293) | ~2.3k | ≈ 300 KB | ≈ 37 B | ≈ 82 KB (27%) | ≈ 2.1 MB |
+
+The header is ≈ 0.7 KB. Every file is ~17× under the 5 MiB bucket limit. Files are stored as plain
+`application/json` (not pre-compressed), as in ADR-049. The parsed size was measured with
+`tracemalloc` on the synthetic files (so it is itself an ESTIMATE for the real files).
+
+**Database cost:** one `storage.buckets` row (< 1 KB, ESTIMATE) and one `storage.objects` row per file
+version (595 B average, MEASURED in [[decisions/ADR-049-exercise-content-in-storage]]): two files ≈
+**1.2 KB**; each later version ≈ +0.6 KB. File bytes (~0.6 MB for both lists, plus ~0.3 MB per later
+version of one list) count against the Free plan's 1 GB of file storage, **not** the 500 MB database
+cap. Egress (ESTIMATE): one ~0.3 MB `get` per list per app process when it starts or sees a new
+version, plus one `list` request per list per process every 6 h.
 
 ### 5.3 Byte budget
 
 | Object | At creation | Year one | Gate |
 |---|---|---|---|
-| 7 functions (catalog) | ~20–40 KB (ESTIMATE) | same | owner applies |
+| 8 functions (catalog) | ~20–45 KB (ESTIMATE) | same | owner applies |
 | `user_knowledge_snapshots` | ~24 KB empty | +0.23–0.55 MB at today's 5 pairs | owner applies |
-| list tables, empty | ~50–100 KB | — | owner applies |
-| list data | — | +1.8–2.0 MB | **only when `pg_database_size` ≤ 490,000,000 B** (after the ADR-049 content drop) **or** the owner confirms a 500 MiB cap (OQ13) |
+| `reference-data` bucket row | < 1 KB (ESTIMATE) | same | owner applies (TASK-1034) |
+| list file metadata (`storage.objects`) | — | ~1.2 KB for two files, +~0.6 KB per later version | owner uploads (TASK-1053); waits for OQ2 and OQ3 only — **no database size gate** |
+| list file bytes | — | ~0.6 MB of Storage (outside the database cap) | — |
 | exports | 0 B (generated per request, never stored) | 0 B | — |
 | new indexes on existing tables | **none** (performance §6) | 0 B | — |
-| **total** | **≤ ~0.2 MB** | **≤ ~2.8 MB** | |
+| **total (database)** | **≤ ~0.2 MB** | **≤ ~0.8 MB** | |
 
 Indirect growth outside this budget (INFERENCE): "Add these words to my word list" makes the
 existing import path generate ladder exercises for in-dictionary senses that have none (F18; about
-19 KB per sense in `exercises` before ADR-049's content move — level-lists §6.3). Counted under OQ30.
+19 KB per sense in `exercises` before ADR-049's content move — level-lists §6.3). Counted under OQ30,
+which still waits for the database size gate (OQ13).
 
 ### 5.4 Tables read (writes only to the snapshot table)
 
@@ -698,7 +799,8 @@ existing import path generate ladder exercises for in-dictionary senses that hav
 
 ## 6. API / RPC Surface
 
-All SQL functions: `LANGUAGE sql`, `STABLE` (prune: `plpgsql VOLATILE`), `SECURITY INVOKER`,
+All SQL functions: `LANGUAGE sql`, `STABLE` (prune: `plpgsql VOLATILE`; the two list functions:
+`plpgsql STABLE`, for their array-length check), `SECURITY INVOKER`,
 `SET search_path = public, pg_temp`, `REVOKE ALL … FROM PUBLIC, anon, authenticated`, `GRANT EXECUTE
 … TO service_role`. Flask calls them with the service role after verifying the JWT and always passes
 `p_user_id = g.current_user_id` (never a request value). Each returns one `jsonb` value (F14). See
@@ -706,10 +808,13 @@ All SQL functions: `LANGUAGE sql`, `STABLE` (prune: `plpgsql VOLATILE`), `SECURI
 
 ### 6.1 SQL functions
 
-Files: `migrations/knowledge_report_foundation.sql` (§5.1, §5.2, `knowledge_frame_bands`,
-`knowledge_active_pairs`, `knowledge_snapshots_prune`), `knowledge_report_summary.sql`,
-`knowledge_report_words.sql`, `knowledge_report_word_detail.sql`, `knowledge_report_list_words.sql`;
-each with `_rollback.sql`.
+Files: `migrations/knowledge_report_foundation.sql` (§5.1, `knowledge_frame_bands`,
+`knowledge_active_pairs`, `knowledge_snapshots_prune`), `reference_data_bucket.sql` (§5.2; the bucket,
+no function), `knowledge_report_summary.sql`, `knowledge_report_words.sql`,
+`knowledge_report_word_detail.sql`, `knowledge_report_list_words.sql` (`knowledge_list_buckets` and
+`knowledge_report_list_words`); each with `_rollback.sql`. No function reads a list table: exam-list
+items reach SQL only as `integer[]` / `smallint[]` arguments built by Python from the list file
+(ADR-054).
 
 #### `knowledge_frame_bands(): jsonb`
 - **Purpose:** frame sizes N_b for every (L, D) (§2.1).
@@ -732,7 +837,9 @@ each with `_rollback.sql`.
 
 #### `knowledge_report_summary(p_user_id uuid, p_language_id smallint, p_as_of timestamptz DEFAULT now(), p_window_days integer DEFAULT 180, p_cal_since timestamptz[] DEFAULT '{}'): jsonb`
 - **Purpose:** every aggregate the summary page and the snapshot job need, in one statement (no
-  MATERIALIZED CTE, no GROUPING SETS over all rows — performance §5).
+  MATERIALIZED CTE, no GROUPING SETS over all rows — performance §5), **except exam-list buckets**,
+  which `knowledge_list_buckets` counts from arrays (revised 2026-11-18; the snapshot job needs no list
+  data).
 - **SQL shape:**
   ```sql
   WITH r AS (SELECT k.sense_id, k.p_known, k.status, k.evidence_count, k.comprehension_correct cc,
@@ -768,7 +875,7 @@ each with `_rollback.sql`.
            WHERE cs.user_id = p_user_id AND cs.word_language_id = p_language_id AND cs.mode = 'definition'
              AND cr.answered_at IS NOT NULL AND cr.answered_at <= p_as_of)
   -- + dstar (§2.6 step 2), win / alltime / since[i] (DISTINCT ON (v) … ORDER BY v, answered_at DESC),
-  --   fam (§2.11 sufficient statistics), wl (§2.9), lists (§2.8)
+  --   fam (§2.11 sufficient statistics), wl (§2.9); no exam-list CTE (knowledge_list_buckets)
   SELECT jsonb_build_object(...);
   ```
 - **Returns** (de6fd05b/ja values MEASURED where shown — Appendix B K2–K5; `"…"` = not measured):
@@ -789,13 +896,11 @@ each with `_rollback.sql`.
      "since":[],"rated_known_in_frame":"…"},
    "families":[{"family":"form_recognition","n":84,"y":79,"m":17,"syy":"…","syn":"…","snn":"…"},
                {"family":"semantic_discrimination","n":32,"y":17,"m":11,"syy":"…","syn":"…","snn":"…"}],
-   "watchlist":{"items":0,"rated_known":0,"seen_not_rated":0,"no_evidence":0},
-   "lists":[]}
+   "watchlist":{"items":0,"rated_known":0,"seen_not_rated":0,"no_evidence":0}}
   ```
   `bands` entries are `[n, s, c]` for bands 1…7; `since` has one `{"since":ts,"bands":[…],"first_answer_at",
-  "last_answer_at"}` per element of `p_cal_since`. `lists` items: `{list_code, title, edition,
-  is_official, attribution, level_codes, levels:[{level, items, in_dictionary, rated_known,
-  seen_not_rated, no_evidence, other_meaning_only, not_in_dictionary}]}`.
+  "last_answer_at"}` per element of `p_cal_since`. There is no `lists` key (the summary service adds
+  `lists` from the list files and `knowledge_list_buckets` — §6.3).
 - **Errors:** none raised; no data → zero counts and empty arrays (Flask turns that into E0).
   **Auth:** service_role. **Side effects:** none.
 
@@ -804,7 +909,9 @@ each with `_rollback.sql`.
 - **`p_filters` keys** (all optional; validated by Flask, read defensively with casts): `states
   text[]` (§2.4 codes), `checked_several bool`, `missed_recent bool`, `idle_days int`
   (30|60|90|180: `last_seen_at <= p_as_of − idle_days`), `bands int[]` (0–7), `in_word_list bool`,
-  `list_code text` + `level text` (lemma is an item of that level; rank 1), `q text` (already
+  `vocab_ids int[]` (the lemma is in the array and the meaning is rank 1; Flask builds it from the
+  list file for the `list` + `level` request parameters — that level's in-dictionary `vocab_id`s, ≤
+  ~11k elements; revised 2026-11-18, replaces `list_code` + `level`), `q text` (already
   LIKE-escaped). Search: `v.lemma LIKE q||'%' ESCAPE '\'` OR `v.lemma_traditional LIKE …` OR `v.reading
   LIKE …` OR (zh and q ASCII) toneless key LIKE key(q)||'%', key(x) =
   `regexp_replace(lower(translate(split_part(x,' (',1), 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü',
@@ -846,15 +953,66 @@ each with `_rollback.sql`.
   events; `other_updates = greatest(0, Σ evidence_count − itemised)`, shown as "about {k}".
 - **Errors:** none raised. **Auth:** service_role. **Side effects:** none.
 
-#### `knowledge_report_list_words(p_user_id uuid, p_language_id smallint, p_list_code text, p_level text, p_bucket text, p_definition_language_id smallint, p_cumulative boolean DEFAULT false, p_cursor jsonb DEFAULT NULL, p_limit integer DEFAULT 50): jsonb`
-- **Purpose:** the words of one list level and bucket. `p_list_code = 'my_word_list'` is the virtual
-  list of §2.9 (level `all`).
-- **Returns:** `null` if the list is unknown or inactive; else `{"rows":[{item_no, headword, reading,
-  level, bucket, vocab_id, sense_rank, lemma, gloss, zipf, band, state, last_seen_at}], "next_cursor":
-  [k1, item_no]|null, "matching":int, "attribution":text, "allow_export":bool}` ordered by
-  `(-coalesce(zipf, -1), item_no)`.
-- **Errors:** none raised (Flask validates bucket ∈ `rated_known | seen_not_rated | no_evidence |
-  not_in_dictionary`). **Auth:** service_role. **Side effects:** none.
+#### `knowledge_list_buckets(p_user_id uuid, p_language_id smallint, p_vocab_ids integer[], p_level_idx smallint[]): jsonb`
+- **Purpose:** the SQL-side buckets of §2.8 for one exam list, per level (new 2026-11-18, ADR-054).
+- **Arguments:** `p_vocab_ids` / `p_level_idx` — parallel arrays, one element per **in-dictionary**
+  entry of the list file (entries with `vocab_id = null` are never passed; Python counts them as
+  `not_in_dictionary`); order irrelevant; duplicates counted per element. Built by `WordList.bucket_arrays()`
+  (§8). Size: ~6.6k elements for today's HSK matches, ≤ 10,896 if every entry matched; request body
+  ≈ 53 KB today and ≤ ~90 KB at full match (ESTIMATE: 5-digit ids, compact JSON). No request-size limit
+  for PostgREST RPC bodies is recorded in this wiki; TASK-1049 verifies a full-size call.
+- **SQL shape:**
+  ```sql
+  WITH it AS (SELECT t.vocab_id, t.level_idx FROM unnest(p_vocab_ids, p_level_idx) AS t(vocab_id, level_idx)),
+  r AS (SELECT s.vocab_id, s.sense_rank, k.sense_id, k.p_known, k.status, k.evidence_count,
+               k.word_test_correct wc, k.word_test_wrong ww, k.last_evidence_at
+          FROM user_vocabulary_knowledge k JOIN dim_word_senses s ON s.id = k.sense_id
+         WHERE k.user_id = p_user_id AND k.language_id = p_language_id),
+  m AS (SELECT vocab_id,
+               coalesce(sum(wc) > sum(ww)
+                        AND (array_agg(p_known ORDER BY last_evidence_at DESC, evidence_count DESC, sense_id))[1] >= 0.75
+                        AND NOT bool_or(status = 'user_marked_unknown'), false) rated_known   -- §2.4, same text as the summary
+          FROM r WHERE sense_rank = 1 GROUP BY vocab_id),
+  o AS (SELECT DISTINCT vocab_id FROM r WHERE sense_rank >= 2)
+  SELECT jsonb_build_object('levels', coalesce(jsonb_agg(jsonb_build_object(
+           'level_idx', level_idx, 'in_dictionary', n, 'rated_known', rk, 'seen_not_rated', snr,
+           'no_evidence', ne, 'other_meaning_only', omo) ORDER BY level_idx), '[]'::jsonb))
+  FROM (SELECT it.level_idx, count(*) n,
+               count(*) FILTER (WHERE m.rated_known) rk,
+               count(*) FILTER (WHERE NOT m.rated_known) snr,
+               count(*) FILTER (WHERE m.vocab_id IS NULL) ne,
+               count(*) FILTER (WHERE m.vocab_id IS NULL AND o.vocab_id IS NOT NULL) omo
+          FROM it LEFT JOIN m ON m.vocab_id = it.vocab_id LEFT JOIN o ON o.vocab_id = it.vocab_id
+         GROUP BY it.level_idx) x;
+  ```
+- **Returns:** `{"levels":[{"level_idx":1,"in_dictionary":…,"rated_known":…,"seen_not_rated":…,
+  "no_evidence":…,"other_meaning_only":…}, …]}`; levels with no in-dictionary entry are absent (Python
+  fills them with zeros). `in_dictionary` here equals Python's count of non-null entries for the level
+  (a mismatch is logged as `word_list_bucket_mismatch` and the list is shown as unavailable).
+- **Language:** `LANGUAGE plpgsql STABLE` (not `sql`): `IF array_length(p_vocab_ids, 1) IS DISTINCT
+  FROM array_length(p_level_idx, 1) THEN RAISE EXCEPTION 'list_arrays_mismatch'; END IF; RETURN (<the
+  query above>);` — `unnest(a, b)` would otherwise pad the shorter array with NULLs and miscount.
+- **Errors:** `list_arrays_mismatch` (unequal lengths); NULL or empty arrays → `{"levels":[]}`.
+  **Auth:** service_role. **Side effects:** none.
+
+#### `knowledge_report_list_words(p_user_id uuid, p_language_id smallint, p_vocab_ids integer[], p_item_nos integer[], p_bucket text, p_definition_language_id smallint, p_cursor jsonb DEFAULT NULL, p_limit integer DEFAULT 50): jsonb`
+- **Purpose:** the words of one list level (or of the levels ≤ it when cumulative) in one bucket, or
+  of the virtual `my_word_list` (§2.9). Revised 2026-11-18: the list's items arrive as arrays.
+- **Arguments:** `p_vocab_ids` / `p_item_nos` — parallel arrays built by Python from the latest list
+  file: the in-dictionary entries of the chosen level(s), `item_no` = the entry's 1-based position in
+  `entries` (§5.2). **Both NULL selects `my_word_list`** (items = active `user_word_watchlist` meanings
+  of (u, L), bucketed by the chosen meaning, no `not_in_dictionary`; keyset as before). `LANGUAGE
+  plpgsql STABLE` with the same length check as `knowledge_list_buckets` (unequal lengths, or exactly
+  one of the two NULL → `RAISE EXCEPTION 'list_arrays_mismatch'`). `p_bucket` ∈
+  `rated_known | seen_not_rated | no_evidence` (Flask validates; for exam lists the rules of §2.8 on the
+  rank-1 meaning). The `not_in_dictionary` bucket never reaches SQL: Python pages those entries straight
+  from the file, in `item_no` order, with the same cursor shape `[1, item_no]` (their `zipf` is NULL, so
+  `-coalesce(zipf, -1) = 1`).
+- **Returns:** `{"rows":[{item_no, vocab_id, sense_rank, lemma, gloss, zipf, band, state, last_seen_at}],
+  "next_cursor":[k1, item_no]|null, "matching":int}` ordered by `(-coalesce(zipf, -1), item_no)`; gloss
+  as `knowledge_report_words`. Python adds `headword`, `reading` and `level` from entry `item_no` and
+  `attribution`, `allow_export`, `built_at` from the file metadata before responding.
+- **Errors:** `list_arrays_mismatch` only. **Auth:** service_role. **Side effects:** none.
 
 ### 6.2 Flask routes (`routes/knowledge.py`, `knowledge_bp`, `url_prefix='/api/knowledge'`)
 
@@ -871,8 +1029,20 @@ private, no-store`.
 | `GET /prestudy-suggestion` | `knowledge.prestudy_suggestion` | all | `language_id` | `{status, suggestion:{test_id, slug, title, test_type, unknown, n, unknown_share}|null}` |
 | `GET /words` | `knowledge.words` | Pro | `language_id, sort, cursor, limit (1–100, default 50), states, checked_several, missed_recent, idle_days, bands, in_word_list, list, level, q` | `{status, rows, next_cursor, matching, as_of}` (`next_cursor` = base64url of the JSON array, ≤ 512 chars) |
 | `GET /words/<int:vocab_id>/<int:sense_rank>` | `knowledge.word_detail` | Pro | `language_id` | `{status, …detail}`; 404 when `null` |
-| `GET /lists/<list_code>/words` | `knowledge.list_words` | Pro | `language_id, level, bucket, cumulative, cursor, limit (1–100)` | `{status, rows, next_cursor, matching, attribution}`; 404 unknown list |
+| `GET /lists/<list_code>/words` | `knowledge.list_words` | Pro | `language_id, level, bucket, cumulative, cursor, limit (1–100)` | `{status, rows, next_cursor, matching, attribution, allow_export, built_at, lists_unavailable}`; 404 unknown list (code not registered for the language in `LIST_CODES_BY_LANGUAGE`, or no file uploaded yet); Storage unreadable → 200 with `lists_unavailable: true`, `rows: []` |
 | `GET /export` | `knowledge.export` | Pro | `language_id, format (csv|anki), scope (words|list), cursor` + the `/words` filters (scope words) or `list, level, bucket, cumulative` (scope list) | one chunk (§6.6) |
+
+**List parameters (revised 2026-11-18, ADR-054).** `/words` (`list` + `level`), `/lists/<list_code>/words`
+and `/export` resolve a list through `word_lists.default_store()` (§8) into arrays for the RPCs:
+`/words` passes the level's in-dictionary `vocab_id`s as `p_filters.vocab_ids`; `/lists/…/words`
+passes `p_vocab_ids` / `p_item_nos` for the chosen level (or levels ≤ it when `cumulative=1`), or
+pages `not_in_dictionary` from the file without an RPC, or passes NULL arrays for `my_word_list`. The
+list-words cursor is base64url of `[k1, item_no, version]` (`version` = the file version the page came
+from); a cursor whose `version` is no longer the latest → 400 `LIST_UPDATED` "This list was updated.
+Reload it." and the client restarts from the first page. When the store raises `WordListsUnavailable`,
+`/words` with a `list` filter and `/lists/…/words` answer **200** with `lists_unavailable: true`,
+`rows: []`, `next_cursor: null`, `matching: 0` (the page shows "Word lists are unavailable right
+now"); `/export` behaves as §6.6. No route returns a 5xx because Storage is down.
 
 `/prestudy-suggestion`: calls `get_recommended_tests(p_user_id, p_language_id, …)` (F20), takes the
 first row with `test_type ∈ ('reading','listening')`, and returns `services/prestudy.plan_for_tests`
@@ -884,7 +1054,9 @@ AUTO_THRESHOLD` (0.25, `services/prestudy.py:852`) and, when `services.billing.e
 Validation (400 `BAD_REQUEST` with a message): unknown `sort`, `format` or `scope`; `cursor` not
 decodable or wrong shape; `states` not ⊆ the four codes; `bands` not ⊆ 0–7; `idle_days` ∉ {30, 60,
 90, 180}; booleans not `0|1`; `q` after strip not 1–40 chars or with control characters; `level`
-without `list`; `bucket` not one of the four codes; `scope=list` without `list`. `q` is LIKE-escaped
+without `list`; `list` not registered for the language in `LIST_CODES_BY_LANGUAGE` (on `/export`
+`my_word_list` is also accepted) → "Unknown list"; `level` not one of the file's `level_codes`;
+`bucket` not one of the four codes; `scope=list` without `list`. `q` is LIKE-escaped
 (`\` → `\\`, `%` → `\%`, `_` → `\_`); no SQL is built by string formatting.
 
 ### 6.3 Summary response (`services/vocabulary/knowledge_report.summary()`)
@@ -900,7 +1072,7 @@ without `list`; `bucket` not one of the four codes; `scope=list` without `list`.
  "groups":[{"group":"most_common","universe":77,"answers":23,"share_lo":0.73,"share_hi":1.0,"shown":true,
             "tracked":"…","rated_known":"…"},
            {"group":"common","universe":820,"answers":50,"shown":false,"tracked":"…","rated_known":"…"}],
- "lists":[],"watchlist":null,
+ "lists":[],"lists_unavailable":false,"watchlist":null,
  "growth":{"d30":{"practised":41,"direct_checks":164,"met_in_texts":44,"rated_known_delta":null,
                   "anchor_date":null,"first_trend_on":"2026-12-…","estimate_change":null,"pool_changed":null},
            "d90":{"practised":83,"direct_checks":318,"met_in_texts":142,"…":"…"},"idle60":95},
@@ -916,6 +1088,15 @@ without `list`; `bucket` not one of the four codes; `scope=list` without `list`.
 `estimate.kind` ∈ `range | upper_only | none`; `estimate.reason` ∈ `null | too_few_answers |
 out_of_date | too_uncertain`. Numbers above are ESTIMATE for de6fd05b/ja (§2.6, §2.7, §2.11) or
 MEASURED (counts, Appendix B).
+
+`lists` (zh and ja; revised 2026-11-18): one item per list code registered for the language whose
+file exists — `{list_code, version, title (= the file's "name" field), edition, is_official,
+attribution, allow_export, built_at, level_codes, levels:[{level, items, in_dictionary, rated_known,
+seen_not_rated, no_evidence, other_meaning_only, not_in_dictionary}]}`; `items`, `in_dictionary` and
+`not_in_dictionary` come from the file, the other four from `knowledge_list_buckets` (§2.8).
+`lists_unavailable = true` (and `lists = []`) when the store raises `WordListsUnavailable` or
+`call_bundle('knowledge_list_buckets', …)` returns `None`; the response is still 200 and every other
+field is unaffected.
 
 ### 6.4 Entitlement seam, 402 and demand logging (ADR-055)
 
@@ -969,10 +1150,15 @@ which must not happen for `bkt_report_detail` until the Pro launch gate (TASK-10
   up to 1,000 rows. Headers: `Content-Disposition: attachment; filename="linguadojo-vocabulary-<lang>-<YYYY-MM-DD>.csv"`
   (or `….txt` for Anki; ASCII only), `X-Next-Cursor` (absent on the last chunk), `X-Row-Count`,
   `Cache-Control: private, no-store`. Entitlement is checked on every chunk.
-- **List scope licence rule:** allowed only when `dim_word_lists.allow_export` is true (OQ3: default
-  true for `jlpt_waller`, false for `hsk30_2025` until share-alike is accepted); otherwise 403
-  `FORBIDDEN` "This list can't be exported yet." List exports add columns `list_level` and
-  `list_source` (= `dim_word_lists.attribution`) on every row; `my_word_list` is always exportable.
+- **List scope licence rule:** allowed only when the list file's `allow_export` is true (file metadata,
+  §5.2; OQ3: default true for `jlpt_waller`, false for `hsk30_2025` until share-alike is accepted;
+  changing it means uploading a new file version); otherwise 403 `FORBIDDEN` "This list can't be
+  exported yet." List exports add columns `list_level` and `list_source` (= the file's `attribution`)
+  on every row; `my_word_list` is always exportable. Every chunk of one export is read from the file
+  version in its cursor (`LIST_UPDATED` as §6.2 if a newer version appears mid-export).
+- **Storage unavailable** (scope `list`, or scope `words` with a `list` filter, while the store raises
+  `WordListsUnavailable`): **200** with no rows, header `X-Lists-Unavailable: 1`, no `X-Next-Cursor`;
+  the client checks the header first, saves nothing and shows "Word lists are unavailable right now".
 - **CSV** (`format=csv`, `text/csv; charset=utf-8`): first chunk starts with the UTF-8 BOM and the
   header row; later chunks have neither; CRLF line ends. Columns (stable machine names, v1):
   `language, lemma, traditional, reading, meaning_rank, gloss, gloss_language, evidence_state,
@@ -1030,22 +1216,66 @@ which must not happen for `bkt_report_detail` until the Pro launch gate (TASK-10
   (2025)/HSK Words" (CC BY-SA 4.0); JLPT N5–N1 from **Jonathan Waller's lists via
   `jamsinclair/open-anki-jlpt-decks`** (repo MIT; data CC BY, confirmed only second-hand); stephenmk
   (CC BY-SA 4.0) offline only, to cross-check matches. English: none.
-- **Files:** committed under `data/word_lists/<list_code>/` with `SOURCE.md` (URL, commit, sha256,
-  licence, attribution). Untrusted downloads are parsed with `python3 -I` from a separate scripts dir.
-- **Loader** `scripts/load_word_lists.py` (offline, no DB writes): input = source files + a read-only
-  export of `dim_vocabulary (id, language_id, lemma, lemma_traditional, reading, frequency_rank)`;
-  output = `data/word_lists/<list_code>/upload.sql` (one transaction: upsert `dim_word_lists` by
-  `list_code`, delete that list's items, insert items in batches of 1,000) and `match_report.json`.
+- **Where they live (revised 2026-11-18):** one immutable JSON file per list version in the private
+  Storage bucket `reference-data` at `word-lists/<list_code>/v<N>.json` (schema, sizes and database cost
+  in §5.2). No list table exists. Which lists a language shows is code, not data:
+  `services/vocabulary/word_lists.py` `LIST_CODES_BY_LANGUAGE = {1: ('hsk30_2025',), 3: ('jlpt_waller',)}`
+  (DECISION: a list appears once its code is registered **and** a file exists; withdrawing a list is a
+  code change). This replaces the old `is_active` column.
+- **Sources and provenance:** pinned in `scripts/build_word_lists.py` as `SOURCES[list_code]` = URL with
+  commit, sha256, licence, attribution, name, edition, `is_official`, `level_codes` and `allow_export`
+  (OQ3). **No list data is committed to the repository** (ADR-054): downloaded sources and built files
+  live in the git-ignored `data/word_lists/<list_code>/`. The builder refuses a source whose sha256
+  differs from its pin. Untrusted downloads are parsed with `python3 -I` from a separate scripts dir.
+- **Builder** `scripts/build_word_lists.py --list <list_code> --source <path> [--upload]` (owner-run;
+  no database writes): reads `dim_vocabulary (id, language_id, lemma, lemma_traditional, reading,
+  frequency_rank)` for the list's language **read-only** with the service key, paged 1,000 rows at a
+  time (F14); resolves every headword to a `vocab_id` at build time with these rules (unchanged from
+  the 2026-11-17 loader; `match_kind` in the file = the method number):
   - zh: strip homograph digits (本1 → 本); expand optional parts `没（有）` → {没有, 没}; split `|`
     variants; drop `…`; one item per distinct headword at its lowest level; match `lemma` exactly
     (method 1); else strip a final 儿 and retry (method 6; +13 HSK 2025 matches, level-lists §3.4).
   - ja: T1 kanji = lemma (1); T2 kana-only = lemma (2); T3a kana-only = `reading` (3); T3b reading
     equal + ≥ 1 shared kanji (4); T3c kanji word whose kana form is a lemma (5); reading-only
     homophones are **not** matched.
-  - `--re-resolve` emits `UPDATE … SET vocab_id, match_method WHERE vocab_id IS NULL` for items that now
-    match; run after sense-seeding batches.
+  - Validation before anything is written: `word_lists.validate_word_list(doc, list_code)` (the
+    reader's own validator, so builder and reader share one schema check), every non-null `vocab_id`
+    exists among the rows read for `language_id`, file ≤ 5,242,880 B, `built_from` filled; the
+    per-level match table is printed and written to `data/word_lists/<list_code>/match_report.json`.
+  - **Default = dry run:** writes `data/word_lists/<list_code>/v<N>.json`, where `N` = the highest
+    version in Storage + 1 (a read-only `list`; 1 when the folder is empty). **`--upload`** then `put`s
+    exactly that content to `word-lists/<list_code>/v<N>.json` (never overwrites); `AlreadyExists` → exit
+    non-zero without retrying (a concurrent upload; rerun). If `entries` and every metadata field except
+    `built_at` equal the latest version's, nothing is uploaded and the script prints "unchanged".
+  - **Rebuild** whenever the dictionary gains lemmas of the list's language — after each sense-seeding
+    batch for zh or ja, and after OQ31's JLPT seeding. This replaces the old `--re-resolve` UPDATE
+    path; earlier versions stay in Storage untouched.
+- **Reader** `services/vocabulary/word_lists.py` (TASK-1049):
+  - `default_store()` → one per-process `WordListStore(SupabaseStorageBackend(Config.SUPABASE_URL,
+    Config.SUPABASE_SERVICE_ROLE_KEY, bucket='reference-data', http_timeout_s=2.0))`
+    (`services/exercise_content/backends.py:357`). Tests pass `InMemoryBackend` (`backends.py:100`).
+  - `WordListStore.latest(list_code) -> WordList | None`: `None` = no file uploaded (E4); raises
+    `WordListsUnavailable` when Storage fails and nothing is cached (E4c). `list_code` must be
+    registered in `LIST_CODES_BY_LANGUAGE` and match `^[a-z0-9_]{3,40}$` before any path is built.
+  - Cache: parsed lists keyed by `(list_code, version)`, plus per code the time of the last version
+    check. A request re-lists `word-lists/<list_code>/` only when that check is ≥ `RECHECK_S = 21600`
+    (6 h) old, and `get`s a file only when the highest listed version differs from the cached one
+    (normally a newer upload; a lower one after the owner deletes a bad version). After a failed check it serves the
+    cached version (log `word_lists_recheck_failed`) and does not retry for `RETRY_AFTER_FAILURE_S =
+    300`; with nothing cached, requests in that window raise `WordListsUnavailable` at once, so an
+    outage costs at most one 2 s timeout per list per process every 5 minutes. A deploy or restart reads
+    the latest version immediately.
+  - A file that fails `validate_word_list` (wrong `schema`, `list_code` ≠ folder, `language_id` not the
+    registered one, `level_idx` outside `1…len(level_codes)`, an entry not of length 5, `match_kind` set
+    without `vocab_id` or missing with one) is never served: log `word_list_invalid list=<code> v=<N>`,
+    keep the previous cached version, else raise `WordListsUnavailable`.
+  - `WordList` (frozen): the metadata fields of §5.2, `version`, `entries`, and per level the derived
+    `items`, `not_in_dictionary`, and in-dictionary `vocab_ids` / `item_nos` (file order);
+    `bucket_arrays() -> (vocab_ids, level_idx)` for `knowledge_list_buckets`;
+    `level_arrays(level, cumulative) -> (vocab_ids, item_nos)` for `knowledge_report_list_words` and
+    the `/words` filter. Memory ≈ 2.1–2.3 MB per list per process (ESTIMATE, §5.2).
 - **Sense mapping:** an item counts through its lemma's rank-1 meaning (OQ12).
-- **Missing words are not created** by the loader (~20 MB of senses, ~140 MB with ladder content —
+- **Missing words are not created** by the builder (~20 MB of senses, ~140 MB with ladder content —
   level-lists §6.3).
 - **Expected coverage (P10):** HSK 2025 L1–L5 87.6–92.1%, L6 75.4%, L7-9 37.9%. **Every JLPT level is
   majority "not yet in LinguaDojo"** with the stephenmk counts (N5 48.7% matched … N1 20.5%; jamsinclair
@@ -1054,8 +1284,8 @@ which must not happen for `bkt_report_detail` until the Pro launch gate (TASK-10
   JLPT coverage in Pro marketing**. Seeding the ~722 missing N5–N4 lemmas (≈ 3.4 MB of senses, ESTIMATE)
   is OQ31.
 - **UI wording:** "HSK 3.0 (2025 syllabus)"; "JLPT N3 — community list (unofficial; JLPT publishes no
-  official vocabulary list)"; attribution from `dim_word_lists.attribution` under the card; trademarks
-  used descriptively.
+  official vocabulary list)"; attribution from the file's `attribution` under the card; "List matched to
+  the dictionary on {date}" from the file's `built_at` (UTC date); trademarks used descriptively.
 
 ---
 
@@ -1065,7 +1295,9 @@ which must not happen for `bkt_report_detail` until the Pro launch gate (TASK-10
   per-worker cache would be stale right after practice). `request_cache.memo` within one GET for the
   entitlement level, the definition language (`gloss_lookup.get_user_definition_language_id`) and the
   snapshot read. `knowledge_frame_bands()` in a process-local TTL cache (3,600 s; global data; the pool
-  is DERIVED and refreshed by hand).
+  is DERIVED and refreshed by hand). Exam-list files in the per-process `WordListStore` cache (§8:
+  keyed by list code and version, version re-check at most every 6 h, 300 s back-off after a Storage
+  failure); they are global, immutable data, so this is not per-user caching.
 - **Client cache:** none for data. `localStorage` (try/catch) only for `kn.sort`, `kn.growthWindow`,
   `kn.wordTab`, `kn.listSel`.
 - **Budgets** (warm, healthy host; jitter makes 10× tails normal — F13):
@@ -1075,8 +1307,10 @@ which must not happen for `bkt_report_detail` until the Pro launch gate (TASK-10
 | `knowledge_report_summary` | ≤ 100 ms | ≤ 600 ms | MEASURED 21–36 ms core aggregate today and 55.5 ms at 26k rows without decay (F13); + meaning grouping, logs, calibration, families, lists (ESTIMATE +100–400 ms) |
 | `knowledge_frame_bands` | ≤ 300 ms (cached) | same | ESTIMATE: one pass over 27,356 pool rows (10.1 MB) with PK lookups |
 | `knowledge_report_words` (50 rows) | ≤ 80 ms | ≤ 600 ms | MEASURED 39.7 ms today and 240 ms at 26k *with* decay (performance §5); v1 sorts need no decay |
+| `knowledge_list_buckets` (≤ 10,896 ids) | ≤ 50 ms | ≤ 300 ms | ESTIMATE: one pass over the learner's UVK rows (as the summary's `r`) and a hash join to the unnested array; not measured — TASK-1049 records it |
+| word-list file, cold (per list, per process) | `list` + one `get` of ~0.3 MB | same | not measured (TASK-1053 records the first cold read); each request is bounded by `http_timeout_s = 2.0`; warm requests make no Storage call |
 | export chunk (1,000) | ≤ 400 ms | ≤ 1.5 s | MEASURED 331 ms cold for 575 rows by `sense_id` |
-| `/summary` end-to-end p95 | ≤ 1.5 s | ≤ 3 s | + 2–3 PostgREST round trips (50–100 ms each, ADR-042) |
+| `/summary` end-to-end p95 | ≤ 1.5 s | ≤ 3 s | + 2–3 PostgREST round trips (50–100 ms each, ADR-042), +1 for `knowledge_list_buckets` (zh, ja); a cold word-list read can add up to the Storage timeouts once per list per process |
 
   Hard limits: PostgREST client timeout 10 s (`config.py:156`); service_role has no statement timeout.
   TASK-1054 measures these and records them in `wiki/evaluations/knowledge-report-perf-<date>.md`.
@@ -1161,7 +1395,9 @@ at least once and that the app now rates as known. Reading tests can change thes
 `knowledge.tracked.line` · `knowledge.how.*` (title, pool_only, recognition_only, idk_rule,
 ratings_not_probabilities, not_logged) · `knowledge.group.most_common|common|mid|rare|none`,
 `.not_enough` · `knowledge.lists.*` (title, unofficial, not_readiness, not_in_ld_first, cumulative,
-none_in_dictionary, bucket.rated_known|seen_not_rated|no_evidence|not_in_dictionary, export_blocked) ·
+none_in_dictionary, bucket.rated_known|seen_not_rated|no_evidence|not_in_dictionary, export_blocked,
+matched_on "List matched to the dictionary on {date}", unavailable "Word lists are unavailable right
+now", updated "This list was updated. Reload it.") ·
 `knowledge.wordlist.title` · `knowledge.growth.*` (title, practised, direct_checks, met_in_texts,
 idle60, rated_known_delta, no_direct_checks, since, first_trend_on, no_clear_change, higher_than,
 lower_than, pool_changed, window_30, window_90) · `knowledge.skills.*` (title, subtitle,
@@ -1199,8 +1435,16 @@ words"` form (`static/js/i18n-manager.js:123-161`). No key in the `report.*` nam
    ([[decisions/ADR-053-daily-knowledge-snapshots]]).
    - **Rationale:** replay impossible (F6); per-sense daily ~37 MB/year unaffordable; storing inputs
      lets "then" be recomputed on today's frame and tested for disjointness.
-5. **Decision:** exam lists in two reference tables; measured buckets only; missing words not created
-   ([[decisions/ADR-054-exam-word-lists-as-reference-tables]]).
+5. **Decision:** exam lists are immutable, versioned JSON files in the private Storage bucket
+   `reference-data`, matched to the dictionary at build time and passed to SQL as arrays; measured
+   buckets only; missing words not created ([[decisions/ADR-054-exam-word-lists-in-storage]], revised
+   2026-11-18).
+   - **Rationale:** ~1.2 KB of database instead of ~2 MB on a database at its Free cap (F17), so the
+     list upload and the Pro gate do not wait for OQ13; the Storage client and the immutable-file
+     pattern already exist (ADR-049).
+   - **Alternatives rejected:** two reference tables (size gate); a file in the app repository (list
+     updates need deploys; CC BY-SA data in the repo — the fallback if Storage proves unreliable);
+     resolving lemmas per request (dictionary lookups on every page).
 6. **Decision:** entitlement seam with a stub that can never enforce; one 402 envelope; enforcement
    and marketing wait for the Pro launch gate ([[decisions/ADR-055-knowledge-report-entitlement-seam-and-launch-gate]]).
 7. **Decision:** study actions reuse existing paths — word-list import, Practice, prestudy — rather
@@ -1226,13 +1470,23 @@ words"` form (`static/js/i18n-manager.js:123-161`). No key in the `report.*` nam
   RLS on and no client grants; `tests/sql/check_function_acls.sql` must return empty after each migration.
 - **Input limits:** `limit` ≤ 100 (UI) / 1,000 (export, server-fixed); cursor ≤ 512 chars and strict
   shape; `q` ≤ 40 chars; path ints validated by Flask converters; `list_code` matched against
-  `^[a-z0-9_]{3,40}$` before use.
+  `^[a-z0-9_]{3,40}$` **and** against `LIST_CODES_BY_LANGUAGE` before any Storage path is built (no
+  request value ever reaches a Storage path unchecked).
 - **Output:** `Cache-Control: private, no-store`; CSV/Anki injection neutralised (§6.6); filename
   ASCII-only; no user id or email in exports; logs use the first 8 UUID characters only.
 - **Write path reuse:** "Add these words" calls the existing `POST /api/word-list/submit`, which
   enforces its own JWT, 50-word cap and per-user daily cap (F18); the report adds no write endpoint.
-- **Licences:** attribution rendered from `dim_word_lists.attribution` in the UI and in list exports;
-  list-subset export controlled by `dim_word_lists.allow_export` (OQ3).
+- **Licences:** attribution rendered from the list file's `attribution` in the UI and in list exports;
+  list-subset export controlled by the file's `allow_export` (OQ3); both are file metadata (§5.2), so a
+  change is a new, auditable file version.
+- **Storage (ADR-054):** bucket `reference-data` is private (`public = false`) with no
+  `storage.objects` policy, so only the service role reads or writes it; no public or signed URL is
+  ever handed to a browser — Flask reads the files and returns only the fields above. Uploads happen
+  only from the owner-run builder with the service key, and `put` never overwrites. The reader treats
+  file content as data: it validates the schema (§8) before use, passes ids to SQL only as typed
+  `integer[]` / `smallint[]` RPC arguments (never string-built SQL), and the page renders `form` /
+  `reading` / `attribution` with `textContent`; exported list rows go through `safe_cell` like every
+  other cell.
 - **Privacy of others:** no comparisons with other learners, no leaderboards (also a re-identification
   risk with 18 users — UX research §6).
 
@@ -1257,19 +1511,44 @@ words"` form (`static/js/i18n-manager.js:123-161`). No key in the `report.*` nam
   returns `None`; envelope shape; `p_user_id` always the caller's (spy on RPC params); shadow → 200 +
   `entitlement_shadow_deny`; enforced → exact 402 payload; stub ignores `ENTITLEMENTS_ENFORCED=true`;
   every 400 case of §6.2; `q` escaping; `Cache-Control`; `knowledge_pro_intent` logged for search /
-  filter / sort / cursor / sheet / lists / export and **not** for the default first page.
+  filter / sort / cursor / sheet / lists / export and **not** for the default first page. **Storage
+  down** (the store raises `WordListsUnavailable`): `/summary` → 200 with `lists = []`,
+  `lists_unavailable = true` and every other field equal to the Storage-up response; `/lists/…/words`
+  and `/words?list=…` → 200 with `lists_unavailable = true`; `/export?scope=list` → 200,
+  `X-Lists-Unavailable: 1`, no rows; no 5xx anywhere. A list-words cursor from an older file version →
+  400 `LIST_UPDATED`; an unregistered list code → 400 (`/words`, `/export`) or 404 (`/lists/…/words`).
 - `tests/test_knowledge_report_service.py` (pattern `tests/test_session_merges.py:19-66`): summary
   assembly from a canned RPC payload; next-step rule order; prestudy suggestion threshold; Pro teaser
   clauses omitted when zero; one entitlement read per request; frame cache TTL.
 - `tests/test_csv_export.py`: `safe_cell` for `=`, `+`, `-`, `@`, TAB, CR, normal text, numbers, `None`;
   BOM only on the first CSV chunk; CRLF; CJK round trip through `csv.reader`; Anki header lines and
-  TAB/newline replacement; list exports carry `list_source`; `allow_export=false` → 403.
+  TAB/newline replacement; list exports carry `list_source` (= the file's `attribution`); a file with
+  `allow_export: false` → 403.
+- `tests/test_word_lists.py` (new; `InMemoryBackend`, `services/exercise_content/backends.py:100`, seeded
+  with small valid files): latest version chosen as a number (`v2`, `v9`, `v10` → v10; `v01.json` and
+  `notes.txt` ignored); a second `latest()` within 6 h makes no Storage call (`calls_for('list')`), after
+  6 h (injected clock) exactly one `list` and a `get` only if a higher version exists;
+  `fail_next('list', ContentStorageError(…))` with nothing cached → `WordListsUnavailable`, and no
+  further Storage call for 300 s; the same failure with a cached version → the cached version is served
+  and `word_lists_recheck_failed` logged; empty folder → `None`; each invalid-file case of §8 →
+  `word_list_invalid` and the previous version kept; an unregistered or malformed list code never
+  reaches the backend; `bucket_arrays()` excludes null ids and keeps duplicates; `level_arrays(level,
+  cumulative)` returns file order; per-level `items` / `not_in_dictionary` counts.
+- `tests/test_build_word_lists.py` (new): zh/ja normalisation and every `match_kind` on small fixtures;
+  the output passes `validate_word_list`; a sha256 mismatch is refused; a `vocab_id` absent from the
+  dictionary read fails validation; dry run writes `data/word_lists/<code>/v<N>.json` and makes no
+  `put`; `--upload` (with `InMemoryBackend`) puts once to `word-lists/<code>/v<N>.json` with N = latest
+  + 1; `AlreadyExists` → non-zero exit, no retry; an unchanged rebuild (only `built_at` differs) puts
+  nothing.
 - `tests/test_knowledge_snapshots.py`: one upsert per pair with `cal_bands`/`frame_bands` lengths 21/7;
   idempotent second run; failing pair skipped; prune called with 120; `snapshot_date` = UTC date.
 - `tests/test_knowledge_report_migration.py` (pattern `tests/test_dt_repair_migration.py:1-30`): every
   function has REVOKE/GRANT and pinned search_path; read RPCs are STABLE with no INSERT/UPDATE/DELETE;
   tables enable RLS; no reference to `bkt_effective_p_known` or `bkt_apply_decay`;
-  `tests/test_migration_security_lint.py` passes.
+  `reference_data_bucket.sql` inserts exactly one bucket (`'reference-data'`, `public` false,
+  `file_size_limit` 5242880, `allowed_mime_types` `{application/json}`, `ON CONFLICT DO NOTHING`) and
+  creates no policy; its rollback refuses while objects exist; `tests/test_migration_security_lint.py`
+  passes.
 - `tests/test_i18n_locale_parity.py` (new): identical key sets and matching `{param}` placeholders.
 - `tests/test_platform_app.py`: `'knowledge_page': '/knowledge'`; `tests/test_platform_rate_limits.py`
   sees the six endpoints.
@@ -1277,11 +1556,15 @@ words"` form (`static/js/i18n-manager.js:123-161`). No key in the `report.*` nam
 **SQL (read-only on production, after each migration):** `tests/sql/check_function_acls.sql` empty;
 `SELECT knowledge_frame_bands()->'3:2'` = `[577,425,621,655,537,283,77]` (until the pool is refreshed);
 `SELECT knowledge_report_summary('<de6fd05b uuid>', 3::smallint)` returns `rated_known_words = 69`,
-`states = 10/69/30/142`, calibration bands as §2.6.
+`states = 10/69/30/142`, calibration bands as §2.6. One rule in two functions: `knowledge_list_buckets`
+called with de6fd05b/ja's 251 tracked `vocab_id`s (all at `level_idx` 1) returns `rated_known = 69`, the
+summary's `rated_known_words`. After TASK-1034: `SELECT id, public, file_size_limit, allowed_mime_types
+FROM storage.buckets WHERE id = 'reference-data'` returns one row.
 
 **Vitest** (`tests/unit/knowledge-page.test.js`, pattern `tests/unit/dual-translation-page.test.js:1-70`):
-E0, E1, E1b, E1c, upper-only, full summary, preview note, 402 → Pro card, 404/503 → unavailable; never
-"0 words"; en dash and no bare midpoint; load more appends with the cursor; export concatenates blobs
+E0, E1, E1b, E1c, upper-only, full summary, preview note, 402 → Pro card, 404/503 → unavailable;
+`lists_unavailable` → "Word lists are unavailable right now" in the list card and Lists tab with every
+other card rendered; "List matched to the dictionary on {date}"; never "0 words"; en dash and no bare midpoint; load more appends with the cursor; export concatenates blobs
 and stops on a missing `X-Next-Cursor`; "Add these words" posts ≤ 50 lemmas and shows the 429 message;
 database text escaped.
 
@@ -1291,7 +1574,8 @@ Visual harness: `tests/e2e/redesign/fixtures/knowledge.json` (E0, E1, full Pro) 
 
 ## 14. Rollout and the Pro launch gate
 
-1. Owner applies `knowledge_report_foundation.sql` (snapshot + list tables, 3 small functions).
+1. Owner applies `knowledge_report_foundation.sql` (snapshot table, 3 small functions) and
+   `reference_data_bucket.sql` (the private `reference-data` bucket; no list table — ADR-054).
 2. Owner applies `knowledge_report_summary.sql`; deploy the snapshot job (flag-independent) → history
    accrues. **This is the first deliverable**: a 30-day trend needs 30 days of rows.
 3. Deploy summary + page with `KNOWLEDGE_REPORT_ENABLED=false`; staff check with the flag on locally
@@ -1300,15 +1584,18 @@ Visual harness: `tests/e2e/redesign/fixtures/knowledge.json` (E0, E1, full Pro) 
 5. Pro pieces (words, sheet, Missed recently, lists, add-to-word-list, filtered export) ship behind the
    same flag as they land.
 6. **Pro launch gate (TASK-1059; P1).** `bkt_report_detail` is not enforced, and the report is not named
-   as a Pro benefit on the pricing page, until all of: (1) the HSK 2025 list is loaded (TASK-1053), (2)
-   "Add these words to my word list" ships (TASK-1051), (3) filtered and list export ships (TASK-1048),
-   (4) evidence-first rows ship (TASK-1046). Billing TASK-997 references this gate. Because (1) waits
-   for OQ2, OQ3 and the size gate (DB ≤ 490,000,000 B or a confirmed 500 MiB cap), **the gate cannot
-   pass while the database is at 513.5 MB.**
+   as a Pro benefit on the pricing page, until all of: (1) the HSK 2025 list file is uploaded to
+   Storage (TASK-1053), (2) "Add these words to my word list" ships (TASK-1051), (3) filtered and list
+   export ships (TASK-1048), (4) evidence-first rows ship (TASK-1046). Billing TASK-997 references this
+   gate. (1) waits only for OQ2 and OQ3: the list is a file in Storage (~1.2 KB of database for both
+   lists), so since the 2026-11-18 revision the gate **does not depend on the database size question
+   (OQ13)**.
 7. TASK-1056 must be done before the range is used in marketing copy.
 
-Rollback: flag off (UI disappears, API 404); `*_rollback.sql` drops the new functions and tables
-(snapshots are lost).
+Rollback: flag off (UI disappears, API 404); `*_rollback.sql` drops the new functions and the snapshot
+table (snapshots are lost); `reference_data_bucket_rollback.sql` removes the bucket only once its files
+are deleted (§5.2). Withdrawing one list version: the owner deletes that file; processes keep serving
+their cached copy until their next 6-hourly check, then fall back to the highest remaining version.
 
 ## 15. Open questions
 
@@ -1318,7 +1605,7 @@ Each row gives the default this spec uses, so nothing is blocked except tasks ma
 |---|---|---|---|---|
 | OQ1 | UI name? | "Report" already means "Report an issue" (F15). | en "My vocabulary", es "Mi vocabulario", ja 「わたしの語彙」, zh 「我的词汇」; native review before launch. | TASK-1040 |
 | OQ2 | HSK list: 2025-11 CLEC syllabus or GF0025-2021? | 41.5% of ~9,700 shared words changed level. | 2025 syllabus, labelled "HSK 3.0 (2025 syllabus)". | TASK-1052/1053 [?] |
-| OQ3 | Licences and list exports: is CC BY-SA 4.0 (krmanik HSK) acceptable, and may list subsets be exported? | Share-alike may attach to an exported adaptation; Waller CC BY was confirmed only second-hand. | Load HSK (krmanik) and JLPT (jamsinclair + Waller CC BY) with attribution; `allow_export` true for JLPT, false for HSK until signed off. | TASK-1048, 1052, 1053 |
+| OQ3 | Licences and list exports: is CC BY-SA 4.0 (krmanik HSK) acceptable, and may list subsets be exported? | Share-alike may attach to an exported adaptation; Waller CC BY was confirmed only second-hand. | Upload HSK (krmanik) and JLPT (jamsinclair + Waller CC BY) files with attribution; the files' `allow_export` true for JLPT, false for HSK until signed off (a change = a new file version). | TASK-1048, 1052, 1053 |
 | OQ4 | Before enforcement, do non-Pro learners see the Pro view (shadow preview)? | Demo-ability; TASK-980's contract is "log and allow". | Yes, with the note; demand measured by `knowledge_pro_intent`. | TASK-1045, 1046 |
 | OQ5 | Approve a Calibration change to measure what "I don't know" hides: forced-choice probe on 1 in 8 items, or two skip buttons ("Never seen it" / "Seen it, not sure")? | Skips counted as unknown make the figure a lower-side estimate if skips hide partial knowledge (S4). | Skip = not known; no "naive" model; probe proposed in TASK-1061. | TASK-1056, 1061 [?] |
 | OQ6 | Is 110fb390 a test/automated account? | Its evidence looks automated; validation would then rest on one human learner. | Yes: excluded from validation; its report is still shown to it. | TASK-1056 [?] |
@@ -1328,7 +1615,7 @@ Each row gives the default this spec uses, so nothing is blocked except tasks ma
 | OQ10 | Snapshot day: UTC or the learner's plan-local day? | 04:25 UTC is afternoon in Australia. | UTC. | TASK-1037 |
 | OQ11 | Confirm the per-outcome family mapping of intro formats (§2.11)? | Only used to label the kind of exercise on a missed word; Skills uses non-intro attempts. | As §2.11 (read_typed → recognition; ex_* via `exercise_id`). | TASK-1036 |
 | OQ12 | Is `sense_rank = 1` reliably the most common meaning? | Decides "rated known" for words and list coverage; ranks are LLM-ordered. | Yes for v1 (98.0% zh, 99.3% ja lemmas have one meaning). | TASK-1036 |
-| OQ13 | Is the Free cap 500 MiB or 500,000,000 B; must list data wait for the ADR-049 drop? | DB is 513,526,931 B. | Foundation (~0.2 MB) any time the DB is writable; list data only at ≤ 490,000,000 B or a confirmed MiB cap. | TASK-1053 [?] |
+| OQ13 | Is the Free cap 500 MiB or 500,000,000 B; must database-growing content work wait for the ADR-049 drop? | DB is 513,526,931 B. Since 2026-11-18 the exam lists do not depend on it (Storage files, ~1.2 KB of database — ADR-054); it still gates the zh pool refresh (OQ29), seeding missing JLPT lemmas (OQ31) and database growth from "Add these words" (OQ30). | Foundation (~0.2 MB) and the list upload any time the DB is writable; the **database size gate** — `pg_database_size` ≤ 490,000,000 B or a confirmed MiB cap — before OQ29/OQ30/OQ31 work and the evidence log (OQ16). | TASK-1060, TASK-1063, TASK-1065 [?] |
 | OQ14 | Approve decay clean-ups (IMMUTABLE → STABLE; drop the broken 2-arg overload)? | Mislabelled volatility can freeze `now()`; the 2-arg call always fails. Not needed by the report. | Deferred. | TASK-1066 [?] |
 | OQ15 | Build targeted practice of an explicit word set? | Most actionable later step; v1 uses word-list import instead (ADR-056). | Deferred. | TASK-1064 [?] |
 | OQ16 | Add evidence-kind counters or an event log to the writer functions? | Needed to label "inferred" precisely and to count words newly rated known. | Deferred. | TASK-1065 [?] |
@@ -1355,7 +1642,7 @@ Each row gives the default this spec uses, so nothing is blocked except tasks ma
 - [[features/knowledge-report]] · [[features/vocabulary-knowledge.tech]] · [[features/calibration.tech]] · [[features/test-prestudy.tech]] · [[features/practice-extra-rounds.tech]]
 - [[business/pricing-plan.tech]] · [[tasklist/billing.tasks]] (TASK-980, TASK-993 superseded by [[tasklist/knowledge-report.tasks]], TASK-995, TASK-997)
 - [[tasklist/word-list-import.plan]] · [[database/schema.tech]] · [[api/rpcs.tech]]
-- [[decisions/ADR-051-vocabulary-size-from-calibration-frame]] · [[decisions/ADR-052-report-leads-with-measured-evidence]] · [[decisions/ADR-053-daily-knowledge-snapshots]] · [[decisions/ADR-054-exam-word-lists-as-reference-tables]] · [[decisions/ADR-055-knowledge-report-entitlement-seam-and-launch-gate]] · [[decisions/ADR-056-report-actions-reuse-existing-study-paths]]
+- [[decisions/ADR-051-vocabulary-size-from-calibration-frame]] · [[decisions/ADR-052-report-leads-with-measured-evidence]] · [[decisions/ADR-053-daily-knowledge-snapshots]] · [[decisions/ADR-054-exam-word-lists-in-storage]] · [[decisions/ADR-055-knowledge-report-entitlement-seam-and-launch-gate]] · [[decisions/ADR-056-report-actions-reuse-existing-study-paths]]
 - [[decisions/ADR-042-request-scoped-caching-and-static-asset-caching]] · [[decisions/ADR-048-mobile-app-shell]] · [[decisions/ADR-049-exercise-content-in-storage]]
 
 ---

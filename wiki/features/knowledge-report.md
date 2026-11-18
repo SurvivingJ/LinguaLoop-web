@@ -3,7 +3,7 @@ title: Knowledge Report ("My vocabulary")
 type: feature
 status: planned
 tech_page: ./knowledge-report.tech.md
-last_updated: 2026-11-17
+last_updated: 2026-11-18
 open_questions:
   - "OQ1 OPEN: UI name. Default 'My vocabulary' (es 'Mi vocabulario', ja 'わたしの語彙', zh '我的词汇'), because 'Report' already means 'Report an issue'. Native review needed."
   - "OQ2 OPEN: Which HSK list: the November 2025 CLEC syllabus (default) or the 2021 national standard? 41.5% of shared words differ in level."
@@ -17,7 +17,7 @@ open_questions:
   - "OQ10 OPEN: Snapshot day: UTC date (default) or the learner's local day?"
   - "OQ11 OPEN: Confirm how drill (intro) exercise formats are labelled when shown on a missed word."
   - "OQ12 OPEN: Is a word's first-ranked meaning reliably its most common meaning? Default: yes for v1."
-  - "OQ13 OPEN: Is the database cap 500 MiB or 500,000,000 bytes, and must exam-list data wait for the exercise-content move (ADR-049)? Default: wait until the database is at or below 490,000,000 bytes."
+  - "OQ13 OPEN: Is the database cap 500 MiB or 500,000,000 bytes? Since 2026-11-18 the exam lists do not depend on it (they are files in Storage, ADR-054). It still decides when the Chinese word-pool refresh (OQ29), seeding missing JLPT words (OQ31) and database growth from 'Add these words' (OQ30) may go ahead. Default: those wait until the database is at or below 490,000,000 bytes (or a 500 MiB cap is confirmed)."
   - "OQ14 OPEN: Approve the clean-up of the decay functions (wrong volatility, broken two-argument version)? Not needed by the report."
   - "OQ15 OPEN: Build targeted practice of a chosen word set? Default: deferred; v1 uses word-list import."
   - "OQ16 OPEN: Add evidence-kind counters or an evidence log to the knowledge writers? Default: deferred."
@@ -84,7 +84,8 @@ app's rating, which is not a probability).
    many words are rated known, seen but not yet rated known, not yet seen, and not yet in LinguaDojo at
    all. **At launch, exam coverage is strong for HSK 1–5 and partial for JLPT**: about half of every
    JLPT level is not yet in LinguaDojo, and the card says so first. A note says that knowing a level's
-   words is not the same as passing its exam. English has no exam list.
+   words is not the same as passing its exam, and a line gives the date the list was last matched to
+   the dictionary. English has no exam list.
 5. **Your own word list** — if you have uploaded words, how many are rated known, seen or not yet seen.
 6. **Last 30 / 90 days** — words you practised (exercises and quizzes), the number of direct checks,
    words you met only in texts, the change in words rated known (always next to how many direct
@@ -142,8 +143,14 @@ is blurred, nothing pops up, and after a downgrade nothing is deleted.
   their own bucket and are never counted as unknown.
 - **No history exists before launch.** Growth starts from the first nightly snapshot.
 - **New learner:** "We don't know your vocabulary yet" with two actions — never "0 words".
-- **The Chinese and Japanese exam lists can only be loaded once the database is under its size limit**
-  (OQ13), so Pro will not be enforced or marketed on this report before then (OQ28).
+- **The exam lists are files kept outside the database** (in the app's file storage, ADR-054), so they
+  do not wait for the database size limit (OQ13); they wait only for the choice of HSK edition and the
+  licence answers (OQ2, OQ3). Pro will not be enforced or marketed on this report before the HSK list is
+  in place (OQ28).
+- **A list is matched to the dictionary when it is built.** Words added to LinguaDojo afterwards stay in
+  "not yet in LinguaDojo" until the list is rebuilt, so the card shows the date of the last match.
+- **If the list files cannot be read**, the list cards say "Word lists are unavailable right now" and
+  the rest of the page works as usual.
 
 ## Business Rules
 - Free and Core: summary only. Pro (and Pro trial, Professional, school and tutor seats): full view.
@@ -155,7 +162,10 @@ is blurred, nothing pops up, and after a downgrade nothing is deleted.
   180 days; "Medium" needs 20 and "Good" 30 at every level.
 - Skill comparisons need at least 20 first tries on at least 10 words per kind of exercise in 90 days,
   and clearly separate intervals.
-- Community JLPT lists are always labelled unofficial; HSK lists name their edition.
+- Community JLPT lists are always labelled unofficial; HSK lists name their edition; every list shows
+  the date it was matched to the dictionary.
+- A list's words may be exported only when that list's licence allows it (the HSK list not until
+  share-alike is accepted — OQ3); exported list rows always carry the list's attribution.
 - No streaks, XP, badges, leaderboards, pass probabilities or time-to-goal predictions.
 
 ## Open Questions
@@ -164,6 +174,7 @@ All OPEN; see frontmatter. Full table with defaults and affected tasks:
 
 ## Related Pages
 - [[features/knowledge-report.tech]] — technical specification
+- Mockups: `wiki/demos/knowledge-report-pro-mockups.html` — five interactive Pro-view options on real and demo data
 - [[tasklist/knowledge-report.tasks]] — task breakdown
 - [[features/vocabulary-knowledge]] — where the per-word ratings come from
 - [[features/calibration]] — the vocabulary check that produces the range
@@ -174,6 +185,6 @@ All OPEN; see frontmatter. Full table with defaults and affected tasks:
 - [[decisions/ADR-051-vocabulary-size-from-calibration-frame]]
 - [[decisions/ADR-052-report-leads-with-measured-evidence]]
 - [[decisions/ADR-053-daily-knowledge-snapshots]]
-- [[decisions/ADR-054-exam-word-lists-as-reference-tables]]
+- [[decisions/ADR-054-exam-word-lists-in-storage]]
 - [[decisions/ADR-055-knowledge-report-entitlement-seam-and-launch-gate]]
 - [[decisions/ADR-056-report-actions-reuse-existing-study-paths]]

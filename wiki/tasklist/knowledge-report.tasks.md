@@ -13,8 +13,16 @@ Supersedes billing **TASK-993** (which becomes "Superseded by TASK-1034–TASK-1
 helper is amended by TASK-1038; billing TASK-997 must reference the Pro launch gate (TASK-1059).
 **LIVE-DB** marks a task whose migration or data change the **owner applies to production** (the only
 Supabase project; no staging). Every LIVE-DB task ships a rollback file and ends with the read-only
-`tests/sql/check_function_acls.sql` check. `[?]` = blocked on an open question (OQn in
+`tests/sql/check_function_acls.sql` check. **LIVE-STORAGE** marks a task in which the **owner writes
+files to the production Storage bucket** `reference-data` (no database rows change except Storage's own
+object metadata, ~0.6 KB per file). `[?]` = blocked on an open question (OQn in
 [[features/knowledge-report.tech]] §15) or on another blocked task.
+
+*Revised 2026-11-18:* the exam lists are versioned JSON files in Storage, not database tables
+([[decisions/ADR-054-exam-word-lists-in-storage]]). TASK-1034 now creates the bucket instead of list
+tables; TASK-1049 adds the word-list reader and array-based RPCs; TASK-1052 builds and uploads files;
+TASK-1053 is an owner-run Storage upload; neither TASK-1053 nor the Pro gate TASK-1059 waits for the
+database size question (OQ13) any more.
 
 ## Phases and order
 
@@ -23,19 +31,19 @@ Supabase project; no staging). Every LIVE-DB task ships a rollback file and ends
 | K0 data foundations | TASK-1034 – TASK-1037 | owner applies TASK-1034 / TASK-1036 |
 | K1 summary for everyone | TASK-1038 – TASK-1043 | K0 |
 | K2 Pro word by word | TASK-1044 – TASK-1048 | K1 (TASK-1048 also needs TASK-1049) |
-| K3 lists and study action (critical path for the Pro gate) | TASK-1049 – TASK-1053 | TASK-1052/1053 blocked on OQ2, OQ3 and the size gate (OQ13) |
+| K3 lists and study action (critical path for the Pro gate) | TASK-1049 – TASK-1053 | TASK-1052/1053 blocked on OQ2 and OQ3 only (list files live in Storage; no database size gate) |
 | K4 measure, document, launch | TASK-1054 – TASK-1059 | TASK-1056 and TASK-1059 blocked |
 | Deferred | TASK-1060 – TASK-1071 | each blocked on an owner decision |
 
 **Critical path — summary launch:** TASK-1034 → TASK-1036 → TASK-1037 (snapshots must start early: a
 30-day trend needs 30 days of rows) → TASK-1039 → TASK-1040 → TASK-1058.
-**Critical path — Pro enforcement / marketing (TASK-1059):** ADR-049 content drop (DB ≤ 490,000,000 B)
-+ OQ2 + OQ3 → TASK-1052 → TASK-1053; and TASK-1044 → TASK-1045 → TASK-1046 → TASK-1049 → TASK-1050 →
-TASK-1051, TASK-1048.
+**Critical path — Pro enforcement / marketing (TASK-1059):** OQ2 + OQ3 (+ TASK-1034 and TASK-1049) →
+TASK-1052 → TASK-1053 (owner upload); and TASK-1044 → TASK-1045 → TASK-1046 → TASK-1049 → TASK-1050 →
+TASK-1051, TASK-1048. The database size question (OQ13) is not on this path.
 
 | ID | Title | Status | Complexity | Depends On | LIVE |
 |----|-------|--------|------------|------------|------|
-| TASK-1034 | Foundation migration: snapshot and list tables, frame/pairs/prune functions | [ ] | M | — | DB |
+| TASK-1034 | Foundation migration: snapshot table, frame/pairs/prune functions, `reference-data` bucket | [ ] | M | — | DB |
 | TASK-1035 | Pure estimator and rules module | [ ] | M | — | |
 | TASK-1036 | Summary RPC `knowledge_report_summary` | [ ] | L | TASK-1034 | DB |
 | TASK-1037 | Nightly snapshot job | [ ] | M | TASK-1034, TASK-1035, TASK-1036 | |
@@ -50,11 +58,11 @@ TASK-1051, TASK-1048.
 | TASK-1046 | Pro UI: All words, Missed recently, filters, sorts | [ ] | L | TASK-1045, TASK-1040 | |
 | TASK-1047 | Word sheet: detail RPC, route and UI | [ ] | M | TASK-1044, TASK-1046 | DB |
 | TASK-1048 | Export: filtered and list CSV, Anki text | [ ] | M | TASK-1045, TASK-1046, TASK-1049 | |
-| TASK-1049 | List-words RPC and route | [ ] | M | TASK-1034, TASK-1038 | DB |
+| TASK-1049 | List RPCs, word-list store and route | [ ] | L | TASK-1034, TASK-1038 | DB |
 | TASK-1050 | List cards (summary) and Pro Lists tab | [ ] | M | TASK-1049, TASK-1046 | |
 | TASK-1051 | "Add these words to my word list" | [ ] | S | TASK-1050, TASK-1046 | |
-| TASK-1052 | Word-list loader and data package | [?] | M | TASK-1034 | |
-| TASK-1053 | Load the exam lists into production | [?] | S | TASK-1052 | DB |
+| TASK-1052 | Word-list builder and upload script | [?] | M | TASK-1049 | |
+| TASK-1053 | Upload the exam lists to Storage | [?] | S | TASK-1034, TASK-1052 | Storage (owner) |
 | TASK-1054 | Performance evaluation | [ ] | S | TASK-1036, TASK-1044 | |
 | TASK-1055 | End-to-end smoke and visual fixtures | [ ] | S | TASK-1040, TASK-1046 | |
 | TASK-1056 | Validate the estimator and the ratings | [?] | M | TASK-1035, TASK-1037, TASK-1061 | |
@@ -76,7 +84,7 @@ TASK-1051, TASK-1048.
 
 ---
 
-## TASK-1034: Foundation migration — snapshot and list tables, frame, pairs and prune functions (LIVE-DB)
+## TASK-1034: Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB)
 
 **Status:** [ ] Not Started
 **Feature:** knowledge-report
@@ -86,32 +94,38 @@ TASK-1051, TASK-1048.
 
 **Description:**
 Write `migrations/knowledge_report_foundation.sql` with everything later tasks build on:
-`user_knowledge_snapshots` (tech §5.1), empty `dim_word_lists` and `dim_word_list_items` (§5.2), and three
-functions — `knowledge_frame_bands()`, `knowledge_active_pairs(p_since)` and
-`knowledge_snapshots_prune(p_keep_daily_days)` (§6.1). The owner applies it to production.
+`user_knowledge_snapshots` (tech §5.1) and three functions — `knowledge_frame_bands()`,
+`knowledge_active_pairs(p_since)` and `knowledge_snapshots_prune(p_keep_daily_days)` (§6.1) — and the
+small separate `migrations/reference_data_bucket.sql`, which creates the private Storage bucket
+`reference-data` for the exam-list files (tech §5.2; ADR-054, revised 2026-11-18). No table for list
+data is created. The owner applies both files to production.
 
 **Acceptance Criteria:**
-- [ ] The file matches tech §5.1, §5.2 and §6.1 exactly: names, types, CHECKs (including `array_length(cal_bands, 1) = 21` and `array_length(frame_bands, 1) = 7`), FKs, PKs and the partial index.
+- [ ] The foundation file matches tech §5.1 and §6.1 exactly: names, types, CHECKs (including `array_length(cal_bands, 1) = 21` and `array_length(frame_bands, 1) = 7`), FKs and the PK.
 - [ ] `knowledge_frame_bands` and `knowledge_active_pairs` are `LANGUAGE sql STABLE SECURITY INVOKER SET search_path = public, pg_temp`; `knowledge_snapshots_prune` is `plpgsql VOLATILE`, same search_path, and raises `keep_daily_days_too_small` below 35.
-- [ ] Every function has `REVOKE ALL … FROM PUBLIC, anon, authenticated` and `GRANT EXECUTE … TO service_role`; every table has `ENABLE ROW LEVEL SECURITY` and `REVOKE ALL … FROM PUBLIC, anon, authenticated` in the same file, and no policies.
-- [ ] `migrations/knowledge_report_foundation_rollback.sql` drops the 3 functions and 3 tables in FK order.
-- [ ] `tests/test_knowledge_report_migration.py` (new) statically checks the above and that the file never mentions `bkt_effective_p_known`, `bkt_apply_decay` or `level_tag`; `tests/test_migration_security_lint.py` passes.
-- [ ] After the owner applies it: `tests/sql/check_function_acls.sql` returns no rows; `SELECT knowledge_frame_bands()->'3:2'` returns `[577,425,621,655,537,283,77]` (if the pool has been refreshed since 2026-11-17, record the new values instead); `pg_database_size` grows by < 0.3 MB.
+- [ ] Every function has `REVOKE ALL … FROM PUBLIC, anon, authenticated` and `GRANT EXECUTE … TO service_role`; the table has `ENABLE ROW LEVEL SECURITY` and `REVOKE ALL … FROM PUBLIC, anon, authenticated` in the same file, and no policies.
+- [ ] `migrations/knowledge_report_foundation_rollback.sql` drops the 3 functions and the table.
+- [ ] `migrations/reference_data_bucket.sql` is exactly the tech §5.2 statement: `INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types) VALUES ('reference-data', 'reference-data', false, 5242880, ARRAY['application/json']) ON CONFLICT (id) DO NOTHING`, with no `storage.objects` policy; `migrations/reference_data_bucket_rollback.sql` raises while the bucket holds any object and otherwise deletes the bucket row.
+- [ ] `tests/test_knowledge_report_migration.py` (new) statically checks the above (including the bucket file's values and the absence of `CREATE POLICY`), that neither file creates a table for list data, and that the foundation file never mentions `bkt_effective_p_known`, `bkt_apply_decay` or `level_tag`; `tests/test_migration_security_lint.py` passes.
+- [ ] After the owner applies them: `tests/sql/check_function_acls.sql` returns no rows; `SELECT knowledge_frame_bands()->'3:2'` returns `[577,425,621,655,537,283,77]` (if the pool has been refreshed since 2026-11-17, record the new values instead); `SELECT id, public, file_size_limit, allowed_mime_types FROM storage.buckets WHERE id = 'reference-data'` returns `reference-data | f | 5242880 | {application/json}`; `pg_database_size` grows by < 0.3 MB.
 
 **Technical Notes:**
 - Frame SQL is in tech §6.1: pool rows with `has_embedding`, not in `calibration_anchor_blocklist`, joined to `dim_word_senses` for `sense_rank = 1`, `count(DISTINCT vocab_id)` by `(word_language_id, definition_language_id, zipf_band)`, folded with `jsonb_object_agg` into `{"<L>:<D>": [N_1..N_7]}` (missing bands = 0).
 - `knowledge_active_pairs`: `SELECT DISTINCT user_id, language_id FROM user_vocabulary_knowledge` UNION pairs from `calibration_sessions (mode = 'definition')` ⋈ `calibration_responses` with `answered_at > p_since`; returns a jsonb array.
+- Bucket pattern: `migrations/exercise_content_storage.sql:376-378` (the `exercise-content` bucket). The bucket costs < 1 KB of database (ESTIMATE) and does not wait for the database size question (OQ13).
 - Do **not** touch `bkt_apply_decay`, `bkt_effective_p_known`, `dim_vocabulary.level_tag` or any existing object.
-- Production is the only project: the owner runs the file (SQL editor or migration tool), then the read-only checks.
+- Production is the only project: the owner runs both files (SQL editor or migration tool), then the read-only checks.
 
 **Files to Create / Modify:**
 - `migrations/knowledge_report_foundation.sql`, `migrations/knowledge_report_foundation_rollback.sql` — new
+- `migrations/reference_data_bucket.sql`, `migrations/reference_data_bucket_rollback.sql` — new
 - `tests/test_knowledge_report_migration.py` — new
 
 **Verification:**
 `python -m pytest tests/test_knowledge_report_migration.py tests/test_migration_security_lint.py -q` passes.
-After apply: run `tests/sql/check_function_acls.sql` and `SELECT knowledge_frame_bands()` in the SQL editor;
-record outputs and the `pg_database_size` before/after in `wiki/log.md`.
+After apply: run `tests/sql/check_function_acls.sql`, `SELECT knowledge_frame_bands()` and the
+`storage.buckets` query in the SQL editor; record outputs and the `pg_database_size` before/after in
+`wiki/log.md`.
 
 ---
 
@@ -165,10 +179,11 @@ Write `migrations/knowledge_report_summary.sql` with `knowledge_report_summary(p
 p_as_of, p_window_days, p_cal_since)` returning the jsonb of tech §6.1: tracked counts, evidence states,
 rated-known words, idle, activity, missed recently and its flag, per-band measured counts, calibration
 inputs (D*, latest-answer-per-lemma rank-1 bands, all-time n, `since` bands, dates, rated-known-in-frame),
-family sufficient statistics, watchlist buckets and per-list per-level buckets. One statement.
+family sufficient statistics and watchlist buckets. One statement. Exam-list buckets are **not** computed
+here (ADR-054, revised 2026-11-18): `knowledge_list_buckets` (TASK-1049) counts them from arrays.
 
 **Acceptance Criteria:**
-- [ ] Every rule follows the tech spec literally: meaning aggregation §2.2, logged outcomes §2.3, states and rated known §2.4, idle §2.5, calibration inputs §2.6 steps 1–4 (D* tie-breaks; `sense_rank = 1`; `DISTINCT ON (anchor_vocab_id)` latest answer), activity §2.10, families §2.11 (non-intro first attempts, 90 days), missed recently §2.12, lists §2.8, watchlist §2.9.
+- [ ] Every rule follows the tech spec literally: meaning aggregation §2.2, logged outcomes §2.3, states and rated known §2.4, idle §2.5, calibration inputs §2.6 steps 1–4 (D* tie-breaks; `sense_rank = 1`; `DISTINCT ON (anchor_vocab_id)` latest answer), activity §2.10, families §2.11 (non-intro first attempts, 90 days), missed recently §2.12, watchlist §2.9; the jsonb has no `lists` key.
 - [ ] `LANGUAGE sql STABLE SECURITY INVOKER SET search_path = public, pg_temp`; REVOKE/GRANT as TASK-1034; no MATERIALIZED CTE; no call to any decay function; rollback file drops it.
 - [ ] Read-only check after apply (values as of 2026-11-17; if de6fd05b has practised since, re-run tech Appendix B K2–K5 the same day and compare to those): for de6fd05b/ja `tracked.words = 251`, `rated_known_words = 69`, `rated_known_checked2_words = 22`, `states = {10, 69, 30, 142}`, `idle60_meanings = 95`, `activity.d30 = {41, 164, 44}`, `activity.d90 = {83, 318, 142}`, `missed_recent = {10, 1}`, `calibration.definition_language_id = 2`, `calibration.bands` = tech §2.6 table, families recognition `n 84 y 79 m 17` and discrimination `n 32 y 17 m 11`.
 - [ ] A learner/language with no data returns zero counts and empty arrays (never NULL).
@@ -181,7 +196,7 @@ family sufficient statistics, watchlist buckets and per-list per-level buckets. 
 - `p_cal_since timestamptz[]`: `unnest(p_cal_since) WITH ORDINALITY` and one latest-per-lemma count per element.
 - Families: return `n, y, m, Σy², Σy·n, Σn²` per family (not per-meaning arrays).
 - `rated_known_in_frame`: rated-known rank-1 lemmas that appear in `calibration_anchor_pool` for (L, D*) with the frame filters.
-- Lists come from `dim_word_lists WHERE is_active AND language_id = p_language_id`; with empty tables `lists = []`.
+- No list CTE: the summary service adds `lists` from the word-list files and `knowledge_list_buckets` (tech §6.3, TASK-1049). Keep the §2.4 rated-known expression textually identical to the one `knowledge_list_buckets` uses.
 
 **Files to Create / Modify:**
 - `migrations/knowledge_report_summary.sql`, `migrations/knowledge_report_summary_rollback.sql` — new
@@ -275,7 +290,7 @@ Create `routes/knowledge.py` (`knowledge_bp`, prefix `/api/knowledge`) with the 
 - [ ] Decorator stack and guards of tech §6.2 (JWT, `api_errors`, `require_language_id`, UUID guard → 403, language ∈ {1,2,3}, flag off → 404, RPC missing → 503).
 - [ ] Snapshot read: one PostgREST select on `user_knowledge_snapshots` for (user, language) with `snapshot_date >= today − 97` plus the earliest row, memoised per request; anchors chosen by `knowledge_estimate.growth`; their `cal_last_answer_at` values passed as `p_cal_since`.
 - [ ] `knowledge_frame_bands()` cached per process for 3,600 s; the frame for (L, D*) feeds the estimator.
-- [ ] Response shape exactly tech §6.3, including `detail {level, enforced, preview}`, `estimate.kind/reason/answers_needed/disagreement`, `groups`, `growth.d30/d90/idle60`, `skills`, `missed_recent`, `next_steps` (rules 1, 3–6 of §2.13; rule 2 is added by TASK-1041) and `pro_teaser` (clauses with zero or undefined values omitted).
+- [ ] Response shape exactly tech §6.3, including `detail {level, enforced, preview}`, `estimate.kind/reason/answers_needed/disagreement`, `groups`, `growth.d30/d90/idle60`, `skills`, `missed_recent`, `next_steps` (rules 1, 3–6 of §2.13; rule 2 is added by TASK-1041) and `pro_teaser` (clauses with zero or undefined values omitted); `lists = []` and `lists_unavailable = false` until TASK-1049 fills them.
 - [ ] `Cache-Control: private, no-store`; `knowledge.summary` limit in `web/rate_limits.py`; `app.py` registers `knowledge_bp` with `url_prefix='/api/knowledge'` (pattern `app.py:234`).
 - [ ] Route and service tests of tech §13 pass, including "p_user_id is always the caller's".
 
@@ -431,7 +446,7 @@ filters, search, the sorts, the 5-tuple keyset and page-only joins for gloss, pr
 (tech §6.1).
 
 **Acceptance Criteria:**
-- [ ] Filters (`states`, `checked_several`, `missed_recent`, `idle_days`, `bands`, `in_word_list`, `list_code` + `level`, `q`), toneless-pinyin key, sort table (`useful | recent | oldest | common | lemma | id`), keyset predicate, `p_limit + 1` fetch, `matching` and row fields exactly as tech §6.1. No numeric `p_known` and no five-level label in the output; `app_rates_known` boolean only.
+- [ ] Filters (`states`, `checked_several`, `missed_recent`, `idle_days`, `bands`, `in_word_list`, `vocab_ids` (int[]; lemma in the array, rank-1 meaning — replaces `list_code` + `level`, ADR-054), `q`), toneless-pinyin key, sort table (`useful | recent | oldest | common | lemma | id`), keyset predicate, `p_limit + 1` fetch, `matching` and row fields exactly as tech §6.1. No numeric `p_known` and no five-level label in the output; `app_rates_known` boolean only.
 - [ ] `last_direct` from the latest outcome in `O` (tech §2.3) with its family per tech §2.11 (intro `ex_*` via `exercise_attempts.exercise_id → exercises.exercise_type`, PK lookup reading `exercise_type` only — never `exercises.content`).
 - [ ] Gloss fallback (L1 standard → L1 simple → native standard) via `uq_sense_def_level`; gloss, pronunciation and ladder joined only for page rows.
 - [ ] Security header and grants as TASK-1034; rollback file.
@@ -467,7 +482,7 @@ gate and intent logging (§6.4), the learner's definition language from
 - [ ] `knowledge_pro_intent` is logged for search, filter, non-default sort and cursor requests, and not for the default first page.
 - [ ] Rate limit `knowledge.words`; `Cache-Control: private, no-store`.
 
-**Technical Notes:** `limit` 1–100 (default 50); never pass a request-supplied user id to the RPC.
+**Technical Notes:** `limit` 1–100 (default 50); never pass a request-supplied user id to the RPC. The `list` + `level` parameters are resolved into `p_filters.vocab_ids` by the word-list store, which TASK-1049 adds; until TASK-1049 lands, any `list` value returns 400 "Unknown list".
 
 **Files to Create / Modify:**
 - `routes/knowledge.py`, `services/vocabulary/knowledge_report.py`, `web/rate_limits.py` — modify
@@ -546,14 +561,15 @@ Implement tech §6.6 (P3, P15): `utils/csv_export.py`, `GET /api/knowledge/expor
 progress. Export is one of the four Pro launch gate items.
 
 **Acceptance Criteria:**
-- [ ] Columns, formats and headers exactly as tech §6.6; no numeric `p_known` column; list exports add `list_level` and `list_source` on every row; `dim_word_lists.allow_export = false` → 403 "This list can't be exported yet."; `my_word_list` always exportable.
+- [ ] Columns, formats and headers exactly as tech §6.6; no numeric `p_known` column; list exports add `list_level` and `list_source` (= the list file's `attribution`) on every row; the list file's `allow_export = false` → 403 "This list can't be exported yet."; `my_word_list` always exportable.
+- [ ] Storage unavailable during a list export (scope `list`, or a `list` filter) → 200 with no rows and `X-Lists-Unavailable: 1`; the client saves nothing and shows "Word lists are unavailable right now"; a cursor from an older file version → 400 `LIST_UPDATED` and the client offers to restart the export.
 - [ ] `safe_cell` neutralises `=`, `+`, `-`, `@`, TAB, CR as the first character in both formats; CJK survives a `csv.reader` round trip; CSV uses CRLF and a BOM on the first chunk only; the Anki file starts with `#separator:tab`, `#html:false`, `#tags column:4` and replaces TAB/CR/LF inside fields with a space.
 - [ ] Entitlement checked on every chunk; intent logged on the first chunk only; rate limit `knowledge.export`.
 - [ ] Client concatenates `blob()` parts, stops when `X-Next-Cursor` is absent or after 100 chunks, saves via an object URL and revokes it; the export menu exports the current tab and filter.
 - [ ] Tests: `tests/test_csv_export.py` (new), route tests for headers, chunking, scope and the licence rule, vitest for assembly.
 - [ ] Manual: the Anki file imports into Anki desktop (2.1.55 or later) as Basic notes with tags; the result is recorded in the PR.
 
-**Technical Notes:** export `sort='id'` for scope `words` (stable while paging); scope `list` pages `knowledge_report_list_words` by its own keyset.
+**Technical Notes:** export `sort='id'` for scope `words` (stable while paging); scope `list` pages `knowledge_report_list_words` by its own keyset (`not_in_dictionary` pages come from the file, tech §6.1), every chunk from the file version in the cursor.
 
 **Files to Create / Modify:**
 - `utils/csv_export.py`, `tests/test_csv_export.py` — new
@@ -566,29 +582,44 @@ appears as `'-ism`) and import the Anki file.
 
 ---
 
-## TASK-1049: List-words RPC and route (LIVE-DB)
+## TASK-1049: List RPCs, word-list store and route (LIVE-DB)
 
 **Status:** [ ] Not Started
 **Feature:** knowledge-report
 **Type:** feature
-**Complexity:** M (3-8h)
+**Complexity:** L (1-2d)
 **Depends On:** TASK-1034, TASK-1038
 
 **Description:**
-Write `migrations/knowledge_report_list_words.sql` (tech §6.1) for exam lists and the virtual
-`my_word_list`, and `GET /api/knowledge/lists/<list_code>/words` (Pro). Works before any exam data exists.
+Everything that reads exam lists, per ADR-054 (revised 2026-11-18): `services/vocabulary/word_lists.py`
+(`WordListStore` over `SupabaseStorageBackend(bucket='reference-data')`, `validate_word_list`,
+`LIST_CODES_BY_LANGUAGE`, `WordList` arrays — tech §8); `migrations/knowledge_report_list_words.sql`
+with `knowledge_list_buckets` and `knowledge_report_list_words`, which take the list's ids as arrays
+(tech §6.1; no list table); the summary's `lists` / `lists_unavailable` (tech §6.3); the `/words`
+`list` + `level` filter; and `GET /api/knowledge/lists/<list_code>/words` (Pro) for exam lists and the
+virtual `my_word_list`. Works before any list file exists: tests use `InMemoryBackend`.
 
 **Acceptance Criteria:**
-- [ ] Buckets per tech §2.8 (exam lists; rank-1 rule; codes `rated_known | seen_not_rated | no_evidence | not_in_dictionary`) and §2.9 (`my_word_list`; chosen meaning; no `not_in_dictionary`); `p_cumulative` includes levels ≤ the chosen one.
-- [ ] Keyset `(-coalesce(zipf, -1), item_no)`; unknown or inactive list → `null` → 404; returns `attribution` and `allow_export`.
-- [ ] Route validation (bucket, level, cumulative, cursor), Pro gate, intent `lists_tab`, rate limit `knowledge.list_words`; security header, grants, rollback.
+- [ ] `WordListStore` exactly as tech §8: latest `v<N>` chosen as a number; `validate_word_list` covers every rule of tech §5.2/§8; per-process cache keyed by (list code, version); version re-check at most every 6 h (`RECHECK_S = 21600`); `RETRY_AFTER_FAILURE_S = 300`; serves the cached version when a re-check fails; `WordListsUnavailable` only when nothing is cached; `None` when no file exists; a list code reaches the backend only if registered in `LIST_CODES_BY_LANGUAGE` and matching `^[a-z0-9_]{3,40}$`.
+- [ ] `knowledge_list_buckets` and `knowledge_report_list_words` follow tech §6.1 literally: parallel arrays, `LANGUAGE plpgsql STABLE` with the `list_arrays_mismatch` check, rank-1 rule and the §2.4 rated-known expression textually identical to `knowledge_report_summary`'s, NULL arrays → `my_word_list` (§2.9), keyset `(-coalesce(zipf, -1), item_no)`; `SECURITY INVOKER`, pinned `search_path`, REVOKE/GRANT as TASK-1034; the rollback drops both.
+- [ ] Summary: for zh/ja the service adds `lists` per tech §6.3 (`items`, `in_dictionary`, `not_in_dictionary` from the file; the four SQL buckets from `knowledge_list_buckets`; `built_at`, `version`, `attribution`, `allow_export`, `is_official`); store failure, `call_bundle` → `None`, or an `in_dictionary` mismatch gives `lists: []`, `lists_unavailable: true` and HTTP 200 with every other field unchanged.
+- [ ] Route `/lists/<list_code>/words`: validation (bucket, level ∈ the file's `level_codes`, cumulative, cursor); unregistered code or no file → 404; `not_in_dictionary` paged from the file with cursor `[1, item_no]`; cursor = base64url `[k1, item_no, version]`, an older version → 400 `LIST_UPDATED`; Storage down → 200 `lists_unavailable: true`, `rows: []`; returns `attribution`, `allow_export`, `built_at`; Pro gate, intent `lists_tab`, rate limit `knowledge.list_words`.
+- [ ] `/words` (and export scope `words`): `list` + `level` resolved through the store into `p_filters.vocab_ids`; unregistered list → 400 "Unknown list"; Storage down → 200 with `lists_unavailable: true` and no rows.
+- [ ] Tests: `tests/test_word_lists.py` (new) covers every store case of tech §13; `tests/test_knowledge_routes.py` covers Storage down (no 5xx), `LIST_UPDATED`, 404 and 400 cases; the migration test covers the new file.
+- [ ] Read-only checks after the owner applies the migration: `SELECT knowledge_list_buckets('<de6fd05b uuid>'::uuid, 3::smallint, <its tracked vocab_ids>, <the same number of 1s>)` returns `rated_known` equal to the summary's `rated_known_words` (69 on 2026-11-17; compare on the same day); `EXPLAIN (ANALYZE, BUFFERS)` of a 10,896-element call for 110fb390/zh ≤ 50 ms on the best warm run (all runs recorded); one full-size call (10,896 ids) made from Python through PostgREST succeeds — record the request body size and the time (the PostgREST/gateway body limit is not documented in this wiki).
+
+**Technical Notes:**
+- Backend: `SupabaseStorageBackend(Config.SUPABASE_URL, Config.SUPABASE_SERVICE_ROLE_KEY, bucket='reference-data', http_timeout_s=2.0)` (`services/exercise_content/backends.py:357`); only `list` and `get` are used at runtime. Its errors are `ContentStorageError` (`services/exercise_content/store.py`); catch them in the store, never in routes.
+- `knowledge_report_list_words` gets only in-dictionary entries; Python adds `headword`, `reading`, `level` from the entry (`item_no` = 1-based position) and never sends `not_in_dictionary` to SQL.
+- The full-size arrays are ESTIMATE ≈ 53 KB (today's ~6.6k HSK matches) to ≤ ~90 KB (every entry matched).
 
 **Files to Create / Modify:**
+- `services/vocabulary/word_lists.py` — new
 - `migrations/knowledge_report_list_words.sql`, `migrations/knowledge_report_list_words_rollback.sql` — new
 - `routes/knowledge.py`, `services/vocabulary/knowledge_report.py`, `web/rate_limits.py` — modify
-- `tests/test_knowledge_routes.py`, `tests/test_knowledge_report_migration.py` — extend
+- `tests/test_word_lists.py` — new; `tests/test_knowledge_routes.py`, `tests/test_knowledge_report_service.py`, `tests/test_knowledge_report_migration.py` — extend
 
-**Verification:** pytest; after apply, `SELECT knowledge_report_list_words('<uid>'::uuid, 3::smallint, 'my_word_list', 'all', 'no_evidence', 2::smallint)` returns `{"rows":[],"next_cursor":null,…}` today (0 watchlist rows).
+**Verification:** `python -m pytest tests/test_word_lists.py tests/test_knowledge_routes.py tests/test_knowledge_report_service.py tests/test_knowledge_report_migration.py -q`; after apply, `SELECT knowledge_report_list_words('<uid>'::uuid, 3::smallint, NULL, NULL, 'no_evidence', 2::smallint)` returns `{"rows":[],"next_cursor":null,…}` today (0 watchlist rows) and the `knowledge_list_buckets` check above.
 
 ---
 
@@ -606,11 +637,11 @@ Render the exam-list card and "My word list" card of tech §3.1 (items 3–4) fr
 tech §3.2.
 
 **Acceptance Criteria:**
-- [ ] Four-segment bars with counts per level, the cumulative toggle (counts summed over levels ≤ the chosen one), attribution under the card, "unofficial" for `is_official = false`, the JLPT "{x} of {items} words are not yet in LinguaDojo" line first, the readiness footnote; **no estimated percentage**.
-- [ ] `pro_teaser.missing_next_level` and `next_level` computed with `knowledge_estimate.next_level` (lowest level with rated-known share of in-dictionary items < 0.80); clause omitted when no list is loaded.
+- [ ] Four-segment bars with counts per level, the cumulative toggle (counts summed over levels ≤ the chosen one), attribution under the card, "List matched to the dictionary on {date}" (`built_at`), "unofficial" for `is_official = false`, the JLPT "{x} of {items} words are not yet in LinguaDojo" line first, the readiness footnote; **no estimated percentage**.
+- [ ] `pro_teaser.missing_next_level` and `next_level` computed with `knowledge_estimate.next_level` (lowest level with rated-known share of in-dictionary items < 0.80); clause omitted when `lists` is empty (no file, or `lists_unavailable`).
 - [ ] Lists tab picker remembers the last choice in `localStorage` `kn.listSel` (try/catch) and opens on it.
-- [ ] States E4, E4b, E6 as specified; the exam card is hidden when `lists` is empty.
-- [ ] Vitest with a fixture containing one zh list and one ja list.
+- [ ] States E4, E4b, E4c, E6 as specified; the exam card is hidden when `lists` is empty and `lists_unavailable` is false; with `lists_unavailable` the card and the Lists tab show only "Word lists are unavailable right now" and every other card renders; a `LIST_UPDATED` answer reloads the list from its first page.
+- [ ] Vitest with a fixture containing one zh list and one ja list, and one with `lists_unavailable: true`.
 
 **Files to Create / Modify:**
 - `static/js/pages/knowledge.js`, `templates/knowledge.html`, `static/css/pages/knowledge.css`, `static/i18n/*.json` — modify
@@ -650,51 +681,68 @@ the ladder shows them in daily practice (P2). One of the four Pro launch gate it
 
 ---
 
-## TASK-1052: Word-list loader and data package [?]
+## TASK-1052: Word-list builder and upload script [?]
 
 **Status:** [?] Blocked — needs OQ2 (HSK edition) and OQ3 (licences, list-subset export) answered
 **Feature:** knowledge-report
 **Type:** infra
 **Complexity:** M (3-8h)
-**Depends On:** TASK-1034
+**Depends On:** TASK-1049
 
 **Description:**
-Write `scripts/load_word_lists.py` and commit the chosen source files with provenance; generate the SQL
-upload package and match report (tech §8). No database writes.
+Write `scripts/build_word_lists.py` (tech §8; ADR-054, revised 2026-11-18): verify a pinned source file,
+read `dim_vocabulary` read-only, resolve every headword to a `vocab_id` with the §8 matching rules,
+build and validate the version-1 file (tech §5.2), and either write it locally (default dry run) or,
+with `--upload`, store it as a new immutable version `word-lists/<list_code>/v<N>.json` in the
+`reference-data` bucket. No database writes; no list data committed to the repository. (Replaces the
+2026-11-17 SQL-package loader `scripts/load_word_lists.py`, which is not built.)
 
 **Acceptance Criteria:**
-- [ ] Sources pinned by commit and sha256 in `data/word_lists/<list_code>/SOURCE.md` with licence and attribution text; `allow_export` set per OQ3 (default JLPT true, HSK false).
-- [ ] zh and ja rules exactly as tech §8 (homograph digits, optional parts, variants, lowest level, erhua method 6; ja methods 1–5; reading-only homophones unmatched); jamsinclair cleaning (strip `; alt`, `(…)` notes and `～`).
+- [ ] `SOURCES` in the script pins each list: URL with commit, sha256, licence, attribution, name, edition, `is_official`, `level_codes`, and `allow_export` per OQ3 (default JLPT true, HSK false); a `--source` file whose sha256 differs from the pin is refused.
+- [ ] zh and ja rules exactly as tech §8 (homograph digits, optional parts, variants, lowest level, erhua `match_kind` 6; ja kinds 1–5; reading-only homophones unmatched); jamsinclair cleaning (strip `; alt`, `(…)` notes and `～`).
 - [ ] HSK 2025 match rates reproduce level-lists research §3.2 (L1 271/300 …) within ±1 percentage point (+13 erhua matches); JLPT (jamsinclair) rates recorded in `match_report.json` and compared with the research table (N5 46.4% … N1 19.4%).
-- [ ] `--re-resolve` emits UPDATEs only for `vocab_id IS NULL` items.
-- [ ] `tests/test_load_word_lists.py` covers normalisation and every match method on small fixtures.
+- [ ] The file passes `services/vocabulary/word_lists.validate_word_list` (TASK-1049), every non-null `vocab_id` exists among the `dim_vocabulary` rows read for the list's `language_id`, the file is ≤ 5,242,880 B, and `built_at` / `built_from {dictionary_max_vocab_id, dictionary_lemma_count}` are filled.
+- [ ] Default (dry run) writes `data/word_lists/<list_code>/v<N>.json` and `match_report.json` with N = highest version in Storage + 1 (read-only `list`) and makes no `put`; `--upload` puts exactly that content with the never-overwrite `put`; `AlreadyExists` → non-zero exit, no retry; content equal to the latest version except `built_at` → no upload, prints "unchanged".
+- [ ] `.gitignore` gains `data/word_lists/`.
+- [ ] `tests/test_build_word_lists.py` (new) covers the tech §13 builder cases with `InMemoryBackend` and a fake dictionary read.
 
-**Technical Notes:** parse downloads with `python3 -I`; keep scripts outside the data folder; the dictionary input is a read-only export (level-lists research §3.1 queries).
+**Technical Notes:**
+- Parse downloads with `python3 -I`; keep scripts outside the data folder.
+- Dictionary read: `id, language_id, lemma, lemma_traditional, reading, frequency_rank` for one language, through PostgREST with the service key, 1,000 rows per page (the PostgREST cap, `services/pagination.py:3-7`); SELECT only.
+- Storage: `SupabaseStorageBackend(…, bucket='reference-data')` `list` and `put` only; never `delete`.
+- Rebuild (rerun with `--upload`) whenever zh or ja gains lemmas (after each sense-seeding batch; after OQ31's JLPT seeding); there is no `--re-resolve`.
+- Expected size (ESTIMATE, tech §5.2): HSK ≈ 0.29 MB, JLPT ≈ 0.30 MB.
 
 **Files to Create / Modify:**
-- `scripts/load_word_lists.py`, `tests/test_load_word_lists.py` — new
-- `data/word_lists/hsk30_2025/*`, `data/word_lists/jlpt_waller/*` — new (sources, `SOURCE.md`, `upload.sql`, `match_report.json`)
+- `scripts/build_word_lists.py`, `tests/test_build_word_lists.py` — new
+- `.gitignore` — add `data/word_lists/`
 
-**Verification:** `python -m pytest tests/test_load_word_lists.py -q`; `python -I scripts/load_word_lists.py --list hsk30_2025 --dict-export <file>` prints the per-level match table.
+**Verification:** `python -m pytest tests/test_build_word_lists.py -q`; `python -I scripts/build_word_lists.py --list hsk30_2025 --source <downloaded file or folder>` prints the per-level match table, the version it would write and the file size, and writes the file locally (no Storage write).
 
 ---
 
-## TASK-1053: Load the exam lists into production [?] (LIVE-DB)
+## TASK-1053: Upload the exam lists to Storage [?] (LIVE-STORAGE, owner)
 
-**Status:** [?] Blocked — OQ2, OQ3, and the size gate: `pg_database_size` ≤ 490,000,000 B (after the ADR-049 content drop) or a confirmed 500 MiB cap (OQ13)
+**Status:** [?] Blocked — OQ2 and OQ3 only (the files live in Storage, so no database size gate — ADR-054, revised 2026-11-18)
 **Feature:** knowledge-report
 **Type:** infra
 **Complexity:** S (1-3h)
-**Depends On:** TASK-1052
+**Depends On:** TASK-1034, TASK-1052
 
-**Description:** The owner applies the two `upload.sql` packages, one transaction each, then checks counts and size.
+**Description:** The owner runs the builder with `--upload` for `hsk30_2025` and `jlpt_waller` against
+production (a live Storage write; the only database change is Storage's own object metadata, ~0.6 KB
+per file), then checks the files and the report.
 
 **Acceptance Criteria:**
-- [ ] `SELECT list_code, item_count, allow_export, (SELECT count(*) FROM dim_word_list_items i WHERE i.list_id = l.id) FROM dim_word_lists l` matches the packages.
-- [ ] Database growth ≤ 2.5 MB (`pg_database_size` before and after recorded in `wiki/log.md`).
-- [ ] `/api/knowledge/summary` for a zh learner returns the HSK card data locally.
+- [ ] `python -I scripts/build_word_lists.py --list hsk30_2025 --source <file> --upload` and the same for `jlpt_waller` each print the version written (`v1` the first time) and the per-level match table; both tables are recorded in `wiki/log.md`.
+- [ ] Read-only: `SELECT name, (metadata->>'size')::bigint FROM storage.objects WHERE bucket_id = 'reference-data' ORDER BY name` lists `word-lists/hsk30_2025/v1.json` and `word-lists/jlpt_waller/v1.json`, each ≤ 5,242,880 B (≈ 0.3 MB expected, ESTIMATE); the sizes are recorded.
+- [ ] `/api/knowledge/summary` for a zh learner returns the HSK list (with `built_at` and `version`) and for a ja learner the JLPT list (locally against production, or in production with the flag on for staff); the time of the first, cold Storage read is recorded.
 
-**Files to Create / Modify:** none in the repo (applies `data/word_lists/*/upload.sql`).
+**Technical Notes:** rerunning is safe (an unchanged build uploads nothing; `put` never overwrites).
+To withdraw a bad version the owner deletes that one file; processes fall back to the highest
+remaining version at their next 6-hourly check (tech §14).
+
+**Files to Create / Modify:** none in the repo (uploads built files to Storage).
 
 **Verification:** the SQL above (read-only) and a local page check.
 
@@ -784,8 +832,8 @@ Record the live state after the core migrations: new tables and functions, the s
 the amended 402 helper, the gate reference in TASK-997, and the calibration pool's staleness.
 
 **Acceptance Criteria:**
-- [ ] [[database/schema.tech]] documents `user_knowledge_snapshots`, `dim_word_lists`, `dim_word_list_items` with measured post-apply sizes.
-- [ ] [[api/rpcs.tech]] documents the seven new functions.
+- [ ] [[database/schema.tech]] documents `user_knowledge_snapshots` with its measured post-apply size, and the `reference-data` Storage bucket (path layout `word-lists/<list_code>/v<N>.json`, pointer to tech §5.2 for the file schema, measured `storage.objects` rows).
+- [ ] [[api/rpcs.tech]] documents the eight new functions (including `knowledge_list_buckets`).
 - [ ] [[features/vocabulary-knowledge.tech]] notes the report reads raw values only and that the 2-argument `bkt_effective_p_known` fails on every call.
 - [ ] [[features/calibration.tech]] links the report and notes the pool refresh affects the report's denominator.
 - [ ] [[tasklist/billing.tasks]]: TASK-993 → "Superseded by TASK-1034–TASK-1071"; TASK-980's `payment_required` amended to TASK-1038's signature; TASK-997 references TASK-1059.
@@ -823,7 +871,7 @@ not touched here.
 
 ## TASK-1059: Pro launch gate [?] (owner)
 
-**Status:** [?] Blocked — needs TASK-1053 (OQ2, OQ3, size gate OQ13) and the owner's acceptance of the gate (OQ28)
+**Status:** [?] Blocked — needs TASK-1053 (OQ2, OQ3; no longer the database size gate OQ13 — ADR-054, revised 2026-11-18) and the owner's acceptance of the gate (OQ28)
 **Feature:** knowledge-report
 **Type:** infra
 **Complexity:** XS (<1h)
@@ -835,7 +883,7 @@ until this gate passes (ADR-055; tech §14 step 6). Billing TASK-997 must not en
 key before it.
 
 **Acceptance Criteria:**
-- [ ] (1) The HSK 2025 list is loaded and its card shows for a zh learner in production.
+- [ ] (1) The HSK 2025 list file is uploaded to Storage (TASK-1053) and its card shows for a zh learner in production.
 - [ ] (2) "Add these words to my word list" returns 202 from the Lists and Missed recently tabs.
 - [ ] (3) A filtered CSV, a list-level CSV (JLPT; HSK only if `allow_export`) and an Anki file export and open correctly.
 - [ ] (4) Every Pro row leads with evidence; no five-level label or numeric rating is visible.
@@ -1097,7 +1145,7 @@ about X–Y% of them."
 **Acceptance Criteria:**
 - [ ] Formula and copy exactly as tech §2.8a; unit tests in `tests/test_knowledge_estimate.py`.
 
-**Files to Create / Modify:** `services/vocabulary/knowledge_estimate.py`, `migrations/knowledge_report_summary.sql` (per-band frame counts per level), `static/js/pages/knowledge.js`, `static/i18n/*.json`.
+**Files to Create / Modify:** `services/vocabulary/knowledge_estimate.py`, `migrations/knowledge_report_list_words.sql` (`knowledge_list_buckets` also returns per-band frame counts per level, from the same arrays), `static/js/pages/knowledge.js`, `static/i18n/*.json`.
 
 **Verification:** `python -m pytest tests/test_knowledge_estimate.py -q`.
 

@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-17
+last_updated: 2026-11-18
 ---
 
 # Master Task List
@@ -1378,7 +1378,7 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-1034 | knowledge-report | Foundation migration — snapshot and list tables, frame, pairs and prune functions (LIVE-DB) | [ ] | M | none |
+| TASK-1034 | knowledge-report | Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB) | [ ] | M | none |
 | TASK-1035 | knowledge-report | Pure estimator and rules module (`knowledge_estimate.py`) | [ ] | M | none |
 | TASK-1036 | knowledge-report | Summary RPC `knowledge_report_summary` (LIVE-DB) | [ ] | L | TASK-1034 |
 | TASK-1037 | knowledge-report | Nightly snapshot job | [ ] | M | TASK-1034, TASK-1035, TASK-1036 |
@@ -1393,17 +1393,17 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 | TASK-1046 | knowledge-report | Pro UI — All words and Missed recently tabs, filters, sorts, search | [ ] | L | TASK-1045, TASK-1040 |
 | TASK-1047 | knowledge-report | Word sheet — detail RPC, route and UI (LIVE-DB) | [ ] | M | TASK-1044, TASK-1046 |
 | TASK-1048 | knowledge-report | Export — filtered and list CSV, Anki text (Pro) | [ ] | M | TASK-1045, TASK-1046, TASK-1049 |
-| TASK-1049 | knowledge-report | List-words RPC and route (LIVE-DB) | [ ] | M | TASK-1034, TASK-1038 |
+| TASK-1049 | knowledge-report | List RPCs, word-list store and route (LIVE-DB) | [ ] | L | TASK-1034, TASK-1038 |
 | TASK-1050 | knowledge-report | List cards (summary) and the Pro Lists tab | [ ] | M | TASK-1049, TASK-1046 |
 | TASK-1051 | knowledge-report | "Add these words to my word list" (Pro study action) | [ ] | S | TASK-1050, TASK-1046 |
-| TASK-1052 | knowledge-report | Word-list loader and data package | [?] needs OQ2 (HSK edition) and OQ3 (licences, list-subset export) answ… | M | TASK-1034 |
-| TASK-1053 | knowledge-report | Load the exam lists into production [?] (LIVE-DB) | [?] OQ2, OQ3, and the size gate: `pg_database_size` ≤ 490,000,000 B (af… | S | TASK-1052 |
+| TASK-1052 | knowledge-report | Word-list builder and upload script | [?] needs OQ2 (HSK edition) and OQ3 (licences, list-subset export) answ… | M | TASK-1049 |
+| TASK-1053 | knowledge-report | Upload the exam lists to Storage [?] (LIVE-STORAGE, owner) | [?] OQ2 and OQ3 only (the files live in Storage, so no database size gate — ADR-054… | S | TASK-1034, TASK-1052 |
 | TASK-1054 | knowledge-report | Performance evaluation on live data | [ ] | S | TASK-1036, TASK-1044 |
 | TASK-1055 | knowledge-report | End-to-end smoke and visual fixtures | [ ] | S | TASK-1040, TASK-1046 |
 | TASK-1056 | knowledge-report | Validate the estimator and the ratings | [?] needs OQ6 (exclude 110fb390?), TASK-1061 (forced-choice items, OQ5)… | M | TASK-1035, TASK-1037, TASK-1061 |
 | TASK-1057 | knowledge-report | Documentation reconciliation | [ ] | S | TASK-1034, TASK-1036, TASK-1038, TASK-1040 |
 | TASK-1058 | knowledge-report | Enable the report in production (LIVE environment change) | [ ] | XS | TASK-1037, TASK-1040, TASK-1041, TASK-1054 |
-| TASK-1059 | knowledge-report | Pro launch gate | [?] needs TASK-1053 (OQ2, OQ3, size gate OQ13) and the owner's acceptan… | XS | TASK-1046, TASK-1048, TASK-1051, TASK-1053 |
+| TASK-1059 | knowledge-report | Pro launch gate | [?] needs TASK-1053 (OQ2, OQ3; no longer the database size gate OQ13 — ADR-054, revised… | XS | TASK-1046, TASK-1048, TASK-1051, TASK-1053 |
 | TASK-1060 | knowledge-report | Import not-in-dictionary words with credits | [?] billing's credit spend path (`spend_credits(8, 'sense_import')`, `w… | L | TASK-1051 |
 | TASK-1061 | knowledge-report | Calibration forced-choice probe items [?] (LIVE-DB) | [?] OQ5 (owner approval of a Calibration change) | M | none |
 | TASK-1062 | knowledge-report | Calibration selector — one lemma, rank-1 sense [?] (LIVE-DB) | [?] OQ9 (owner approval of a live Calibration function change) | M | none |
