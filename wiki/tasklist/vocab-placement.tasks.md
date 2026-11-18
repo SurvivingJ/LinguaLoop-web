@@ -833,7 +833,8 @@ A read-only sample query after apply; a local check session showing no reading u
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** none (TASK-1077 depends on it for zh reading items)
+**Depends On:** none
+**Blocks:** TASK-1077 (zh reading items), TASK-1088 (zh launch)
 
 **Description:**
 Builds what rule 4 of tech §2 needs ([[decisions/ADR-060-zh-placement-scores-tones]]):
