@@ -4,8 +4,9 @@ type: evaluation
 status: complete
 last_updated: 2026-11-18
 open_questions:
-  - "OPEN: Withhold medium-confidence errors for unvalidated (free) models? Simulated only on error lists (§4); scores were not recomputed, so a real run is needed before shipping."
-  - "OPEN: What should the fallback model be? Nemotron false-flags rephrasings heavily; Baidu Ernie fails 38% of calls at the 1,400-token budget (a larger budget for it is untested)."
+  - "ANSWERED (2026-11-18): withhold medium-confidence errors for unvalidated models — shipped and measured live (§6)."
+  - "ANSWERED (2026-11-18): no model fallback by default; a failed grade offers the learner a retry (§6)."
+  - "OPEN: English understandability bands got worse with the filter (QWK .70 -> .45 on the same items). Accept, or keep medium errors for band scoring only?"
   - "OPEN: Fund the key and return to the validated pair (openai/gpt-6-luna, deepseek/deepseek-v4.1-flash, ADR-044)?"
   - "OPEN: Prompt change for joined sentences (て/で connective) — the 2026-11-18 learner case was a high-confidence flag that the confidence filter would not remove."
 ---
@@ -82,6 +83,38 @@ measured. The learner's 2026-11-18 flag was `high`, so this filter would not hav
   rephrasings in the stress set at a recall cost on gold (.88 → .79).
 - Nemotron should not stay as the fallback.
 - The validated paid pair remains the best grader measured (gold .97 / .91, 0–2 rephrasing flags).
+
+## 6. Shipped configuration, measured live (2026-11-18)
+
+Built and pushed (not deployed): for models outside `VALIDATED_MODELS` only `high` errors are shown and
+scored (`dropped.not_high_confidence`); their prompt adds `JOINED_SENTENCES_PARAGRAPH` (variant
+`v2_guard2`); `DT_SINGLE_CALL_FALLBACK_MODEL` defaults to blank; the learner gets "Try again" when no model
+graded the translation. Run with Particle, no fallback (prefix `fq_`, all 9 runs, 211 free calls).
+
+9 calls hit OpenRouter's free per-minute limit (429 `free-models-per-min`, 20/min) because the runs are
+back to back; those items fell to the refused paid flow. Rows marked "excl." drop those 9 items from both
+sides.
+
+| Setup | Gold P / R (TP/FP/FN) | Clean flagged | Heavy: rephrasings flagged · P / R | Moderate · P / R |
+|---|---|---|---|---|
+| Paid gpt-6-luna | .97 / .91 (73/2/7) | 0/30 | 2 · .94 / .85 | 0 · .97 / .80 |
+| Particle, old setup | .95 / .88 (70/4/10) | 1/30 | 21 · .50 / .88 | 14 · .69 / .92 |
+| **Particle, new setup** | .95 / .79 (63/3/17) | 0/30 | **0** · 1.0 / .82 | **0** · 1.0 / .67 |
+| Particle, new setup, excl. | .95 / .81 (63/3/15) | 0/30 | 0 · 1.0 / .82 | 0 of 83 · 1.0 / .85 |
+| Paid, same items excl. | .97 / .91 (71/2/7) | 0/30 | 2 · .94 / .85 | 0 of 83 · .97 / .82 |
+
+Gold QWK accuracy / fidelity / understandability (excl.): en .82 / .76 / .45 (old .82 / .82 / .70; paid
+1.0 / .83 / .69), zh .75 / .92 / .94 (old .75 / .84 / .74), ja .85 / .84 / .76 (old .85 / .89 / .79).
+Overall-band QWK .74 (old .74, paid .81).
+
+Joined-sentence spot checks (2 runs each, Particle, new prompt): correct joins in ja, zh and en raised no
+flag; a joined sentence with a wrong verb (家にいきます) and a wrong te-form (広いで) were still flagged
+(critical / major). The 2026-11-18 learner sentence went from "conjugation, major" (3/3) to "word_choice,
+minor" in 2 of 4 runs and major in 2 (one still said the で left the sentence unfinished).
+
+**Reading.** The filter removes every false flag on correct rephrasings in the stress set, as simulated,
+at a recall cost (gold .88 -> .81). Bands improve for Chinese and drop for English understandability,
+because medium errors that were real no longer lower the band.
 
 ## Related Pages
 

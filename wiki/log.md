@@ -7050,3 +7050,16 @@ Nemotron worse, Baidu Ernie (`baidu/ernie-5.5-flash-preview:free`) cannot disabl
 38% of calls (low effort ignored; its `REQUEST_EXTRAS` entry and comment record this). Simulated "high confidence
 only" for Particle: 0 rephrasing false flags, gold recall .88 → .79. No production setting changed.
 Pages: created [[evaluations/dt-free-models-2026-11-18]]; updated [[features/dual-translation.tech]], [[index]].
+
+## [2026-11-18] implement + eval | Free grader: high-confidence only, joined-sentence prompt, no fallback, retry
+Developer: "Do 1-3, and test out 3 to ensure it works. Also if it fails, let the user retry submission. We will try
+to provide budget in future so that we can run Luna."
+Done (code pushed, not deployed): unvalidated models show/score only `high` errors (`dropped.not_high_confidence`);
+their prompt adds `JOINED_SENTENCES_PARAGRAPH` (variant `v2_guard2`; the validated prompt is byte-identical, tested);
+`DT_SINGLE_CALL_FALLBACK_MODEL` defaults to blank; "Try again" with the learner's text kept when no model graded it
+(session player on 503; standalone page on 503 and on a band-less grade, which used to open an empty result);
+`dual_translation.grading_unavailable` reworded in en/es/ja/zh. Tests: 1,977 Python, 745 JS unit pass.
+Live run (`fq_`, 211 free calls): 0 of 245 correct rephrased sentences flagged (old 35), gold recall .81 excl. 9
+rate-limited items (old .88, paid .91); zh bands better, en understandability worse (.70 -> .45). Detail:
+[[evaluations/dt-free-models-2026-11-18]] §6. Owner: if the deployed app sets `DT_SINGLE_CALL_FALLBACK_MODEL`, clear it.
+Pages: [[evaluations/dt-free-models-2026-11-18]], [[features/dual-translation.tech]].
