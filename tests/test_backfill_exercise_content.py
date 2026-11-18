@@ -82,6 +82,10 @@ class _Query:
     def eq(self, column, value):
         return self._filter('eq', column, lambda row: row.get(column) == value, value)
 
+    def gt(self, column, value):
+        return self._filter('gt', column, lambda row: row.get(column) is not None
+                            and str(row.get(column)) > str(value), value)
+
     def in_(self, column, values):
         values = list(values)
         return self._filter('in', column, lambda row: row.get(column) in values, values)
@@ -558,6 +562,30 @@ def test_verify_passes_after_an_export(mem, paths, tmp_path):
     rep = report(paths)
     assert rep['mode'] == 'verify' and rep['files_verified'] == 3 and rep['mismatches'] == []
     assert mem.calls_for('put') == [] and db.writes == []
+
+
+def test_live_versions_falls_back_to_keyset_pages_on_a_statement_timeout(monkeypatch):
+    rows = [row(101), row(101, version=4), row(102), row(201, lang=EN)] + [row(300 + i) for i in range(5)]
+    db = FakeDB(rows)
+    monkeypatch.setattr(bf, 'LIVE_VERSIONS_PAGE', 2)
+
+    def timed_out(name, params):
+        raise FakeAPIError("{'code': '57014', 'message': 'canceling statement due to statement timeout'}")
+    monkeypatch.setattr(db, 'rpc', timed_out)
+
+    got = bf.live_versions(db, ZH)
+    assert got == {101: [0, 4], 102: [0], **{300 + i: [0] for i in range(5)}}
+    pages = [q for q in db.queries if q[0] == ('table', 'exercises')]
+    assert len(pages) == 5                                   # 8 zh rows, 2 per page, last page short
+    assert all(('not.is', 'word_sense_id', 'null') in q and ('eq', 'language_id', ZH) in q for q in pages)
+    assert ('gt', 'id', sorted(r['id'] for r in rows if r['language_id'] == ZH)[1]) in pages[1]
+
+
+def test_live_versions_other_errors_propagate(monkeypatch):
+    db = FakeDB([row(101)])
+    monkeypatch.setattr(db, 'rpc', lambda name, params: (_ for _ in ()).throw(FakeAPIError('permission denied')))
+    with pytest.raises(FakeAPIError, match='permission denied'):
+        bf.live_versions(db, ZH)
 
 
 def _exported_all(mem, paths, tmp_path):

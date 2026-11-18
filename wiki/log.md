@@ -7035,3 +7035,20 @@ one `call_failed` row per failed configured-flow call (`flow` v1/v2, `prompt_ver
 Owner actions: top up / raise the OpenRouter key limit (the paid fallback is dead until then); check the host
 log at 21:50 UTC for `single_call_grader: call to … failed`; submission 128 is still open and can be resubmitted.
 Pages: [[features/dual-translation.tech]], [[index]].
+## [2026-11-17] update | Exercise content to Storage — Phase-1 code merged to main; SQL test passed on production (TASK-1026)
+**Merge:** PR #36 was merged to `main` as `8e0afb6`, with both flags at their `db` default. Railway deploys from `main`; the deploy itself could not be observed here, because this environment's network does not allow the production host.
+
+**CI:**
+- vitest + eslint passed on the first run.
+- pytest failed once: `tests/test_prompt_split_l4_l8.py::test_unregistered_prompt_version_is_refused_not_guessed`, which was red on `main` too. Commit c426784 had registered `morphology_slot` prompt v2, but the test still used v2 as its "unregistered" example.
+- Fixed in `00b1673`: the test now uses the first version after the registered ones. Both CI jobs were then green.
+
+**SQL test:** the owner ran `tests/sql/test_exercise_content_storage.sql` in the SQL editor, inside its own ROLLBACK.
+- No error was raised.
+- `exercise_content_version_seq` stands at exactly 4, the four draws a complete run makes.
+- A read-only check found 0 rows left behind (no new exercises, no non-zero `content_version`, no `dedupe_key`).
+- Database size: 495,815,827 bytes.
+
+**Remaining for TASK-1026:** the owner's in-app check of Practice and the prestudy page, including on-demand exercise loading for an added word.
+Pages updated: 2 ([[tasklist/exercise-content-storage.tasks]], [[tasklist/master]]).
+

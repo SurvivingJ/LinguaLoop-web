@@ -732,7 +732,7 @@ Run the real store, writers, readers, backfill and sweep together over `FakeCont
 
 ## TASK-1026: Apply the Phase-1 migrations and deploy with both flags at `db` (OPERATOR)
 
-**Status:** [~] In Progress (both migrations live 2026-11-17; deploy of the Phase-1 code and the app walkthrough pending)
+**Status:** [~] In Progress (migrations live, SQL test passed, code merged to `main` 2026-11-17 via PR #36; only the in-app walkthrough remains)
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -750,7 +750,10 @@ code works before the migrations). Then apply `migrations/exercise_content_stora
   - `exercise_content_session_rpcs` was run by the owner in the SQL editor. The editor paste turned line endings into CRLF; with `\r` removed, the bodies are md5-identical to the file, and comments match exactly.
   - No staging project exists.
   - Before applying, the live 5-argument bodies were md5-checked: identical to `get_practice_session_language_scope.sql` and `practice_review_ahead.sql`.
-- [ ] `tests/sql/test_exercise_content_storage.sql` inside its own `ROLLBACK` on production: not run yet. It writes, then rolls back, and needs owner approval.
+- [x] `tests/sql/test_exercise_content_storage.sql` inside its own `ROLLBACK` on production: run by the owner in the SQL editor, 2026-11-17.
+  - No error was raised, so every assertion held.
+  - `exercise_content_version_seq` stands at exactly 4: the four draws a complete run makes (3 in the begin/commit block, 1 in the service-role block). So all three blocks ran.
+  - Checked afterwards, read-only: 0 exercise rows created, 0 rows with a non-zero `content_version` or a `dedupe_key`. The rollback held.
 - [x] `tests/sql/check_function_acls.sql` passes for the ADR-049 objects: none of the five functions is executable by `anon` or `authenticated`. Pre-existing violations elsewhere, untouched by these migrations:
   - `anon` holds SELECT on 28 public tables, including `users`, `user_tokens`, `token_transactions` and `trusted_devices`. RLS is on for all of them.
   - RLS is off on `backup_semdisc_content_20261115` and `semdisc_rewrite_work`, which are dropped at the cut-over.
@@ -762,7 +765,11 @@ code works before the migrations). Then apply `migrations/exercise_content_stora
   - 24 exercise items, all with `content` and `content_version` 0;
   - with `p_include_content => false`: 24 items, no `content` key;
   - review-ahead: 10 of 10 items with `content` and `content_version`.
-- [ ] Practice session checked in the app after the deploy.
+- [x] Phase-1 code deployed with both flags at `db`: PR #36 merged to `main` as `8e0afb6`, after CI pytest and vitest + eslint passed. Railway deploys from `main`. The deploy itself could not be observed from the agent environment (its network does not allow the production host).
+- [ ] Practice session and the prestudy page checked in the app after the deploy (owner):
+  - Practice serves exercises;
+  - "Study first" shows exercise counts;
+  - marking a word "I don't know this" loads its exercises on demand.
 - [~] Database size: 494,431,379 → 495,873,171 bytes (+1.4 MB).
   - The storage migration accounts for 16 KB.
   - No app table gained rows in the window (`exercises`, `llm_calls`, `app_error_logs`, `exercise_attempts`, `storage.objects`: 0 new rows in 90 minutes) and no other client was connected.

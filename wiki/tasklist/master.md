@@ -1285,7 +1285,7 @@ Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-049-ex
 | TASK-1023 | exercise-content-storage | Backfill, verify and archive script | Done | M | TASK-1008 |
 | TASK-1024 | exercise-content-storage | Orphan-file sweep script | Done | S | TASK-1008 |
 | TASK-1025 | exercise-content-storage | Phase-1 integration run (offline) and wiki update | Done | M | TASK-1009..1024 |
-| TASK-1026 | exercise-content-storage | OPERATOR: apply Phase-1 migrations, deploy with flags `db` (LIVE-DB, approval) — both migrations live 2026-11-17; deploy pending | [~] | S | TASK-1016, TASK-1017, TASK-1025 |
+| TASK-1026 | exercise-content-storage | OPERATOR: apply Phase-1 migrations, deploy with flags `db` (LIVE-DB, approval) — migrations live, SQL test passed, code merged to `main` (PR #36) 2026-11-17; in-app check pending | [~] | S | TASK-1016, TASK-1017, TASK-1025 |
 | TASK-1027 | exercise-content-storage | OPERATOR: dual writes on, backfill and verify | [ ] | M | TASK-1026 |
 | TASK-1028 | exercise-content-storage | OPERATOR: shadow reads ≥ 7 days | [ ] | S | TASK-1027 |
 | TASK-1029 | exercise-content-storage | OPERATOR: serve from Storage, latency within +10% warm | [ ] | S | TASK-1028 |

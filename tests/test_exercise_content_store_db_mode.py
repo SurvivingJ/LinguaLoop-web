@@ -281,8 +281,9 @@ _DUMP_FLAGS = ('import json; from config import Config; '
 def test_config_defaults_in_a_clean_interpreter():
     values = json.loads(_run_python(_DUMP_FLAGS))
     assert values == {
-        'EXERCISE_CONTENT_SOURCE': 'db',
-        'EXERCISE_CONTENT_WRITE': 'db',
+        # Defaults since 2026-11-18 (owner decision): serve from Storage, write both.
+        'EXERCISE_CONTENT_SOURCE': 'storage',
+        'EXERCISE_CONTENT_WRITE': 'dual',
         'EXERCISE_CONTENT_BUCKET': 'exercise-content',
         'EXERCISE_CONTENT_CACHE_MB': 32,
         'EXERCISE_CONTENT_FETCH_CONCURRENCY': 16,
@@ -298,14 +299,14 @@ def test_config_defaults_in_a_clean_interpreter():
 def test_config_reads_the_environment():
     values = json.loads(_run_python(
         _DUMP_FLAGS,
-        EXERCISE_CONTENT_SOURCE='shadow', EXERCISE_CONTENT_WRITE='dual',
+        EXERCISE_CONTENT_SOURCE='shadow', EXERCISE_CONTENT_WRITE='db',
         EXERCISE_CONTENT_BUCKET='other-bucket', EXERCISE_CONTENT_CACHE_MB='8',
         EXERCISE_CONTENT_FETCH_CONCURRENCY='4', EXERCISE_CONTENT_MAX_SENSES_PER_CALL='50',
         EXERCISE_CONTENT_DEADLINE_S='1.5', EXERCISE_CONTENT_HTTP_TIMEOUT_S='0.5',
         EXERCISE_CONTENT_DB_FALLBACK='0', EXERCISE_CONTENT_SHADOW_SAMPLE='0.25',
     ))
     assert values == {
-        'EXERCISE_CONTENT_SOURCE': 'shadow', 'EXERCISE_CONTENT_WRITE': 'dual',
+        'EXERCISE_CONTENT_SOURCE': 'shadow', 'EXERCISE_CONTENT_WRITE': 'db',
         'EXERCISE_CONTENT_BUCKET': 'other-bucket', 'EXERCISE_CONTENT_CACHE_MB': 8,
         'EXERCISE_CONTENT_FETCH_CONCURRENCY': 4, 'EXERCISE_CONTENT_MAX_SENSES_PER_CALL': 50,
         'EXERCISE_CONTENT_DEADLINE_S': 1.5, 'EXERCISE_CONTENT_HTTP_TIMEOUT_S': 0.5,

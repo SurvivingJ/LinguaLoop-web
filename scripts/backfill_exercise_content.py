@@ -223,9 +223,54 @@ def default_report_path(language: str, moment: datetime) -> str:
 # Database reads
 # ---------------------------------------------------------------------------
 
+#: Rows per keyset page when the live-versions RPC times out.
+LIVE_VERSIONS_PAGE = 1000
+
+
+def _is_statement_timeout(exc: BaseException) -> bool:
+    text = str(exc)
+    return '57014' in text or 'statement timeout' in text
+
+
+def _live_versions_paged(db, language_id: int) -> dict[int, list[int]]:
+    """The same map as the RPC, read in keyset pages (``id > last``, ordered by id).
+
+    Used when the one-call RPC exceeds PostgREST's statement timeout (8 s for the
+    API roles): zh, about 100k rows, measured 10-12 s on the Free instance on
+    2026-11-17. Each page is a short indexed query.
+    """
+    versions: dict[int, set[int]] = {}
+    last_id = None
+    while True:
+        query = (db.table('exercises').select('id, word_sense_id, content_version')
+                 .eq('language_id', language_id).not_.is_('word_sense_id', 'null'))
+        if last_id is not None:
+            query = query.gt('id', last_id)
+        rows = query.order('id').limit(LIVE_VERSIONS_PAGE).execute().data or []
+        for row in rows:
+            sense_id, version = _as_int(row.get('word_sense_id')), _as_int(row.get('content_version'))
+            if sense_id is None or version is None or version < 0:
+                raise ValueError(f'exercises row {row.get("id")!r} has a bad sense/version: {row!r}')
+            versions.setdefault(sense_id, set()).add(version)
+        if len(rows) < LIVE_VERSIONS_PAGE:
+            return {sid: sorted(v) for sid, v in versions.items()}
+        last_id = rows[-1]['id']
+
+
 def live_versions(db, language_id: int) -> dict[int, list[int]]:
-    """``{sense_id: [version, ...]}`` from ``exercise_content_live_versions`` (ADR-049 §8)."""
-    data = db.rpc(LIVE_VERSIONS_RPC, {'p_language_id': language_id}).execute().data
+    """``{sense_id: [version, ...]}`` from ``exercise_content_live_versions`` (ADR-049 §8).
+
+    Falls back to keyset pages over ``exercises`` when the RPC hits the statement
+    timeout (``_live_versions_paged``); any other error propagates.
+    """
+    try:
+        data = db.rpc(LIVE_VERSIONS_RPC, {'p_language_id': language_id}).execute().data
+    except Exception as exc:                      # noqa: BLE001 - narrowed just below
+        if not _is_statement_timeout(exc):
+            raise
+        logger.warning('%s(%s) hit the statement timeout; reading the versions in pages of %d',
+                       LIVE_VERSIONS_RPC, language_id, LIVE_VERSIONS_PAGE)
+        return _live_versions_paged(db, language_id)
     if data is None:
         return {}
     if isinstance(data, str):
