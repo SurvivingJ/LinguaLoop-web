@@ -175,6 +175,7 @@ All OPEN; see frontmatter. Full table with defaults and affected tasks:
 ## Related Pages
 - [[features/knowledge-report.tech]] — technical specification
 - Mockups: `wiki/demos/knowledge-report-pro-mockups.html` — five interactive Pro-view options on real and demo data
+- Mockups: `wiki/demos/knowledge-report-full-mockups.html` — three complete learner-facing reports (scrolling report, tabbed workspace, exam-goal path)
 - [[tasklist/knowledge-report.tasks]] — task breakdown
 - [[features/vocabulary-knowledge]] — where the per-word ratings come from
 - [[features/calibration]] — the vocabulary check that produces the range

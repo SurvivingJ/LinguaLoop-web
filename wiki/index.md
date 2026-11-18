@@ -190,6 +190,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/knowledge-report]] — **NEW 2026-11-17 (planned)**: "My vocabulary" — a vocabulary range from the vocabulary check, measured evidence first, exam-list buckets; Free/Core summary, Pro word-by-word view + export
 - [[features/knowledge-report.tech]] — Estimator formula and gates, every metric's SQL, RPCs, `/api/knowledge/*` routes, entitlement seam and 402, snapshots, exam-list tables, performance, security, tests
 - Mockups: `wiki/demos/knowledge-report-pro-mockups.html` — **NEW 2026-11-18**: five interactive Pro-view options (evidence ledger, exam map, frequency profile, skills & trouble words, reading readiness) on the owner's real ja/zh data and two synthetic learners
+- Mockups: `wiki/demos/knowledge-report-full-mockups.html` — **NEW 2026-11-18**: three complete learner-facing reports (A one scrolling report, B tabbed workspace, C exam-goal path), demo learner or the owner's real data, ja/zh
 - [[features/flashcards]] — FSRS spaced-repetition review (now a Maintenance sub-type)
 - [[features/flashcards.tech]] — FSRS technical spec
 - [[features/mysteries]] — Murder mystery stories gated by comprehension — **ARCHIVED 2026-09-21** (see `archive/modules/`)
