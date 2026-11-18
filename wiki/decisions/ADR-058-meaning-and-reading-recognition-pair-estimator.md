@@ -6,6 +6,11 @@ date: 2026-11-18
 
 # ADR-058: For Chinese and Japanese the placement reports meaning-and-reading recognition with a pair estimator, pools only same-instrument answers, and shows no exam-level estimate in v1
 
+**Amended 2026-11-18:** for Chinese, decisions 1–3 are superseded by
+[[decisions/ADR-060-zh-placement-scores-tones]] (tones scored; estimator (pc − pkt)/n'; a tone gap next to
+the reading gap). They stand for Japanese. Decision 8 is confirmed by the owner (PQ2: no exam-level output
+"at the moment").
+
 ## Context
 ADR-051 estimates "words you recognise" from the check's definition-mode answers over the check's own pool.
 It uses a per-band guess-corrected share, Jeffreys variance with a finite-population factor, and gates of
@@ -36,7 +41,7 @@ Two independent reviews of the first design found the following:
 ## Decision
 1. **What is claimed.** For zh and ja the headline is **meaning-and-reading recognition**: the rank-1
    meaning and the reading are both recognised in four-option items. For zh the reading means the pinyin
-   syllables; tones are not tested in scored items (ADR-057). For ja kana-only words and all en words, it
+   with its tones (ADR-060). For ja kana-only words and all en words, it
    is meaning recognition. Copy says "recognised", never "know" on its own.
 2. **Pair estimator.** It uses placement pairs only (latest per lemma, 180 days, one D, one instrument).
    Per band, `K_mr = pc/n − (1/3)·prw/n`:
@@ -73,7 +78,7 @@ Two independent reviews of the first design found the following:
    - The method note says the m+r range "may be a little high if readings can be partly guessed" until
      validation V9 measures it. If V9 finds an implied guess rate above 0.30 among unknown readings,
      r = 1/3 for readings is replaced through a revision of this ADR.
-8. **No exam-level estimate in v1.** ADR-054's v1 stance (measured coverage buckets only) is unchanged.
+8. **No exam-level estimate in v1** (owner, PQ2, 2026-11-18: "not at the moment"). ADR-054's v1 stance (measured coverage buckets only) is unchanged.
    Any later level output needs its own ADR that explicitly revises ADR-054's rationale. That output must:
    - name the subset it measures;
    - pass per-true-level gates on the copy learners would see;
@@ -112,13 +117,13 @@ Two independent reviews of the first design found the following:
   Rejected for v1.
 - **The draft's display guard** (cap the m+r ends at the meaning ends): bound in 25–37% of placement-only
   results and widened the headline by 3.2–3.8% of the pool.
-- **Separate tone dimension from one four-option item:** not measurable; tone is measured by 2-option
-  probes instead.
+- **Separate tone dimension from one four-option item:** not measurable with real-reading foils alone.
+  ADR-060 makes it measurable by pairing each syllable set with a tone variant.
 
 ## Related Pages
 - [[features/vocab-placement]] · [[features/vocab-placement.tech]] §4, §5, §8, §9
 - [[decisions/ADR-051-vocabulary-size-from-calibration-frame]] — the estimator extended here
 - [[decisions/ADR-053-daily-knowledge-snapshots]] — retake comparison rule
 - [[decisions/ADR-054-exam-word-lists-in-storage]] — unchanged v1 level stance
-- [[decisions/ADR-057-adaptive-placement-with-conditional-reading]] · [[decisions/ADR-059-placement-evidence-kind]]
+- [[decisions/ADR-057-adaptive-placement-with-conditional-reading]] · [[decisions/ADR-059-placement-evidence-kind]] · [[decisions/ADR-060-zh-placement-scores-tones]]
 - [[features/knowledge-report]] · [[evaluations/vocab-placement-research-2026-11-18]]

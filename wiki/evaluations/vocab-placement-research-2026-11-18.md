@@ -43,7 +43,11 @@ of §4.2. INFERENCE = reasoning that was not tested.
   `*.txt`). `review_learner/`: the learner review's re-runs (`learner_view.py`, `level_by_true.py`,
   `labels.py`, `short_cover.py`, `early_exit.py`, `floor_exit.py`, `compare_floor.py`, `place_by_len.py`,
   `place_designs.py`; outputs `*_out.txt`).
-- `synth/`: synthesis re-runs (`len50.py` → `len50_out.txt`, `stop50.py` → `stop50_out.txt`).
+- `synth/`: synthesis re-runs (`len50.py` → `len50_out.txt`, `stop50.py` → `stop50_out.txt`), and the
+  owner-answer re-run `stop60.py` → `stop60_out.txt` (§5.7).
+- `tones/`: the zh tone-variant coverage measure (`tone_cover.py` → `tone_cover_out.txt`; reads a read-only
+  SELECT export of the pool and dictionary readings, not archived) and the scored-tone simulation
+  (`tone_sim.py` → `tone_sim_smooth_{0.5,0.25,0.1}.txt`, `tone_sim_s025_*.txt`) (§5.7).
 - `scripts/skip_fit.py`, `info_calc.py`: the skip-rate fit and the 3PL information table.
 
 **Not archived:** the raw per-learner outputs (`raw_*.json`, about 400 MB) and the inputs the scripts read
@@ -457,6 +461,57 @@ English-L1 zh beginners answer 22% of meaning items right, guesses included.
 - **The draft's displayed level range was simulated only by the reviewer**, not by the research stage.
 
 ---
+
+### 5.7 Owner-answer re-runs (2026-11-18, after the design was filed)
+
+The owner answered PQ2 (no exam-level output for now), PQ3 for Chinese ("Yes, but only the existing tones,
+just wrong combos"), PQ5 (approved) and PQ10 ("About 60"). Three read-only analyses followed. All are
+ESTIMATE except the coverage count, which is MEASURED.
+
+**Length at 60** (`synth/stop60.py` on `sim/out/raw_main.json`; precision exit from 40 checked at the 40, 45
+and 50 snapshots; cap 60; pace 6.57 s meaning, 7.50 s reading):
+
+| population | early stop (beginners) | scored items | reading items | minutes mean (p95) | 95% half-width meaning / m+r, % pool (words) | 90% cover m / m+r |
+|---|---|---|---|---|---|---|
+| zh·en | 22% (56%) | 56.7 | 17.4 | 6.5 (7.1) | ±15.5 / ±13.4 (±560 / ±486) | 90% / 92% |
+| zh·ja | 0% (1%) | 60.4 | 24.0 | 7.0 (7.1) | ±17.0 / ±15.3 (±618 / ±554) | 90% / 90% |
+| ja·en | 21% (52%) | 56.8 | 13.4 | 6.4 (7.0) | ±15.0 / ±13.8 (±476 / ±439) | 88% / 90% |
+| ja·zh | 0% (1%) | 60.2 | 18.8 | 6.9 (7.0) | ±16.0 / ±15.3 (±508 / ±487) | 87% / 87% |
+
+These m+r figures are for syllables-only zh reading items; the zh rows below supersede them.
+
+**zh tone-variant coverage** (`tones/tone_cover.py`; MEASURED from one read-only SELECT of the zh pool's
+pronunciation-mode rows and all native zh readings in `dim_word_senses`):
+- the rule: a syllable+tone exists if it occurs in any zh dictionary reading; only full tones 1–4 change; no
+  change on 一/不; 3→2-before-3 changes are sandhi and excluded; never a reading of the same lemma;
+- 382 syllables, on average 2.47 attested full tones each;
+- 3,622 of 3,656 pool readings (99.1%) have ≥ 1 valid variant, 96.5% ≥ 2, 89.0% ≥ 3;
+- by band (≥ 1 / ≥ 3): band 1 99.7 / 96.9%, band 4 99.1 / 90.7%, band 6 98.6 / 79.6%, band 7 94.8 / 70.3%;
+- 7,754 of 7,855 zh dictionary readings (98.7%) have ≥ 1 (proxy for the segmental foils' variants).
+
+**Scored-tone simulation** (`tones/tone_sim.py`, importing `sim/sim.py` and `pool.py` unchanged; zh·en and
+zh·ja × IDK 0.3/0.7 × 300 learners; D3S allocation with the new estimator; cap 60, exit from 40). The item has
+K, K′ (tone variant of K), F (segmental foil) and F′ (tone variant of F). Added learner state: a word whose
+reading is known has its tones known with p = θ + (1 − θ)·σ(a(z − τ) − 1.5), θ ~ U(0.5, 0.95) (ASSUMPTION).
+Syllables-only knowers pick K or K′ at random; non-knowers press IDK at their skip rate or pick uniformly.
+
+| run | population | items | early | bias % pool: m / full / syll / old-on-new | 95% half-width % pool: m / full / syll | 95% cover: m / full / syll / old |
+|---|---|---|---|---|---|---|
+| pseudo-count 0.5 | zh·en | 57.0 | 27% | −1.0 / +0.6 / +0.1 / +2.0 | ±15.5 / ±17.1 / ±17.2 | 94 / 99 / 98 / 96% |
+| pseudo-count 0.5 | zh·ja | 60.4 | 0% | +0.4 / +0.6 / +0.3 / +2.3 | ±17.1 / ±19.3 / ±20.4 | 96 / 98 / 98 / 95% |
+| **pseudo-count 0.25** | zh·en | 56.4 | 29% | −1.3 / +0.6 / −0.1 / +1.9 | ±15.6 / **±15.2** / ±15.4 | 94 / **97** / 97 / 96% |
+| **pseudo-count 0.25** | zh·ja | 60.4 | 0% | +0.1 / +0.7 / −0.2 / +2.1 | ±17.1 / **±17.5** / ±18.7 | 95 / **96** / 95 / 96% |
+| pseudo-count 0.1 | zh·en | 56.4 | 30% | −1.5 / +0.7 / −0.2 / +1.9 | ±15.7 / ±13.3 / ±13.4 | 93 / 94 / 94 / 95% |
+| pseudo-count 0.1 | zh·ja | 60.4 | 0% | −0.2 / +0.8 / −0.8 / +2.0 | ±17.2 / ±15.6 / ±17.2 | 95 / 93 / 92 / 95% |
+| 0.25, partial tone memory (65% right tone) | zh·en / zh·ja | — | — | full +2.1 / +2.4; old +2.9 / +3.3 | ±15.0 / ±17.3 | full 96 / 95% |
+| 0.25, weaker tones θ ~ U(0.3, 0.8) | zh·en / zh·ja | — | — | full +0.6 / +0.5; old +3.0 / +3.3 | ±15.6 / ±17.9 | full 97 / 96% |
+
+"full" = (pc − pkt)/n′, meaning and the full reading with tones (the ADR-060 estimator); "syll" =
+(pc + pkt − pf)/n′, meaning and the syllables; "old" = the ADR-058 `pc − prw/3` applied to the new items. The
+mean minutes were 6.4 (zh·en) and 7.0 (zh·ja) at the pace above. Findings: the new estimator is unbiased; the
+old one is not (+1.9..+3.3%); 0.25 is the pseudo-count whose coverage is closest to nominal; partial tone
+memory is the main residual bias. Not simulated: the tone-gap interval's coverage, test-wise guessing and
+learners rejecting variants by sound pattern (V0 and V6).
 
 ## 6. What each finding changed in the design
 

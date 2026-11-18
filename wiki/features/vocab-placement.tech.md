@@ -8,6 +8,7 @@ dependencies:
   - "tables (extended): calibration_sessions, calibration_responses, user_vocabulary_knowledge"
   - "tables (read): calibration_anchor_pool, calibration_distractor_cache, calibration_anchor_blocklist, dim_word_senses, dim_vocabulary, exercises"
   - "NEW SQL functions: calibration_placement_ready_counts, calibration_placement_next_item, calibration_placement_answer, calibration_placement_close, calibration_placement_close_stale, knowledge_calibration_inputs, update_vocabulary_from_placement_batch"
+  - "NEW table (zh tones, TASK-1092): calibration_zh_tone_inventory; NEW SQL: calibration_zh_tone_variants, calibration_refresh_zh_tone_inventory"
   - "CHANGED SQL functions: calibration_normalise_pronunciation and calibration_syllable_count (zh), calibration_refresh_anchor_pool (katakana-only lemmas), pronunciation_distractors (ja visible-kana filter)"
   - "NEW code: services/placement_design.py, services/calibration_placement.py, templates/placement.html, static/js/pages/placement.js"
   - "CHANGED code: routes/calibration.py, services/practice/new_word_admission.py, services/intro_drill.py, services/vocabulary/knowledge_estimate.py (created by TASK-1035), web/pages.py, web/rate_limits.py, web/scheduler.py, templates/onboarding.html, static/js/pages/onboarding.js, static/css/redesign/trainers.css, static/i18n/{en,es,ja,zh}.json"
@@ -35,14 +36,17 @@ question in §22 with its default.
 word comes from to the answers so far: two words per band first, commonest first, then the band
 whose next answer most narrows the result. Within a band the word is drawn uniformly at random. For
 Chinese and Japanese each word is a **pair**. The meaning item shows the characters only. Only if the
-meaning is right does the reading item for the same word follow: pinyin with the same syllable
-count and no tone-only option, or kana consistent with the word's visible kana. One reveal follows
-the whole word. The test stops at 50 scored items for zh/ja or 40 for en, after 7 minutes of
-answering, or earlier once both ranges are narrow enough. Scoring uses ADR-051's estimator twice,
-on the meaning answers and on the meaning-and-reading pairs, with answers pooled only with the same
-kind of item. The result leads with this test's own words, then the meaning-and-reading range, then
-the "meaning, not the reading" gap when it is clearly above zero. There is **no exam-level estimate
-in v1**. Answers reach practice as their own evidence kind, written per word pair; words with the
+meaning is right does the reading item for the same word follow. For Chinese it shows the right
+pinyin, a wrong tone combination of it, another word's pinyin with the same syllable count, and a
+wrong tone combination of that, using only syllable+tone pairs that exist in Mandarin (owner,
+PQ3), so tones are scored. For Japanese it shows kana readings consistent with the word's visible
+kana. One reveal follows the whole word. The test stops at 60 scored items for zh/ja (owner, PQ10)
+or 40 for en, after 9 minutes of answering, or earlier once both ranges are narrow enough. Scoring
+uses ADR-051's estimator on the meaning answers and a pair estimator on the meaning-and-reading
+answers (for zh: right tones minus wrong tones on the same syllables), with answers pooled only with
+the same kind of item. The result leads with this test's own words, then the meaning-and-reading
+range, then the gaps ("pinyin, not the tones" for zh; "meaning, not the reading") when they are
+clearly above zero. There is **no exam-level estimate** (owner, PQ2: not for now). Answers reach practice as their own evidence kind, written per word pair; words with the
 meaning but not the reading go to reading practice. Up to 4 labelled, unscored questions per test
 check the scoring's assumptions. A model-based (IRT) scoring is specified as a gated later upgrade.
 
@@ -85,6 +89,9 @@ synthesis-stage re-runs. All are filed in [[evaluations/vocab-placement-research
 | E27 | Short tests stay honest: D3S 90% coverage at 20 items is 92% / 95% (zh, meaning / m+r) and 90% / 92% (ja), with half-widths ±24–27%. | ESTIMATE [LRN L3] |
 | E28 | Reading probes after a missed meaning: raw right rate 18.7–23.6% (below 0.25 because of skips); guess-corrected (r − w/3)/n 7.6–13.2%. | ESTIMATE [PSY M10] |
 | E29 | With every non-kana ja word given a reading item (the launch design), ja·zh true m+r share falls from 45% to 38% of the pool. Reading items per 60-item test rise 18.4 → 22.1 (zh-L1) and 13.0 → 15.7 (en-L1), and the meaning 95% half-width widens ±16.2% → ±17.2%. | ESTIMATE [PSY M13] |
+| E31 | **Length at the owner's 60** (cap 60, precision exit from 40 checked at 40/45/50, D3S, pace E13): zh·en 56.7 items, 22% stop early (beginners 56%), 6.5 min (p95 7.1); zh·ja 60.4, 0%, 7.0 (7.1); ja·en 56.8, 21% (beginners 52%), 6.4 (7.0); ja·zh 60.2, 0%, 6.9 (7.0). 95% half-widths meaning / m+r (syllables-only reading items): zh·en ±15.5 / ±13.4%, zh·ja ±17.0 / ±15.3%, ja·en ±15.0 / ±13.8%, ja·zh ±16.0 / ±15.3% of the pool. 90% coverage 87–92%. | ESTIMATE [SYN `stop60.py`] |
+| E32 | **zh tone variants under the owner's rule** (a syllable+tone counts as existing if it occurs in any zh dictionary reading; only full tones 1–4 change; no change on 一/不; a 3→2 change before a tone-3 syllable alone is a sandhi form and excluded; never equal to a reading of the same lemma): 382 syllable bases with on average 2.47 attested full tones. Of 3,656 pool readings, **3,622 (99.1%) have ≥ 1 valid variant**, 96.5% ≥ 2, 89.0% ≥ 3; band 7 94.8% / 70.3% (≥ 1 / ≥ 3), bands 1–6 98.6–99.8% ≥ 1. 7,754 of 7,855 zh dictionary readings (98.7%) have one (proxy for segmental foils). | MEASURED (read-only SELECT 2026-11-18; `tones/tone_cover.py`) |
+| E33 | **Scored-tone item simulation** (item K, K′, F, F′ of rule 4; tone known given reading known with p = θ + (1 − θ)·σ(a(z − τ) − 1.5), θ ~ U(0.5, 0.95), ASSUMPTION; 4 × 300 zh learners; cap 60): the full-reading estimator (pc − pkt)/n′ has bias +0.6..+0.7% of the pool; with pseudo-count 0.25 per category its 95% coverage is 96–97% (0.5, ADR-051's value: 98–99%, too wide; 0.1: 93–94%). 95% half-width ±15.2% (zh·en) / ±17.5% (zh·ja) of the pool, ≈ ±550 / ±630 words; 56.4 / 60.4 items; 29% / 0% stop early; 6.4 / 7.0 min. The ADR-058 pair estimator (prw/3) on the same items over-states by +1.9..+3.3%, because it credits a third of the words whose syllables are known without their tones. The syllables estimator (pc + pkt − pf)/n′ has bias −0.1%, coverage 96%. Sensitivity: weaker tone knowledge (θ ~ U(0.3, 0.8)) stays unbiased (+0.6%); partial tone memory (65% right tone when the syllables are known) biases +2.1..+2.4% with coverage 95–96%. | ESTIMATE [SYN `tones/tone_sim.py`] |
 | E30 | Literature: four-option meaning tests measure recognition and over-estimate usable knowledge. Meaning and reading of kanji/hanzi words are separable dimensions. Showing a reading in a meaning item changes what it measures. A sequential (steps) model fits "reading only after a right meaning". The guessing floor must be fixed at small n. An IDK option suppresses partial knowledge, and IDK use differs between learners (bilingual + IDK r = .77 vs .88–.91, N = 200). | MEASURED in other populations [LIT B1–B5, A2-13, A2-15]; abstracts only |
 
 ## 1. Architecture Overview
@@ -128,7 +135,7 @@ integers). Word choice, item building and grading run in SQL, in **one round tri
 
 | language | meaning item | reading item | reading-exempt words |
 |---|---|---|---|
-| **zh** | the word in characters only (no pinyin line); four definitions in the definition language D from the definition cache (first 3 cached foils, as the check); "I don't know" | the same word; four **tone-marked pinyin** strings (`calibration_display_pronunciation`), the key from the word's native rank-1 row and 3 foils sampled from its cached pronunciation foils under rules 3 and 4; "I don't know"; prompt "Choose the pinyin" | none. The 9 zh rows with no tone mark at all [AUD §2.3] are not reading-ready |
+| **zh** | the word in characters only (no pinyin line); four definitions in the definition language D from the definition cache (first 3 cached foils, as the check); "I don't know" | the same word; four **tone-marked pinyin** strings (`calibration_display_pronunciation`) under rule 4: the key K from the word's native rank-1 row, a tone variant K′ of K, one cached segmental foil F (rule 3) and a tone variant F′ of F; "I don't know"; prompt "Choose the pinyin" | none. The 9 zh rows with no tone mark at all [AUD §2.3] are not reading-ready |
 | **ja** | the word as written (kanji, kanji+kana or kana), no reading line | the same word; four **hiragana** readings (key from the native rank-1 row, 3 sampled foils under rules 3 and 3b); prompt "Choose the reading" | **kana-only lemmas** (`^[ぁ-ゟァ-ヿー・]+$`): their written form is their reading. Rows whose reading contains romaji or kanji (7 data errors [AUD §2.3]) are not reading-ready |
 | **en** | the word; four definitions in D | none | all |
 
@@ -141,23 +148,41 @@ integers). Word choice, item building and grading run in SQL, in **one round tri
    the same [PROD P3].
    - **3b (ja).** Every served foil must match the lemma's visible-kana pattern
      `'^' || regexp_replace(lemma, '[^ぁ-ゟー]+', '.+', 'g') || '$'` (E10).
-4. **zh: no tone-only foil in a scored reading item.** A foil whose diacritic-stripped form
-   (`translate(lower(x), 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü', 'aaaaeeeeiiiioooouuuuvvvvv')`) equals the key's
-   is never served in a scored item. It is used only by the `sound_pair` probe (§3). This makes the
-   scored construct uniform, "recognises the pinyin syllables; tones not tested" (PSY M3).
+4. **zh: two tone pairs (owner, PQ3, 2026-11-18; ADR-060).** The four options are K (the key), K′ (a
+   tone variant of K), F (a cached segmental foil) and F′ (a tone variant of F), shuffled. Every
+   reading item has the same shape, so the two options that share the key's syllables never point to
+   the key (each syllable set appears twice).
+   - **Tone variant** of a reading = the same syllables with a different tone combination, where
+     every syllable+tone pair **exists in Mandarin**: it occurs in at least one zh dictionary reading
+     (`calibration_zh_tone_inventory`, built from native zh rows of `dim_word_senses`). Only full tones
+     1–4 change; a neutral-tone syllable keeps its tone and no syllable becomes neutral (optional
+     neutral tones make such variants arguably correct). No change on a syllable written 一 or 不. A
+     variant that only turns a tone 3 into tone 2 before another tone 3 is a sandhi realisation and is
+     excluded. A variant never equals any reading of the same lemma (polyphones). Drawn uniformly
+     from the valid variants by `calibration_zh_tone_variants` (§14).
+   - **F** is drawn from the anchor's cached pronunciation foils with the key's display syllable count
+     (rule 3) whose diacritic-stripped form
+     (`translate(lower(x), 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü', 'aaaaeeeeiiiioooouuuuvvvvv')`) differs from the
+     key's, and that have a valid variant F′ ∉ {K, K′}.
+   - The construct is **"recognises the pinyin with its tones"**. Choosing K′ means "the syllables
+     but not the tones" and feeds the tone gap (§5.1).
 5. **Cross-CJK definitions (zh/ja, ja/zh): strip the leading equivalent word** from all four options
    at display time: `regexp_replace(text, '^\s*[^；;—]{1,12}\s*(；|;|——|—)\s*', '')` (E9). An anchor
    for these pairs whose stripped key still contains the prompt lemma (length ≥ 2) while none of
    its 3 served foils does is **not meaning-ready** for that pair (LRN L8).
-6. **Every option is a real word's definition or reading.** No generated foils in v1 (PQ3). Tone
-   and special-mora knowledge are measured only by the unscored `sound_pair` probe.
+6. **Every meaning option is a real word's definition; every reading option is a real word's
+   reading, or (zh only) a wrong tone combination of one under rule 4.** No made-up syllables, no
+   made-up words. ja long-vowel / っ / ん / voicing variants are not used as scored foils (PQ3 was
+   answered for tones only); ja special morae are measured only by the unscored `sound_pair` probe.
 
 **Readiness, per (L, D) and lemma:**
 - *meaning-ready*: the rank-1 sense is in the frame F(L, D) (ADR-051: pool row, `has_embedding`,
   not blocklisted) with ≥ 3 cached definition foils, and rule 5 does not exclude it.
 - *reading-ready* (zh; ja non-kana): the native rank-1 row (definition language = L,
   `definition_level = 'standard'`, `has_pronunciation`, not blocklisted, well-formed reading) has
-  ≥ 3 cached pronunciation foils that pass rules 3, 3b and 4.
+  - ja: ≥ 3 cached pronunciation foils that pass rules 3 and 3b;
+  - zh: ≥ 1 valid tone variant of the key and ≥ 1 cached segmental foil that passes rule 4 (with its
+    own variant). Measured: 99.1% of pool keys have a variant (band 7: 94.8%) (E32).
 - *placement-ready* = meaning-ready ∧ (reading-exempt ∨ reading-ready). Only placement-ready lemmas
   are served; the denominator stays the full frame F(L, D) (§5.1).
 
@@ -174,7 +199,8 @@ integers). Word choice, item building and grading run in SQL, in **one round tri
 The uncorrected coverage bias per band is (1 − r_b)·(K_ready − K_unready), where r_b is the ready
 share (INFERENCE). Point 2 bounds it indirectly.
 
-Today: zh passes point 1 on the paired criterion (96%; band 1 91%; to be re-measured with rules 3–5).
+Today: zh passes point 1 on the paired criterion (96%; band 1 91%; to be re-measured with rules 3–5
+and the tone rule, which removes about 1% of keys, E32).
 ja fails (69%; band 1 50%) until TASK-1075. Rule 3b alone removes about 199 ja anchors unless
 the refill applies the kana filter (ESTIMATE: (2,185 + ~800 − 199)/3,175 ≈ 88% without it).
 
@@ -184,7 +210,7 @@ the refill applies the kana filter (ESTIMATE: (2,185 + ~800 − 199)/3,175 ≈ 8
 
 ```
 word w (zh/ja, reading-ready):
-  meaning ──► right ─────────────► reading (scored) ──► [sound_pair probe?] ──► combined reveal
+  meaning ──► right ─────────────► reading (scored) ──► [sound_pair probe? ja] ──► combined reveal
           ├─► IDK ──► [forced_guess probe?] ───────────────────────────────────► combined reveal (reading shown)
           └─► wrong ─► [reading_after_miss probe?] ────────────────────────────► combined reveal (reading shown)
 word w (reading-exempt, or en): meaning ──► [forced_guess probe after IDK?] ──► reveal
@@ -213,10 +239,10 @@ but do count toward active time.
 
 | kind | when (draw with probability p, while budget remains) | item | measures (§20) |
 |---|---|---|---|
-| `recheck` | the first 1–2 items of a session: words the learner had credited meaning-and-reading in a placement ≥ 7 days earlier, whose anchor has ≥ 6 qualifying cached foils | the reading item with 3 foils disjoint from the first serving (`option_sense_ids`) | V9: false credit on readings |
+| `recheck` | the first 1–2 items of a session: words the learner had credited meaning-and-reading in a placement ≥ 7 days earlier, whose anchor has ≥ 6 qualifying cached foils (ja) or ≥ 2 qualifying segmental foils and ≥ 2 key variants (zh) | the reading item with 3 foils disjoint from the first serving (`option_sense_ids`) | V9: false credit on readings |
 | `reading_after_miss` | after a wrong or IDK meaning on a reading-ready word, p = 0.25 | the scored-format reading item | V4: reading without meaning (ω) |
 | `forced_guess` | after IDK on a meaning item, p = 0.15 | the same 4 options in a new order, no IDK button, "Your best guess" | V8: partial knowledge hidden by IDK |
-| `sound_pair` | after meaning ✓ and reading ✓, when the anchor has a cached tone-only foil (zh, rule 4) or a special-mora/voicing variant (ja, E11), p = 0.5 | 2 options: the key and that foil | V6: tone (zh) / special morae (ja) given the syllables |
+| `sound_pair` (ja only) | after meaning ✓ and reading ✓, when the anchor has a cached special-mora/voicing variant (E11), p = 0.5 | 2 options: the key and that foil | V6: special morae given the kana skeleton. zh tones are scored in the reading item itself (rule 4), so zh has no `sound_pair` probe |
 
 Cost (ESTIMATE): at most 4 × ~7 s ≈ 0.5 min. The scored precision is unchanged because probes sit
 outside the cap.
@@ -225,8 +251,8 @@ outside the cap.
 
 **DECISION (ADR-058).** The zh/ja headline is **meaning-and-reading recognition**: the rank-1
 meaning and the reading of a word are both recognised in four-option items. For zh the reading
-means the pinyin syllables; tones are not tested in scored items. For reading-exempt words (ja
-kana-only, all en) it is meaning recognition. Copy says "recognised", never "know" on its own.
+means the pinyin **with its tones** (rule 4). For reading-exempt words (ja kana-only, all en) it is
+meaning recognition. Copy says "recognised", never "know" on its own.
 
 Per-word groups of **this test's** answers. These are raw outcomes with guesses included, under the
 heading "Your answers (guesses included)":
@@ -234,7 +260,8 @@ heading "Your answers (guesses included)":
 | group | rule | shown as |
 |---|---|---|
 | `both` | meaning right ∧ (reading right ∨ reading-exempt) | "Meaning and reading" (en: "Recognised") |
-| `meaning_only` | meaning right ∧ reading-ready ∧ reading wrong or IDK | "Meaning, not the reading" |
+| `tones_not_yet` (zh) | meaning right ∧ reading = K′ (right syllables, wrong tones) | "Meaning and pinyin, not the tones" |
+| `meaning_only` | meaning right ∧ reading-ready ∧ reading wrong (zh: F or F′) or IDK | "Meaning, not the reading" |
 | `not_yet` | meaning wrong or IDK | "Not yet recognised" |
 
 Probe answers never move a word between groups. ESTIMATE (PSY M7): for a guessing beginner (IDK
@@ -254,7 +281,8 @@ G = 1/4, r = G/(1 − G) = 1/3.
 one instrument and one D:
 - `meaning_bare_v1`: meaning item, characters only, cross-CJK prefix stripped (placement meaning
   items; check meaning items after TASK-1091);
-- `reading_v1`: reading item under rules 3, 3b, 4;
+- `reading_v1`: ja reading item under rules 3 and 3b;
+- `reading_tone_v1`: zh reading item under rule 4 (two tone pairs);
 - NULL: legacy items (check definition mode with the reading shown and the prefix kept; legacy
   Readings mode).
 
@@ -268,12 +296,13 @@ one instrument and one D:
 **Pair counts** per band: n'_b (pair-sample words: meaning items whose due reading item was answered,
 plus exempt words) and
 
-| word | counts as `pc` | counts as `prw` | otherwise |
-|---|---|---|---|
-| reading-ready | meaning right ∧ reading right | meaning right ∧ reading answered wrong (not IDK) | n'_b only |
-| reading-exempt | meaning right | meaning answered wrong (not IDK) | n'_b only |
+| word | counts as `pc` | counts as `prw` (ja) | counts as `pkt` (zh) | counts as `pf` (zh) | otherwise |
+|---|---|---|---|---|---|
+| reading-ready | meaning right ∧ reading right (zh: K) | meaning right ∧ reading answered wrong (not IDK) | meaning right ∧ reading K′ | meaning right ∧ reading F or F′ | n'_b only |
+| reading-exempt | meaning right | meaning answered wrong (not IDK) | — | — | n'_b only |
 
-**Estimators** (x ∈ {m, mr}; for m: (x1, x2, n) = (c_b, w_b, n_b); for mr: (pc_b, prw_b, n'_b)):
+**Estimators.** Meaning (all languages) and ja meaning-and-reading use ADR-051's form (x ∈ {m, mr};
+for m: (x1, x2, n) = (c_b, w_b, n_b); for ja mr: (pc_b, prw_b, n'_b)):
 
     K_x,b  = x1/n − r·x2/n                                  (no clamp)
     p̃1 = (x1 + 0.5)/(n + 1.5),  p̃2 = (x2 + 0.5)/(n + 1.5)
@@ -281,22 +310,42 @@ plus exempt words) and
     T_x = Σ_b N_b·K_x,b,   SD_x = sqrt(Σ_b N_b²·Var_x,b)
     lo, hi, rel', labels, rounding, one-sided "Fewer than": exactly ADR-051 rule 3–4 (z = 1.96)
 
-**Gap: meaning recognised, reading not** (PSY M7). It is computed on the pair sample of one
-placement session (this placement), never across instruments. Per word:
+**zh meaning-and-reading (with tones) — DECISION (ADR-060).** Per word y = +1 for `pc`, −1 for `pkt`,
+0 otherwise (IDK, F, F′, meaning not right); exempt words do not occur in zh. Right tones are counted
+against wrong tones **on the same syllables**:
 
-| outcome | x |
-|---|---|
-| reading-ready, meaning right, reading answered wrong | 4/3 |
-| reading-ready, meaning right, reading IDK | 1 |
-| reading-ready, meaning answered wrong | −1/3 |
-| anything else (meaning IDK; both right; exempt words) | 0 |
+    K_mr,b = (pc_b − pkt_b)/n'_b                            (no clamp)
+    p̃+ = (pc_b + 0.25)/(n'_b + 0.75),  p̃− = (pkt_b + 0.25)/(n'_b + 0.75)
+    Var_mr,b = [p̃+ + p̃− − (p̃+ − p̃−)²] / n'_b · max(0, 1 − n'_b/N_b)
+    T_mr, SD_mr, lo, hi, labels: as above
 
-    D̂_b = mean of x over the band's pair-sample words      ( = K_m,b − K_mr,b on that sample)
-    p̃_k = (count_k + 0.5)/(n'_b + 2),  k ∈ {4/3, 1, −1/3, 0}
+The pseudo-count 0.25 per category (not ADR-051's 0.5) gave 96–97% coverage of 95% intervals in
+simulation; 0.5 gave 98–99%, about 2 points of the pool wider than needed (E33). The ADR-051/058 form
+`pc − prw/3` is **not** used for zh: on these items it credits a third of the words whose syllables
+are known without their tones (+1.9..+3.3% of the pool, E33).
+
+**Gaps** (PSY M7). Computed on the pair sample of one placement session (this placement), never
+across instruments. Per word x, by gap:
+
+| outcome | reading gap, ja: meaning not reading | reading gap, zh: meaning not pinyin | tone gap, zh: pinyin not tones |
+|---|---|---|---|
+| reading-ready, meaning right, reading right (zh: K) | 0 | 0 | 0 |
+| zh: meaning right, reading K′ | — | 0 | 2 |
+| reading-ready, meaning right, reading answered wrong (zh: F or F′) | 4/3 | 2 | −1 |
+| reading-ready, meaning right, reading IDK | 1 | 1 | 0 |
+| reading-ready, meaning answered wrong | −1/3 | −1/3 | 0 |
+| anything else (meaning IDK; exempt words) | 0 | 0 | 0 |
+
+    D̂_b = mean of x over the band's pair-sample words
+          ja reading gap = K_m,b − K_mr,b;  zh reading gap = K_m,b − K_syl,b;  zh tone gap = K_syl,b − K_mr,b
+          with K_syl,b = (pc_b + pkt_b − pf_b)/n'_b (meaning and pinyin, tones aside; guess rate 1/2)
+    p̃_k = (count_k + 0.5)/(n'_b + 0.5·k_n),  k over the column's distinct x values, k_n their number
     Var_D,b = [Σ_k p̃_k·x_k² − (Σ_k p̃_k·x_k)²] / n'_b · max(0, 1 − n'_b/N_b)
     G = Σ_b N_b·D̂_b,  SD_G = sqrt(Σ_b N_b²·Var_D,b),  lo_G = G − 1.96·SD_G,  hi_G = min(N, G + 1.96·SD_G)
 
-The gap line is shown only when lo_G ≥ max(0.01·N, the rounding step); ends are rounded outward as in ADR-051.
+For zh, K_m = K_mr + tone gap + reading gap on the same sample. Each gap line is shown only when its
+lo_G ≥ max(0.01·N, the rounding step); ends are rounded outward as in ADR-051. The gaps' coverage was
+not simulated with the zh items (V0 measures it).
 
 **Why the estimators are unbiased** (derivations [SIM §6]; INFERENCE under the know-or-guess
 model). Let K_m = P(meaning recognised), K_mr = P(meaning and reading recognised), q = P(IDK | not
@@ -307,14 +356,25 @@ known) and g = (1 − q)/4:
     P(prw) = 3g·[(K_m − K_mr) + (1 − K_m)·g]
     ⇒ E[pc − prw/3] = K_mr                     for every q, also when reading and meaning skip rates differ [PSY]
 
+zh (ADR-060): a word whose meaning is recognised (or guessed right) is in one of three reading
+states: full reading R (always K), syllables only S (K or K′, ½ each), none (IDK with probability q,
+else each of K, K′, F, F′ with ¼). Then P(K) − P(K′) = P(R), whatever q, so E[pc − pkt] counts words
+with the meaning and the full reading. Guessed meanings contribute 0 for the same reason. And
+P(K) + P(K′) − P(F or F′) = P(R) + P(S) gives K_syl.
+
 **Known biases (stated in the method note, measured in §20):**
-- (i) **Partly guessable readings.** If a learner who recognises the meaning but not the reading
+- (i) **Partly guessable readings.** ja: if a learner who recognises the meaning but not the reading
   can eliminate foils, the 1:3 right:wrong ratio behind `prw/3` fails. m+r is then biased up by
-  +2.4..+4.0% of the pool for cognate learners (E26). The method note says the meaning-and-reading
-  range "may be a little high if readings can be partly guessed" until V9 measures it.
+  +2.4..+4.0% of the pool for cognate learners (E26). zh: segmental partial knowledge cancels in
+  pc − pkt, but **partial tone memory** does not: if learners who know the syllables pick the right
+  tones 65% of the time, the zh count is +2.1..+2.4% high (E33). The method note says the
+  meaning-and-reading range "may be a little high if readings can be partly guessed" until V9
+  measures it.
 - (ii) **Reading without meaning (ω).** Bias (1 − K_m)·g_m·P(R | ¬M) per band (V4).
 - (iii) **IDK hiding partial knowledge** makes both ranges lower-side (ADR-051 rule 5; V8).
-- (iv) **Tones not tested.** The zh m+r count is of pinyin syllables (rule 4; V6).
+- (iv) **Tone variants are not real words' readings** in most cases. A learner could reject a
+  variant because it "sounds wrong" without knowing the word. This is knowledge of the word's sound
+  pattern, close to what the item claims (INFERENCE); V9 rechecks bound it.
 - (v) **Readiness coverage** (§2 gate).
 
 **Display guard (DECISION, PSY M8).** In truth T_m ≥ T_mr, so before rounding set
@@ -335,8 +395,8 @@ placement alone yields "Rough" or "Fewer than" (PQ9; E25).
 
 ### 5.2 "I don't know" and the guessing floor
 
-- The guessing floor is fixed at G = 1/4 for four options and 1/2 for `sound_pair` probes. It is never
-  estimated per item (that needs thousands of examinees [LIT A3-25]).
+- The guessing floor is fixed at G = 1/4 for four options (zh: 1/4 for the full reading, 1/2 for the
+  syllables) and 1/2 for `sound_pair` probes. It is never estimated per item (that needs thousands of examinees [LIT A3-25]).
 - "I don't know" = not known. Under **blind** guessing the expectation of `c − w/3` does not depend on
   the IDK rate; only the precision does. Real guesses are often informed, and an IDK option
   suppresses partial knowledge [LIT A2-13, A2-15]. Learners who use IDK more therefore score a little
@@ -345,7 +405,7 @@ placement alone yields "Rough" or "Fewer than" (PQ9; E25).
   answer." `forced_guess` probes measure the hidden knowledge, and each learner's IDK share is
   stored in `result.skip_share` (V8).
 
-### 5.3 Exam levels — not in v1 (DECISION, ADR-058; PQ2)
+### 5.3 Exam levels — none (owner, PQ2, 2026-11-18: "not at the moment"; ADR-058)
 
 The draft's level range (cumulative frame-share ≥ 80% with 95% bounds) is **removed** from v1: the
 result screen, the goal card, the result JSON and the tasks.
@@ -426,6 +486,7 @@ Strata are the 7 Zipf bands of `calibration_zipf_band` (band 1 < 3.0 and band 7 
        h* = argmax_h [ Δ_m(h) + Δ_mr(h) ]            (en: Δ_m only)
        Δ_x(h) = N_h² · v_x,h · (1/n_h − 1/(n_h + 1)) / Var(T_x)
        v_x,h  = p̃1(1 − p̃1) + p̃2(1 − p̃2)/9 + (2/3)·p̃1·p̃2       (Jeffreys, §5.1, this session's tallies)
+       zh mr:  v_mr,h = p̃+ + p̃− − (p̃+ − p̃−)²                     (§5.1, pseudo-count 0.25)
 
    over bands with a placement-ready word left; ties broken at random. The one-answer lag does not
    affect validity (INFERENCE): the selection still depends only on observed answers and stays uniform
@@ -438,7 +499,7 @@ Strata are the 7 Zipf bands of `calibration_zipf_band` (band 1 < 3.0 and band 7 
 5. **Exhausted band:** skipped by the allocation. When every band is exhausted the test stops
    (`exhausted`).
 
-## 7. Stopping rule and expected length — DECISION (ADR-057, PQ10)
+## 7. Stopping rule and expected length — DECISION (ADR-057; owner, PQ10: "about 60")
 
 Scored items = meaning items + scored reading items. Active time = Σ over answers of min(gap since
 the previous answer, 60 s).
@@ -447,27 +508,30 @@ the previous answer, 60 s).
 |---|---|---|
 | warm-up | 2 meaning items per band | 2 per band |
 | precision exit (checked when a word completes, from the earliest stop on) | from 40 scored items: SD_m ≤ 0.073·N **and** SD_mr ≤ 0.073·N on this session's tallies (90% half-width ≤ 12% of the pool) | from 20: SD_m ≤ 0.073·N |
-| cap | no new word once scored items ≥ 50 (a due reading item is still asked: at most 51) | 40 |
-| time cap | no new word once active time ≥ 7 min | same |
+| cap | no new word once scored items ≥ 60 (a due reading item is still asked: at most 61) | 40 (not changed by PQ10; see PQ10) |
+| time cap | no new word once active time ≥ 9 min | same |
 | other ends | `exhausted`; `learner` ("Stop here and see your result"; eligible per §5.1 (c)); `abandoned` (closed after 24 h) | same |
 
 A word is never left with a pending scored reading item. At a stop, the pre-built next meaning row
 is deleted by `calibration_placement_close`.
 
-Expected (ESTIMATE [SYN], D3S main run, measured pace E13; probes add ≤ ~0.5 min):
+Expected at cap 60 (ESTIMATE, measured pace E13; probes add ≤ ~0.5 min). zh rows are from the
+scored-tone simulation (E33), ja rows from the cap-60 re-run (E31):
 
 | population | scored items mean | stopped early | minutes mean (p95) | 95% half-width, meaning / m+r (% of pool; words) |
 |---|---|---|---|---|
-| zh, English L1 | 49.0 | 16% (beginners 43%) | 5.6 (5.9) | ±16.6 / ±14.4 (≈ ±600 / ±520) |
-| zh, Japanese L1 | 50.4 | 0% | 5.8 (6.0) | ±18.8 / ±16.9 (≈ ±680 / ±610) |
-| ja, English L1 | 48.9 | 16% (beginners 41%) | 5.5 (5.8) | ±16.1 / ±14.9 (≈ ±510 / ±470) |
-| ja, Chinese L1 | 50.3 | 0% | 5.8 (5.9) | ±17.7 / ±16.9 (≈ ±560 / ±540) |
+| zh, English L1 (tones scored) | 56.4 | 29% (mostly beginners) | 6.4 (7.1) | ±15.6 / ±15.2 (≈ ±565 / ±550) |
+| zh, Japanese L1 (tones scored) | 60.4 | 0% | 7.0 (7.1) | ±17.1 / ±17.5 (≈ ±620 / ±630) |
+| ja, English L1 | 56.8 | 21% (beginners 52%) | 6.4 (7.0) | ±15.0 / ±13.8 (≈ ±475 / ±440) |
+| ja, Chinese L1 | 60.2 | 0% | 6.9 (7.0) | ±16.0 / ±15.3 (≈ ±510 / ±485) |
 | en (not simulated) | 40 | — | ≈ 4.4 (INFERENCE: 40 × 6.57 s) | ≈ ±15–16 meaning (INFERENCE from D1S at 40 items, ±12.7–13.6% at 90%) |
 
-The 95% half-widths are the 90% figures at the 50-item snapshot × 1.96/1.645. For ja, a launch
-design that gives every non-kana word a reading item widens the meaning half-width by about 1 point
-(E29). Copy: "about 6 minutes" (zh, ja), "about 5 minutes" (en). PQ10's alternative, a cap of 60,
-takes 6.9–7.0 min with m+r ±14.2–14.4% at 95%.
+The 9-minute time cap sits about 2 minutes above the simulated p95, so it binds only for learners
+much slower than E13 (newcomers probably are, INFERENCE). The 50-item figures this replaces are in
+E22. For ja, a launch design that gives every non-kana word a reading item widens the meaning
+half-width by about 1 point (E29). Copy: "about 7 minutes" (zh, ja), "about 5 minutes" (en). Scoring
+tones widens the zh m+r range by about 2 points of the pool against syllables-only items (E31 vs
+E33); that is the cost of the stronger claim.
 
 INFERENCE: an absolute-width rule rarely stops cognate learners early, because large counts carry
 large absolute SDs. A ±6% target is out of reach under 90 items [SIM §0.1]. The cap is the real
@@ -482,12 +546,12 @@ learner has no placement for that language, so it is offered again later without
 Elsewhere the placement starts directly.
 
 **During** (`templates/placement.html`):
-- **Intro:** the time ("about 6 minutes"), "If you have no idea, choose I don't know. If you think you
+- **Intro:** the time ("about 7 minutes"; en "about 5 minutes"), "If you have no idea, choose I don't know. If you think you
   know it, answer.", and Start.
-- **Item card:** the word without a reading; "Choose the meaning", "Choose the pinyin (tones are not
-  tested)" or "Choose the reading"; 4 options; "I don't know"; keys 1–4 and 0. Probes carry the badge
-  "Extra question — not scored"; `forced_guess` hides "I don't know" and says "Your best guess";
-  `sound_pair` shows 2 options.
+- **Item card:** the word without a reading; "Choose the meaning", "Choose the pinyin" or "Choose the
+  reading"; 4 options; "I don't know"; keys 1–4 and 0. Probes carry the badge "Extra question — not
+  scored"; `forced_guess` hides "I don't know" and says "Your best guess"; `sound_pair` (ja) shows 2
+  options.
 - **Combined reveal:** the word, its reading and meaning, ✓/✗ per question, and the chosen wrong
   option. All ✓ auto-advances after 450 ms (as the check); otherwise "Next word".
 - **Progress:** "about N minutes left", computed from the remaining scored items × the session's
@@ -500,12 +564,12 @@ Elsewhere the placement starts directly.
 
 | block | zh / ja | en |
 |---|---|---|
-| 1. Your answers (guesses included) | "Of the {n} words you were asked: {both} meaning and reading · {meaning_only} meaning, not the reading · {not_yet} not yet recognised". Each group is tappable and lists its words; actions "Practise these readings" (meaning_only) and "Learn these" (not_yet) | "{both} recognised · {not_yet} not yet recognised" |
+| 1. Your answers (guesses included) | "Of the {n} words you were asked: {both} meaning and reading · [zh: {tones_not_yet} meaning and pinyin, not the tones ·] {meaning_only} meaning, not the reading · {not_yet} not yet recognised". Each group is tappable and lists its words; actions "Practise these readings" (tones_not_yet, meaning_only) and "Learn these" (not_yet) | "{both} recognised · {not_yet} not yet recognised" |
 | 2. Range | "Across the {N} {language} words the check draws from, you recognised the meaning and the reading of about {lo_mr}–{hi_mr}" + label + band strip (dot strip, [LIT A10-66]); lo = 0 → "Most of the check's words are still new to you (fewer than {hi} of {N})" | "…you recognised the meaning of about {lo_m}–{hi_m}" |
-| 3. Gap (only when lo_G ≥ threshold, §5.1) | "You also recognised the meaning, but not the reading, of about {lo_G}–{hi_G} more." | — |
+| 3. Gaps (each only when its lo_G ≥ threshold, §5.1) | zh: "You also recognised the meaning and the pinyin, but not the tones, of about {lo_T}–{hi_T} more." Then (zh, ja): "You also recognised the meaning, but not the reading, of about {lo_G}–{hi_G} more." | — |
 | 4. Retake (when a previous eligible placement for (L, D) exists and the frame size changed by ≤ 1%) | "This placement: {lo}–{hi} · Previous ({date}): {lo}–{hi} · {clearly up / clearly down / not clearly different}" (ADR-053 rule on the m+r headline (en: meaning): clearly changed when \|Δ\| ≥ 1.96·sqrt(SD_prev² + SD_now²)), then "Combined with your earlier answers: {lo}–{hi}" | same, meaning |
 | 5. Next steps | "Practise these readings" · "Learn these" · "Start today's session" · "Narrow your range: continue the vocabulary check" | last three |
-| 6. How this works | recognition among four; guesses are subtracted on average; IDK counts as not known; why a range; tones not tested (zh); "the meaning-and-reading range may be a little high if readings can be partly guessed"; the count is of the check's word pool; the result matches My vocabulary on the day taken | same, without readings |
+| 6. How this works | recognition among four; guesses are subtracted on average; IDK counts as not known; why a range; for zh, the reading includes the tones (two options share the right syllables, only one has the right tones); "the meaning-and-reading range may be a little high if readings can be partly guessed"; the count is of the check's word pool; the result matches My vocabulary on the day taken | same, without readings |
 | flags | ended early: "You ended early, so the range is wider." Fast: "You answered very quickly; this result may not reflect what you know." | same |
 
 On a first placement with no other same-instrument answers, the combined range equals this placement's
@@ -518,16 +582,17 @@ budget.
 ```json
 {"version": 1, "word_language_id": 1, "definition_language_id": 2, "instrument": "meaning_bare_v1",
  "stop_reason": "cap", "ended_early": false, "fast": false, "skip_share": 0.41,
- "items": {"scored": 50, "meaning": 33, "reading": 17, "probes": 3}, "active_seconds": 342,
- "words": {"asked": 33, "both": 12, "meaning_only": 5, "not_yet": 16},
+ "items": {"scored": 60, "meaning": 39, "reading": 21, "probes": 3}, "active_seconds": 408,
+ "words": {"asked": 39, "both": 12, "tones_not_yet": 3, "meaning_only": 4, "not_yet": 20},
  "frame_n": 3623,
- "this": {"m": {"lo": 900, "hi": 1700, "label": "rough"}, "mr": {"lo": 600, "hi": 1200, "label": "rough"},
-          "gap": {"lo": 120, "hi": 650} },
+ "this": {"m": {"lo": 900, "hi": 1700, "label": "rough"}, "mr": {"lo": 500, "hi": 1100, "label": "rough"},
+          "tone_gap": {"lo": 60, "hi": 420}, "gap": {"lo": 120, "hi": 650} },
  "combined": null,
  "previous": null,
  "seen": false}
 ```
-`gap` is null when below the threshold; `mr` and `gap` are null for en; `combined` is null when it
+`gap` and `tone_gap` are null when below the threshold; `tone_gap` and `words.tones_not_yet` exist for
+zh only; `mr` and `gap` are null for en; `combined` is null when it
 equals `this`; `previous` holds `{session_id, ended_at, mr|m: {lo, hi}, verdict}`.
 
 **Goal-path report** ([[features/knowledge-report]], TASK-1072): the hero shows the same ranges in the
@@ -556,18 +621,19 @@ copy "After about 70 answers you get a range" for the placement path.
   - the gap line;
   - the display guard and the eligibility amendment of §5.1;
   - the hero copy order of §8;
-  - snapshots (ADR-053) store pair and gap bands next to the meaning bands (7 × 3 + 7 × 4 integers)
-    and the instrument.
+  - snapshots (ADR-053) store pair and gap bands next to the meaning bands (zh pairs are
+    [n', pc, pkt, pf]: 7 × 4 integers) and the instrument.
 - **Changes to report §2.4:** a new evidence state between `checked` and `not_checked`,
   `placement_only` ("Placement answer only"), with the rule
   `placement_correct + placement_wrong > 0 AND checks_correct + checks_wrong = 0`. The Pro row lead is
   "Placement ✓ meaning ✓ reading ✗ · 3 Nov" (from the ledger). The rated-known rule is unchanged, so
   placement evidence alone can never satisfy it (ADR-059).
-- **Changes to report §2.8/§2.8a:** none. There is no placement level line, and OQ34 is unchanged.
+- **Changes to report §2.8/§2.8a:** none. There is no placement level line (owner, PQ2), and OQ34 is
+  unchanged.
 - **Growth (ADR-053):** retakes are disjoint, so the "clearly changed" comparison of consecutive
   placements is valid; the retake result screen shows it directly (§8 block 4).
 
-## 10. Writing to the knowledge model — evidence kind (ADR-059, PQ5)
+## 10. Writing to the knowledge model — evidence kind (ADR-059, accepted; owner approved PQ5 2026-11-18)
 
 Written once per session at `finish()`, including sessions closed as `abandoned`, through
 `update_vocabulary_from_placement_batch(p_user_id, p_items jsonb)`. The session is claimed through
@@ -576,7 +642,7 @@ Written once per session at `finish()`, including sessions closed as `abandoned`
 | word outcome (scored items only) | BKT write | counters | practice admission |
 |---|---|---|---|
 | reading-ready: meaning ✓, reading ✓ | correct | `placement_correct` +1 | none (probably known; normal review) |
-| reading-ready: meaning ✓, reading ✗ or IDK | **none** | none | **A2r** (reading gap) |
+| reading-ready: meaning ✓, reading ✗ (zh: K′, F or F′) or IDK | **none** | none | **A2r** (reading gap; for zh K′ this is a tone gap) |
 | meaning ✗ or IDK (any word) | wrong | `placement_wrong` +1 | **A2** (as a missed check answer) |
 | exempt (ja kana-only, en): meaning ✓ | correct | `placement_correct` +1 | none |
 | probes | never | never | never |
@@ -610,7 +676,7 @@ Written once per session at `finish()`, including sessions closed as `abandoned`
 - **v1: placements do not feed `pooled_ability` and do not call the guarded rating writer** (PSY M16,
   PQ19). `_fit_points` scores a skip as a wrong 1-in-4 guess (`services/calibration_service.py:439-448`,
   floor `:41-43`). For a heavy skipper that moves the curve 0.4–0.8 Zipf (MEASURED on one learner
-  [AUD §1.7]). The placement encourages IDK and adds about 33–37 meaning items per session.
+  [AUD §1.7]). The placement encourages IDK and adds about 39–46 meaning items per session at cap 60.
 - After the report's OQ33 is answered (TASK-1083):
   - either placement meaning items enter the fit through a **skip-aware likelihood**
     (`P(right) = K + (1 − K)·(1 − ŝ)/4`, with IDK and wrong both ∝ 1 − K), and `write_calibration_state`
@@ -627,9 +693,9 @@ Written once per session at `finish()`, including sessions closed as `abandoned`
   calibration session (check or placement, any item kind) in the last 180 days (= ADR-051's window).
   Index `(user_id, anchor_vocab_id) WHERE answered_at IS NOT NULL`. `recheck` probes are the only
   exception, and they are unscored.
-- **Supply:** a placement uses about 2–8 lemmas per band. The smallest placement-ready bands are ja
-  band 7 (68 today) and zh band 7 (168) [AUD §2.1], so at least about 8 disjoint retakes fit in the
-  smallest band. A band the learner has exhausted is skipped; its finite-population factor goes to 0.
+- **Supply:** a placement uses about 2–10 lemmas per band at cap 60. The smallest placement-ready bands
+  are ja band 7 (68 today) and zh band 7 (168) [AUD §2.1], so at least about 6 disjoint retakes fit in
+  the smallest band. A band the learner has exhausted is skipped; its finite-population factor goes to 0.
 - **Pooling:** the combined line pools same-instrument answers (latest per lemma, 180 days), so each
   retake narrows the combined range. The retake screen leads with this placement against the previous
   one (§8).
@@ -659,13 +725,23 @@ ALTER TABLE public.calibration_responses
   ADD COLUMN IF NOT EXISTS probe_kind text NULL
     CHECK (probe_kind IS NULL OR probe_kind IN ('recheck','reading_after_miss','forced_guess','sound_pair')),
   ADD COLUMN IF NOT EXISTS instrument text NULL
-    CHECK (instrument IS NULL OR instrument IN ('meaning_bare_v1','reading_v1')),
+    CHECK (instrument IS NULL OR instrument IN ('meaning_bare_v1','reading_v1','reading_tone_v1')),
   ADD COLUMN IF NOT EXISTS pair_response_id bigint NULL
     REFERENCES public.calibration_responses(id) ON DELETE CASCADE,
   ADD COLUMN IF NOT EXISTS option_sense_ids integer[] NULL,   -- placement: option sense ids in display order
-  ADD COLUMN IF NOT EXISTS key_position smallint NULL;        -- placement: 0..3 (0..1 for sound_pair); never sent with the item
+  ADD COLUMN IF NOT EXISTS key_position smallint NULL,        -- placement: 0..3 (0..1 for sound_pair); never sent with the item
+  ADD COLUMN IF NOT EXISTS option_roles text[] NULL,          -- zh reading items: {'K','KT','F','FT'} in display order; never sent
+  ADD COLUMN IF NOT EXISTS option_texts text[] NULL,          -- zh reading items: the 4 displayed pinyin strings (K′, F′ have no sense id)
+  ADD COLUMN IF NOT EXISTS chosen_position smallint NULL;     -- placement: 0..3, NULL for IDK (a generated option has no chosen_sense_id)
 CREATE INDEX IF NOT EXISTS idx_calibration_responses_user_vocab_answered
   ON public.calibration_responses (user_id, anchor_vocab_id) WHERE answered_at IS NOT NULL;
+
+-- zh tone inventory (TASK-1092, ADR-060): syllable → tones that occur in zh dictionary readings
+CREATE TABLE IF NOT EXISTS public.calibration_zh_tone_inventory (
+  base  text PRIMARY KEY,                 -- toneless syllable, lower case, ü as 'u:' (≈ 382 rows, ≈ 15 KB)
+  tones smallint[] NOT NULL,              -- attested full tones 1..4
+  built_at timestamptz NOT NULL DEFAULT now());
+REVOKE ALL ON public.calibration_zh_tone_inventory FROM PUBLIC, anon, authenticated;
 
 -- user_vocabulary_knowledge (TASK-1081, ADR-059; separate migration)
 ALTER TABLE public.user_vocabulary_knowledge
@@ -676,8 +752,10 @@ ALTER TABLE public.user_vocabulary_knowledge
 - `item_kind NULL` marks a legacy row, whose kind is the session's mode. Placement rows always set
   `item_kind` and `instrument` (probes: `instrument` of their format, plus `probe_kind`).
 - **No option rows for placement items.** `calibration_response_options` keeps serving the check.
-  The option sense ids are packed in `option_sense_ids`; `key_position` and the array sit on a table
-  with no client privilege (`migrations/security_calibration_answer_keys.sql`).
+  The option sense ids are packed in `option_sense_ids` (NULL entries for K′ and F′); `key_position`,
+  `option_roles`, `option_texts` and the array sit on a table with no client privilege
+  (`migrations/security_calibration_answer_keys.sql`). The chosen role of a zh reading answer is
+  `option_roles[chosen_position + 1]`.
 - `calibration_anchor_pool` is not altered; readiness is computed at serve time from the pool and the
   packed cache (PK lookups).
 - `user_calibration_state` is unchanged (placements do not write it in v1, §11).
@@ -686,10 +764,11 @@ ALTER TABLE public.user_vocabulary_knowledge
 
 | item | bytes |
 |---|---|
-| placement response row (≈ 100 B tuple + ~24 B ids array + kinds + overhead + 4 index entries) | ≈ 0.25 KB |
-| one placement: ≤ 51 scored + ≤ 4 probe rows + session row with `result` | ≈ 14 + 2 = **≈ 16 KB** |
-| new BKT rows for a new learner (≤ 37 meaning items × ≈ 0.2 KB) | ≈ 7 KB |
-| **per placement, all-in** | **≈ 20–25 KB** → 100 placements ≈ 2.5 MB; 1,000 ≈ 25 MB |
+| placement response row (≈ 100 B tuple + ~24 B ids array + kinds + overhead + 4 index entries) | ≈ 0.25 KB (zh reading rows ≈ 0.35 KB with texts and roles) |
+| one placement: ≤ 61 scored + ≤ 4 probe rows + session row with `result` | ≈ 18 + 2 = **≈ 20 KB** |
+| new BKT rows for a new learner (≤ 46 meaning items × ≈ 0.2 KB) | ≈ 9 KB |
+| **per placement, all-in** | **≈ 25–30 KB** → 100 placements ≈ 3 MB; 1,000 ≈ 30 MB |
+| zh tone inventory | ≈ 15 KB |
 | new index on today's 1,349 response rows | < 0.1 MB |
 | ja pool refresh + ~840 pronunciation cache rows (TASK-1075) | ≈ 0.2 MB [AUD §5.1] |
 | UVK counter columns (fast default; ~1.1k rows) | ≈ 0 |
@@ -707,7 +786,7 @@ session checks that `p_user_id` owns it.
 
 ### `calibration_placement_ready_counts(p_word_language_id smallint, p_definition_language_id smallint): jsonb`
 - **Purpose:** the launch gate (§2) and monitoring.
-- **Returns:** `{"frame": N, "ready": n, "bands": [{band, frame_n, ready_n, meaning_ready_n, reading_ready_n, exempt_n, excluded_rule5_n, excluded_rule3b_n, ready_mean_zipf, unready_mean_zipf, ready_share_len3, unready_share_len3}×7]}`. List-level shares are added by the Python gate script from the ADR-054 file.
+- **Returns:** `{"frame": N, "ready": n, "bands": [{band, frame_n, ready_n, meaning_ready_n, reading_ready_n, exempt_n, excluded_rule5_n, excluded_rule3b_n, excluded_tone_n, ready_mean_zipf, unready_mean_zipf, ready_share_len3, unready_share_len3}×7]}`. List-level shares are added by the Python gate script from the ADR-054 file.
 - **Errors:** none (empty bands for an unknown pair). STABLE, read-only.
 
 ### `calibration_placement_next_item(p_user_id uuid, p_session_id uuid, p_band smallint, p_exclude_days integer DEFAULT 180): jsonb`
@@ -729,19 +808,20 @@ session checks that `p_user_id` owns it.
   counters.
 - **What comes next.** `p_draws = {u_probe, u_seed}` are uniform draws from the injected RNG.
   `p_next_band` is NULL when Python has decided that no new word may start (cap or time). The branches:
-  1. Answered meaning item (scored), right, reading-ready → build the scored reading item (rules 3, 3b,
-     4; `pair_response_id`; `instrument 'reading_v1'`).
+  1. Answered meaning item (scored), right, reading-ready → build the scored reading item (`pair_response_id`):
+     ja rules 3 and 3b, `instrument 'reading_v1'`; zh rule 4 (K, K′, F, F′ shuffled with `u_seed`;
+     `option_roles`, `option_texts`), `instrument 'reading_tone_v1'`.
   2. Scored meaning IDK, `u_probe < 0.15`, budget left → `forced_guess` probe (same options, new order,
      `idk_allowed: false`).
   3. Scored meaning wrong or IDK on a reading-ready word, `u_probe < 0.25`, budget left →
      `reading_after_miss` probe.
-  4. Scored reading right, the anchor has a sound-pair foil, `u_probe < 0.5`, budget left →
-     `sound_pair` probe.
+  4. ja: scored reading right, the anchor has a special-mora/voicing foil, `u_probe < 0.5`, budget
+     left → `sound_pair` probe. (zh has no `sound_pair` probe; tones are in the scored item.)
   5. Otherwise the word is complete: return `reveal` and, if `p_next_band` is not NULL, build the next
      meaning item in that band (if the band is exhausted, the nearest band with words left, then any;
      `exhausted: true` if none).
   At most one probe per word; budget ≤ 4 per session and ≤ 2 per kind (counted from the session's rows).
-- **Returns:** `{answer: {is_correct, skipped, kind, probe_kind}, reveal: {lemma, reading, meaning, parts: [{kind, probe_kind, chosen_text, key_text, is_correct}]} | null, next_item: {...as next_item} | null, exhausted: bool, tallies: {m: [ [n,c,w] ×7 ], mr: [ [n,pc,prw] ×7 ], scored, probes, active_ms, median_latency_ms, warmup_done}}`.
+- **Returns:** `{answer: {is_correct, skipped, kind, probe_kind, role}, reveal: {lemma, reading, meaning, parts: [{kind, probe_kind, chosen_text, key_text, is_correct, tone_only_miss}]} | null, next_item: {...as next_item} | null, exhausted: bool, tallies: {m: [ [n,c,w] ×7 ], mr: [ [n,pc,prw] ×7 ] (ja) | [ [n,pc,pkt,pf] ×7 ] (zh), scored, probes, active_ms, median_latency_ms, warmup_done}}`. `role` and `tone_only_miss` (chosen K′) are returned only after the answer is graded.
 - **Errors:** `22023` already answered, invalid position, or a response not in this session; `P0002`. VOLATILE.
 
 ### `calibration_placement_close(p_user_id uuid, p_session_id uuid, p_reason text): jsonb`
@@ -758,13 +838,29 @@ session checks that `p_user_id` owns it.
 - **Purpose:** the calibration block of report §2.6, extended by §5.1 and §9.
 - **Behaviour:** with `p_session_id`, counts only that session's scored items. Otherwise it applies the
   report D and instrument rule (§9); `p_definition_language_id`, when given, overrides D.
-- **Returns:** `{definition_language_id, instrument, bands: [ [n,s,c] ×7 ], pairs: [ [n',pc,prw] ×7 ] | null, gap: [ [n',a43,b1,cm13] ×7 ] | null, alltime_n: [7], first_at, last_at, placement_eligible: bool, stop_reasons: [...], rated_known_in_frame}`.
+- **Returns:** `{definition_language_id, instrument, bands: [ [n,s,c] ×7 ], pairs: [ [n',pc,prw] ×7 ] (ja) | [ [n',pc,pkt,pf] ×7 ] (zh) | null, gap: [ [n',a43,b1,cm13] ×7 ] (ja) | [ [n',f,idk,cm13,kt] ×7 ] (zh) | null, alltime_n: [7], first_at, last_at, placement_eligible: bool, stop_reasons: [...], rated_known_in_frame}`.
 - STABLE, `SECURITY INVOKER`, service role only. `knowledge_report_summary` embeds it (TASK-1036 adjusted).
 
 ### `update_vocabulary_from_placement_batch(p_user_id uuid, p_items jsonb): jsonb`
 - Like `update_vocabulary_from_word_tests_batch` (`migrations/bkt_word_test_batch.sql`), but it
   increments `placement_correct` and `placement_wrong`, not `word_test_*`. `p_items` = `[{sense_id, is_correct}]`
   for the rows of §10 that write. Returns `{updated, inserted}`.
+
+### `calibration_zh_tone_variants(p_pronunciation text, p_vocab_id integer): text[]` (TASK-1092, ADR-060)
+- **Purpose:** every valid tone variant of a zh reading under rule 4, in display (diacritic) form.
+- **Behaviour:** parse the display syllables (tone from the mark, 5 if none); for each syllable with a
+  full tone, the alternatives are the other full tones listed for its base in
+  `calibration_zh_tone_inventory`; keep tone 5 and syllables written 一 or 不 (aligned with the lemma's
+  characters when the counts match) unchanged; form every combination except the original; drop
+  combinations whose only changes are 3→2 before a tone-3 syllable, and any equal to a reading of
+  `p_vocab_id` in `dim_word_senses`; re-mark with the standard rule (a or e takes the mark; in ou the o;
+  otherwise the last vowel; ü kept). Capped at 16 variants.
+- **Returns:** text[] (empty when none). STABLE. Must match the reference implementation
+  (`wiki/evaluations/vocab-placement-research-2026-11-18/tones/tone_cover.py`) on every pool reading.
+
+### `calibration_refresh_zh_tone_inventory(): integer` (TASK-1092)
+- Rebuilds the inventory from native zh `dim_word_senses` readings; returns the row count. Run with the
+  zh pool refresh (TASK-1063) and after any zh sense backfill. SECURITY DEFINER, service role only.
 
 ### Changed SQL (bug fixes, LIVE-DB)
 - `calibration_normalise_pronunciation` and `calibration_syllable_count` (zh): derive numbered pinyin
@@ -793,15 +889,16 @@ the RPC. Feature flag `PLACEMENT_ENABLED_LANGS` (e.g. `"1,2"`); a disabled langu
 `latest`, `close_stale_for(user_id | None)`.
 
 `services/placement_design.py` (pure, no I/O):
-- `CONFIG` (version 1): warm-up 2; earliest stop 40/20; cap 50/40; time cap 420 s; `SD_RATIO = 0.12/1.645`;
-  probe p = {forced_guess 0.15, reading_after_miss 0.25, sound_pair 0.5}; probe budget 4 per session and
+- `CONFIG` (version 1): warm-up 2; earliest stop 40/20; cap 60/40; time cap 540 s; `SD_RATIO = 0.12/1.645`;
+  zh pair pseudo-count 0.25; probe p = {forced_guess 0.15, reading_after_miss 0.25, sound_pair 0.5 (ja)}; probe budget 4 per session and
   2 per kind; recheck delay 7 days; exclude 180 d; fast median 800 ms over ≥ 10 answers; resume 24 h.
 - `warmup_order(rng)`, `next_band(tallies, frame, rng)`, `should_stop(tallies, frame, config) -> reason|None`,
   `eligible(tallies, stop_reason)`, `word_groups(rows)`, `minutes_left(tallies, config)`.
 
 `services/vocabulary/knowledge_estimate.py` (TASK-1035) gains `pair_counts(...)`,
-`estimate_range_pairs(...)` (same formula, second input), `gap_range(...)`, `apply_guard(m, mr)`, the
-eligibility amendment, and `compare(prev, now)` (the ADR-053 rule).
+`estimate_range_pairs(...)` (ja: same formula, second input), `estimate_range_tone_pairs(...)` (zh: §5.1,
+ADR-060), `gap_range(...)` (ja gap, zh reading gap, zh tone gap), `apply_guard(m, mr)`, the eligibility
+amendment, and `compare(prev, now)` (the ADR-053 rule).
 
 Rate limits (`web/rate_limits.py`, `ENDPOINT_LIMITS`, key `user_or_ip`):
 - `'calibration.placement_start': (('10 per day', user_or_ip),)`;
@@ -842,7 +939,7 @@ two answers continue onboarding without a placement and store nothing.
 
 ### Entry points (TASK-1085)
 - Onboarding (above).
-- The report's empty state "We don't know your vocabulary yet" → "Take the 6-minute placement".
+- The report's empty state "We don't know your vocabulary yet" → "Take the 7-minute placement".
 - The calibration page: "Short placement instead".
 - The Me row of My vocabulary.
 
@@ -850,15 +947,15 @@ two answers continue onboarding without a placement and store nothing.
 
 Flat keys in `static/i18n/{en,es,ja,zh}.json`, all four locales in the same task, with the parity test
 (`tests/test_i18n_locale_files.py`):
-- **Page and intro:** `placement.title`, `.intro_time_cjk` ("about 6 minutes"), `.intro_time_en` ("about 5
+- **Page and intro:** `placement.title`, `.intro_time_cjk` ("about 7 minutes"), `.intro_time_en` ("about 5
   minutes"), `.intro_idk_hint`, `.start`.
-- **Items:** `.choose_meaning`, `.choose_pinyin` ("Choose the pinyin (tones are not tested)"),
+- **Items:** `.choose_meaning`, `.choose_pinyin` ("Choose the pinyin"),
   `.choose_reading_ja`, `.idk`, `.best_guess`, `.probe_badge` ("Extra question — not scored"),
-  `.sound_pair_prompt`, `.next`.
+  `.sound_pair_prompt` (ja), `.next`.
 - **Ending:** `.stop_here`, `.end_confirm`, `.not_enough`, `.minutes_left`, `.reveal_meaning`, `.reveal_reading`.
-- **Result:** `.answers_heading` ("Your answers (guesses included)"), `.group_both`, `.group_meaning_only`,
+- **Result:** `.answers_heading` ("Your answers (guesses included)"), `.group_both`, `.group_tones_not_yet`, `.group_meaning_only`,
   `.group_not_yet`, `.group_recognised_en`, `.practise_readings`, `.learn_these`, `.up_to_today`,
-  `.result_mr`, `.result_m`, `.result_m_en`, `.result_fewer`, `.result_gap`, `.retake_this`,
+  `.result_mr`, `.result_m`, `.result_m_en`, `.result_fewer`, `.result_tone_gap`, `.result_gap`, `.retake_this`,
   `.retake_previous`, `.retake_up`, `.retake_down`, `.retake_same`, `.retake_combined`,
   `.ended_early`, `.fast_flag`.
 - **Next steps and method:** `.next_session`, `.next_check`, `.how_title`, `.how_body_cjk`,
@@ -868,7 +965,7 @@ Flat keys in `static/i18n/{en,es,ja,zh}.json`, all four locales in the same task
 
 Copy rules:
 - "recognised", never "know" alone;
-- no exam level;
+- no exam level (PQ2);
 - no praise, pass/fail or readiness;
 - no neutrality claim about guessing;
 - numbers formatted by locale;
@@ -883,8 +980,9 @@ Copy rules:
    - **Alternatives rejected:** IRT targeting now (D1/D3: bias up to −4.4% of the pool, advanced
      learners within one level only 32–33%, uncalibrated items); reading on every word (D2) or half
      the words (D4); level strata (D3L: 20–45% wider counts).
-2. **Decision:** the zh/ja headline is meaning-and-reading recognition from the pair estimator. Answers
-   pool only within one instrument and D. There is no exam-level estimate in v1 (ADR-058).
+2. **Decision:** the zh/ja headline is meaning-and-reading recognition from a pair estimator (ja
+   ADR-058; zh with tones, ADR-060). Answers pool only within one instrument and D. There is no
+   exam-level estimate (ADR-058; owner, PQ2).
    - **Rationale:** E21 (cognate over-statement), PSY M5 (instrument mix), E23 (level estimate fails).
    - **Alternatives rejected:** meaning headline; pooling legacy check answers; the threshold level
      range.
@@ -901,10 +999,19 @@ Copy rules:
    - **Rationale:** the check's client prefetch leaves unanswered rows (E4).
    - **Alternatives rejected:** sending both possible next items to the client (LRN L4), because
      choosing between them reveals whether the tapped option was the key.
-6. **Decision:** zh scored reading items exclude tone-only foils; tone and special morae are measured
-   by unscored 2-option probes; no generated foils without PQ3 (ADR-057).
-7. **Decision:** cap 50 (zh/ja) / 40 (en) plus a 7-minute active-time cap, copy "about 6 / 5 minutes"
-   (PQ10; E22).
+6. **Decision (owner, PQ3; ADR-060, superseding ADR-057 decision 4):** zh reading items score tones
+   with two tone pairs (K, K′, F, F′) built only from syllable+tone pairs that exist in Mandarin, and
+   the full reading is estimated as right tones minus wrong tones on the same syllables. ja special
+   morae stay in unscored 2-option probes.
+   - **Rationale:** the owner wants pronunciation, tones included, to separate real from partial
+     knowledge; valid variants exist for 99.1% of pool words (E32); the estimator is unbiased with
+     96–97% coverage (E33); one pair per syllable set removes the "two similar options" cue.
+   - **Alternatives rejected:** syllables only (the earlier default; tones untested); one tone
+     variant with two segmental foils (the key is always one of the only two options that share
+     syllables); three tone variants (gives the syllables away and cannot be built for 11% of words,
+     E32); the ADR-058 `prw/3` correction on these items (+1.9..+3.3% bias, E33).
+7. **Decision:** cap 60 (zh/ja; owner, PQ10) / 40 (en) plus a 9-minute active-time cap, copy "about 7 /
+   5 minutes" (E31, E33).
 
 ## 18. Security Considerations
 
@@ -916,6 +1023,7 @@ Copy rules:
 - **Input validation:**
   - language ids from `_SUPPORTED_LANGUAGE_IDS`;
   - `position` int 0–3 (0–1 for a sound pair) or null;
+  - generated zh options are built server-side from the inventory; the client only ever sends a position;
   - `latency_ms` int, clamped;
   - `response_id` int;
   - `p_draws` and `p_next_band` produced server-side only, never taken from the client;
@@ -936,13 +1044,17 @@ Copy rules:
   - allocation picks the band with the largest Δ (hand-computed fixture) from the previous call's
     tallies;
   - exhausted bands are skipped;
-  - stop reasons at 40/50/51, at 420 s active time, and for en at 20/40;
+  - stop reasons at 40/60/61, at 540 s active time, and for en at 20/40;
   - a pending reading item blocks stopping;
   - probe budget and per-kind caps, with at most one probe per word;
   - the pair-counting table of §5.1: ready vs exempt, IDK vs wrong, probes excluded, abandoned pair
     excluded;
   - the gap x-mapping and variance against a hand computation, and G = T_m − T_mr on identical samples;
   - `estimate_range_pairs` reproduces ADR-051 on identical inputs;
+  - zh: `estimate_range_tone_pairs` on hand-computed fixtures (K/K′/F/F′/IDK counts), the 0.25
+    pseudo-count, and K_m = K_mr + tone gap + reading gap on one sample;
+  - the tone-variant reference: 买 mǎi has no 一/不 change and excludes its own readings; 很好 hěn hǎo
+    excludes hén hǎo (sandhi); 东西 dōng xi keeps xi neutral; 一样 yí yàng never changes yí;
   - the M8 guard direction;
   - eligibility (a), (b) and (c), with **End now at 20, 30 and 45 scored items returning a result**
     and at 19 returning `not_enough`;
@@ -955,8 +1067,11 @@ Copy rules:
 - **SQL (read-only checks after apply; static migration tests):**
   - `next_item` and `answer` never return a lemma answered in 180 days, a non-ready lemma, a key, or a
     reading on a meaning item;
-  - reading foils share the key's display syllable or mora count and contain no tone-only foil (zh) and
-    no kana-inconsistent foil (ja);
+  - reading foils share the key's display syllable or mora count; no kana-inconsistent foil (ja);
+  - zh reading items have exactly the roles K, KT, F, FT; KT and FT are tone variants of K and F under
+    rule 4 (every syllable+tone in the inventory, no sandhi-only variant, no reading of the same lemma);
+    F is not a tone variant of K; `calibration_zh_tone_variants` matches the reference implementation
+    on every pool reading;
   - the rule-5 residual is ≤ 1% for zh/ja and ja/zh (§2, query Q4 of the research record);
   - answering twice and answering a foreign session are rejected;
   - `close` leaves no unanswered placement rows;
@@ -984,17 +1099,17 @@ and results are filed under `wiki/evaluations/`.
 
 | # | when | n needed | question | method | pass / action |
 |---|---|---|---|---|---|
-| V0 | before launch (TASK-1087) | synthetic | does the production code behave as simulated? | production `placement_design` + `knowledge_estimate` on the [SIM] model, launch readiness fixtures (PSY M13), zh·en, zh·ja, ja·en, ja·zh, en·en, IDK 0.3/0.7 | 95% coverage ≥ 0.90 for m, m+r and gap; \|bias\| ≤ 1.5% of the pool; mean scored items 46–51 (zh/ja); End-now coverage at 20/30 items ≥ 0.88; the label distribution and early-stop share per L1 recorded and compared with E22/E25; `expected_sd` error recorded |
-| V1 | first week | the owner (de6fd05b, ja) | **mode effect**: bare meaning items vs the legacy check (reading shown) on disjoint words | Δ = T_place,m − T_check (172 legacy answers) with SD = √(SD₁² + SD₂²); real minutes per item | descriptive: report Δ and its 95% CI; a CI excluding 0 is evidence that the instruments differ (expected); minutes ≤ 7 |
+| V0 | before launch (TASK-1087) | synthetic | does the production code behave as simulated? | production `placement_design` + `knowledge_estimate` on the [SIM] model with the zh tone state of E33, launch readiness fixtures (PSY M13), zh·en, zh·ja, ja·en, ja·zh, en·en, IDK 0.3/0.7 | 95% coverage ≥ 0.90 for m, m+r, the reading gap and the zh tone gap; \|bias\| ≤ 1.5% of the pool; mean scored items 55–61 (zh/ja); End-now coverage at 20/30 items ≥ 0.88; the label distribution and early-stop share per L1 recorded and compared with E22/E25; `expected_sd` error recorded |
+| V1 | first week | the owner (de6fd05b, ja) | **mode effect**: bare meaning items vs the legacy check (reading shown) on disjoint words | Δ = T_place,m − T_check (172 legacy answers) with SD = √(SD₁² + SD₂²); real minutes per item | descriptive: report Δ and its 95% CI; a CI excluding 0 is evidence that the instruments differ (expected); minutes ≤ 8 |
 | V2 | weeks 1–6 | every retest pair (10–30 per language) | test–retest on disjoint words within 7 days | z = (T₂ − T₁)/√(SD₁² + SD₂²); variance inflation κ = √(mean z²) with a 95% CI (χ² on the pairs) | whenever the CI's lower bound > 1, widen all intervals by κ and record it (PSY M12) |
 | V3 | after ≥ 200 later first-try outcomes on placement-tested words | pooled | do credited words predict later practice? | first-try accuracy of meaning-right vs meaning-missed words; calibration by band | difference ≥ 20 points; credited-but-wrong later near the simulated 7–13% |
-| V4 | ≥ 60 pooled `reading_after_miss` probes | pooled | reading without meaning (ω) | ω̂ = (r − w/3)/n with a Jeffreys-type interval; per learner, the implied per-band bias (1 − K̂_m,b)·ĝ_m·ω̂ with ĝ_m = (1 − ŝ_m)/4 | implied bias ≤ 2% of the pool for ≥ 90% of learners → keep; else an ω-correction ADR (PSY M10) |
+| V4 | ≥ 60 pooled `reading_after_miss` probes | pooled | reading without meaning (ω) | ω̂ = (r − w/3)/n (zh: (K − K′)/n) with a Jeffreys-type interval; per learner, the implied per-band bias (1 − K̂_m,b)·ĝ_m·ω̂ with ĝ_m = (1 − ŝ_m)/4 | implied bias ≤ 2% of the pool for ≥ 90% of learners → keep; else an ω-correction ADR (PSY M10) |
 | V5 | ≥ 30 placements per language | pooled | S8 inside the frame: are list words recognised more than same-band non-list words? | logistic regression of **pair** outcomes on band dummies + on-list (+ level), learner random intercept; decision rule calibrated by simulating V5 at n = 30 under the base and `gamma25` models; equivalence rule (keep only if the upper CI bound < the calibrated threshold) | input to TASK-1090 only (no level output in v1) (PSY M11) |
-| V6 | ≥ 50 pooled `sound_pair` probes per language | pooled | given the syllables (zh) / kana skeleton (ja), are tones / special morae recognised? | (c − w)/n (guess 1/2) with a Jeffreys-type interval | descriptive; informs PQ3 and TASK-1092 |
+| V6 | ja: ≥ 50 pooled `sound_pair` probes; zh: ≥ 30 placements | pooled | ja: given the kana skeleton, are special morae recognised? zh: how large is the tone gap, and is K′ chosen more often than F′ by learners who miss F (a sign that variants are rejected by sound pattern, rule-4 bias iv)? | ja (c − w)/n (guess 1/2) with a Jeffreys-type interval; zh the tone gap of §5.1 pooled, and the K′:F′ ratio among non-K answers | descriptive; a K′:F′ ratio far from the model's (S-learners pick K′, guessers pick both equally) triggers an ADR-060 review |
 | V7 | when a goal or level is stated | ≥ 15 | does the m+r count rise with the stated level? | Spearman (stated level, T_mr) | descriptive only, never a gate |
 | V8 | ≥ 30 placements; ≥ 60 `forced_guess` probes | pooled | IDK use and the knowledge it hides | distribution of `result.skip_share` vs T; hidden knowledge (c − w/3)/n over forced-guess probes with an interval | descriptive; if hidden knowledge > 0.15, strengthen the "lower-side" copy and revisit ADR-051 rule 5 with TASK-1061 |
-| V9 | ≥ 100 pooled `recheck` probes | pooled | **reading credit**: are m+r-credited readings recognised again ≥ 7 days later with disjoint foils? | false-credit rate = 1 − (c − w/3)/n on rechecks; implied guess rate among unknown readings | if the implied guess rate > 0.30, replace r = 1/3 for readings via an ADR-058 revision; until then the method note keeps "may be a little high". Caveat: the reveal teaches the reading, so the false-credit rate is a lower bound (INFERENCE) (PSY M4) |
-| V10 | ≥ 30 placements | pooled | real length | active minutes p50/p95 per language and L1; share stopped early | copy changes if p50 is more than 1 minute off "about 6 / 5 minutes" |
+| V9 | ≥ 100 pooled `recheck` probes | pooled | **reading credit**: are m+r-credited readings recognised again ≥ 7 days later with disjoint foils? | false-credit rate = 1 − (c − w/3)/n on rechecks (zh: 1 − (K − K′)/n, which also measures partial tone memory, E33); implied guess rate among unknown readings | if the implied guess rate > 0.30, replace r = 1/3 for readings via an ADR-058 revision; until then the method note keeps "may be a little high". Caveat: the reveal teaches the reading, so the false-credit rate is a lower bound (INFERENCE) (PSY M4) |
+| V10 | ≥ 30 placements | pooled | real length | active minutes p50/p95 per language and L1; share stopped early | copy changes if p50 is more than 1 minute off "about 7 / 5 minutes"; the time cap moves if more than 10% of placements end on it |
 
 ## 21. Rollout
 
@@ -1003,8 +1118,8 @@ and results are filed under `wiki/evaluations/`.
 2. Migration (TASK-1076) and SQL functions (TASK-1077, TASK-1079) applied by the owner, followed by
    read-only checks.
 3. Code behind an empty `PLACEMENT_ENABLED_LANGS`; V0 harness green (TASK-1087).
-4. Owner answers PQ3 and PQ5 (launch-blocking). Enable zh and en (PQ6, PQ14); ja after its readiness gate
-   passes (PQ13). The nightly `calibration_placement_close_stale` job is added to `web/scheduler.py`.
+4. PQ3 (zh tones scored) and PQ5 (evidence) were answered by the owner on 2026-11-18; zh launches with
+   TASK-1092. Enable zh and en (PQ6, PQ14); ja after its readiness gate passes (PQ13). The nightly `calibration_placement_close_stale` job is added to `web/scheduler.py`.
 5. V1 by the owner, then V2–V10 as data arrives (TASK-1089).
 6. A level output only through TASK-1090; v2 IRT only after its gate (TASK-1093).
 
@@ -1013,15 +1128,15 @@ and results are filed under `wiki/evaluations/`.
 | # | Question | Why it matters | Default |
 |---|---|---|---|
 | PQ1 | For zh/ja, which range leads: "meaning and reading" or "meaning"? | A meaning headline over-states cognate learners by ~1,000 zh words (E21). | **Meaning and reading first**; the gap line when clearly above 0. |
-| PQ2 | Any exam-level output? | The threshold level line failed (E23); a level claim rests on about a third of each level (E24). | **None in v1.** Reconsider via TASK-1090 (named subset, per-level gates on the displayed copy, V5). |
-| PQ3 | **Ask before launch:** may wrong options include generated tone variants (zh) or long-vowel / っ / ん / voicing variants (ja) of the word's own reading? | Real-reading foils test tone on 11% of zh items and special morae on ~4% of ja items (E6, E11). A variant is the learner's real error, not a fake word, but it is not another word's reading. JLPT 漢字読み is said to use such near-misses (INFERENCE, not verified). | **No in v1**: tones not tested and stated; sound-pair probes measure the gap (V6). If yes: TASK-1092 becomes a zh launch item. |
+| PQ2 | **ANSWERED (owner, 2026-11-18): "No, not at the moment."** | The threshold level line failed (E23); a level claim rests on about a third of each level (E24). | **None.** TASK-1090 stays parked until the owner asks for a level output. |
+| PQ3 | **ANSWERED for zh (owner, 2026-11-18): "Yes, but only the existing tones, just wrong combos."** Read as: tone variants are allowed as wrong options when every syllable+tone pair exists in Mandarin and only the combination is wrong. ja long-vowel / っ / ん / voicing variants were not asked about and stay unscored. | Real-reading foils test tone on 11% of zh items (E6); valid variants exist for 99.1% of pool words (E32). | **zh: scored tones, rule 4 (ADR-060, TASK-1092, a zh launch item). ja: no.** |
 | PQ4 | Unscored, labelled probes (≤ 4 per test)? | They test the scoring's assumptions (V4, V6, V8, V9), which no live data covers; cost ≤ ~0.5 min. | **Yes.** |
-| PQ5 | **Launch-blocking:** placement evidence is its own kind, written per pair; meaning-only words go to reading practice; never rated known alone? | Without it the target case is pushed out of practice (LRN L6), and the result's copy would be untrue (LRN L7). | **Yes**; the open-ended check's kind is decided in TASK-1065. |
+| PQ5 | **ANSWERED (owner, 2026-11-18): approved.** Placement evidence is its own kind, written per pair; meaning-only words go to reading practice; never rated known alone. | Without it the target case is pushed out of practice (LRN L6), and the result's copy would be untrue (LRN L7). | **Yes** (ADR-059 accepted); the open-ended check's kind is decided in TASK-1065. |
 | PQ6 | Offer the placement to English learners at launch? | en is meaning-only, 40 items, ~4.4 min; not simulated. | **Yes**, once V0 includes an en population. |
-| PQ7 | Offer it in onboarding, with the "studied before?" gate? | Beginners face ~50 items, most IDK (LRN L5); a first experience. | **Offered after the gate, skippable**; always on offer on the report and the Me row while the learner has no placement. |
+| PQ7 | Offer it in onboarding, with the "studied before?" gate? | Beginners face ~50–60 items, most IDK (LRN L5); a first experience. | **Offered after the gate, skippable**; always on offer on the report and the Me row while the learner has no placement. |
 | PQ8 | Retake policy | Disjoint words need supply (ja band 7: 68 ready words). | **Any time, ≤ 3 starts per language per day, no word within 180 days**; retake compared with the previous placement. |
 | PQ9 | Keep ADR-051's per-band minima for Medium/Good? | A placement alone is "Rough" or "Fewer than" (E25). | **Keep**; revisit after V2. |
-| PQ10 | Length | 50 items ≈ 5.7–5.8 min, m+r ±15.7–16% at 95%; 60 items ≈ 6.9–7.0 min, ±14.2–14.4% (E22). | **50 (zh/ja) / 40 (en), 7-minute active-time cap**, "about 6 / 5 minutes". |
+| PQ10 | **ANSWERED for zh/ja (owner, 2026-11-18): "About 60."** English was not part of the question and stays at 40 (meaning only, ≈ 4.4 min) unless the owner says otherwise. | 60 items ≈ 6.4–7.0 min (E31, E33). | **60 (zh/ja) / 40 (en), 9-minute active-time cap**, "about 7 / 5 minutes". |
 | PQ11 | Make the check's meaning items the bare instrument (no reading line, prefix stripped)? | Otherwise check and placement answers cannot be pooled (PSY M5); ≥ 10.8–13.3% of cross-CJK items are answerable by string matching. | **Yes** (TASK-1091). |
 | PQ12 | Name and translations | UI copy in four locales. | "Vocabulary placement" / "Prueba de nivel de vocabulario" / "語彙レベルチェック" / "词汇水平测试", **native review**. |
 | PQ13 | Japanese waits for the ja pool refresh, the kana-consistent refill and the readiness gate? | 69% readiness today, 50% in band 1 (E8); rule 3b removes ~199 more. | **Yes, wait** (TASK-1075). |
@@ -1046,7 +1161,7 @@ learner-side review (L1–L13). Full findings, evidence and dispositions are in
 |---|---|---|
 | M1, L1 (blockers) | accepted | Exam-level range removed from v1 (§5.3); PQ2 default "none"; TASK-1090 redesign with per-level gates on displayed copy |
 | M2 | accepted | ADR-054's v1 stance kept; conditions for any later level claim (§5.3) |
-| M3, L9 | accepted (L9 point 2 partly) | No tone-only foil in scored zh items; "tones not tested"; `sound_pair` probes; ja kana-consistent foils (rule 3b); PQ3 asked before launch |
+| M3, L9 | accepted (L9 point 2 partly); zh part superseded by the owner's PQ3 answer | ja kana-consistent foils (rule 3b); ja `sound_pair` probes. zh: tones now scored with two tone pairs (rule 4, ADR-060), which also answers M3's 10.9% tone coverage |
 | M4 | accepted | V9 reading-credit rechecks; "may be a little high" in the method note |
 | M5, M15 | accepted | `instrument` per response; pool within instrument and D; report D rule; V1 as a mode-effect estimate; TASK-1091 widened |
 | M6, L12 | accepted | Neutral IDK copy; `forced_guess` probes; skip share stored |
@@ -1059,7 +1174,7 @@ learner-side review (L1–L13). Full findings, evidence and dispositions are in
 | M16 | accepted | No pooled-ability or rating write until OQ33 (TASK-1083) |
 | L2 | accepted | Result leads with this test's word groups; range second; "Fewer than" phrased for beginners; gap shown only when clear |
 | L3 | accepted | Result after End now (warm-up + 20 items) and for abandoned sessions; resume 24 h |
-| L4 | partly accepted | Cap 50 + 7-minute time cap, "about 6 minutes"; minutes-left progress; one round trip per answer; pre-sending both branches rejected (it leaks the key) |
+| L4 | partly accepted; length superseded by the owner's PQ10 answer | Cap 60 + 9-minute time cap, "about 7 minutes"; minutes-left progress; one round trip per answer; pre-sending both branches rejected (it leaks the key) |
 | L5 | accepted | "Studied before?" gate; commonest band first; claim deleted |
 | L6, L7 | accepted | Pair-based evidence; A2r reading-gap queue; native-sense admission; intro-drill pinyin fix; evidence is a launch dependency |
 | L8 | accepted | Rule 5 covers `——`/`—`; measured ≤ 1% residual; residual anchors excluded |
@@ -1071,7 +1186,7 @@ learner-side review (L1–L13). Full findings, evidence and dispositions are in
 - [[features/vocab-placement]] — prose counterpart
 - [[features/calibration]], [[features/calibration.tech]] — the check this extends
 - [[features/knowledge-report]], [[features/knowledge-report.tech]] §2.4, §2.6, §6.1 — the report sections this changes
-- [[decisions/ADR-057-adaptive-placement-with-conditional-reading]], [[decisions/ADR-058-meaning-and-reading-recognition-pair-estimator]], [[decisions/ADR-059-placement-evidence-kind]]
+- [[decisions/ADR-057-adaptive-placement-with-conditional-reading]], [[decisions/ADR-058-meaning-and-reading-recognition-pair-estimator]], [[decisions/ADR-059-placement-evidence-kind]], [[decisions/ADR-060-zh-placement-scores-tones]]
 - [[decisions/ADR-051-vocabulary-size-from-calibration-frame]], [[decisions/ADR-053-daily-knowledge-snapshots]], [[decisions/ADR-054-exam-word-lists-in-storage]], [[decisions/ADR-033-budget-scope-and-new-word-budget]], [[decisions/ADR-047-basic-word-knowledge-prior]], [[decisions/ADR-025-semantic-distractor-selection]], [[decisions/ADR-039-packed-calibration-distractor-cache]]
 - [[evaluations/vocab-placement-research-2026-11-18]] — research record
 - [[database/schema.tech]], [[api/rpcs.tech]]

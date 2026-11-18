@@ -41,7 +41,7 @@ open_questions:
   - "OQ34 OPEN: Show an estimated percentage per exam level after validation? Default: no."
   - "OQ35 OPEN: The goal-path layout needs a stored goal per study language (exam level, optional exam date). Where is it stored (user_languages columns or a small settings row), and is it shared with the study plan? Default: two nullable columns on user_languages."
   - "OQ36 OPEN: Show '+N rated known in the last 30 days' per exam level? It needs per-level counts in the nightly snapshot (ADR-053), a few bytes per list level per row. Default: yes, once 30 days of snapshots exist."
-  - "OQ37 ANSWERED (owner, 2026-11-18): build the placement test as an adaptive version of the vocabulary check; no fake words or Yes/No self-report; for Chinese and Japanese test both the meaning and the pronunciation. Design filed as features/vocab-placement (ADR-057–059 proposed; tasks TASK-1074–1095); its own owner questions are PQ1–PQ21 there."
+  - "OQ37 ANSWERED (owner, 2026-11-18): build the placement test as an adaptive version of the vocabulary check; no fake words or Yes/No self-report; for Chinese and Japanese test both the meaning and the pronunciation. Design filed as features/vocab-placement (ADR-057, ADR-058, ADR-060 proposed; ADR-059 accepted; tasks TASK-1074–1095); its own owner questions are PQ1–PQ21 there (PQ2, PQ3 for zh, PQ5 and PQ10 answered 2026-11-18: no level output for now, zh tones scored, evidence rules approved, about 60 questions)."
 ---
 
 # Knowledge Report ("My vocabulary")

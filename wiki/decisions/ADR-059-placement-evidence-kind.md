@@ -1,10 +1,15 @@
 ---
 title: "ADR-059: Placement answers are their own evidence kind, written per word pair; meaning-only words go to reading practice; never 'rated known' on their own"
-status: proposed
+status: accepted
 date: 2026-11-18
 ---
 
 # ADR-059: Placement answers are their own evidence kind, written per word pair; meaning-only words go to reading practice; never "rated known" on their own
+
+**Accepted 2026-11-18:** the owner approved PQ5 (this ADR's evidence rules). For Chinese, a reading answer
+with the right syllables but wrong tones ([[decisions/ADR-060-zh-placement-scores-tones]]) counts as
+"reading not right": no BKT write, and the word goes to reading practice (A2r). PQ19 (no ability or rating
+write until OQ33) and PQ21 (which sense row) keep their defaults and remain open.
 
 ## Context
 Today the check writes BKT evidence at `/end` (ADR-033 revision (b), 4B) through

@@ -6,6 +6,10 @@ date: 2026-11-18
 
 # ADR-057: Vocabulary placement is an adaptive, band-stratified run of the vocabulary check with a conditional reading item and a cap-or-precision stop
 
+**Amended 2026-11-18 by the owner's answers:** the cap is 60 scored items for zh/ja (PQ10; decision 6),
+and Chinese tones are scored ([[decisions/ADR-060-zh-placement-scores-tones]] supersedes decision 4's
+Chinese rule).
+
 ## Context
 New and returning learners need an honest vocabulary result in a few minutes on a phone. The vocabulary
 check ([[features/calibration]]) has the right items: four-option meanings with semantically close,
@@ -63,19 +67,21 @@ Research ([[evaluations/vocab-placement-research-2026-11-18]]):
 4. **Item rules.**
    - Reading foils have the key's syllable or mora count.
    - Japanese foils are consistent with the word's visible kana.
-   - Scored Chinese reading items never contain a tone-only foil, and the item says tones are not tested.
+   - ~~Scored Chinese reading items never contain a tone-only foil, and the item says tones are not tested.~~
+     Superseded by ADR-060: Chinese items are two tone pairs (key, a tone variant, a segmental foil, a tone
+     variant of it) built only from syllable+tone pairs that exist.
    - The cross-CJK leading equivalent word (`；`, `;`, `——`, `—` forms) is stripped from all definition
      options, and anchors still answerable by string matching are excluded.
-   - Every option is a real word's definition or reading; generated variants need the owner (PQ3).
+   - Every option is a real word's definition or reading, except Chinese tone variants under ADR-060.
 5. **Unscored probes.** At most 4 per placement, labelled "Extra question — not scored", never used by any
    estimate or write:
    - rechecks of earlier m+r credits;
    - a reading after a missed meaning;
    - a forced best guess after "I don't know";
-   - a 2-option sound pair (tone or special mora).
+   - a 2-option sound pair (Japanese special mora; Chinese tones are scored, ADR-060).
 6. **Stop.**
-   - zh/ja: no new word after 50 scored items (a due reading is still asked); en: 40.
-   - No new word after 7 minutes of active time.
+   - zh/ja: no new word after 60 scored items (a due reading is still asked; owner, PQ10); en: 40.
+   - No new word after 9 minutes of active time (about 2 minutes above the simulated p95 of 7.1).
    - Earlier, from 40 (zh/ja) or 20 (en) scored items, when every reported 90% half-width is ≤ 12% of the
      pool.
    - Also on exhaustion; or when the learner stops after the warm-up and ≥ 20 scored items, with a result;
@@ -96,7 +102,9 @@ Research ([[evaluations/vocab-placement-research-2026-11-18]]):
   report; the cognate over-statement of meaning-only tests (~1,000 words for Japanese-L1 learners of
   Chinese, ESTIMATE) is removed; retakes are disjoint; abandoned and early-ended tests still give a result.
 - **Harder:**
-  - Results are wide: 95% ≈ ±14–17% of the pool for meaning and reading, usually labelled "Rough".
+  - Results are wide: 95% ≈ ±14–18% of the pool for meaning and reading at 60 items, usually labelled
+    "Rough".
+  - The test takes about 7 minutes (simulated 6.4–7.0 mean, p95 7.1, at the one real learner's pace).
   - Japanese needs a pool refresh and a kana-consistent foil refill before launch (69% paired readiness
     today, 50% in band 1).
   - The zh reading normaliser and the intro drill's zh reading must be fixed first.
@@ -104,7 +112,7 @@ Research ([[evaluations/vocab-placement-research-2026-11-18]]):
 - **Constrained:**
   - The claim is four-option recognition of the pool's words.
   - Readings are recognised, not produced.
-  - Chinese tones and Japanese special morae are not part of the scored claim (PQ3).
+  - Japanese special morae are not part of the scored claim; Chinese tones are (ADR-060).
   - Heritage learners' reading knowledge is under-measured by the meaning-first order.
   - A change of cap, probes or rules needs a `CONFIG` version bump.
 
@@ -118,8 +126,8 @@ Research ([[evaluations/vocab-placement-research-2026-11-18]]):
 - **Fixed-length check (D0, 70 items):** about 6 minutes for the precision adaptive selection reaches
   sooner. **Meaning-only placement:** rejected by owner decision 3 and by the cognate over-statement.
 - **Yes/No with pseudowords:** rejected by the owner.
-- **60-item cap ("about 7 minutes"):** about ±1.5 points narrower at 95%, 1.2 minutes longer. Kept as the
-  PQ10 alternative.
+- **50-item cap ("about 6 minutes", the first default):** about 1.5 points wider at 95%, 1.2 minutes
+  shorter. The owner chose about 60 (PQ10).
 - **Sending both possible next items to the client to remove the round trip:** the client's choice between
   them would reveal whether the tapped option was the key.
 - **Including the cached tone-only foil when one exists (the draft):** tested tone on about 11% of words,
@@ -128,6 +136,6 @@ Research ([[evaluations/vocab-placement-research-2026-11-18]]):
 
 ## Related Pages
 - [[features/vocab-placement]] · [[features/vocab-placement.tech]] §2, §3, §5.4, §6, §7
-- [[decisions/ADR-058-meaning-and-reading-recognition-pair-estimator]] · [[decisions/ADR-059-placement-evidence-kind]]
+- [[decisions/ADR-058-meaning-and-reading-recognition-pair-estimator]] · [[decisions/ADR-059-placement-evidence-kind]] · [[decisions/ADR-060-zh-placement-scores-tones]]
 - [[decisions/ADR-051-vocabulary-size-from-calibration-frame]] · [[decisions/ADR-025-semantic-distractor-selection]] · [[decisions/ADR-039-packed-calibration-distractor-cache]]
 - [[evaluations/vocab-placement-research-2026-11-18]]

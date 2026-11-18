@@ -14,8 +14,13 @@ decisions [[decisions/ADR-057-adaptive-placement-with-conditional-reading]],
 [[decisions/ADR-058-meaning-and-reading-recognition-pair-estimator]],
 [[decisions/ADR-059-placement-evidence-kind]]; evidence [[evaluations/vocab-placement-research-2026-11-18]].
 
+**Owner answers (2026-11-18).** PQ3 for Chinese: tones are scored with wrong tone combinations built only
+from syllable+tone pairs that exist (ADR-060; TASK-1092 is now a zh launch item). PQ5: approved (ADR-059
+accepted; TASK-1081 unblocked). PQ2: no exam-level output for now (TASK-1090 parked). PQ10: about 60 questions
+for zh/ja (cap 60, 9-minute time cap; en stays 40).
+
 **Sequence.**
-1. Bug fixes and data (1074, 1075, 1082).
+1. Bug fixes and data (1074, 1075, 1082), zh tone variants (1092).
 2. Schema and SQL (1076, 1077, 1079).
 3. Pure design (1078).
 4. Service (1080).
@@ -23,7 +28,7 @@ decisions [[decisions/ADR-057-adaptive-placement-with-conditional-reading]],
 6. UI and entry points (1084, 1085).
 7. Report integration (1086).
 8. Harness and launch (1087, 1088).
-9. Validation and later work (1089–1094).
+9. Validation and later work (1089–1091, 1093, 1094).
 10. Docs (1095).
 
 **Knowledge Report prerequisites:** TASK-1034, TASK-1035, TASK-1036, TASK-1039, TASK-1040, TASK-1044
@@ -153,8 +158,9 @@ runs the refresh and fill; it prints PASS for every (3, D). Run
 
 **Description:**
 Adds the `placement` session mode, `stop_reason` (including `time`) and the frozen `result` on
-`calibration_sessions`. Adds `item_kind`, `probe_kind`, `instrument`, `pair_response_id`, `option_sense_ids` and
-`key_position` on `calibration_responses`, plus the partial index `(user_id, anchor_vocab_id) WHERE
+`calibration_sessions`. Adds `item_kind`, `probe_kind`, `instrument` (including `reading_tone_v1`),
+`pair_response_id`, `option_sense_ids`, `key_position`, `option_roles`, `option_texts` and `chosen_position`
+on `calibration_responses`, plus the partial index `(user_id, anchor_vocab_id) WHERE
 answered_at IS NOT NULL`, exactly as tech §13. The UVK counters belong to TASK-1081.
 
 **Acceptance Criteria:**
@@ -190,14 +196,16 @@ the read-only column and index query after the owner applies the migration.
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-1076
+**Depends On:** TASK-1076; TASK-1092 for zh reading items
 
 **Description:**
 Writes the five functions of tech §14 with the item rules of tech §2:
 - rank-1 only; no reading on meaning items;
 - same display syllable or mora count;
 - ja visible-kana consistency (3b);
-- no tone-only foil in scored zh items;
+- zh reading items as two tone pairs K, K′, F, F′ (rule 4, ADR-060), with K′ and F′ from
+  `calibration_zh_tone_variants` (TASK-1092), roles and texts stored in `option_roles`/`option_texts`, and the
+  answer's `chosen_position` recorded;
 - cross-CJK prefix strip covering `；`, `;`, `——`, `—`, and exclusion of residual anchors (rule 5);
 - readiness and the 180-day per-user exclusion;
 - the branch rules of `calibration_placement_answer`: a scored reading item after a right meaning, probes
@@ -213,7 +221,8 @@ Writes the five functions of tech §14 with the item rules of tech §2:
   - a lemma the account answered in 180 days;
   - a key, or a reading in a meaning payload;
   - a reading item whose 4 options differ in display syllable or mora count;
-  - a tone-only foil in a scored zh item;
+  - a zh reading item whose roles are not exactly K, KT, F, FT, whose KT or FT is not in
+    `calibration_zh_tone_variants` of K or F, or whose F is a tone variant of K;
   - a kana-inconsistent foil in a ja item.
 - [ ] **Measured rule-5 residual** (query Q4 of the research record, rewritten with the new strip): the share
   of zh/ja and ja/zh rank-1 anchors whose stripped key contains the prompt lemma while no served foil does
@@ -225,15 +234,17 @@ Writes the five functions of tech §14 with the item rules of tech §2:
 - [ ] `calibration_placement_close` leaves no unanswered row in the session and is idempotent.
 - [ ] `EXPLAIN (ANALYZE, BUFFERS)` of the build step: the best warm run is ≤ 50 ms (record every run).
 - [ ] `calibration_placement_ready_counts` for (1, 2), (1, 3), (3, 1), (3, 2) and (2, 2) recorded in
-  `wiki/log.md`, including the counts excluded by rules 3b and 5.
+  `wiki/log.md`, including the counts excluded by rules 3b and 5 and by the zh tone rule.
 
 **Technical Notes:**
 - Reuse `calibration_cached_options(mode, anchor)` and `calibration_display_pronunciation`.
 - Syllables and morae come from the display form, never from the normaliser.
 - Random within band: `ORDER BY random() LIMIT 1` over the band's ready set (≤ ~750 rows) is acceptable.
-- Tone-only detection: `translate(lower(x), 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü', 'aaaaeeeeiiiioooouuuuvvvvv')`
-  equal for key and foil.
-- ja special-mora/voicing detection for `sound_pair`: research Q3's normalisation (NFD, drop dakuten,
+- F must not be a tone variant of K: `translate(lower(x), 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü', 'aaaaeeeeiiiioooouuuuvvvvv')`
+  differs for key and foil.
+- The tallies for zh pairs are [n', pc, pkt, pf] (tech §5.1, §14); the grade of a zh reading answer is
+  `option_roles[chosen_position + 1]`.
+- ja special-mora/voicing detection for `sound_pair` (ja only; zh has no `sound_pair` probe): research Q3's normalisation (NFD, drop dakuten,
   handakuten, っ, ん, ー, う, い) equal and the strings different.
 - `recheck` foils come from the anchor's cached foils minus the earlier serving's `option_sense_ids`.
 - Probe draws arrive in `p_draws`; never call `random()` for probe decisions, so tests are deterministic.
@@ -262,8 +273,10 @@ applies the migration; `python -m pytest tests/test_calibration_placement_migrat
 **Description:**
 Writes `services/placement_design.py`: `CONFIG`, warm-up order (7 → 1, then random), next-band allocation from
 the previous call's tallies, `should_stop` (precision, cap, time, exhausted), eligibility (a)/(b)/(c), word
-groups, and minutes left. Extends `services/vocabulary/knowledge_estimate.py` with `pair_counts`,
-`estimate_range_pairs`, `gap_range`, `apply_guard` (M8 direction), the eligibility amendment, and `compare`
+groups (with zh `tones_not_yet`), and minutes left. `CONFIG`: cap 60 (zh/ja) / 40 (en), time cap 540 s, zh pair
+pseudo-count 0.25. Extends `services/vocabulary/knowledge_estimate.py` with `pair_counts`,
+`estimate_range_pairs` (ja), `estimate_range_tone_pairs` (zh, ADR-060), `gap_range` (ja gap, zh reading gap, zh
+tone gap), `apply_guard` (M8 direction), the eligibility amendment, and `compare`
 (the ADR-053 rule). Everything follows tech §5.1, §6 and §7. There is **no `level_range`** (tech §5.3).
 
 **Acceptance Criteria:**
@@ -272,6 +285,9 @@ groups, and minutes left. Extends `services/vocabulary/knowledge_estimate.py` wi
 - [ ] `estimate_range_pairs` on (pc, prw) inputs equal to (c, w) inputs returns the ADR-051 fixture
   (de6fd05b/ja: 853.3–1,368.1).
 - [ ] `apply_guard` sets `lo_m := max(lo_m, lo_mr)` and `hi_mr := min(hi_mr, hi_m)` before rounding.
+- [ ] zh: `estimate_range_tone_pairs` matches hand-computed fixtures of (pc, pkt, pf, IDK) counts with the 0.25
+  pseudo-count; on one sample K_m = K_mr + tone gap + reading gap; `should_stop` returns `cap` at 60 scored items
+  (61 with a due reading item) and `time` at 540 s.
 - [ ] No I/O and no Flask or Supabase imports; the RNG is injected.
 
 **Technical Notes:**
@@ -380,9 +396,9 @@ tests; launch requires the real writer (TASK-1088).
 
 ---
 
-## TASK-1081: Placement evidence — UVK counters, pair-based BKT batch, A2 and A2r admission on the native sense (LIVE-DB, owner-applied) [?]
+## TASK-1081: Placement evidence — UVK counters, pair-based BKT batch, A2 and A2r admission on the native sense (LIVE-DB, owner-applied)
 
-**Status:** [?] Blocked — PQ5 (owner: placement evidence kind, pair-based write, reading-gap queue; launch-blocking)
+**Status:** [ ] Not Started — unblocked: the owner approved PQ5 on 2026-11-18 (ADR-059 accepted)
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -402,7 +418,7 @@ Implements ADR-059:
 - [ ] After a scripted placement:
   - meaning ✓ reading ✓ and exempt meaning ✓ rows get `placement_correct` +1;
   - meaning ✗/IDK rows get `placement_wrong` +1;
-  - meaning ✓ reading ✗/IDK rows get **no** write;
+  - meaning ✓ reading ✗/IDK rows get **no** write (zh: K′, F and F′ are all "reading ✗");
   - `word_test_*` is unchanged;
   - `p_known` updates equal `bkt_update_word_test` on the same inputs.
 - [ ] Probes write nothing, and a session is applied at most once (including `abandoned` sessions closed by
@@ -416,7 +432,8 @@ Implements ADR-059:
 
 **Technical Notes:**
 - Sessions read: `mode = 'placement' AND bkt_applied_at IS NOT NULL`; rows `probe_kind IS NULL`.
-- A2r joins each scored meaning row to its reading row through `pair_response_id`.
+- A2r joins each scored meaning row to its reading row through `pair_response_id`. For zh, "reading not ✓" means
+  the chosen role is not K (K′ is a tone gap, still A2r).
 - Age limit: `CALIBRATION_EVIDENCE_MAX_AGE_DAYS` (`services/practice/constants.py:61-62`, 90).
 - Veto as today (`new_word_admission.py:660-673`), applied to the native sense.
 - A2r alternates with A2 in ranking, inside the same budget (ADR-033).
@@ -522,12 +539,13 @@ If OQ33 chooses "label each", close this task as won't-do.
 
 **Description:**
 Builds the `/placement` page per tech §8, §15 and §16:
-- intro with neutral IDK copy and "about 6 / 5 minutes";
-- meaning and reading items without reading leaks; "Choose the pinyin (tones are not tested)";
-- labelled probes ("Extra question — not scored"; IDK hidden on `forced_guess`; 2 options for `sound_pair`);
+- intro with neutral IDK copy and "about 7 / 5 minutes";
+- meaning and reading items without reading leaks; "Choose the pinyin" (zh options are two tone pairs);
+- labelled probes ("Extra question — not scored"; IDK hidden on `forced_guess`; 2 options for the ja `sound_pair`);
 - the held word parts and the combined reveal;
 - "about N minutes left" and "Stop here and see your result";
-- the result blocks in order: word groups with actions, the range band, the gap line when present, the
+- the result blocks in order: word groups with actions (zh adds "Meaning and pinyin, not the tones"), the
+  range band, the tone-gap (zh) and gap lines when present, the
   retake block, next steps, "How this works", flags;
 - an unseen abandoned result shown on load.
 
@@ -535,7 +553,8 @@ There is no level line anywhere.
 
 **Acceptance Criteria:**
 - [ ] Meaning items show no reading; the reveal appears only when a word is complete; all ✓ auto-advances at
-  450 ms, otherwise "Next word"; one advance per action; a tapped option is highlighted before the response
+  450 ms, otherwise "Next word"; a zh tone-only miss is marked in the reveal ("right pinyin, wrong tones"); one
+  advance per action; a tapped option is highlighted before the response
   arrives.
 - [ ] Keys 1–4, 0 (absent on `forced_guess`) and Enter work; the page works at 390 px in both themes; `lang`
   is set on the word.
@@ -569,7 +588,7 @@ run per language; a Playwright smoke at 390 px (TASK-1055 pattern).
 
 **Description:**
 Adds the onboarding question "Have you studied {language} before?" ("Yes" → placement, skippable; "Only a
-few words" or "No" → continue, nothing stored). It also offers "Take the 6-minute placement" in the report's
+few words" or "No" → continue, nothing stored). It also offers "Take the 7-minute placement" in the report's
 empty state and the Me row whenever the learner has no placement for that language, and "Short placement
 instead" on the calibration page (tech §8, §15).
 
@@ -641,20 +660,22 @@ the owner applies the SQL.
 **Description:**
 Ports the research learner model (`wiki/evaluations/vocab-placement-research-2026-11-18/sim/sim.py`, with `pool.py`) into a slow pytest that runs the
 **production** `placement_design` and `knowledge_estimate` and asserts V0 (tech §20). Word pools come from
-read-only fixture exports **with launch readiness flags** (PSY M13), and an en population is added.
+read-only fixture exports **with launch readiness flags** (PSY M13), an en population is added, and the zh
+learners carry the tone state of `wiki/evaluations/vocab-placement-research-2026-11-18/tones/tone_sim.py` (E33).
 
 **Acceptance Criteria:**
 - [ ] 300 learners × populations (zh·en, zh·ja, ja·en, ja·zh, en·en; IDK 0.3 and 0.7), fixed seed, under 3
   minutes.
 - [ ] The run meets every V0 threshold:
-  - 95% coverage ≥ 0.90 for m, m+r and the gap;
-  - |bias| ≤ 1.5% of the pool;
-  - zh/ja mean scored items 46–51;
+  - 95% coverage ≥ 0.90 for m, m+r, the reading gap and the zh tone gap;
+  - |bias| ≤ 1.5% of the pool (zh m+r with tones included);
+  - zh/ja mean scored items 55–61;
   - en mean ≤ 40 with coverage ≥ 0.90;
   - End-now coverage at 20/30 scored items ≥ 0.88.
 - [ ] The run records and files the following:
   - the label distribution (Fewer than / Rough / …) by true m+r level and the early-stop share per L1,
-    compared with E22 and E25;
+    compared with E25, E31 and E33;
+  - the zh partial-tone-memory case (t_partial 0.65) bias, compared with E33;
   - the share of results showing the gap line;
   - the `expected_sd` lookup error on placement-shaped samples.
 - [ ] Results filed in `wiki/evaluations/vocab-placement-v0-<date>.md`.
@@ -682,13 +703,13 @@ read-only fixture exports **with launch readiness flags** (PSY M13), and an en p
 **Feature:** vocab-placement
 **Type:** infra
 **Complexity:** S (1-3h)
-**Depends On:** TASK-1080, TASK-1081, TASK-1082 (zh), TASK-1084, TASK-1087; ja also TASK-1075
+**Depends On:** TASK-1080, TASK-1081, TASK-1082 (zh), TASK-1092 (zh), TASK-1084, TASK-1087; ja also TASK-1075
 
 **Description:**
 Runs the readiness gate (tech §2) per language and adds the nightly `calibration_placement_close_stale` job
 to `web/scheduler.py`. Then enables `PLACEMENT_ENABLED_LANGS`: zh and en first, ja once its gate passes (PQ6,
-PQ13, PQ14). **Launch requires** PQ3 and PQ5 answered, the evidence writer live (L7), and for zh the
-intro-drill fix.
+PQ13, PQ14). PQ3 and PQ5 were answered on 2026-11-18. **Launch requires** the evidence writer live (L7), and
+for zh the intro-drill fix and the tone variants (TASK-1092).
 
 **Acceptance Criteria:**
 - [ ] Gate output recorded per language; a failing language stays off.
@@ -736,7 +757,7 @@ Owner review of the evaluation page.
 
 ## TASK-1090: Exam-level output — redesign and gate [?]
 
-**Status:** [?] Blocked — PQ2 (owner wants a level output) and V5 data (≥ 30 placements per language)
+**Status:** [?] Blocked — parked: the owner answered PQ2 "No, not at the moment" (2026-11-18). Reopen only if the owner asks for a level output; it also needs V5 data (≥ 30 placements per language)
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -806,31 +827,58 @@ A read-only sample query after apply; a local check session showing no reading u
 
 ---
 
-## TASK-1092: Generated reading foils — tone variants (zh) and special-mora/voicing variants (ja) [?]
+## TASK-1092: zh tone variants — inventory, variant generator, readiness (LIVE-DB, owner-applied; zh launch item)
 
-**Status:** [?] Blocked — PQ3 (owner, to be asked **before launch**: are variants of the word's own reading acceptable as wrong options?)
+**Status:** [ ] Not Started — unblocked: the owner answered PQ3 for Chinese on 2026-11-18 ("only the existing tones, just wrong combos"; ADR-060)
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** none
+**Depends On:** none (TASK-1077 depends on it for zh reading items)
 
 **Description:**
-If PQ3 is approved, this task generates wrong readings that change one syllable's tone (zh) or one long vowel,
-geminate, moraic nasal or voicing mark (ja) of the key, so tone and special morae can be scored on every item
-[LIT B4-17, B4-18]. That makes the zh claim "pinyin with tones". If PQ3 is approved before launch, this
-becomes a zh launch item and ADR-057 decision 4 and ADR-058 decision 1 are revised.
+Builds what rule 4 of tech §2 needs ([[decisions/ADR-060-zh-placement-scores-tones]]):
+- the table `calibration_zh_tone_inventory` (toneless syllable → attested full tones);
+- `calibration_refresh_zh_tone_inventory()`, which fills it from native zh `dim_word_senses` readings;
+- `calibration_zh_tone_variants(p_pronunciation, p_vocab_id)`, which returns every valid tone variant of a
+  reading in display form (tech §14).
+
+A Python reference implementation (`services/placement_tones.py`) is ported from the research script
+`wiki/evaluations/vocab-placement-research-2026-11-18/tones/tone_cover.py`, and the SQL function must agree
+with it on every pool reading. Japanese long-vowel / っ / ん / voicing variants are **out of scope**: PQ3 was
+answered for tones only.
 
 **Acceptance Criteria:**
-- [ ] An ADR revising ADR-057 decision 4, with a simulation of the guess model using the new foils (the 1:3
-  ratio and the partial-knowledge case).
-- [ ] Generated foils never equal any real reading of the same lemma or of a homograph (checked against
-  `dim_word_senses`).
+- [ ] After apply, the inventory has about 382 rows (E32); the refresh is idempotent and returns its row count.
+- [ ] `calibration_zh_tone_variants` and `services/placement_tones.variants` return the same set for every zh
+  pool reading (rank-1 native rows), checked by a read-only script; 0 mismatches.
+- [ ] On the pool, ≥ 98% of readings have ≥ 1 variant and every band ≥ 90% (measured 99.1% and band 7 94.8%,
+  E32); the counts are recorded in `wiki/log.md`.
+- [ ] Unit cases (Python reference, mirrored by SQL spot checks):
+  - 写 xiě → variants drawn only from tones the inventory lists for `xie`; never xiě itself;
+  - 很好 hěn hǎo excludes hén hǎo (3→2 before 3, sandhi) but allows other combinations;
+  - 东西 dōng xi keeps xi neutral; 一样 yí yàng never changes yí; 不是 bú shì never changes bú;
+  - a polyphone (e.g. 长 cháng/zhǎng) never returns its other reading;
+  - ü syllables (lǜ, nǚ) keep ü and re-mark correctly; the mark goes on a/e, on o in "ou", else the last vowel.
+- [ ] No variant contains a syllable+tone absent from the inventory (grep over all pool variants).
+
+**Technical Notes:**
+- Parse the display form, not the numbered suffix (the zh normaliser is broken, E7; TASK-1074).
+- Tone from the combining mark after NFD (U+0304, U+0301, U+030C, U+0300 → 1–4), 5 when none; ü is U+0308.
+- Align 一/不 by character position only when the lemma's character count equals the syllable count.
+- Cap at 16 variants per reading; the item builder draws one uniformly (`u_seed`).
+- Run `calibration_refresh_zh_tone_inventory()` with every zh pool refresh (TASK-1063) and zh sense backfill.
 
 **Files to Create / Modify:**
-- To be listed in the ADR.
+- `migrations/calibration_zh_tones.sql` — new: table, REVOKE, the two functions (SET search_path; service role).
+- `migrations/calibration_zh_tones_rollback.sql` — new.
+- `services/placement_tones.py` — new: pure reference implementation.
+- `tests/test_placement_tones.py` — new: the unit cases above.
+- `scripts/verify_zh_tone_variants.py` — new, owner-run, read-only: SQL vs Python on all pool readings, plus
+  the coverage counts.
 
 **Verification:**
-To be listed in the ADR.
+`python -m pytest tests/test_placement_tones.py -q`; after the owner applies the migration,
+`python scripts/verify_zh_tone_variants.py` prints 0 mismatches and the coverage per band.
 
 ---
 
@@ -922,22 +970,22 @@ A lint pass (CLAUDE.md §5e) shows no contradiction on these topics.
 | TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | [ ] | S | — |
 | TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [ ] | M | TASK-1077 (gate) |
 | TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | [ ] | M | — |
-| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | [ ] | L | TASK-1076 |
+| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | [ ] | L | TASK-1076; TASK-1092 (zh) |
 | TASK-1078 | vocab-placement | Pure placement design and estimator functions | [ ] | M | TASK-1035 |
 | TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | [ ] | M | TASK-1076, TASK-1034 |
 | TASK-1080 | vocab-placement | Placement service and routes | [ ] | L | TASK-1077, TASK-1078, TASK-1079 |
-| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | [?] PQ5 | L | TASK-1076, TASK-1080 |
+| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | [ ] | L | TASK-1076, TASK-1080 |
 | TASK-1082 | vocab-placement | Intro drill shows zh pinyin for diacritic-only readings | [ ] | S | — |
 | TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
 | TASK-1084 | vocab-placement | Placement page and i18n | [ ] | L | TASK-1080 |
 | TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
 | TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
 | TASK-1087 | vocab-placement | Simulation regression harness (V0) | [ ] | M | TASK-1078 |
-| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [ ] | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087 (ja: TASK-1075) |
+| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [ ] | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
 | TASK-1089 | vocab-placement | Validation study V1–V10 | [?] learners | M | TASK-1088 |
-| TASK-1090 | vocab-placement | Exam-level output — redesign and gate | [?] PQ2, V5 | L | TASK-1089, TASK-1049 |
+| TASK-1090 | vocab-placement | Exam-level output — redesign and gate | [?] parked (owner PQ2: not now), V5 | L | TASK-1089, TASK-1049 |
 | TASK-1091 | vocab-placement | Check meaning items become the bare instrument (LIVE-DB, owner) | [?] PQ11 | M | TASK-1076, TASK-1077 |
-| TASK-1092 | vocab-placement | Generated reading foils (tone, special morae) | [?] PQ3 | M | — |
+| TASK-1092 | vocab-placement | zh tone variants: inventory, generator, readiness (LIVE-DB, owner; zh launch item) | [ ] | M | — |
 | TASK-1093 | vocab-placement | IRT scoring v2 | [?] data | XL | TASK-1089 |
 | TASK-1094 | vocab-placement | Goal-path placement segment and hero copy | [?] TASK-1072 | S | TASK-1081, TASK-1086, TASK-1072 |
 | TASK-1095 | vocab-placement | Documentation reconciliation | [ ] | S | TASK-1086 |
