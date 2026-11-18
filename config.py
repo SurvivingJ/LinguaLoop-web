@@ -164,20 +164,19 @@ class Config:
     # through services.exercise_content.store (read_mode() / write_mode() and the
     # store internals), at call time, so tests and operators can flip them.
     #
-    # Read path: 'db' (default; today's behaviour, byte-identical calls, works
-    # before the Phase-1 migrations) | 'shadow' (serve DB content, compare the
-    # files in the background, log mismatches) | 'storage' (serve the files).
-    # Unknown values are treated as 'db' with one ERROR log; so is a non-'db'
-    # mode without SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY. `SOURCE=db` is the
-    # instant rollback until the column drop (ADR-049 §10).
-    EXERCISE_CONTENT_SOURCE = os.environ.get('EXERCISE_CONTENT_SOURCE', 'db')
-    # Write path: 'db' (default; today's PostgREST calls) | 'dual' (file first,
-    # then the rows through exercise_content_commit, content still written to
-    # the column). 'dual' requires migrations/exercise_content_storage.sql and
-    # must be set in EVERY environment that writes exercises (web workers and
-    # the shells running upload / fat-seed / generation scripts) before the
-    # backfill.
-    EXERCISE_CONTENT_WRITE = os.environ.get('EXERCISE_CONTENT_WRITE', 'db')
+    # Read path: 'storage' (default since 2026-11-18, owner decision: serve the
+    # files) | 'shadow' (serve DB content, compare the files in the background)
+    # | 'db' (the pre-ADR reads of exercises.content; only while that column
+    # exists). Unknown values are treated as 'db' with one ERROR log; so is a
+    # non-'db' mode without SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY (a local
+    # shell without Storage credentials). Removed with the column (TASK-1031).
+    EXERCISE_CONTENT_SOURCE = os.environ.get('EXERCISE_CONTENT_SOURCE', 'storage')
+    # Write path: 'dual' (default since 2026-11-18: file first, then the rows
+    # through exercise_content_commit) | 'db' (the pre-ADR PostgREST writes of
+    # exercises.content; stops working once the column is dropped). Every shell
+    # that writes exercises (web workers, upload / fat-seed / generation
+    # scripts) gets 'dual' by default and needs the Storage credentials.
+    EXERCISE_CONTENT_WRITE = os.environ.get('EXERCISE_CONTENT_WRITE', 'dual')
     EXERCISE_CONTENT_BUCKET = (os.environ.get('EXERCISE_CONTENT_BUCKET') or '').strip() or 'exercise-content'
     # Process-wide LRU of raw file bytes, per process (2 gunicorn workers -> 2x).
     EXERCISE_CONTENT_CACHE_MB = _env_int('EXERCISE_CONTENT_CACHE_MB', 32)
