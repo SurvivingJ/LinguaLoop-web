@@ -51,6 +51,7 @@ from services.dimension_service import DimensionService
 from services.dual_translation import output_sanitizer
 from services.model_arena.llm_runner import call_model_with_usage
 from services.dual_translation import prompts, provider_errors, scoring, explainer, word_choice_variant
+from services.dual_translation import display_diff
 from services.dual_translation.router import resolve_tier, TIER_ORDER
 from services.dual_translation.tier0 import MAX_BAND, RUBRIC_DIMENSIONS, grade_tier0, _normalize_l2
 
@@ -146,6 +147,14 @@ def grade_submission(
             errors=contract.get("errors") or [],
             l2_code=l2_code,
             lemmas=target_lemmas or {},
+        )
+    # Display only (after every grading step, which keeps Tier 0's character
+    # diff): Japanese gets word cells that treat kana/kanji spellings of the
+    # same word as a match. See services/dual_translation/display_diff.py.
+    if "diff" in contract:
+        contract["diff"] = display_diff.display_diff(
+            gold_l2, reproduction, DimensionService.get_language_code(l2_language_id) or "",
+            contract["diff"],
         )
     return contract
 
