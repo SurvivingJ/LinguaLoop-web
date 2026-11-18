@@ -156,7 +156,7 @@ One L1 reference per supported L1 (per-user-L1 design).
 | `submission_id` | bigint NOT NULL UNIQUE | FK → dt_submission ON DELETE CASCADE |
 | `scores` | jsonb NOT NULL | `{accuracy,understandability,fidelity,range,naturalness}` each 1–4 |
 | `overall_band` | smallint NOT NULL | CHECK: BETWEEN 1 AND 4 — weighted (see weights below) |
-| `diff` | jsonb NOT NULL | token opcode array (equal/replace/insert/delete), capped ~200 |
+| `diff` | jsonb NOT NULL | token opcode array (equal/replace/insert/delete), capped ~200. Display only. **Japanese since 2026-11-18:** word cells from `services/dual_translation/display_diff.py` (fugashi words aligned on lemma; kana/kanji spellings of the same word are `equal`, the cell keeps both spellings in `correct`/`user`); other languages and older rows: Tier 0's diff |
 | `grader_trace` | jsonb NOT NULL | `{tier, deterministic_prefilter, cache_hit, tokens{in,out}, slugs[]}` |
 | `created_at` | timestamptz | |
 
@@ -237,7 +237,15 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   cleaned of invisible and control characters (NUL included) before anything else; more than
   `output_sanitizer.MAX_REPRODUCTION_CHARS` (2000) characters is **400 `REPRODUCTION_TOO_LONG`**.
 - **Returns:** the §2.2 contract (scores, overall_band, diff, errors[] with eager explanations,
-  grader_trace). **+2026-11-17:** `repeat_of: {graded_at, band}` when the learner already had this
+  grader_trace). **+2026-11-18 (Japanese diff):** `grade_submission` replaces the shown diff with word cells in
+  which a kana or kanji spelling of the reference word is a match: aligned on dictionary form, same
+  word when the readings match, one side is all kanji and the other all kana (私 vs わたし, whose
+  UniDic reading is わたくし), or a kana-only reference stretch reads the same (がくせい / 学生,
+  かいます / 飼います). Same lemma with another reading (食べ / たべる) stays a change. Grading is
+  unchanged: Tier 0's full-marks gate and the model's diff-region hints use the character diff, so a
+  kanji answer to a kana reference still goes to the model. A wrong homophone kanji for a kana
+  reference shows as a match in the diff; the `kanji_choice` error reports it. Falls back to the
+  character diff if fugashi fails. Tests: `tests/test_dt_display_diff.py`. **+2026-11-17:** `repeat_of: {graded_at, band}` when the learner already had this
   passage graded (also on the cached-grade path).
 - **Errors:** `PASSAGE_RETIRED`, `BUDGET_EXCEEDED` (degrades to Tier 0+1, never hard-fails), `DUPLICATE_SUBMISSION` (returns cached grade).
   **+2026-11-16:** a body that is not valid JSON, or JSON that is not an object, is a 400 (was a 500).
