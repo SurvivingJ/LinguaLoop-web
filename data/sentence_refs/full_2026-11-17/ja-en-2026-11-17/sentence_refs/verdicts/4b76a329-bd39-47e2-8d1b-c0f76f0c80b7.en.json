@@ -1,0 +1,52 @@
+{
+  "test_id": "4b76a329-bd39-47e2-8d1b-c0f76f0c80b7",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8293,
+      "back_translation": "町に新しい図書館を建てる計画が決まりました。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9394,
+      "back_translation": "設計を担当した建築家は、地域の人々の声を取り入れることを大切にしました。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "'he' = the architect of idx 1. Gold has no subject/gender; English needs a pronoun, so the pronoun choice is a forced, context-consistent rendering, not an added fact. Back-translation added 彼 here; the gold simply drops the subject.",
+      "tightness": 0.7816,
+      "back_translation": "話を聞くと、多くの人が静かに本を読める場所だけでなく、家族が気軽に集まれる場所も求めていました。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "'he' = the architect. Gold has no subject/gender; English needs a pronoun, so the pronoun choice is a forced, context-consistent rendering, not an added fact. Low tightness from 彼は in the back-translation, not from the reference.",
+      "tightness": 0.9041,
+      "back_translation": "そこで彼は、大きな窓から光が入る開放的な空間を作り、子どもが遊べる部屋も設けました。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8955,
+      "back_translation": "完成した図書館は明るい雰囲気で、今では町の新しい憩いの場になっています。"
+    }
+  ]
+}

@@ -102,3 +102,19 @@ def test_plan_is_idempotent_on_run_id():
 def test_plan_skips_unknown_idx():
     rows = ROWS + [dict(ROWS[0], idx=7)]
     assert usr.plan_for_test(_db(), 'T1', rows, 'run_00')['skip'].startswith('idx 7')
+
+
+def test_plan_counts_independent_reviews_of_the_same_text():
+    # ADR-047: an earlier run passed the same text -> 2; a different text -> 1; a fail -> 0.
+    existing = [
+        {'id': 99, 'sentence_id': 11, 'l1_language_id': 2, 'l1_text': 'A.', 'review_verdict': 'pass',
+         'is_active': True, 'run_id': 'first'},
+        {'id': 98, 'sentence_id': 12, 'l1_language_id': 2, 'l1_text': 'B.', 'review_verdict': 'pass',
+         'is_active': True, 'run_id': 'first'},
+    ]
+    plan = usr.plan_for_test(_db(existing=existing), 'T1', ROWS, 'recheck-x')
+    by_sid = {r['sentence_id']: r['faithful_reviews'] for r in plan['insert']}
+    assert by_sid == {11: 2, 12: 0}
+    rewritten = [dict(ROWS[0], l1_text='A, rewritten.', review_verdict='rewritten')]
+    plan = usr.plan_for_test(_db(existing=existing), 'T1', rewritten, 'recheck-x')
+    assert plan['insert'][0]['faithful_reviews'] == 1

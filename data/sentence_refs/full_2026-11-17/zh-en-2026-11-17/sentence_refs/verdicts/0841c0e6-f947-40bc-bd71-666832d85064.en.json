@@ -1,0 +1,106 @@
+{
+  "test_id": "0841c0e6-f947-40bc-bd71-666832d85064",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "全球化 rendered 'global'; equivalent here. Formal register kept; several faithful zh renderings exist.",
+      "tightness": 0.9489,
+      "back_translation": "在全球数字生态日益复杂的背景下，SaaS企业面临的合规挑战已从传统的数据保护范畴延伸至训练数据来源披露与算法运行机制透明度等更深层的治理维度。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9383,
+      "back_translation": "此类义务不仅涉及对法律文本的字面遵守，更要求企业构建贯穿产品生命周期的伦理合规架构。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.961,
+      "back_translation": "首先，训练数据的收集与使用必须满足“知情同意”框架的实质性要求，这意味着企业不能仅依赖用户协议中的概括性条款，而应通过分层披露机制，清晰说明数据被用于模型训练的具体场景、类别及潜在影响，尤其在涉及个人敏感信息或生成式内容时，须落实可验证的用户授权路径。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9189,
+      "back_translation": "其次，算法透明并不要求公开源代码或核心商业秘密，而是通过“可解释性报告”和“影响评估文件”等形式，向监管机构和公众传达系统的关键决策逻辑、偏见缓解措施及风险控制机制。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8889,
+      "back_translation": "这种透明应当是功能性的，即足以支持外部对算法的公平性、非歧视性及结果可预测性进行合理评估。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Gold conditional 企业若未能建立 rendered as a restrictive clause; same truth conditions.",
+      "tightness": 0.9212,
+      "back_translation": "当前，欧盟《人工智能法案》与美国联邦贸易委员会（FTC）的执法指南均表明，监管趋势正从“事后问责”转向“事前问责”，未能建立可审计的合规证据链的企业将面临声誉受损与巨额罚款的双重风险。"
+    },
+    {
+      "idx": 6,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Gold 在模型训练阶段即引入: the focus particle 即 (already/as early as) was dropped; restored with 'as early as'. Parentheses mirror the gold's own parentheticals.",
+      "tightness": 0.9753,
+      "back_translation": "因此，领先的SaaS公司正将合规能力建设嵌入研发流程（DevOps到DevRelOps），在模型训练阶段引入法律、伦理与社会影响（LESI）审查节点，并通过第三方认证增强公信力。"
+    },
+    {
+      "idx": 7,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Parenthetical (Compliance-as-a-Service, CaaS) mirrors the gold's own parenthesis; not a translator's note.",
+      "tightness": 0.9261,
+      "back_translation": "此外，面对不同司法管辖区之间的规则冲突，如数据本地化要求与跨境传输之间的张力，企业需采取“合规即服务”（Compliance-as-a-Service，CaaS）的动态策略，借助元治理工具实时映射监管变化，调整数据流架构与算法披露层级。"
+    },
+    {
+      "idx": 8,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9178,
+      "back_translation": "值得注意的是，透明实践亦有边界：过度披露可能招致模型逆向工程或恶意攻击，因此企业应在安全与开放之间寻求动态平衡，采用差分隐私、联邦学习等技术手段实现“有限透明”。"
+    },
+    {
+      "idx": 9,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9589,
+      "back_translation": "最终，合规不再仅仅是一种防御性策略，而成为塑造用户信任、构建市场差异化的核心竞争力。"
+    },
+    {
+      "idx": 10,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8571,
+      "back_translation": "那些能够将法律义务转化为治理创新的企业，将在高度监管的人工智能时代确立不可替代的制度优势。"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+ "test_id": "ccbad16e-76f5-49ec-a80b-ceb7db2428bc",
+ "l2": "zh",
+ "l1": "en",
+ "arm": "sentencewise",
+ "prompt_version": "sr-1.0",
+ "author_model": "claude-sonnet-5-5",
+ "sentences": [
+  {
+   "idx": 0,
+   "l2": "辛普森悖论是统计学中一种耐人寻味的现象：在每个分组中都成立的结论，合并为总体之后，竟可能完全相反。",
+   "l1": "Simpson's paradox is an intriguing phenomenon in statistics: a conclusion that holds in every subgroup can turn out to be completely opposite once the groups are combined into a whole."
+  },
+  {
+   "idx": 1,
+   "l2": "假设某医院用甲、乙两种疗法各治疗五百名患者。",
+   "l1": "Suppose a hospital treats five hundred patients each with two therapies, A and B."
+  },
+  {
+   "idx": 2,
+   "l2": "轻症组中，甲的治愈率为90%，乙为85%；重症组中，甲为60%，乙为50%。",
+   "l1": "In the mild group, A's cure rate is 90% and B's is 85%; in the severe group, A's is 60% and B's is 50%."
+  },
+  {
+   "idx": 3,
+   "l2": "可见无论哪一组，甲都更有效。",
+   "l1": "So it can be seen that in either group, A is more effective."
+  },
+  {
+   "idx": 4,
+   "l2": "然而汇总之后，甲的总体治愈率只有66%，乙却高达78%。",
+   "l1": "However, after the totals are pooled, A's overall cure rate is only 66%, while B's is as high as 78%."
+  },
+  {
+   "idx": 5,
+   "l2": "原因在于，接受甲疗法的患者多为重症，接受乙疗法的患者多为轻症，两组人数比例悬殊，病情本身就左右了结果。",
+   "l1": "The reason is that the patients receiving therapy A are mostly severe cases and the patients receiving therapy B are mostly mild cases; the proportions of the two groups differ greatly in size, and the severity of the illness itself influences the result."
+  },
+  {
+   "idx": 6,
+   "l2": "若按各组人数对数据进行加权，再作比较，才能消除这种失衡。",
+   "l1": "Only by weighting the data according to the number of people in each group and then comparing can this imbalance be eliminated."
+  },
+  {
+   "idx": 7,
+   "l2": "这个悖论提醒我们：数据背后的结构比表面数字更重要，下结论之前，务必追问分组是否合理，以及混杂因素是否被忽略。",
+   "l1": "This paradox reminds us: the structure behind the data is more important than the surface numbers, and before drawing a conclusion, we must ask whether the grouping is reasonable and whether confounding factors have been overlooked."
+  }
+ ],
+ "author_notes": ""
+}

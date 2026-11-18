@@ -1,0 +1,61 @@
+{
+  "test_id": "61f4125b-e49b-4315-9aed-9bf32a9331f7",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8529,
+      "back_translation": "在商业报告和新闻报道中，误导性的图表很常见，其中最常见的手法就是截断纵轴。"
+    },
+    {
+      "idx": 1,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Removed pinyin wan yuan; gold 98万元 and 102万元 written out as 980000 and 1020000 yuan (digits kept for checker).",
+      "tightness": 0.8267,
+      "back_translation": "假设一家公司公布两年的销售额：去年是98万元，今年是102万元，实际只增长了大约4%。"
+    },
+    {
+      "idx": 2,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Removed pinyin 'wan yuan'; gold 97万元 = 970,000 yuan.",
+      "tightness": 0.7914,
+      "back_translation": "然而，如果制图的人不让纵轴从零开始，而是从97万元开始标刻度，两根柱子的高度就会相差很大，今年的柱子看起来大约是去年的五倍，微小的波动就这样被夸大成惊人的飞跃。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8682,
+      "back_translation": "问题的根源在于，柱状图依靠柱子的长度来传达数量，而长度应该与数值成正比；一旦纵轴被截断，视觉比例和真实比例就完全脱节了，读者的直觉也随之被误导。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8,
+      "back_translation": "为了避免被骗，我们应该养成先看纵轴的起点和刻度的习惯，再对照具体数字来判断差距是否真的那么大。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7879,
+      "back_translation": "提高读图的能力不仅是统计学的一项基本技能，也是信息时代理性判断的必备素质。"
+    }
+  ]
+}

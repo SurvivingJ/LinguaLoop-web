@@ -115,9 +115,55 @@ def test_script_leak_and_numbers():
     assert sr.leaked_script('handmade accessories (手作り)', 'ja') == ['り', '作', '手']
     assert sr.leaked_script('a long time ago', 'zh') == []
     assert sr.leaked_script('这是 Tokyo 的 catalogue', 'en') == ['Tokyo', 'catalogue']
-    assert sr.missing_numbers('３個のりんごを買った。', 'He bought three apples.') == ['3']
+    assert sr.missing_numbers('３個のりんごを買った。', 'He bought four apples.') == ['3']
     assert sr.missing_numbers('３個のりんごを買った。', 'He bought 3 apples.') == []
 
+
+
+def test_missing_numbers_compares_values_not_digit_strings():
+    m = sr.missing_numbers
+    # wan / yi / qian amounts: any faithful English rendering carries them
+    gold = '销售额从98万增加到102万。'
+    assert m(gold, 'Sales rose from 980,000 to 1,020,000 yuan.') == []
+    assert m(gold, 'Sales rose from 0.98 million to 1.02 million yuan.') == []
+    assert m(gold, 'Sales rose from 98 wan to 102 wan yuan.') == []
+    assert m(gold, 'Sales rose from 980,000 to 1,200,000 yuan.') == ['102万']
+    assert m('1亿2000万人口', 'a population of 120 million') == []
+    assert m('3千円', '3,000 yen') == []
+    # thousands separators on either side
+    assert m('一共1000人', '1,000 people in total') == []
+    assert m('Over 1,000 people came.', '超过1000人来了。') == []
+    assert m('It costs 2.5 million yen.', '250万円かかる。') == []
+    # a digit inside a longer number no longer counts
+    assert m('他有5个朋友。', 'He has 15 friends.') == ['5']
+    assert m('他有5个朋友。', 'He has 5 friends.') == []
+    # lists with a full-width comma stay separate numbers
+    assert m('100，200和300', '100, 200 and 300') == []
+    # months and decades
+    assert m('2026年11月17日', '17 November 2026') == []
+    assert m('2026年11月17日', '17 December 2026') == ['11']
+    assert m('20世纪70年代', 'the 1970s') == []
+    assert m('20世纪70年代', 'the 1870s') == ['20', '70']
+    assert m('20世纪', 'in the 19th century') == ['20']
+    assert m('He was born in May.', '他五月出生。') == []
+    # numbers written as words count in the reference (developer 2026-11-17)
+    assert m('３個のりんごを買った。', 'He bought three apples.') == []
+    assert m('他有25个学生。', 'He has twenty-five students.') == []
+    assert m('共105人', 'one hundred and five people') == []
+    assert m('300万人', 'three million people') == []
+    assert m('1,200 people', 'twelve hundred people') == []
+    assert m('12个鸡蛋', 'a dozen eggs') == []
+    assert m('一周2次', 'twice a week') == []
+    assert m('第1名', 'first place') == []
+    assert m('It took 1.5 hours.', 'It took one and a half hours.') == []
+    assert m('He bought 3 apples.', '他买了三个苹果。') == []
+    assert m('3,000,000 people', '三百万人') == []
+    assert m('in 2026', '二〇二六年に') == []
+    assert m('12 months', '十二か月') == []
+    assert m('200 yuan', '两百元') == []
+    # ...but the value still has to be right
+    assert m('他有5个朋友。', 'He has four friends.') == ['5']
+    assert m('共105人', 'one hundred and fifty people') == ['105']
 
 def test_tightness_cases():
     assert sr.tightness('很久以前，人们写字很慢。', '很久以前，人们写字很慢。', 'zh') == 1.0

@@ -6909,6 +6909,132 @@ Pages updated: 8 ([[tasklist/exercise-content-storage.tasks]] TASK-1026; [[taskl
 - vitest: 743/743;
 - eslint, Prettier and ruff are clean.
 
+## [2026-11-17] query + implement + apply | Fleshing out dual-translation sentences
+Developer asked how to flesh out the sentences available for dual translation, then "Execute all above".
+Findings (live, read-only): (1) a 2026-11-16 batch of 667 references (30 ja + 30 zh tests, run_00/run_01)
+was committed on main (7824c8e) without a wiki log entry; (2) `dt_passage_reference` had 0 rows and every
+`dt_passage` row was a range passage, so the `/next` this branch was built from returned 404 — main had already
+retired and deleted the whole-passage pool by owner decision and rebuilt `/next` on sentence windows (log
+entries "Old whole-passage dual-translation pool retired" / "rows deleted", above); this branch had not merged
+main yet, so an earlier draft of this entry wrongly called the deletion unrecorded; (3) 150 zh and 10 en tests
+created 2026-11-14 had no `test_sentences` rows and no `transcript_hash`.
+Done:
+- A `/next` rewrite on this branch (then filed as TASK-976) duplicated main's `_choose_next`; it was dropped
+  at the merge (see the merge entry below).
+- Live: `build_test_sentences.py --apply` for the 160 new tests (preamble audit: 0 found); English references
+  authored (Sonnet) and blind-reviewed (Sonnet, Opus on 2 of every 9–10 packs) for 24 ja + 65 zh + 150 new zh
+  tests: 2,191 rows uploaded and activated, 12 superseded; second blind review of the 193 below-floor
+  references (new `scripts/sentence_ref_recheck.py`, 8 Opus turns): 150 pass, 35 rewritten, 8 fail (broken
+  gold kept the old reference). Coverage now: ja 388/388 (96.6% at the floor), zh 3,008/3,008 (94.3%);
+  en → zh unchanged at 484/2,486 (deferred: no Chinese-native learner). Servable windows: 850 zh, 81 ja.
+  Author/reviewer turns: 21 author + 21 reviewer + 8 recheck. OpenRouter spend: none.
+- Runner fixes: `export` counts `rewritten` as covered; `assemble` takes provenance from the authored doc.
+Findings for the developer: 15 zh transcripts contain English glosses (TASK-1032, query:
+`transcript ~ '[（(][A-Za-z][A-Za-z \-]+[)）]' or transcript ~ '[A-Za-z]{3,}[（(][^)）]*[一-鿿]'`); 110
+references stay below the floor after two blind reviews that both called them faithful (OPEN on
+[[features/test-sentence-references]]); 89 of the new batch below the floor have one review only; the
+number check cannot match 万 amounts written with thousands separators; Japanese has a hard ceiling of ~81
+windows (tests average 4.7 sentences); the 10 new en tests have no word map.
+Pages updated: [[features/test-sentence-references]], [[features/test-sentence-references.tech]],
+[[features/dual-translation]], [[features/dual-translation.tech]], [[tasklist/test-sentence-references.tasks]]
+(TASK-908 [~], TASK-1032), [[tasklist/master]], [[index]].
+
+## [2026-11-17] decision + implement + apply | Reviewer agreement overrides the tightness floor; glosses kept; new batch rechecked
+Developer answers to the four questions: (1) English glosses in Chinese transcripts stay — TASK-1032 Won't Do;
+(2) "Blind reviewers agreement can override" the tightness floor; (3) yes, second review of the 89 below-floor
+references from the 2026-11-14 batch; (4) English → Chinese stays deferred.
+Done:
+- ADR-050 + TASK-1033: `migrations/test_sentence_references_faithful_reviews.sql` **applied live** (column
+  `faithful_reviews`, CHECK ≥ 0, backfill = distinct runs that passed or wrote the same text). Upload script sets it;
+  `passage_builder.window_meets_floor` (shared by `/next` and Produce) leaves agreed sentences (≥ 2) out of the mean.
+  Code committed, not deployed — deploy is safe now (the column exists). 181 related tests pass (incl. migration
+  security lint). Agreed active rows: ja 43, zh 391, en→zh 239.
+- `recheck-accepted-2026-11-17`: the 8 references a second reviewer failed only for glossed/duplicated gold
+  activated (7 pass, 1 rewritten: 6ff700da-8 restores 液 "liquid").
+- `recheck2-2026-11-17` (4 Opus turns): 89 → 74 pass, 15 rewritten, 0 fail; `export` now skips sentences already
+  second-reviewed (`--include-rechecked` to override).
+Result: gate passed (floor or agreement) by ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856,
+ja 83. Still gated: second-review rewrites whose new text has one review (ja 2, zh 20, en→zh 11).
+Pages: created [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]]; updated
+[[decisions/ADR-037-sentence-level-l1-references]] (amended note), [[features/test-sentence-references]],
+[[features/test-sentence-references.tech]], [[tasklist/test-sentence-references.tasks]] (TASK-908 record, TASK-1032,
+TASK-1033), [[tasklist/master]], [[index]].
+
+## [2026-11-17] update | Merged main into claude/happy-sagan-wkcpgs; reviewer-agreement override ported to main's /next
+`main` (PR #35) had rebuilt GET `/next` on sentence windows (`_choose_next`, `dt_next_inputs`, resume / skip /
+reserve / untaken tests) and used ADR-047/048 and TASK-976–1007. Resolution: main's `/next`, players and route tests
+kept; this branch's `/next` rewrite, `plan_sentence_windows` and `pick_next_window` removed. Renumbered: ADR-047
+(reviewer agreement) → [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]], TASK-977 → TASK-1032,
+TASK-978 → TASK-1033, TASK-976 dropped. The override now reaches main's paths: `_next_sentence_window` passes the
+`agreed` set to `select_window_for_primed`; `_materials_from_rows` reads a new per-test `ag` list from
+`dt_next_inputs` and the per-table fallback reads `faithful_reviews`. **Applied live:** `migrations/dt_next_inputs.sql`
+(adds `ag`; output for the test account byte-identical apart from `ag`, grants unchanged) and
+`migrations/build_daily_session_dt_agreed.sql` (the adjacent-pair availability count honours agreement; in-place
+rewrite with three exact replacements, live `md5(prosrc)` = `43a6350874936f833042b7cef0dfe742` = the file's body;
+`build_daily_session_dt_windows.sql` archived). Standalone count for the test account: zh 266 → 267, ja 69 → 71.
+Live column comment corrected to ADR-050. Tests: 202 related tests pass (incl. migration security lint);
+new cases in `tests/test_dual_translation_next_selection.py` and `tests/test_sentence_ref_floor_override.py`.
+Not deployed: the Python. Deploy is safe in any order relative to these DB changes (the additions are ignored
+by the old code).
+
+## [2026-11-17] fix | Sentence-reference number check compares values
+Developer: "We should fix translation checkers number check." `sentence_refs.missing_numbers` tested whether
+each digit string of the gold appeared anywhere in the reference: false alarms on correct renderings (102万 →
+"1,020,000", 1000 → "1,000", 11月 → "November", 70年代 → "1970s") pushed authors into "1020000 yuan" and "the
+1970s of the 20th century", and it missed real errors (a 5 was "carried" by "15" or "2015"). Now values are
+compared: thousands separators, decimals, 百/千/万/亿/兆 compounds (one-part amounts also accept the bare
+number), English scale words, month names, decades and centuries; full-width commas stay list separators;
+numbers spelled as words still fail. Verified on every live reference (3,880) and every authored/reviewed
+document on disk (9,936): 0 failures before, 0 after; the three 2026-11-17 runs re-check clean. 18 new
+assertions in `tests/test_sentence_refs.py`. Authoring rules (runner), `sentence-reference-authoring` and
+`sentence-reference-review` skills now say numbers are written the L1's way. Not changed: the two live
+references bent by the old check (61f4125b idx 1–2, 3574dd04 idx 2). Pages: [[features/test-sentence-references.tech]],
+[[tasklist/test-sentence-references.tasks]].
+
+## [2026-11-17] fix + apply | Number words accepted; the three bent references reworded
+Developer: "Fix the odd translations. Can we also allow written word version of numbers eg three." (1)
+`sentence_refs.missing_numbers` now also reads numbers written as words in the reference (never in the gold):
+English cardinals, ordinals, twice/thrice, dozen, half, runs (twenty-five, one hundred and five, three million,
+twelve hundred, one and a half) and CJK numerals (三, 十二, 两百, 三百万, positional 二〇二六); the value must
+still match. Authoring rules (runner), `sentence-reference-authoring` and `sentence-reference-review` now say
+"digits or words". No live (3,880) or on-disk (9,936) reference changes result; tests updated (the old
+"three apples fails" assertions now expect a pass). (2) `scripts/sentence_ref_recheck.py export` gained
+`--sentences test_id:idx,...` and `--reason` (the reason replaces the tightness intro in the pack). One Opus
+reviewer, blind-first, rewrote 61f4125b idx 1–2 ("980000 / 1020000 / 970000 yuan" → "980,000 / 1,020,000 /
+970,000 yuan"; "does not let the vertical axis start from zero" → "does not start the vertical axis at zero")
+and 3574dd04 idx 2 ("the 1970s of the 20th century" → "the 1970s"); uploaded live (`recheck-numbers-2026-11-17`,
+3 inserted/activated, 3 deactivated; tightness 0.88 / 0.83 / 1.00). Pages: [[features/test-sentence-references.tech]],
+[[tasklist/test-sentence-references.tasks]].
+
+## [2026-11-17] update | Merged main again; reviewer-agreement decision renumbered ADR-049 → ADR-050
+`main` (PR #36, exercise content in Storage) took ADR-049 and TASK-1008–1031 while this branch was using
+ADR-049 / TASK-1008 / TASK-1009. This branch's numbers become [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]],
+TASK-1032 (English glosses, Won't Do) and TASK-1033 (the floor override), in its own files only (main's ADR-049
+references are untouched). Text already applied live keeps the old id, as main's merge did for ADR-047: the
+comment inside the live `build_daily_session` body says "ADR-049" (= ADR-050; noted in the file header, body
+md5 unchanged); the `faithful_reviews` column comment was updated live to ADR-050. Earlier log entries of this
+branch were renumbered in place before landing. Conflicts were only in `wiki/index.md`, `wiki/log.md` and
+`wiki/tasklist/master.md`; `services/prestudy.py` and `routes/tests/prestudy.py` merged automatically.
+
+## [2026-11-17] query + fix | Why dual translation grading failed; failed grading calls now stored
+Developer: "Why isn't dual translation grading working?", then "Yes" to storing failed calls' errors.
+Findings (live, read-only): last saved grade 04:49 UTC; one submit since — submission 128 (ja, passage 98)
+at 21:50 UTC. Both free single-call models (`particle-ai/particle-1:free`, `nvidia/nemotron-3.5-super-vl:free`)
+raised within ~1 s with no response (`llm_calls`: 0 tokens, no latency); the v2 fallback then reads
+`qwen/qwen3.6-flash` / `qwen/qwen3.7-plus` from `prompt_templates`, which the OpenRouter key refuses (403 "Key
+limit exceeded (total limit) … $10.00 of $10.00 used; does not reset"). No grade, no `dt_grading_call` row, so
+the cause of the free-model failure was only in the host log. Replaying passage 98 locally with the repo's
+code and key graded in 3 s and passed every storage check; both free models are up. The deployed key may
+differ from this environment's (free-request counts disagree) — unconfirmed.
+Fix (code, not deployed): `provider_errors.CallRecorder.failures` keeps every raised call (slug, role, HTTP
+status, refused, `failure_text` ≤ 300 chars incl. the provider body); single-call attempts use the same text;
+submit writes `dt_grading_call` rows on every exit after grading (503, provisional, malformed, saved), adding
+one `call_failed` row per failed configured-flow call (`flow` v1/v2, `prompt_version` `configured-flow`,
+`prompt_variant` = role). No migration (existing columns; a rolled-back live insert passed the CHECKs). Tests:
+7 new in `tests/test_dual_translation_provider_errors.py`; 425 DT tests pass.
+Owner actions: top up / raise the OpenRouter key limit (the paid fallback is dead until then); check the host
+log at 21:50 UTC for `single_call_grader: call to … failed`; submission 128 is still open and can be resubmitted.
+Pages: [[features/dual-translation.tech]], [[index]].
 ## [2026-11-17] update | Exercise content to Storage — Phase-1 code merged to main; SQL test passed on production (TASK-1026)
 **Merge:** PR #36 was merged to `main` as `8e0afb6`, with both flags at their `db` default. Railway deploys from `main`; the deploy itself could not be observed here, because this environment's network does not allow the production host.
 

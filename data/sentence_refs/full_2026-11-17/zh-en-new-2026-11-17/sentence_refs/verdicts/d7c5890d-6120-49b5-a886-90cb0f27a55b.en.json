@@ -1,0 +1,61 @@
+{
+  "test_id": "d7c5890d-6120-49b5-a886-90cb0f27a55b",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8364,
+      "back_translation": "在机器学习中,模型的好坏不取决于它对已知数据记得有多牢,而取决于面对陌生数据时能否做出可靠的判断,这种能力叫做泛化能力。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8286,
+      "back_translation": "如果模型太“聪明”,就容易陷入过拟合:它不仅学到了训练集中的一般规律,还把偶然的噪声和个别细节当成了真理,结果在训练集上表现近乎完美,一到测试集就漏洞百出。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7234,
+      "back_translation": "这就像一个死记硬背历年试题的学生,遇到新题就束手无策。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.873,
+      "back_translation": "相比之下,欠拟合源于模型“不够聪明”:结构过于简单,或者训练不足,连数据中的基本规律都没有掌握,所以无论在训练集还是测试集上,表现都不尽如人意。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7234,
+      "back_translation": "这就像一个只看了几页书就匆匆赶去考试的人,哪里都答不好。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.887,
+      "back_translation": "为了避免这两个极端,研究者通常会适当调整模型的复杂度、增加数据量,并借助测试集检验结果,以便在“记得太多”和“学得太少”之间寻求平衡。"
+    }
+  ]
+}
