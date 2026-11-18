@@ -3,7 +3,7 @@ title: "Knowledge Report — Task Breakdown"
 feature: knowledge-report
 prose_page: ../features/knowledge-report.md
 tech_page: ../features/knowledge-report.tech.md
-total_tasks: 38
+total_tasks: 40
 done: 0
 ---
 
@@ -1148,5 +1148,108 @@ about X–Y% of them."
 **Files to Create / Modify:** `services/vocabulary/knowledge_estimate.py`, `migrations/knowledge_report_list_words.sql` (`knowledge_list_buckets` also returns per-band frame counts per level, from the same arrays), `static/js/pages/knowledge.js`, `static/i18n/*.json`.
 
 **Verification:** `python -m pytest tests/test_knowledge_estimate.py -q`.
+
+---
+
+## TASK-1072: Goal-path layout (mockup C) in the spec and the page [?]
+
+**Status:** [?] Blocked — OQ35 (where the goal and exam date are stored) and OQ36 (per-level 30-day change)
+**Feature:** knowledge-report
+**Type:** feature
+**Complexity:** L (1-2d)
+**Depends On:** TASK-1040, TASK-1046, TASK-1050, TASK-1037
+
+**Description:**
+The owner prefers the goal-path design (`wiki/demos/knowledge-report-goal-path.html`). Rewrite tech §3 and §10 to that
+order (estimate hero first; goal card with ring, focus level and exam date; level path with in-place drill-down; next
+steps; this week; keep missing; read next; how you answer; 13 weeks; your lists; all words / export / method) and
+build it on top of the cards from TASK-1040 and TASK-1046. Add the goal setting (level and optional exam date per study
+language) and, if OQ36 is accepted, per-level counts in the snapshot so each level can show "+N rated known in the last
+30 days". Core sees counts with a Pro row wherever Pro shows the words.
+
+**Acceptance Criteria:**
+- [ ] Tech §3/§10 describe the goal-path order and the Core gating shown in the mockup.
+- [ ] The goal sheet saves a level and an optional date; the focus level is the lowest level up to the goal under 80% rated known.
+- [ ] The exam countdown shows only a date the learner entered; no pass or readiness prediction anywhere.
+- [ ] Per-level 30-day change is hidden until 30 days of snapshots exist.
+
+**Technical Notes:** goal storage per OQ35; snapshot change per OQ36 (extends ADR-053's row). The mockup's JavaScript is
+a layout reference only, not production code.
+
+**Files to Create / Modify:** to be listed after OQ35/OQ36 (expected: `templates/knowledge.html`,
+`static/js/pages/knowledge.js`, `static/css/pages/knowledge.css`, the snapshot migration, i18n files).
+
+**Verification:** visual comparison with the mockup at 390 px in both themes; Playwright smoke from TASK-1055.
+
+---
+
+## TASK-1073: Vocabulary placement test — research and design [?]
+
+**Status:** [?] Blocked — OQ37 (owner: run the research brief first)
+**Feature:** knowledge-report
+**Type:** docs
+**Complexity:** M (3-8h)
+**Depends On:** none
+
+**Description:**
+Research approaches to a short, adaptive vocabulary placement test built on the existing vocabulary check
+([[features/calibration]]: open-ended, stratified by frequency band, four-option meaning items, no stopping rule), and
+write a feature spec and ADR. Candidate designs and the research brief are below.
+
+**Acceptance Criteria:**
+- [ ] A comparison of at least five designs against the owner's criteria (minutes, honesty of the result, exam-level output, item-bank cost, cold start for new learners).
+- [ ] A recommended design with stopping rule, scoring model, item bank, validation plan, and how its result feeds the report and practice.
+
+**Technical Notes — candidate designs (2026-11-18, not evaluated):**
+1. *Adaptive vocabulary check:* the existing four-option meaning items, chosen adaptively at the learner's edge with an
+   IRT model (guessing floor 0.25; starting difficulty from frequency, recalibrated from responses), stopping when the
+   range is narrow enough (~25–40 items). Cheapest; reuses the check's pool, distractors and tables.
+2. *Exam-level ladder:* items drawn from HSK/JLPT level lists; start at the learner's stated level and move a level up or
+   down after short blocks; output per-level known shares (the sampling OQ34 needs). Weak for JLPT (low dictionary coverage).
+3. *Yes/No with fake words:* tap "I know it" on 60–100 words, about a third of them fake; correct for false alarms.
+   Fastest (~3 min); needs credible Chinese/Japanese fake words; self-report.
+4. *Hybrid:* a Yes/No sweep to find the edge, then 15–20 meaning checks on "yes" words near it to measure and correct
+   overclaiming.
+5. *Read and tap:* 2–3 short graded passages; tap unknown words and answer two questions. Measures text coverage and sets
+   the starting test level; self-report and fewer words covered.
+6. *Embedded placement:* no separate test; one probe in eight in the first week's practice until the range converges.
+Cross-cutting: "known" must mean recognition to match the report; Japanese↔Chinese learners recognise many words through
+shared characters, so difficulty needs an L1 term; placement evidence must be stored as its own kind (TASK-1065) and
+never counted as "rated known"; retakes use disjoint items.
+
+**Research brief (paste into a research agent):**
+
+```text
+Research brief: a vocabulary placement test for LinguaDojo
+
+Goal: recommend how LinguaDojo should place a learner's vocabulary in 3–8 minutes on a phone, with an honest result that (1) gives a vocabulary range on day one, (2) places them on HSK 3.0 or JLPT levels, and (3) can seed practice without pretending to know more than it does. Compare approaches; do not assume the answer.
+
+Context (facts about the product):
+- Study languages: Chinese, Japanese, English. Learners' own languages: English, Japanese, Chinese (UI also in Spanish). Serious adult learners preparing for HSK 3.0 (2025 syllabus: levels 1–6 plus a combined 7–9), JLPT N5–N1 (no official lists since 2010; community lists used), or professional work. The product must not feel gamified and must never predict pass/fail.
+- An existing "vocabulary check" shows a word and four meanings (wrong options chosen to be semantically close and similar in frequency) or four readings, plus "I don't know". It samples evenly across 7 frequency bands (wordfreq Zipf, 0.5 wide), has no stopping rule, and needs about 70 answers (10 per band) before it shows a range. Scoring: per-band share known = right/n − (1/3)·wrong/n (guess correction, skip = not known), a finite-population interval, and band sizes from the check's word pool (Japanese 3,175 words, Chinese 3,623, English 3,754).
+- Dictionary: about 3.4k Japanese, 12.8k Chinese and 4.2k English lemmas with frequency. HSK 2025 levels 1–5 are 88–92% in the dictionary, JLPT levels only 18–49%.
+- A per-word Bayesian knowledge tracing model exists, but its probabilities are not calibrated, so the report leads with measured evidence. An IRT module exists in the codebase.
+- Constraints: little user data so far (validation must work with small n); no paid model calls needed to score a test; the database is near its size limit (large item tables need justification).
+
+Research questions:
+1. Literature on vocabulary size and breadth tests: Vocabulary Size Test, (New) Vocabulary Levels Test, Yes/No tests with pseudowords (Meara; LexTALE and its Chinese and Japanese versions, if any), Japanese and Chinese specific instruments (e.g. J-CAT, SPOT/TTBJ, Chinese vocabulary size tests), and computerised adaptive testing for vocabulary (Rasch/2PL/3PL with a guessing floor, stopping rules, exposure control). What does each measure, in how many items, with what reliability, and how well does it predict reading or exam level?
+2. Products: how Duolingo (including the Duolingo English Test's adaptive Yes/No and C-test items), Busuu, Babbel, HelloChinese, LingoDeer, Hack Chinese, Skritter, WaniKani, Bunpro, Renshuu, jpdb, Migaku and LingQ place learners: format, length, what they show afterwards, how they handle uncertainty and retakes.
+3. Format trade-offs: meaning multiple choice vs Yes/No self-report with fake words vs typed recall vs reading a passage and tapping unknown words. Overclaiming and guessing corrections (formulas), distractor quality effects, recognition vs recall, polysemy (word vs sense).
+4. Chinese and Japanese specifics: making credible fake words from real characters; the cognate effect when Japanese speakers learn Chinese and vice versa (shared characters), and katakana loanwords for English speakers; whether to show readings, kanji only, or audio.
+5. Adaptive design: item selection by frequency band and by exam level from one item bank; cold-start item difficulties from frequency and level, then recalibration from responses; stopping rules that give a usable range in under 40 items; how many items for a given interval width (simulate).
+6. Using the result: reporting a range and per-level estimates honestly; seeding a knowledge-tracing model as clearly labelled prior evidence rather than as known words; setting the starting difficulty of reading tests; retakes with disjoint items.
+7. Validation with small numbers of users: test-retest, predictive checks against later first-try accuracy, agreement with self-reported exam level.
+
+Deliverables:
+- An annotated bibliography with links (mark paywalled or unverified sources).
+- A product comparison table.
+- At least five candidate designs scored on: minutes, honesty and width of the result, exam-level output, item-bank cost per language, behaviour for complete beginners and for advanced learners, Chinese/Japanese cross-language cognates, build effort given the existing check.
+- One recommended design with: item formats; selection algorithm; scoring model with formulas; stopping rule; expected items and minutes from a simulation; item-bank requirements per language; what the learner sees afterwards; how results feed the report, practice and test selection; validation plan; risks; open questions.
+- Separate measured facts from inference, and cite a source for every claim.
+```
+
+**Files to Create / Modify:** `wiki/features/vocab-placement.md`, `wiki/features/vocab-placement.tech.md`, an ADR.
+
+**Verification:** owner review.
 
 ---

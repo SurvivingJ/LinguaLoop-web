@@ -21,10 +21,12 @@ below.
 |--------|-------|
 | Not Started | 91 |
 | In Progress (`[~]`) | 16 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 51 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 53 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 4 |
 | Done (cumulative, not listed here) | 277 |
+
+*2026-11-18 (Knowledge Report: goal-path layout preferred, placement test proposed):* TASK-1072 (goal-path layout, [?] OQ35/OQ36) and TASK-1073 (vocabulary placement test research and design, [?] OQ37) added. Counts: Blocked 51→53.
 
 *2026-11-17 (Knowledge Report specced, no code changed):* agent swarm (5 research, design, 2 challengers, synthesis) → [[features/knowledge-report]], [[features/knowledge-report.tech]], ADR-051–056 (proposed), [[tasklist/knowledge-report.tasks]] TASK-1034–1071 (38: 22 Not Started, 16 Blocked [?]). Billing TASK-993 superseded (pointer kept); billing TASK-980/997 cross-referenced to TASK-1038/TASK-1059. IDs start after main's ADR-050 / TASK-1033. Counts: Not Started 69→91, Blocked 36→51 (+16, −TASK-993).
 
@@ -1416,6 +1418,8 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 | TASK-1069 | knowledge-report | Today card | [?] OQ19 (placement on Today) | S | TASK-1040 |
 | TASK-1070 | knowledge-report | "Upcoming tests" coverage card (Pro) | [?] OQ32 | M | TASK-1041, TASK-1046 |
 | TASK-1071 | knowledge-report | Estimated percentage per exam level | [?] OQ34 and TASK-1056 | M | TASK-1050, TASK-1056 |
+| TASK-1072 | knowledge-report | Goal-path layout (mockup C) in the spec and the page | [?] OQ35, OQ36 | L | TASK-1040, TASK-1046, TASK-1050, TASK-1037 |
+| TASK-1073 | knowledge-report | Vocabulary placement test — research and design | [?] OQ37 (research brief first) | M | — |
 
 ### Language Packs (existing — unchanged)
 

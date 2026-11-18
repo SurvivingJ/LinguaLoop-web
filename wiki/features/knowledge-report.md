@@ -39,6 +39,9 @@ open_questions:
   - "OQ32 OPEN: Add a Pro 'Upcoming tests' card showing how many key words of each recommended test are known? Default: deferred."
   - "OQ33 OPEN: Align the vocabulary check's own result (which scores a skip as a wrong answer) with the report, or label each? Default: label each and show the report's range on the result screen."
   - "OQ34 OPEN: Show an estimated percentage per exam level after validation? Default: no."
+  - "OQ35 OPEN: The goal-path layout needs a stored goal per study language (exam level, optional exam date). Where is it stored (user_languages columns or a small settings row), and is it shared with the study plan? Default: two nullable columns on user_languages."
+  - "OQ36 OPEN: Show '+N rated known in the last 30 days' per exam level? It needs per-level counts in the nightly snapshot (ADR-053), a few bytes per list level per row. Default: yes, once 30 days of snapshots exist."
+  - "OQ37 OPEN: Build a vocabulary placement test (adaptive, with a stopping rule and exam-level output) on top of the vocabulary check? Research pending; see TASK-1073."
 ---
 
 # Knowledge Report ("My vocabulary")
@@ -124,6 +127,9 @@ A Free or Core learner sees one card at the end of the summary that names what P
 their own data* ("251 words with their evidence · 10 missed recently · CSV and Anki export"). Nothing
 is blurred, nothing pops up, and after a downgrade nothing is deleted.
 
+## Layout (owner preference 2026-11-18)
+The owner prefers the **goal path** design (mockup C, fleshed out in `wiki/demos/knowledge-report-goal-path.html`). From the top: the vocabulary range (estimate first, with the four frequency groups); the learner's goal (exam level and optional exam date, editable) with a ring of words rated known up to that goal and a focus level; the exam levels as a path, each opening in place to show its new, seen, known and missed words with "Add to practice"; next steps; this week; words you keep missing; tests to read next; how you answer; the last 13 weeks; your own lists; then all words, export and "How these numbers work". Core learners see the same page with counts, and a Pro row wherever Pro would show the words themselves. The tech spec still describes the earlier card order; TASK-1072 brings it in line once OQ35 and OQ36 are answered.
+
 ## Constraints & Edge Cases
 - **There is very little learner data today.** Three learners have any word evidence; one looks like
   a test account. Most learners will see the "not enough data yet" states, so those are designed first.
@@ -176,6 +182,7 @@ All OPEN; see frontmatter. Full table with defaults and affected tasks:
 - [[features/knowledge-report.tech]] — technical specification
 - Mockups: `wiki/demos/knowledge-report-pro-mockups.html` — five interactive Pro-view options on real and demo data
 - Mockups: `wiki/demos/knowledge-report-full-mockups.html` — three complete learner-facing reports (scrolling report, tabbed workspace, exam-goal path)
+- Mockup: `wiki/demos/knowledge-report-goal-path.html` — **preferred layout**: the goal path, fleshed out, Pro and Core, Japanese and Chinese
 - [[tasklist/knowledge-report.tasks]] — task breakdown
 - [[features/vocabulary-knowledge]] — where the per-word ratings come from
 - [[features/calibration]] — the vocabulary check that produces the range
