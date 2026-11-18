@@ -465,11 +465,27 @@ def test_a_file_for_another_sense_counts_as_corrupt(monkeypatch, caplog):
     assert len(_errors(caplog, 'exercise_content.corrupt_file')) == 1
 
 
+def test_one_failed_get_is_retried_at_once(monkeypatch, caplog):
+    """Production 2026-11-18: a single transient GET failure must not drop the content."""
+    caplog.set_level(logging.WARNING, logger=LOGGER)
+    mem = _mode(monkeypatch, 'storage')
+    eid = _uuid()
+    _seed(mem, 10, {eid: _content(1)})
+    mem.fail_next('get', ContentStorageError('timed out after 2.0s (ConnectTimeout)'))
+
+    items = [_item(eid, 10)]
+    report = store.hydrate(items)
+    assert items[0]['content'] == _content(1) and report.fetched == 1 and report.dropped == 0
+    assert len(_warnings(caplog, 'exercise_content.fetch_retry path=zh/10.v0.json')) == 1
+    assert mem.calls_for('get') == ['zh/10.v0.json', 'zh/10.v0.json']
+
+
 def test_a_fetch_error_is_logged_and_retried_by_the_next_call(monkeypatch, caplog):
     caplog.set_level(logging.WARNING, logger=LOGGER)
     mem = _mode(monkeypatch, 'storage')
     eid = _uuid()
     _seed(mem, 10, {eid: _content(1)})
+    mem.fail_next('get', ContentStorageError('HTTP 503'))   # the GET and its one retry
     mem.fail_next('get', ContentStorageError('HTTP 503'))
 
     items = [_item(eid, 10)]

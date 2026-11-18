@@ -228,8 +228,18 @@ def _forget_corrupt(key: tuple, path: str, exc: Exception, lru, neg) -> None:
 
 def _fetch_one(backend, key: tuple, path: str, lru, neg) -> bytes | None:
     """Runs on the fetch pool. Fills the caches itself, so a GET that finishes
-    after the caller's deadline still warms the next call."""
-    data = backend.get(path)
+    after the caller's deadline still warms the next call.
+
+    A failed GET (timeout, connection error, 5xx: ``ContentStorageError``) is
+    retried once. A not-found answer is not an error and is never retried.
+    Production 2026-11-18: one of seven cold GETs from Railway never reached
+    Supabase, and only the DB fallback (gone after the cut-over) hid it.
+    """
+    try:
+        data = backend.get(path)
+    except ContentStorageError as exc:
+        logger.warning('exercise_content.fetch_retry path=%s %s', path, exc)
+        data = backend.get(path)
     if data is None:
         if neg is not None:
             neg.add(key)
