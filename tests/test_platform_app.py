@@ -68,6 +68,7 @@ EXPECTED_PAGE_URLS = {
     'flashcards': '/flashcards',
     'word_list_page': '/word-list',
     'calibration_page': '/calibration',
+    'placement_page': '/placement',
     'classifier_drill_page': '/classifier-drill',
     'counter_drill_page': '/counter-drill',
     'dual_translation_page': '/dual-translation',

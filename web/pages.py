@@ -21,6 +21,9 @@ PAGES = (
     ('/flashcards', 'flashcards', 'flashcards.html'),
     ('/word-list', 'word_list_page', 'word_list.html'),
     ('/calibration', 'calibration_page', 'calibration.html'),
+    # No feature flag here: the placement API answers 404 for a language that
+    # is not in PLACEMENT_ENABLED_LANGS, and the page then says "not available".
+    ('/placement', 'placement_page', 'placement.html'),
     ('/classifier-drill', 'classifier_drill_page', 'classifier_drill.html'),
     ('/counter-drill', 'counter_drill_page', 'counter_drill.html'),
     ('/dual-translation', 'dual_translation_page', 'dual_translation.html'),
