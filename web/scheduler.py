@@ -89,6 +89,11 @@ JOBS = (
         'services.word_list_import.sweep_cron:run_watchlist_sweep',
         {'hour': 4, 'minute': 20}, 'Word-upload watchlist sweep', _log_skippable,
         _admin_client),
+    # 04:30 placement close: abandoned placements (idle 24 h) get their frozen
+    # result and their evidence write (vocab-placement tech §14, TASK-1088).
+    Job('placement_close_stale_nightly',
+        'services.calibration_placement:run_nightly_close',
+        {'hour': 4, 'minute': 30}, 'Placement close stale', _log_skippable),
     Job('study_plan_weekly_recompute',
         'services.study_plan_service:_run_weekly_plan_recompute',
         {'day_of_week': 'sun', 'hour': 23, 'minute': 0}, 'Weekly Study Plan recompute'),

@@ -231,3 +231,14 @@ def test_rate_limits_registered():
 
 def test_config_cap_matches_owner_answer():
     assert pd.cap_for(1) == 60 and pd.cap_for(3) == 60 and pd.cap_for(2) == 40
+
+
+def test_nightly_close_job(fake, monkeypatch):
+    out = cp.start(USER, 3, 2)
+    fake.sessions[out['session_id']]['last_activity'] -= timedelta(hours=30)
+    assert cp.run_nightly_close() == {'closed': 1}
+    monkeypatch.setattr(cp.Config, 'PLACEMENT_ENABLED_LANGS', '')
+    assert cp.run_nightly_close()['skipped']
+    from web.scheduler import JOBS
+    job = next(j for j in JOBS if j.id == 'placement_close_stale_nightly')
+    assert job.target == 'services.calibration_placement:run_nightly_close'
