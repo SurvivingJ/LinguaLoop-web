@@ -72,6 +72,7 @@ EXPECTED_PAGE_URLS = {
     'counter_drill_page': '/counter-drill',
     'dual_translation_page': '/dual-translation',
     'dual_translation_profile_page': '/dual-translation/profile',
+    'knowledge_page': '/knowledge',
     'admin_vocab_preview': '/admin/vocab-preview',
     'logout': '/logout',
 }

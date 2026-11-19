@@ -183,6 +183,30 @@ def test_rate_limits_are_registered_as_specified():
     assert ENDPOINT_LIMITS['knowledge.prestudy_suggestion'][0][0] == '30 per minute; 300 per hour'
 
 
+# ---------------------------------------------------------------- page and Me row (TASK-1040)
+
+def test_knowledge_page_serves_its_template(app, client):
+    resp = client.get('/knowledge')
+    assert resp.status_code == 200
+    html = resp.get_data(as_text=True)
+    for element_id in ('knEstimate', 'knGroups', 'knGrowth', 'knSkills', 'knNext', 'knProTeaser', 'knSheet'):
+        assert f'id="{element_id}"' in html
+    assert 'js/pages/knowledge.js' in html and 'css/pages/knowledge.css' in html
+    stage = html[html.index('ld-screen kn-page'):html.index('id="knSheet"')]
+    assert 'style=' not in stage                                   # tokens and classes only
+
+
+def test_me_row_is_first_and_only_with_the_flag(app, client):
+    app.config['KNOWLEDGE_REPORT_ENABLED'] = False
+    assert 'meKnowledgeRow' not in client.get('/profile').get_data(as_text=True)
+    app.config['KNOWLEDGE_REPORT_ENABLED'] = True
+    html = client.get('/profile').get_data(as_text=True)
+    hub = html[html.index('me-links'):]
+    assert 'meKnowledgeRow' in hub
+    assert hub.index('meKnowledgeRow') < hub.index('href="/study-plan"')     # first study tool
+    assert 'data-i18n="common.nav.knowledge"' in html and 'data-i18n="me.knowledge_sub"' in html
+
+
 # ---------------------------------------------------------------- prestudy suggestion (TASK-1041)
 
 def test_prestudy_suggestion_route_returns_the_suggestion(learner, client, fake_db, monkeypatch):
